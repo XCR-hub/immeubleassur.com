@@ -4,11 +4,12 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "check": "node --check assets/app.js && node --check functions/api/leads.js",
-    "dev": "wrangler pages dev . --compatibility-date=2026-07-19",
+    "check": "node --check public/assets/app.js",
+    "dev": "wrangler pages dev public --compatibility-date=2026-07-19",
     "db:init": "wrangler d1 execute immeubleassur-db --local --file=./schema.sql",
     "db:remote": "wrangler d1 execute immeubleassur-db --remote --file=./schema.sql",
-    "deploy": "wrangler pages deploy . --project-name=immeubleassur-com"
+    "deploy": "wrangler pages deploy public --project-name=immeubleassur-com",
+    "check:functions": "node --check functions/api/leads.js"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
