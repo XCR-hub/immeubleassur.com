@@ -1,0 +1,8 @@
+name = "immeubleassur-com"
+compatibility_date = "2026-07-19"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "immeubleassur-db"
+database_id = "TO_REPLACE_WITH_CLOUDFLARE_D1_DATABASE_ID"

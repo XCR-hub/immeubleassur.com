@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://immeubleassur.com/sitemap.xml
