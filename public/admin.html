@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/styles.css" />
+    <title>Admin leads - ImmeubleAssur</title>
+  </head>
+  <body class="plain-page">
+    
+    <header class="site-header" data-elevate>
+      <a class="brand" href="/" aria-label="ImmeubleAssur accueil">
+        <span class="brand-mark" aria-hidden="true">IA</span>
+        <span><strong>ImmeubleAssur</strong><small>courtier immeuble</small></span>
+      </a>
+      <nav class="nav" aria-label="Navigation principale">
+        <a href="/assurance-immeuble.html">Immeuble</a>
+        <a href="/assurance-copropriete.html">Copropriete</a>
+        <a href="/assurance-pno.html">PNO</a>
+        <a href="/villes.html">Villes</a>
+        <a href="/blog.html">Blog</a>
+        <a href="/devis-assurance-immeuble.html">Devis</a>
+      </nav>
+      <a class="header-phone" href="tel:+33180855786">01 80 85 57 86</a>
+    </header>
+    <main class="plain-main">
+      <h1>Leads immeuble</h1>
+      <p>Acces protege par le secret Cloudflare Pages ADMIN_API_TOKEN.</p>
+      <section class="plain-panel">
+        <form class="admin-toolbar" id="admin-form">
+          <label>Token admin<input id="admin-token" type="password" autocomplete="current-password" required placeholder="Token admin" /></label>
+          <button class="submit-button" type="submit">Charger</button>
+        </form>
+        <p class="form-status" role="status" aria-live="polite"></p>
+      </section>
+      <section class="admin-table-wrap" aria-label="Derniers leads">
+        <table class="admin-table">
+          <thead><tr><th>Date</th><th>Reference</th><th>Contact</th><th>Profil</th><th>Bien</th><th>Ville</th><th>Score</th><th>Message</th></tr></thead>
+          <tbody id="leads-body"><tr><td colspan="8">Aucun chargement effectue.</td></tr></tbody>
+        </table>
+      </section>
+    </main>
+    <script src="/assets/admin.js" type="module"></script>
+  </body>
+</html>

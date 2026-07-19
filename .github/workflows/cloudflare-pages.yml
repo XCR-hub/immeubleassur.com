@@ -15,6 +15,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate static pages
+        run: node scripts/generate-site.js
+
+      - name: Validate JavaScript
+        run: npm run check
+
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
