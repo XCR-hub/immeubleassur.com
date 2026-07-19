@@ -30,6 +30,8 @@ CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status);
 CREATE INDEX IF NOT EXISTS idx_leads_email ON leads(email);
 CREATE INDEX IF NOT EXISTS idx_leads_city ON leads(city);
 CREATE INDEX IF NOT EXISTS idx_leads_score ON leads(lead_score DESC);
+CREATE INDEX IF NOT EXISTS idx_leads_need ON leads(need);
+CREATE INDEX IF NOT EXISTS idx_leads_need_created_at ON leads(need, created_at DESC);
 
 CREATE TABLE IF NOT EXISTS lead_events (
   id TEXT PRIMARY KEY,
@@ -85,6 +87,9 @@ CREATE INDEX IF NOT EXISTS idx_site_events_created_at ON site_events(created_at 
 CREATE INDEX IF NOT EXISTS idx_site_events_event_type ON site_events(event_type);
 CREATE INDEX IF NOT EXISTS idx_site_events_session_id ON site_events(session_id);
 CREATE INDEX IF NOT EXISTS idx_site_events_lead_reference ON site_events(lead_reference);
+CREATE INDEX IF NOT EXISTS idx_site_events_type_created_at ON site_events(event_type, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_site_events_page_url ON site_events(page_url);
+CREATE INDEX IF NOT EXISTS idx_site_events_target ON site_events(target);
 CREATE TABLE IF NOT EXISTS seo_runs (
   id TEXT PRIMARY KEY,
   source TEXT NOT NULL,

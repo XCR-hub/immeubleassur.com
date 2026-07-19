@@ -1,4 +1,4 @@
-﻿import { connect } from "cloudflare:sockets";
+import { connect } from "cloudflare:sockets";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -48,6 +48,18 @@ function validate(payload) {
   if (clean(payload.phone).replace(/\D/g, "").length < 9) return "Telephone invalide";
   if (payload.consent !== true) return "Consentement requis";
   return "";
+}
+
+function cleanUtm(raw = {}) {
+  return {
+    utm_source: clean(raw.utm_source, 120),
+    utm_medium: clean(raw.utm_medium, 120),
+    utm_campaign: clean(raw.utm_campaign, 180),
+    utm_term: clean(raw.utm_term, 180),
+    utm_content: clean(raw.utm_content, 180),
+    landing_page: clean(raw.landing_page, 500),
+    first_referrer: clean(raw.first_referrer, 500)
+  };
 }
 
 function parseRecipients(value) {
@@ -166,7 +178,9 @@ function buildLeadEmail({ id, reference, score, record, now }) {
     record.message || "Aucun message.",
     "",
     `Page: ${record.page_url || "non precisee"}`,
+    `Landing: ${record.utm?.landing_page || "non precisee"}`,
     `Source: ${record.source || "website"}`,
+    `Campagne: ${record.utm?.utm_campaign || "non precisee"}`,
     `Lead ID: ${id}`
   ].join("\n");
   return { subject, text };
@@ -307,7 +321,8 @@ export async function onRequestPost({ request, env }) {
     message: clean(payload.message, 2000),
     source: clean(payload.source || "website", 80),
     page_url: clean(payload.page_url, 500),
-    referrer: clean(payload.referrer, 500)
+    referrer: clean(payload.referrer, 500),
+    utm: cleanUtm(payload.utm || {})
   };
 
   try {
@@ -341,7 +356,7 @@ export async function onRequestPost({ request, env }) {
       )
       .run();
 
-    await logLeadEvent(env, id, "lead_created", { reference, score, source: record.source }, now);
+    await logLeadEvent(env, id, "lead_created", { reference, score, source: record.source, page_url: record.page_url, referrer: record.referrer, utm: record.utm }, now);
 
     let notification = { attempted: false, status: "skipped" };
     try {

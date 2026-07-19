@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-07-19T14:46:03.374Z",
+  "tracked_events": [
+    "cta_click",
+    "email_click",
+    "form_quality_ready",
+    "form_start",
+    "form_submit_attempt",
+    "lead_created",
+    "lead_form_abandoned",
+    "lead_submit_error",
+    "lead_submit_local_backup",
+    "page_view",
+    "phone_click",
+    "risk_router_select",
+    "scroll_depth"
+  ],
+  "allowed_events": [
+    "cta_click",
+    "email_click",
+    "form_quality_ready",
+    "form_start",
+    "form_submit_attempt",
+    "lead_created",
+    "lead_form_abandoned",
+    "lead_submit_error",
+    "lead_submit_local_backup",
+    "page_view",
+    "phone_click",
+    "risk_router_select",
+    "scroll_depth"
+  ],
+  "missing": [],
+  "unused_front_optional": [],
+  "status": "passed"
+}

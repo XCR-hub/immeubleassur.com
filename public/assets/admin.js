@@ -102,17 +102,30 @@ async function loadSeo() {
   }
 
   const publicReport = await fetchPublicSeoReport();
+  const funnel = apiResult?.conversion_funnel || {};
+  const leadStats = apiResult?.lead_stats || {};
+  const expansion = publicReport.opportunity_expansion || {};
   if (seoSummary) {
     seoSummary.replaceChildren(
       metricCard("Pages controlees", String(publicReport.pages_checked || 0)),
       metricCard("Score moyen", String(publicReport.average_score || 0)),
       metricCard("Opportunites", String(publicReport.opportunities_count || 0)),
+      metricCard("Pages enrichies", String(expansion.pages_expanded || 0), `${expansion.words_added_estimate || 0} mots`),
       metricCard("Auto-fixes", String(publicReport.auto_fix?.fixes_applied || 0), `${publicReport.auto_fix?.pages_changed || 0} page(s)`),
-      metricCard("Leads 30j", String(apiResult?.lead_stats?.leads_30d || 0), apiResult?.latest_run?.status || "rapport build")
+      metricCard("Leads 30j", String(leadStats.leads_30d || 0), `score ${Math.round(leadStats.avg_score || 0)}`),
+      metricCard("Leads chauds", String(leadStats.hot_leads_30d || 0), "score 80+"),
+      metricCard("CTA -> formulaire", `${funnel.cta_to_form_rate || 0}%`, `${funnel.cta_clicks || 0} clics`),
+      metricCard("Formulaire -> lead", `${funnel.form_to_lead_rate || 0}%`, `${funnel.form_starts || 0} starts`),
+      metricCard("Abandons", `${funnel.abandon_rate || 0}%`, `${funnel.abandoned_forms || 0} signaux`)
     );
   }
 
-  const rows = apiResult?.opportunities?.length ? apiResult.opportunities : (publicReport.top_opportunities || []);
+  const fallbackRows = [
+    ...(apiResult?.top_landing_pages || []).slice(0, 10).map((item) => ({ score: item.count, opportunity_type: "landing", url: item.landing_page, query: "trafic 30j", recommendation: "Surveiller le passage vers formulaire et lead." })),
+    ...(apiResult?.leads_by_need || []).slice(0, 5).map((item) => ({ score: item.count, opportunity_type: "besoin", url: item.need, query: `score moyen ${Math.round(item.avg_score || 0)}`, recommendation: "Prioriser les contenus et CTA de ce besoin." })),
+    ...(apiResult?.leads_by_city || []).slice(0, 5).map((item) => ({ score: item.count, opportunity_type: "ville", url: item.city, query: `score moyen ${Math.round(item.avg_score || 0)}`, recommendation: "Renforcer maillage local si la demande progresse." }))
+  ];
+  const rows = apiResult?.opportunities?.length ? apiResult.opportunities : ((publicReport.top_opportunities || []).length ? publicReport.top_opportunities : fallbackRows);
   renderSeoTable(rows);
 }
 

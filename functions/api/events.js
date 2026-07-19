@@ -15,7 +15,11 @@ const allowedEvents = new Set([
   "lead_submit_error",
   "lead_submit_local_backup",
   "phone_click",
-  "email_click"
+  "email_click",
+  "form_quality_ready",
+  "risk_router_select",
+  "scroll_depth",
+  "lead_form_abandoned"
 ]);
 
 function json(body, status = 200) {
@@ -54,7 +58,15 @@ export async function onRequestPost({ request, env }) {
     lead_reference: clean(payload.lead_reference, 80),
     score: clean(payload.score, 20),
     notification: clean(payload.notification, 80),
-    viewport: clean(payload.viewport, 80)
+    viewport: clean(payload.viewport, 80),
+    source: clean(payload.source, 120),
+    utm_source: clean(payload.utm_source, 120),
+    utm_medium: clean(payload.utm_medium, 120),
+    utm_campaign: clean(payload.utm_campaign, 180),
+    utm_term: clean(payload.utm_term, 180),
+    utm_content: clean(payload.utm_content, 180),
+    landing_page: clean(payload.landing_page, 500),
+    first_referrer: clean(payload.first_referrer, 500)
   };
 
   await env.DB.prepare(

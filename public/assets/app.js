@@ -3,9 +3,14 @@ const statusBox = document.querySelector(".form-status");
 
 const requiredFields = ["name", "phone", "email", "profile", "property_type", "city"];
 const sessionKey = "immeubleassur_session_id";
+const attributionKey = "immeubleassur_attribution";
 const sessionId = getSessionId();
+captureAttribution();
 let formStarted = false;
+let formSubmitted = false;
 let qualityEventSent = false;
+let abandonEventSent = false;
+const scrollDepthSent = new Set();
 
 function getSessionId() {
   const existing = sessionStorage.getItem(sessionKey);
@@ -29,6 +34,7 @@ function eventPayload(eventType, data = {}) {
     path: window.location.pathname,
     referrer: document.referrer || "",
     viewport: `${window.innerWidth}x${window.innerHeight}`,
+    ...attributionPayload(),
     ...data
   };
 }
@@ -47,10 +53,57 @@ function track(eventType, data = {}) {
   }).catch(() => {});
 }
 
+function attributionKeys() {
+  return ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "gbraid", "wbraid"];
+}
+
+function parseStoredAttribution() {
+  try {
+    return JSON.parse(sessionStorage.getItem(attributionKey) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function captureAttribution() {
+  const params = new URLSearchParams(window.location.search);
+  const current = Object.fromEntries(attributionKeys().map((key) => [key, params.get(key) || ""]).filter(([, value]) => value));
+  const existing = parseStoredAttribution();
+  const hasCurrent = Object.keys(current).length > 0;
+  const next = {
+    ...existing,
+    utm: hasCurrent ? { ...(existing.utm || {}), ...current } : (existing.utm || {}),
+    landing_page: existing.landing_page || window.location.href,
+    first_referrer: existing.first_referrer || document.referrer || "",
+    captured_at: existing.captured_at || new Date().toISOString()
+  };
+  sessionStorage.setItem(attributionKey, JSON.stringify(next));
+}
+
 function readUtm() {
   const params = new URLSearchParams(window.location.search);
-  const keys = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "gbraid", "wbraid"];
-  return Object.fromEntries(keys.map((key) => [key, params.get(key) || ""]).filter(([, value]) => value));
+  const current = Object.fromEntries(attributionKeys().map((key) => [key, params.get(key) || ""]).filter(([, value]) => value));
+  const stored = parseStoredAttribution();
+  return {
+    ...(stored.utm || {}),
+    ...current,
+    landing_page: stored.landing_page || window.location.href,
+    first_referrer: stored.first_referrer || document.referrer || ""
+  };
+}
+
+function attributionPayload() {
+  const utm = readUtm();
+  return {
+    source: utm.utm_source || document.body.dataset.intent || inferIntent(),
+    utm_source: utm.utm_source || "",
+    utm_medium: utm.utm_medium || "",
+    utm_campaign: utm.utm_campaign || "",
+    utm_term: utm.utm_term || "",
+    utm_content: utm.utm_content || "",
+    landing_page: utm.landing_page || "",
+    first_referrer: utm.first_referrer || ""
+  };
 }
 
 function readForm(formElement) {
@@ -280,6 +333,48 @@ function enhanceHeader() {
   document.addEventListener("scroll", toggle, { passive: true });
 }
 
+function bindScrollDepthTracking() {
+  if (window.location.pathname.includes("/admin")) return;
+  let ticking = false;
+  const check = () => {
+    ticking = false;
+    const doc = document.documentElement;
+    const scrollable = Math.max(1, doc.scrollHeight - window.innerHeight);
+    const depth = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
+    for (const mark of [50, 90]) {
+      if (depth >= mark && !scrollDepthSent.has(mark)) {
+        scrollDepthSent.add(mark);
+        track("scroll_depth", { target: String(mark), label: window.location.pathname });
+      }
+    }
+  };
+  document.addEventListener("scroll", () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(check);
+  }, { passive: true });
+  check();
+}
+
+function trackFormAbandonment(reason) {
+  if (!form || !formStarted || formSubmitted || abandonEventSent) return;
+  const payload = readForm(form);
+  const hasContact = Boolean(payload.name || payload.phone || payload.email || payload.city || payload.message);
+  if (!hasContact) return;
+  abandonEventSent = true;
+  track("lead_form_abandoned", {
+    target: payload.need || "unknown",
+    label: reason,
+    score: String(leadQuality(payload))
+  });
+}
+
+function bindFormAbandonment() {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") trackFormAbandonment("visibility_hidden");
+  });
+  window.addEventListener("pagehide", () => trackFormAbandonment("pagehide"));
+}
 function bindGrowthTracking() {
   track("page_view", { target: document.title, label: document.body.dataset.intent || inferIntent() });
 
@@ -334,6 +429,7 @@ form?.addEventListener("submit", async (event) => {
       throw new Error(result.error || "Envoi impossible pour le moment.");
     }
 
+    formSubmitted = true;
     localBackup(payload, result);
     form.reset();
     setStatus(`Demande recue. Reference ${result.reference}. Un conseiller vous rappelle rapidement.`, "ok");
@@ -363,4 +459,6 @@ mountFormAdvisor();
 mountFormProof();
 mountRiskRouter();
 enhanceHeader();
+bindScrollDepthTracking();
+bindFormAbandonment();
 bindGrowthTracking();
