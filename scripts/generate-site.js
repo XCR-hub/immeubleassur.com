@@ -1,4 +1,5 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const SITE = "https://immeubleassur.com";
@@ -7,6 +8,16 @@ const PHONE = "01 80 85 57 86";
 const PHONE_HREF = "+33180855786";
 const EMAIL = "team@immeubleassur.com";
 const ORIAS = "11 061 425";
+
+function versionedAsset(path) {
+  const file = join(OUT, ...path.replace(/^\//, "").split("/"));
+  const hash = createHash("sha256").update(readFileSync(file)).digest("hex").slice(0, 10);
+  return `${path}?v=${hash}`;
+}
+
+const STYLES_URL = versionedAsset("/assets/styles.css");
+const APP_JS_URL = versionedAsset("/assets/app.js");
+const ADMIN_JS_URL = versionedAsset("/assets/admin.js");
 
 const servicePages = [
   {
@@ -555,7 +566,7 @@ function layout({ slug, title, description, body, canonical, schema = "" }) {
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
     <link rel="preload" as="image" href="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1400&q=70" crossorigin />
-    <link rel="stylesheet" href="/assets/styles.css" />
+    <link rel="stylesheet" href="${STYLES_URL}" />
     <title>${esc(title)} | ImmeubleAssur</title>
     ${schema}
   </head>
@@ -566,7 +577,7 @@ function layout({ slug, title, description, body, canonical, schema = "" }) {
       ${body}
     </main>
     ${footer()}
-    <script src="/assets/app.js" type="module"></script>
+    <script src="${APP_JS_URL}" type="module"></script>
   </body>
 </html>`;
 }
@@ -819,7 +830,7 @@ function adminPage() {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/styles.css" />
+    <link rel="stylesheet" href="${STYLES_URL}" />
     <title>Admin leads - ImmeubleAssur</title>
   </head>
   <body class="plain-page">
@@ -841,7 +852,7 @@ function adminPage() {
         </table>
       </section>
     </main>
-    <script src="/assets/admin.js" type="module"></script>
+    <script src="${ADMIN_JS_URL}" type="module"></script>
   </body>
 </html>`;
 }
