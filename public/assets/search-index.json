@@ -1,5 +1,15 @@
 [
   {
+    "title": "Assurance CNO coproprietaire non occupant",
+    "description": "Devis assurance CNO pour coproprietaire non occupant: responsabilite civile, lot vacant ou loue, syndic, bailleur et copropriete.",
+    "url": "/assurance-cno"
+  },
+  {
+    "title": "Assurance coproprietaire non occupant",
+    "description": "Assurance coproprietaire non occupant: obligations, PNO-CNO, garanties utiles et devis pour bailleurs en copropriete.",
+    "url": "/assurance-coproprietaire-non-occupant"
+  },
+  {
     "title": "Assurance copropriete",
     "description": "Assurance copropriete: RC syndicat, multirisque immeuble, protection juridique et audit de contrat pour conseils syndicaux.",
     "url": "/assurance-copropriete"
@@ -210,7 +220,7 @@
     "url": "/assurance-immeuble-limoges"
   },
   {
-    "title": "Assurance immeuble locatif",
+    "title": "Assurance immeuble locatif bailleur",
     "description": "Assurance immeuble locatif: multirisque, responsabilite civile, vacance, degats des eaux, parties communes et lots loues.",
     "url": "/assurance-immeuble-locatif"
   },
@@ -405,22 +415,27 @@
     "url": "/assurance-immeuble-villeurbanne"
   },
   {
-    "title": "Assurance immeuble",
+    "title": "Assurance immeuble multirisque pour bailleurs",
     "description": "Courtier specialiste assurance immeuble: multirisque, responsabilite civile, PNO, sinistres et audit de garanties.",
     "url": "/assurance-immeuble"
   },
   {
-    "title": "Assurance local commercial",
+    "title": "Assurance local commercial bailleur",
     "description": "Assurance local commercial et immeuble mixte: bailleur, copropriete, commerce en rez-de-chaussee, responsabilite et dommages.",
     "url": "/assurance-local-commercial"
   },
   {
-    "title": "Assurance PNO",
+    "title": "Assurance PNO CNO pour bailleurs et SCI",
+    "description": "Comparer assurance PNO et CNO: proprietaire non occupant, coproprietaire non occupant, SCI, lots vacants et portefeuille locatif.",
+    "url": "/assurance-pno-cno"
+  },
+  {
+    "title": "Assurance PNO proprietaire non occupant",
     "description": "Assurance PNO bailleur et SCI: garanties essentielles, vacance locative, copropriete, recours locataire et protection du patrimoine.",
     "url": "/assurance-pno"
   },
   {
-    "title": "Assurance SCI",
+    "title": "Assurance SCI patrimoine immobilier",
     "description": "Assurance SCI: immeuble locatif, PNO, multirisque, locaux mixtes et gestion du risque immobilier patrimonial.",
     "url": "/assurance-sci"
   },
@@ -490,6 +505,11 @@
     "url": "/blog/assurance-immeuble-vacant"
   },
   {
+    "title": "Lot vacant en copropriete: pourquoi verifier la PNO CNO",
+    "description": "Vacance locative, responsabilite, degat des eaux et exclusions: les points a verifier pour un lot non occupe.",
+    "url": "/blog/assurance-lot-vacant-copropriete"
+  },
+  {
     "title": "Parkings et garages en copropriete: comment les assurer",
     "description": "Boxes, parkings ouverts, sous-sols, infiltrations et responsabilite: ce qui change dans le dossier assureur.",
     "url": "/blog/assurance-parking-garages-copropriete"
@@ -513,6 +533,11 @@
     "title": "Checklist degat des eaux immeuble: pieces a reunir",
     "description": "Photos, recherche de fuite, declaration, factures et responsabilites: gagner du temps apres sinistre.",
     "url": "/blog/checklist-sinistre-degat-des-eaux"
+  },
+  {
+    "title": "CNO coproprietaire non occupant: quand l'assurance devient indispensable",
+    "description": "Responsabilite civile, lot loue ou vacant, syndic et assurance immeuble: comprendre le role de la CNO.",
+    "url": "/blog/cno-coproprietaire-non-occupant-obligatoire"
   },
   {
     "title": "Petite copropriete avec syndic benevole: quel contrat assurance choisir ?",
@@ -558,6 +583,11 @@
     "title": "PNO bailleur: pourquoi elle reste utile en copropriete",
     "description": "La PNO complete les assurances occupant et immeuble. Voici les cas ou elle protege le proprietaire.",
     "url": "/blog/pno-bailleur-copropriete"
+  },
+  {
+    "title": "PNO ou CNO: differences, garanties et choix du contrat",
+    "description": "Comparer PNO et CNO pour choisir une assurance adaptee au lot, a l'immeuble et au statut du proprietaire.",
+    "url": "/blog/pno-cno-differences-garanties"
   },
   {
     "title": "PNO obligatoire en copropriete: ce qu'un bailleur doit retenir",
@@ -638,6 +668,11 @@
     "title": "Devis assurance immeuble",
     "description": "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec ImmeubleAssur.",
     "url": "/devis-assurance-immeuble"
+  },
+  {
+    "title": "Devis PNO CNO immeuble",
+    "description": "Demander un devis PNO CNO pour lot en copropriete, logement vacant, SCI, bailleur ou portefeuille de biens immobiliers.",
+    "url": "/devis-pno-cno"
   },
   {
     "title": "Dommages ouvrage immeuble",
@@ -723,6 +758,11 @@
     "title": "Multirisque immeuble",
     "description": "Multirisque immeuble pour copropriete, SCI et immeuble locatif: RC, dommages, degats des eaux, incendie et protection juridique.",
     "url": "/multirisque-immeuble"
+  },
+  {
+    "title": "Hub assurance PNO CNO immeuble",
+    "description": "Hub assurance PNO CNO immeuble: devis, guides, differences PNO/CNO et pages specialisees pour proprietaires non occupants.",
+    "url": "/pno-cno"
   },
   {
     "title": "Prix assurance immeuble",

@@ -11,7 +11,7 @@ const ORIAS = "11 061 425";
 const servicePages = [
   {
     slug: "assurance-immeuble",
-    title: "Assurance immeuble",
+    title: "Assurance immeuble multirisque pour bailleurs",
     h1: "Assurance immeuble pour bailleurs, SCI et coproprietes.",
     description:
       "Courtier specialiste assurance immeuble: multirisque, responsabilite civile, PNO, sinistres et audit de garanties.",
@@ -51,7 +51,7 @@ const servicePages = [
   },
   {
     slug: "assurance-pno",
-    title: "Assurance PNO",
+    title: "Assurance PNO proprietaire non occupant",
     h1: "Assurance PNO pour proprietaire non occupant.",
     description:
       "Assurance PNO bailleur et SCI: garanties essentielles, vacance locative, copropriete, recours locataire et protection du patrimoine.",
@@ -111,7 +111,7 @@ const servicePages = [
   },
   {
     slug: "assurance-sci",
-    title: "Assurance SCI",
+    title: "Assurance SCI patrimoine immobilier",
     h1: "Assurance SCI pour patrimoine immobilier locatif.",
     description:
       "Assurance SCI: immeuble locatif, PNO, multirisque, locaux mixtes et gestion du risque immobilier patrimonial.",
@@ -151,7 +151,7 @@ const servicePages = [
   },
   {
     slug: "assurance-immeuble-locatif",
-    title: "Assurance immeuble locatif",
+    title: "Assurance immeuble locatif bailleur",
     h1: "Assurance immeuble locatif pour bailleurs et administrateurs de biens.",
     description:
       "Assurance immeuble locatif: multirisque, responsabilite civile, vacance, degats des eaux, parties communes et lots loues.",
@@ -171,7 +171,7 @@ const servicePages = [
   },
   {
     slug: "assurance-local-commercial",
-    title: "Assurance local commercial",
+    title: "Assurance local commercial bailleur",
     h1: "Assurance immeuble avec local commercial.",
     description:
       "Assurance local commercial et immeuble mixte: bailleur, copropriete, commerce en rez-de-chaussee, responsabilite et dommages.",
@@ -446,6 +446,7 @@ function nav() {
         <a href="/assurance-immeuble.html">Immeuble</a>
         <a href="/assurance-copropriete.html">Copropriete</a>
         <a href="/assurance-pno.html">PNO</a>
+        <a href="/assurance-cno.html">CNO</a>
         <a href="/villes.html">Villes</a>
         <a href="/blog.html">Blog</a>
                 <a href="/faq.html">FAQ</a>
@@ -517,6 +518,8 @@ function leadForm(defaults = {}) {
           <option value="multirisque-immeuble"${selected("need", "multirisque-immeuble")}>Multirisque immeuble</option>
           <option value="copropriete"${selected("need", "copropriete")}>Assurance copropriete</option>
           <option value="pno"${selected("need", "pno")}>PNO bailleur</option>
+          <option value="cno"${selected("need", "cno")}>CNO coproprietaire non occupant</option>
+          <option value="pno-cno"${selected("need", "pno-cno")}>Comparer PNO/CNO</option>
           <option value="rc-syndic"${selected("need", "rc-syndic")}>RC syndic / conseil syndical</option>
           <option value="dommages-ouvrage"${selected("need", "dommages-ouvrage")}>Dommages ouvrage</option>
           <option value="audit-contrat"${selected("need", "audit-contrat")}>Audit contrat existant</option>

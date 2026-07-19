@@ -993,3 +993,69 @@ address a {
     flex-direction: column;
   }
 }
+.pno-cno-hero {
+  border-bottom: 1px solid #d6e4e2;
+}
+
+.pno-cno-band,
+.pno-cno-cluster {
+  background: #f0fdfa;
+}
+
+.pno-cno-form .form-heading p {
+  color: #0f766e;
+}
+
+.lead-action-bar {
+  align-items: center;
+  background: rgba(15, 23, 42, .96);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 8px;
+  bottom: 1rem;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, .28);
+  color: #ffffff;
+  display: flex;
+  gap: .75rem;
+  left: 50%;
+  max-width: min(680px, calc(100vw - 2rem));
+  padding: .7rem;
+  position: fixed;
+  transform: translateX(-50%);
+  width: max-content;
+  z-index: 50;
+}
+
+.lead-action-bar span {
+  font-weight: 800;
+  padding: 0 .3rem;
+  white-space: nowrap;
+}
+
+.lead-action-bar .button {
+  min-height: 40px;
+  padding: .65rem .85rem;
+}
+
+body:has(.lead-action-bar) {
+  padding-bottom: 5.5rem;
+}
+
+@media (max-width: 640px) {
+  .lead-action-bar {
+    align-items: stretch;
+    bottom: .5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: calc(100vw - 1rem);
+  }
+
+  .lead-action-bar span {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
+  .lead-action-bar .button {
+    justify-content: center;
+    text-align: center;
+  }
+}

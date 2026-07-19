@@ -1,4 +1,4 @@
-import { connect } from "cloudflare:sockets";
+﻿import { connect } from "cloudflare:sockets";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,10 +22,19 @@ function headerSafe(value, max = 240) {
 function scoreLead(payload) {
   let score = 20;
   const units = Number.parseInt(payload.units_count || "0", 10);
+  const need = clean(payload.need, 80);
+  const profile = clean(payload.profile, 80);
+  const propertyType = clean(payload.property_type, 80);
+  const source = clean(payload.source, 80);
+
+  if (units >= 2) score += 8;
   if (units >= 10) score += 20;
   if (units >= 40) score += 20;
-  if (["syndic-professionnel", "administrateur-biens", "sci"].includes(payload.profile)) score += 15;
-  if (["multirisque-immeuble", "copropriete", "audit-contrat"].includes(payload.need)) score += 10;
+  if (["syndic-professionnel", "administrateur-biens", "sci"].includes(profile)) score += 15;
+  if (["multirisque-immeuble", "copropriete", "audit-contrat"].includes(need)) score += 10;
+  if (["pno", "cno", "pno-cno"].includes(need)) score += 18;
+  if (["lot-copropriete", "logement-vacant", "logement-loue", "local-commercial"].includes(propertyType)) score += 12;
+  if (/pno|cno|coproprietaire|non.?occupant/i.test(`${payload.message || ""} ${source}`)) score += 10;
   if (payload.message && payload.message.length > 40) score += 10;
   return Math.min(score, 100);
 }

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://immeubleassur.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://immeubleassur.com/assurance-cno</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://immeubleassur.com/assurance-coproprietaire-non-occupant</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/assurance-copropriete</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/assurance-immeuble</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/assurance-immeuble-agen</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -85,6 +87,7 @@
   <url><loc>https://immeubleassur.com/assurance-immeuble-villeurbanne</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/assurance-local-commercial</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/assurance-pno</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://immeubleassur.com/assurance-pno-cno</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/assurance-sci</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/audit-contrat-assurance-immeuble</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -100,11 +103,13 @@
   <url><loc>https://immeubleassur.com/blog/assurance-immeuble-protection-du-patrimoine</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/assurance-immeuble-sans-sinistre</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/assurance-immeuble-vacant</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://immeubleassur.com/blog/assurance-lot-vacant-copropriete</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/assurance-parking-garages-copropriete</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/assurance-sci-patrimoine-locatif</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/audit-franchises-assurance-immeuble</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/checklist-documents-devis-immeuble</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/checklist-sinistre-degat-des-eaux</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/copropriete-petite-syndic-benevole</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/dommages-ouvrage-copropriete-travaux</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -114,6 +119,7 @@
   <url><loc>https://immeubleassur.com/blog/multirisque-immeuble-vs-pno</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/pertes-de-loyers-immeuble</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/pno-bailleur-copropriete</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://immeubleassur.com/blog/pno-cno-differences-garanties</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/pno-obligatoire-copropriete</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/blog/prix-assurance-immeuble-au-m2</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -129,6 +135,7 @@
   <url><loc>https://immeubleassur.com/confidentialite</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/contact</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/devis-assurance-immeuble</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://immeubleassur.com/devis-pno-cno</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/dommages-ouvrage-immeuble</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/faq</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/faq/assurance-immeuble</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -145,6 +152,7 @@
   <url><loc>https://immeubleassur.com/mentions-legales</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/merci</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/multirisque-immeuble</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://immeubleassur.com/pno-cno</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/prix-assurance-immeuble</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/rc-syndic</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://immeubleassur.com/strategie-seo-continue</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>

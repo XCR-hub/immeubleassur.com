@@ -1,4 +1,4 @@
-const form = document.querySelector("#lead-form");
+﻿const form = document.querySelector("#lead-form");
 const statusBox = document.querySelector(".form-status");
 
 const requiredFields = ["name", "phone", "email", "profile", "property_type", "city"];
@@ -67,7 +67,7 @@ function readForm(formElement) {
     message: String(data.message || "").trim(),
     consent: data.consent === "on",
     company_website: String(data.company_website || "").trim(),
-    source: utm.utm_source || "website",
+    source: utm.utm_source || document.body.dataset.intent || "website",
     page_url: window.location.href,
     referrer: document.referrer || "",
     utm
@@ -90,6 +90,23 @@ function localBackup(payload, result) {
   localStorage.setItem(key, JSON.stringify(rows.slice(-25)));
 }
 
+
+function inferIntent() {
+  const path = window.location.pathname.toLowerCase();
+  if (path.includes("cno")) return "cno";
+  if (path.includes("pno")) return "pno";
+  if (path.includes("immeuble")) return "immeuble";
+  return "website";
+}
+
+function mountLeadBar() {
+  if (document.querySelector(".lead-action-bar") || window.location.pathname.includes("/admin") || window.location.pathname.includes("/merci")) return;
+  document.body.dataset.intent = inferIntent();
+  const bar = document.createElement("div");
+  bar.className = "lead-action-bar";
+  bar.innerHTML = `<span>Devis CNO/PNO/immeuble</span><a class="button primary" data-track="sticky-devis" href="/devis-pno-cno">Devis rapide</a><a class="button secondary" data-track="sticky-phone" href="tel:+33180855786">Appeler</a>`;
+  document.body.append(bar);
+}
 function bindGrowthTracking() {
   track("page_view", { target: document.title });
 
@@ -167,4 +184,5 @@ form?.addEventListener("submit", async (event) => {
   }
 });
 
+mountLeadBar();
 bindGrowthTracking();

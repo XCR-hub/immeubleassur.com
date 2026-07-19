@@ -13,6 +13,10 @@ const inspectUrls = args.has("--url-inspection") && !localOnly;
 const submitSitemap = args.has("--submit-sitemap") && !localOnly;
 
 const intentBacklog = [
+  ["assurance CNO", "assurance-cno"],
+  ["assurance coproprietaire non occupant", "assurance-coproprietaire-non-occupant"],
+  ["assurance PNO CNO", "assurance-pno-cno"],
+  ["devis PNO CNO", "devis-pno-cno"],
   ["assurance immeuble prix", "blog/prix-assurance-immeuble-au-m2"],
   ["assurance immeuble ancien", "blog/assurance-immeuble-ancien"],
   ["assurance copropriete syndic benevole", "blog/copropriete-petite-syndic-benevole"],
