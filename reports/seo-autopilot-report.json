@@ -1,331 +1,10 @@
 {
-  "generated_at": "2026-07-19T13:43:47.993Z",
+  "generated_at": "2026-07-19T14:26:53.118Z",
   "mode": "api",
   "pages_checked": 157,
-  "average_score": 98,
+  "average_score": 100,
   "weak_pages": [],
-  "opportunities": [
-    {
-      "id": "blog/assurance-copropriete-obligatoire-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/blog/assurance-copropriete-obligatoire",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "422 mots"
-    },
-    {
-      "id": "blog/assurance-immeuble-mixte-commerce-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "399 mots"
-    },
-    {
-      "id": "blog/assurance-sci-patrimoine-locatif-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/blog/assurance-sci-patrimoine-locatif",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "397 mots"
-    },
-    {
-      "id": "blog/checklist-documents-devis-immeuble-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "411 mots"
-    },
-    {
-      "id": "blog/franchise-degat-des-eaux-immeuble-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "427 mots"
-    },
-    {
-      "id": "blog/pno-bailleur-copropriete-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "434 mots"
-    },
-    {
-      "id": "blog/preparer-renouvellement-assurance-immeuble-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "418 mots"
-    },
-    {
-      "id": "blog/syndic-benevole-assurance-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/blog/syndic-benevole-assurance",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "404 mots"
-    },
-    {
-      "id": "checklist-documents-assurance-immeuble-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/checklist-documents-assurance-immeuble",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "385 mots"
-    },
-    {
-      "id": "comparateur-assurance-immeuble-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "380 mots"
-    },
-    {
-      "id": "contact-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/contact",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "339 mots"
-    },
-    {
-      "id": "devis-assurance-immeuble-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/devis-assurance-immeuble",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "332 mots"
-    },
-    {
-      "id": "faq/assurance-immeuble-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/faq/assurance-immeuble",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "437 mots"
-    },
-    {
-      "id": "faq/copropriete-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/faq/copropriete",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "436 mots"
-    },
-    {
-      "id": "faq/local-commercial-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/faq/local-commercial",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "440 mots"
-    },
-    {
-      "id": "faq/pno-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/faq/pno",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "441 mots"
-    },
-    {
-      "id": "faq/prix-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/faq/prix",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "438 mots"
-    },
-    {
-      "id": "faq/sci-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/faq/sci",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "435 mots"
-    },
-    {
-      "id": "faq/sinistres-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/faq/sinistres",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "431 mots"
-    },
-    {
-      "id": "faq/travaux-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/faq/travaux",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "436 mots"
-    },
-    {
-      "id": "guide-assurance-copropriete-2026-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/guide-assurance-copropriete-2026",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "369 mots"
-    },
-    {
-      "id": "guides-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/guides",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "295 mots"
-    },
-    {
-      "id": "merci-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/merci",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 35"
-    },
-    {
-      "id": "strategie-seo-continue-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/strategie-seo-continue",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "329 mots"
-    },
-    {
-      "id": "intent-1",
-      "type": "content-gap",
-      "query": "assurance immeuble prix",
-      "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-au-m2",
-      "score": 45,
-      "recommendation": "Creer ou renforcer un contenu utile autour de \"assurance immeuble prix\"."
-    },
-    {
-      "id": "intent-2",
-      "type": "content-gap",
-      "query": "assurance immeuble ancien",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-ancien",
-      "score": 45,
-      "recommendation": "Creer ou renforcer un contenu utile autour de \"assurance immeuble ancien\"."
-    },
-    {
-      "id": "intent-3",
-      "type": "content-gap",
-      "query": "assurance copropriete syndic benevole",
-      "url": "https://immeubleassur.com/blog/copropriete-petite-syndic-benevole",
-      "score": 45,
-      "recommendation": "Creer ou renforcer un contenu utile autour de \"assurance copropriete syndic benevole\"."
-    },
-    {
-      "id": "intent-4",
-      "type": "content-gap",
-      "query": "PNO copropriete",
-      "url": "https://immeubleassur.com/faq/pno",
-      "score": 45,
-      "recommendation": "Creer ou renforcer un contenu utile autour de \"PNO copropriete\"."
-    },
-    {
-      "id": "intent-5",
-      "type": "content-gap",
-      "query": "sinistre degat des eaux immeuble",
-      "url": "https://immeubleassur.com/blog/checklist-sinistre-degat-des-eaux",
-      "score": 45,
-      "recommendation": "Creer ou renforcer un contenu utile autour de \"sinistre degat des eaux immeuble\"."
-    },
-    {
-      "id": "intent-6",
-      "type": "content-gap",
-      "query": "dommages ouvrage copropriete",
-      "url": "https://immeubleassur.com/blog/dommages-ouvrage-copropriete-travaux",
-      "score": 45,
-      "recommendation": "Creer ou renforcer un contenu utile autour de \"dommages ouvrage copropriete\"."
-    },
-    {
-      "id": "intent-7",
-      "type": "content-gap",
-      "query": "assurance SCI familiale",
-      "url": "https://immeubleassur.com/blog/sci-familiale-immeuble",
-      "score": 45,
-      "recommendation": "Creer ou renforcer un contenu utile autour de \"assurance SCI familiale\"."
-    },
-    {
-      "id": "intent-8",
-      "type": "content-gap",
-      "query": "protection juridique copropriete",
-      "url": "https://immeubleassur.com/blog/protection-juridique-copropriete",
-      "score": 45,
-      "recommendation": "Creer ou renforcer un contenu utile autour de \"protection juridique copropriete\"."
-    },
-    {
-      "id": "intent-9",
-      "type": "content-gap",
-      "query": "assurance local commercial vacant",
-      "url": "https://immeubleassur.com/blog/local-commercial-vacant",
-      "score": 45,
-      "recommendation": "Creer ou renforcer un contenu utile autour de \"assurance local commercial vacant\"."
-    },
-    {
-      "id": "intent-10",
-      "type": "content-gap",
-      "query": "franchise assurance immeuble",
-      "url": "https://immeubleassur.com/blog/audit-franchises-assurance-immeuble",
-      "score": 45,
-      "recommendation": "Creer ou renforcer un contenu utile autour de \"franchise assurance immeuble\"."
-    }
-  ],
+  "opportunities": [],
   "gsc": {
     "configured": false,
     "skipped": "GOOGLE_SERVICE_ACCOUNT_EMAIL/KEY missing"
@@ -377,10 +56,10 @@
   },
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-19T13:43:39.860Z",
-    "pages_checked": 156,
-    "pages_changed": 107,
-    "fixes_applied": 166,
+    "generated_at": "2026-07-19T14:26:04.437Z",
+    "pages_checked": 157,
+    "pages_changed": 108,
+    "fixes_applied": 167,
     "safeguards": [
       "idempotent-markers",
       "legal-pages-no-commercial-panel",
@@ -506,6 +185,121 @@
         "fixes": [
           "content-depth"
         ]
+      }
+    ]
+  },
+  "opportunity_expansion": {
+    "configured": true,
+    "generated_at": "2026-07-19T14:26:04.781Z",
+    "pages_checked": 158,
+    "pages_expanded": 74,
+    "words_added_estimate": 12705,
+    "safeguards": [
+      "idempotent-markers",
+      "legal-pages-skipped",
+      "no-serp-scraping",
+      "decision-useful-content"
+    ],
+    "sample": [
+      {
+        "slug": "assurance-cno",
+        "before_words": 660,
+        "after_words": 838
+      },
+      {
+        "slug": "assurance-coproprietaire-non-occupant",
+        "before_words": 634,
+        "after_words": 796
+      },
+      {
+        "slug": "assurance-copropriete",
+        "before_words": 544,
+        "after_words": 706
+      },
+      {
+        "slug": "assurance-immeuble-locatif",
+        "before_words": 526,
+        "after_words": 700
+      },
+      {
+        "slug": "assurance-immeuble",
+        "before_words": 589,
+        "after_words": 764
+      },
+      {
+        "slug": "assurance-local-commercial",
+        "before_words": 521,
+        "after_words": 696
+      },
+      {
+        "slug": "assurance-pno-cno",
+        "before_words": 661,
+        "after_words": 839
+      },
+      {
+        "slug": "assurance-pno",
+        "before_words": 582,
+        "after_words": 760
+      },
+      {
+        "slug": "assurance-sci",
+        "before_words": 534,
+        "after_words": 689
+      },
+      {
+        "slug": "audit-contrat-assurance-immeuble",
+        "before_words": 485,
+        "after_words": 659
+      },
+      {
+        "slug": "blog/assurance-colocation-immeuble",
+        "before_words": 648,
+        "after_words": 825
+      },
+      {
+        "slug": "blog/assurance-copropriete-avant-ag",
+        "before_words": 652,
+        "after_words": 814
+      },
+      {
+        "slug": "blog/assurance-copropriete-obligatoire",
+        "before_words": 405,
+        "after_words": 567
+      },
+      {
+        "slug": "blog/assurance-immeuble-ancien",
+        "before_words": 660,
+        "after_words": 833
+      },
+      {
+        "slug": "blog/assurance-immeuble-apres-refus-assureur",
+        "before_words": 648,
+        "after_words": 821
+      },
+      {
+        "slug": "blog/assurance-immeuble-avec-ascenseur",
+        "before_words": 653,
+        "after_words": 827
+      },
+      {
+        "slug": "blog/assurance-immeuble-etudiant",
+        "before_words": 644,
+        "after_words": 820
+      },
+      {
+        "slug": "blog/assurance-immeuble-local-professionnel",
+        "before_words": 648,
+        "after_words": 825
+      },
+      {
+        "slug": "blog/assurance-immeuble-mixte-commerce",
+        "before_words": 382,
+        "after_words": 557
+      },
+      {
+        "slug": "blog/assurance-immeuble-protection-du-patrimoine",
+        "before_words": 648,
+        "after_words": 821
       }
     ]
   },

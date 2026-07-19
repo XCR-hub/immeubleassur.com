@@ -6,7 +6,7 @@ const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
 const BRAND = "ImmeubleAssur";
 const TITLE_SUFFIX = ` | ${BRAND}`;
-const skipSlugs = new Set(["admin", "merci"]);
+const skipSlugs = new Set(["admin"]);
 const legalSlugs = new Set(["mentions-legales", "confidentialite"]);
 
 const titleOverrides = new Map([
@@ -21,7 +21,20 @@ const titleOverrides = new Map([
   ["blog/assurance-immeuble-ancien", "Assurance immeuble ancien"],
   ["blog/assurance-immeuble-mixte-commerce", "Assurance immeuble mixte commerce"],
   ["blog/assurance-immeuble-apres-refus-assureur", "Refus assurance immeuble"],
-  ["blog/assurance-immeuble-avec-ascenseur", "Assurance immeuble avec ascenseur"]
+  ["blog/assurance-immeuble-avec-ascenseur", "Assurance immeuble avec ascenseur"],
+  ["blog/assurance-immeuble-protection-du-patrimoine", "Assurance immeuble patrimoine"],
+  ["blog/copropriete-petite-syndic-benevole", "Petite copropriete syndic benevole"],
+  ["blog/franchise-degat-des-eaux-immeuble", "Franchise degat des eaux immeuble"],
+  ["blog/immeuble-mixte-restaurant", "Immeuble avec restaurant"],
+  ["blog/infiltration-toiture-terrasse", "Infiltration toiture terrasse"],
+  ["blog/local-commercial-vacant", "Local commercial vacant"],
+  ["blog/pertes-de-loyers-immeuble", "Pertes de loyers immeuble"],
+  ["blog/pno-obligatoire-copropriete", "PNO obligatoire copropriete"],
+  ["blog/prix-assurance-immeuble-au-m2", "Prix assurance immeuble au m2"],
+  ["blog/ravalement-toiture-travaux-assurance", "Toiture ravalement et assurance"],
+  ["blog/renovation-energetique-copropriete-assurance", "Renovation energetique copropriete"],
+  ["blog/sci-familiale-immeuble", "SCI familiale immeuble locatif"],
+  ["blog/sinistres-recurrents-immeuble", "Sinistres recurrents immeuble"]
 ]);
 
 function walk(dir) {
@@ -70,6 +83,39 @@ function trimWords(text, max) {
   return cut.length >= 20 ? cut : clean.slice(0, max).trim();
 }
 
+const weakEndWords = new Set(["a", "au", "aux", "avec", "chez", "dans", "de", "des", "du", "en", "et", "la", "le", "les", "ne", "ou", "pour", "sans", "sur", "un", "une"]);
+
+function titleFromSlug(slug) {
+  const source = slug ? slug.split("/").pop() : "assurance-immeuble";
+  return source
+    .split("-")
+    .filter(Boolean)
+    .map((word) => (word.length <= 3 && word !== "avec" ? word.toUpperCase() : `${word.slice(0, 1).toUpperCase()}${word.slice(1)}`))
+    .join(" ")
+    .replace(/\bPno\b/g, "PNO")
+    .replace(/\bCno\b/g, "CNO")
+    .replace(/\bSci\b/g, "SCI");
+}
+
+function cleanWeakEnding(value, slug, maxBase) {
+  let clean = String(value || "").replace(/\s+/g, " ").replace(/[,:;\s]+$/, "").trim();
+  const last = clean.split(/\s+/).pop()?.toLowerCase() || "";
+  if (weakEndWords.has(last)) clean = titleOverrides.get(slug) || titleFromSlug(slug);
+  if (clean.length > maxBase) clean = trimWords(clean, maxBase).replace(/[,:;\s]+$/, "");
+  return clean;
+}
+
+function closeMetaSentence(value) {
+  let clean = String(value || "").replace(/\s+/g, " ").replace(/\s+([.,;:])/g, "$1").replace(/[,:;\s]+$/, "").trim();
+  let words = clean.split(/\s+/).filter(Boolean);
+  while (words.length > 3 && weakEndWords.has(words[words.length - 1].replace(/[.?!]$/, "").toLowerCase())) words = words.slice(0, -1);
+  clean = words.join(" ").replace(/[,:;\s]+$/, "");
+  if (!/[.!?]$/.test(clean)) clean += ".";
+  if (clean.length < 120) clean = `${clean.replace(/[.\s]*$/, ".")} Devis et rappel par un courtier specialise immeuble.`;
+  if (clean.length > 170) clean = `${trimWords(clean, 166).replace(/[,:;\s]+$/, "")}.`;
+  return clean;
+}
+
 function humanTopic(slug, title) {
   if (!slug) return "assurance immeuble";
   if (slug.includes("cno")) return "assurance CNO coproprietaire non occupant";
@@ -90,8 +136,10 @@ function normalizeTitle(rawTitle, slug) {
   if (!base) base = slug ? slug.replace(/[/-]+/g, " ") : "Assurance immeuble et copropriete";
   base = base.replace(/\s+/g, " ").trim();
   if (base.length > maxBase) base = trimWords(base, maxBase);
+  base = cleanWeakEnding(base, slug, maxBase);
   if (`${base}${TITLE_SUFFIX}`.length < 35) base = `${base}: devis et garanties`;
   if (base.length > maxBase) base = trimWords(base, maxBase);
+  base = cleanWeakEnding(base, slug, maxBase);
   return `${base}${TITLE_SUFFIX}`;
 }
 
@@ -255,12 +303,12 @@ function enhanceFile(file) {
 
   const words = stripHtml(html).split(/\s+/).filter(Boolean).length;
   const faqCount = [...html.matchAll(/<details>/gi)].length;
-  if ((words < 520 || faqCount < 2) && !slug.startsWith("faq/")) {
+  if ((words < 520 || faqCount < 2) && !slug.startsWith("faq/") && slug !== "merci") {
     html = insertBeforeMainEnd(html, buildDepthSection(slug, normalizedTitle));
     fixes.push(words < 520 ? "content-depth" : "faq-depth");
   }
 
-  if (!legalSlugs.has(slug) && !hasStrongConversion(html)) {
+  if (!legalSlugs.has(slug) && slug !== "merci" && !hasStrongConversion(html)) {
     html = insertBeforeMainEnd(html, buildConversionSection(slug, normalizedTitle));
     fixes.push("conversion-panel");
   }

@@ -4,21 +4,23 @@
     "version":  "0.1.0",
     "type":  "module",
     "scripts":  {
-                    "generate":  "node scripts/generate-site.js \u0026\u0026 node scripts/seo-content-factory.js \u0026\u0026 node scripts/lead-growth-factory.js \u0026\u0026 node scripts/seo-auto-fix.js \u0026\u0026 node scripts/seo-growth-pass.js \u0026\u0026 node scripts/seo-autopilot.js --local-only",
-                    "check":  "node --check public/assets/app.js \u0026\u0026 node --check public/assets/admin.js \u0026\u0026 node --check functions/api/leads.js \u0026\u0026 node --check functions/api/admin/leads.js \u0026\u0026 node --check functions/api/admin/seo.js \u0026\u0026 node --check functions/api/events.js \u0026\u0026 node --check scripts/generate-site.js \u0026\u0026 node --check scripts/seo-content-factory.js \u0026\u0026 node --check scripts/lead-growth-factory.js \u0026\u0026 node --check scripts/seo-auto-fix.js \u0026\u0026 node --check scripts/seo-growth-pass.js \u0026\u0026 node --check scripts/seo-autopilot.js \u0026\u0026 node --check scripts/seo-d1-export.js \u0026\u0026 node --check scripts/local-static-server.js",
+                    "generate":  "node scripts/generate-site.js \u0026\u0026 node scripts/seo-content-factory.js \u0026\u0026 node scripts/lead-growth-factory.js \u0026\u0026 node scripts/ux-conversion-pass.js \u0026\u0026 node scripts/seo-auto-fix.js \u0026\u0026 node scripts/seo-opportunity-expander.js \u0026\u0026 node scripts/seo-growth-pass.js \u0026\u0026 node scripts/seo-autopilot.js --local-only",
+                    "check":  "node --check public/assets/app.js \u0026\u0026 node --check public/assets/admin.js \u0026\u0026 node --check functions/api/leads.js \u0026\u0026 node --check functions/api/admin/leads.js \u0026\u0026 node --check functions/api/admin/seo.js \u0026\u0026 node --check functions/api/events.js \u0026\u0026 node --check scripts/generate-site.js \u0026\u0026 node --check scripts/seo-content-factory.js \u0026\u0026 node --check scripts/lead-growth-factory.js \u0026\u0026 node --check scripts/ux-conversion-pass.js \u0026\u0026 node --check scripts/seo-auto-fix.js \u0026\u0026 node --check scripts/seo-opportunity-expander.js \u0026\u0026 node --check scripts/seo-growth-pass.js \u0026\u0026 node --check scripts/seo-autopilot.js \u0026\u0026 node --check scripts/seo-d1-export.js \u0026\u0026 node --check scripts/local-static-server.js",
                     "dev":  "wrangler pages dev public --compatibility-date=2026-07-19",
                     "serve:static":  "node scripts/local-static-server.js",
                     "db:init":  "wrangler d1 execute immeubleassur-db --local --file=./schema.sql",
                     "db:remote":  "wrangler d1 execute immeubleassur-db --remote --file=./schema.sql",
                     "deploy":  "wrangler pages deploy public --project-name=immeubleassur-com",
                     "check:functions":  "node --check functions/api/leads.js \u0026\u0026 node --check functions/api/admin/leads.js \u0026\u0026 node --check functions/api/admin/seo.js \u0026\u0026 node --check functions/api/events.js",
-                    "check:site":  "node --check scripts/generate-site.js \u0026\u0026 node --check scripts/seo-content-factory.js \u0026\u0026 node --check scripts/lead-growth-factory.js \u0026\u0026 node --check scripts/seo-auto-fix.js \u0026\u0026 node --check scripts/seo-growth-pass.js \u0026\u0026 node --check scripts/seo-autopilot.js \u0026\u0026 node --check scripts/seo-d1-export.js \u0026\u0026 node --check scripts/local-static-server.js",
+                    "check:site":  "node --check scripts/generate-site.js \u0026\u0026 node --check scripts/seo-content-factory.js \u0026\u0026 node --check scripts/lead-growth-factory.js \u0026\u0026 node --check scripts/ux-conversion-pass.js \u0026\u0026 node --check scripts/seo-auto-fix.js \u0026\u0026 node --check scripts/seo-opportunity-expander.js \u0026\u0026 node --check scripts/seo-growth-pass.js \u0026\u0026 node --check scripts/seo-autopilot.js \u0026\u0026 node --check scripts/seo-d1-export.js \u0026\u0026 node --check scripts/local-static-server.js",
                     "seo:content":  "node scripts/seo-content-factory.js",
                     "seo:audit":  "node scripts/seo-autopilot.js --local-only",
                     "seo:apis":  "node scripts/seo-autopilot.js --pagespeed --gsc-if-configured",
                     "seo:sql":  "node scripts/seo-d1-export.js",
                     "lead:growth":  "node scripts/lead-growth-factory.js",
-                    "seo:fix":  "node scripts/seo-auto-fix.js"
+                    "seo:fix":  "node scripts/seo-auto-fix.js",
+                    "ux:conversion":  "node scripts/ux-conversion-pass.js",
+                    "seo:expand":  "node scripts/seo-opportunity-expander.js"
                 },
     "devDependencies":  {
                             "wrangler":  "^4.0.0"

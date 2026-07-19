@@ -24,6 +24,7 @@ const lines = [
 ];
 
 const autoFix = report.auto_fix || {};
+const expansion = report.opportunity_expansion || {};
 for (const metric of [
   ["auto_fix", "fixes_applied", autoFix.fixes_applied],
   ["auto_fix", "pages_changed", autoFix.pages_changed],

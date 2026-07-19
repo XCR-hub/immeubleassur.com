@@ -87,8 +87,10 @@ function auditPage(file) {
 }
 
 function detectIntentGaps(pages) {
-  const haystack = pages.map((page) => `${page.slug} ${page.title} ${page.description}`).join(" ").toLowerCase();
-  return intentBacklog.filter(([query, slug]) => !haystack.includes(slug.replace(/[-/]/g, " "))).map(([query, slug], index) => ({ id: `intent-${index + 1}`, type: "content-gap", query, url: `${SITE}/${slug}`, score: 45, recommendation: `Creer ou renforcer un contenu utile autour de "${query}".` }));
+  const existingSlugs = new Set(pages.map((page) => page.slug));
+  return intentBacklog
+    .filter(([, slug]) => !existingSlugs.has(slug))
+    .map(([query, slug], index) => ({ id: `intent-${index + 1}`, type: "content-gap", query, url: `${SITE}/${slug}`, score: 45, recommendation: `Creer ou renforcer un contenu utile autour de "${query}".` }));
 }
 
 function opportunityScore(row) {
@@ -200,9 +202,22 @@ function readAutoFixReport() {
     sample: (report.pages || []).slice(0, 20).map((page) => ({ slug: page.slug, fixes: page.fixes }))
   };
 }
+function readOpportunityExpansionReport() {
+  const report = readJsonFile(join(REPORT_DIR, "seo-opportunity-expansion-report.json"), null);
+  if (!report) return { configured: true, skipped: "seo-opportunity-expansion-report missing" };
+  return {
+    configured: true,
+    generated_at: report.generated_at,
+    pages_checked: report.pages_checked || 0,
+    pages_expanded: report.pages_expanded || 0,
+    words_added_estimate: report.words_added_estimate || 0,
+    safeguards: report.safeguards || [],
+    sample: (report.pages || []).slice(0, 20).map((page) => ({ slug: page.slug, before_words: page.before_words, after_words: page.after_words }))
+  };
+}
 function buildMarkdown(report) {
   const topIssues = report.opportunities.slice(0, 12).map((item, index) => `${index + 1}. ${item.type} - ${item.url || item.page || "global"} - score ${item.score || item.page_score || 0}: ${item.recommendation}`).join("\n");
-  return `# SEO Autopilot ImmeubleAssur\n\nGenerated: ${report.generated_at}\n\n- Pages checked: ${report.pages_checked}\n- Average score: ${report.average_score}\n- Opportunities: ${report.opportunities.length}\n- GSC configured: ${Boolean(report.gsc?.configured)}\n- PageSpeed checked: ${report.pagespeed?.checked || 0}\n- Auto-fixes applied: ${report.auto_fix?.fixes_applied || 0}\n\n## Top actions\n\n${topIssues || "No blocking issue detected."}\n`;
+  return `# SEO Autopilot ImmeubleAssur\n\nGenerated: ${report.generated_at}\n\n- Pages checked: ${report.pages_checked}\n- Average score: ${report.average_score}\n- Opportunities: ${report.opportunities.length}\n- GSC configured: ${Boolean(report.gsc?.configured)}\n- PageSpeed checked: ${report.pagespeed?.checked || 0}\n- Auto-fixes applied: ${report.auto_fix?.fixes_applied || 0}\n- Pages expanded: ${report.opportunity_expansion?.pages_expanded || 0}\n\n## Top actions\n\n${topIssues || "No blocking issue detected."}\n`;
 }
 
 async function run() {
@@ -218,11 +233,12 @@ async function run() {
   try { pagespeed = await fetchPageSpeed(sampleUrls); } catch (error) { pagespeed = { error: error.message }; }
   const gscOpps = Array.isArray(gsc.opportunities) ? gsc.opportunities : [];
   const autoFix = readAutoFixReport();
+  const opportunityExpansion = readOpportunityExpansionReport();
   const opportunities = [...issueOpportunities, ...contentGaps, ...gscOpps].sort((a, b) => (b.score || 0) - (a.score || 0));
-  const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, auto_fix: autoFix, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals"] };
+  const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, auto_fix: autoFix, opportunity_expansion: opportunityExpansion, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals"] };
   writeFileSync(join(REPORT_DIR, "seo-autopilot-report.json"), JSON.stringify(report, null, 2), "utf8");
   writeFileSync(join(REPORT_DIR, "seo-autopilot-report.md"), buildMarkdown(report), "utf8");
-  const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, connectors: report.api_connectors, compliance: report.compliance };
+  const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, opportunity_expansion: report.opportunity_expansion, connectors: report.api_connectors, compliance: report.compliance };
   writeFileSync(join(PUBLIC_DIR, "assets", "seo-autopilot-latest.json"), JSON.stringify(publicReport, null, 2), "utf8");
   console.log(`SEO autopilot checked ${report.pages_checked} pages, average score ${report.average_score}, opportunities ${report.opportunities.length}.`);
 }

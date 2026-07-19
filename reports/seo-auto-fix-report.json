@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-19T13:43:39.860Z",
-  "pages_checked": 156,
-  "pages_changed": 107,
-  "fixes_applied": 166,
+  "generated_at": "2026-07-19T14:26:04.437Z",
+  "pages_checked": 157,
+  "pages_changed": 108,
+  "fixes_applied": 167,
   "safeguards": [
     "idempotent-markers",
     "legal-pages-no-commercial-panel",
@@ -510,7 +510,7 @@
         "title-normalized",
         "description-normalized"
       ],
-      "title": "Assurance immeuble et protection du patrimoine: approche | ImmeubleAssur",
+      "title": "Assurance immeuble patrimoine | ImmeubleAssur",
       "description": "Contrats, franchises, responsabilites et prevention: assurer un immeuble comme un actif patrimonial. Analyse des garanties, franchises, sinistres, documents.",
       "changed": true
     },
@@ -617,7 +617,7 @@
         "title-normalized",
         "description-normalized"
       ],
-      "title": "Petite copropriete avec syndic benevole: quel contrat | ImmeubleAssur",
+      "title": "Petite copropriete syndic benevole | ImmeubleAssur",
       "description": "Un guide pour cadrer RC, multirisque immeuble, PNO et documents d'AG dans une petite copropriete. Analyse des garanties, franchises, sinistres, documents utiles.",
       "changed": true
     },
@@ -639,7 +639,7 @@
         "description-normalized",
         "content-depth"
       ],
-      "title": "Degat des eaux immeuble: franchises et recherche de | ImmeubleAssur",
+      "title": "Franchise degat des eaux immeuble | ImmeubleAssur",
       "description": "Pourquoi deux contrats d'immeuble peuvent produire des restes a charge tres differents apres degat des eaux. Analyse des garanties, franchises, sinistres.",
       "changed": true
     },
@@ -650,7 +650,7 @@
         "title-normalized",
         "description-normalized"
       ],
-      "title": "Immeuble avec restaurant ou commerce alimentaire: points | ImmeubleAssur",
+      "title": "Immeuble avec restaurant | ImmeubleAssur",
       "description": "Extraction, stock, horaires, nuisances, bail et garanties: les informations indispensables pour l'assureur. Analyse des garanties, franchises, sinistres.",
       "changed": true
     },
@@ -661,7 +661,7 @@
         "title-normalized",
         "description-normalized"
       ],
-      "title": "Infiltration toiture-terrasse: franchises et recherche | ImmeubleAssur",
+      "title": "Infiltration toiture terrasse | ImmeubleAssur",
       "description": "Une toiture-terrasse impose une lecture stricte des obligations d'entretien et exclusions d'infiltration. Analyse des garanties, franchises, sinistres, documents.",
       "changed": true
     },
@@ -672,7 +672,7 @@
         "title-normalized",
         "description-normalized"
       ],
-      "title": "Local commercial vacant: quelles garanties pour le | ImmeubleAssur",
+      "title": "Local commercial vacant | ImmeubleAssur",
       "description": "Vacance, securisation, degats des eaux et recours: assurer un local commercial non exploite. Analyse des garanties, franchises, sinistres, documents utiles et.",
       "changed": true
     },
@@ -693,7 +693,7 @@
         "title-normalized",
         "description-normalized"
       ],
-      "title": "Pertes de loyers dans un contrat immeuble: attention aux | ImmeubleAssur",
+      "title": "Pertes de loyers immeuble | ImmeubleAssur",
       "description": "Une garantie pertes de loyers depend du sinistre, du delai, du plafond et du bien assure. Analyse des garanties, franchises, sinistres, documents utiles et rappel.",
       "changed": true
     },
@@ -726,7 +726,7 @@
         "title-normalized",
         "description-normalized"
       ],
-      "title": "PNO obligatoire en copropriete: ce qu'un bailleur doit | ImmeubleAssur",
+      "title": "PNO obligatoire copropriete | ImmeubleAssur",
       "description": "La PNO n'a pas le meme role que la multirisque immeuble: voici comment articuler les contrats. Analyse des garanties, franchises, sinistres, documents utiles et.",
       "changed": true
     },
@@ -748,7 +748,7 @@
         "title-normalized",
         "description-normalized"
       ],
-      "title": "Prix assurance immeuble au m2: pourquoi le tarif seul ne | ImmeubleAssur",
+      "title": "Prix assurance immeuble au m2 | ImmeubleAssur",
       "description": "Comprendre les facteurs qui font varier une prime d'assurance immeuble au m2 sans perdre de vue les garanties. Analyse des garanties, franchises, sinistres.",
       "changed": true
     },
@@ -769,7 +769,7 @@
         "title-normalized",
         "description-normalized"
       ],
-      "title": "Travaux de toiture ou ravalement: impacts sur | ImmeubleAssur",
+      "title": "Toiture ravalement et assurance | ImmeubleAssur",
       "description": "Travaux votes, entreprises, dommage ouvrage, sinistres futurs: comment preparer la consultation assureur. Analyse des garanties, franchises, sinistres, documents.",
       "changed": true
     },
@@ -780,7 +780,7 @@
         "title-normalized",
         "description-normalized"
       ],
-      "title": "Renovation energetique en copropriete: anticiper | ImmeubleAssur",
+      "title": "Renovation energetique copropriete | ImmeubleAssur",
       "description": "Isolation, facade, toiture, entreprises et reception: ce que le contrat doit suivre pendant les travaux. Analyse des garanties, franchises, sinistres, documents.",
       "changed": true
     },
@@ -802,7 +802,7 @@
         "title-normalized",
         "description-normalized"
       ],
-      "title": "SCI familiale avec immeuble locatif: organiser les | ImmeubleAssur",
+      "title": "SCI familiale immeuble locatif | ImmeubleAssur",
       "description": "PNO, multirisque, protection juridique, responsabilite: structurer les contrats d'une SCI. Analyse des garanties, franchises, sinistres, documents utiles et.",
       "changed": true
     },
@@ -813,7 +813,7 @@
         "title-normalized",
         "description-normalized"
       ],
-      "title": "Sinistres recurrents dans un immeuble: comment presenter | ImmeubleAssur",
+      "title": "Sinistres recurrents immeuble | ImmeubleAssur",
       "description": "Un historique de sinistres ne condamne pas un dossier, mais il doit etre explique et corrige. Analyse des garanties, franchises, sinistres, documents utiles et.",
       "changed": true
     },
@@ -1067,6 +1067,16 @@
       ],
       "title": "Mentions legales courtier immeuble | ImmeubleAssur",
       "description": "Mentions legales ImmeubleAssur. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour obtenir un devis specialise.",
+      "changed": true
+    },
+    {
+      "slug": "merci",
+      "url": "https://immeubleassur.com/merci",
+      "fixes": [
+        "description-normalized"
+      ],
+      "title": "Votre demande est enregistree | ImmeubleAssur",
+      "description": "Confirmation demande ImmeubleAssur. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour obtenir un devis specialise.",
       "changed": true
     },
     {

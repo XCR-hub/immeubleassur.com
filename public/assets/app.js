@@ -108,10 +108,19 @@ function intentLabel(intent) {
 function mountLeadBar() {
   if (document.querySelector(".lead-action-bar") || window.location.pathname.includes("/admin") || window.location.pathname.includes("/merci")) return;
   document.body.dataset.intent = inferIntent();
-  const label = intentLabel(document.body.dataset.intent);
+  const intent = document.body.dataset.intent;
+  const label = intentLabel(intent);
+  const routes = {
+    cno: "/devis-pno-cno?intent=cno",
+    pno: "/devis-pno-cno?intent=pno",
+    copropriete: "/devis-assurance-immeuble?intent=copropriete",
+    sci: "/devis-assurance-immeuble?intent=sci",
+    immeuble: "/devis-assurance-immeuble?intent=immeuble",
+    website: "/devis-assurance-immeuble"
+  };
   const bar = document.createElement("div");
   bar.className = "lead-action-bar";
-  bar.innerHTML = `<span>${label}: devis specialise</span><a class="button primary" data-track="sticky-devis" href="/devis-pno-cno">Devis rapide</a><a class="button secondary" data-track="sticky-phone" href="tel:+33180855786">Appeler</a>`;
+  bar.innerHTML = `<span>${label}: devis specialise</span><a class="button primary" data-track="sticky-devis" href="${routes[intent] || routes.website}">Devis rapide</a><a class="button secondary" data-track="sticky-phone" href="tel:+33180855786">Appeler</a>`;
   document.body.append(bar);
 }
 
@@ -165,6 +174,104 @@ function mountFormAdvisor() {
   form.addEventListener("change", () => updateFormAdvisor(advisor, form));
 }
 
+// ux-conversion-runtime:start
+function applyIntentPrefill() {
+  if (!form) return;
+  const params = new URLSearchParams(window.location.search);
+  const intent = (params.get("intent") || params.get("need") || "").toLowerCase();
+  if (!intent) return;
+  const needMap = {
+    cno: "cno",
+    pno: "pno",
+    "pno-cno": "pno-cno",
+    copropriete: "multirisque-immeuble",
+    sci: "multirisque-immeuble",
+    mixte: "audit-contrat",
+    immeuble: "multirisque-immeuble"
+  };
+  const profileMap = {
+    sci: "sci",
+    copropriete: "syndic-professionnel",
+    cno: "bailleur",
+    pno: "bailleur",
+    mixte: "bailleur"
+  };
+  const propertyMap = {
+    cno: "lot-copropriete",
+    pno: "logement-loue",
+    copropriete: "immeuble-locatif",
+    sci: "immeuble-locatif",
+    mixte: "local-commercial",
+    immeuble: "immeuble-locatif"
+  };
+  const setSelect = (name, value) => {
+    const field = form.elements[name];
+    if (!field || !value) return;
+    if ([...field.options].some((option) => option.value === value)) field.value = value;
+  };
+  setSelect("need", needMap[intent]);
+  setSelect("profile", profileMap[intent]);
+  setSelect("property_type", propertyMap[intent]);
+  form.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function mountFormProof() {
+  if (!form || form.querySelector(".ux-form-proof")) return;
+  const anchor = form.querySelector(".form-advisor") || form.querySelector(".form-heading") || form.firstElementChild;
+  const proof = document.createElement("div");
+  proof.className = "ux-form-proof";
+  proof.innerHTML = `<span>Rappel humain</span><span>CNO / PNO</span><span>Audit contrat</span><span>Sinistres</span>`;
+  anchor.insertAdjacentElement("afterend", proof);
+}
+
+function mountRiskRouter() {
+  const router = document.querySelector(".risk-router");
+  if (!router) return;
+  const result = router.querySelector(".risk-result");
+  const options = [...router.querySelectorAll(".risk-option[data-risk]")];
+  const rows = {
+    cno: {
+      title: "Coproprietaire non occupant",
+      text: "Verifier le lot, la vacance, le bail, le contrat immeuble et la responsabilite civile du coproprietaire.",
+      items: ["Adresse et usage du lot", "Contrat occupant ou vacance", "Echeance et sinistres recents"],
+      href: "/devis-pno-cno?intent=cno"
+    },
+    pno: {
+      title: "Proprietaire non occupant",
+      text: "Cadrer le logement loue, vacant ou prete avec les garanties utiles au proprietaire bailleur.",
+      items: ["Statut d'occupation", "Surface et dependances", "Franchises et exclusions de vacance"],
+      href: "/devis-pno-cno?intent=pno"
+    },
+    copropriete: {
+      title: "Syndic ou conseil syndical",
+      text: "Presenter les lots, parties communes, sinistres, travaux et garanties RC du syndicat.",
+      items: ["Nombre de lots", "PV d'AG et contrat actuel", "Historique sinistres 36 mois"],
+      href: "/devis-assurance-immeuble?intent=copropriete"
+    },
+    sci: {
+      title: "SCI immobiliere",
+      text: "Organiser les contrats autour du patrimoine, des lots et des occupants pour eviter les doublons.",
+      items: ["Liste des biens", "Contrats existants", "Lots regroupes ou disperses"],
+      href: "/devis-assurance-immeuble?intent=sci"
+    },
+    mixte: {
+      title: "Immeuble mixte",
+      text: "Identifier l'activite commerciale, le bail, les locaux vacants et les garanties du bailleur.",
+      items: ["Activite du commerce", "Bail et assurance occupant", "Extraction, stock ou terrasse"],
+      href: "/devis-assurance-immeuble?intent=mixte"
+    }
+  };
+  const render = (risk, shouldTrack = false) => {
+    const row = rows[risk] || rows.cno;
+    router.dataset.activeRisk = risk;
+    options.forEach((option) => option.classList.toggle("is-active", option.dataset.risk === risk));
+    result.innerHTML = `<p class="risk-result-label">Parcours prioritaire</p><h3>${row.title}</h3><p>${row.text}</p><ul>${row.items.map((item) => `<li>${item}</li>`).join("")}</ul><a class="button primary" data-track="risk-router-devis" href="${row.href}">Demander le bon devis</a>`;
+    if (shouldTrack) track("risk_router_select", { target: risk, label: row.title });
+  };
+  options.forEach((option) => option.addEventListener("click", () => render(option.dataset.risk, true)));
+  render(router.dataset.activeRisk || "cno");
+}
+// ux-conversion-runtime:end
 function enhanceHeader() {
   const header = document.querySelector(".site-header[data-elevate]");
   if (!header) return;
@@ -250,7 +357,10 @@ form?.addEventListener("submit", async (event) => {
   }
 });
 
+applyIntentPrefill();
 mountLeadBar();
 mountFormAdvisor();
+mountFormProof();
+mountRiskRouter();
 enhanceHeader();
 bindGrowthTracking();

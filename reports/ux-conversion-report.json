@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-07-19T14:26:04.109Z",
+  "home_router": true,
+  "changed": true,
+  "improvements": [
+    "intent-router",
+    "risk-specific-cta",
+    "lead-prefill-links",
+    "homepage-decision-support"
+  ]
+}
