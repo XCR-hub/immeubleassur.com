@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+﻿import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const SITE = "https://immeubleassur.com";
@@ -448,7 +448,8 @@ function nav() {
         <a href="/assurance-pno.html">PNO</a>
         <a href="/villes.html">Villes</a>
         <a href="/blog.html">Blog</a>
-        <a href="/devis-assurance-immeuble.html">Devis</a>
+                <a href="/faq.html">FAQ</a>
+<a href="/devis-assurance-immeuble.html">Devis</a>
       </nav>
       <a class="header-phone" href="tel:${PHONE_HREF}">${PHONE}</a>
     </header>`;
@@ -602,7 +603,7 @@ function homePage() {
           </div>
           <dl class="proof-strip" aria-label="Indicateurs">
             <div><dt>15 min</dt><dd>rappel expert</dd></div>
-            <div><dt>30 villes</dt><dd>maillage local</dd></div>
+            <div><dt>Maillage</dt><dd>national</dd></div>
             <div><dt>Audit</dt><dd>contrat</dd></div>
           </dl>
         </div>

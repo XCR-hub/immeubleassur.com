@@ -1,0 +1,240 @@
+{
+  "generated_at": "2026-07-19T01:51:15.804Z",
+  "articles": 28,
+  "new_city_pages": 0,
+  "faq_hubs": 8,
+  "total_pages_written": 37,
+  "min_quality_score": 40,
+  "average_quality_score": 91,
+  "anti_spam_controls": [
+    "no-google-result-scraping",
+    "no-indexing-api-for-non-job-pages",
+    "no-hidden-keyword-blocks",
+    "city-pages-require-local-angle-and-lead-utility",
+    "faq-pages-serve-user-questions-before-schema"
+  ],
+  "pages": [
+    {
+      "type": "article",
+      "slug": "blog/prix-assurance-immeuble-au-m2",
+      "title": "Prix assurance immeuble au m2: pourquoi le tarif seul ne suffit pas",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/assurance-immeuble-ancien",
+      "title": "Assurance immeuble ancien: points de vigilance avant devis",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/assurance-immeuble-vacant",
+      "title": "Immeuble vacant: comment eviter les exclusions d'assurance",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/copropriete-petite-syndic-benevole",
+      "title": "Petite copropriete avec syndic benevole: quel contrat assurance choisir ?",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/assurance-immeuble-avec-ascenseur",
+      "title": "Assurance immeuble avec ascenseur: garanties et responsabilites",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/assurance-parking-garages-copropriete",
+      "title": "Parkings et garages en copropriete: comment les assurer",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/protection-juridique-copropriete",
+      "title": "Protection juridique copropriete: utile ou accessoire ?",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/sinistres-recurrents-immeuble",
+      "title": "Sinistres recurrents dans un immeuble: comment presenter le risque",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/ravalement-toiture-travaux-assurance",
+      "title": "Travaux de toiture ou ravalement: impacts sur l'assurance immeuble",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/immeuble-mixte-restaurant",
+      "title": "Immeuble avec restaurant ou commerce alimentaire: points assurance",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/local-commercial-vacant",
+      "title": "Local commercial vacant: quelles garanties pour le proprietaire ?",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/pno-obligatoire-copropriete",
+      "title": "PNO obligatoire en copropriete: ce qu'un bailleur doit retenir",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/sci-familiale-immeuble",
+      "title": "SCI familiale avec immeuble locatif: organiser les assurances",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/assurance-colocation-immeuble",
+      "title": "Immeuble en colocation: questions assurance a poser",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/renovation-energetique-copropriete-assurance",
+      "title": "Renovation energetique en copropriete: anticiper l'assurance",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/infiltration-toiture-terrasse",
+      "title": "Infiltration toiture-terrasse: franchises et recherche de fuite",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/multirisque-immeuble-vs-pno",
+      "title": "Multirisque immeuble ou PNO: comment les distinguer",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/resiliation-assurance-immeuble",
+      "title": "Resilier ou renegocier une assurance immeuble: calendrier utile",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/assurance-immeuble-sans-sinistre",
+      "title": "Immeuble sans sinistre: comment valoriser le dossier",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/assurance-immeuble-apres-refus-assureur",
+      "title": "Refus d'assurance immeuble: comment reconstruire un dossier",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/assurance-immeuble-etudiant",
+      "title": "Immeuble locatif etudiant: garanties a verifier",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/assurance-copropriete-avant-ag",
+      "title": "Assurance copropriete avant AG: fiche de synthese utile",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/pertes-de-loyers-immeuble",
+      "title": "Pertes de loyers dans un contrat immeuble: attention aux conditions",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/assurance-immeuble-protection-du-patrimoine",
+      "title": "Assurance immeuble et protection du patrimoine: approche globale",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/dommages-ouvrage-copropriete-travaux",
+      "title": "Dommages ouvrage copropriete: quand l'anticiper",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/assurance-immeuble-local-professionnel",
+      "title": "Immeuble avec local professionnel: assurance du bailleur",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/audit-franchises-assurance-immeuble",
+      "title": "Audit des franchises assurance immeuble: la methode",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/checklist-sinistre-degat-des-eaux",
+      "title": "Checklist degat des eaux immeuble: pieces a reunir",
+      "quality_score": 100
+    },
+    {
+      "type": "faq",
+      "slug": "faq/assurance-immeuble",
+      "title": "FAQ assurance immeuble",
+      "quality_score": 65
+    },
+    {
+      "type": "faq",
+      "slug": "faq/copropriete",
+      "title": "FAQ assurance copropriete",
+      "quality_score": 65
+    },
+    {
+      "type": "faq",
+      "slug": "faq/pno",
+      "title": "FAQ PNO bailleur",
+      "quality_score": 65
+    },
+    {
+      "type": "faq",
+      "slug": "faq/sci",
+      "title": "FAQ assurance SCI",
+      "quality_score": 65
+    },
+    {
+      "type": "faq",
+      "slug": "faq/sinistres",
+      "title": "FAQ sinistres immeuble",
+      "quality_score": 65
+    },
+    {
+      "type": "faq",
+      "slug": "faq/travaux",
+      "title": "FAQ travaux et assurance immeuble",
+      "quality_score": 65
+    },
+    {
+      "type": "faq",
+      "slug": "faq/prix",
+      "title": "FAQ prix assurance immeuble",
+      "quality_score": 65
+    },
+    {
+      "type": "faq",
+      "slug": "faq/local-commercial",
+      "title": "FAQ immeuble avec local commercial",
+      "quality_score": 65
+    },
+    {
+      "type": "system",
+      "slug": "strategie-seo-continue",
+      "title": "Systeme SEO continu",
+      "quality_score": 40
+    }
+  ]
+}

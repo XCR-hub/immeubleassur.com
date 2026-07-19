@@ -85,3 +85,66 @@ CREATE INDEX IF NOT EXISTS idx_site_events_created_at ON site_events(created_at 
 CREATE INDEX IF NOT EXISTS idx_site_events_event_type ON site_events(event_type);
 CREATE INDEX IF NOT EXISTS idx_site_events_session_id ON site_events(session_id);
 CREATE INDEX IF NOT EXISTS idx_site_events_lead_reference ON site_events(lead_reference);
+CREATE TABLE IF NOT EXISTS seo_runs (
+  id TEXT PRIMARY KEY,
+  source TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'completed',
+  pages_checked INTEGER NOT NULL DEFAULT 0,
+  opportunities_count INTEGER NOT NULL DEFAULT 0,
+  payload TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_seo_runs_created_at ON seo_runs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_seo_runs_source ON seo_runs(source);
+
+CREATE TABLE IF NOT EXISTS seo_metrics (
+  id TEXT PRIMARY KEY,
+  run_id TEXT REFERENCES seo_runs(id) ON DELETE CASCADE,
+  url TEXT NOT NULL,
+  metric_type TEXT NOT NULL,
+  metric_name TEXT NOT NULL,
+  value REAL,
+  payload TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_seo_metrics_run_id ON seo_metrics(run_id);
+CREATE INDEX IF NOT EXISTS idx_seo_metrics_url ON seo_metrics(url);
+CREATE INDEX IF NOT EXISTS idx_seo_metrics_type_name ON seo_metrics(metric_type, metric_name);
+
+CREATE TABLE IF NOT EXISTS seo_opportunities (
+  id TEXT PRIMARY KEY,
+  run_id TEXT REFERENCES seo_runs(id) ON DELETE SET NULL,
+  url TEXT,
+  query TEXT,
+  opportunity_type TEXT NOT NULL,
+  score INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'open',
+  recommendation TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_seo_opportunities_score ON seo_opportunities(score DESC);
+CREATE INDEX IF NOT EXISTS idx_seo_opportunities_status ON seo_opportunities(status);
+CREATE INDEX IF NOT EXISTS idx_seo_opportunities_url ON seo_opportunities(url);
+CREATE INDEX IF NOT EXISTS idx_seo_opportunities_query ON seo_opportunities(query);
+
+CREATE TABLE IF NOT EXISTS content_pipeline (
+  id TEXT PRIMARY KEY,
+  slug TEXT NOT NULL UNIQUE,
+  category TEXT NOT NULL,
+  title TEXT NOT NULL,
+  intent TEXT,
+  status TEXT NOT NULL DEFAULT 'published',
+  quality_score INTEGER NOT NULL DEFAULT 0,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_content_pipeline_category ON content_pipeline(category);
+CREATE INDEX IF NOT EXISTS idx_content_pipeline_status ON content_pipeline(status);
+CREATE INDEX IF NOT EXISTS idx_content_pipeline_quality ON content_pipeline(quality_score DESC);

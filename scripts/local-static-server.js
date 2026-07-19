@@ -1,4 +1,4 @@
-import { createReadStream, statSync } from "node:fs";
+﻿import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 
@@ -19,9 +19,14 @@ const types = {
 function resolvePath(requestUrl) {
   const cleanUrl = decodeURIComponent((requestUrl || "/").split("?")[0]);
   const pathname = cleanUrl === "/" ? "/index.html" : cleanUrl;
-  const file = normalize(join(root, pathname));
-  if (!file.startsWith(root)) return "";
-  return file;
+  const direct = normalize(join(root, pathname));
+  if (!direct.startsWith(root)) return "";
+  if (existsSync(direct)) return direct;
+  if (!extname(direct)) {
+    const html = `${direct}.html`;
+    if (html.startsWith(root) && existsSync(html)) return html;
+  }
+  return direct;
 }
 
 const server = createServer((request, response) => {

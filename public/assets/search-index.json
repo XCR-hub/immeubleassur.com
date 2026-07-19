@@ -5,9 +5,19 @@
     "url": "/assurance-copropriete"
   },
   {
+    "title": "Assurance immeuble Agen",
+    "description": "Devis assurance immeuble a Agen: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour petites coproprietes, SCI et bailleurs.",
+    "url": "/assurance-immeuble-agen"
+  },
+  {
     "title": "Assurance immeuble Aix-en-Provence",
     "description": "Devis assurance immeuble a Aix-en-Provence: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour patrimoines locatifs, SCI et residences de standing.",
     "url": "/assurance-immeuble-aix-en-provence"
+  },
+  {
+    "title": "Assurance immeuble Albi",
+    "description": "Devis assurance immeuble a Albi: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles anciens, SCI et coproprietes.",
+    "url": "/assurance-immeuble-albi"
   },
   {
     "title": "Assurance immeuble Amiens",
@@ -20,9 +30,59 @@
     "url": "/assurance-immeuble-angers"
   },
   {
+    "title": "Assurance immeuble Angouleme",
+    "description": "Devis assurance immeuble a Angouleme: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles anciens, SCI et bailleurs.",
+    "url": "/assurance-immeuble-angouleme"
+  },
+  {
+    "title": "Assurance immeuble Annecy",
+    "description": "Devis assurance immeuble a Annecy: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes, residences et patrimoines locatifs.",
+    "url": "/assurance-immeuble-annecy"
+  },
+  {
+    "title": "Assurance immeuble Antibes",
+    "description": "Devis assurance immeuble a Antibes: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes littorales, bailleurs et SCI.",
+    "url": "/assurance-immeuble-antibes"
+  },
+  {
+    "title": "Assurance immeuble Arras",
+    "description": "Devis assurance immeuble a Arras: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles anciens, SCI et coproprietes.",
+    "url": "/assurance-immeuble-arras"
+  },
+  {
+    "title": "Assurance immeuble Avignon",
+    "description": "Devis assurance immeuble a Avignon: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour patrimoines locatifs, immeubles anciens et coproprietes.",
+    "url": "/assurance-immeuble-avignon"
+  },
+  {
+    "title": "Assurance immeuble Bayonne",
+    "description": "Devis assurance immeuble a Bayonne: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes, locaux commerciaux et immeubles locatifs.",
+    "url": "/assurance-immeuble-bayonne"
+  },
+  {
+    "title": "Assurance immeuble Beauvais",
+    "description": "Devis assurance immeuble a Beauvais: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour SCI, bailleurs et petites coproprietes.",
+    "url": "/assurance-immeuble-beauvais"
+  },
+  {
     "title": "Assurance immeuble Besancon",
     "description": "Devis assurance immeuble a Besancon: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour coproprietes, petites SCI et immeubles locatifs.",
     "url": "/assurance-immeuble-besancon"
+  },
+  {
+    "title": "Assurance immeuble Beziers",
+    "description": "Devis assurance immeuble a Beziers: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles locatifs, coproprietes et commerces.",
+    "url": "/assurance-immeuble-beziers"
+  },
+  {
+    "title": "Assurance immeuble Biarritz",
+    "description": "Devis assurance immeuble a Biarritz: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour residences, coproprietes et patrimoines de standing.",
+    "url": "/assurance-immeuble-biarritz"
+  },
+  {
+    "title": "Assurance immeuble Blois",
+    "description": "Devis assurance immeuble a Blois: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour bailleurs, petites coproprietes et immeubles anciens.",
+    "url": "/assurance-immeuble-blois"
   },
   {
     "title": "Assurance immeuble Bordeaux",
@@ -30,9 +90,54 @@
     "url": "/assurance-immeuble-bordeaux"
   },
   {
+    "title": "Assurance immeuble Bourges",
+    "description": "Devis assurance immeuble a Bourges: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles locatifs et patrimoines familiaux.",
+    "url": "/assurance-immeuble-bourges"
+  },
+  {
     "title": "Assurance immeuble Brest",
     "description": "Devis assurance immeuble a Brest: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles exposes aux evenements climatiques et bailleurs.",
     "url": "/assurance-immeuble-brest"
+  },
+  {
+    "title": "Assurance immeuble Caen",
+    "description": "Devis assurance immeuble a Caen: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour bailleurs, petites coproprietes et immeubles mixtes.",
+    "url": "/assurance-immeuble-caen"
+  },
+  {
+    "title": "Assurance immeuble Calais",
+    "description": "Devis assurance immeuble a Calais: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles collectifs et coproprietes exposees.",
+    "url": "/assurance-immeuble-calais"
+  },
+  {
+    "title": "Assurance immeuble Cannes",
+    "description": "Devis assurance immeuble a Cannes: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes, residences secondaires et immeubles mixtes.",
+    "url": "/assurance-immeuble-cannes"
+  },
+  {
+    "title": "Assurance immeuble Carcassonne",
+    "description": "Devis assurance immeuble a Carcassonne: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles anciens, bailleurs et petites coproprietes.",
+    "url": "/assurance-immeuble-carcassonne"
+  },
+  {
+    "title": "Assurance immeuble Chalon-sur-Saone",
+    "description": "Devis assurance immeuble a Chalon-sur-Saone: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour bailleurs, coproprietes et immeubles anciens.",
+    "url": "/assurance-immeuble-chalon-sur-saone"
+  },
+  {
+    "title": "Assurance immeuble Chambery",
+    "description": "Devis assurance immeuble a Chambery: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes, bailleurs et immeubles proches montagne.",
+    "url": "/assurance-immeuble-chambery"
+  },
+  {
+    "title": "Assurance immeuble Chartres",
+    "description": "Devis assurance immeuble a Chartres: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles patrimoniaux, SCI et coproprietes.",
+    "url": "/assurance-immeuble-chartres"
+  },
+  {
+    "title": "Assurance immeuble Cholet",
+    "description": "Devis assurance immeuble a Cholet: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles locatifs et patrimoines familiaux.",
+    "url": "/assurance-immeuble-cholet"
   },
   {
     "title": "Assurance immeuble Clermont-Ferrand",
@@ -40,9 +145,34 @@
     "url": "/assurance-immeuble-clermont-ferrand"
   },
   {
+    "title": "Assurance immeuble Colmar",
+    "description": "Devis assurance immeuble a Colmar: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour petites coproprietes, SCI et immeubles patrimoniaux.",
+    "url": "/assurance-immeuble-colmar"
+  },
+  {
     "title": "Assurance immeuble Dijon",
     "description": "Devis assurance immeuble a Dijon: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour patrimoines locatifs, SCI et petites coproprietes.",
     "url": "/assurance-immeuble-dijon"
+  },
+  {
+    "title": "Assurance immeuble Douai",
+    "description": "Devis assurance immeuble a Douai: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles de rapport et petites coproprietes.",
+    "url": "/assurance-immeuble-douai"
+  },
+  {
+    "title": "Assurance immeuble Dunkerque",
+    "description": "Devis assurance immeuble a Dunkerque: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes, locaux mixtes et immeubles littoraux.",
+    "url": "/assurance-immeuble-dunkerque"
+  },
+  {
+    "title": "Assurance immeuble Evreux",
+    "description": "Devis assurance immeuble a Evreux: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles locatifs, syndics benevoles et SCI.",
+    "url": "/assurance-immeuble-evreux"
+  },
+  {
+    "title": "Assurance immeuble Frejus",
+    "description": "Devis assurance immeuble a Frejus: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour residences, coproprietes et immeubles locatifs.",
+    "url": "/assurance-immeuble-frejus"
   },
   {
     "title": "Assurance immeuble Grenoble",
@@ -50,9 +180,24 @@
     "url": "/assurance-immeuble-grenoble"
   },
   {
+    "title": "Assurance immeuble La Roche-sur-Yon",
+    "description": "Devis assurance immeuble a La Roche-sur-Yon: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour bailleurs, SCI et petites coproprietes.",
+    "url": "/assurance-immeuble-la-roche-sur-yon"
+  },
+  {
+    "title": "Assurance immeuble La Rochelle",
+    "description": "Devis assurance immeuble a La Rochelle: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes littorales, locations et immeubles mixtes.",
+    "url": "/assurance-immeuble-la-rochelle"
+  },
+  {
     "title": "Assurance immeuble Le Havre",
     "description": "Devis assurance immeuble a Le Havre: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles collectifs, locaux mixtes et garanties climatiques.",
     "url": "/assurance-immeuble-le-havre"
+  },
+  {
+    "title": "Assurance immeuble Lens",
+    "description": "Devis assurance immeuble a Lens: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour bailleurs, SCI et immeubles locatifs.",
+    "url": "/assurance-immeuble-lens"
   },
   {
     "title": "Assurance immeuble Lille",
@@ -70,9 +215,19 @@
     "url": "/assurance-immeuble-locatif"
   },
   {
+    "title": "Assurance immeuble Lorient",
+    "description": "Devis assurance immeuble a Lorient: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles collectifs, SCI et locaux professionnels.",
+    "url": "/assurance-immeuble-lorient"
+  },
+  {
     "title": "Assurance immeuble Lyon",
     "description": "Devis assurance immeuble a Lyon: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour coproprietes urbaines, immeubles de rapport et patrimoines familiaux.",
     "url": "/assurance-immeuble-lyon"
+  },
+  {
+    "title": "Assurance immeuble Macon",
+    "description": "Devis assurance immeuble a Macon: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles locatifs, locaux mixtes et SCI.",
+    "url": "/assurance-immeuble-macon"
   },
   {
     "title": "Assurance immeuble Marseille",
@@ -85,9 +240,24 @@
     "url": "/assurance-immeuble-metz"
   },
   {
+    "title": "Assurance immeuble Montauban",
+    "description": "Devis assurance immeuble a Montauban: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour bailleurs, immeubles locatifs et SCI.",
+    "url": "/assurance-immeuble-montauban"
+  },
+  {
     "title": "Assurance immeuble Montpellier",
     "description": "Devis assurance immeuble a Montpellier: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour coproprietes recentes, bailleurs et locaux mixtes.",
     "url": "/assurance-immeuble-montpellier"
+  },
+  {
+    "title": "Assurance immeuble Mulhouse",
+    "description": "Devis assurance immeuble a Mulhouse: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles de rapport et coproprietes urbaines.",
+    "url": "/assurance-immeuble-mulhouse"
+  },
+  {
+    "title": "Assurance immeuble Nancy",
+    "description": "Devis assurance immeuble a Nancy: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes de centre-ville, immeubles anciens et SCI patrimoniales.",
+    "url": "/assurance-immeuble-nancy"
   },
   {
     "title": "Assurance immeuble Nantes",
@@ -95,9 +265,29 @@
     "url": "/assurance-immeuble-nantes"
   },
   {
+    "title": "Assurance immeuble Narbonne",
+    "description": "Devis assurance immeuble a Narbonne: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes, SCI et immeubles proches littoral.",
+    "url": "/assurance-immeuble-narbonne"
+  },
+  {
+    "title": "Assurance immeuble Nevers",
+    "description": "Devis assurance immeuble a Nevers: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour petites coproprietes, SCI et bailleurs.",
+    "url": "/assurance-immeuble-nevers"
+  },
+  {
     "title": "Assurance immeuble Nice",
     "description": "Devis assurance immeuble a Nice: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour coproprietes, residences secondaires et immeubles proches littoral.",
     "url": "/assurance-immeuble-nice"
+  },
+  {
+    "title": "Assurance immeuble Nimes",
+    "description": "Devis assurance immeuble a Nimes: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles locatifs, coproprietes et locaux commerciaux.",
+    "url": "/assurance-immeuble-nimes"
+  },
+  {
+    "title": "Assurance immeuble Niort",
+    "description": "Devis assurance immeuble a Niort: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes, SCI et patrimoines locatifs.",
+    "url": "/assurance-immeuble-niort"
   },
   {
     "title": "Assurance immeuble Orleans",
@@ -110,9 +300,24 @@
     "url": "/assurance-immeuble-paris"
   },
   {
+    "title": "Assurance immeuble Pau",
+    "description": "Devis assurance immeuble a Pau: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour bailleurs, syndics benevoles et residences collectives.",
+    "url": "/assurance-immeuble-pau"
+  },
+  {
     "title": "Assurance immeuble Perpignan",
     "description": "Devis assurance immeuble a Perpignan: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles locatifs et coproprietes proches littoral.",
     "url": "/assurance-immeuble-perpignan"
+  },
+  {
+    "title": "Assurance immeuble Poitiers",
+    "description": "Devis assurance immeuble a Poitiers: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour SCI, bailleurs et petites coproprietes.",
+    "url": "/assurance-immeuble-poitiers"
+  },
+  {
+    "title": "Assurance immeuble Quimper",
+    "description": "Devis assurance immeuble a Quimper: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles anciens, syndics benevoles et bailleurs.",
+    "url": "/assurance-immeuble-quimper"
   },
   {
     "title": "Assurance immeuble Reims",
@@ -135,9 +340,29 @@
     "url": "/assurance-immeuble-saint-etienne"
   },
   {
+    "title": "Assurance immeuble Saint-Malo",
+    "description": "Devis assurance immeuble a Saint-Malo: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes littorales et residences secondaires.",
+    "url": "/assurance-immeuble-saint-malo"
+  },
+  {
+    "title": "Assurance immeuble Saint-Nazaire",
+    "description": "Devis assurance immeuble a Saint-Nazaire: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles collectifs, coproprietes et locaux mixtes.",
+    "url": "/assurance-immeuble-saint-nazaire"
+  },
+  {
+    "title": "Assurance immeuble Saintes",
+    "description": "Devis assurance immeuble a Saintes: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour bailleurs, petites coproprietes et immeubles anciens.",
+    "url": "/assurance-immeuble-saintes"
+  },
+  {
     "title": "Assurance immeuble Strasbourg",
     "description": "Devis assurance immeuble a Strasbourg: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles anciens, syndics et coproprietes centre-ville.",
     "url": "/assurance-immeuble-strasbourg"
+  },
+  {
+    "title": "Assurance immeuble Tarbes",
+    "description": "Devis assurance immeuble a Tarbes: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes, bailleurs et patrimoines locatifs.",
+    "url": "/assurance-immeuble-tarbes"
   },
   {
     "title": "Assurance immeuble Toulon",
@@ -153,6 +378,26 @@
     "title": "Assurance immeuble Tours",
     "description": "Devis assurance immeuble a Tours: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour bailleurs, immeubles anciens et coproprietes centre-ville.",
     "url": "/assurance-immeuble-tours"
+  },
+  {
+    "title": "Assurance immeuble Troyes",
+    "description": "Devis assurance immeuble a Troyes: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles anciens, coproprietes et patrimoines locatifs.",
+    "url": "/assurance-immeuble-troyes"
+  },
+  {
+    "title": "Assurance immeuble Valence",
+    "description": "Devis assurance immeuble a Valence: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles locatifs, SCI et locaux mixtes.",
+    "url": "/assurance-immeuble-valence"
+  },
+  {
+    "title": "Assurance immeuble Valenciennes",
+    "description": "Devis assurance immeuble a Valenciennes: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour immeubles de rapport, SCI et locaux mixtes.",
+    "url": "/assurance-immeuble-valenciennes"
+  },
+  {
+    "title": "Assurance immeuble Vannes",
+    "description": "Devis assurance immeuble a Vannes: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour coproprietes, residences secondaires et bailleurs.",
+    "url": "/assurance-immeuble-vannes"
   },
   {
     "title": "Assurance immeuble Villeurbanne",
@@ -185,9 +430,44 @@
     "url": "/audit-contrat-assurance-immeuble"
   },
   {
+    "title": "Immeuble en colocation: questions assurance a poser",
+    "description": "Rotation locative, parties communes, occupants et baux: les points a cadrer dans une colocation.",
+    "url": "/blog/assurance-colocation-immeuble"
+  },
+  {
+    "title": "Assurance copropriete avant AG: fiche de synthese utile",
+    "description": "Budget, franchises, garanties et sinistres: preparer une decision claire en assemblee generale.",
+    "url": "/blog/assurance-copropriete-avant-ag"
+  },
+  {
     "title": "Assurance copropriete obligatoire: ce qu'il faut verifier",
     "description": "Responsabilite civile du syndicat, coproprietaires occupants ou non occupants, role du syndic et pieces utiles.",
     "url": "/blog/assurance-copropriete-obligatoire"
+  },
+  {
+    "title": "Assurance immeuble ancien: points de vigilance avant devis",
+    "description": "Toiture, reseaux, facade, vacance et sinistres: les elements a documenter pour assurer un immeuble ancien.",
+    "url": "/blog/assurance-immeuble-ancien"
+  },
+  {
+    "title": "Refus d'assurance immeuble: comment reconstruire un dossier",
+    "description": "Refus, surprime ou exclusion: les leviers pour clarifier et representer le risque.",
+    "url": "/blog/assurance-immeuble-apres-refus-assureur"
+  },
+  {
+    "title": "Assurance immeuble avec ascenseur: garanties et responsabilites",
+    "description": "Ascenseur, maintenance, bris, RC et sinistres: les clauses a lire dans un contrat immeuble.",
+    "url": "/blog/assurance-immeuble-avec-ascenseur"
+  },
+  {
+    "title": "Immeuble locatif etudiant: garanties a verifier",
+    "description": "Rotation, occupation meublee, parties communes et sinistres: les points sensibles d'un immeuble etudiant.",
+    "url": "/blog/assurance-immeuble-etudiant"
+  },
+  {
+    "title": "Immeuble avec local professionnel: assurance du bailleur",
+    "description": "Profession liberale, bureau, commerce leger ou local vacant: adapter la declaration a l'activite reelle.",
+    "url": "/blog/assurance-immeuble-local-professionnel"
   },
   {
     "title": "Immeuble mixte avec commerce: points de vigilance assurance",
@@ -195,9 +475,34 @@
     "url": "/blog/assurance-immeuble-mixte-commerce"
   },
   {
+    "title": "Assurance immeuble et protection du patrimoine: approche globale",
+    "description": "Contrats, franchises, responsabilites et prevention: assurer un immeuble comme un actif patrimonial.",
+    "url": "/blog/assurance-immeuble-protection-du-patrimoine"
+  },
+  {
+    "title": "Immeuble sans sinistre: comment valoriser le dossier",
+    "description": "Absence de sinistre, entretien, travaux et occupation stable peuvent ameliorer la lecture assureur.",
+    "url": "/blog/assurance-immeuble-sans-sinistre"
+  },
+  {
+    "title": "Immeuble vacant: comment eviter les exclusions d'assurance",
+    "description": "Vacance partielle ou totale, visites, securisation et chauffage: les reflexes avant de demander un devis.",
+    "url": "/blog/assurance-immeuble-vacant"
+  },
+  {
+    "title": "Parkings et garages en copropriete: comment les assurer",
+    "description": "Boxes, parkings ouverts, sous-sols, infiltrations et responsabilite: ce qui change dans le dossier assureur.",
+    "url": "/blog/assurance-parking-garages-copropriete"
+  },
+  {
     "title": "SCI et patrimoine locatif: eviter les trous de garantie",
     "description": "Regrouper, auditer et comparer les contrats d'une SCI detenant plusieurs biens.",
     "url": "/blog/assurance-sci-patrimoine-locatif"
+  },
+  {
+    "title": "Audit des franchises assurance immeuble: la methode",
+    "description": "Franchises par garantie, evenement, sinistre recurrent et recherche de fuite: lire le contrat autrement.",
+    "url": "/blog/audit-franchises-assurance-immeuble"
   },
   {
     "title": "Checklist documents pour un devis assurance immeuble",
@@ -205,9 +510,49 @@
     "url": "/blog/checklist-documents-devis-immeuble"
   },
   {
+    "title": "Checklist degat des eaux immeuble: pieces a reunir",
+    "description": "Photos, recherche de fuite, declaration, factures et responsabilites: gagner du temps apres sinistre.",
+    "url": "/blog/checklist-sinistre-degat-des-eaux"
+  },
+  {
+    "title": "Petite copropriete avec syndic benevole: quel contrat assurance choisir ?",
+    "description": "Un guide pour cadrer RC, multirisque immeuble, PNO et documents d'AG dans une petite copropriete.",
+    "url": "/blog/copropriete-petite-syndic-benevole"
+  },
+  {
+    "title": "Dommages ouvrage copropriete: quand l'anticiper",
+    "description": "Travaux importants, decennale, reception et financement: pourquoi la DO se prepare tot.",
+    "url": "/blog/dommages-ouvrage-copropriete-travaux"
+  },
+  {
     "title": "Degat des eaux immeuble: franchises et recherche de fuite",
     "description": "Pourquoi deux contrats d'immeuble peuvent produire des restes a charge tres differents apres degat des eaux.",
     "url": "/blog/franchise-degat-des-eaux-immeuble"
+  },
+  {
+    "title": "Immeuble avec restaurant ou commerce alimentaire: points assurance",
+    "description": "Extraction, stock, horaires, nuisances, bail et garanties: les informations indispensables pour l'assureur.",
+    "url": "/blog/immeuble-mixte-restaurant"
+  },
+  {
+    "title": "Infiltration toiture-terrasse: franchises et recherche de fuite",
+    "description": "Une toiture-terrasse impose une lecture stricte des obligations d'entretien et exclusions d'infiltration.",
+    "url": "/blog/infiltration-toiture-terrasse"
+  },
+  {
+    "title": "Local commercial vacant: quelles garanties pour le proprietaire ?",
+    "description": "Vacance, securisation, degats des eaux et recours: assurer un local commercial non exploite.",
+    "url": "/blog/local-commercial-vacant"
+  },
+  {
+    "title": "Multirisque immeuble ou PNO: comment les distinguer",
+    "description": "Deux contrats proches en apparence, mais des roles differents pour le batiment, le lot et le proprietaire.",
+    "url": "/blog/multirisque-immeuble-vs-pno"
+  },
+  {
+    "title": "Pertes de loyers dans un contrat immeuble: attention aux conditions",
+    "description": "Une garantie pertes de loyers depend du sinistre, du delai, du plafond et du bien assure.",
+    "url": "/blog/pertes-de-loyers-immeuble"
   },
   {
     "title": "PNO bailleur: pourquoi elle reste utile en copropriete",
@@ -215,9 +560,49 @@
     "url": "/blog/pno-bailleur-copropriete"
   },
   {
+    "title": "PNO obligatoire en copropriete: ce qu'un bailleur doit retenir",
+    "description": "La PNO n'a pas le meme role que la multirisque immeuble: voici comment articuler les contrats.",
+    "url": "/blog/pno-obligatoire-copropriete"
+  },
+  {
     "title": "Preparer le renouvellement de son assurance immeuble",
     "description": "Calendrier, pieces, sinistres, travaux et arbitrage prime/franchise avant l'echeance.",
     "url": "/blog/preparer-renouvellement-assurance-immeuble"
+  },
+  {
+    "title": "Prix assurance immeuble au m2: pourquoi le tarif seul ne suffit pas",
+    "description": "Comprendre les facteurs qui font varier une prime d'assurance immeuble au m2 sans perdre de vue les garanties.",
+    "url": "/blog/prix-assurance-immeuble-au-m2"
+  },
+  {
+    "title": "Protection juridique copropriete: utile ou accessoire ?",
+    "description": "Litiges, voisins, prestataires, recouvrement et travaux: quand la protection juridique devient decisive.",
+    "url": "/blog/protection-juridique-copropriete"
+  },
+  {
+    "title": "Travaux de toiture ou ravalement: impacts sur l'assurance immeuble",
+    "description": "Travaux votes, entreprises, dommage ouvrage, sinistres futurs: comment preparer la consultation assureur.",
+    "url": "/blog/ravalement-toiture-travaux-assurance"
+  },
+  {
+    "title": "Renovation energetique en copropriete: anticiper l'assurance",
+    "description": "Isolation, facade, toiture, entreprises et reception: ce que le contrat doit suivre pendant les travaux.",
+    "url": "/blog/renovation-energetique-copropriete-assurance"
+  },
+  {
+    "title": "Resilier ou renegocier une assurance immeuble: calendrier utile",
+    "description": "Echeance, preavis, dossier de consultation et comparaison: eviter les decisions tardives.",
+    "url": "/blog/resiliation-assurance-immeuble"
+  },
+  {
+    "title": "SCI familiale avec immeuble locatif: organiser les assurances",
+    "description": "PNO, multirisque, protection juridique, responsabilite: structurer les contrats d'une SCI.",
+    "url": "/blog/sci-familiale-immeuble"
+  },
+  {
+    "title": "Sinistres recurrents dans un immeuble: comment presenter le risque",
+    "description": "Un historique de sinistres ne condamne pas un dossier, mais il doit etre explique et corrige.",
+    "url": "/blog/sinistres-recurrents-immeuble"
   },
   {
     "title": "Syndic benevole: les reflexes assurance a adopter",
@@ -258,6 +643,46 @@
     "title": "Dommages ouvrage immeuble",
     "description": "Dommages ouvrage immeuble: ravalement, toiture, renovation lourde, extension, structure et travaux de copropriete.",
     "url": "/dommages-ouvrage-immeuble"
+  },
+  {
+    "title": "FAQ assurance immeuble",
+    "description": "Questions courantes sur la multirisque immeuble, la responsabilite civile et les garanties batiment.",
+    "url": "/faq/assurance-immeuble"
+  },
+  {
+    "title": "FAQ assurance copropriete",
+    "description": "Reponses pour syndics, conseils syndicaux et coproprietaires sur l'assurance copropriete.",
+    "url": "/faq/copropriete"
+  },
+  {
+    "title": "FAQ immeuble avec local commercial",
+    "description": "Assurance des immeubles mixtes avec commerce, bureau, restaurant ou local vacant.",
+    "url": "/faq/local-commercial"
+  },
+  {
+    "title": "FAQ PNO bailleur",
+    "description": "Questions utiles pour proprietaires non occupants, SCI et bailleurs en copropriete.",
+    "url": "/faq/pno"
+  },
+  {
+    "title": "FAQ prix assurance immeuble",
+    "description": "Comprendre prime, franchises, garanties et variables qui changent le budget.",
+    "url": "/faq/prix"
+  },
+  {
+    "title": "FAQ assurance SCI",
+    "description": "Assurance d'une SCI familiale, patrimoniale ou locative: contrats et organisation.",
+    "url": "/faq/sci"
+  },
+  {
+    "title": "FAQ sinistres immeuble",
+    "description": "Degats des eaux, incendie, vandalisme, recherche de fuite et recours.",
+    "url": "/faq/sinistres"
+  },
+  {
+    "title": "FAQ travaux et assurance immeuble",
+    "description": "Travaux, dommage ouvrage, ravalement, toiture et declarations assureur.",
+    "url": "/faq/travaux"
   },
   {
     "title": "FAQ assurance immeuble",
@@ -308,6 +733,11 @@
     "title": "Responsabilite civile syndic",
     "description": "RC syndic, syndicat de coproprietaires et conseil syndical: comprendre les responsabilites et structurer les garanties utiles.",
     "url": "/rc-syndic"
+  },
+  {
+    "title": "Systeme SEO continu",
+    "description": "Methode ImmeubleAssur pour piloter le SEO: contenus utiles, audits, Google Search Console, PageSpeed et conversions.",
+    "url": "/strategie-seo-continue"
   },
   {
     "title": "Assurance immeuble par ville",

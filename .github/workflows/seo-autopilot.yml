@@ -1,0 +1,65 @@
+﻿name: SEO Autopilot
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  seo-autopilot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate static site and local SEO report
+        run: npm run generate
+
+      - name: Validate JavaScript
+        run: npm run check
+
+      - name: Run SEO APIs when configured
+        env:
+          GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          GOOGLE_SEARCH_CONSOLE_SITE_URL: ${{ secrets.GOOGLE_SEARCH_CONSOLE_SITE_URL }}
+          PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+        run: npm run seo:apis
+
+
+      - name: Export SEO report to D1 SQL
+        run: npm run seo:sql
+
+      - name: Store SEO report in Cloudflare D1 when configured
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            npx wrangler d1 execute immeubleassur-db --remote --file=reports/seo-autopilot-d1.sql
+          else
+            echo "Cloudflare secrets missing; skipping D1 SEO storage."
+          fi
+
+      - name: Upload SEO reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: immeubleassur-seo-reports
+          path: |
+            reports/seo-autopilot-report.json
+            reports/seo-autopilot-report.md
+            reports/seo-content-factory.json
+            reports/seo-growth-summary.json
+            reports/seo-growth-actions.json
+            public/assets/seo-autopilot-latest.json
+            reports/seo-autopilot-d1.sql
