@@ -7,6 +7,7 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Site statique HTML/CSS/JS, deployable sur Cloudflare Pages.
 - Cloudflare Pages Function `functions/api/leads.js` pour les demandes de devis.
 - Cloudflare Pages Function `functions/api/admin/leads.js` pour consulter les derniers leads avec `ADMIN_API_TOKEN`.
+- Notification email des nouveaux leads via SMTP STARTTLS (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `SMTP_TO`).
 - Cloudflare D1 avec le schema `schema.sql`.
 - Workflow GitHub Actions pret pour deployer via Wrangler.
 
@@ -41,6 +42,6 @@ Ajouter les secrets GitHub:
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
 
-Ajouter aussi la variable Cloudflare Pages `ADMIN_API_TOKEN` pour proteger `/admin.html`.
+Ajouter aussi les variables Cloudflare Pages `ADMIN_API_TOKEN` et SMTP pour proteger `/admin.html` et envoyer les notifications leads.
 
 Puis pousser la branche `main`. Le workflow `.github/workflows/cloudflare-pages.yml` publiera le site.

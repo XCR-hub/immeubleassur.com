@@ -5,7 +5,8 @@ const SITE = "https://immeubleassur.com";
 const OUT = "public";
 const PHONE = "01 80 85 57 86";
 const PHONE_HREF = "+33180855786";
-const EMAIL = "contact@immeubleassur.com";
+const EMAIL = "team@immeubleassur.com";
+const ORIAS = "11 061 425";
 
 const servicePages = [
   {
@@ -464,7 +465,7 @@ function footer() {
         <a href="tel:${PHONE_HREF}">${PHONE}</a>
         <a href="mailto:${EMAIL}">${EMAIL}</a>
         <a href="/confidentialite.html">Confidentialite</a>
-        <span>Specialiste assurance immeuble</span>
+        <span>ORIAS ${ORIAS}</span>
       </address>
     </footer>`;
 }
@@ -576,7 +577,12 @@ function organizationSchema() {
     email: EMAIL,
     areaServed: "France",
     description: "Courtier specialiste en assurance immeuble, copropriete, PNO, SCI, multirisque immeuble et RC syndic.",
-    knowsAbout: ["Assurance immeuble", "Assurance copropriete", "Multirisque immeuble", "Assurance PNO", "Responsabilite civile syndic", "Dommages ouvrage immeuble"]
+    knowsAbout: ["Assurance immeuble", "Assurance copropriete", "Multirisque immeuble", "Assurance PNO", "Responsabilite civile syndic", "Dommages ouvrage immeuble"],
+    hasCredential: {
+      "@type": "EducationalOccupationalCredential",
+      credentialCategory: "ORIAS",
+      identifier: ORIAS.replace(/\s/g, "")
+    }
   })}</script>`;
 }
 
@@ -777,7 +783,7 @@ function faqPage() {
 function contactPage() {
   const body = `
     <section class="page-hero compact-hero"><div class="container"><p class="eyebrow">Contact</p><h1>Contacter ImmeubleAssur.</h1><p>Un besoin immeuble, copropriete, PNO, SCI ou audit contrat ? Envoyez les informations essentielles.</p></div></section>
-    <section class="band page-band"><div class="split"><div><h2>Coordonnees</h2><p class="large-copy">Telephone: ${PHONE}<br>Email: ${EMAIL}</p></div>${leadForm({ need: "audit-contrat" })}</div></section>`;
+    <section class="band page-band"><div class="split"><div><h2>Coordonnees</h2><p class="large-copy">Telephone: ${PHONE}<br>Email: ${EMAIL}<br>ORIAS: ${ORIAS}</p></div>${leadForm({ need: "audit-contrat" })}</div></section>`;
   return layout({ slug: "contact", title: "Contact assurance immeuble", description: "Contact ImmeubleAssur pour devis assurance immeuble, copropriete, PNO, SCI et audit contrat.", body });
 }
 
@@ -811,8 +817,8 @@ function adminPage() {
       </section>
       <section class="admin-table-wrap" aria-label="Derniers leads">
         <table class="admin-table">
-          <thead><tr><th>Date</th><th>Reference</th><th>Contact</th><th>Profil</th><th>Bien</th><th>Ville</th><th>Score</th><th>Message</th></tr></thead>
-          <tbody id="leads-body"><tr><td colspan="8">Aucun chargement effectue.</td></tr></tbody>
+          <thead><tr><th>Date</th><th>Reference</th><th>Contact</th><th>Profil</th><th>Bien</th><th>Ville</th><th>Besoin</th><th>Statut</th><th>Score</th><th>Message</th></tr></thead>
+          <tbody id="leads-body"><tr><td colspan="10">Aucun chargement effectue.</td></tr></tbody>
         </table>
       </section>
     </main>
@@ -860,7 +866,7 @@ function writeStatic() {
   write("contact", contactPage());
   write("merci", simplePage("merci", "Votre demande est enregistree", "Confirmation demande ImmeubleAssur.", `<p>Un conseiller ImmeubleAssur vous rappelle rapidement pour qualifier le risque et preparer la suite.</p><p><a class="button primary" href="/">Retour accueil</a></p>`));
   write("confidentialite", simplePage("confidentialite", "Politique de confidentialite", "Politique de confidentialite ImmeubleAssur.", `<p>Les donnees transmises via le formulaire sont utilisees pour qualifier la demande d'assurance immeuble, recontacter le demandeur et suivre le dossier commercial.</p><ul><li>Donnees: identite, coordonnees, profil, ville, type de bien, besoin et message.</li><li>Conservation: duree limitee aux besoins de traitement commercial et de suivi du dossier.</li><li>Contact: ${EMAIL}.</li></ul>`));
-  write("mentions-legales", simplePage("mentions-legales", "Mentions legales", "Mentions legales ImmeubleAssur.", `<p>ImmeubleAssur est une marque specialisee assurance immeuble. Les informations du site sont indicatives et ne remplacent pas l'analyse contractuelle d'un dossier.</p><p>Contact: ${EMAIL}. Informations legales completes a confirmer avant affichage definitif.</p>`));
+  write("mentions-legales", simplePage("mentions-legales", "Mentions legales", "Mentions legales ImmeubleAssur.", `<p>ImmeubleAssur est une marque specialisee assurance immeuble. Les informations du site sont indicatives et ne remplacent pas l'analyse contractuelle d'un dossier.</p><p>Contact: ${EMAIL}. ORIAS: ${ORIAS}.</p>`));
   write("admin", adminPage());
   const urls = [
     "",

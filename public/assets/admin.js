@@ -21,7 +21,7 @@ function render(rows) {
   if (!rows.length) {
     const tr = document.createElement("tr");
     const td = cell("Aucun lead trouve.");
-    td.colSpan = 8;
+    td.colSpan = 10;
     tr.append(td);
     body.append(tr);
     return;
@@ -36,6 +36,8 @@ function render(rows) {
       cell(lead.profile),
       cell(`${lead.property_type}${lead.units_count ? `\n${lead.units_count} lots` : ""}`),
       cell(lead.city),
+      cell(lead.need),
+      cell(lead.status),
       cell(String(lead.lead_score)),
       cell(lead.message)
     );

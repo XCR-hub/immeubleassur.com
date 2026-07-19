@@ -65,5 +65,5 @@ INSERT OR IGNORE INTO site_settings (key, value, updated_at)
 VALUES
   ('brand_name', 'ImmeubleAssur', datetime('now')),
   ('site_url', 'https://immeubleassur.com', datetime('now')),
-  ('contact_email', 'contact@immeubleassur.com', datetime('now')),
+  ('contact_email', 'team@immeubleassur.com', datetime('now')),
   ('contact_phone', '+33180855786', datetime('now'));
