@@ -1,1664 +1,135 @@
 {
-  "generated_at": "2026-07-19T13:15:15.535Z",
+  "generated_at": "2026-07-19T13:40:31.383Z",
   "mode": "api",
   "pages_checked": 157,
-  "average_score": 91,
-  "weak_pages": [
-    {
-      "slug": "mentions-legales",
-      "url": "https://immeubleassur.com/mentions-legales",
-      "title": "Mentions legales | ImmeubleAssur",
-      "description": "Mentions legales ImmeubleAssur.",
-      "words": 75,
-      "h1": 1,
-      "h2": 0,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": false,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "title",
-          "message": "Title longueur 32",
-          "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles."
-        },
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 31",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "75 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        },
-        {
-          "severity": "medium",
-          "type": "conversion",
-          "message": "CTA faible ou absent",
-          "recommendation": "Ajouter une action claire vers devis, audit ou contact."
-        }
-      ],
-      "score": 55
-    },
-    {
-      "slug": "blog/assurance-immeuble-mixte-commerce",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
-      "title": "Immeuble mixte avec commerce: points de vigilance assurance | ImmeubleAssur",
-      "description": "Activite commerciale, extraction, terrasse, stock et garanties bailleur: les questions a poser.",
-      "words": 254,
-      "h1": 1,
-      "h2": 1,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "title",
-          "message": "Title longueur 75",
-          "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles."
-        },
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 95",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "254 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 65
-    },
-    {
-      "slug": "blog/franchise-degat-des-eaux-immeuble",
-      "url": "https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble",
-      "title": "Degat des eaux immeuble: franchises et recherche de fuite | ImmeubleAssur",
-      "description": "Pourquoi deux contrats d'immeuble peuvent produire des restes a charge tres differents apres degat des eaux.",
-      "words": 281,
-      "h1": 1,
-      "h2": 1,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "title",
-          "message": "Title longueur 73",
-          "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles."
-        },
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 108",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "281 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 65
-    },
-    {
-      "slug": "confidentialite",
-      "url": "https://immeubleassur.com/confidentialite",
-      "title": "Politique de confidentialite | ImmeubleAssur",
-      "description": "Politique de confidentialite ImmeubleAssur.",
-      "words": 116,
-      "h1": 1,
-      "h2": 0,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": false,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 43",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "116 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        },
-        {
-          "severity": "medium",
-          "type": "conversion",
-          "message": "CTA faible ou absent",
-          "recommendation": "Ajouter une action claire vers devis, audit ou contact."
-        }
-      ],
-      "score": 65
-    },
-    {
-      "slug": "guides",
-      "url": "https://immeubleassur.com/guides",
-      "title": "Guides assurance immeuble | ImmeubleAssur",
-      "description": "Guides pratiques assurance immeuble, copropriete, documents, comparateur et renouvellement.",
-      "words": 112,
-      "h1": 1,
-      "h2": 0,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": false,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 91",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "112 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        },
-        {
-          "severity": "medium",
-          "type": "conversion",
-          "message": "CTA faible ou absent",
-          "recommendation": "Ajouter une action claire vers devis, audit ou contact."
-        }
-      ],
-      "score": 65
-    },
-    {
-      "slug": "villes",
-      "url": "https://immeubleassur.com/villes",
-      "title": "Assurance immeuble par ville | ImmeubleAssur",
-      "description": "Pages locales assurance immeuble pour Paris, Lyon, Marseille, Bordeaux, Lille, Nantes et grandes villes.",
-      "words": 368,
-      "h1": 1,
-      "h2": 1,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": false,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 104",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "368 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        },
-        {
-          "severity": "medium",
-          "type": "conversion",
-          "message": "CTA faible ou absent",
-          "recommendation": "Ajouter une action claire vers devis, audit ou contact."
-        }
-      ],
-      "score": 65
-    },
-    {
-      "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
-      "url": "https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire",
-      "title": "CNO coproprietaire non occupant: quand l'assurance devient indispensable | ImmeubleAssur",
-      "description": "Responsabilite civile, lot loue ou vacant, syndic et assurance immeuble: comprendre le role de la CNO.",
-      "words": 449,
-      "h1": 1,
-      "h2": 5,
-      "details": 3,
-      "jsonLd": 3,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "title",
-          "message": "Title longueur 88",
-          "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles."
-        },
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 102",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "449 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        }
-      ],
-      "score": 70
-    },
-    {
-      "slug": "faq/pno",
-      "url": "https://immeubleassur.com/faq/pno",
-      "title": "FAQ PNO bailleur | ImmeubleAssur",
-      "description": "Questions utiles pour proprietaires non occupants, SCI et bailleurs en copropriete.",
-      "words": 439,
-      "h1": 1,
-      "h2": 1,
-      "details": 8,
-      "jsonLd": 4,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "title",
-          "message": "Title longueur 32",
-          "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles."
-        },
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 83",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "439 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        }
-      ],
-      "score": 70
-    },
-    {
-      "slug": "faq/sci",
-      "url": "https://immeubleassur.com/faq/sci",
-      "title": "FAQ assurance SCI | ImmeubleAssur",
-      "description": "Assurance d'une SCI familiale, patrimoniale ou locative: contrats et organisation.",
-      "words": 433,
-      "h1": 1,
-      "h2": 1,
-      "details": 8,
-      "jsonLd": 4,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "title",
-          "message": "Title longueur 33",
-          "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles."
-        },
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 82",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "433 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        }
-      ],
-      "score": 70
-    },
-    {
-      "slug": "blog/assurance-copropriete-obligatoire",
-      "url": "https://immeubleassur.com/blog/assurance-copropriete-obligatoire",
-      "title": "Assurance copropriete obligatoire: ce qu'il faut verifier | ImmeubleAssur",
-      "description": "Responsabilite civile du syndicat, coproprietaires occupants ou non occupants, role du syndic et pieces utiles.",
-      "words": 289,
-      "h1": 1,
-      "h2": 1,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "title",
-          "message": "Title longueur 73",
-          "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "289 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 75
-    },
-    {
-      "slug": "blog/assurance-sci-patrimoine-locatif",
-      "url": "https://immeubleassur.com/blog/assurance-sci-patrimoine-locatif",
-      "title": "SCI et patrimoine locatif: eviter les trous de garantie | ImmeubleAssur",
-      "description": "Regrouper, auditer et comparer les contrats d'une SCI detenant plusieurs biens.",
-      "words": 264,
-      "h1": 1,
-      "h2": 1,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 79",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "264 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 75
-    },
-    {
-      "slug": "blog/checklist-documents-devis-immeuble",
-      "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
-      "title": "Checklist documents pour un devis assurance immeuble | ImmeubleAssur",
-      "description": "Les pieces a preparer pour obtenir une reponse assureur rapide et fiable.",
-      "words": 259,
-      "h1": 1,
-      "h2": 1,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 73",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "259 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 75
-    },
-    {
-      "slug": "blog/pno-bailleur-copropriete",
-      "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
-      "title": "PNO bailleur: pourquoi elle reste utile en copropriete | ImmeubleAssur",
-      "description": "La PNO complete les assurances occupant et immeuble. Voici les cas ou elle protege le proprietaire.",
-      "words": 273,
-      "h1": 1,
-      "h2": 1,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 99",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "273 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 75
-    },
-    {
-      "slug": "blog/preparer-renouvellement-assurance-immeuble",
-      "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
-      "title": "Preparer le renouvellement de son assurance immeuble | ImmeubleAssur",
-      "description": "Calendrier, pieces, sinistres, travaux et arbitrage prime/franchise avant l'echeance.",
-      "words": 266,
-      "h1": 1,
-      "h2": 1,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 85",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "266 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 75
-    },
-    {
-      "slug": "blog/syndic-benevole-assurance",
-      "url": "https://immeubleassur.com/blog/syndic-benevole-assurance",
-      "title": "Syndic benevole: les reflexes assurance a adopter | ImmeubleAssur",
-      "description": "Contrat immeuble, RC, documents, AG et declarations: un guide pour syndics non professionnels.",
-      "words": 252,
-      "h1": 1,
-      "h2": 1,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 94",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "252 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 75
-    },
-    {
-      "slug": "blog",
-      "url": "https://immeubleassur.com/blog",
-      "title": "Blog assurance immeuble | ImmeubleAssur",
-      "description": "Articles assurance immeuble, copropriete, PNO, SCI, syndic et sinistres.",
-      "words": 714,
-      "h1": 1,
-      "h2": 2,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": false,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 72",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        },
-        {
-          "severity": "medium",
-          "type": "conversion",
-          "message": "CTA faible ou absent",
-          "recommendation": "Ajouter une action claire vers devis, audit ou contact."
-        }
-      ],
-      "score": 75
-    },
-    {
-      "slug": "checklist-documents-assurance-immeuble",
-      "url": "https://immeubleassur.com/checklist-documents-assurance-immeuble",
-      "title": "Checklist documents assurance immeuble | ImmeubleAssur",
-      "description": "Liste des pieces a rassembler avant de demander un devis immeuble, copropriete ou PNO.",
-      "words": 236,
-      "h1": 1,
-      "h2": 2,
-      "details": 0,
-      "jsonLd": 3,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 86",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "236 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 75
-    },
-    {
-      "slug": "comparateur-assurance-immeuble",
-      "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-      "title": "Comparateur assurance immeuble | ImmeubleAssur",
-      "description": "Comment comparer un contrat immeuble au-dela du prix: franchises, exclusions, plafonds et services.",
-      "words": 232,
-      "h1": 1,
-      "h2": 2,
-      "details": 0,
-      "jsonLd": 3,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 99",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "232 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 75
-    },
-    {
-      "slug": "contact",
-      "url": "https://immeubleassur.com/contact",
-      "title": "Contact assurance immeuble | ImmeubleAssur",
-      "description": "Contact ImmeubleAssur pour devis assurance immeuble, copropriete, PNO, SCI et audit contrat.",
-      "words": 191,
-      "h1": 1,
-      "h2": 2,
-      "details": 0,
-      "jsonLd": 2,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 92",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "191 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 75
-    },
-    {
-      "slug": "devis-assurance-immeuble",
-      "url": "https://immeubleassur.com/devis-assurance-immeuble",
-      "title": "Devis assurance immeuble | ImmeubleAssur",
-      "description": "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec ImmeubleAssur.",
-      "words": 184,
-      "h1": 1,
-      "h2": 1,
-      "details": 0,
-      "jsonLd": 3,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 81",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "184 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 75
-    },
-    {
-      "slug": "guide-assurance-copropriete-2026",
-      "url": "https://immeubleassur.com/guide-assurance-copropriete-2026",
-      "title": "Guide assurance copropriete 2026 | ImmeubleAssur",
-      "description": "Guide pratique pour comprendre RC syndicat, multirisque immeuble, syndic, PNO et renouvellement.",
-      "words": 232,
-      "h1": 1,
-      "h2": 2,
-      "details": 0,
-      "jsonLd": 3,
-      "hasLeadForm": true,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 96",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
-        },
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "232 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        }
-      ],
-      "score": 75
-    },
-    {
-      "slug": "strategie-seo-continue",
-      "url": "https://immeubleassur.com/strategie-seo-continue",
-      "title": "Systeme SEO continu | ImmeubleAssur",
-      "description": "Methode ImmeubleAssur pour piloter le SEO: contenus utiles, audits, Google Search Console, PageSpeed et conversions.",
-      "words": 152,
-      "h1": 1,
-      "h2": 1,
-      "details": 0,
-      "jsonLd": 3,
-      "hasLeadForm": false,
-      "issues": [
-        {
-          "severity": "medium",
-          "type": "content-depth",
-          "message": "152 mots",
-          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
-        },
-        {
-          "severity": "low",
-          "type": "faq",
-          "message": "Peu de FAQ visibles",
-          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
-        },
-        {
-          "severity": "medium",
-          "type": "conversion",
-          "message": "CTA faible ou absent",
-          "recommendation": "Ajouter une action claire vers devis, audit ou contact."
-        }
-      ],
-      "score": 75
-    }
-  ],
+  "average_score": 98,
+  "weak_pages": [],
   "opportunities": [
     {
-      "id": "assurance-immeuble-bordeaux-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/assurance-immeuble-bordeaux",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 172"
-    },
-    {
-      "id": "assurance-immeuble-grenoble-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/assurance-immeuble-grenoble",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 171"
-    },
-    {
-      "id": "assurance-immeuble-paris-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/assurance-immeuble-paris",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 183"
-    },
-    {
-      "id": "assurance-sci-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/assurance-sci",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 109"
-    },
-    {
-      "id": "audit-contrat-assurance-immeuble-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/audit-contrat-assurance-immeuble",
-      "page_score": 85,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "353 mots"
-    },
-    {
-      "id": "blog/assurance-colocation-immeuble-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-colocation-immeuble",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 96"
-    },
-    {
-      "id": "blog/assurance-copropriete-avant-ag-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-copropriete-avant-ag",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 95"
-    },
-    {
       "id": "blog/assurance-copropriete-obligatoire-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-copropriete-obligatoire",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 73"
-    },
-    {
-      "id": "blog/assurance-copropriete-obligatoire-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/blog/assurance-copropriete-obligatoire",
-      "page_score": 75,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "289 mots"
-    },
-    {
-      "id": "blog/assurance-immeuble-ancien-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-ancien",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 74"
-    },
-    {
-      "id": "blog/assurance-immeuble-ancien-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-ancien",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 106"
-    },
-    {
-      "id": "blog/assurance-immeuble-apres-refus-assureur-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-apres-refus-assureur",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 75"
-    },
-    {
-      "id": "blog/assurance-immeuble-apres-refus-assureur-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-apres-refus-assureur",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 82"
-    },
-    {
-      "id": "blog/assurance-immeuble-avec-ascenseur-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-avec-ascenseur",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 79"
-    },
-    {
-      "id": "blog/assurance-immeuble-avec-ascenseur-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-avec-ascenseur",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 91"
-    },
-    {
-      "id": "blog/assurance-immeuble-etudiant-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-etudiant",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 105"
-    },
-    {
-      "id": "blog/assurance-immeuble-local-professionnel-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-local-professionnel",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 104"
+      "message": "422 mots"
     },
     {
       "id": "blog/assurance-immeuble-mixte-commerce-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 75"
-    },
-    {
-      "id": "blog/assurance-immeuble-mixte-commerce-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 95"
-    },
-    {
-      "id": "blog/assurance-immeuble-mixte-commerce-3",
       "type": "content-depth",
       "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "254 mots"
-    },
-    {
-      "id": "blog/assurance-immeuble-protection-du-patrimoine-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-protection-du-patrimoine",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 80"
-    },
-    {
-      "id": "blog/assurance-immeuble-protection-du-patrimoine-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-protection-du-patrimoine",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 100"
-    },
-    {
-      "id": "blog/assurance-immeuble-sans-sinistre-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-sans-sinistre",
       "page_score": 90,
       "severity": "medium",
       "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 99"
-    },
-    {
-      "id": "blog/assurance-immeuble-vacant-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-vacant",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 74"
-    },
-    {
-      "id": "blog/assurance-immeuble-vacant-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-vacant",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 105"
-    },
-    {
-      "id": "blog/assurance-lot-vacant-copropriete-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-lot-vacant-copropriete",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 109"
-    },
-    {
-      "id": "blog/assurance-lot-vacant-copropriete-2",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/blog/assurance-lot-vacant-copropriete",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "432 mots"
-    },
-    {
-      "id": "blog/assurance-parking-garages-copropriete-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-parking-garages-copropriete",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 108"
+      "message": "399 mots"
     },
     {
       "id": "blog/assurance-sci-patrimoine-locatif-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-sci-patrimoine-locatif",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 79"
-    },
-    {
-      "id": "blog/assurance-sci-patrimoine-locatif-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/blog/assurance-sci-patrimoine-locatif",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "264 mots"
-    },
-    {
-      "id": "blog/audit-franchises-assurance-immeuble-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/audit-franchises-assurance-immeuble",
       "page_score": 90,
       "severity": "medium",
       "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 104"
+      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
+      "message": "397 mots"
     },
     {
       "id": "blog/checklist-documents-devis-immeuble-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 73"
-    },
-    {
-      "id": "blog/checklist-documents-devis-immeuble-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "259 mots"
-    },
-    {
-      "id": "blog/checklist-sinistre-degat-des-eaux-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/checklist-sinistre-degat-des-eaux",
       "page_score": 90,
       "severity": "medium",
       "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 101"
-    },
-    {
-      "id": "blog/cno-coproprietaire-non-occupant-obligatoire-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire",
-      "page_score": 70,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 88"
-    },
-    {
-      "id": "blog/cno-coproprietaire-non-occupant-obligatoire-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire",
-      "page_score": 70,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 102"
-    },
-    {
-      "id": "blog/cno-coproprietaire-non-occupant-obligatoire-3",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire",
-      "page_score": 70,
-      "severity": "medium",
-      "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "449 mots"
-    },
-    {
-      "id": "blog/copropriete-petite-syndic-benevole-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/copropriete-petite-syndic-benevole",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 89"
-    },
-    {
-      "id": "blog/copropriete-petite-syndic-benevole-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/copropriete-petite-syndic-benevole",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 97"
-    },
-    {
-      "id": "blog/dommages-ouvrage-copropriete-travaux-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/dommages-ouvrage-copropriete-travaux",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 87"
+      "message": "411 mots"
     },
     {
       "id": "blog/franchise-degat-des-eaux-immeuble-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 73"
-    },
-    {
-      "id": "blog/franchise-degat-des-eaux-immeuble-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 108"
-    },
-    {
-      "id": "blog/franchise-degat-des-eaux-immeuble-3",
       "type": "content-depth",
       "url": "https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "281 mots"
-    },
-    {
-      "id": "blog/immeuble-mixte-restaurant-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/immeuble-mixte-restaurant",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 82"
-    },
-    {
-      "id": "blog/immeuble-mixte-restaurant-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/immeuble-mixte-restaurant",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 107"
-    },
-    {
-      "id": "blog/infiltration-toiture-terrasse-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/infiltration-toiture-terrasse",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 79"
-    },
-    {
-      "id": "blog/infiltration-toiture-terrasse-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/infiltration-toiture-terrasse",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 105"
-    },
-    {
-      "id": "blog/local-commercial-vacant-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/local-commercial-vacant",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 81"
-    },
-    {
-      "id": "blog/local-commercial-vacant-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/local-commercial-vacant",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 92"
-    },
-    {
-      "id": "blog/multirisque-immeuble-vs-pno-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/multirisque-immeuble-vs-pno",
       "page_score": 90,
       "severity": "medium",
       "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 106"
-    },
-    {
-      "id": "blog/pertes-de-loyers-immeuble-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/pertes-de-loyers-immeuble",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 83"
-    },
-    {
-      "id": "blog/pertes-de-loyers-immeuble-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/pertes-de-loyers-immeuble",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 89"
+      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
+      "message": "427 mots"
     },
     {
       "id": "blog/pno-bailleur-copropriete-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 99"
-    },
-    {
-      "id": "blog/pno-bailleur-copropriete-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "273 mots"
-    },
-    {
-      "id": "blog/pno-cno-differences-garanties-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
       "page_score": 90,
       "severity": "medium",
       "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 105"
-    },
-    {
-      "id": "blog/pno-obligatoire-copropriete-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 78"
-    },
-    {
-      "id": "blog/pno-obligatoire-copropriete-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 94"
+      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
+      "message": "434 mots"
     },
     {
       "id": "blog/preparer-renouvellement-assurance-immeuble-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 85"
-    },
-    {
-      "id": "blog/preparer-renouvellement-assurance-immeuble-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
-      "page_score": 75,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "266 mots"
-    },
-    {
-      "id": "blog/prix-assurance-immeuble-au-m2-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-au-m2",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 83"
-    },
-    {
-      "id": "blog/protection-juridique-copropriete-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/protection-juridique-copropriete",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 104"
-    },
-    {
-      "id": "blog/ravalement-toiture-travaux-assurance-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/ravalement-toiture-travaux-assurance",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 82"
-    },
-    {
-      "id": "blog/ravalement-toiture-travaux-assurance-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/ravalement-toiture-travaux-assurance",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 105"
-    },
-    {
-      "id": "blog/renovation-energetique-copropriete-assurance-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/renovation-energetique-copropriete-assurance",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 76"
-    },
-    {
-      "id": "blog/renovation-energetique-copropriete-assurance-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/renovation-energetique-copropriete-assurance",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 104"
-    },
-    {
-      "id": "blog/resiliation-assurance-immeuble-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/resiliation-assurance-immeuble",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 79"
-    },
-    {
-      "id": "blog/resiliation-assurance-immeuble-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/resiliation-assurance-immeuble",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 89"
-    },
-    {
-      "id": "blog/sci-familiale-immeuble-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/sci-familiale-immeuble",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 77"
-    },
-    {
-      "id": "blog/sci-familiale-immeuble-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/sci-familiale-immeuble",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 90"
-    },
-    {
-      "id": "blog/sinistres-recurrents-immeuble-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/sinistres-recurrents-immeuble",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 82"
-    },
-    {
-      "id": "blog/sinistres-recurrents-immeuble-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/sinistres-recurrents-immeuble",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 93"
+      "message": "418 mots"
     },
     {
       "id": "blog/syndic-benevole-assurance-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/syndic-benevole-assurance",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 94"
-    },
-    {
-      "id": "blog/syndic-benevole-assurance-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/blog/syndic-benevole-assurance",
-      "page_score": 75,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "252 mots"
-    },
-    {
-      "id": "blog-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 72"
-    },
-    {
-      "id": "blog-3",
-      "type": "conversion",
-      "url": "https://immeubleassur.com/blog",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajouter une action claire vers devis, audit ou contact.",
-      "message": "CTA faible ou absent"
+      "message": "404 mots"
     },
     {
       "id": "checklist-documents-assurance-immeuble-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/checklist-documents-assurance-immeuble",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 86"
-    },
-    {
-      "id": "checklist-documents-assurance-immeuble-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/checklist-documents-assurance-immeuble",
-      "page_score": 75,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "236 mots"
+      "message": "385 mots"
     },
     {
       "id": "comparateur-assurance-immeuble-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 99"
-    },
-    {
-      "id": "comparateur-assurance-immeuble-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-      "page_score": 75,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "232 mots"
-    },
-    {
-      "id": "confidentialite-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/confidentialite",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 43"
-    },
-    {
-      "id": "confidentialite-2",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/confidentialite",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "116 mots"
-    },
-    {
-      "id": "confidentialite-4",
-      "type": "conversion",
-      "url": "https://immeubleassur.com/confidentialite",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajouter une action claire vers devis, audit ou contact.",
-      "message": "CTA faible ou absent"
+      "message": "380 mots"
     },
     {
       "id": "contact-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/contact",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 92"
-    },
-    {
-      "id": "contact-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/contact",
-      "page_score": 75,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "191 mots"
+      "message": "339 mots"
     },
     {
       "id": "devis-assurance-immeuble-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/devis-assurance-immeuble",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 81"
-    },
-    {
-      "id": "devis-assurance-immeuble-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/devis-assurance-immeuble",
-      "page_score": 75,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "184 mots"
-    },
-    {
-      "id": "dommages-ouvrage-immeuble-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/dommages-ouvrage-immeuble",
-      "page_score": 85,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "354 mots"
+      "message": "332 mots"
     },
     {
       "id": "faq/assurance-immeuble-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/faq/assurance-immeuble",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 100"
-    },
-    {
-      "id": "faq/assurance-immeuble-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/faq/assurance-immeuble",
-      "page_score": 80,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
@@ -1666,19 +137,9 @@
     },
     {
       "id": "faq/copropriete-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/faq/copropriete",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 89"
-    },
-    {
-      "id": "faq/copropriete-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/faq/copropriete",
-      "page_score": 80,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
@@ -1686,19 +147,9 @@
     },
     {
       "id": "faq/local-commercial-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/faq/local-commercial",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 81"
-    },
-    {
-      "id": "faq/local-commercial-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/faq/local-commercial",
-      "page_score": 80,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
@@ -1706,49 +157,19 @@
     },
     {
       "id": "faq/pno-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/faq/pno",
-      "page_score": 70,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 32"
-    },
-    {
-      "id": "faq/pno-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/faq/pno",
-      "page_score": 70,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 83"
-    },
-    {
-      "id": "faq/pno-3",
       "type": "content-depth",
       "url": "https://immeubleassur.com/faq/pno",
-      "page_score": 70,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "439 mots"
+      "message": "441 mots"
     },
     {
       "id": "faq/prix-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/faq/prix",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 76"
-    },
-    {
-      "id": "faq/prix-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/faq/prix",
-      "page_score": 80,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
@@ -1756,49 +177,19 @@
     },
     {
       "id": "faq/sci-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/faq/sci",
-      "page_score": 70,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 33"
-    },
-    {
-      "id": "faq/sci-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/faq/sci",
-      "page_score": 70,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 82"
-    },
-    {
-      "id": "faq/sci-3",
       "type": "content-depth",
       "url": "https://immeubleassur.com/faq/sci",
-      "page_score": 70,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "433 mots"
+      "message": "435 mots"
     },
     {
       "id": "faq/sinistres-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/faq/sinistres",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 69"
-    },
-    {
-      "id": "faq/sinistres-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/faq/sinistres",
-      "page_score": 80,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
@@ -1806,133 +197,33 @@
     },
     {
       "id": "faq/travaux-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/faq/travaux",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 71"
-    },
-    {
-      "id": "faq/travaux-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/faq/travaux",
-      "page_score": 80,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
       "message": "436 mots"
     },
     {
-      "id": "faq-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/faq",
+      "id": "guide-assurance-copropriete-2026-1",
+      "type": "content-depth",
+      "url": "https://immeubleassur.com/guide-assurance-copropriete-2026",
       "page_score": 90,
       "severity": "medium",
       "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 99"
-    },
-    {
-      "id": "gestion-sinistres-immeuble-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/gestion-sinistres-immeuble",
-      "page_score": 85,
-      "severity": "medium",
-      "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "356 mots"
-    },
-    {
-      "id": "guide-assurance-copropriete-2026-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/guide-assurance-copropriete-2026",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 96"
-    },
-    {
-      "id": "guide-assurance-copropriete-2026-2",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/guide-assurance-copropriete-2026",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "232 mots"
+      "message": "369 mots"
     },
     {
       "id": "guides-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/guides",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 91"
-    },
-    {
-      "id": "guides-2",
       "type": "content-depth",
       "url": "https://immeubleassur.com/guides",
-      "page_score": 65,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "112 mots"
-    },
-    {
-      "id": "guides-4",
-      "type": "conversion",
-      "url": "https://immeubleassur.com/guides",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajouter une action claire vers devis, audit ou contact.",
-      "message": "CTA faible ou absent"
-    },
-    {
-      "id": "mentions-legales-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/mentions-legales",
-      "page_score": 55,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 32"
-    },
-    {
-      "id": "mentions-legales-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/mentions-legales",
-      "page_score": 55,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 31"
-    },
-    {
-      "id": "mentions-legales-3",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/mentions-legales",
-      "page_score": 55,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "75 mots"
-    },
-    {
-      "id": "mentions-legales-5",
-      "type": "conversion",
-      "url": "https://immeubleassur.com/mentions-legales",
-      "page_score": 55,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajouter une action claire vers devis, audit ou contact.",
-      "message": "CTA faible ou absent"
+      "message": "295 mots"
     },
     {
       "id": "merci-1",
@@ -1945,94 +236,14 @@
       "message": "Description longueur 35"
     },
     {
-      "id": "multirisque-immeuble-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/multirisque-immeuble",
-      "page_score": 85,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "356 mots"
-    },
-    {
-      "id": "pno-cno-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/pno-cno",
-      "page_score": 85,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "295 mots"
-    },
-    {
-      "id": "prix-assurance-immeuble-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/prix-assurance-immeuble",
-      "page_score": 85,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "367 mots"
-    },
-    {
-      "id": "rc-syndic-1",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/rc-syndic",
-      "page_score": 85,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "365 mots"
-    },
-    {
       "id": "strategie-seo-continue-1",
       "type": "content-depth",
       "url": "https://immeubleassur.com/strategie-seo-continue",
-      "page_score": 75,
+      "page_score": 90,
       "severity": "medium",
       "score": 60,
       "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "152 mots"
-    },
-    {
-      "id": "strategie-seo-continue-3",
-      "type": "conversion",
-      "url": "https://immeubleassur.com/strategie-seo-continue",
-      "page_score": 75,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajouter une action claire vers devis, audit ou contact.",
-      "message": "CTA faible ou absent"
-    },
-    {
-      "id": "villes-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/villes",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 104"
-    },
-    {
-      "id": "villes-2",
-      "type": "content-depth",
-      "url": "https://immeubleassur.com/villes",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
-      "message": "368 mots"
-    },
-    {
-      "id": "villes-4",
-      "type": "conversion",
-      "url": "https://immeubleassur.com/villes",
-      "page_score": 65,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajouter une action claire vers devis, audit ou contact.",
-      "message": "CTA faible ou absent"
+      "message": "329 mots"
     },
     {
       "id": "intent-1",
@@ -2061,13 +272,21 @@
     {
       "id": "intent-4",
       "type": "content-gap",
+      "query": "PNO copropriete",
+      "url": "https://immeubleassur.com/faq/pno",
+      "score": 45,
+      "recommendation": "Creer ou renforcer un contenu utile autour de \"PNO copropriete\"."
+    },
+    {
+      "id": "intent-5",
+      "type": "content-gap",
       "query": "sinistre degat des eaux immeuble",
       "url": "https://immeubleassur.com/blog/checklist-sinistre-degat-des-eaux",
       "score": 45,
       "recommendation": "Creer ou renforcer un contenu utile autour de \"sinistre degat des eaux immeuble\"."
     },
     {
-      "id": "intent-5",
+      "id": "intent-6",
       "type": "content-gap",
       "query": "dommages ouvrage copropriete",
       "url": "https://immeubleassur.com/blog/dommages-ouvrage-copropriete-travaux",
@@ -2075,7 +294,7 @@
       "recommendation": "Creer ou renforcer un contenu utile autour de \"dommages ouvrage copropriete\"."
     },
     {
-      "id": "intent-6",
+      "id": "intent-7",
       "type": "content-gap",
       "query": "assurance SCI familiale",
       "url": "https://immeubleassur.com/blog/sci-familiale-immeuble",
@@ -2083,7 +302,7 @@
       "recommendation": "Creer ou renforcer un contenu utile autour de \"assurance SCI familiale\"."
     },
     {
-      "id": "intent-7",
+      "id": "intent-8",
       "type": "content-gap",
       "query": "protection juridique copropriete",
       "url": "https://immeubleassur.com/blog/protection-juridique-copropriete",
@@ -2091,7 +310,7 @@
       "recommendation": "Creer ou renforcer un contenu utile autour de \"protection juridique copropriete\"."
     },
     {
-      "id": "intent-8",
+      "id": "intent-9",
       "type": "content-gap",
       "query": "assurance local commercial vacant",
       "url": "https://immeubleassur.com/blog/local-commercial-vacant",
@@ -2099,282 +318,12 @@
       "recommendation": "Creer ou renforcer un contenu utile autour de \"assurance local commercial vacant\"."
     },
     {
-      "id": "intent-9",
+      "id": "intent-10",
       "type": "content-gap",
       "query": "franchise assurance immeuble",
       "url": "https://immeubleassur.com/blog/audit-franchises-assurance-immeuble",
       "score": 45,
       "recommendation": "Creer ou renforcer un contenu utile autour de \"franchise assurance immeuble\"."
-    },
-    {
-      "id": "audit-contrat-assurance-immeuble-2",
-      "type": "faq",
-      "url": "https://immeubleassur.com/audit-contrat-assurance-immeuble",
-      "page_score": 85,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "blog/assurance-copropriete-obligatoire-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/blog/assurance-copropriete-obligatoire",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "blog/assurance-immeuble-mixte-commerce-4",
-      "type": "faq",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
-      "page_score": 65,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "blog/assurance-sci-patrimoine-locatif-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/blog/assurance-sci-patrimoine-locatif",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "blog/checklist-documents-devis-immeuble-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "blog/franchise-degat-des-eaux-immeuble-4",
-      "type": "faq",
-      "url": "https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble",
-      "page_score": 65,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "blog/pno-bailleur-copropriete-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "blog/preparer-renouvellement-assurance-immeuble-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "blog/syndic-benevole-assurance-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/blog/syndic-benevole-assurance",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "blog-2",
-      "type": "faq",
-      "url": "https://immeubleassur.com/blog",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "checklist-documents-assurance-immeuble-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/checklist-documents-assurance-immeuble",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "comparateur-assurance-immeuble-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "confidentialite-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/confidentialite",
-      "page_score": 65,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "contact-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/contact",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "devis-assurance-immeuble-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/devis-assurance-immeuble",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "dommages-ouvrage-immeuble-2",
-      "type": "faq",
-      "url": "https://immeubleassur.com/dommages-ouvrage-immeuble",
-      "page_score": 85,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "gestion-sinistres-immeuble-2",
-      "type": "faq",
-      "url": "https://immeubleassur.com/gestion-sinistres-immeuble",
-      "page_score": 85,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "guide-assurance-copropriete-2026-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/guide-assurance-copropriete-2026",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "guides-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/guides",
-      "page_score": 65,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "index-1",
-      "type": "faq",
-      "url": "https://immeubleassur.com/",
-      "page_score": 95,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "mentions-legales-4",
-      "type": "faq",
-      "url": "https://immeubleassur.com/mentions-legales",
-      "page_score": 55,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "multirisque-immeuble-2",
-      "type": "faq",
-      "url": "https://immeubleassur.com/multirisque-immeuble",
-      "page_score": 85,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "pno-cno-2",
-      "type": "faq",
-      "url": "https://immeubleassur.com/pno-cno",
-      "page_score": 85,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "prix-assurance-immeuble-2",
-      "type": "faq",
-      "url": "https://immeubleassur.com/prix-assurance-immeuble",
-      "page_score": 85,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "rc-syndic-2",
-      "type": "faq",
-      "url": "https://immeubleassur.com/rc-syndic",
-      "page_score": 85,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "strategie-seo-continue-2",
-      "type": "faq",
-      "url": "https://immeubleassur.com/strategie-seo-continue",
-      "page_score": 75,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
-    },
-    {
-      "id": "villes-3",
-      "type": "faq",
-      "url": "https://immeubleassur.com/villes",
-      "page_score": 65,
-      "severity": "low",
-      "score": 35,
-      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
-      "message": "Peu de FAQ visibles"
     }
   ],
   "gsc": {
@@ -2423,6 +372,140 @@
         "url": "https://immeubleassur.com/blog",
         "ok": false,
         "status": 429
+      }
+    ]
+  },
+  "auto_fix": {
+    "configured": true,
+    "generated_at": "2026-07-19T13:40:23.401Z",
+    "pages_checked": 156,
+    "pages_changed": 107,
+    "fixes_applied": 166,
+    "safeguards": [
+      "idempotent-markers",
+      "legal-pages-no-commercial-panel",
+      "no-serp-scraping",
+      "people-first-depth-sections"
+    ],
+    "sample": [
+      {
+        "slug": "assurance-cno",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-coproprietaire-non-occupant",
+        "fixes": [
+          "description-normalized",
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-copropriete",
+        "fixes": []
+      },
+      {
+        "slug": "assurance-immeuble-aix-en-provence",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-amiens",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-angers",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-besancon",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-bordeaux",
+        "fixes": [
+          "description-normalized",
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-brest",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-clermont-ferrand",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-dijon",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-grenoble",
+        "fixes": [
+          "description-normalized",
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-le-havre",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-lille",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-limoges",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-locatif",
+        "fixes": []
+      },
+      {
+        "slug": "assurance-immeuble-lyon",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-marseille",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-metz",
+        "fixes": [
+          "content-depth"
+        ]
+      },
+      {
+        "slug": "assurance-immeuble-montpellier",
+        "fixes": [
+          "content-depth"
+        ]
       }
     ]
   },

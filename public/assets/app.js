@@ -1,10 +1,11 @@
-﻿const form = document.querySelector("#lead-form");
+const form = document.querySelector("#lead-form");
 const statusBox = document.querySelector(".form-status");
 
 const requiredFields = ["name", "phone", "email", "profile", "property_type", "city"];
 const sessionKey = "immeubleassur_session_id";
 const sessionId = getSessionId();
 let formStarted = false;
+let qualityEventSent = false;
 
 function getSessionId() {
   const existing = sessionStorage.getItem(sessionKey);
@@ -90,25 +91,90 @@ function localBackup(payload, result) {
   localStorage.setItem(key, JSON.stringify(rows.slice(-25)));
 }
 
-
 function inferIntent() {
   const path = window.location.pathname.toLowerCase();
   if (path.includes("cno")) return "cno";
   if (path.includes("pno")) return "pno";
+  if (path.includes("copro")) return "copropriete";
+  if (path.includes("sci")) return "sci";
   if (path.includes("immeuble")) return "immeuble";
   return "website";
+}
+
+function intentLabel(intent) {
+  return ({ cno: "CNO", pno: "PNO", copropriete: "Copropriete", sci: "SCI", immeuble: "Immeuble" })[intent] || "Immeuble";
 }
 
 function mountLeadBar() {
   if (document.querySelector(".lead-action-bar") || window.location.pathname.includes("/admin") || window.location.pathname.includes("/merci")) return;
   document.body.dataset.intent = inferIntent();
+  const label = intentLabel(document.body.dataset.intent);
   const bar = document.createElement("div");
   bar.className = "lead-action-bar";
-  bar.innerHTML = `<span>Devis CNO/PNO/immeuble</span><a class="button primary" data-track="sticky-devis" href="/devis-pno-cno">Devis rapide</a><a class="button secondary" data-track="sticky-phone" href="tel:+33180855786">Appeler</a>`;
+  bar.innerHTML = `<span>${label}: devis specialise</span><a class="button primary" data-track="sticky-devis" href="/devis-pno-cno">Devis rapide</a><a class="button secondary" data-track="sticky-phone" href="tel:+33180855786">Appeler</a>`;
   document.body.append(bar);
 }
+
+function leadQuality(payload) {
+  const completed = requiredFields.filter((field) => payload[field]).length;
+  const units = Number(String(payload.units_count || "").replace(/\D/g, ""));
+  let score = completed * 9;
+  if (payload.need) score += 12;
+  if (["cno", "pno", "pno-cno", "multirisque-immeuble"].includes(payload.need)) score += 10;
+  if (["sci", "syndic-professionnel", "administrateur-biens"].includes(payload.profile)) score += 8;
+  if (units >= 2) score += 6;
+  if (units >= 10) score += 8;
+  if (payload.message.length >= 40) score += 10;
+  return Math.min(100, score);
+}
+
+function advisorCopy(payload, score) {
+  const need = payload.need || inferIntent();
+  const units = Number(String(payload.units_count || "").replace(/\D/g, ""));
+  if (score >= 82) return { state: "Dossier prioritaire", next: "Ajoutez l'echeance, l'assureur actuel ou les sinistres recents si vous les avez." };
+  if (["cno", "pno", "pno-cno"].includes(need)) return { state: "Parcours PNO/CNO", next: "Precisez si le lot est loue, vacant ou occupe gratuitement." };
+  if (units >= 10) return { state: "Immeuble multi-lots", next: "Indiquez les travaux, commerces et sinistres des 36 derniers mois." };
+  if (payload.profile === "sci") return { state: "SCI patrimoniale", next: "Mentionnez si les lots sont regroupes ou disperses." };
+  return { state: "Qualification rapide", next: "Les champs obligatoires suffisent pour lancer le rappel." };
+}
+
+function updateFormAdvisor(advisor, formElement) {
+  const payload = readForm(formElement);
+  const score = leadQuality(payload);
+  const copy = advisorCopy(payload, score);
+  advisor.querySelector(".form-score-value").textContent = `${score}%`;
+  advisor.querySelector(".form-score-bar span").style.width = `${score}%`;
+  advisor.querySelector(".form-advisor-state").textContent = copy.state;
+  advisor.querySelector(".form-advisor-next").textContent = copy.next;
+  advisor.dataset.level = score >= 82 ? "high" : score >= 55 ? "medium" : "low";
+  if (score >= 70 && !qualityEventSent) {
+    qualityEventSent = true;
+    track("form_quality_ready", { target: payload.need || "unknown", label: payload.city || "unknown", score: String(score) });
+  }
+}
+
+function mountFormAdvisor() {
+  if (!form || form.querySelector(".form-advisor")) return;
+  const heading = form.querySelector(".form-heading") || form.firstElementChild;
+  const advisor = document.createElement("div");
+  advisor.className = "form-advisor";
+  advisor.innerHTML = `<div><strong class="form-advisor-state">Qualification rapide</strong><span class="form-advisor-next">Les champs obligatoires suffisent pour lancer le rappel.</span></div><div class="form-score" aria-label="Score de qualification"><strong class="form-score-value">0%</strong><span class="form-score-bar"><span></span></span></div>`;
+  heading.insertAdjacentElement("afterend", advisor);
+  updateFormAdvisor(advisor, form);
+  form.addEventListener("input", () => updateFormAdvisor(advisor, form));
+  form.addEventListener("change", () => updateFormAdvisor(advisor, form));
+}
+
+function enhanceHeader() {
+  const header = document.querySelector(".site-header[data-elevate]");
+  if (!header) return;
+  const toggle = () => header.classList.toggle("is-scrolled", window.scrollY > 8);
+  toggle();
+  document.addEventListener("scroll", toggle, { passive: true });
+}
+
 function bindGrowthTracking() {
-  track("page_view", { target: document.title });
+  track("page_view", { target: document.title, label: document.body.dataset.intent || inferIntent() });
 
   document.addEventListener("click", (event) => {
     const link = event.target.closest("a");
@@ -116,7 +182,7 @@ function bindGrowthTracking() {
     const href = link.getAttribute("href") || "";
     if (href.startsWith("tel:")) track("phone_click", { target: href, label: link.textContent.trim() });
     if (href.startsWith("mailto:")) track("email_click", { target: href, label: link.textContent.trim() });
-    if (link.matches("[data-track], .button")) {
+    if (link.matches("[data-track], .button, .intent-card")) {
       track("cta_click", { target: href, label: link.textContent.trim() || link.dataset.track || "cta" });
     }
   });
@@ -185,4 +251,6 @@ form?.addEventListener("submit", async (event) => {
 });
 
 mountLeadBar();
+mountFormAdvisor();
+enhanceHeader();
 bindGrowthTracking();

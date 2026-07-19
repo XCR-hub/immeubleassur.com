@@ -1,24 +1,25 @@
 # SEO Autopilot ImmeubleAssur
 
-Generated: 2026-07-19T13:15:15.535Z
+Generated: 2026-07-19T13:40:31.383Z
 
 - Pages checked: 157
-- Average score: 91
-- Opportunities: 162
+- Average score: 98
+- Opportunities: 34
 - GSC configured: false
 - PageSpeed checked: 8
+- Auto-fixes applied: 166
 
 ## Top actions
 
-1. description - https://immeubleassur.com/assurance-immeuble-bordeaux - score 60: Ajuster la meta description autour de 120-160 caracteres.
-2. description - https://immeubleassur.com/assurance-immeuble-grenoble - score 60: Ajuster la meta description autour de 120-160 caracteres.
-3. description - https://immeubleassur.com/assurance-immeuble-paris - score 60: Ajuster la meta description autour de 120-160 caracteres.
-4. description - https://immeubleassur.com/assurance-sci - score 60: Ajuster la meta description autour de 120-160 caracteres.
-5. content-depth - https://immeubleassur.com/audit-contrat-assurance-immeuble - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
-6. description - https://immeubleassur.com/blog/assurance-colocation-immeuble - score 60: Ajuster la meta description autour de 120-160 caracteres.
-7. description - https://immeubleassur.com/blog/assurance-copropriete-avant-ag - score 60: Ajuster la meta description autour de 120-160 caracteres.
-8. title - https://immeubleassur.com/blog/assurance-copropriete-obligatoire - score 60: Ajuster le titre entre 35 et 72 caracteres utiles.
-9. content-depth - https://immeubleassur.com/blog/assurance-copropriete-obligatoire - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
-10. title - https://immeubleassur.com/blog/assurance-immeuble-ancien - score 60: Ajuster le titre entre 35 et 72 caracteres utiles.
-11. description - https://immeubleassur.com/blog/assurance-immeuble-ancien - score 60: Ajuster la meta description autour de 120-160 caracteres.
-12. title - https://immeubleassur.com/blog/assurance-immeuble-apres-refus-assureur - score 60: Ajuster le titre entre 35 et 72 caracteres utiles.
+1. content-depth - https://immeubleassur.com/blog/assurance-copropriete-obligatoire - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
+2. content-depth - https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
+3. content-depth - https://immeubleassur.com/blog/assurance-sci-patrimoine-locatif - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
+4. content-depth - https://immeubleassur.com/blog/checklist-documents-devis-immeuble - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
+5. content-depth - https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
+6. content-depth - https://immeubleassur.com/blog/pno-bailleur-copropriete - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
+7. content-depth - https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
+8. content-depth - https://immeubleassur.com/blog/syndic-benevole-assurance - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
+9. content-depth - https://immeubleassur.com/checklist-documents-assurance-immeuble - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
+10. content-depth - https://immeubleassur.com/comparateur-assurance-immeuble - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
+11. content-depth - https://immeubleassur.com/contact - score 60: Renforcer la page avec exemples, FAQ et checklist utile.
+12. content-depth - https://immeubleassur.com/devis-assurance-immeuble - score 60: Renforcer la page avec exemples, FAQ et checklist utile.

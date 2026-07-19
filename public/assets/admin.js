@@ -1,4 +1,4 @@
-﻿const form = document.querySelector("#admin-form");
+const form = document.querySelector("#admin-form");
 const tokenInput = document.querySelector("#admin-token");
 const statusBox = document.querySelector(".form-status");
 const body = document.querySelector("#leads-body");
@@ -107,6 +107,7 @@ async function loadSeo() {
       metricCard("Pages controlees", String(publicReport.pages_checked || 0)),
       metricCard("Score moyen", String(publicReport.average_score || 0)),
       metricCard("Opportunites", String(publicReport.opportunities_count || 0)),
+      metricCard("Auto-fixes", String(publicReport.auto_fix?.fixes_applied || 0), `${publicReport.auto_fix?.pages_changed || 0} page(s)`),
       metricCard("Leads 30j", String(apiResult?.lead_stats?.leads_30d || 0), apiResult?.latest_run?.status || "rapport build")
     );
   }

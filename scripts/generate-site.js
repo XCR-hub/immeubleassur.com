@@ -1,4 +1,4 @@
-﻿import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const SITE = "https://immeubleassur.com";
@@ -554,6 +554,7 @@ function layout({ slug, title, description, body, canonical, schema = "" }) {
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1400&q=70" crossorigin />
     <link rel="stylesheet" href="/assets/styles.css" />
     <title>${esc(title)} | ImmeubleAssur</title>
     ${schema}
@@ -602,7 +603,13 @@ function homePage() {
           <p class="hero-lead">ImmeubleAssur compare les garanties multirisque immeuble, responsabilite civile, PNO, protection juridique et contrats pour syndics, SCI, bailleurs et conseils syndicaux.</p>
           <div class="hero-actions">
             <a class="button primary" href="/devis-assurance-immeuble.html">Demander un devis</a>
-            <a class="button secondary" href="/assurance-immeuble.html">Voir les garanties</a>
+            <a class="button secondary" href="/assurance-pno-cno.html">PNO / CNO</a>
+          </div>
+          <div class="hero-intent-grid" aria-label="Acces rapides assurance immeuble">
+            <a class="intent-card" data-track="intent-immeuble" href="/assurance-immeuble.html"><strong>Immeuble</strong><span>Multirisque, franchises, sinistres.</span></a>
+            <a class="intent-card" data-track="intent-copro" href="/assurance-copropriete.html"><strong>Copropriete</strong><span>Syndic, AG, parties communes.</span></a>
+            <a class="intent-card" data-track="intent-pno-cno" href="/assurance-pno-cno.html"><strong>PNO / CNO</strong><span>Lot loue, vacant, non occupant.</span></a>
+            <a class="intent-card" data-track="intent-sci" href="/assurance-sci.html"><strong>SCI</strong><span>Patrimoine et lots multiples.</span></a>
           </div>
           <dl class="proof-strip" aria-label="Indicateurs">
             <div><dt>15 min</dt><dd>rappel expert</dd></div>
@@ -611,6 +618,14 @@ function homePage() {
           </dl>
         </div>
         ${leadForm({ need: "multirisque-immeuble" })}
+      </div>
+    </section>
+    <section class="conversion-strip" aria-label="Preuves de specialisation">
+      <div class="conversion-strip-inner">
+        <article><strong>ORIAS ${ORIAS}</strong><span>Courtier identifie pour vos demandes immeuble.</span></article>
+        <article><strong>CNO / PNO</strong><span>Parcours dedie coproprietaires et bailleurs.</span></article>
+        <article><strong>24-48h</strong><span>Dossier qualifie puis consultation assureur.</span></article>
+        <article><strong>France</strong><span>Pages locales, syndics, SCI et coproprietes.</span></article>
       </div>
     </section>
     <section class="band intro-band">

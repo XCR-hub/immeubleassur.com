@@ -1,4 +1,4 @@
-﻿import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const REPORT_DIR = "reports";
@@ -22,6 +22,17 @@ const lines = [
   "PRAGMA foreign_keys = ON;",
   `INSERT OR REPLACE INTO seo_runs (id, source, status, pages_checked, opportunities_count, payload, created_at) VALUES (${sql(runId)}, 'seo-autopilot', 'completed', ${Number(report.pages_checked || 0)}, ${Number(report.opportunities?.length || 0)}, ${sql(JSON.stringify({ average_score: report.average_score, mode: report.mode, gsc_configured: Boolean(report.gsc?.configured) }))}, ${sql(report.generated_at)});`
 ];
+
+const autoFix = report.auto_fix || {};
+for (const metric of [
+  ["auto_fix", "fixes_applied", autoFix.fixes_applied],
+  ["auto_fix", "pages_changed", autoFix.pages_changed],
+  ["audit", "average_score", report.average_score]
+]) {
+  if (metric[2] === undefined || metric[2] === null) continue;
+  const metricId = id("metric", `${runId}-${metric[0]}-${metric[1]}`);
+  lines.push(`INSERT OR REPLACE INTO seo_metrics (id, run_id, url, metric_type, metric_name, value, payload, created_at) VALUES (${sql(metricId)}, ${sql(runId)}, ${sql("https://immeubleassur.com/")}, ${sql(metric[0])}, ${sql(metric[1])}, ${Number(metric[2] || 0)}, ${sql(JSON.stringify({ value: metric[2], source: "seo-autopilot" }))}, ${sql(report.generated_at)});`);
+}
 
 for (const item of (report.opportunities || []).slice(0, 100)) {
   const oppId = id("opp", `${runId}-${item.id || item.url || item.query || item.type}`);

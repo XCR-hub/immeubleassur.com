@@ -1,4 +1,4 @@
-﻿import { createSign } from "node:crypto";
+import { createSign } from "node:crypto";
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join, relative } from "node:path";
 
@@ -11,6 +11,8 @@ const usePageSpeed = args.has("--pagespeed") && !localOnly;
 const useGsc = (args.has("--gsc") || args.has("--gsc-if-configured")) && !localOnly;
 const inspectUrls = args.has("--url-inspection") && !localOnly;
 const submitSitemap = args.has("--submit-sitemap") && !localOnly;
+
+const nonCommercialSlugs = new Set(["mentions-legales", "confidentialite", "merci"]);
 
 const intentBacklog = [
   ["assurance CNO", "assurance-cno"],
@@ -75,10 +77,10 @@ function auditPage(file) {
   if (!description || description.length < 110 || description.length > 170) add("medium", "description", `Description longueur ${description.length}`, "Ajuster la meta description autour de 120-160 caracteres.");
   if (h1 !== 1) add("high", "h1", `${h1} H1 detectes`, "Conserver un seul H1 clair par page.");
   if (!canonical || canonical.includes(".html")) add("high", "canonical", "Canonical absent ou non propre", "Utiliser une URL canonique propre sans extension.");
-  if (words < 450 && slug !== "merci" && slug !== "admin") add("medium", "content-depth", `${words} mots`, "Renforcer la page avec exemples, FAQ et checklist utile.");
-  if (details < 2 && slug !== "admin" && slug !== "merci") add("low", "faq", "Peu de FAQ visibles", "Ajouter des questions reelles et reponses courtes quand pertinent.");
+  if (words < 450 && slug !== "admin" && !nonCommercialSlugs.has(slug)) add("medium", "content-depth", `${words} mots`, "Renforcer la page avec exemples, FAQ et checklist utile.");
+  if (details < 2 && slug !== "admin" && !nonCommercialSlugs.has(slug)) add("low", "faq", "Peu de FAQ visibles", "Ajouter des questions reelles et reponses courtes quand pertinent.");
   if (jsonLd < 2 && slug !== "admin") add("medium", "schema", `${jsonLd} blocs JSON-LD`, "Verifier BreadcrumbList, WebPage/Article, FAQ ou Service selon la page.");
-  if (!hasLeadForm && !hasCta && slug !== "admin" && slug !== "merci") add("medium", "conversion", "CTA faible ou absent", "Ajouter une action claire vers devis, audit ou contact.");
+  if (!hasLeadForm && !hasCta && slug !== "admin" && !nonCommercialSlugs.has(slug)) add("medium", "conversion", "CTA faible ou absent", "Ajouter une action claire vers devis, audit ou contact.");
 
   const penalty = issues.reduce((sum, issue) => sum + (issue.severity === "high" ? 18 : issue.severity === "medium" ? 10 : 5), 0);
   return { slug: slug || "index", url: pageUrl(slug), title, description, words, h1, h2, details, jsonLd, hasLeadForm, issues, score: Math.max(0, 100 - penalty) };
@@ -177,9 +179,30 @@ async function fetchPageSpeed(urls) {
   return { checked: rows.length, rows };
 }
 
+function readJsonFile(file, fallback) {
+  try {
+    return JSON.parse(readFileSync(file, "utf8"));
+  } catch {
+    return fallback;
+  }
+}
+
+function readAutoFixReport() {
+  const report = readJsonFile(join(REPORT_DIR, "seo-auto-fix-report.json"), null);
+  if (!report) return { configured: true, skipped: "seo-auto-fix-report missing" };
+  return {
+    configured: true,
+    generated_at: report.generated_at,
+    pages_checked: report.pages_checked || 0,
+    pages_changed: report.pages_changed || 0,
+    fixes_applied: report.fixes_applied || 0,
+    safeguards: report.safeguards || [],
+    sample: (report.pages || []).slice(0, 20).map((page) => ({ slug: page.slug, fixes: page.fixes }))
+  };
+}
 function buildMarkdown(report) {
   const topIssues = report.opportunities.slice(0, 12).map((item, index) => `${index + 1}. ${item.type} - ${item.url || item.page || "global"} - score ${item.score || item.page_score || 0}: ${item.recommendation}`).join("\n");
-  return `# SEO Autopilot ImmeubleAssur\n\nGenerated: ${report.generated_at}\n\n- Pages checked: ${report.pages_checked}\n- Average score: ${report.average_score}\n- Opportunities: ${report.opportunities.length}\n- GSC configured: ${Boolean(report.gsc?.configured)}\n- PageSpeed checked: ${report.pagespeed?.checked || 0}\n\n## Top actions\n\n${topIssues || "No blocking issue detected."}\n`;
+  return `# SEO Autopilot ImmeubleAssur\n\nGenerated: ${report.generated_at}\n\n- Pages checked: ${report.pages_checked}\n- Average score: ${report.average_score}\n- Opportunities: ${report.opportunities.length}\n- GSC configured: ${Boolean(report.gsc?.configured)}\n- PageSpeed checked: ${report.pagespeed?.checked || 0}\n- Auto-fixes applied: ${report.auto_fix?.fixes_applied || 0}\n\n## Top actions\n\n${topIssues || "No blocking issue detected."}\n`;
 }
 
 async function run() {
@@ -194,11 +217,12 @@ async function run() {
   try { gsc = await fetchGscData(); } catch (error) { gsc = { configured: true, error: error.message }; }
   try { pagespeed = await fetchPageSpeed(sampleUrls); } catch (error) { pagespeed = { error: error.message }; }
   const gscOpps = Array.isArray(gsc.opportunities) ? gsc.opportunities : [];
+  const autoFix = readAutoFixReport();
   const opportunities = [...issueOpportunities, ...contentGaps, ...gscOpps].sort((a, b) => (b.score || 0) - (a.score || 0));
-  const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals"] };
+  const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, auto_fix: autoFix, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals"] };
   writeFileSync(join(REPORT_DIR, "seo-autopilot-report.json"), JSON.stringify(report, null, 2), "utf8");
   writeFileSync(join(REPORT_DIR, "seo-autopilot-report.md"), buildMarkdown(report), "utf8");
-  const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), connectors: report.api_connectors, compliance: report.compliance };
+  const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, connectors: report.api_connectors, compliance: report.compliance };
   writeFileSync(join(PUBLIC_DIR, "assets", "seo-autopilot-latest.json"), JSON.stringify(publicReport, null, 2), "utf8");
   console.log(`SEO autopilot checked ${report.pages_checked} pages, average score ${report.average_score}, opportunities ${report.opportunities.length}.`);
 }
