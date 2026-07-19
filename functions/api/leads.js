@@ -110,6 +110,24 @@ async function smtpCommand(session, command, expected, context = command) {
   assertSmtp(response, expected, context);
   return response;
 }
+async function smtpAuth(session, username, password) {
+  await session.writeLine(`AUTH PLAIN ${btoa(`\0${username}\0${password}`)}`);
+  let response = await session.readResponse();
+  if (response.code === 235) return;
+  if (response.code !== 504 && response.code !== 503) {
+    assertSmtp(response, 235, "AUTH PLAIN");
+  }
+
+  await session.writeLine("AUTH LOGIN");
+  response = await session.readResponse();
+  assertSmtp(response, 334, "AUTH LOGIN");
+  await session.writeLine(btoa(username));
+  response = await session.readResponse();
+  assertSmtp(response, 334, "AUTH LOGIN username");
+  await session.writeLine(btoa(password));
+  response = await session.readResponse();
+  assertSmtp(response, 235, "AUTH LOGIN password");
+}
 
 function dotStuff(message) {
   return message
@@ -165,9 +183,7 @@ async function sendSmtpMail(config, message) {
     session = smtpSession(socket);
     await smtpCommand(session, "EHLO immeubleassur.com", 250, "EHLO TLS");
   }
-
-  const authPayload = btoa(`\0${config.username}\0${config.password}`);
-  await smtpCommand(session, `AUTH PLAIN ${authPayload}`, 235, "AUTH PLAIN");
+  await smtpAuth(session, config.username, config.password);
   await smtpCommand(session, `MAIL FROM:<${config.from}>`, 250, "MAIL FROM");
   for (const recipient of config.to) {
     await smtpCommand(session, `RCPT TO:<${recipient}>`, [250, 251], "RCPT TO");
