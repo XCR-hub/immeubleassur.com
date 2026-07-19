@@ -67,3 +67,21 @@ VALUES
   ('site_url', 'https://immeubleassur.com', datetime('now')),
   ('contact_email', 'team@immeubleassur.com', datetime('now')),
   ('contact_phone', '+33180855786', datetime('now'));
+
+CREATE TABLE IF NOT EXISTS site_events (
+  id TEXT PRIMARY KEY,
+  event_type TEXT NOT NULL,
+  page_url TEXT,
+  target TEXT,
+  session_id TEXT,
+  lead_reference TEXT,
+  payload TEXT,
+  ip_address TEXT,
+  user_agent TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_site_events_created_at ON site_events(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_site_events_event_type ON site_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_site_events_session_id ON site_events(session_id);
+CREATE INDEX IF NOT EXISTS idx_site_events_lead_reference ON site_events(lead_reference);

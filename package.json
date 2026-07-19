@@ -4,15 +4,15 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "generate": "node scripts/generate-site.js",
-    "check": "node --check public/assets/app.js && node --check public/assets/admin.js && node --check functions/api/leads.js && node --check functions/api/admin/leads.js && node --check scripts/generate-site.js && node --check scripts/local-static-server.js",
+    "generate": "node scripts/generate-site.js && node scripts/seo-growth-pass.js",
+    "check": "node --check public/assets/app.js && node --check public/assets/admin.js && node --check functions/api/leads.js && node --check functions/api/admin/leads.js && node --check functions/api/events.js && node --check scripts/generate-site.js && node --check scripts/seo-growth-pass.js && node --check scripts/local-static-server.js",
     "dev": "wrangler pages dev public --compatibility-date=2026-07-19",
     "serve:static": "node scripts/local-static-server.js",
     "db:init": "wrangler d1 execute immeubleassur-db --local --file=./schema.sql",
     "db:remote": "wrangler d1 execute immeubleassur-db --remote --file=./schema.sql",
     "deploy": "wrangler pages deploy public --project-name=immeubleassur-com",
-    "check:functions": "node --check functions/api/leads.js && node --check functions/api/admin/leads.js",
-    "check:site": "node --check scripts/generate-site.js && node --check scripts/local-static-server.js"
+    "check:functions": "node --check functions/api/leads.js && node --check functions/api/admin/leads.js && node --check functions/api/events.js",
+    "check:site": "node --check scripts/generate-site.js && node --check scripts/seo-growth-pass.js && node --check scripts/local-static-server.js"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

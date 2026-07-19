@@ -21,7 +21,7 @@ jobs:
           node-version: 22
 
       - name: Generate static pages
-        run: node scripts/generate-site.js
+        run: npm run generate
 
       - name: Validate JavaScript
         run: npm run check

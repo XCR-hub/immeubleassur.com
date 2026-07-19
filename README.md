@@ -8,6 +8,7 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Cloudflare Pages Function `functions/api/leads.js` pour les demandes de devis.
 - Cloudflare Pages Function `functions/api/admin/leads.js` pour consulter les derniers leads avec `ADMIN_API_TOKEN`.
 - Notification email des nouveaux leads via SMTP STARTTLS (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `SMTP_TO`).
+- Passe `scripts/seo-growth-pass.js`: liens canoniques propres, JSON-LD, tracking CTA, sitemap propre et registre de 2500 actions SEO/CRO.
 - Cloudflare D1 avec le schema `schema.sql`.
 - Workflow GitHub Actions pret pour deployer via Wrangler.
 
