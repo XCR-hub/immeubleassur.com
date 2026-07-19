@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-19T13:11:02.790Z",
-  "mode": "local-only",
+  "generated_at": "2026-07-19T13:15:15.535Z",
+  "mode": "api",
   "pages_checked": 157,
   "average_score": 91,
   "weak_pages": [
@@ -2379,10 +2379,52 @@
   ],
   "gsc": {
     "configured": false,
-    "skipped": "--gsc not requested"
+    "skipped": "GOOGLE_SERVICE_ACCOUNT_EMAIL/KEY missing"
   },
   "pagespeed": {
-    "skipped": "--pagespeed not requested"
+    "checked": 8,
+    "rows": [
+      {
+        "url": "https://immeubleassur.com/",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/assurance-immeuble",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/assurance-copropriete",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/assurance-cno",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/assurance-pno-cno",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/devis-pno-cno",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/devis-assurance-immeuble",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/blog",
+        "ok": false,
+        "status": 429
+      }
+    ]
   },
   "api_connectors": {
     "google_search_console": "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL",

@@ -1,12 +1,12 @@
 # SEO Autopilot ImmeubleAssur
 
-Generated: 2026-07-19T13:11:02.790Z
+Generated: 2026-07-19T13:15:15.535Z
 
 - Pages checked: 157
 - Average score: 91
 - Opportunities: 162
 - GSC configured: false
-- PageSpeed checked: 0
+- PageSpeed checked: 8
 
 ## Top actions
 
