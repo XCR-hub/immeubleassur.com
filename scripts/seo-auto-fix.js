@@ -198,7 +198,7 @@ function buildDepthSection(slug, title) {
       <p class="eyebrow dark">${esc(profile.eyebrow)}</p>
       <h2>${esc(profile.heading)}</h2>
       <p class="large-copy">${esc(profile.intro)}</p>
-      <p>ImmeubleAssur privilegie une qualification concrete: contexte du bien, responsabilités, historique sinistre, travaux, contrat actuel et attentes du demandeur. Cette lecture evite les comparaisons superficielles et aide a obtenir une proposition exploitable.</p>
+      <p>ImmeubleAssur privilegie une qualification concrete: contexte du bien, responsabilites, historique sinistre, travaux, contrat actuel et attentes du demandeur. Cette lecture evite les comparaisons superficielles et aide a obtenir une proposition exploitable.</p>
       <ul class="check-list">${profile.proof.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>
     </div>
     <div class="faq-list">${profile.questions.map(([question, answer]) => `<details><summary>${esc(question)}</summary><p>${esc(answer)}</p></details>`).join("")}</div>
