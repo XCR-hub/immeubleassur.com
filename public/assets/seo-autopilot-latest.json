@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-20T02:14:16.302Z",
+  "generated_at": "2026-07-20T02:31:16.525Z",
   "pages_checked": 157,
   "average_score": 100,
   "opportunities_count": 0,
@@ -7,7 +7,7 @@
   "top_opportunities": [],
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-20T02:13:49.848Z",
+    "generated_at": "2026-07-20T02:30:45.866Z",
     "pages_checked": 157,
     "pages_changed": 108,
     "fixes_applied": 164,
@@ -139,7 +139,7 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-20T02:13:50.181Z",
+    "generated_at": "2026-07-20T02:30:46.209Z",
     "pages_checked": 158,
     "pages_expanded": 74,
     "words_added_estimate": 12705,
@@ -152,8 +152,8 @@
     "sample": [
       {
         "slug": "assurance-cno",
-        "before_words": 594,
-        "after_words": 772
+        "before_words": 660,
+        "after_words": 838
       },
       {
         "slug": "assurance-coproprietaire-non-occupant",
@@ -162,8 +162,8 @@
       },
       {
         "slug": "assurance-copropriete",
-        "before_words": 639,
-        "after_words": 801
+        "before_words": 705,
+        "after_words": 867
       },
       {
         "slug": "assurance-immeuble-locatif",
@@ -172,28 +172,28 @@
       },
       {
         "slug": "assurance-immeuble",
-        "before_words": 684,
-        "after_words": 859
+        "before_words": 750,
+        "after_words": 925
       },
       {
         "slug": "assurance-local-commercial",
-        "before_words": 616,
-        "after_words": 791
+        "before_words": 682,
+        "after_words": 857
       },
       {
         "slug": "assurance-pno-cno",
-        "before_words": 595,
-        "after_words": 773
+        "before_words": 661,
+        "after_words": 839
       },
       {
         "slug": "assurance-pno",
-        "before_words": 677,
-        "after_words": 855
+        "before_words": 743,
+        "after_words": 921
       },
       {
         "slug": "assurance-sci",
-        "before_words": 629,
-        "after_words": 784
+        "before_words": 695,
+        "after_words": 850
       },
       {
         "slug": "audit-contrat-assurance-immeuble",

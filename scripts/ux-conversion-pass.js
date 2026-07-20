@@ -7,6 +7,8 @@ const ROUTER_START = "<!-- ux-conversion-router:start -->";
 const ROUTER_END = "<!-- ux-conversion-router:end -->";
 const DIAGNOSTIC_START = "<!-- ux-diagnostic:start -->";
 const DIAGNOSTIC_END = "<!-- ux-diagnostic:end -->";
+const READINESS_START = "<!-- ux-readiness:start -->";
+const READINESS_END = "<!-- ux-readiness:end -->";
 const DIAGNOSTIC_FILES = [
   "index.html",
   "devis-assurance-immeuble.html",
@@ -96,6 +98,36 @@ function diagnosticBlock() {
 ${DIAGNOSTIC_END}`;
 }
 
+function readinessBlock() {
+  return `${READINESS_START}
+<section class="band readiness-band" aria-labelledby="readiness-title">
+  <div class="readiness-shell" data-readiness>
+    <div class="readiness-copy">
+      <p class="eyebrow dark">Dossier pret assureur</p>
+      <h2 id="readiness-title">Voir en 30 secondes ce qui manque avant l'envoi aux assureurs.</h2>
+      <p class="large-copy">Chaque piece cochee rend la demande plus exploitable: echeance, contrat actuel, sinistres, lots et travaux. Le formulaire reprend ensuite les elements disponibles.</p>
+    </div>
+    <div class="readiness-panel">
+      <div class="readiness-meter" aria-live="polite">
+        <span class="readiness-label">Dossier a cadrer</span>
+        <strong class="readiness-score">20%</strong>
+        <span class="readiness-bar"><span></span></span>
+      </div>
+      <div class="readiness-checks" aria-label="Pieces disponibles">
+        <label><input type="checkbox" data-readiness-item data-points="22" data-label="contrat actuel" value="contrat-actuel">Contrat actuel</label>
+        <label><input type="checkbox" data-readiness-item data-points="20" data-label="appel de prime" value="appel-prime">Appel de prime</label>
+        <label><input type="checkbox" data-readiness-item data-points="18" data-label="sinistres 36 mois" value="sinistres-36-mois">Sinistres 36 mois</label>
+        <label><input type="checkbox" data-readiness-item data-points="16" data-label="nombre de lots" value="nombre-lots">Nombre de lots</label>
+        <label><input type="checkbox" data-readiness-item data-points="14" data-label="echeance" value="echeance">Echeance</label>
+        <label><input type="checkbox" data-readiness-item data-points="10" data-label="travaux prevus" value="travaux-prevus">Travaux prevus</label>
+      </div>
+      <p class="readiness-next">Cochez les pieces deja disponibles pour prioriser le rappel.</p>
+      <a class="button primary readiness-cta" data-track="readiness-devis" href="/devis-assurance-immeuble?intent=immeuble">Preparer ma demande</a>
+    </div>
+  </div>
+</section>
+${READINESS_END}`;
+}
 function removeMarked(html, start, end) {
   return html.replace(new RegExp(`${start}[\\s\\S]*?${end}\\s*`, "g"), "");
 }
@@ -119,6 +151,16 @@ function insertDiagnostic(html) {
   return html.replace(/\s*<\/main>/i, `\n${block}\n</main>`);
 }
 
+function insertReadiness(html) {
+  const block = readinessBlock();
+  if (html.includes(DIAGNOSTIC_END)) {
+    return html.replace(DIAGNOSTIC_END, `${DIAGNOSTIC_END}\n${block}`);
+  }
+  if (html.includes("<section class=\"band page-band\"")) {
+    return html.replace(/\s*<section class="band page-band"/, `\n${block}\n    <section class="band page-band"`);
+  }
+  return html.replace(/\s*<\/main>/i, `\n${block}\n</main>`);
+}
 function updateFile(file, transform) {
   if (!existsSync(file)) return false;
   const original = readFileSync(file, "utf8");
@@ -130,10 +172,23 @@ function updateFile(file, transform) {
 const routerChanged = updateFile(HOME_FILE, (html) => insertRouter(removeMarked(html, ROUTER_START, ROUTER_END)));
 let diagnosticChanged = 0;
 let diagnosticChecked = 0;
+let readinessChanged = 0;
+let readinessChecked = 0;
 for (const fileName of DIAGNOSTIC_FILES) {
-  const changed = updateFile(join("public", fileName), (html) => insertDiagnostic(removeMarked(html, DIAGNOSTIC_START, DIAGNOSTIC_END)));
-  if (existsSync(join("public", fileName))) diagnosticChecked += 1;
-  if (changed) diagnosticChanged += 1;
+  const file = join("public", fileName);
+  const existed = existsSync(file);
+  const changed = updateFile(file, (html) => {
+    const cleaned = removeMarked(removeMarked(html, DIAGNOSTIC_START, DIAGNOSTIC_END), READINESS_START, READINESS_END);
+    return insertReadiness(insertDiagnostic(cleaned));
+  });
+  if (existed) {
+    diagnosticChecked += 1;
+    readinessChecked += 1;
+  }
+  if (changed) {
+    diagnosticChanged += 1;
+    readinessChanged += 1;
+  }
 }
 
 mkdirSync(REPORT_DIR, { recursive: true });
@@ -143,7 +198,9 @@ writeFileSync(join(REPORT_DIR, "ux-conversion-report.json"), JSON.stringify({
   router_changed: routerChanged,
   diagnostic_pages_checked: diagnosticChecked,
   diagnostic_pages_changed: diagnosticChanged,
-  improvements: ["intent-router", "risk-specific-cta", "lead-prefill-links", "homepage-decision-support", "diagnostic-express", "diagnostic-prefill", "diagnostic-event-loop"]
+  readiness_pages_checked: readinessChecked,
+  readiness_pages_changed: readinessChanged,
+  improvements: ["intent-router", "risk-specific-cta", "lead-prefill-links", "homepage-decision-support", "diagnostic-express", "diagnostic-prefill", "diagnostic-event-loop", "readiness-checklist", "readiness-prefill", "readiness-event-loop"]
 }, null, 2), "utf8");
 
-console.log(`UX conversion pass ${routerChanged ? "updated" : "checked"} homepage router and injected ${diagnosticChanged}/${diagnosticChecked} diagnostic blocks.`);
+console.log(`UX conversion pass ${routerChanged ? "updated" : "checked"} homepage router, injected ${diagnosticChanged}/${diagnosticChecked} diagnostic blocks and ${readinessChanged}/${readinessChecked} readiness blocks.`);

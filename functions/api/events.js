@@ -20,6 +20,9 @@ const allowedEvents = new Set([
   "risk_router_select",
   "diagnostic_select",
   "diagnostic_complete",
+  "readiness_start",
+  "readiness_update",
+  "readiness_complete",
   "scroll_depth",
   "lead_form_abandoned"
 ]);
@@ -64,6 +67,8 @@ export async function onRequestPost({ request, env }) {
     next_action: clean(payload.next_action, 240),
     step: clean(payload.step, 80),
     route: clean(payload.route, 300),
+    level: clean(payload.level, 80),
+    missing: clean(payload.missing, 500),
     viewport: clean(payload.viewport, 80),
     source: clean(payload.source, 120),
     utm_source: clean(payload.utm_source, 120),

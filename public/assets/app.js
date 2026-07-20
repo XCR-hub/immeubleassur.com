@@ -510,6 +510,90 @@ function mountDiagnostic() {
   });
 }
 
+function readinessState(shell) {
+  const items = [...shell.querySelectorAll("[data-readiness-item]")];
+  const checked = items.filter((item) => item.checked);
+  const checkedLabels = checked.map((item) => item.dataset.label || item.value).filter(Boolean);
+  const missingLabels = items.filter((item) => !item.checked).map((item) => item.dataset.label || item.value).filter(Boolean);
+  const score = Math.min(100, 20 + checked.reduce((sum, item) => sum + Number(item.dataset.points || 0), 0));
+  const level = score >= 85 ? "pret-assureur" : score >= 60 ? "presque-pret" : "a-completer";
+  return { score, level, checkedLabels, missingLabels };
+}
+
+function readinessMessage(state) {
+  const available = state.checkedLabels.length ? state.checkedLabels.join(", ") : "aucune piece cochee";
+  const missing = state.missingLabels.length ? state.missingLabels.slice(0, 4).join(", ") : "dossier complet";
+  return `Dossier pret assureur ${state.score}%. Pieces disponibles: ${available}. A completer: ${missing}.`;
+}
+
+function renderReadiness(shell) {
+  const state = readinessState(shell);
+  const labels = {
+    "pret-assureur": "Pret a consulter",
+    "presque-pret": "Presque complet",
+    "a-completer": "Dossier a cadrer"
+  };
+  const next = {
+    "pret-assureur": "Le rappel peut partir avec un dossier lisible pour l'assureur.",
+    "presque-pret": "Ajoutez echeance ou sinistres pour accelerer la comparaison.",
+    "a-completer": "Cochez contrat, lots ou sinistres pour reduire les allers-retours."
+  };
+  shell.dataset.level = state.level;
+  shell.querySelector(".readiness-label").textContent = labels[state.level] || labels["a-completer"];
+  shell.querySelector(".readiness-score").textContent = `${state.score}%`;
+  shell.querySelector(".readiness-bar span").style.width = `${state.score}%`;
+  shell.querySelector(".readiness-next").textContent = next[state.level] || next["a-completer"];
+  return state;
+}
+
+function mountReadiness() {
+  document.querySelectorAll("[data-readiness]").forEach((shell) => {
+    const items = [...shell.querySelectorAll("[data-readiness-item]")];
+    let started = false;
+    let completed = false;
+    items.forEach((item) => {
+      item.addEventListener("change", () => {
+        const state = renderReadiness(shell);
+        if (!started) {
+          started = true;
+          track("readiness_start", { target: window.location.pathname, label: state.level, score: String(state.score) });
+        }
+        track("readiness_update", {
+          target: item.value || "piece",
+          label: item.checked ? "checked" : "unchecked",
+          score: String(state.score),
+          level: state.level
+        });
+      });
+    });
+
+    shell.querySelector(".readiness-cta")?.addEventListener("click", (event) => {
+      const state = renderReadiness(shell);
+      if (!completed) {
+        completed = true;
+        track("readiness_complete", {
+          target: state.level,
+          label: state.checkedLabels.join(", ") || "aucune-piece",
+          score: String(state.score),
+          missing: state.missingLabels.join(", ")
+        });
+      }
+      if (!form) return;
+      event.preventDefault();
+      setInputValue("message", readinessMessage(state), { onlyIfEmpty: false });
+      form.dispatchEvent(new Event("input", { bubbles: true }));
+      form.dispatchEvent(new Event("change", { bubbles: true }));
+      if (!formStarted) {
+        formStarted = true;
+        track("form_start", { target: "readiness-prefill", label: state.level });
+      }
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+      const focusTarget = form.querySelector("input[name='name'], input[name='phone'], input[name='email']");
+      focusTarget?.focus({ preventScroll: true });
+    });
+    renderReadiness(shell);
+  });
+}
 function mountRiskRouter() {
   const router = document.querySelector(".risk-router");
   if (!router) return;
@@ -693,6 +777,7 @@ mountLeadBar();
 mountFormAdvisor();
 mountFormProof();
 mountDiagnostic();
+mountReadiness();
 mountRiskRouter();
 enhanceHeader();
 bindScrollDepthTracking();

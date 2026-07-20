@@ -1,9 +1,11 @@
 {
-  "generated_at": "2026-07-20T02:13:49.568Z",
+  "generated_at": "2026-07-20T02:30:45.509Z",
   "home_router": true,
   "router_changed": true,
   "diagnostic_pages_checked": 11,
   "diagnostic_pages_changed": 11,
+  "readiness_pages_checked": 11,
+  "readiness_pages_changed": 11,
   "improvements": [
     "intent-router",
     "risk-specific-cta",
@@ -11,6 +13,9 @@
     "homepage-decision-support",
     "diagnostic-express",
     "diagnostic-prefill",
-    "diagnostic-event-loop"
+    "diagnostic-event-loop",
+    "readiness-checklist",
+    "readiness-prefill",
+    "readiness-event-loop"
   ]
 }

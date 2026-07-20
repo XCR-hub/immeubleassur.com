@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-20T02:13:50.181Z",
+  "generated_at": "2026-07-20T02:30:46.209Z",
   "pages_checked": 158,
   "pages_expanded": 74,
   "words_added_estimate": 12705,
@@ -13,8 +13,8 @@
     {
       "slug": "assurance-cno",
       "url": "https://immeubleassur.com/assurance-cno",
-      "before_words": 594,
-      "after_words": 772,
+      "before_words": 660,
+      "after_words": 838,
       "expanded": true,
       "changed": true
     },
@@ -29,8 +29,8 @@
     {
       "slug": "assurance-copropriete",
       "url": "https://immeubleassur.com/assurance-copropriete",
-      "before_words": 639,
-      "after_words": 801,
+      "before_words": 705,
+      "after_words": 867,
       "expanded": true,
       "changed": true
     },
@@ -45,40 +45,40 @@
     {
       "slug": "assurance-immeuble",
       "url": "https://immeubleassur.com/assurance-immeuble",
-      "before_words": 684,
-      "after_words": 859,
+      "before_words": 750,
+      "after_words": 925,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "assurance-local-commercial",
       "url": "https://immeubleassur.com/assurance-local-commercial",
-      "before_words": 616,
-      "after_words": 791,
+      "before_words": 682,
+      "after_words": 857,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "assurance-pno-cno",
       "url": "https://immeubleassur.com/assurance-pno-cno",
-      "before_words": 595,
-      "after_words": 773,
+      "before_words": 661,
+      "after_words": 839,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "assurance-pno",
       "url": "https://immeubleassur.com/assurance-pno",
-      "before_words": 677,
-      "after_words": 855,
+      "before_words": 743,
+      "after_words": 921,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "assurance-sci",
       "url": "https://immeubleassur.com/assurance-sci",
-      "before_words": 629,
-      "after_words": 784,
+      "before_words": 695,
+      "after_words": 850,
       "expanded": true,
       "changed": true
     },
@@ -437,16 +437,16 @@
     {
       "slug": "devis-assurance-immeuble",
       "url": "https://immeubleassur.com/devis-assurance-immeuble",
-      "before_words": 410,
-      "after_words": 583,
+      "before_words": 476,
+      "after_words": 649,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "devis-pno-cno",
       "url": "https://immeubleassur.com/devis-pno-cno",
-      "before_words": 584,
-      "after_words": 762,
+      "before_words": 650,
+      "after_words": 828,
       "expanded": true,
       "changed": true
     },
@@ -573,8 +573,8 @@
     {
       "slug": "prix-assurance-immeuble",
       "url": "https://immeubleassur.com/prix-assurance-immeuble",
-      "before_words": 595,
-      "after_words": 770,
+      "before_words": 661,
+      "after_words": 836,
       "expanded": true,
       "changed": true
     },
