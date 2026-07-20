@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-07-20T23:53:31.220Z",
+  "checked_files": [
+    "functions/api/leads.js",
+    "functions/api/admin/leads.js",
+    "public/assets/app.js",
+    "functions/api/events.js",
+    "functions/api/admin/seo.js",
+    "public/assets/admin.js"
+  ],
+  "required_contracts": 23,
+  "missing": [],
+  "status": "passed"
+}
