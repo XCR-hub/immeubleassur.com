@@ -29,12 +29,27 @@ function priorityFromScore(score) {
   return "low";
 }
 
+function readinessTextOf(value) {
+  return clean(value, 2400).toLowerCase();
+}
+
+function hasPreparedDossier(value) {
+  const text = readinessTextOf(value);
+  return /dossier pret assureur|pieces disponibles/i.test(text) && !/pieces disponibles:\s*aucune piece/i.test(text);
+}
+
+function readinessSignalCount(value) {
+  const text = readinessTextOf(value);
+  return ["contrat actuel", "appel de prime", "sinistres 36 mois", "nombre de lots", "echeance", "travaux prevus"].filter((item) => text.includes(item)).length;
+}
+
 function nextActionFor(lead, score) {
   const need = clean(lead.need, 80);
   const profile = clean(lead.profile, 80);
   const propertyType = clean(lead.property_type, 80);
   const units = Number.parseInt(lead.units_count || "0", 10);
 
+  if (hasPreparedDossier(lead.message || "")) return "Reprendre les pieces disponibles, demander les manquants puis consulter les assureurs adaptes.";
   if (score >= 85) return "Rappeler en priorite et demander contrat actuel, echeance, sinistres 36 mois.";
   if (["pno", "cno", "pno-cno"].includes(need) || propertyType === "lot-copropriete") {
     return "Verifier occupation du lot, contrat immeuble copropriete et assurance occupant.";
@@ -54,6 +69,8 @@ function qualifyLead(lead) {
   const profile = clean(lead.profile, 80);
   const propertyType = clean(lead.property_type, 80);
   const source = clean(lead.source, 80);
+  const readinessText = `${lead.message || ""} ${source}`;
+  const readinessSignals = readinessSignalCount(readinessText);
 
   if (units >= 2) {
     score += 8;
@@ -87,6 +104,14 @@ function qualifyLead(lead) {
     score += 10;
     addReason(reasons, "mot-cle PNO/CNO detecte");
   }
+  if (hasPreparedDossier(readinessText)) {
+    score += 12;
+    addReason(reasons, "dossier assureur prepare");
+  }
+  if (readinessSignals >= 3) {
+    score += 8;
+    addReason(reasons, "pieces assureur disponibles");
+  }
   if (lead.message && lead.message.length > 40) {
     score += 10;
     addReason(reasons, "message detaille");
@@ -102,7 +127,6 @@ function qualifyLead(lead) {
     next_action: nextActionFor(lead, score)
   };
 }
-
 
 function increment(map, key) {
   const cleanKey = clean(key || "non precise", 120) || "non precise";
@@ -145,6 +169,7 @@ function summarizeLeads(leads) {
     oldest_hot_created_at: oldestHot
   };
 }
+
 export async function onRequestGet({ request, env }) {
   if (!authorized(request, env)) {
     return json({ success: false, error: "Acces refuse" }, 401);
