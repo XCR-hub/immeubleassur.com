@@ -280,6 +280,55 @@ function mountFormAdvisor() {
 }
 
 // ux-conversion-runtime:start
+const selectAliases = {
+  need: {
+    copropriete: ["copropriete", "multirisque-immeuble"],
+    cno: ["cno", "pno-cno", "pno"],
+    "pno-cno": ["pno-cno", "cno", "pno"],
+    pno: ["pno", "pno-cno"],
+    mixte: ["audit-contrat", "multirisque-immeuble"]
+  },
+  property_type: {
+    "lot-copropriete": ["lot-copropriete", "copropriete"],
+    "logement-vacant": ["logement-vacant", "immeuble-locatif"],
+    "logement-loue": ["logement-loue", "immeuble-locatif"],
+    "local-commercial": ["local-commercial", "commerce", "mixte"],
+    copropriete: ["copropriete", "lot-copropriete"],
+    commerce: ["commerce", "local-commercial", "mixte"]
+  }
+};
+
+function setSelectValue(name, value) {
+  if (!form || !value) return false;
+  const field = form.elements[name];
+  if (!field || !field.options) return false;
+  const candidates = [value, ...((selectAliases[name] || {})[value] || [])];
+  const option = [...field.options].find((item) => candidates.includes(item.value));
+  if (!option) return false;
+  field.value = option.value;
+  return true;
+}
+
+function setInputValue(name, value, { onlyIfEmpty = false } = {}) {
+  if (!form || value === undefined || value === null) return false;
+  const field = form.elements[name];
+  if (!field) return false;
+  if (onlyIfEmpty && String(field.value || "").trim()) return false;
+  field.value = value;
+  return true;
+}
+
+function applyFormValues(values) {
+  if (!form) return false;
+  setSelectValue("need", values.need);
+  setSelectValue("profile", values.profile);
+  setSelectValue("property_type", values.property_type);
+  setInputValue("message", values.message, { onlyIfEmpty: true });
+  form.dispatchEvent(new Event("input", { bubbles: true }));
+  form.dispatchEvent(new Event("change", { bubbles: true }));
+  return true;
+}
+
 function applyIntentPrefill() {
   if (!form) return;
   const params = new URLSearchParams(window.location.search);
@@ -289,7 +338,7 @@ function applyIntentPrefill() {
     cno: "cno",
     pno: "pno",
     "pno-cno": "pno-cno",
-    copropriete: "multirisque-immeuble",
+    copropriete: "copropriete",
     sci: "multirisque-immeuble",
     mixte: "audit-contrat",
     immeuble: "multirisque-immeuble"
@@ -304,20 +353,12 @@ function applyIntentPrefill() {
   const propertyMap = {
     cno: "lot-copropriete",
     pno: "logement-loue",
-    copropriete: "immeuble-locatif",
+    copropriete: "copropriete",
     sci: "immeuble-locatif",
     mixte: "local-commercial",
     immeuble: "immeuble-locatif"
   };
-  const setSelect = (name, value) => {
-    const field = form.elements[name];
-    if (!field || !value) return;
-    if ([...field.options].some((option) => option.value === value)) field.value = value;
-  };
-  setSelect("need", needMap[intent]);
-  setSelect("profile", profileMap[intent]);
-  setSelect("property_type", propertyMap[intent]);
-  form.dispatchEvent(new Event("change", { bubbles: true }));
+  applyFormValues({ need: needMap[intent], profile: profileMap[intent], property_type: propertyMap[intent] });
 }
 
 function mountFormProof() {
@@ -327,6 +368,146 @@ function mountFormProof() {
   proof.className = "ux-form-proof";
   proof.innerHTML = `<span>Rappel humain</span><span>CNO / PNO</span><span>Audit contrat</span><span>Sinistres</span>`;
   anchor.insertAdjacentElement("afterend", proof);
+}
+
+function diagnosticRoute(state) {
+  const profile = state.profile || "bailleur";
+  const property = state.property || "lot-copropriete";
+  const urgency = state.urgency || "echeance";
+  let key = "immeuble";
+  if (["syndic-professionnel", "conseil-syndical"].includes(profile)) key = "copropriete";
+  else if (profile === "sci") key = "sci";
+  else if (property === "lot-copropriete") key = "cno";
+  else if (property === "logement-vacant") key = "pno";
+  else if (property === "local-commercial") key = "mixte";
+
+  const routes = {
+    cno: {
+      badge: "Parcours CNO",
+      title: "Lot en copropriete non occupe.",
+      text: "Prioriser la responsabilite civile du coproprietaire, la vacance, le bail et la coherence avec le contrat immeuble.",
+      items: ["Contrat immeuble copropriete", "Statut d'occupation du lot", "Attestation occupant ou vacance"],
+      href: "/devis-pno-cno?intent=cno",
+      need: "cno",
+      property_type: "lot-copropriete"
+    },
+    pno: {
+      badge: "Parcours PNO",
+      title: "Bien loue ou vacant a proteger.",
+      text: "Cadrer la PNO avec l'assurance occupant, la vacance, les dependances et les recours possibles.",
+      items: ["Adresse et surface", "Occupation actuelle", "Franchises et exclusions vacance"],
+      href: "/devis-pno-cno?intent=pno",
+      need: "pno",
+      property_type: property === "logement-vacant" ? "logement-vacant" : "logement-loue"
+    },
+    copropriete: {
+      badge: "Parcours copropriete",
+      title: "Syndic, conseil syndical ou AG.",
+      text: "Presenter les parties communes, lots, sinistres, travaux et garanties RC du syndicat des coproprietaires.",
+      items: ["Nombre de lots", "Contrat actuel et appel de prime", "Historique sinistres 36 mois"],
+      href: "/devis-assurance-immeuble?intent=copropriete",
+      need: "copropriete",
+      property_type: "copropriete"
+    },
+    sci: {
+      badge: "Parcours SCI",
+      title: "Patrimoine locatif ou lots multiples.",
+      text: "Organiser les contrats par bien pour eviter doublons, trous de garantie et declarations inexactes.",
+      items: ["Liste des biens", "Contrats existants", "Lots regroupes ou disperses"],
+      href: "/devis-assurance-immeuble?intent=sci",
+      need: "multirisque-immeuble",
+      property_type: "immeuble-locatif"
+    },
+    mixte: {
+      badge: "Parcours immeuble mixte",
+      title: "Commerce, bureau ou local vacant.",
+      text: "Declarer l'activite, le bail, les installations techniques et l'assurance du locataire commercial.",
+      items: ["Activite exacte", "Bail et assurance occupant", "Extraction, stock ou terrasse"],
+      href: "/devis-assurance-immeuble?intent=mixte",
+      need: "audit-contrat",
+      property_type: "local-commercial"
+    },
+    immeuble: {
+      badge: "Parcours immeuble",
+      title: "Immeuble locatif ou monopropriete.",
+      text: "Transformer le batiment en fiche risque: lots, usage, entretien, sinistres et garanties attendues.",
+      items: ["Nombre de lots", "Travaux et entretien", "Prime, franchises et exclusions"],
+      href: "/devis-assurance-immeuble?intent=immeuble",
+      need: "multirisque-immeuble",
+      property_type: "immeuble-locatif"
+    }
+  };
+  const urgencyItems = {
+    echeance: "Echeance et preavis a verifier",
+    sinistre: "Sinistre recent a documenter",
+    prix: "Prime et franchises a comparer",
+    creation: "Nouveau bien a declarer proprement"
+  };
+  const route = routes[key];
+  const items = [...route.items, urgencyItems[urgency] || urgencyItems.echeance];
+  return {
+    ...route,
+    key,
+    profile,
+    urgency,
+    items,
+    message: `${route.badge}. Priorite: ${urgencyItems[urgency] || urgencyItems.echeance}. Pieces disponibles: ${route.items.slice(0, 2).join(", ")}.`
+  };
+}
+
+function diagnosticState(shell) {
+  const valueFor = (step) => shell.querySelector(`[data-diagnostic-option][data-step="${step}"].is-active`)?.dataset.value || "";
+  return {
+    profile: valueFor("profile") || "bailleur",
+    property: valueFor("property") || "lot-copropriete",
+    urgency: valueFor("urgency") || "echeance"
+  };
+}
+
+function renderDiagnostic(shell) {
+  const route = diagnosticRoute(diagnosticState(shell));
+  shell.dataset.route = route.key;
+  const badge = shell.querySelector(".diagnostic-route");
+  const title = shell.querySelector(".diagnostic-result-title");
+  const text = shell.querySelector(".diagnostic-result-text");
+  const list = shell.querySelector(".diagnostic-next");
+  const cta = shell.querySelector(".diagnostic-cta");
+  if (badge) badge.textContent = route.badge;
+  if (title) title.textContent = route.title;
+  if (text) text.textContent = route.text;
+  if (list) list.innerHTML = route.items.map((item) => `<li>${item}</li>`).join("");
+  if (cta) {
+    cta.href = route.href;
+    cta.dataset.route = route.key;
+    cta.dataset.need = route.need;
+  }
+}
+
+function mountDiagnostic() {
+  document.querySelectorAll("[data-diagnostic]").forEach((shell) => {
+    const options = [...shell.querySelectorAll("[data-diagnostic-option]")];
+    options.forEach((option) => {
+      option.addEventListener("click", () => {
+        options.filter((item) => item.dataset.step === option.dataset.step).forEach((item) => item.classList.toggle("is-active", item === option));
+        renderDiagnostic(shell);
+        track("diagnostic_select", { target: option.dataset.step || "unknown", label: option.dataset.value || "unknown" });
+      });
+    });
+    shell.querySelector(".diagnostic-cta")?.addEventListener("click", (event) => {
+      const route = diagnosticRoute(diagnosticState(shell));
+      track("diagnostic_complete", { target: route.need, label: `${route.profile}/${route.property_type}/${route.urgency}`, route: route.href });
+      if (!applyFormValues(route)) return;
+      event.preventDefault();
+      if (!formStarted) {
+        formStarted = true;
+        track("form_start", { target: "diagnostic-prefill", label: route.key });
+      }
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+      const focusTarget = form.querySelector("input[name='name'], input[name='phone'], input[name='email']");
+      focusTarget?.focus({ preventScroll: true });
+    });
+    renderDiagnostic(shell);
+  });
 }
 
 function mountRiskRouter() {
@@ -511,6 +692,7 @@ applyIntentPrefill();
 mountLeadBar();
 mountFormAdvisor();
 mountFormProof();
+mountDiagnostic();
 mountRiskRouter();
 enhanceHeader();
 bindScrollDepthTracking();

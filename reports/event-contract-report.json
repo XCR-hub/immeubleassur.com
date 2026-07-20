@@ -1,7 +1,9 @@
 {
-  "generated_at": "2026-07-20T01:33:00.506Z",
+  "generated_at": "2026-07-20T02:03:21.224Z",
   "tracked_events": [
     "cta_click",
+    "diagnostic_complete",
+    "diagnostic_select",
     "email_click",
     "form_quality_ready",
     "form_start",
@@ -17,6 +19,8 @@
   ],
   "allowed_events": [
     "cta_click",
+    "diagnostic_complete",
+    "diagnostic_select",
     "email_click",
     "form_quality_ready",
     "form_start",

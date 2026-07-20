@@ -18,6 +18,8 @@ const allowedEvents = new Set([
   "email_click",
   "form_quality_ready",
   "risk_router_select",
+  "diagnostic_select",
+  "diagnostic_complete",
   "scroll_depth",
   "lead_form_abandoned"
 ]);
@@ -60,6 +62,8 @@ export async function onRequestPost({ request, env }) {
     notification: clean(payload.notification, 80),
     priority: clean(payload.priority, 80),
     next_action: clean(payload.next_action, 240),
+    step: clean(payload.step, 80),
+    route: clean(payload.route, 300),
     viewport: clean(payload.viewport, 80),
     source: clean(payload.source, 120),
     utm_source: clean(payload.utm_source, 120),

@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-20T01:32:41.627Z",
+  "generated_at": "2026-07-20T02:01:40.004Z",
   "pages_checked": 157,
   "pages_changed": 108,
-  "fixes_applied": 167,
+  "fixes_applied": 164,
   "safeguards": [
     "idempotent-markers",
     "legal-pages-no-commercial-panel",
@@ -13,9 +13,7 @@
     {
       "slug": "assurance-cno",
       "url": "https://immeubleassur.com/assurance-cno",
-      "fixes": [
-        "content-depth"
-      ],
+      "fixes": [],
       "title": "Assurance CNO coproprietaire non occupant | ImmeubleAssur",
       "description": "Devis assurance CNO pour coproprietaire non occupant: responsabilite civile, lot vacant ou loue, syndic, bailleur et copropriete.",
       "changed": true
@@ -371,9 +369,7 @@
     {
       "slug": "assurance-pno-cno",
       "url": "https://immeubleassur.com/assurance-pno-cno",
-      "fixes": [
-        "content-depth"
-      ],
+      "fixes": [],
       "title": "Assurance PNO CNO pour bailleurs et SCI | ImmeubleAssur",
       "description": "Comparer assurance PNO et CNO: proprietaire non occupant, coproprietaire non occupant, SCI, lots vacants et portefeuille locatif.",
       "changed": true
@@ -900,8 +896,7 @@
       "slug": "devis-pno-cno",
       "url": "https://immeubleassur.com/devis-pno-cno",
       "fixes": [
-        "description-normalized",
-        "content-depth"
+        "description-normalized"
       ],
       "title": "Devis PNO CNO immeuble | ImmeubleAssur",
       "description": "Demander un devis PNO CNO pour lot en copropriete, logement vacant, SCI, bailleur ou portefeuille de biens immobiliers. Analyse des garanties, franchises.",

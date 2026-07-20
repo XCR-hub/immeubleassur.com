@@ -1,11 +1,16 @@
 {
-  "generated_at": "2026-07-20T01:32:41.238Z",
+  "generated_at": "2026-07-20T02:01:39.682Z",
   "home_router": true,
-  "changed": true,
+  "router_changed": true,
+  "diagnostic_pages_checked": 11,
+  "diagnostic_pages_changed": 11,
   "improvements": [
     "intent-router",
     "risk-specific-cta",
     "lead-prefill-links",
-    "homepage-decision-support"
+    "homepage-decision-support",
+    "diagnostic-express",
+    "diagnostic-prefill",
+    "diagnostic-event-loop"
   ]
 }

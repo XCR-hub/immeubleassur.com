@@ -24,6 +24,15 @@ async function safeAll(env, sql, binds = []) {
   }
 }
 
+async function safeFirst(env, sql, binds = []) {
+  try {
+    const statement = env.DB.prepare(sql);
+    return binds.length ? await statement.bind(...binds).first() : await statement.first();
+  } catch (error) {
+    return { error: error.message };
+  }
+}
+
 function countFrom(rows, eventType) {
   if (!Array.isArray(rows)) return 0;
   const row = rows.find((item) => item.event_type === eventType);
@@ -36,14 +45,16 @@ function pct(part, total) {
   return Math.round((Number(part || 0) / denominator) * 1000) / 10;
 }
 
-
-function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths }) {
+function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths }) {
   const actions = [];
   const hotPendingCount = Number(hotPending?.count || 0);
   const leads30d = Number(leadStats?.leads_30d || 0);
   const hotLeads30d = Number(leadStats?.hot_leads_30d || 0);
   const topGap = Array.isArray(conversionGaps) ? conversionGaps[0] : null;
   const topAbandon = Array.isArray(abandonPaths) ? abandonPaths[0] : null;
+  const diagnosticSelects = Number(conversionFunnel.diagnostic_selects || 0);
+  const diagnosticCompletes = Number(conversionFunnel.diagnostic_completes || 0);
+  const topDiagnostic = Array.isArray(diagnosticPaths) ? diagnosticPaths[0] : null;
 
   if (hotPendingCount > 0) {
     actions.push({
@@ -75,6 +86,26 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
     });
   }
 
+  if (diagnosticSelects >= 5 && diagnosticCompletes < diagnosticSelects) {
+    actions.push({
+      score: 86,
+      opportunity_type: "diagnostic-friction",
+      url: topDiagnostic?.path || "/",
+      query: `${diagnosticCompletes}/${diagnosticSelects} diagnostics termines`,
+      recommendation: "Verifier si le CTA du diagnostic est assez visible et si le parcours pre-remplit bien le formulaire sur mobile."
+    });
+  }
+
+  if (topDiagnostic && Number(topDiagnostic.completions || 0) > 0) {
+    actions.push({
+      score: 72,
+      opportunity_type: "diagnostic-gagnant",
+      url: topDiagnostic.path || "/",
+      query: `${topDiagnostic.completions} diagnostic(s) ${topDiagnostic.target || ""}`.trim(),
+      recommendation: "Renforcer le maillage interne vers ce parcours car il declenche des intentions qualifiees."
+    });
+  }
+
   if (leads30d > 0 && hotLeads30d === 0) {
     actions.push({
       score: 76,
@@ -99,14 +130,6 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
 
   return actions.sort((a, b) => b.score - a.score).slice(0, 12);
 }
-async function safeFirst(env, sql, binds = []) {
-  try {
-    const statement = env.DB.prepare(sql);
-    return binds.length ? await statement.bind(...binds).first() : await statement.first();
-  } catch (error) {
-    return { error: error.message };
-  }
-}
 
 export async function onRequestGet({ request, env }) {
   if (!authorized(request, env)) {
@@ -117,7 +140,22 @@ export async function onRequestGet({ request, env }) {
     return json({ success: false, error: "Binding D1 DB manquant" }, 503);
   }
 
-  const [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity, leadPriorities, hotPending, conversionGaps, abandonPaths] = await Promise.all([
+  const [
+    eventCounts,
+    leadStats,
+    latestRun,
+    opportunities,
+    contentPipeline,
+    topPaths,
+    topLandingPages,
+    leadsByNeed,
+    leadsByCity,
+    leadPriorities,
+    hotPending,
+    conversionGaps,
+    abandonPaths,
+    diagnosticPaths
+  ] = await Promise.all([
     safeAll(env, `SELECT event_type, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type ORDER BY count DESC`),
     safeFirst(env, `SELECT COUNT(*) AS leads_30d, COALESCE(AVG(lead_score), 0) AS avg_score, SUM(CASE WHEN lead_score >= 80 THEN 1 ELSE 0 END) AS hot_leads_30d FROM leads WHERE created_at >= datetime('now', '-30 days')`),
     safeFirst(env, `SELECT id, source, status, pages_checked, opportunities_count, created_at FROM seo_runs ORDER BY created_at DESC LIMIT 1`),
@@ -130,7 +168,8 @@ export async function onRequestGet({ request, env }) {
     safeAll(env, `SELECT CASE WHEN lead_score >= 85 THEN 'hot' WHEN lead_score >= 70 THEN 'warm' WHEN lead_score >= 45 THEN 'standard' ELSE 'low' END AS priority, COUNT(*) AS count, COALESCE(AVG(lead_score), 0) AS avg_score FROM leads WHERE created_at >= datetime('now', '-30 days') GROUP BY priority`),
     safeFirst(env, `SELECT COUNT(*) AS count, MIN(created_at) AS oldest_created_at FROM leads WHERE status = 'new' AND lead_score >= 85`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts, SUM(CASE WHEN event_type = 'form_submit_attempt' THEN 1 ELSE 0 END) AS submit_attempts, SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created, SUM(CASE WHEN event_type = 'lead_form_abandoned' THEN 1 ELSE 0 END) AS abandoned_forms FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY path HAVING SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) > 0 ORDER BY (SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) - SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END)) DESC, abandoned_forms DESC LIMIT 20`),
-    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COUNT(*) AS count FROM site_events WHERE event_type = 'lead_form_abandoned' AND created_at >= datetime('now', '-30 days') GROUP BY path ORDER BY count DESC LIMIT 10`)
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COUNT(*) AS count FROM site_events WHERE event_type = 'lead_form_abandoned' AND created_at >= datetime('now', '-30 days') GROUP BY path ORDER BY count DESC LIMIT 10`),
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.target'), ''), 'non precise') AS target, COALESCE(NULLIF(json_extract(payload, '$.route'), ''), '') AS route, COUNT(*) AS completions FROM site_events WHERE event_type = 'diagnostic_complete' AND created_at >= datetime('now', '-30 days') GROUP BY path, target, route ORDER BY completions DESC LIMIT 20`)
   ]);
 
   const pageViews = countFrom(eventCounts, "page_view");
@@ -140,15 +179,21 @@ export async function onRequestGet({ request, env }) {
   const attempts = countFrom(eventCounts, "form_submit_attempt");
   const leadCreated = countFrom(eventCounts, "lead_created");
   const abandoned = countFrom(eventCounts, "lead_form_abandoned");
+  const diagnosticSelects = countFrom(eventCounts, "diagnostic_select");
+  const diagnosticCompletes = countFrom(eventCounts, "diagnostic_complete");
   const conversionFunnel = {
     page_views: pageViews,
     cta_clicks: ctaClicks,
+    diagnostic_selects: diagnosticSelects,
+    diagnostic_completes: diagnosticCompletes,
     form_starts: formStarts,
     quality_ready: qualityReady,
     submit_attempts: attempts,
     leads_created: leadCreated,
     abandoned_forms: abandoned,
     visitor_to_cta_rate: pct(ctaClicks, pageViews),
+    diagnostic_completion_rate: pct(diagnosticCompletes, diagnosticSelects),
+    diagnostic_to_form_rate: pct(formStarts, diagnosticCompletes),
     cta_to_form_rate: pct(formStarts, ctaClicks),
     form_to_lead_rate: pct(leadCreated, formStarts),
     attempt_to_lead_rate: pct(leadCreated, attempts),
@@ -168,10 +213,11 @@ export async function onRequestGet({ request, env }) {
     hot_pending: hotPending,
     conversion_gaps: Array.isArray(conversionGaps) ? conversionGaps : [],
     abandon_paths: Array.isArray(abandonPaths) ? abandonPaths : [],
-    lead_actions: buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths }),
+    diagnostic_paths: Array.isArray(diagnosticPaths) ? diagnosticPaths : [],
+    lead_actions: buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths }),
     latest_run: latestRun,
     opportunities: Array.isArray(opportunities) ? opportunities : [],
     content_pipeline: Array.isArray(contentPipeline) ? contentPipeline : [],
-    warnings: [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity, leadPriorities, hotPending, conversionGaps, abandonPaths].filter((item) => item && item.error).map((item) => item.error)
+    warnings: [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths].filter((item) => item && item.error).map((item) => item.error)
   });
 }
