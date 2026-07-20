@@ -103,6 +103,48 @@ function qualifyLead(lead) {
   };
 }
 
+
+function increment(map, key) {
+  const cleanKey = clean(key || "non precise", 120) || "non precise";
+  map.set(cleanKey, (map.get(cleanKey) || 0) + 1);
+}
+
+function topFromMap(map) {
+  return [...map.entries()]
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+    .slice(0, 6);
+}
+
+function summarizeLeads(leads) {
+  const priority_counts = { hot: 0, warm: 0, standard: 0, low: 0 };
+  const needs = new Map();
+  const cities = new Map();
+  let scoreTotal = 0;
+  let oldestHot = "";
+
+  for (const lead of leads) {
+    const q = lead.qualification || qualifyLead(lead);
+    const priority = q.priority || "standard";
+    priority_counts[priority] = (priority_counts[priority] || 0) + 1;
+    scoreTotal += Number(q.score || 0);
+    increment(needs, lead.need);
+    increment(cities, lead.city);
+    if (priority === "hot" && lead.status === "new") {
+      if (!oldestHot || String(lead.created_at || "") < oldestHot) oldestHot = lead.created_at || "";
+    }
+  }
+
+  const count = leads.length;
+  return {
+    count,
+    average_score: count ? Math.round((scoreTotal / count) * 10) / 10 : 0,
+    priority_counts,
+    top_needs: topFromMap(needs),
+    top_cities: topFromMap(cities),
+    oldest_hot_created_at: oldestHot
+  };
+}
 export async function onRequestGet({ request, env }) {
   if (!authorized(request, env)) {
     return json({ success: false, error: "Acces refuse" }, 401);
@@ -126,5 +168,5 @@ export async function onRequestGet({ request, env }) {
     qualification: qualifyLead(lead)
   }));
 
-  return json({ success: true, leads });
+  return json({ success: true, leads, summary: summarizeLeads(leads) });
 }

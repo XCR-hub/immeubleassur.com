@@ -36,6 +36,69 @@ function pct(part, total) {
   return Math.round((Number(part || 0) / denominator) * 1000) / 10;
 }
 
+
+function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths }) {
+  const actions = [];
+  const hotPendingCount = Number(hotPending?.count || 0);
+  const leads30d = Number(leadStats?.leads_30d || 0);
+  const hotLeads30d = Number(leadStats?.hot_leads_30d || 0);
+  const topGap = Array.isArray(conversionGaps) ? conversionGaps[0] : null;
+  const topAbandon = Array.isArray(abandonPaths) ? abandonPaths[0] : null;
+
+  if (hotPendingCount > 0) {
+    actions.push({
+      score: 100,
+      opportunity_type: "lead-hot",
+      url: "admin/leads",
+      query: `${hotPendingCount} lead(s) chaud(s) nouveau(x)`,
+      recommendation: "Rappeler en priorite et demander contrat actuel, echeance, sinistralite et surfaces."
+    });
+  }
+
+  if (Number(conversionFunnel.abandon_rate || 0) >= 25 && topAbandon) {
+    actions.push({
+      score: 92,
+      opportunity_type: "abandon-formulaire",
+      url: topAbandon.path || topAbandon.page_url || "/",
+      query: `${conversionFunnel.abandon_rate}% abandon formulaire`,
+      recommendation: "Rendre le CTA plus direct sur cette page et verifier la longueur percue du formulaire."
+    });
+  }
+
+  if (topGap && Number(topGap.form_starts || 0) > Number(topGap.leads_created || 0)) {
+    actions.push({
+      score: 88,
+      opportunity_type: "tunnel-lead",
+      url: topGap.path || "/",
+      query: `${topGap.form_starts || 0} starts / ${topGap.leads_created || 0} leads`,
+      recommendation: "Analyser les champs, l'intention de page et le message de reassurance autour du formulaire."
+    });
+  }
+
+  if (leads30d > 0 && hotLeads30d === 0) {
+    actions.push({
+      score: 76,
+      opportunity_type: "qualite-lead",
+      url: "admin/leads",
+      query: "0 lead chaud sur 30 jours",
+      recommendation: "Renforcer les pages PNO/CNO, SCI, syndic et immeubles multi-lots qui portent les meilleurs scores."
+    });
+  }
+
+  for (const bucket of Array.isArray(leadPriorities) ? leadPriorities : []) {
+    if (bucket.priority === "warm" && Number(bucket.count || 0) >= 3) {
+      actions.push({
+        score: 70,
+        opportunity_type: "relance-warm",
+        url: "admin/leads",
+        query: `${bucket.count} leads a traiter`,
+        recommendation: "Creer une relance courte pour obtenir echeance, contrat actuel et sinistres manquants."
+      });
+    }
+  }
+
+  return actions.sort((a, b) => b.score - a.score).slice(0, 12);
+}
 async function safeFirst(env, sql, binds = []) {
   try {
     const statement = env.DB.prepare(sql);
@@ -54,7 +117,7 @@ export async function onRequestGet({ request, env }) {
     return json({ success: false, error: "Binding D1 DB manquant" }, 503);
   }
 
-  const [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity] = await Promise.all([
+  const [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity, leadPriorities, hotPending, conversionGaps, abandonPaths] = await Promise.all([
     safeAll(env, `SELECT event_type, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type ORDER BY count DESC`),
     safeFirst(env, `SELECT COUNT(*) AS leads_30d, COALESCE(AVG(lead_score), 0) AS avg_score, SUM(CASE WHEN lead_score >= 80 THEN 1 ELSE 0 END) AS hot_leads_30d FROM leads WHERE created_at >= datetime('now', '-30 days')`),
     safeFirst(env, `SELECT id, source, status, pages_checked, opportunities_count, created_at FROM seo_runs ORDER BY created_at DESC LIMIT 1`),
@@ -63,7 +126,11 @@ export async function onRequestGet({ request, env }) {
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, event_type, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY path, event_type ORDER BY count DESC LIMIT 80`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.landing_page'), ''), page_url, '/') AS landing_page, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY landing_page ORDER BY count DESC LIMIT 20`),
     safeAll(env, `SELECT COALESCE(NULLIF(need, ''), 'non precise') AS need, COUNT(*) AS count, COALESCE(AVG(lead_score), 0) AS avg_score FROM leads WHERE created_at >= datetime('now', '-30 days') GROUP BY need ORDER BY count DESC, avg_score DESC LIMIT 20`),
-    safeAll(env, `SELECT COALESCE(NULLIF(city, ''), 'non precise') AS city, COUNT(*) AS count, COALESCE(AVG(lead_score), 0) AS avg_score FROM leads WHERE created_at >= datetime('now', '-30 days') GROUP BY city ORDER BY count DESC, avg_score DESC LIMIT 20`)
+    safeAll(env, `SELECT COALESCE(NULLIF(city, ''), 'non precise') AS city, COUNT(*) AS count, COALESCE(AVG(lead_score), 0) AS avg_score FROM leads WHERE created_at >= datetime('now', '-30 days') GROUP BY city ORDER BY count DESC, avg_score DESC LIMIT 20`),
+    safeAll(env, `SELECT CASE WHEN lead_score >= 85 THEN 'hot' WHEN lead_score >= 70 THEN 'warm' WHEN lead_score >= 45 THEN 'standard' ELSE 'low' END AS priority, COUNT(*) AS count, COALESCE(AVG(lead_score), 0) AS avg_score FROM leads WHERE created_at >= datetime('now', '-30 days') GROUP BY priority`),
+    safeFirst(env, `SELECT COUNT(*) AS count, MIN(created_at) AS oldest_created_at FROM leads WHERE status = 'new' AND lead_score >= 85`),
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts, SUM(CASE WHEN event_type = 'form_submit_attempt' THEN 1 ELSE 0 END) AS submit_attempts, SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created, SUM(CASE WHEN event_type = 'lead_form_abandoned' THEN 1 ELSE 0 END) AS abandoned_forms FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY path HAVING SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) > 0 ORDER BY (SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) - SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END)) DESC, abandoned_forms DESC LIMIT 20`),
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COUNT(*) AS count FROM site_events WHERE event_type = 'lead_form_abandoned' AND created_at >= datetime('now', '-30 days') GROUP BY path ORDER BY count DESC LIMIT 10`)
   ]);
 
   const pageViews = countFrom(eventCounts, "page_view");
@@ -97,9 +164,14 @@ export async function onRequestGet({ request, env }) {
     top_landing_pages: Array.isArray(topLandingPages) ? topLandingPages : [],
     leads_by_need: Array.isArray(leadsByNeed) ? leadsByNeed : [],
     leads_by_city: Array.isArray(leadsByCity) ? leadsByCity : [],
+    lead_priorities: Array.isArray(leadPriorities) ? leadPriorities : [],
+    hot_pending: hotPending,
+    conversion_gaps: Array.isArray(conversionGaps) ? conversionGaps : [],
+    abandon_paths: Array.isArray(abandonPaths) ? abandonPaths : [],
+    lead_actions: buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths }),
     latest_run: latestRun,
     opportunities: Array.isArray(opportunities) ? opportunities : [],
     content_pipeline: Array.isArray(contentPipeline) ? contentPipeline : [],
-    warnings: [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity].filter((item) => item && item.error).map((item) => item.error)
+    warnings: [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity, leadPriorities, hotPending, conversionGaps, abandonPaths].filter((item) => item && item.error).map((item) => item.error)
   });
 }

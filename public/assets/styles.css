@@ -761,6 +761,24 @@ address a {
   align-items: end;
 }
 
+.admin-lead-controls {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(180px, 240px) auto;
+  gap: 12px;
+  align-items: end;
+  margin-top: 16px;
+}
+
+.admin-lead-controls .button.secondary {
+  border-color: var(--line);
+  color: var(--teal-dark);
+  background: #ffffff;
+}
+
+.lead-summary-grid {
+  margin-top: 16px;
+}
+
 .admin-table-wrap {
   margin-top: 18px;
   overflow-x: auto;
@@ -825,6 +843,11 @@ address a {
   box-shadow: inset 4px 0 0 var(--gold);
 }
 @media (max-width: 980px) {
+  .admin-lead-controls {
+    grid-template-columns: 1fr;
+  }
+
+
   .nav {
     display: none;
   }
@@ -1386,6 +1409,7 @@ textarea:focus {
 }
 
 @media (max-width: 980px) {
+
   .hero-intent-grid,
   .conversion-strip-inner {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1668,6 +1692,7 @@ textarea:focus {
 }
 
 @media (max-width: 980px) {
+
   .risk-router,
   .seo-opportunity-grid {
     grid-template-columns: 1fr;

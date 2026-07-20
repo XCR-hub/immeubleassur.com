@@ -844,6 +844,12 @@ function adminPage() {
           <button class="submit-button" type="submit">Charger</button>
         </form>
         <p class="form-status" role="status" aria-live="polite"></p>
+        <div class="admin-lead-controls" aria-label="Filtres leads">
+          <label>Recherche<input id="lead-search" type="search" placeholder="Nom, ville, besoin, email..." /></label>
+          <label>Priorite<select id="lead-priority-filter"><option value="">Toutes</option><option value="hot">Chaud</option><option value="warm">A traiter</option><option value="standard">Standard</option><option value="low">A completer</option></select></label>
+          <button class="button secondary" type="button" id="export-leads">Exporter CSV</button>
+        </div>
+        <div class="seo-admin-grid lead-summary-grid" id="lead-summary"><p>Chargez les leads pour afficher les priorites.</p></div>
       </section>
       <section class="admin-table-wrap" aria-label="Derniers leads">
         <table class="admin-table">

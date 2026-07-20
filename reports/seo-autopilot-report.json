@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-20T00:53:53.307Z",
+  "generated_at": "2026-07-20T01:33:07.156Z",
   "mode": "api",
   "pages_checked": 157,
   "average_score": 100,
@@ -10,53 +10,11 @@
     "skipped": "GOOGLE_SERVICE_ACCOUNT_EMAIL/KEY missing"
   },
   "pagespeed": {
-    "checked": 8,
-    "rows": [
-      {
-        "url": "https://immeubleassur.com/",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/assurance-immeuble",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/assurance-copropriete",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/assurance-cno",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/assurance-pno-cno",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/devis-pno-cno",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/devis-assurance-immeuble",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/blog",
-        "ok": false,
-        "status": 429
-      }
-    ]
+    "error": "fetch failed"
   },
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-20T00:52:51.574Z",
+    "generated_at": "2026-07-20T01:32:41.627Z",
     "pages_checked": 157,
     "pages_changed": 108,
     "fixes_applied": 167,
@@ -190,7 +148,7 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-20T00:52:52.000Z",
+    "generated_at": "2026-07-20T01:32:41.982Z",
     "pages_checked": 158,
     "pages_expanded": 74,
     "words_added_estimate": 12705,
