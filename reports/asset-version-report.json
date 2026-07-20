@@ -1,209 +1,209 @@
 {
-  "generated_at": "2026-07-20T02:30:46.817Z",
+  "generated_at": "2026-07-20T02:36:18.876Z",
   "files_checked": 158,
   "files_changed": 49,
-  "replacements": 98,
+  "replacements": 49,
   "assets": {
     "styles": "/assets/styles.css?v=60da9be971",
-    "app": "/assets/app.js?v=b0225009b4",
+    "app": "/assets/app.js?v=ffa8932c9a",
     "admin": "/assets/admin.js?v=d1b4497b2a"
   },
   "changed": [
     {
       "file": "assurance-immeuble-agen.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-albi.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-angouleme.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-annecy.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-antibes.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-arras.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-avignon.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-bayonne.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-beauvais.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-beziers.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-biarritz.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-blois.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-bourges.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-caen.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-calais.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-cannes.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-carcassonne.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-chalon-sur-saone.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-chambery.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-chartres.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-cholet.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-colmar.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-douai.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-dunkerque.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-evreux.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-frejus.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-la-roche-sur-yon.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-la-rochelle.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-lens.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-lorient.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-macon.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-montauban.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-mulhouse.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-nancy.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-narbonne.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-nevers.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-nimes.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-niort.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-pau.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-poitiers.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-quimper.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-saint-malo.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-saint-nazaire.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-saintes.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-tarbes.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-troyes.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-valence.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-valenciennes.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-immeuble-vannes.html",
-      "updates": 2
+      "updates": 1
     }
   ],
   "status": "passed"

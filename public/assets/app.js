@@ -196,6 +196,8 @@ function leadQualification(payload) {
   const profile = String(payload.profile || "").trim();
   const propertyType = String(payload.property_type || "").trim();
   const source = String(payload.source || "").trim();
+  const readinessText = `${payload.message || ""} ${source}`;
+  const readinessSignals = ["contrat actuel", "appel de prime", "sinistres 36 mois", "nombre de lots", "echeance", "travaux prevus"].filter((item) => readinessText.toLowerCase().includes(item)).length;
 
   if (units >= 2) {
     score += 8;
@@ -228,6 +230,14 @@ function leadQualification(payload) {
   if (/pno|cno|coproprietaire|non.?occupant/i.test(`${payload.message || ""} ${source}`)) {
     score += 10;
     addReason(reasons, "mot-cle PNO/CNO detecte");
+  }
+  if (/dossier pret assureur|pieces disponibles/i.test(readinessText) && !/pieces disponibles:\s*aucune piece/i.test(readinessText)) {
+    score += 12;
+    addReason(reasons, "dossier assureur prepare");
+  }
+  if (readinessSignals >= 3) {
+    score += 8;
+    addReason(reasons, "pieces assureur disponibles");
   }
   if (payload.message && payload.message.length > 40) {
     score += 10;

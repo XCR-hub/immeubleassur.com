@@ -36,6 +36,7 @@ function nextActionFor(payload, score) {
   const propertyType = clean(payload.property_type, 80);
   const units = Number.parseInt(payload.units_count || "0", 10);
 
+  if (/dossier pret assureur|pieces disponibles/i.test(payload.message || "") && !/pieces disponibles:\s*aucune piece/i.test(payload.message || "")) return "Reprendre les pieces disponibles, demander les manquants puis consulter les assureurs adaptes.";
   if (score >= 85) return "Rappeler en priorite et demander contrat actuel, echeance, sinistres 36 mois.";
   if (["pno", "cno", "pno-cno"].includes(need) || propertyType === "lot-copropriete") {
     return "Verifier occupation du lot, contrat immeuble copropriete et assurance occupant.";
@@ -55,6 +56,8 @@ function qualifyLead(payload) {
   const profile = clean(payload.profile, 80);
   const propertyType = clean(payload.property_type, 80);
   const source = clean(payload.source, 80);
+  const readinessText = `${payload.message || ""} ${source}`;
+  const readinessSignals = ["contrat actuel", "appel de prime", "sinistres 36 mois", "nombre de lots", "echeance", "travaux prevus"].filter((item) => readinessText.toLowerCase().includes(item)).length;
 
   if (units >= 2) {
     score += 8;
@@ -87,6 +90,14 @@ function qualifyLead(payload) {
   if (/pno|cno|coproprietaire|non.?occupant/i.test(`${payload.message || ""} ${source}`)) {
     score += 10;
     addReason(reasons, "mot-cle PNO/CNO detecte");
+  }
+  if (/dossier pret assureur|pieces disponibles/i.test(readinessText) && !/pieces disponibles:\s*aucune piece/i.test(readinessText)) {
+    score += 12;
+    addReason(reasons, "dossier assureur prepare");
+  }
+  if (readinessSignals >= 3) {
+    score += 8;
+    addReason(reasons, "pieces assureur disponibles");
   }
   if (payload.message && payload.message.length > 40) {
     score += 10;
