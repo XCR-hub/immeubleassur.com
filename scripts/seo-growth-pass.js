@@ -7,6 +7,7 @@ const REPORT_DIR = "reports";
 const BRAND = "ImmeubleAssur";
 const EMAIL = "team@immeubleassur.com";
 const PHONE = "+33180855786";
+const privateSlugs = new Set(["admin"]);
 
 function walk(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -183,10 +184,15 @@ function enhanceCtaTracking(html) {
   return html
     .replace(/<a class="button primary"(?![^>]*data-track)/g, '<a class="button primary" data-track="cta-primary"')
     .replace(/<a class="button secondary"(?![^>]*data-track)/g, '<a class="button secondary" data-track="cta-secondary"')
-    .replace(/<form class="quote-panel" id="lead-form"/g, '<form class="quote-panel" id="lead-form" data-track="lead-form"')
-    .replace(/<button class="submit-button" type="submit">/g, '<button class="submit-button" type="submit" data-track="lead-submit">');
+    .replace(/<form class="([^"]*\bquote-panel\b[^"]*)" id="lead-form"([^>]*)>/g, (_match, classes, attrs) => {
+      const cleanAttrs = attrs.replace(/\sdata-track="lead-form"/g, "").replace(/\s+/g, " ").trim();
+      return `<form class="${classes}" id="lead-form" data-track="lead-form"${cleanAttrs ? ` ${cleanAttrs}` : ""}>`;
+    })
+    .replace(/<button class="submit-button" type="submit"([^>]*)>/g, (_match, attrs) => {
+      const cleanAttrs = attrs.replace(/\sdata-track="lead-submit"/g, "").replace(/\s+/g, " ").trim();
+      return `<button class="submit-button" type="submit" data-track="lead-submit"${cleanAttrs ? ` ${cleanAttrs}` : ""}>`;
+    });
 }
-
 function ensureLeadMagnet(html, slug) {
   if (slug === "admin" || html.includes("growth-lead-magnet")) return html;
   if (!html.includes('id="lead-form"')) return html;
@@ -208,9 +214,11 @@ function enhanceHtml(file) {
   html = ensureLeadMagnet(html, slug);
   html = html.replace(/<!-- growth-meta:start -->[\s\S]*?<!-- growth-meta:end -->\n?/g, "");
   html = html.replace(/<!-- growth-schema:start -->[\s\S]*?<!-- growth-schema:end -->\n?/g, "");
-  html = html.replace(/<link rel="canonical" href="[^"]+" \/>/, `<link rel="canonical" href="${url}" />`);
-  html = html.replace(/<meta property="og:url" content="[^"]+" \/>/, `<meta property="og:url" content="${url}" />`);
-  html = html.replace("</head>", `${metaBlock({ title, description, slug })}\n${schemaBlock([breadcrumbSchema(slug, h1), webpageSchema(slug, title, description), serviceSchema(slug, title, description), faqSchema(html, slug), slug === "" ? websiteSchema() : null])}\n  </head>`);
+  if (!privateSlugs.has(slug)) {
+    html = html.replace(/<link rel="canonical" href="[^"]+" \/>/, `<link rel="canonical" href="${url}" />`);
+    html = html.replace(/<meta property="og:url" content="[^"]+" \/>/, `<meta property="og:url" content="${url}" />`);
+    html = html.replace("</head>", `${metaBlock({ title, description, slug })}\n${schemaBlock([breadcrumbSchema(slug, h1), webpageSchema(slug, title, description), serviceSchema(slug, title, description), faqSchema(html, slug), slug === "" ? websiteSchema() : null])}\n  </head>`);
+  }
 
   writeFileSync(file, html, "utf8");
   return {
