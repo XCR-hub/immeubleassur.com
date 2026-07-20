@@ -177,17 +177,69 @@ function mountLeadBar() {
   document.body.append(bar);
 }
 
+function addReason(reasons, label) {
+  if (!reasons.includes(label) && reasons.length < 8) reasons.push(label);
+}
+
+function priorityFromScore(score) {
+  if (score >= 85) return "hot";
+  if (score >= 70) return "warm";
+  if (score >= 45) return "standard";
+  return "low";
+}
+
+function leadQualification(payload) {
+  let score = 20;
+  const reasons = [];
+  const units = Number.parseInt(String(payload.units_count || "0").replace(/\D/g, ""), 10) || 0;
+  const need = String(payload.need || "").trim();
+  const profile = String(payload.profile || "").trim();
+  const propertyType = String(payload.property_type || "").trim();
+  const source = String(payload.source || "").trim();
+
+  if (units >= 2) {
+    score += 8;
+    addReason(reasons, "plusieurs lots");
+  }
+  if (units >= 10) {
+    score += 20;
+    addReason(reasons, "immeuble multi-lots");
+  }
+  if (units >= 40) {
+    score += 20;
+    addReason(reasons, "portefeuille important");
+  }
+  if (["syndic-professionnel", "administrateur-biens", "sci"].includes(profile)) {
+    score += 15;
+    addReason(reasons, "profil professionnel ou SCI");
+  }
+  if (["multirisque-immeuble", "copropriete", "audit-contrat"].includes(need)) {
+    score += 10;
+    addReason(reasons, "besoin immeuble qualifie");
+  }
+  if (["pno", "cno", "pno-cno"].includes(need)) {
+    score += 18;
+    addReason(reasons, "intention PNO/CNO");
+  }
+  if (["lot-copropriete", "logement-vacant", "logement-loue", "local-commercial"].includes(propertyType)) {
+    score += 12;
+    addReason(reasons, "situation du bien exploitable");
+  }
+  if (/pno|cno|coproprietaire|non.?occupant/i.test(`${payload.message || ""} ${source}`)) {
+    score += 10;
+    addReason(reasons, "mot-cle PNO/CNO detecte");
+  }
+  if (payload.message && payload.message.length > 40) {
+    score += 10;
+    addReason(reasons, "message detaille");
+  }
+
+  score = Math.min(score, 100);
+  return { score, priority: priorityFromScore(score), reasons };
+}
+
 function leadQuality(payload) {
-  const completed = requiredFields.filter((field) => payload[field]).length;
-  const units = Number(String(payload.units_count || "").replace(/\D/g, ""));
-  let score = completed * 9;
-  if (payload.need) score += 12;
-  if (["cno", "pno", "pno-cno", "multirisque-immeuble"].includes(payload.need)) score += 10;
-  if (["sci", "syndic-professionnel", "administrateur-biens"].includes(payload.profile)) score += 8;
-  if (units >= 2) score += 6;
-  if (units >= 10) score += 8;
-  if (payload.message.length >= 40) score += 10;
-  return Math.min(100, score);
+  return leadQualification(payload).score;
 }
 
 function advisorCopy(payload, score) {
@@ -437,6 +489,8 @@ form?.addEventListener("submit", async (event) => {
       lead_reference: result.reference,
       score: String(result.score || ""),
       notification: result.notification || "unknown",
+      priority: result.priority || "",
+      next_action: result.next_action || "",
       target: payload.need,
       label: payload.city
     });

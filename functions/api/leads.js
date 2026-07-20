@@ -19,24 +19,86 @@ function headerSafe(value, max = 240) {
   return clean(value, max).replace(/[\r\n]+/g, " ");
 }
 
-function scoreLead(payload) {
+function addReason(reasons, label) {
+  if (!reasons.includes(label) && reasons.length < 8) reasons.push(label);
+}
+
+function priorityFromScore(score) {
+  if (score >= 85) return "hot";
+  if (score >= 70) return "warm";
+  if (score >= 45) return "standard";
+  return "low";
+}
+
+function nextActionFor(payload, score) {
+  const need = clean(payload.need, 80);
+  const profile = clean(payload.profile, 80);
+  const propertyType = clean(payload.property_type, 80);
+  const units = Number.parseInt(payload.units_count || "0", 10);
+
+  if (score >= 85) return "Rappeler en priorite et demander contrat actuel, echeance, sinistres 36 mois.";
+  if (["pno", "cno", "pno-cno"].includes(need) || propertyType === "lot-copropriete") {
+    return "Verifier occupation du lot, contrat immeuble copropriete et assurance occupant.";
+  }
+  if (units >= 10 || ["syndic-professionnel", "administrateur-biens"].includes(profile)) {
+    return "Demander tableau lots, sinistralite, prime actuelle et travaux prevus.";
+  }
+  if (profile === "sci") return "Identifier portefeuille SCI, lots disperses et contrats deja en place.";
+  return "Rappeler pour completer echeance, assureur actuel, surface et sinistres.";
+}
+
+function qualifyLead(payload) {
   let score = 20;
+  const reasons = [];
   const units = Number.parseInt(payload.units_count || "0", 10);
   const need = clean(payload.need, 80);
   const profile = clean(payload.profile, 80);
   const propertyType = clean(payload.property_type, 80);
   const source = clean(payload.source, 80);
 
-  if (units >= 2) score += 8;
-  if (units >= 10) score += 20;
-  if (units >= 40) score += 20;
-  if (["syndic-professionnel", "administrateur-biens", "sci"].includes(profile)) score += 15;
-  if (["multirisque-immeuble", "copropriete", "audit-contrat"].includes(need)) score += 10;
-  if (["pno", "cno", "pno-cno"].includes(need)) score += 18;
-  if (["lot-copropriete", "logement-vacant", "logement-loue", "local-commercial"].includes(propertyType)) score += 12;
-  if (/pno|cno|coproprietaire|non.?occupant/i.test(`${payload.message || ""} ${source}`)) score += 10;
-  if (payload.message && payload.message.length > 40) score += 10;
-  return Math.min(score, 100);
+  if (units >= 2) {
+    score += 8;
+    addReason(reasons, "plusieurs lots");
+  }
+  if (units >= 10) {
+    score += 20;
+    addReason(reasons, "immeuble multi-lots");
+  }
+  if (units >= 40) {
+    score += 20;
+    addReason(reasons, "portefeuille important");
+  }
+  if (["syndic-professionnel", "administrateur-biens", "sci"].includes(profile)) {
+    score += 15;
+    addReason(reasons, "profil professionnel ou SCI");
+  }
+  if (["multirisque-immeuble", "copropriete", "audit-contrat"].includes(need)) {
+    score += 10;
+    addReason(reasons, "besoin immeuble qualifie");
+  }
+  if (["pno", "cno", "pno-cno"].includes(need)) {
+    score += 18;
+    addReason(reasons, "intention PNO/CNO");
+  }
+  if (["lot-copropriete", "logement-vacant", "logement-loue", "local-commercial"].includes(propertyType)) {
+    score += 12;
+    addReason(reasons, "situation du bien exploitable");
+  }
+  if (/pno|cno|coproprietaire|non.?occupant/i.test(`${payload.message || ""} ${source}`)) {
+    score += 10;
+    addReason(reasons, "mot-cle PNO/CNO detecte");
+  }
+  if (payload.message && payload.message.length > 40) {
+    score += 10;
+    addReason(reasons, "message detaille");
+  }
+  score = Math.min(score, 100);
+  return {
+    score,
+    priority: priorityFromScore(score),
+    reasons,
+    next_action: nextActionFor(payload, score)
+  };
 }
 
 function validate(payload) {
@@ -158,11 +220,14 @@ function dotStuff(message) {
     .join("\r\n");
 }
 
-function buildLeadEmail({ id, reference, score, record, now }) {
+function buildLeadEmail({ id, reference, score, qualification, record, now }) {
   const subject = `Nouveau lead ImmeubleAssur ${reference}`;
   const text = [
     `Reference: ${reference}`,
     `Score: ${score}`,
+    `Priorite: ${qualification.priority}`,
+    `Prochaine action: ${qualification.next_action}`,
+    `Raisons: ${qualification.reasons.length ? qualification.reasons.join(", ") : "non precisees"}`,
     `Date: ${now}`,
     "",
     `Nom: ${record.name}`,
@@ -220,7 +285,7 @@ async function sendSmtpMail(config, message) {
   return response.lines.join(" | ");
 }
 
-async function notifyLeadByEmail({ id, reference, score, record, now }, env) {
+async function notifyLeadByEmail({ id, reference, score, qualification, record, now }, env) {
   const host = clean(env.SMTP_HOST, 160);
   const port = Number.parseInt(env.SMTP_PORT || "587", 10);
   const username = clean(env.SMTP_USER || env.SMTP_FROM, 180);
@@ -232,7 +297,7 @@ async function notifyLeadByEmail({ id, reference, score, record, now }, env) {
     return { attempted: false, status: "skipped" };
   }
 
-  const { subject, text } = buildLeadEmail({ id, reference, score, record, now });
+  const { subject, text } = buildLeadEmail({ id, reference, score, qualification, record, now });
   const headers = [
     `From: ImmeubleAssur <${from}>`,
     `To: ${recipients.join(", ")}`,
@@ -302,7 +367,8 @@ export async function onRequestPost({ request, env }) {
     .slice(2, 6)
     .toUpperCase()}`;
   const now = new Date().toISOString();
-  const score = scoreLead(payload);
+  const qualification = qualifyLead(payload);
+  const score = qualification.score;
   const ip =
     request.headers.get("CF-Connecting-IP") ||
     request.headers.get("X-Forwarded-For") ||
@@ -356,11 +422,11 @@ export async function onRequestPost({ request, env }) {
       )
       .run();
 
-    await logLeadEvent(env, id, "lead_created", { reference, score, source: record.source, page_url: record.page_url, referrer: record.referrer, utm: record.utm }, now);
+    await logLeadEvent(env, id, "lead_created", { reference, score, priority: qualification.priority, reasons: qualification.reasons, next_action: qualification.next_action, source: record.source, page_url: record.page_url, referrer: record.referrer, utm: record.utm }, now);
 
     let notification = { attempted: false, status: "skipped" };
     try {
-      notification = await notifyLeadByEmail({ id, reference, score, record, now }, env);
+      notification = await notifyLeadByEmail({ id, reference, score, qualification, record, now }, env);
       if (notification.attempted) {
         await logLeadEvent(env, id, "email_notification_sent", { reference, receipt: notification.receipt }, now);
       }
@@ -369,7 +435,7 @@ export async function onRequestPost({ request, env }) {
       await logLeadEvent(env, id, "email_notification_failed", { reference, error: error.message || "Erreur SMTP" }, now);
     }
 
-    return json({ success: true, id, reference, score, notification: notification.status });
+    return json({ success: true, id, reference, score, priority: qualification.priority, reasons: qualification.reasons, next_action: qualification.next_action, notification: notification.status });
   } catch (error) {
     return json({ success: false, error: error.message || "Erreur base de donnees" }, 500);
   }

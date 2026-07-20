@@ -847,8 +847,8 @@ function adminPage() {
       </section>
       <section class="admin-table-wrap" aria-label="Derniers leads">
         <table class="admin-table">
-          <thead><tr><th>Date</th><th>Reference</th><th>Contact</th><th>Profil</th><th>Bien</th><th>Ville</th><th>Besoin</th><th>Statut</th><th>Score</th><th>Message</th></tr></thead>
-          <tbody id="leads-body"><tr><td colspan="10">Aucun chargement effectue.</td></tr></tbody>
+          <thead><tr><th>Date</th><th>Reference</th><th>Contact</th><th>Priorite</th><th>Profil</th><th>Bien</th><th>Ville</th><th>Besoin</th><th>Statut</th><th>Score</th><th>Action</th><th>Message</th></tr></thead>
+          <tbody id="leads-body"><tr><td colspan="12">Aucun chargement effectue.</td></tr></tbody>
         </table>
       </section>
     </main>

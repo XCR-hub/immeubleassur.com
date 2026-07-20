@@ -789,6 +789,41 @@ address a {
   color: var(--teal-dark);
   background: #eef7f4;
 }
+
+.lead-priority {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #eef7f4;
+  color: var(--teal-dark);
+  font-size: .78rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.lead-priority.hot {
+  border-color: rgba(217, 164, 65, .55);
+  background: #fff7e8;
+  color: #7a4a00;
+}
+
+.lead-priority.warm {
+  border-color: rgba(37, 99, 235, .28);
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.lead-priority.low {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.admin-table tr[data-priority="hot"] td:first-child {
+  box-shadow: inset 4px 0 0 var(--gold);
+}
 @media (max-width: 980px) {
   .nav {
     display: none;

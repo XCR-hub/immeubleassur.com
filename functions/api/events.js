@@ -58,6 +58,8 @@ export async function onRequestPost({ request, env }) {
     lead_reference: clean(payload.lead_reference, 80),
     score: clean(payload.score, 20),
     notification: clean(payload.notification, 80),
+    priority: clean(payload.priority, 80),
+    next_action: clean(payload.next_action, 240),
     viewport: clean(payload.viewport, 80),
     source: clean(payload.source, 120),
     utm_source: clean(payload.utm_source, 120),

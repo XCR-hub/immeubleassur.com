@@ -20,30 +20,57 @@ function cell(text) {
   return td;
 }
 
+function priorityLabel(priority) {
+  return ({ hot: "Chaud", warm: "A traiter", standard: "Standard", low: "A completer" })[priority] || "Standard";
+}
+
+function priorityCell(priority) {
+  const td = document.createElement("td");
+  const span = document.createElement("span");
+  span.className = `lead-priority ${String(priority || "standard").replace(/[^a-z0-9_-]/gi, "")}`;
+  span.textContent = priorityLabel(priority);
+  td.append(span);
+  return td;
+}
+
+function qualificationFor(lead) {
+  const score = Number(lead.lead_score || 0);
+  return lead.qualification || {
+    score,
+    priority: score >= 85 ? "hot" : score >= 70 ? "warm" : score >= 45 ? "standard" : "low",
+    reasons: [],
+    next_action: "Rappeler pour completer echeance, assureur actuel, surface et sinistres."
+  };
+}
+
 function render(rows) {
   if (!body) return;
   body.replaceChildren();
   if (!rows.length) {
     const tr = document.createElement("tr");
     const td = cell("Aucun lead trouve.");
-    td.colSpan = 10;
+    td.colSpan = 12;
     tr.append(td);
     body.append(tr);
     return;
   }
 
   for (const lead of rows) {
+    const q = qualificationFor(lead);
     const tr = document.createElement("tr");
+    tr.dataset.priority = q.priority || "standard";
     tr.append(
       cell(new Date(lead.created_at).toLocaleString("fr-FR")),
       cell(lead.reference),
       cell(`${lead.name}\n${lead.phone}\n${lead.email}`),
+      priorityCell(q.priority),
       cell(lead.profile),
       cell(`${lead.property_type}${lead.units_count ? `\n${lead.units_count} lots` : ""}`),
       cell(lead.city),
       cell(lead.need),
       cell(lead.status),
-      cell(String(lead.lead_score)),
+      cell(`${q.score ?? lead.lead_score ?? ""}${q.reasons?.length ? `\n${q.reasons.slice(0, 4).join("\n")}` : ""}`),
+      cell(q.next_action || ""),
       cell(lead.message)
     );
     body.append(tr);
