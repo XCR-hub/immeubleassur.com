@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T13:24:33.697Z",
+  "generated_at": "2026-07-25T14:02:46.518Z",
   "pages_checked": 171,
   "status": "passed",
   "severe_issue_count": 0,
@@ -93,13 +93,11 @@
         "assurance-batiment-proprietaire",
         "assurance-cno",
         "assurance-coproprietaire-non-occupant",
-        "assurance-copropriete",
         "assurance-immeuble-locatif",
         "assurance-immeuble-monopropriete",
         "assurance-local-commercial",
         "assurance-parties-communes",
         "assurance-pno-cno",
-        "assurance-pno",
         "assurance-sci",
         "audit-contrat-assurance-immeuble",
         "blog/assurance-colocation-immeuble",
@@ -109,9 +107,11 @@
         "blog/assurance-immeuble-apres-refus-assureur",
         "blog/assurance-immeuble-avec-ascenseur",
         "blog/assurance-immeuble-etudiant",
-        "blog/assurance-immeuble-local-professionnel"
+        "blog/assurance-immeuble-local-professionnel",
+        "blog/assurance-immeuble-mixte-commerce",
+        "blog/assurance-immeuble-protection-du-patrimoine"
       ],
-      "count": 79
+      "count": 77
     },
     {
       "fingerprint": "les meilleurs leads arrivent avec un statut un type de bien et une urgence clairs le diagnostic ajuste le devis le message de rappel et les signaux de conversion",
@@ -146,6 +146,26 @@
         "prix-assurance-immeuble"
       ],
       "count": 11
+    },
+    {
+      "fingerprint": "les recherches assurance immeuble ne valent pas toutes le meme parcours immeubleassur oriente vite vers cno pno multirisque immeuble ou audit contrat pour augmenter les leads exploitables",
+      "pages": [
+        "assurance-cno",
+        "assurance-copropriete",
+        "assurance-immeuble-resilie",
+        "assurance-immeuble-sinistre",
+        "assurance-immeuble",
+        "assurance-pno-cno",
+        "assurance-pno",
+        "comparateur-assurance-immeuble",
+        "courtier-assurance-immeuble",
+        "devis-assurance-immeuble-en-ligne",
+        "devis-assurance-immeuble",
+        "devis-pno-cno",
+        "index",
+        "tarif-assurance-immeuble"
+      ],
+      "count": 14
     },
     {
       "fingerprint": "immeubleassur privilegie une qualification concrete contexte du bien responsabilites historique sinistre travaux contrat actuel et attentes du demandeur cette lecture evite les comparaisons superficielles et aide a obten",

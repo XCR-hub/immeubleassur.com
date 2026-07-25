@@ -12,6 +12,7 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Usines SEO: `scripts/seo-content-factory.js`, `scripts/lead-growth-factory.js`, `scripts/money-intent-factory.js`.
 - Autopilote `scripts/seo-autopilot.js`: audit HTML, opportunites, PageSpeed Insights, Search Console si secrets Google configures, boucle Google feedback.
 - Audit editorial `scripts/content-quality-check.js`: garde-fous people-first, anti-duplication, anti-bourrage et anti-contenu manipulatif.
+- Audit conversion `scripts/conversion-intelligence-check.js`: score des pages a intention commerciale, maillage devis, CTA, modules PNO/CNO et actions dashboard.
 - Cloudflare D1 avec le schema `schema.sql`.
 - Workflow GitHub Actions pret pour deployer via Wrangler.
 

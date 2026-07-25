@@ -9,6 +9,8 @@ const DIAGNOSTIC_START = "<!-- ux-diagnostic:start -->";
 const DIAGNOSTIC_END = "<!-- ux-diagnostic:end -->";
 const READINESS_START = "<!-- ux-readiness:start -->";
 const READINESS_END = "<!-- ux-readiness:end -->";
+const MOMENTUM_START = "<!-- ux-conversion-momentum:start -->";
+const MOMENTUM_END = "<!-- ux-conversion-momentum:end -->";
 const DIAGNOSTIC_FILES = [
   "index.html",
   "devis-assurance-immeuble.html",
@@ -21,6 +23,22 @@ const DIAGNOSTIC_FILES = [
   "assurance-sci.html",
   "assurance-local-commercial.html",
   "prix-assurance-immeuble.html"
+];
+const MOMENTUM_FILES = [
+  "index.html",
+  "assurance-immeuble.html",
+  "devis-assurance-immeuble.html",
+  "devis-assurance-immeuble-en-ligne.html",
+  "devis-pno-cno.html",
+  "assurance-pno-cno.html",
+  "assurance-cno.html",
+  "assurance-pno.html",
+  "assurance-copropriete.html",
+  "courtier-assurance-immeuble.html",
+  "comparateur-assurance-immeuble.html",
+  "tarif-assurance-immeuble.html",
+  "assurance-immeuble-resilie.html",
+  "assurance-immeuble-sinistre.html"
 ];
 
 function routerBlock() {
@@ -128,6 +146,36 @@ function readinessBlock() {
 </section>
 ${READINESS_END}`;
 }
+function momentumBlock() {
+  return `${MOMENTUM_START}
+<section class="band conversion-momentum-band" aria-labelledby="conversion-momentum-title">
+  <div class="conversion-momentum">
+    <div class="conversion-momentum-copy">
+      <p class="eyebrow dark">Priorite business</p>
+      <h2 id="conversion-momentum-title">Diriger chaque visiteur vers le devis qui convertit.</h2>
+      <p class="large-copy">Les recherches assurance immeuble ne valent pas toutes le meme parcours. ImmeubleAssur oriente vite vers CNO/PNO, multirisque immeuble ou audit contrat pour augmenter les leads exploitables.</p>
+    </div>
+    <div class="momentum-grid" aria-label="Parcours prioritaires">
+      <article>
+        <strong>CNO / PNO</strong>
+        <span>Lot loue, vacant ou coproprietaire non occupant.</span>
+        <a class="button primary" data-track="momentum-pno-cno" href="/devis-pno-cno?intent=pno-cno">Devis PNO/CNO</a>
+      </article>
+      <article>
+        <strong>Immeuble</strong>
+        <span>SCI, bailleur, syndic, immeuble de rapport ou monopropriete.</span>
+        <a class="button primary" data-track="momentum-immeuble" href="/devis-assurance-immeuble?intent=immeuble">Devis immeuble</a>
+      </article>
+      <article>
+        <strong>Dossier difficile</strong>
+        <span>Sinistre, resiliation, refus assureur ou franchise a auditer.</span>
+        <a class="button primary" data-track="momentum-audit" href="/audit-contrat-assurance-immeuble">Audit contrat</a>
+      </article>
+    </div>
+  </div>
+</section>
+${MOMENTUM_END}`;
+}
 function removeMarked(html, start, end) {
   return html.replace(new RegExp(`${start}[\\s\\S]*?${end}\\s*`, "g"), "");
 }
@@ -161,7 +209,16 @@ function insertReadiness(html) {
   }
   return html.replace(/\s*<\/main>/i, `\n${block}\n</main>`);
 }
-function updateFile(file, transform) {
+function insertMomentum(html) {
+  const block = momentumBlock();
+  if (html.includes(READINESS_END)) {
+    return html.replace(READINESS_END, `${READINESS_END}\n${block}`);
+  }
+  if (html.includes("<section class=\"band page-band\"")) {
+    return html.replace(/\s*<section class="band page-band"/, `\n${block}\n    <section class="band page-band"`);
+  }
+  return html.replace(/\s*<\/main>/i, `\n${block}\n</main>`);
+}function updateFile(file, transform) {
   if (!existsSync(file)) return false;
   const original = readFileSync(file, "utf8");
   const next = transform(original);
@@ -191,6 +248,15 @@ for (const fileName of DIAGNOSTIC_FILES) {
   }
 }
 
+let momentumChanged = 0;
+let momentumChecked = 0;
+for (const fileName of MOMENTUM_FILES) {
+  const file = join("public", fileName);
+  const existed = existsSync(file);
+  const changed = updateFile(file, (html) => insertMomentum(removeMarked(html, MOMENTUM_START, MOMENTUM_END)));
+  if (existed) momentumChecked += 1;
+  if (changed) momentumChanged += 1;
+}
 mkdirSync(REPORT_DIR, { recursive: true });
 writeFileSync(join(REPORT_DIR, "ux-conversion-report.json"), JSON.stringify({
   generated_at: new Date().toISOString(),
@@ -203,4 +269,4 @@ writeFileSync(join(REPORT_DIR, "ux-conversion-report.json"), JSON.stringify({
   improvements: ["intent-router", "risk-specific-cta", "lead-prefill-links", "homepage-decision-support", "diagnostic-express", "diagnostic-prefill", "diagnostic-event-loop", "readiness-checklist", "readiness-prefill", "readiness-event-loop"]
 }, null, 2), "utf8");
 
-console.log(`UX conversion pass ${routerChanged ? "updated" : "checked"} homepage router, injected ${diagnosticChanged}/${diagnosticChecked} diagnostic blocks and ${readinessChanged}/${readinessChecked} readiness blocks.`);
+console.log(`UX conversion pass ${routerChanged ? "updated" : "checked"} homepage router, injected ${diagnosticChanged}/${diagnosticChecked} diagnostic blocks, ${readinessChanged}/${readinessChecked} readiness blocks and ${momentumChanged}/${momentumChecked} momentum blocks.`);

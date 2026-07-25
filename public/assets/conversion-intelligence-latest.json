@@ -1,0 +1,435 @@
+{
+  "generated_at": "2026-07-25T14:02:47.647Z",
+  "pages_checked": 167,
+  "money_pages_checked": 114,
+  "average_conversion_score": 76,
+  "average_money_score": 82,
+  "cluster_coverage": [
+    {
+      "cluster": "pno-cno",
+      "pages": 167,
+      "money_pages": 114,
+      "average_score": 76,
+      "top_pages": [
+        {
+          "slug": "assurance-cno",
+          "url": "https://immeubleassur.com/assurance-cno",
+          "score": 100
+        },
+        {
+          "slug": "assurance-copropriete",
+          "url": "https://immeubleassur.com/assurance-copropriete",
+          "score": 100
+        },
+        {
+          "slug": "assurance-immeuble",
+          "url": "https://immeubleassur.com/assurance-immeuble",
+          "score": 100
+        },
+        {
+          "slug": "assurance-local-commercial",
+          "url": "https://immeubleassur.com/assurance-local-commercial",
+          "score": 100
+        },
+        {
+          "slug": "assurance-pno-cno",
+          "url": "https://immeubleassur.com/assurance-pno-cno",
+          "score": 100
+        },
+        {
+          "slug": "assurance-pno",
+          "url": "https://immeubleassur.com/assurance-pno",
+          "score": 100
+        }
+      ]
+    }
+  ],
+  "top_money_pages": [
+    {
+      "slug": "assurance-cno",
+      "url": "https://immeubleassur.com/assurance-cno",
+      "cluster": "pno-cno",
+      "score": 100
+    },
+    {
+      "slug": "assurance-copropriete",
+      "url": "https://immeubleassur.com/assurance-copropriete",
+      "cluster": "pno-cno",
+      "score": 100
+    },
+    {
+      "slug": "assurance-immeuble",
+      "url": "https://immeubleassur.com/assurance-immeuble",
+      "cluster": "pno-cno",
+      "score": 100
+    },
+    {
+      "slug": "assurance-pno-cno",
+      "url": "https://immeubleassur.com/assurance-pno-cno",
+      "cluster": "pno-cno",
+      "score": 100
+    },
+    {
+      "slug": "assurance-pno",
+      "url": "https://immeubleassur.com/assurance-pno",
+      "cluster": "pno-cno",
+      "score": 100
+    },
+    {
+      "slug": "comparateur-assurance-immeuble",
+      "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
+      "cluster": "pno-cno",
+      "score": 100
+    },
+    {
+      "slug": "courtier-assurance-immeuble",
+      "url": "https://immeubleassur.com/courtier-assurance-immeuble",
+      "cluster": "pno-cno",
+      "score": 100
+    },
+    {
+      "slug": "devis-assurance-immeuble-en-ligne",
+      "url": "https://immeubleassur.com/devis-assurance-immeuble-en-ligne",
+      "cluster": "pno-cno",
+      "score": 100
+    },
+    {
+      "slug": "devis-assurance-immeuble",
+      "url": "https://immeubleassur.com/devis-assurance-immeuble",
+      "cluster": "pno-cno",
+      "score": 100
+    },
+    {
+      "slug": "devis-pno-cno",
+      "url": "https://immeubleassur.com/devis-pno-cno",
+      "cluster": "pno-cno",
+      "score": 100
+    },
+    {
+      "slug": "prix-assurance-immeuble",
+      "url": "https://immeubleassur.com/prix-assurance-immeuble",
+      "cluster": "pno-cno",
+      "score": 100
+    },
+    {
+      "slug": "tarif-assurance-immeuble",
+      "url": "https://immeubleassur.com/tarif-assurance-immeuble",
+      "cluster": "pno-cno",
+      "score": 100
+    }
+  ],
+  "weak_money_pages": [
+    {
+      "slug": "pno-cno",
+      "url": "https://immeubleassur.com/pno-cno",
+      "cluster": "pno-cno",
+      "score": 48,
+      "actions": [
+        "Ajouter un formulaire ou un CTA direct vers devis.",
+        "Ajouter un deuxieme CTA contextuel avant la fin de page.",
+        "Ajouter le diagnostic express pour qualifier l'intention.",
+        "Ajouter le module dossier pret assureur."
+      ]
+    },
+    {
+      "slug": "blog/checklist-documents-devis-immeuble",
+      "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
+      "cluster": "pno-cno",
+      "score": 72,
+      "actions": [
+        "Ajouter un deuxieme CTA contextuel avant la fin de page.",
+        "Ajouter le diagnostic express pour qualifier l'intention.",
+        "Ajouter le module dossier pret assureur.",
+        "Ajouter un bloc priorite business PNO/CNO/immeuble."
+      ]
+    },
+    {
+      "slug": "blog/pno-bailleur-copropriete",
+      "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
+      "cluster": "pno-cno",
+      "score": 72,
+      "actions": [
+        "Ajouter un deuxieme CTA contextuel avant la fin de page.",
+        "Ajouter le diagnostic express pour qualifier l'intention.",
+        "Ajouter le module dossier pret assureur.",
+        "Ajouter un bloc priorite business PNO/CNO/immeuble."
+      ]
+    },
+    {
+      "slug": "faq/pno",
+      "url": "https://immeubleassur.com/faq/pno",
+      "cluster": "pno-cno",
+      "score": 72,
+      "actions": [
+        "Ajouter un deuxieme CTA contextuel avant la fin de page.",
+        "Ajouter le diagnostic express pour qualifier l'intention.",
+        "Ajouter le module dossier pret assureur.",
+        "Ajouter un bloc priorite business PNO/CNO/immeuble."
+      ]
+    },
+    {
+      "slug": "faq/prix",
+      "url": "https://immeubleassur.com/faq/prix",
+      "cluster": "pno-cno",
+      "score": 72,
+      "actions": [
+        "Ajouter un deuxieme CTA contextuel avant la fin de page.",
+        "Ajouter le diagnostic express pour qualifier l'intention.",
+        "Ajouter le module dossier pret assureur.",
+        "Ajouter un bloc priorite business PNO/CNO/immeuble."
+      ]
+    },
+    {
+      "slug": "faq/sinistres",
+      "url": "https://immeubleassur.com/faq/sinistres",
+      "cluster": "pno-cno",
+      "score": 72,
+      "actions": [
+        "Ajouter un deuxieme CTA contextuel avant la fin de page.",
+        "Ajouter le diagnostic express pour qualifier l'intention.",
+        "Ajouter le module dossier pret assureur.",
+        "Ajouter un bloc priorite business PNO/CNO/immeuble."
+      ]
+    },
+    {
+      "slug": "assurance-immeuble-agen",
+      "url": "https://immeubleassur.com/assurance-immeuble-agen",
+      "cluster": "pno-cno",
+      "score": 77,
+      "actions": [
+        "Ajouter le diagnostic express pour qualifier l'intention.",
+        "Ajouter le module dossier pret assureur.",
+        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
+        "Renforcer la profondeur utile sans duplication."
+      ]
+    },
+    {
+      "slug": "assurance-immeuble-albi",
+      "url": "https://immeubleassur.com/assurance-immeuble-albi",
+      "cluster": "pno-cno",
+      "score": 77,
+      "actions": [
+        "Ajouter le diagnostic express pour qualifier l'intention.",
+        "Ajouter le module dossier pret assureur.",
+        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
+        "Renforcer la profondeur utile sans duplication."
+      ]
+    },
+    {
+      "slug": "assurance-immeuble-angouleme",
+      "url": "https://immeubleassur.com/assurance-immeuble-angouleme",
+      "cluster": "pno-cno",
+      "score": 77,
+      "actions": [
+        "Ajouter le diagnostic express pour qualifier l'intention.",
+        "Ajouter le module dossier pret assureur.",
+        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
+        "Renforcer la profondeur utile sans duplication."
+      ]
+    },
+    {
+      "slug": "assurance-immeuble-annecy",
+      "url": "https://immeubleassur.com/assurance-immeuble-annecy",
+      "cluster": "pno-cno",
+      "score": 77,
+      "actions": [
+        "Ajouter le diagnostic express pour qualifier l'intention.",
+        "Ajouter le module dossier pret assureur.",
+        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
+        "Renforcer la profondeur utile sans duplication."
+      ]
+    },
+    {
+      "slug": "assurance-immeuble-antibes",
+      "url": "https://immeubleassur.com/assurance-immeuble-antibes",
+      "cluster": "pno-cno",
+      "score": 77,
+      "actions": [
+        "Ajouter le diagnostic express pour qualifier l'intention.",
+        "Ajouter le module dossier pret assureur.",
+        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
+        "Renforcer la profondeur utile sans duplication."
+      ]
+    },
+    {
+      "slug": "assurance-immeuble-arras",
+      "url": "https://immeubleassur.com/assurance-immeuble-arras",
+      "cluster": "pno-cno",
+      "score": 77,
+      "actions": [
+        "Ajouter le diagnostic express pour qualifier l'intention.",
+        "Ajouter le module dossier pret assureur.",
+        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
+        "Renforcer la profondeur utile sans duplication."
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "priority": "high",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/pno-cno",
+      "cluster": "pno-cno",
+      "score": 48,
+      "action": "Ajouter un formulaire ou un CTA direct vers devis."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
+      "cluster": "pno-cno",
+      "score": 72,
+      "action": "Ajouter un deuxieme CTA contextuel avant la fin de page."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
+      "cluster": "pno-cno",
+      "score": 72,
+      "action": "Ajouter un deuxieme CTA contextuel avant la fin de page."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/faq/pno",
+      "cluster": "pno-cno",
+      "score": 72,
+      "action": "Ajouter un deuxieme CTA contextuel avant la fin de page."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/faq/prix",
+      "cluster": "pno-cno",
+      "score": 72,
+      "action": "Ajouter un deuxieme CTA contextuel avant la fin de page."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/faq/sinistres",
+      "cluster": "pno-cno",
+      "score": 72,
+      "action": "Ajouter un deuxieme CTA contextuel avant la fin de page."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-agen",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-albi",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-angouleme",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-annecy",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-antibes",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-arras",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-avignon",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-bayonne",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-beauvais",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-beziers",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-biarritz",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-blois",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-bourges",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    },
+    {
+      "priority": "medium",
+      "source": "conversion-intelligence",
+      "url": "https://immeubleassur.com/assurance-immeuble-caen",
+      "cluster": "pno-cno",
+      "score": 77,
+      "action": "Ajouter le diagnostic express pour qualifier l'intention."
+    }
+  ],
+  "safeguards": [
+    "conversion-score-does-not-replace-lead-quality",
+    "money-pages-need-clear-user-intent",
+    "no-hidden-cta-or-hidden-seo-text",
+    "prioritize-measured-leads-over-raw-traffic"
+  ]
+}

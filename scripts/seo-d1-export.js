@@ -27,13 +27,18 @@ const autoFix = report.auto_fix || {};
 const expansion = report.opportunity_expansion || {};
 const contentQuality = report.content_quality || {};
 const googleFeedback = report.google_feedback_loop || {};
+const conversionIntelligence = report.conversion_intelligence || {};
 for (const metric of [
   ["auto_fix", "fixes_applied", autoFix.fixes_applied],
   ["auto_fix", "pages_changed", autoFix.pages_changed],
   ["audit", "average_score", report.average_score],
   ["content_quality", "warning_count", contentQuality.warning_count],
   ["content_quality", "severe_issue_count", contentQuality.severe_issue_count],
-  ["google_feedback", "actions", Array.isArray(googleFeedback.actions) ? googleFeedback.actions.length : 0]
+  ["google_feedback", "actions", Array.isArray(googleFeedback.actions) ? googleFeedback.actions.length : 0],
+  ["conversion_intelligence", "average_conversion_score", conversionIntelligence.average_conversion_score],
+  ["conversion_intelligence", "average_money_score", conversionIntelligence.average_money_score],
+  ["conversion_intelligence", "money_pages_checked", conversionIntelligence.money_pages_checked],
+  ["conversion_intelligence", "actions", Array.isArray(conversionIntelligence.actions) ? conversionIntelligence.actions.length : 0]
 ]) {
   if (metric[2] === undefined || metric[2] === null) continue;
   const metricId = id("metric", `${runId}-${metric[0]}-${metric[1]}`);

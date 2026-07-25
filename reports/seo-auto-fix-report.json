@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T13:24:18.476Z",
+  "generated_at": "2026-07-25T14:02:20.196Z",
   "pages_checked": 170,
   "pages_changed": 121,
   "fixes_applied": 175,
@@ -994,7 +994,7 @@
       "url": "https://immeubleassur.com/devis-assurance-immeuble",
       "fixes": [
         "description-normalized",
-        "content-depth"
+        "faq-depth"
       ],
       "title": "Devis assurance immeuble | ImmeubleAssur",
       "description": "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec ImmeubleAssur. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour.",
