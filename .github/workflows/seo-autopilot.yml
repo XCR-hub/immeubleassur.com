@@ -65,7 +65,9 @@ jobs:
             reports/seo-growth-actions.json
             reports/content-quality-report.json
             reports/conversion-intelligence-report.json
+            reports/cro-experiment-report.json
             public/assets/content-quality-latest.json
             public/assets/conversion-intelligence-latest.json
+            public/assets/cro-experiment-latest.json
             public/assets/seo-autopilot-latest.json
             reports/seo-autopilot-d1.sql

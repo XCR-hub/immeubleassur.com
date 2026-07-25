@@ -261,6 +261,7 @@ function buildLeadEmail({ id, reference, score, qualification, record, now }) {
     `Landing: ${record.utm?.landing_page || "non precisee"}`,
     `Source: ${record.source || "website"}`,
     `Campagne: ${record.utm?.utm_campaign || "non precisee"}`,
+    `Test CTA: ${record.experiment_variant || "non mesure"}`,
     `Lead ID: ${id}`
   ].join("\n");
   return { subject, text };
@@ -389,6 +390,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     request.headers.get("X-Forwarded-For") ||
     "";
   const userAgent = request.headers.get("User-Agent") || "";
+  const experiment = payload.experiment || {};
 
   const record = {
     name: clean(payload.name, 160),
@@ -405,6 +407,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
     referrer: clean(payload.referrer, 500),
     session_id: clean(payload.session_id, 120),
     ga_client_id: clean(payload.ga_client_id, 120),
+    experiment_id: clean(payload.experiment_id || experiment.experiment_id, 80),
+    experiment_variant: clean(payload.experiment_variant || experiment.experiment_variant, 80),
+    experiment_label: clean(payload.experiment_label || experiment.experiment_label, 120),
     utm: cleanUtm(payload.utm || {})
   };
 
@@ -439,7 +444,23 @@ export async function onRequestPost({ request, env, waitUntil }) {
       )
       .run();
 
-    await logLeadEvent(env, id, "lead_created", { reference, score, priority: qualification.priority, reasons: qualification.reasons, next_action: qualification.next_action, source: record.source, page_url: record.page_url, referrer: record.referrer, session_id: record.session_id, ga_client_id: record.ga_client_id, utm: record.utm }, now);
+    await logLeadEvent(env, id, "lead_created", {
+      reference,
+      score,
+      priority: qualification.priority,
+      reasons: qualification.reasons,
+      next_action: qualification.next_action,
+      source: record.source,
+      page_url: record.page_url,
+      referrer: record.referrer,
+      session_id: record.session_id,
+      ga_client_id: record.ga_client_id,
+      experiment_id: record.experiment_id,
+      experiment_variant: record.experiment_variant,
+      experiment_label: record.experiment_label,
+      experiment: { id: record.experiment_id, variant: record.experiment_variant, label: record.experiment_label },
+      utm: record.utm
+    }, now);
 
     const ga4Task = sendGa4Event({
       env,

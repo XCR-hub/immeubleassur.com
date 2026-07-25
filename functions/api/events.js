@@ -10,6 +10,7 @@ const headers = {
 
 const allowedEvents = new Set([
   "page_view",
+  "experiment_view",
   "cta_click",
   "form_start",
   "form_submit_attempt",
@@ -31,6 +32,7 @@ const allowedEvents = new Set([
 
 const ga4EventNames = {
   page_view: "page_view",
+  experiment_view: "ia_experiment_view",
   cta_click: "ia_cta_click",
   form_start: "form_start",
   form_submit_attempt: "ia_form_submit_attempt",
@@ -84,6 +86,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const context = {
     target: clean(payload.target, 240),
     label: clean(payload.label, 240),
+    experiment_id: clean(payload.experiment_id, 80),
+    experiment_variant: clean(payload.experiment_variant, 80),
+    experiment_label: clean(payload.experiment_label, 120),
     path: clean(payload.path, 500),
     referrer: clean(payload.referrer, 500),
     lead_reference: clean(payload.lead_reference, 80),

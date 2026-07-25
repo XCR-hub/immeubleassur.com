@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-07-25T15:20:50.381Z",
+  "status": "passed",
+  "variant_count": 3,
+  "variants": [
+    "audit",
+    "proof",
+    "speed"
+  ],
+  "required_contracts": 14,
+  "missing": [],
+  "safeguards": [
+    "measure-cta-copy-by-lead-quality",
+    "session-stable-variant",
+    "no-cloaking-or-hidden-seo-text",
+    "people-first-content-only"
+  ]
+}

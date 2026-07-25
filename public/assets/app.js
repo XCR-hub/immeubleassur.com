@@ -4,9 +4,12 @@ const statusBox = document.querySelector(".form-status");
 const requiredFields = ["name", "phone", "email", "profile", "property_type", "city"];
 const sessionKey = "immeubleassur_session_id";
 const attributionKey = "immeubleassur_attribution";
+const experimentKey = "immeubleassur_cta_experiment";
 const sessionId = getSessionId();
 captureAttribution();
+const ctaExperiment = getCtaExperiment();
 let formStarted = false;
+let experimentViewSent = false;
 let formSubmitted = false;
 let qualityEventSent = false;
 let abandonEventSent = false;
@@ -20,6 +23,37 @@ function getSessionId() {
   return value;
 }
 
+
+function hashString(value) {
+  return String(value || "").split("").reduce((sum, char) => ((sum << 5) - sum + char.charCodeAt(0)) | 0, 0);
+}
+
+function experimentVariants() {
+  return [
+    { id: "ia_cta_v2", variant: "speed", label: "devis rapide", badge: "devis specialise", primary: "Devis rapide", secondary: "Appeler" },
+    { id: "ia_cta_v2", variant: "audit", label: "audit contrat", badge: "audit + devis", primary: "Audit gratuit", secondary: "Parler a un specialiste" },
+    { id: "ia_cta_v2", variant: "proof", label: "dossier assureur", badge: "dossier assureur", primary: "Preparer mon dossier", secondary: "Rappel expert" }
+  ];
+}
+
+function getCtaExperiment() {
+  const variants = experimentVariants();
+  try {
+    const stored = JSON.parse(sessionStorage.getItem(experimentKey) || "null");
+    if (stored && stored.id === variants[0].id && variants.some((item) => item.variant === stored.variant)) return stored;
+  } catch {}
+  const selected = variants[Math.abs(hashString(sessionId)) % variants.length];
+  sessionStorage.setItem(experimentKey, JSON.stringify(selected));
+  return selected;
+}
+
+function experimentPayload() {
+  return {
+    experiment_id: ctaExperiment.id,
+    experiment_variant: ctaExperiment.variant,
+    experiment_label: ctaExperiment.label
+  };
+}
 function gaClientId() {
   const cookie = document.cookie.split("; ").find((row) => row.startsWith("_ga="));
   if (!cookie) return "";
@@ -45,6 +79,7 @@ function eventPayload(eventType, data = {}) {
     page_title: document.title,
     language: navigator.language || "",
     ga_client_id: gaClientId(),
+    ...experimentPayload(),
     ...attributionPayload(),
     ...data
   };
@@ -141,6 +176,8 @@ function readForm(formElement) {
     session_id: sessionId,
     ga_client_id: gaClientId(),
     page_title: document.title,
+    ...experimentPayload(),
+    experiment: experimentPayload(),
     utm
   };
 }
@@ -190,7 +227,9 @@ function mountLeadBar() {
   };
   const bar = document.createElement("div");
   bar.className = "lead-action-bar";
-  bar.innerHTML = `<span>${label}: devis specialise</span><a class="button primary" data-track="sticky-devis" href="${routes[intent] || routes.website}">Devis rapide</a><a class="button secondary" data-track="sticky-phone" href="tel:+33180855786">Appeler</a>`;
+  bar.dataset.experimentId = ctaExperiment.id;
+  bar.dataset.experimentVariant = ctaExperiment.variant;
+  bar.innerHTML = `<span>${label}: ${ctaExperiment.badge}</span><a class="button primary" data-track="sticky-devis" data-experiment-variant="${ctaExperiment.variant}" href="${routes[intent] || routes.website}">${ctaExperiment.primary}</a><a class="button secondary" data-track="sticky-phone" data-experiment-variant="${ctaExperiment.variant}" href="tel:+33180855786">${ctaExperiment.secondary}</a>`;
   document.body.append(bar);
 }
 
@@ -721,6 +760,10 @@ function bindFormAbandonment() {
 }
 function bindGrowthTracking() {
   track("page_view", { target: document.title, label: document.body.dataset.intent || inferIntent() });
+  if (!experimentViewSent && !window.location.pathname.includes("/admin")) {
+    experimentViewSent = true;
+    track("experiment_view", { target: ctaExperiment.id, label: ctaExperiment.variant });
+  }
 
   document.addEventListener("click", (event) => {
     const link = event.target.closest("a");

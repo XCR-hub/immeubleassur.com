@@ -45,7 +45,7 @@ function pct(part, total) {
   return Math.round((Number(part || 0) / denominator) * 1000) / 10;
 }
 
-function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths }) {
+function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, ctaExperiments }) {
   const actions = [];
   const hotPendingCount = Number(hotPending?.count || 0);
   const leads30d = Number(leadStats?.leads_30d || 0);
@@ -58,6 +58,7 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
   const readinessStarts = Number(conversionFunnel.readiness_starts || 0);
   const readinessCompletes = Number(conversionFunnel.readiness_completes || 0);
   const topReadiness = Array.isArray(readinessPaths) ? readinessPaths[0] : null;
+  const bestExperiment = Array.isArray(ctaExperiments) ? ctaExperiments.find((row) => Number(row.form_starts || 0) > 0 || Number(row.leads_created || 0) > 0 || Number(row.cta_clicks || 0) > 0) : null;
 
   if (hotPendingCount > 0) {
     actions.push({
@@ -129,6 +130,16 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
     });
   }
 
+  if (bestExperiment && Number(bestExperiment.views || 0) >= 10) {
+    actions.push({
+      score: 73,
+      opportunity_type: "test-cta-gagnant",
+      url: "admin/seo",
+      query: `${bestExperiment.variant}: ${bestExperiment.form_starts || 0} starts / ${bestExperiment.leads_created || 0} leads`,
+      recommendation: "Conserver la variante gagnante et renforcer les CTA proches du meme angle."
+    });
+  }
+
   if (leads30d > 0 && hotLeads30d === 0) {
     actions.push({
       score: 76,
@@ -178,7 +189,8 @@ export async function onRequestGet({ request, env }) {
     conversionGaps,
     abandonPaths,
     diagnosticPaths,
-    readinessPaths
+    readinessPaths,
+    ctaExperiments
   ] = await Promise.all([
     safeAll(env, `SELECT event_type, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type ORDER BY count DESC`),
     safeFirst(env, `SELECT COUNT(*) AS leads_30d, COALESCE(AVG(lead_score), 0) AS avg_score, SUM(CASE WHEN lead_score >= 80 THEN 1 ELSE 0 END) AS hot_leads_30d FROM leads WHERE created_at >= datetime('now', '-30 days')`),
@@ -194,10 +206,12 @@ export async function onRequestGet({ request, env }) {
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts, SUM(CASE WHEN event_type = 'form_submit_attempt' THEN 1 ELSE 0 END) AS submit_attempts, SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created, SUM(CASE WHEN event_type = 'lead_form_abandoned' THEN 1 ELSE 0 END) AS abandoned_forms FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY path HAVING SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) > 0 ORDER BY (SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) - SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END)) DESC, abandoned_forms DESC LIMIT 20`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COUNT(*) AS count FROM site_events WHERE event_type = 'lead_form_abandoned' AND created_at >= datetime('now', '-30 days') GROUP BY path ORDER BY count DESC LIMIT 10`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.target'), ''), 'non precise') AS target, COALESCE(NULLIF(json_extract(payload, '$.route'), ''), '') AS route, COUNT(*) AS completions FROM site_events WHERE event_type = 'diagnostic_complete' AND created_at >= datetime('now', '-30 days') GROUP BY path, target, route ORDER BY completions DESC LIMIT 20`),
-    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.target'), ''), 'non precise') AS target, COUNT(*) AS completions, COALESCE(AVG(CAST(NULLIF(json_extract(payload, '$.score'), '') AS REAL)), 0) AS avg_score FROM site_events WHERE event_type = 'readiness_complete' AND created_at >= datetime('now', '-30 days') GROUP BY path, target ORDER BY completions DESC, avg_score DESC LIMIT 20`)
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.target'), ''), 'non precise') AS target, COUNT(*) AS completions, COALESCE(AVG(CAST(NULLIF(json_extract(payload, '$.score'), '') AS REAL)), 0) AS avg_score FROM site_events WHERE event_type = 'readiness_complete' AND created_at >= datetime('now', '-30 days') GROUP BY path, target ORDER BY completions DESC, avg_score DESC LIMIT 20`),
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.experiment_variant'), ''), 'non mesure') AS variant, COALESCE(NULLIF(json_extract(payload, '$.experiment_label'), ''), '') AS label, COUNT(*) AS events, SUM(CASE WHEN event_type = 'experiment_view' THEN 1 ELSE 0 END) AS views, SUM(CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click') THEN 1 ELSE 0 END) AS cta_clicks, SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts, SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created FROM site_events WHERE created_at >= datetime('now', '-30 days') AND COALESCE(NULLIF(json_extract(payload, '$.experiment_variant'), ''), '') <> '' GROUP BY variant, label ORDER BY leads_created DESC, form_starts DESC, cta_clicks DESC LIMIT 12`)
   ]);
 
   const pageViews = countFrom(eventCounts, "page_view");
+  const experimentViews = countFrom(eventCounts, "experiment_view");
   const ctaClicks = countFrom(eventCounts, "cta_click") + countFrom(eventCounts, "phone_click") + countFrom(eventCounts, "email_click");
   const formStarts = countFrom(eventCounts, "form_start");
   const qualityReady = countFrom(eventCounts, "form_quality_ready");
@@ -211,6 +225,7 @@ export async function onRequestGet({ request, env }) {
   const readinessCompletes = countFrom(eventCounts, "readiness_complete");
   const conversionFunnel = {
     page_views: pageViews,
+    experiment_views: experimentViews,
     cta_clicks: ctaClicks,
     diagnostic_selects: diagnosticSelects,
     diagnostic_completes: diagnosticCompletes,
@@ -248,10 +263,11 @@ export async function onRequestGet({ request, env }) {
     abandon_paths: Array.isArray(abandonPaths) ? abandonPaths : [],
     diagnostic_paths: Array.isArray(diagnosticPaths) ? diagnosticPaths : [],
     readiness_paths: Array.isArray(readinessPaths) ? readinessPaths : [],
-    lead_actions: buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths }),
+    cta_experiments: Array.isArray(ctaExperiments) ? ctaExperiments : [],
+    lead_actions: buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, ctaExperiments }),
     latest_run: latestRun,
     opportunities: Array.isArray(opportunities) ? opportunities : [],
     content_pipeline: Array.isArray(contentPipeline) ? contentPipeline : [],
-    warnings: [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths].filter((item) => item && item.error).map((item) => item.error)
+    warnings: [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, ctaExperiments].filter((item) => item && item.error).map((item) => item.error)
   });
 }

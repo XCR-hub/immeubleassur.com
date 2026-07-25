@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T14:02:30.682Z",
+  "generated_at": "2026-07-25T15:20:29.109Z",
   "pages_checked": 170,
   "average_score": 100,
   "opportunities_count": 0,
@@ -7,7 +7,7 @@
   "top_opportunities": [],
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-25T14:02:20.196Z",
+    "generated_at": "2026-07-25T15:20:26.599Z",
     "pages_checked": 170,
     "pages_changed": 121,
     "fixes_applied": 175,
@@ -139,7 +139,7 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-25T14:02:21.349Z",
+    "generated_at": "2026-07-25T15:20:26.951Z",
     "pages_checked": 171,
     "pages_expanded": 77,
     "words_added_estimate": 13247,
@@ -254,7 +254,7 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-07-25T14:02:29.724Z",
+    "generated_at": "2026-07-25T15:20:28.229Z",
     "pages_checked": 171,
     "status": "passed",
     "severe_issue_count": 0,
@@ -271,7 +271,7 @@
   },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-07-25T14:02:30.211Z",
+    "generated_at": "2026-07-25T15:20:28.614Z",
     "pages_checked": 167,
     "money_pages_checked": 114,
     "average_conversion_score": 76,
@@ -1197,6 +1197,25 @@
       "money-pages-need-clear-user-intent",
       "no-hidden-cta-or-hidden-seo-text",
       "prioritize-measured-leads-over-raw-traffic"
+    ]
+  },
+  "cro_experiment": {
+    "configured": true,
+    "generated_at": "2026-07-25T15:20:28.772Z",
+    "status": "passed",
+    "variant_count": 3,
+    "variants": [
+      "audit",
+      "proof",
+      "speed"
+    ],
+    "required_contracts": 14,
+    "missing": [],
+    "safeguards": [
+      "measure-cta-copy-by-lead-quality",
+      "session-stable-variant",
+      "no-cloaking-or-hidden-seo-text",
+      "people-first-content-only"
     ]
   },
   "google_feedback_loop": {

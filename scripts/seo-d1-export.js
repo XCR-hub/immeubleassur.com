@@ -28,6 +28,7 @@ const expansion = report.opportunity_expansion || {};
 const contentQuality = report.content_quality || {};
 const googleFeedback = report.google_feedback_loop || {};
 const conversionIntelligence = report.conversion_intelligence || {};
+const croExperiment = report.cro_experiment || {};
 for (const metric of [
   ["auto_fix", "fixes_applied", autoFix.fixes_applied],
   ["auto_fix", "pages_changed", autoFix.pages_changed],
@@ -38,7 +39,10 @@ for (const metric of [
   ["conversion_intelligence", "average_conversion_score", conversionIntelligence.average_conversion_score],
   ["conversion_intelligence", "average_money_score", conversionIntelligence.average_money_score],
   ["conversion_intelligence", "money_pages_checked", conversionIntelligence.money_pages_checked],
-  ["conversion_intelligence", "actions", Array.isArray(conversionIntelligence.actions) ? conversionIntelligence.actions.length : 0]
+  ["conversion_intelligence", "actions", Array.isArray(conversionIntelligence.actions) ? conversionIntelligence.actions.length : 0],
+  ["cro_experiment", "variant_count", croExperiment.variant_count],
+  ["cro_experiment", "required_contracts", croExperiment.required_contracts],
+  ["cro_experiment", "missing_contracts", Array.isArray(croExperiment.missing) ? croExperiment.missing.length : 0]
 ]) {
   if (metric[2] === undefined || metric[2] === null) continue;
   const metricId = id("metric", `${runId}-${metric[0]}-${metric[1]}`);
