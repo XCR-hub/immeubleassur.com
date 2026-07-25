@@ -28,7 +28,18 @@ const intentBacklog = [
   ["assurance SCI familiale", "blog/sci-familiale-immeuble"],
   ["protection juridique copropriete", "blog/protection-juridique-copropriete"],
   ["assurance local commercial vacant", "blog/local-commercial-vacant"],
-  ["franchise assurance immeuble", "blog/audit-franchises-assurance-immeuble"]
+  ["franchise assurance immeuble", "blog/audit-franchises-assurance-immeuble"],
+  ["assurance immeuble obligatoire", "assurance-immeuble-obligatoire"],
+  ["devis assurance immeuble en ligne", "devis-assurance-immeuble-en-ligne"],
+  ["courtier assurance immeuble", "courtier-assurance-immeuble"],
+  ["assurance immeuble de rapport", "assurance-immeuble-de-rapport"],
+  ["assurance immeuble monopropriete", "assurance-immeuble-monopropriete"],
+  ["assurance batiment proprietaire", "assurance-batiment-proprietaire"],
+  ["assurance parties communes immeuble", "assurance-parties-communes"],
+  ["assurance immeuble resilie", "assurance-immeuble-resilie"],
+  ["assurance immeuble avec sinistres", "assurance-immeuble-sinistre"],
+  ["tarif assurance immeuble", "tarif-assurance-immeuble"],
+  ["assurance immeuble syndic benevole", "assurance-immeuble-syndic-benevole"]
 ];
 
 function walk(dir) {
@@ -226,7 +237,7 @@ async function run() {
   const pages = walk(PUBLIC_DIR).map(auditPage).filter((page) => page.slug !== "admin");
   const issueOpportunities = pages.flatMap((page) => page.issues.map((issue, index) => ({ id: `${page.slug}-${index + 1}`, type: issue.type, url: page.url, page_score: page.score, severity: issue.severity, score: issue.severity === "high" ? 85 : issue.severity === "medium" ? 60 : 35, recommendation: issue.recommendation, message: issue.message })));
   const contentGaps = detectIntentGaps(pages);
-  const sampleUrls = [SITE + "/", `${SITE}/assurance-immeuble`, `${SITE}/assurance-copropriete`, `${SITE}/assurance-cno`, `${SITE}/assurance-pno-cno`, `${SITE}/devis-pno-cno`, `${SITE}/devis-assurance-immeuble`, `${SITE}/blog`, `${SITE}/villes`];
+  const sampleUrls = [SITE + "/", `${SITE}/assurance-immeuble`, `${SITE}/assurance-copropriete`, `${SITE}/assurance-cno`, `${SITE}/assurance-pno-cno`, `${SITE}/devis-pno-cno`, `${SITE}/devis-assurance-immeuble`, `${SITE}/recherches-assurance-immeuble`, `${SITE}/courtier-assurance-immeuble`, `${SITE}/tarif-assurance-immeuble`, `${SITE}/blog`, `${SITE}/villes`];
   let gsc = { configured: false, skipped: "not run" };
   let pagespeed = { skipped: "not run" };
   try { gsc = await fetchGscData(); } catch (error) { gsc = { configured: true, error: error.message }; }

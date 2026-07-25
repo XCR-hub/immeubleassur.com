@@ -210,6 +210,10 @@ function ensureLeadMagnet(html, slug) {
   return html.replace(/(<form class="quote-panel" id="lead-form"[^>]*>\s*<div class="form-heading">)/, `${magnet}\n    $1`);
 }
 
+function cleanTrailingWhitespace(html) {
+  return html.replace(/[ \t]+$/gm, "");
+}
+
 function enhanceHtml(file) {
   const slug = slugFromFile(file);
   let html = readFileSync(file, "utf8");
@@ -230,6 +234,7 @@ function enhanceHtml(file) {
     html = html.replace("</head>", `${metaBlock({ title, description, slug })}\n${schemaBlock([organizationSchema(), websiteSchema(), breadcrumbSchema(slug, h1), webpageSchema(slug, title, description), serviceSchema(slug, title, description), faqSchema(html, slug)])}\n  </head>`);
   }
 
+  html = cleanTrailingWhitespace(html);
   writeFileSync(file, html, "utf8");
   const lastmod = statSync(file).mtime.toISOString().slice(0, 10);
   return {

@@ -1,0 +1,95 @@
+{
+  "generated_at": "2026-07-25T02:00:07.858Z",
+  "pages_written": 13,
+  "existing_pages_enhanced": 8,
+  "min_quality_score": 35,
+  "average_quality_score": 67,
+  "safeguards": [
+    "people-first-pages",
+    "no-serp-scraping",
+    "no-hidden-keyword-blocks",
+    "unique-intent-per-page",
+    "lead-form-present",
+    "internal-links-to-existing-authority-pages"
+  ],
+  "pages": [
+    {
+      "slug": "assurance-immeuble-obligatoire",
+      "title": "Assurance immeuble obligatoire: qui assure quoi",
+      "primary_query": "assurance immeuble obligatoire",
+      "quality_score": 70
+    },
+    {
+      "slug": "devis-assurance-immeuble-en-ligne",
+      "title": "Devis assurance immeuble en ligne avec analyse",
+      "primary_query": "devis assurance immeuble en ligne",
+      "quality_score": 70
+    },
+    {
+      "slug": "courtier-assurance-immeuble",
+      "title": "Courtier assurance immeuble pour bailleurs et syndics",
+      "primary_query": "courtier assurance immeuble",
+      "quality_score": 70
+    },
+    {
+      "slug": "assurance-immeuble-de-rapport",
+      "title": "Assurance immeuble de rapport pour bailleur",
+      "primary_query": "assurance immeuble de rapport",
+      "quality_score": 70
+    },
+    {
+      "slug": "assurance-immeuble-monopropriete",
+      "title": "Assurance immeuble en monopropriete",
+      "primary_query": "assurance immeuble monopropriete",
+      "quality_score": 70
+    },
+    {
+      "slug": "assurance-batiment-proprietaire",
+      "title": "Assurance batiment proprietaire: immeuble, SCI ou local",
+      "primary_query": "assurance batiment proprietaire",
+      "quality_score": 70
+    },
+    {
+      "slug": "assurance-parties-communes",
+      "title": "Assurance parties communes d'immeuble",
+      "primary_query": "assurance parties communes immeuble",
+      "quality_score": 70
+    },
+    {
+      "slug": "assurance-immeuble-resilie",
+      "title": "Assurance immeuble resilie ou refuse par assureur",
+      "primary_query": "assurance immeuble resilie",
+      "quality_score": 70
+    },
+    {
+      "slug": "assurance-immeuble-sinistre",
+      "title": "Assurance immeuble avec sinistres: refaire un dossier",
+      "primary_query": "assurance immeuble avec sinistres",
+      "quality_score": 70
+    },
+    {
+      "slug": "assurance-immeuble-meuble-colocation",
+      "title": "Assurance immeuble meuble ou colocation",
+      "primary_query": "assurance immeuble colocation",
+      "quality_score": 70
+    },
+    {
+      "slug": "tarif-assurance-immeuble",
+      "title": "Tarif assurance immeuble: comprendre le cout reel",
+      "primary_query": "tarif assurance immeuble",
+      "quality_score": 70
+    },
+    {
+      "slug": "assurance-immeuble-syndic-benevole",
+      "title": "Assurance immeuble pour syndic benevole",
+      "primary_query": "assurance immeuble syndic benevole",
+      "quality_score": 70
+    },
+    {
+      "slug": "recherches-assurance-immeuble",
+      "title": "Recherches assurance immeuble par besoin",
+      "primary_query": "recherches assurance immeuble",
+      "quality_score": 35
+    }
+  ]
+}

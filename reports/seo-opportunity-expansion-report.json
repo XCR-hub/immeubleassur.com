@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-25T01:41:26.850Z",
-  "pages_checked": 158,
-  "pages_expanded": 74,
-  "words_added_estimate": 12705,
+  "generated_at": "2026-07-25T02:00:09.879Z",
+  "pages_checked": 171,
+  "pages_expanded": 79,
+  "words_added_estimate": 13586,
   "safeguards": [
     "idempotent-markers",
     "legal-pages-skipped",
@@ -10,6 +10,14 @@
     "decision-useful-content"
   ],
   "pages": [
+    {
+      "slug": "assurance-batiment-proprietaire",
+      "url": "https://immeubleassur.com/assurance-batiment-proprietaire",
+      "before_words": 634,
+      "after_words": 811,
+      "expanded": true,
+      "changed": true
+    },
     {
       "slug": "assurance-cno",
       "url": "https://immeubleassur.com/assurance-cno",
@@ -43,10 +51,10 @@
       "changed": true
     },
     {
-      "slug": "assurance-immeuble",
-      "url": "https://immeubleassur.com/assurance-immeuble",
-      "before_words": 750,
-      "after_words": 925,
+      "slug": "assurance-immeuble-monopropriete",
+      "url": "https://immeubleassur.com/assurance-immeuble-monopropriete",
+      "before_words": 619,
+      "after_words": 793,
       "expanded": true,
       "changed": true
     },
@@ -55,6 +63,14 @@
       "url": "https://immeubleassur.com/assurance-local-commercial",
       "before_words": 682,
       "after_words": 857,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "assurance-parties-communes",
+      "url": "https://immeubleassur.com/assurance-parties-communes",
+      "before_words": 626,
+      "after_words": 800,
       "expanded": true,
       "changed": true
     },
@@ -405,8 +421,8 @@
     {
       "slug": "blog",
       "url": "https://immeubleassur.com/blog",
-      "before_words": 891,
-      "after_words": 1064,
+      "before_words": 1063,
+      "after_words": 1236,
       "expanded": true,
       "changed": true
     },
@@ -421,8 +437,8 @@
     {
       "slug": "comparateur-assurance-immeuble",
       "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-      "before_words": 363,
-      "after_words": 536,
+      "before_words": 535,
+      "after_words": 708,
       "expanded": true,
       "changed": true
     },
@@ -435,10 +451,26 @@
       "changed": true
     },
     {
+      "slug": "courtier-assurance-immeuble",
+      "url": "https://immeubleassur.com/courtier-assurance-immeuble",
+      "before_words": 627,
+      "after_words": 804,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "devis-assurance-immeuble-en-ligne",
+      "url": "https://immeubleassur.com/devis-assurance-immeuble-en-ligne",
+      "before_words": 634,
+      "after_words": 811,
+      "expanded": true,
+      "changed": true
+    },
+    {
       "slug": "devis-assurance-immeuble",
       "url": "https://immeubleassur.com/devis-assurance-immeuble",
-      "before_words": 476,
-      "after_words": 649,
+      "before_words": 648,
+      "after_words": 821,
       "expanded": true,
       "changed": true
     },
@@ -461,8 +493,8 @@
     {
       "slug": "faq/assurance-immeuble",
       "url": "https://immeubleassur.com/faq/assurance-immeuble",
-      "before_words": 420,
-      "after_words": 589,
+      "before_words": 592,
+      "after_words": 761,
       "expanded": true,
       "changed": true
     },
@@ -525,8 +557,8 @@
     {
       "slug": "faq",
       "url": "https://immeubleassur.com/faq",
-      "before_words": 614,
-      "after_words": 787,
+      "before_words": 638,
+      "after_words": 811,
       "expanded": true,
       "changed": true
     },
@@ -571,14 +603,6 @@
       "changed": true
     },
     {
-      "slug": "prix-assurance-immeuble",
-      "url": "https://immeubleassur.com/prix-assurance-immeuble",
-      "before_words": 661,
-      "after_words": 836,
-      "expanded": true,
-      "changed": true
-    },
-    {
       "slug": "rc-syndic",
       "url": "https://immeubleassur.com/rc-syndic",
       "before_words": 496,
@@ -587,10 +611,26 @@
       "changed": true
     },
     {
+      "slug": "recherches-assurance-immeuble",
+      "url": "https://immeubleassur.com/recherches-assurance-immeuble",
+      "before_words": 559,
+      "after_words": 734,
+      "expanded": true,
+      "changed": true
+    },
+    {
       "slug": "strategie-seo-continue",
       "url": "https://immeubleassur.com/strategie-seo-continue",
       "before_words": 329,
       "after_words": 502,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "tarif-assurance-immeuble",
+      "url": "https://immeubleassur.com/tarif-assurance-immeuble",
+      "before_words": 635,
+      "after_words": 812,
       "expanded": true,
       "changed": true
     },

@@ -1,0 +1,71 @@
+{
+  "generated_at": "2026-07-25T02:00:07.858Z",
+  "objective": "cover high-intent assurance immeuble searches with useful non-duplicate pages",
+  "pages": [
+    {
+      "slug": "assurance-immeuble-obligatoire",
+      "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
+      "primary_query": "assurance immeuble obligatoire"
+    },
+    {
+      "slug": "devis-assurance-immeuble-en-ligne",
+      "url": "https://immeubleassur.com/devis-assurance-immeuble-en-ligne",
+      "primary_query": "devis assurance immeuble en ligne"
+    },
+    {
+      "slug": "courtier-assurance-immeuble",
+      "url": "https://immeubleassur.com/courtier-assurance-immeuble",
+      "primary_query": "courtier assurance immeuble"
+    },
+    {
+      "slug": "assurance-immeuble-de-rapport",
+      "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
+      "primary_query": "assurance immeuble de rapport"
+    },
+    {
+      "slug": "assurance-immeuble-monopropriete",
+      "url": "https://immeubleassur.com/assurance-immeuble-monopropriete",
+      "primary_query": "assurance immeuble monopropriete"
+    },
+    {
+      "slug": "assurance-batiment-proprietaire",
+      "url": "https://immeubleassur.com/assurance-batiment-proprietaire",
+      "primary_query": "assurance batiment proprietaire"
+    },
+    {
+      "slug": "assurance-parties-communes",
+      "url": "https://immeubleassur.com/assurance-parties-communes",
+      "primary_query": "assurance parties communes immeuble"
+    },
+    {
+      "slug": "assurance-immeuble-resilie",
+      "url": "https://immeubleassur.com/assurance-immeuble-resilie",
+      "primary_query": "assurance immeuble resilie"
+    },
+    {
+      "slug": "assurance-immeuble-sinistre",
+      "url": "https://immeubleassur.com/assurance-immeuble-sinistre",
+      "primary_query": "assurance immeuble avec sinistres"
+    },
+    {
+      "slug": "assurance-immeuble-meuble-colocation",
+      "url": "https://immeubleassur.com/assurance-immeuble-meuble-colocation",
+      "primary_query": "assurance immeuble colocation"
+    },
+    {
+      "slug": "tarif-assurance-immeuble",
+      "url": "https://immeubleassur.com/tarif-assurance-immeuble",
+      "primary_query": "tarif assurance immeuble"
+    },
+    {
+      "slug": "assurance-immeuble-syndic-benevole",
+      "url": "https://immeubleassur.com/assurance-immeuble-syndic-benevole",
+      "primary_query": "assurance immeuble syndic benevole"
+    },
+    {
+      "slug": "recherches-assurance-immeuble",
+      "url": "https://immeubleassur.com/recherches-assurance-immeuble",
+      "primary_query": "recherches assurance immeuble"
+    }
+  ]
+}

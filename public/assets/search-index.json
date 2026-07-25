@@ -1,5 +1,10 @@
 [
   {
+    "title": "Assurance batiment proprietaire: immeuble, SCI ou local",
+    "description": "Assurance batiment proprietaire: garanties immeuble, RC, locaux, SCI, PNO et audit contrat avant devis. Analyse des garanties, franchises, sinistres, documents.",
+    "url": "/assurance-batiment-proprietaire"
+  },
+  {
     "title": "Assurance CNO coproprietaire non occupant",
     "description": "Devis assurance CNO pour coproprietaire non occupant: responsabilite civile, lot vacant ou loue, syndic, bailleur et copropriete.",
     "url": "/assurance-cno"
@@ -160,6 +165,11 @@
     "url": "/assurance-immeuble-colmar"
   },
   {
+    "title": "Assurance immeuble de rapport pour bailleur",
+    "description": "Assurance immeuble de rapport: multirisque, PNO, vacance, loyers, locaux mixtes, sinistres et audit bailleur. Analyse des garanties, franchises, sinistres.",
+    "url": "/assurance-immeuble-de-rapport"
+  },
+  {
     "title": "Assurance immeuble Dijon",
     "description": "Devis assurance immeuble a Dijon: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour patrimoines locatifs, SCI et petites coproprietes.",
     "url": "/assurance-immeuble-dijon"
@@ -250,6 +260,16 @@
     "url": "/assurance-immeuble-metz"
   },
   {
+    "title": "Assurance immeuble meuble ou colocation",
+    "description": "Assurance immeuble meuble ou colocation: rotation locative, parties communes, PNO, mobilier, sinistres et garanties utiles.",
+    "url": "/assurance-immeuble-meuble-colocation"
+  },
+  {
+    "title": "Assurance immeuble en monopropriete",
+    "description": "Assurance immeuble en monopropriete: garanties batiment, RC bailleur, PNO, sinistres et devis proprietaire unique. Analyse des garanties, franchises, sinistres.",
+    "url": "/assurance-immeuble-monopropriete"
+  },
+  {
     "title": "Assurance immeuble Montauban",
     "description": "Devis assurance immeuble a Montauban: copropriete, SCI, PNO, multirisque immeuble et audit contrat pour bailleurs, immeubles locatifs et SCI.",
     "url": "/assurance-immeuble-montauban"
@@ -300,6 +320,11 @@
     "url": "/assurance-immeuble-niort"
   },
   {
+    "title": "Assurance immeuble obligatoire: qui assure quoi",
+    "description": "Assurance immeuble obligatoire: RC, copropriete, PNO, syndic, bailleur et garanties utiles avant devis. Analyse des garanties, franchises, sinistres, documents.",
+    "url": "/assurance-immeuble-obligatoire"
+  },
+  {
     "title": "Assurance immeuble Orleans",
     "description": "Devis assurance immeuble a Orleans: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles locatifs, SCI et conseils syndicaux.",
     "url": "/assurance-immeuble-orleans"
@@ -340,6 +365,11 @@
     "url": "/assurance-immeuble-rennes"
   },
   {
+    "title": "Assurance immeuble resilie ou refuse par assureur",
+    "description": "Assurance immeuble resilie ou refuse: reconstruire un dossier apres sinistres, aggravation ou refus de souscription. Analyse des garanties, franchises, sinistres.",
+    "url": "/assurance-immeuble-resilie"
+  },
+  {
     "title": "Assurance immeuble Rouen",
     "description": "Devis assurance immeuble a Rouen: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles anciens et contrats multirisques a auditer.",
     "url": "/assurance-immeuble-rouen"
@@ -365,9 +395,19 @@
     "url": "/assurance-immeuble-saintes"
   },
   {
+    "title": "Assurance immeuble avec sinistres: refaire un dossier",
+    "description": "Assurance immeuble avec sinistres: historique, causes, franchises, mesures correctives et solution de renouvellement. Analyse des garanties, franchises.",
+    "url": "/assurance-immeuble-sinistre"
+  },
+  {
     "title": "Assurance immeuble Strasbourg",
     "description": "Devis assurance immeuble a Strasbourg: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles anciens, syndics et coproprietes centre-ville.",
     "url": "/assurance-immeuble-strasbourg"
+  },
+  {
+    "title": "Assurance immeuble pour syndic benevole",
+    "description": "Assurance immeuble syndic benevole: RC syndicat, multirisque copropriete, documents AG, sinistres et audit contrat. Analyse des garanties, franchises, sinistres.",
+    "url": "/assurance-immeuble-syndic-benevole"
   },
   {
     "title": "Assurance immeuble Tarbes",
@@ -423,6 +463,11 @@
     "title": "Assurance local commercial bailleur",
     "description": "Assurance local commercial et immeuble mixte: bailleur, copropriete, commerce en rez-de-chaussee, responsabilite et dommages.",
     "url": "/assurance-local-commercial"
+  },
+  {
+    "title": "Assurance parties communes d'immeuble",
+    "description": "Assurance parties communes: RC immeuble, degats des eaux, toiture, hall, escaliers, syndic et garanties copropriete. Analyse des garanties, franchises, sinistres.",
+    "url": "/assurance-parties-communes"
   },
   {
     "title": "Assurance PNO CNO pour bailleurs et SCI",
@@ -665,6 +710,16 @@
     "url": "/contact"
   },
   {
+    "title": "Courtier assurance immeuble pour bailleurs et syndics",
+    "description": "Courtier assurance immeuble: audit contrat, consultation assureur, lecture franchises et accompagnement SCI ou syndic. Analyse des garanties, franchises.",
+    "url": "/courtier-assurance-immeuble"
+  },
+  {
+    "title": "Devis assurance immeuble en ligne avec analyse",
+    "description": "Devis assurance immeuble en ligne: formulaire qualifiant, garanties, sinistres, franchises et rappel specialise. Analyse des garanties, franchises, sinistres.",
+    "url": "/devis-assurance-immeuble-en-ligne"
+  },
+  {
     "title": "Devis assurance immeuble",
     "description": "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec ImmeubleAssur. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour.",
     "url": "/devis-assurance-immeuble"
@@ -775,9 +830,19 @@
     "url": "/rc-syndic"
   },
   {
+    "title": "Recherches assurance immeuble par besoin",
+    "description": "Guide des recherches assurance immeuble: devis, prix, obligation, courtier, immeuble de rapport, sinistres, syndic et SCI.",
+    "url": "/recherches-assurance-immeuble"
+  },
+  {
     "title": "Systeme SEO continu",
     "description": "Methode ImmeubleAssur pour piloter le SEO: contenus utiles, audits, Google Search Console, PageSpeed et conversions. Analyse des garanties, franchises, sinistres.",
     "url": "/strategie-seo-continue"
+  },
+  {
+    "title": "Tarif assurance immeuble: comprendre le cout reel",
+    "description": "Tarif assurance immeuble: facteurs de prix, franchises, exclusions, garanties, sinistres et methode de comparaison. Analyse des garanties, franchises, sinistres.",
+    "url": "/tarif-assurance-immeuble"
   },
   {
     "title": "Assurance immeuble par ville et devis",

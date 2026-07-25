@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-07-25T01:41:27.896Z",
-  "pages_checked": 157,
+  "generated_at": "2026-07-25T02:00:12.404Z",
+  "pages_checked": 170,
   "average_score": 100,
   "opportunities_count": 0,
   "weak_pages": [],
   "top_opportunities": [],
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-25T01:41:26.423Z",
-    "pages_checked": 157,
-    "pages_changed": 108,
-    "fixes_applied": 164,
+    "generated_at": "2026-07-25T02:00:09.219Z",
+    "pages_checked": 170,
+    "pages_changed": 121,
+    "fixes_applied": 175,
     "safeguards": [
       "idempotent-markers",
       "legal-pages-no-commercial-panel",
@@ -18,6 +18,12 @@
       "people-first-depth-sections"
     ],
     "sample": [
+      {
+        "slug": "assurance-batiment-proprietaire",
+        "fixes": [
+          "description-normalized"
+        ]
+      },
       {
         "slug": "assurance-cno",
         "fixes": []
@@ -77,6 +83,12 @@
         ]
       },
       {
+        "slug": "assurance-immeuble-de-rapport",
+        "fixes": [
+          "description-normalized"
+        ]
+      },
+      {
         "slug": "assurance-immeuble-dijon",
         "fixes": [
           "content-depth"
@@ -122,27 +134,15 @@
         "fixes": [
           "content-depth"
         ]
-      },
-      {
-        "slug": "assurance-immeuble-metz",
-        "fixes": [
-          "content-depth"
-        ]
-      },
-      {
-        "slug": "assurance-immeuble-montpellier",
-        "fixes": [
-          "content-depth"
-        ]
       }
     ]
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-25T01:41:26.850Z",
-    "pages_checked": 158,
-    "pages_expanded": 74,
-    "words_added_estimate": 12705,
+    "generated_at": "2026-07-25T02:00:09.879Z",
+    "pages_checked": 171,
+    "pages_expanded": 79,
+    "words_added_estimate": 13586,
     "safeguards": [
       "idempotent-markers",
       "legal-pages-skipped",
@@ -150,6 +150,11 @@
       "decision-useful-content"
     ],
     "sample": [
+      {
+        "slug": "assurance-batiment-proprietaire",
+        "before_words": 634,
+        "after_words": 811
+      },
       {
         "slug": "assurance-cno",
         "before_words": 660,
@@ -171,14 +176,19 @@
         "after_words": 700
       },
       {
-        "slug": "assurance-immeuble",
-        "before_words": 750,
-        "after_words": 925
+        "slug": "assurance-immeuble-monopropriete",
+        "before_words": 619,
+        "after_words": 793
       },
       {
         "slug": "assurance-local-commercial",
         "before_words": 682,
         "after_words": 857
+      },
+      {
+        "slug": "assurance-parties-communes",
+        "before_words": 626,
+        "after_words": 800
       },
       {
         "slug": "assurance-pno-cno",
@@ -239,16 +249,6 @@
         "slug": "blog/assurance-immeuble-local-professionnel",
         "before_words": 648,
         "after_words": 825
-      },
-      {
-        "slug": "blog/assurance-immeuble-mixte-commerce",
-        "before_words": 382,
-        "after_words": 557
-      },
-      {
-        "slug": "blog/assurance-immeuble-protection-du-patrimoine",
-        "before_words": 648,
-        "after_words": 821
       }
     ]
   },
