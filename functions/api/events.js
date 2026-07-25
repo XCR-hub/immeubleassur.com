@@ -1,3 +1,5 @@
+import { sendGa4Event } from "../_shared/ga4.js";
+
 const headers = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -27,6 +29,30 @@ const allowedEvents = new Set([
   "lead_form_abandoned"
 ]);
 
+const ga4EventNames = {
+  page_view: "page_view",
+  cta_click: "ia_cta_click",
+  form_start: "form_start",
+  form_submit_attempt: "ia_form_submit_attempt",
+  lead_created: "ia_lead_created_client",
+  lead_submit_error: "ia_lead_submit_error",
+  lead_submit_local_backup: "ia_lead_local_backup",
+  phone_click: "ia_phone_click",
+  email_click: "ia_email_click",
+  form_quality_ready: "ia_form_quality_ready",
+  risk_router_select: "ia_risk_router_select",
+  diagnostic_select: "ia_diagnostic_select",
+  diagnostic_complete: "ia_diagnostic_complete",
+  readiness_start: "ia_readiness_start",
+  readiness_update: "ia_readiness_update",
+  readiness_complete: "ia_readiness_complete",
+  scroll_depth: "ia_scroll_depth",
+  lead_form_abandoned: "ia_lead_form_abandoned"
+};
+
+function ga4NameFor(eventType) {
+  return ga4EventNames[eventType] || "ia_event";
+}
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
 }
@@ -39,7 +65,7 @@ export async function onRequestOptions() {
   return new Response(null, { status: 204, headers });
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   if (!env.DB) return json({ success: false, error: "Binding D1 DB manquant" }, 503);
 
   let payload;
@@ -77,7 +103,13 @@ export async function onRequestPost({ request, env }) {
     utm_term: clean(payload.utm_term, 180),
     utm_content: clean(payload.utm_content, 180),
     landing_page: clean(payload.landing_page, 500),
-    first_referrer: clean(payload.first_referrer, 500)
+    first_referrer: clean(payload.first_referrer, 500),
+    ga_client_id: clean(payload.ga_client_id, 120),
+    page_title: clean(payload.page_title, 300),
+    language: clean(payload.language, 40),
+    gclid: clean(payload.gclid, 160),
+    gbraid: clean(payload.gbraid, 160),
+    wbraid: clean(payload.wbraid, 160)
   };
 
   await env.DB.prepare(
@@ -99,6 +131,24 @@ export async function onRequestPost({ request, env }) {
       now
     )
     .run();
+
+  const ga4Task = sendGa4Event({
+    env,
+    request,
+    eventName: ga4NameFor(eventType),
+    payload,
+    params: {
+      ...context,
+      page_location: clean(payload.page_url, 500),
+      page_referrer: context.referrer,
+      link_url: context.target,
+      link_text: context.label,
+      lead_need: context.target,
+      lead_score: context.score
+    }
+  }).catch(() => null);
+  if (typeof waitUntil === "function") waitUntil(ga4Task);
+  else await ga4Task;
 
   return json({ success: true });
 }

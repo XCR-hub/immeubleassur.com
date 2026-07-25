@@ -806,7 +806,7 @@ function faqPage() {
     <section class="page-hero compact-hero"><div class="container"><p class="eyebrow">FAQ</p><h1>Questions frequentes assurance immeuble.</h1><p>Reponses courtes pour syndics, coproprietaires, bailleurs, SCI et administrateurs de biens.</p></div></section>
     <section class="band faq-band"><div class="faq-list">${faqs.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div></section>
     <section class="band page-band"><div class="container narrow">${leadForm({ need: "audit-contrat" })}</div></section>`;
-  return layout({ slug: "faq", title: "FAQ assurance immeuble", description: "Questions frequentes sur assurance immeuble, copropriete, PNO, SCI, syndic et multirisque immeuble.", body });
+  return layout({ slug: "faq", title: "FAQ generale assurance immeuble", description: "Questions frequentes generales sur assurance immeuble, copropriete, PNO, SCI, syndic et multirisque immeuble.", body });
 }
 
 function contactPage() {
@@ -901,7 +901,7 @@ function writeStatic() {
   write("faq", faqPage());
   write("contact", contactPage());
   write("merci", simplePage("merci", "Votre demande est enregistree", "Confirmation demande ImmeubleAssur.", `<p>Un conseiller ImmeubleAssur vous rappelle rapidement pour qualifier le risque et preparer la suite.</p><p><a class="button primary" href="/">Retour accueil</a></p>`));
-  write("confidentialite", simplePage("confidentialite", "Politique de confidentialite", "Politique de confidentialite ImmeubleAssur.", `<p>Les donnees transmises via le formulaire sont utilisees pour qualifier la demande d'assurance immeuble, recontacter le demandeur et suivre le dossier commercial.</p><ul><li>Donnees formulaire: identite, coordonnees, profil, ville, type de bien, besoin et message.</li><li>Evenements de navigation: pages vues, clics CTA, demarrage et envoi de formulaire, sans revente publicitaire.</li><li>Conservation: duree limitee aux besoins de traitement commercial, suivi du dossier et amelioration du service.</li><li>Contact: ${EMAIL}.</li></ul>`));
+  write("confidentialite", simplePage("confidentialite", "Politique de confidentialite", "Politique de confidentialite ImmeubleAssur.", `<p>Les donnees transmises via le formulaire sont utilisees pour qualifier la demande d'assurance immeuble, recontacter le demandeur et suivre le dossier commercial.</p><ul><li>Donnees formulaire: identite, coordonnees, profil, ville, type de bien, besoin et message.</li><li>Evenements de navigation: pages vues, clics CTA, demarrage et envoi de formulaire, sans revente publicitaire.</li><li>Mesure Google Analytics 4 si configuree: seuls des evenements techniques et commerciaux non nominaux sont transmis, sans nom, email, telephone ni message.</li><li>Conservation: duree limitee aux besoins de traitement commercial, suivi du dossier et amelioration du service.</li><li>Contact: ${EMAIL}.</li></ul>`));
   write("mentions-legales", simplePage("mentions-legales", "Mentions legales", "Mentions legales ImmeubleAssur.", `<p>ImmeubleAssur est une marque specialisee assurance immeuble. Les informations du site sont indicatives et ne remplacent pas l'analyse contractuelle d'un dossier.</p><p>Contact: ${EMAIL}. ORIAS: ${ORIAS}.</p>`));
   write("admin", adminPage());
   const urls = [

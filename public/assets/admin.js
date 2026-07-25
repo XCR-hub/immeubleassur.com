@@ -459,6 +459,8 @@ async function loadSeo() {
       metricCard("Pages controlees", String(publicReport.pages_checked || 0)),
       metricCard("Score moyen", String(publicReport.average_score || 0)),
       metricCard("Opportunites", String(publicReport.opportunities_count || 0)),
+      metricCard("Google feedback", String(publicReport.google_feedback_loop?.actions?.length || 0), publicReport.google_feedback_loop?.status || "monitoring"),
+      metricCard("Qualite contenu", publicReport.content_quality?.status || "-", `${publicReport.content_quality?.warning_count || 0} alerte(s)`),
       metricCard("Actions leads", String(apiResult?.lead_actions?.length || 0), `${priorityCount(leadPriorities, "hot")} chaud(s)`),
       metricCard("Diagnostic", `${funnel.diagnostic_completion_rate || 0}%`, `${funnel.diagnostic_completes || 0} termine(s)`),
       metricCard("Dossier pret", `${funnel.readiness_completion_rate || 0}%`, `${funnel.readiness_completes || 0} valide(s)`),
@@ -473,6 +475,7 @@ async function loadSeo() {
   }
 
   const fallbackRows = [
+    ...(publicReport.google_feedback_loop?.actions || []).map((item) => ({ score: item.priority === "high" ? 90 : item.priority === "fix" ? 88 : item.priority === "setup" ? 80 : 55, opportunity_type: `google-${item.source || "feedback"}`, url: item.url || item.cluster || "google", query: item.priority || "monitoring", recommendation: item.action || "Mesurer et optimiser." })),
     ...(apiResult?.lead_actions || []),
     ...(apiResult?.conversion_gaps || []).slice(0, 8).map((item) => ({ score: Number(item.form_starts || 0) - Number(item.leads_created || 0), opportunity_type: "conversion-gap", url: item.path, query: `${item.form_starts || 0} starts / ${item.leads_created || 0} leads`, recommendation: "Verifier intention, reassurance et friction formulaire sur cette page." })),
     ...(apiResult?.diagnostic_paths || []).slice(0, 8).map((item) => ({ score: item.completions, opportunity_type: "diagnostic", url: item.path, query: `${item.completions || 0} completions ${item.target || ""}`.trim(), recommendation: "Renforcer le CTA et le contenu du parcours diagnostic qui capte cette intention." })),

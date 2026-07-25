@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-07-25T13:24:33.697Z",
+  "pages_checked": 171,
+  "status": "passed",
+  "severe_issue_count": 0,
+  "warning_count": 0,
+  "policy_alignment": [
+    "people-first-content",
+    "no-ai-evasion-language",
+    "no-hidden-keyword-blocks",
+    "unique-title-and-canonical",
+    "conversion-path-visible",
+    "automation-supports-editorial-quality"
+  ],
+  "weakest_pages": []
+}

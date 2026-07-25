@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T02:00:09.219Z",
+  "generated_at": "2026-07-25T13:24:18.476Z",
   "pages_checked": 170,
   "pages_changed": 121,
   "fixes_applied": 175,
@@ -1109,8 +1109,8 @@
       "fixes": [
         "description-normalized"
       ],
-      "title": "FAQ assurance immeuble | ImmeubleAssur",
-      "description": "Questions frequentes sur assurance immeuble, copropriete, PNO, SCI, syndic et multirisque immeuble. Analyse des garanties, franchises, sinistres, documents utiles.",
+      "title": "FAQ generale assurance immeuble | ImmeubleAssur",
+      "description": "Questions frequentes generales sur assurance immeuble, copropriete, PNO, SCI, syndic et multirisque immeuble. Analyse des garanties, franchises, sinistres.",
       "changed": true
     },
     {

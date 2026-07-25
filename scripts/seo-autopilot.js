@@ -104,6 +104,41 @@ function detectIntentGaps(pages) {
     .map(([query, slug], index) => ({ id: `intent-${index + 1}`, type: "content-gap", query, url: `${SITE}/${slug}`, score: 45, recommendation: `Creer ou renforcer un contenu utile autour de "${query}".` }));
 }
 
+function queryCluster(query = "") {
+  const value = String(query).toLowerCase();
+  if (/pno|cno|non.?occupant|coproprietaire/.test(value)) return "pno-cno";
+  if (/prix|tarif|cout|combien|cher/.test(value)) return "prix-tarif";
+  if (/courtier|comparateur|devis/.test(value)) return "devis-courtier";
+  if (/sinistre|resilie|refus|degat|fuite|incendie/.test(value)) return "dossiers-difficiles";
+  if (/copro|syndic|parties communes|ag/.test(value)) return "copropriete-syndic";
+  if (/sci|rapport|monopropriete|bailleur|locatif/.test(value)) return "bailleur-sci";
+  if (/paris|lyon|marseille|bordeaux|lille|nantes|nice|toulouse|ville/.test(value)) return "local";
+  return "assurance-immeuble";
+}
+
+function summarizeGscRows(rows = []) {
+  const buckets = new Map();
+  for (const row of rows) {
+    const key = queryCluster(row.query);
+    const bucket = buckets.get(key) || { cluster: key, clicks: 0, impressions: 0, weighted_position: 0, opportunity_score: 0, sample_queries: [] };
+    const impressions = Number(row.impressions || 0);
+    bucket.clicks += Number(row.clicks || 0);
+    bucket.impressions += impressions;
+    bucket.weighted_position += Number(row.position || 0) * impressions;
+    bucket.opportunity_score = Math.max(bucket.opportunity_score, Number(row.opportunity_score || 0));
+    if (row.query && bucket.sample_queries.length < 5 && !bucket.sample_queries.includes(row.query)) bucket.sample_queries.push(row.query);
+    buckets.set(key, bucket);
+  }
+  return [...buckets.values()].map((bucket) => ({
+    cluster: bucket.cluster,
+    clicks: Math.round(bucket.clicks * 100) / 100,
+    impressions: Math.round(bucket.impressions),
+    ctr: bucket.impressions ? Math.round((bucket.clicks / bucket.impressions) * 1000) / 10 : 0,
+    position: bucket.impressions ? Math.round((bucket.weighted_position / bucket.impressions) * 10) / 10 : 0,
+    opportunity_score: bucket.opportunity_score,
+    sample_queries: bucket.sample_queries
+  })).sort((a, b) => b.opportunity_score - a.opportunity_score || b.impressions - a.impressions).slice(0, 20);
+}
 function opportunityScore(row) {
   const impressions = Number(row.impressions || 0);
   const clicks = Number(row.clicks || 0);
@@ -156,7 +191,7 @@ async function fetchGscData() {
   const data = await response.json();
   const rows = (data.rows || []).map((row) => ({ query: row.keys?.[0] || "", page: row.keys?.[1] || "", clicks: row.clicks || 0, impressions: row.impressions || 0, ctr: row.ctr || 0, position: row.position || 0, opportunity_score: opportunityScore(row) }));
   const opportunities = rows.filter((row) => row.opportunity_score >= 40).sort((a, b) => b.opportunity_score - a.opportunity_score).slice(0, 100).map((row, index) => ({ id: `gsc-${index + 1}`, type: row.position <= 20 ? "near-top-ranking" : "impression-gap", query: row.query, url: row.page, score: row.opportunity_score, recommendation: row.ctr < 0.03 ? "Renforcer title/meta/FAQ et aligner le contenu avec la requete." : "Ajouter profondeur, maillage interne et preuve de specialisation." }));
-  const result = { configured: true, siteUrl, rows_imported: rows.length, opportunities };
+  const result = { configured: true, siteUrl, rows_imported: rows.length, query_clusters: summarizeGscRows(rows), opportunities };
 
   if (inspectUrls) {
     const inspectionUrl = `${SITE}/`;
@@ -226,9 +261,53 @@ function readOpportunityExpansionReport() {
     sample: (report.pages || []).slice(0, 20).map((page) => ({ slug: page.slug, before_words: page.before_words, after_words: page.after_words }))
   };
 }
+function readContentQualityReport() {
+  const report = readJsonFile(join(REPORT_DIR, "content-quality-report.json"), null);
+  if (!report) return { configured: true, skipped: "content-quality-report missing" };
+  return {
+    configured: true,
+    generated_at: report.generated_at,
+    pages_checked: report.pages_checked || 0,
+    status: report.status || "unknown",
+    severe_issue_count: report.severe_issue_count || 0,
+    warning_count: report.warning_count || 0,
+    policy_alignment: report.policy_alignment || [],
+    weakest_pages: report.weakest_pages || []
+  };
+}
+
+function buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality }) {
+  const actions = [];
+  if (!gsc?.configured) {
+    actions.push({ priority: "setup", source: "google-search-console", action: "Configurer GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY et GOOGLE_SEARCH_CONSOLE_SITE_URL pour recuperer requetes, pages, CTR et position moyenne." });
+  } else if (gsc.error) {
+    actions.push({ priority: "fix", source: "google-search-console", action: `Corriger l'acces Search Console: ${gsc.error}` });
+  } else {
+    for (const cluster of (gsc.query_clusters || []).slice(0, 6)) {
+      actions.push({ priority: cluster.opportunity_score >= 60 ? "high" : "medium", source: "google-search-console", cluster: cluster.cluster, action: `Optimiser ${cluster.cluster}: ${cluster.impressions} impressions, CTR ${cluster.ctr}%, position ${cluster.position}. Requetes: ${cluster.sample_queries.join(", ")}.` });
+    }
+  }
+
+  const slowPages = (pagespeed?.rows || []).filter((row) => row.ok && Number(row.performance || 0) < 90).sort((a, b) => Number(a.performance || 0) - Number(b.performance || 0));
+  for (const row of slowPages.slice(0, 5)) {
+    actions.push({ priority: "medium", source: "pagespeed", url: row.url, action: `Ameliorer performance mobile PageSpeed: ${row.performance}/100, SEO ${row.seo}/100, accessibilite ${row.accessibility}/100.` });
+  }
+
+  if (contentQuality?.severe_issue_count > 0) {
+    actions.push({ priority: "high", source: "content-quality", action: `${contentQuality.severe_issue_count} probleme(s) editorial(aux) bloquants a corriger avant publication.` });
+  } else if (contentQuality?.warning_count > 0) {
+    actions.push({ priority: "low", source: "content-quality", action: `${contentQuality.warning_count} avertissement(s) editorial(aux) non bloquants a surveiller: densite, FAQ, conversion ou similarite.` });
+  }
+
+  return {
+    status: actions.some((item) => item.priority === "high" || item.priority === "fix") ? "action-required" : "monitoring",
+    actions: actions.slice(0, 20),
+    principles: ["measure-with-gsc", "improve-by-query-cluster", "protect-page-experience", "people-first-content", "measure-lead-quality"]
+  };
+}
 function buildMarkdown(report) {
   const topIssues = report.opportunities.slice(0, 12).map((item, index) => `${index + 1}. ${item.type} - ${item.url || item.page || "global"} - score ${item.score || item.page_score || 0}: ${item.recommendation}`).join("\n");
-  return `# SEO Autopilot ImmeubleAssur\n\nGenerated: ${report.generated_at}\n\n- Pages checked: ${report.pages_checked}\n- Average score: ${report.average_score}\n- Opportunities: ${report.opportunities.length}\n- GSC configured: ${Boolean(report.gsc?.configured)}\n- PageSpeed checked: ${report.pagespeed?.checked || 0}\n- Auto-fixes applied: ${report.auto_fix?.fixes_applied || 0}\n- Pages expanded: ${report.opportunity_expansion?.pages_expanded || 0}\n\n## Top actions\n\n${topIssues || "No blocking issue detected."}\n`;
+  return `# SEO Autopilot ImmeubleAssur\n\nGenerated: ${report.generated_at}\n\n- Pages checked: ${report.pages_checked}\n- Average score: ${report.average_score}\n- Opportunities: ${report.opportunities.length}\n- GSC configured: ${Boolean(report.gsc?.configured)}\n- PageSpeed checked: ${report.pagespeed?.checked || 0}\n- Auto-fixes applied: ${report.auto_fix?.fixes_applied || 0}\n- Pages expanded: ${report.opportunity_expansion?.pages_expanded || 0}\n- Content quality: ${report.content_quality?.status || "unknown"} (${report.content_quality?.warning_count || 0} warnings)\n- Google feedback actions: ${report.google_feedback_loop?.actions?.length || 0}\n\n## Top actions\n\n${topIssues || "No blocking issue detected."}\n`;
 }
 
 async function run() {
@@ -245,11 +324,13 @@ async function run() {
   const gscOpps = Array.isArray(gsc.opportunities) ? gsc.opportunities : [];
   const autoFix = readAutoFixReport();
   const opportunityExpansion = readOpportunityExpansionReport();
+  const contentQuality = readContentQualityReport();
+  const googleFeedbackLoop = buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality });
   const opportunities = [...issueOpportunities, ...contentGaps, ...gscOpps].sort((a, b) => (b.score || 0) - (a.score || 0));
-  const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, auto_fix: autoFix, opportunity_expansion: opportunityExpansion, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals"] };
+  const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, auto_fix: autoFix, opportunity_expansion: opportunityExpansion, content_quality: contentQuality, google_feedback_loop: googleFeedbackLoop, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", ga4_measurement_protocol: "GA4_MEASUREMENT_ID + GA4_API_SECRET in Cloudflare Pages; GA4_MEASUREMENT_ID at build time for gtag client id", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals", "no AI-detection evasion content", "GA4 server-side generate_lead event when configured"] };
   writeFileSync(join(REPORT_DIR, "seo-autopilot-report.json"), JSON.stringify(report, null, 2), "utf8");
   writeFileSync(join(REPORT_DIR, "seo-autopilot-report.md"), buildMarkdown(report), "utf8");
-  const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, opportunity_expansion: report.opportunity_expansion, connectors: report.api_connectors, compliance: report.compliance };
+  const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, opportunity_expansion: report.opportunity_expansion, content_quality: report.content_quality, google_feedback_loop: report.google_feedback_loop, connectors: report.api_connectors, compliance: report.compliance };
   writeFileSync(join(PUBLIC_DIR, "assets", "seo-autopilot-latest.json"), JSON.stringify(publicReport, null, 2), "utf8");
   console.log(`SEO autopilot checked ${report.pages_checked} pages, average score ${report.average_score}, opportunities ${report.opportunities.length}.`);
 }

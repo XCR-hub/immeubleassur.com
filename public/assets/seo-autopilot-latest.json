@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T02:00:12.404Z",
+  "generated_at": "2026-07-25T13:24:19.951Z",
   "pages_checked": 170,
   "average_score": 100,
   "opportunities_count": 0,
@@ -7,7 +7,7 @@
   "top_opportunities": [],
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-25T02:00:09.219Z",
+    "generated_at": "2026-07-25T13:24:18.476Z",
     "pages_checked": 170,
     "pages_changed": 121,
     "fixes_applied": 175,
@@ -139,10 +139,10 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-25T02:00:09.879Z",
+    "generated_at": "2026-07-25T13:24:18.809Z",
     "pages_checked": 171,
     "pages_expanded": 79,
-    "words_added_estimate": 13586,
+    "words_added_estimate": 13587,
     "safeguards": [
       "idempotent-markers",
       "legal-pages-skipped",
@@ -252,15 +252,52 @@
       }
     ]
   },
+  "content_quality": {
+    "configured": true,
+    "generated_at": "2026-07-25T13:24:19.688Z",
+    "pages_checked": 171,
+    "status": "passed",
+    "severe_issue_count": 0,
+    "warning_count": 0,
+    "policy_alignment": [
+      "people-first-content",
+      "no-ai-evasion-language",
+      "no-hidden-keyword-blocks",
+      "unique-title-and-canonical",
+      "conversion-path-visible",
+      "automation-supports-editorial-quality"
+    ],
+    "weakest_pages": []
+  },
+  "google_feedback_loop": {
+    "status": "monitoring",
+    "actions": [
+      {
+        "priority": "setup",
+        "source": "google-search-console",
+        "action": "Configurer GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY et GOOGLE_SEARCH_CONSOLE_SITE_URL pour recuperer requetes, pages, CTR et position moyenne."
+      }
+    ],
+    "principles": [
+      "measure-with-gsc",
+      "improve-by-query-cluster",
+      "protect-page-experience",
+      "people-first-content",
+      "measure-lead-quality"
+    ]
+  },
   "connectors": {
     "google_search_console": "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL",
     "pagespeed_insights": "PAGESPEED_API_KEY optional",
+    "ga4_measurement_protocol": "GA4_MEASUREMENT_ID + GA4_API_SECRET in Cloudflare Pages; GA4_MEASUREMENT_ID at build time for gtag client id",
     "indexing_api": "not used: reserved by Google for JobPosting/BroadcastEvent URLs"
   },
   "compliance": [
     "no automated Google SERP scraping",
     "no scaled duplicate doorway pages",
     "content factory uses quality gate and user-intent pages",
-    "Search Console average position is the source for Google ranking signals"
+    "Search Console average position is the source for Google ranking signals",
+    "no AI-detection evasion content",
+    "GA4 server-side generate_lead event when configured"
   ]
 }

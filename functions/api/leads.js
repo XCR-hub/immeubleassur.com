@@ -1,4 +1,5 @@
 import { connect } from "cloudflare:sockets";
+import { gaLeadParams, sendGa4Event } from "../_shared/ga4.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -130,6 +131,9 @@ function cleanUtm(raw = {}) {
     utm_campaign: clean(raw.utm_campaign, 180),
     utm_term: clean(raw.utm_term, 180),
     utm_content: clean(raw.utm_content, 180),
+    gclid: clean(raw.gclid, 160),
+    gbraid: clean(raw.gbraid, 160),
+    wbraid: clean(raw.wbraid, 160),
     landing_page: clean(raw.landing_page, 500),
     first_referrer: clean(raw.first_referrer, 500)
   };
@@ -350,7 +354,7 @@ export async function onRequestOptions() {
   return new Response(null, { status: 204, headers: corsHeaders });
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   let payload;
 
   try {
@@ -399,6 +403,8 @@ export async function onRequestPost({ request, env }) {
     source: clean(payload.source || "website", 80),
     page_url: clean(payload.page_url, 500),
     referrer: clean(payload.referrer, 500),
+    session_id: clean(payload.session_id, 120),
+    ga_client_id: clean(payload.ga_client_id, 120),
     utm: cleanUtm(payload.utm || {})
   };
 
@@ -433,7 +439,17 @@ export async function onRequestPost({ request, env }) {
       )
       .run();
 
-    await logLeadEvent(env, id, "lead_created", { reference, score, priority: qualification.priority, reasons: qualification.reasons, next_action: qualification.next_action, source: record.source, page_url: record.page_url, referrer: record.referrer, utm: record.utm }, now);
+    await logLeadEvent(env, id, "lead_created", { reference, score, priority: qualification.priority, reasons: qualification.reasons, next_action: qualification.next_action, source: record.source, page_url: record.page_url, referrer: record.referrer, session_id: record.session_id, ga_client_id: record.ga_client_id, utm: record.utm }, now);
+
+    const ga4Task = sendGa4Event({
+      env,
+      request,
+      eventName: "generate_lead",
+      payload,
+      params: gaLeadParams({ payload, record, qualification, reference })
+    }).catch(() => null);
+    if (typeof waitUntil === "function") waitUntil(ga4Task);
+    else await ga4Task;
 
     let notification = { attempted: false, status: "skipped" };
     try {

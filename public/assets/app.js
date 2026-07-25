@@ -20,6 +20,14 @@ function getSessionId() {
   return value;
 }
 
+function gaClientId() {
+  const cookie = document.cookie.split("; ").find((row) => row.startsWith("_ga="));
+  if (!cookie) return "";
+  const value = decodeURIComponent(cookie.split("=").slice(1).join("="));
+  const parts = value.split(".");
+  if (parts.length >= 4) return `${parts[2]}.${parts[3]}`;
+  return value.replace(/^GA\d+\.\d+\./, "").slice(0, 120);
+}
 function setStatus(message, type = "") {
   if (!statusBox) return;
   statusBox.textContent = message;
@@ -34,6 +42,9 @@ function eventPayload(eventType, data = {}) {
     path: window.location.pathname,
     referrer: document.referrer || "",
     viewport: `${window.innerWidth}x${window.innerHeight}`,
+    page_title: document.title,
+    language: navigator.language || "",
+    ga_client_id: gaClientId(),
     ...attributionPayload(),
     ...data
   };
@@ -101,6 +112,9 @@ function attributionPayload() {
     utm_campaign: utm.utm_campaign || "",
     utm_term: utm.utm_term || "",
     utm_content: utm.utm_content || "",
+    gclid: utm.gclid || "",
+    gbraid: utm.gbraid || "",
+    wbraid: utm.wbraid || "",
     landing_page: utm.landing_page || "",
     first_referrer: utm.first_referrer || ""
   };
@@ -124,6 +138,9 @@ function readForm(formElement) {
     source: utm.utm_source || document.body.dataset.intent || "website",
     page_url: window.location.href,
     referrer: document.referrer || "",
+    session_id: sessionId,
+    ga_client_id: gaClientId(),
+    page_title: document.title,
     utm
   };
 }

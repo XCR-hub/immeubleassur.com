@@ -21,6 +21,8 @@ jobs:
           node-version: 22
 
       - name: Generate static pages
+        env:
+          GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
         run: npm run generate
 
       - name: Validate JavaScript
