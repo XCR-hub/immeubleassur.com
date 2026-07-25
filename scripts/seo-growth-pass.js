@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative } from "node:path";
 
 const SITE = "https://immeubleassur.com";
@@ -143,7 +143,17 @@ function organizationSchema() {
     url: SITE,
     email: EMAIL,
     telephone: PHONE,
+    priceRange: "Sur devis",
     areaServed: "France",
+    serviceArea: { "@type": "Country", name: "France" },
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      telephone: PHONE,
+      email: EMAIL,
+      areaServed: "FR",
+      availableLanguage: ["fr-FR"]
+    },
     knowsAbout: ["Assurance immeuble", "Assurance copropriete", "Multirisque immeuble", "Assurance PNO", "Responsabilite civile syndic", "Dommages ouvrage immeuble"],
     hasCredential: { "@type": "EducationalOccupationalCredential", credentialCategory: "ORIAS", identifier: "11061425" }
   };
@@ -217,15 +227,17 @@ function enhanceHtml(file) {
   if (!privateSlugs.has(slug)) {
     html = html.replace(/<link rel="canonical" href="[^"]+" \/>/, `<link rel="canonical" href="${url}" />`);
     html = html.replace(/<meta property="og:url" content="[^"]+" \/>/, `<meta property="og:url" content="${url}" />`);
-    html = html.replace("</head>", `${metaBlock({ title, description, slug })}\n${schemaBlock([breadcrumbSchema(slug, h1), webpageSchema(slug, title, description), serviceSchema(slug, title, description), faqSchema(html, slug), slug === "" ? websiteSchema() : null])}\n  </head>`);
+    html = html.replace("</head>", `${metaBlock({ title, description, slug })}\n${schemaBlock([organizationSchema(), websiteSchema(), breadcrumbSchema(slug, h1), webpageSchema(slug, title, description), serviceSchema(slug, title, description), faqSchema(html, slug)])}\n  </head>`);
   }
 
   writeFileSync(file, html, "utf8");
+  const lastmod = statSync(file).mtime.toISOString().slice(0, 10);
   return {
     slug: slug || "index",
     url,
     title,
     description,
+    lastmod,
     changed: html !== original,
     improvements: [
       "canonical-clean-url",
@@ -253,11 +265,10 @@ function buildSearchIndex(pages) {
 }
 
 function buildSitemap(pages) {
-  const urls = pages
+  const entries = pages
     .filter((page) => page.slug !== "admin")
-    .map((page) => page.url)
-    .sort((a, b) => (a === SITE ? -1 : b === SITE ? 1 : a.localeCompare(b)));
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((url) => `  <url><loc>${url}</loc><changefreq>weekly</changefreq><priority>${url === `${SITE}/` ? "1.0" : "0.8"}</priority></url>`).join("\n")}\n</urlset>\n`;
+    .sort((a, b) => (a.url === `${SITE}/` ? -1 : b.url === `${SITE}/` ? 1 : a.url.localeCompare(b.url)));
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.map((page) => `  <url><loc>${page.url}</loc><lastmod>${page.lastmod}</lastmod><changefreq>weekly</changefreq><priority>${page.url === `${SITE}/` ? "1.0" : "0.8"}</priority></url>`).join("\n")}\n</urlset>\n`;
   writeFileSync(join(PUBLIC_DIR, "sitemap.xml"), xml, "utf8");
 }
 

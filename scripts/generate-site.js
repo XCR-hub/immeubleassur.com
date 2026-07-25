@@ -546,6 +546,7 @@ function leadForm(defaults = {}) {
 
 function layout({ slug, title, description, body, canonical, schema = "" }) {
   const url = `${SITE}/${slug === "index" ? "" : pagePath(slug)}`;
+  const schemaMarkup = schema ? `    ${schema}\n` : "";
   return `<!doctype html>
 <html lang="fr">
   <head>
@@ -568,8 +569,7 @@ function layout({ slug, title, description, body, canonical, schema = "" }) {
     <link rel="preload" as="image" href="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1400&q=70" crossorigin />
     <link rel="stylesheet" href="${STYLES_URL}" />
     <title>${esc(title)} | ImmeubleAssur</title>
-    ${schema}
-  </head>
+${schemaMarkup}  </head>
   <body>
     <a class="skip-link" href="#main-content">Aller au contenu principal</a>
     ${nav()}
@@ -683,8 +683,7 @@ function homePage() {
     slug: "index",
     title: "Assurance Immeuble et Copropriete - Devis Gratuit",
     description: "ImmeubleAssur, courtier specialiste assurance immeuble, copropriete, PNO, multirisque immeuble, SCI et RC syndic.",
-    body,
-    schema: organizationSchema()
+    body
   });
 }
 

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-25T01:00:44.574Z",
+  "generated_at": "2026-07-25T01:41:27.896Z",
   "pages_checked": 157,
   "average_score": 100,
   "opportunities_count": 0,
@@ -7,7 +7,7 @@
   "top_opportunities": [],
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-25T01:00:41.222Z",
+    "generated_at": "2026-07-25T01:41:26.423Z",
     "pages_checked": 157,
     "pages_changed": 108,
     "fixes_applied": 164,
@@ -139,7 +139,7 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-25T01:00:41.977Z",
+    "generated_at": "2026-07-25T01:41:26.850Z",
     "pages_checked": 158,
     "pages_expanded": 74,
     "words_added_estimate": 12705,
