@@ -21,7 +21,10 @@ const expectations = [
       "readinessSignals",
       "dossier assureur prepare",
       "pieces assureur disponibles",
-      "Reprendre les pieces disponibles"
+      "Reprendre les pieces disponibles",
+      "allowedStatuses",
+      "lead_status_updated",
+      "onRequestPatch"
     ]
   },
   {
@@ -48,7 +51,7 @@ const expectations = [
   {
     file: "public/assets/admin.js",
     role: "admin-dashboard",
-    snippets: ["Dossier pret", "readiness_paths", "dossier-pret"]
+    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "updateLeadStatus", "method: \"PATCH\""]
   }
 ];
 

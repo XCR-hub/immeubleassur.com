@@ -18,6 +18,21 @@ function clean(value, max = 500) {
   return String(value || "").trim().slice(0, max);
 }
 
+const allowedStatuses = new Set(["new", "contacted", "quoted", "won", "lost", "archived"]);
+
+function hasOwn(object, key) {
+  return Object.prototype.hasOwnProperty.call(object || {}, key);
+}
+
+async function logLeadEvent(env, leadId, eventType, payload, createdAt) {
+  await env.DB.prepare(
+    `INSERT INTO lead_events (id, lead_id, event_type, payload, created_at)
+     VALUES (?, ?, ?, ?, ?)`
+  )
+    .bind(crypto.randomUUID(), leadId, eventType, JSON.stringify(payload), createdAt)
+    .run();
+}
+
 function addReason(reasons, label) {
   if (!reasons.includes(label) && reasons.length < 8) reasons.push(label);
 }
@@ -181,8 +196,8 @@ export async function onRequestGet({ request, env }) {
 
   const { results } = await env.DB.prepare(
     `SELECT reference, name, phone, email, profile, property_type, city,
-            units_count, need, message, lead_score, status, source, page_url,
-            referrer, created_at
+            units_count, need, message, lead_score, status, assigned_to, notes,
+            source, page_url, referrer, created_at, updated_at
        FROM leads
       ORDER BY created_at DESC
       LIMIT 100`
@@ -194,4 +209,82 @@ export async function onRequestGet({ request, env }) {
   }));
 
   return json({ success: true, leads, summary: summarizeLeads(leads) });
+}
+
+export async function onRequestPatch({ request, env }) {
+  if (!authorized(request, env)) {
+    return json({ success: false, error: "Acces refuse" }, 401);
+  }
+
+  if (!env.DB) {
+    return json({ success: false, error: "Binding D1 DB manquant" }, 503);
+  }
+
+  let payload;
+  try {
+    payload = await request.json();
+  } catch {
+    return json({ success: false, error: "JSON invalide" }, 400);
+  }
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return json({ success: false, error: "Payload lead invalide" }, 400);
+  }
+
+  const reference = clean(payload.reference, 80);
+  const status = clean(payload.status, 40).toLowerCase();
+
+  if (!reference) {
+    return json({ success: false, error: "Reference lead manquante" }, 400);
+  }
+  if (!allowedStatuses.has(status)) {
+    return json({ success: false, error: "Statut lead invalide" }, 400);
+  }
+
+  try {
+    const existing = await env.DB.prepare(
+      `SELECT id, reference, status, assigned_to, notes
+         FROM leads
+        WHERE reference = ?
+        LIMIT 1`
+    ).bind(reference).first();
+
+    if (!existing) {
+      return json({ success: false, error: "Lead introuvable" }, 404);
+    }
+
+    const now = new Date().toISOString();
+    const nextAssignedTo = hasOwn(payload, "assigned_to") ? clean(payload.assigned_to, 120) : (existing.assigned_to || "");
+    const nextNotes = hasOwn(payload, "notes") ? clean(payload.notes, 1200) : (existing.notes || "");
+
+    await env.DB.prepare(
+      `UPDATE leads
+          SET status = ?, assigned_to = ?, notes = ?, updated_at = ?
+        WHERE id = ?`
+    ).bind(status, nextAssignedTo, nextNotes, now, existing.id).run();
+
+    await logLeadEvent(env, existing.id, "lead_status_updated", {
+      reference,
+      from_status: existing.status || "new",
+      to_status: status,
+      assigned_to: nextAssignedTo,
+      notes: nextNotes ? "updated" : ""
+    }, now);
+
+    return json({
+      success: true,
+      lead: {
+        reference,
+        status,
+        assigned_to: nextAssignedTo,
+        notes: nextNotes,
+        updated_at: now
+      }
+    });
+  } catch (error) {
+    return json({ success: false, error: error.message || "Erreur base de donnees" }, 500);
+  }
+}
+
+export async function onRequestOptions() {
+  return new Response(null, { status: 204, headers });
 }

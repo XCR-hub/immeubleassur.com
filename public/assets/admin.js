@@ -31,12 +31,60 @@ function priorityLabel(priority) {
   return ({ hot: "Chaud", warm: "A traiter", standard: "Standard", low: "A completer" })[priority] || "Standard";
 }
 
+const leadStatuses = [
+  ["new", "Nouveau"],
+  ["contacted", "Contacte"],
+  ["quoted", "Devis envoye"],
+  ["won", "Gagne"],
+  ["lost", "Perdu"],
+  ["archived", "Archive"]
+];
+
+function statusLabel(status) {
+  const entry = leadStatuses.find(([value]) => value === status);
+  return entry ? entry[1] : (status || "Nouveau");
+}
+
 function priorityCell(priority) {
   const td = document.createElement("td");
   const span = document.createElement("span");
   span.className = `lead-priority ${String(priority || "standard").replace(/[^a-z0-9_-]/gi, "")}`;
   span.textContent = priorityLabel(priority);
   td.append(span);
+  return td;
+}
+
+function statusCell(lead) {
+  const td = document.createElement("td");
+  const wrap = document.createElement("div");
+  const select = document.createElement("select");
+  const currentStatus = lead.status || "new";
+  const values = new Set(leadStatuses.map(([value]) => value));
+  wrap.className = "lead-status-control";
+  select.dataset.leadStatus = lead.reference || "";
+  select.setAttribute("aria-label", `Statut ${lead.reference || "lead"}`);
+
+  if (!values.has(currentStatus)) {
+    const option = document.createElement("option");
+    option.value = currentStatus;
+    option.textContent = statusLabel(currentStatus);
+    select.append(option);
+  }
+  for (const [value, label] of leadStatuses) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    if (value === currentStatus) option.selected = true;
+    select.append(option);
+  }
+
+  const button = document.createElement("button");
+  button.className = "lead-status-save";
+  button.type = "button";
+  button.dataset.leadStatusSave = lead.reference || "";
+  button.textContent = "OK";
+  wrap.append(select, button);
+  td.append(wrap);
   return td;
 }
 
@@ -62,6 +110,7 @@ function searchableText(lead) {
     lead.city,
     lead.need,
     lead.status,
+    statusLabel(lead.status),
     lead.message,
     q.priority,
     q.reasons?.join(" "),
@@ -96,6 +145,7 @@ function render(rows) {
     const q = qualificationFor(lead);
     const tr = document.createElement("tr");
     tr.dataset.priority = q.priority || "standard";
+    tr.dataset.reference = lead.reference || "";
     tr.append(
       cell(new Date(lead.created_at).toLocaleString("fr-FR")),
       cell(lead.reference),
@@ -105,7 +155,7 @@ function render(rows) {
       cell(`${lead.property_type}${lead.units_count ? `\n${lead.units_count} lots` : ""}`),
       cell(lead.city),
       cell(lead.need),
-      cell(lead.status),
+      statusCell(lead),
       cell(`${q.score ?? lead.lead_score ?? ""}${q.reasons?.length ? `\n${q.reasons.slice(0, 4).join("\n")}` : ""}`),
       cell(q.next_action || ""),
       cell(lead.message)
@@ -128,6 +178,10 @@ function countPriority(rows, priority) {
   return rows.filter((lead) => qualificationFor(lead).priority === priority).length;
 }
 
+function countStatus(rows, status) {
+  return rows.filter((lead) => (lead.status || "new") === status).length;
+}
+
 function topLabel(items = []) {
   const first = items[0];
   return first ? `${first.label} (${first.count})` : "-";
@@ -143,6 +197,9 @@ function renderLeadSummary(summary = latestLeadSummary, visibleRows = filteredLe
     metricCard("Chauds", String(summary?.priority_counts?.hot ?? countPriority(allLeads, "hot")), "rappel prioritaire"),
     metricCard("A traiter", String(summary?.priority_counts?.warm ?? countPriority(allLeads, "warm")), "potentiel moyen/haut"),
     metricCard("Score moyen", String(avg || "-")),
+    metricCard("Nouveaux", String(countStatus(visibleRows, "new")), "a rappeler"),
+    metricCard("Devis", String(countStatus(visibleRows, "quoted")), "en cours"),
+    metricCard("Gagnes", String(countStatus(visibleRows, "won")), "a mesurer"),
     metricCard("Besoin dominant", topLabel(summary?.top_needs)),
     metricCard("Ville dominante", topLabel(summary?.top_cities))
   );
@@ -157,6 +214,50 @@ function refreshLeadTable() {
 
 function csvEscape(value) {
   return `"${String(value ?? "").replace(/"/g, '""')}"`;
+}
+
+async function updateLeadStatus(reference, status, button) {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (!token) {
+    setStatus("Token admin requis pour modifier un lead.", "error");
+    return;
+  }
+  if (!reference || !status) return;
+
+  const previousLabel = button?.textContent || "OK";
+  if (button) {
+    button.disabled = true;
+    button.textContent = "...";
+  }
+
+  try {
+    const response = await fetch("/api/admin/leads", {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ reference, status })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Mise a jour impossible");
+    }
+
+    const updated = result.lead || { reference, status };
+    allLeads = allLeads.map((lead) => lead.reference === reference ? { ...lead, ...updated } : lead);
+    const rows = filteredLeads();
+    render(rows);
+    renderLeadSummary(latestLeadSummary, rows);
+    setStatus(`${reference} passe en statut ${statusLabel(updated.status)}.`, "ok");
+  } catch (error) {
+    setStatus(error.message || "Erreur de mise a jour", "error");
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = previousLabel;
+    }
+  }
 }
 
 function exportVisibleLeads() {
@@ -304,6 +405,16 @@ form?.addEventListener("submit", async (event) => {
 leadSearch?.addEventListener("input", refreshLeadTable);
 priorityFilter?.addEventListener("change", refreshLeadTable);
 exportButton?.addEventListener("click", exportVisibleLeads);
+
+body?.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  const button = target.closest("[data-lead-status-save]");
+  if (!button) return;
+  const row = button.closest("tr");
+  const select = row?.querySelector("[data-lead-status]");
+  updateLeadStatus(button.dataset.leadStatusSave || "", select?.value || "", button);
+});
 
 seoButton?.addEventListener("click", () => {
   loadSeo().catch((error) => {

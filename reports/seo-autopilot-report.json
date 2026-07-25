@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-07-20T02:36:40.953Z",
-  "mode": "api",
+  "generated_at": "2026-07-25T00:26:42.739Z",
+  "mode": "local-only",
   "pages_checked": 157,
   "average_score": 100,
   "weak_pages": [],
   "opportunities": [],
   "gsc": {
     "configured": false,
-    "skipped": "GOOGLE_SERVICE_ACCOUNT_EMAIL/KEY missing"
+    "skipped": "--gsc not requested"
   },
   "pagespeed": {
-    "error": "fetch failed"
+    "skipped": "--pagespeed not requested"
   },
   "auto_fix": {
     "configured": true,

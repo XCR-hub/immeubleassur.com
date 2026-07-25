@@ -1,20 +1,48 @@
 {
-  "generated_at": "2026-07-20T02:36:18.876Z",
+  "generated_at": "2026-07-22T08:45:34.908Z",
   "files_checked": 158,
-  "files_changed": 49,
-  "replacements": 49,
+  "files_changed": 158,
+  "replacements": 159,
   "assets": {
-    "styles": "/assets/styles.css?v=60da9be971",
+    "styles": "/assets/styles.css?v=05f9f60fd9",
     "app": "/assets/app.js?v=ffa8932c9a",
-    "admin": "/assets/admin.js?v=d1b4497b2a"
+    "admin": "/assets/admin.js?v=6b1195cbfa"
   },
   "changed": [
+    {
+      "file": "admin.html",
+      "updates": 2
+    },
+    {
+      "file": "assurance-cno.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-coproprietaire-non-occupant.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-copropriete.html",
+      "updates": 1
+    },
     {
       "file": "assurance-immeuble-agen.html",
       "updates": 1
     },
     {
+      "file": "assurance-immeuble-aix-en-provence.html",
+      "updates": 1
+    },
+    {
       "file": "assurance-immeuble-albi.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-amiens.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-angers.html",
       "updates": 1
     },
     {
@@ -46,6 +74,10 @@
       "updates": 1
     },
     {
+      "file": "assurance-immeuble-besancon.html",
+      "updates": 1
+    },
+    {
       "file": "assurance-immeuble-beziers.html",
       "updates": 1
     },
@@ -58,7 +90,15 @@
       "updates": 1
     },
     {
+      "file": "assurance-immeuble-bordeaux.html",
+      "updates": 1
+    },
+    {
       "file": "assurance-immeuble-bourges.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-brest.html",
       "updates": 1
     },
     {
@@ -94,7 +134,15 @@
       "updates": 1
     },
     {
+      "file": "assurance-immeuble-clermont-ferrand.html",
+      "updates": 1
+    },
+    {
       "file": "assurance-immeuble-colmar.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-dijon.html",
       "updates": 1
     },
     {
@@ -114,6 +162,10 @@
       "updates": 1
     },
     {
+      "file": "assurance-immeuble-grenoble.html",
+      "updates": 1
+    },
+    {
       "file": "assurance-immeuble-la-roche-sur-yon.html",
       "updates": 1
     },
@@ -122,7 +174,23 @@
       "updates": 1
     },
     {
+      "file": "assurance-immeuble-le-havre.html",
+      "updates": 1
+    },
+    {
       "file": "assurance-immeuble-lens.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-lille.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-limoges.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-locatif.html",
       "updates": 1
     },
     {
@@ -130,11 +198,27 @@
       "updates": 1
     },
     {
+      "file": "assurance-immeuble-lyon.html",
+      "updates": 1
+    },
+    {
       "file": "assurance-immeuble-macon.html",
       "updates": 1
     },
     {
+      "file": "assurance-immeuble-marseille.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-metz.html",
+      "updates": 1
+    },
+    {
       "file": "assurance-immeuble-montauban.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-montpellier.html",
       "updates": 1
     },
     {
@@ -146,11 +230,19 @@
       "updates": 1
     },
     {
+      "file": "assurance-immeuble-nantes.html",
+      "updates": 1
+    },
+    {
       "file": "assurance-immeuble-narbonne.html",
       "updates": 1
     },
     {
       "file": "assurance-immeuble-nevers.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-nice.html",
       "updates": 1
     },
     {
@@ -162,7 +254,19 @@
       "updates": 1
     },
     {
+      "file": "assurance-immeuble-orleans.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-paris.html",
+      "updates": 1
+    },
+    {
       "file": "assurance-immeuble-pau.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-perpignan.html",
       "updates": 1
     },
     {
@@ -171,6 +275,22 @@
     },
     {
       "file": "assurance-immeuble-quimper.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-reims.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-rennes.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-rouen.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-saint-etienne.html",
       "updates": 1
     },
     {
@@ -186,23 +306,27 @@
       "updates": 1
     },
     {
+      "file": "assurance-immeuble-strasbourg.html",
+      "updates": 1
+    },
+    {
       "file": "assurance-immeuble-tarbes.html",
       "updates": 1
     },
     {
+      "file": "assurance-immeuble-toulon.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-toulouse.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-tours.html",
+      "updates": 1
+    },
+    {
       "file": "assurance-immeuble-troyes.html",
-      "updates": 1
-    },
-    {
-      "file": "assurance-immeuble-valence.html",
-      "updates": 1
-    },
-    {
-      "file": "assurance-immeuble-valenciennes.html",
-      "updates": 1
-    },
-    {
-      "file": "assurance-immeuble-vannes.html",
       "updates": 1
     }
   ],
