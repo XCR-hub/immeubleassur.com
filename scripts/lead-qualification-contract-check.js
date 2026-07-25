@@ -48,18 +48,21 @@ const expectations = [
       "dossier assureur prepare",
       "pieces assureur disponibles",
       "readiness_complete",
-      "Dossier pret assureur"
+      "Dossier pret assureur",
+      "lead-value-preview",
+      "lead_value_hint_ready",
+      "leadValueEventPayload"
     ]
   },
   {
     file: "functions/api/events.js",
     role: "event-api",
-    snippets: ["readiness_start", "readiness_update", "readiness_complete", "revenue_band", "lead_value_max"]
+    snippets: ["readiness_start", "readiness_update", "readiness_complete", "lead_value_hint_ready", "revenue_band", "lead_value_max"]
   },
   {
     file: "functions/api/admin/seo.js",
     role: "seo-admin",
-    snippets: ["readiness_paths", "readiness_completion_rate", "dossier-friction", "dossier-gagnant"]
+    snippets: ["readiness_paths", "readiness_completion_rate", "lead_value_hint_ready", "value_hint_ready", "value_hint_paths", "estimation-gagnante", "dossier-friction", "dossier-gagnant"]
   },
   {
     file: "functions/_shared/ga4.js",
@@ -69,7 +72,7 @@ const expectations = [
   {
     file: "public/assets/admin.js",
     role: "admin-dashboard",
-    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "lead-value-cell", "annual_premium_min"]
+    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "Valeur affichee", "lead-value-cell", "annual_premium_min"]
   }
 ];
 

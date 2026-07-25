@@ -13,6 +13,7 @@ let experimentViewSent = false;
 let formSubmitted = false;
 let qualityEventSent = false;
 let abandonEventSent = false;
+let valueHintEventSent = false;
 const scrollDepthSent = new Set();
 
 function getSessionId() {
@@ -244,10 +245,46 @@ function priorityFromScore(score) {
   return "low";
 }
 
+function unitCount(value) {
+  return Number.parseInt(String(value || "0").replace(/\D/g, ""), 10) || 0;
+}
+
+function leadValueEstimate(payload, score = 0) {
+  const units = Math.max(1, unitCount(payload.units_count));
+  const need = String(payload.need || "").trim();
+  const profile = String(payload.profile || "").trim();
+  const propertyType = String(payload.property_type || "").trim();
+  let base = 260;
+
+  if (["multirisque-immeuble", "copropriete", "audit-contrat"].includes(need)) base = 520;
+  if (["rc-syndic", "dommages-ouvrage"].includes(need)) base = 620;
+  if (["pno", "cno", "pno-cno"].includes(need) || ["lot-copropriete", "logement-vacant", "logement-loue"].includes(propertyType)) base = units <= 2 ? 190 : 260;
+  if (["local-commercial", "commerce", "mixte"].includes(propertyType)) base += 180;
+  if (["sci", "administrateur-biens", "syndic-professionnel"].includes(profile)) base += 160;
+
+  const min = Math.round(Math.max(180, base + Math.max(0, units - 1) * 135));
+  const max = Math.round(min * (score >= 85 ? 1.75 : score >= 70 ? 1.55 : 1.35));
+  const band = max >= 9000 ? "portfolio" : max >= 3500 ? "immeuble-prioritaire" : max >= 1200 ? "immeuble-standard" : "lot-pno-cno";
+  return {
+    annual_premium_min: min,
+    annual_premium_max: max,
+    band,
+    label: `${min}-${max} EUR/an`,
+    basis: `${units} lot(s), ${need || "besoin non precise"}`
+  };
+}
+
+function slaHoursFor(score, valueEstimate) {
+  const maxValue = Number(valueEstimate?.annual_premium_max || 0);
+  if (score >= 85 || maxValue >= 9000) return 2;
+  if (score >= 70 || maxValue >= 3500) return 6;
+  if (score >= 45 || maxValue >= 1200) return 24;
+  return 48;
+}
 function leadQualification(payload) {
   let score = 20;
   const reasons = [];
-  const units = Number.parseInt(String(payload.units_count || "0").replace(/\D/g, ""), 10) || 0;
+  const units = unitCount(payload.units_count);
   const need = String(payload.need || "").trim();
   const profile = String(payload.profile || "").trim();
   const propertyType = String(payload.property_type || "").trim();
@@ -301,13 +338,74 @@ function leadQualification(payload) {
   }
 
   score = Math.min(score, 100);
-  return { score, priority: priorityFromScore(score), reasons };
+  const valueEstimate = leadValueEstimate(payload, score);
+  return { score, priority: priorityFromScore(score), reasons, value_estimate: valueEstimate, sla_hours: slaHoursFor(score, valueEstimate) };
 }
 
 function leadQuality(payload) {
   return leadQualification(payload).score;
 }
 
+function leadValueEventPayload(payload, qualification = leadQualification(payload)) {
+  const estimate = qualification.value_estimate || leadValueEstimate(payload, qualification.score || 0);
+  return {
+    score: String(qualification.score || ""),
+    priority: qualification.priority || "",
+    revenue_band: estimate.band || "",
+    lead_value_min: String(estimate.annual_premium_min || ""),
+    lead_value_max: String(estimate.annual_premium_max || ""),
+    sla_hours: String(qualification.sla_hours || slaHoursFor(qualification.score || 0, estimate))
+  };
+}
+
+function formatEuro(value) {
+  return `${Number(value || 0).toLocaleString("fr-FR")} EUR`;
+}
+
+function documentChecklistFor(payload) {
+  const need = payload.need || inferIntent();
+  const propertyType = payload.property_type || "";
+  const units = unitCount(payload.units_count);
+  if (["pno", "cno", "pno-cno"].includes(need) || propertyType === "lot-copropriete") return ["Occupation du lot", "Contrat copropriete", "Attestation occupant"];
+  if (["local-commercial", "commerce", "mixte"].includes(propertyType)) return ["Activite du commerce", "Bail", "Assurance occupant"];
+  if (units >= 10) return ["Tableau des lots", "Prime actuelle", "Sinistres 36 mois"];
+  if (payload.profile === "sci") return ["Liste des biens", "Contrats existants", "Echeances"];
+  return ["Contrat actuel", "Appel de prime", "Travaux prevus"];
+}
+
+function updateLeadValuePreview(preview, formElement) {
+  const payload = readForm(formElement);
+  const qualification = leadQualification(payload);
+  const estimate = qualification.value_estimate;
+  preview.dataset.level = qualification.sla_hours <= 6 ? "urgent" : qualification.score >= 55 ? "ready" : "base";
+  preview.querySelector("[data-value-range]").textContent = `${formatEuro(estimate.annual_premium_min)} - ${formatEuro(estimate.annual_premium_max)}/an`;
+  preview.querySelector("[data-value-sla]").textContent = `Rappel ${qualification.sla_hours}h`;
+  preview.querySelector("[data-value-docs]").textContent = documentChecklistFor(payload).join(" + ");
+  preview.querySelector("[data-value-note]").textContent = qualification.score >= 70
+    ? "Dossier lisible: ajoutez echeance ou sinistres pour accelerer la consultation."
+    : "Fourchette indicative, ajustee apres analyse du risque et des garanties.";
+
+  if (qualification.score >= 70 && !valueHintEventSent) {
+    valueHintEventSent = true;
+    track("lead_value_hint_ready", {
+      target: payload.need || "unknown",
+      label: estimate.band,
+      ...leadValueEventPayload(payload, qualification)
+    });
+  }
+}
+
+function mountLeadValuePreview() {
+  if (!form || form.querySelector(".lead-value-preview")) return;
+  const anchor = form.querySelector(".ux-form-proof") || form.querySelector(".form-advisor") || form.querySelector(".form-heading") || form.firstElementChild;
+  const preview = document.createElement("div");
+  preview.className = "lead-value-preview";
+  preview.innerHTML = `<div class="lead-value-preview-main"><span><strong data-value-range>0 EUR - 0 EUR/an</strong><small>Prime indicative</small></span><span><strong data-value-sla>Rappel 48h</strong><small>Priorite dossier</small></span><span><strong data-value-docs>Contrat actuel</strong><small>Pieces cles</small></span></div><p data-value-note>Fourchette indicative, ajustee apres analyse du risque et des garanties.</p>`;
+  anchor.insertAdjacentElement("afterend", preview);
+  updateLeadValuePreview(preview, form);
+  form.addEventListener("input", () => updateLeadValuePreview(preview, form));
+  form.addEventListener("change", () => updateLeadValuePreview(preview, form));
+}
 function advisorCopy(payload, score) {
   const need = payload.need || inferIntent();
   const units = Number(String(payload.units_count || "").replace(/\D/g, ""));
@@ -744,11 +842,12 @@ function trackFormAbandonment(reason) {
   const payload = readForm(form);
   const hasContact = Boolean(payload.name || payload.phone || payload.email || payload.city || payload.message);
   if (!hasContact) return;
+  const qualification = leadQualification(payload);
   abandonEventSent = true;
   track("lead_form_abandoned", {
     target: payload.need || "unknown",
     label: reason,
-    score: String(leadQuality(payload))
+    ...leadValueEventPayload(payload, qualification)
   });
 }
 
@@ -802,7 +901,8 @@ form?.addEventListener("submit", async (event) => {
   const submitButton = form.querySelector("button[type='submit']");
   submitButton.disabled = true;
   setStatus("Transmission du dossier en cours...");
-  track("form_submit_attempt", { target: payload.need, label: payload.profile });
+  const qualification = leadQualification(payload);
+  track("form_submit_attempt", { target: payload.need, label: payload.profile, ...leadValueEventPayload(payload, qualification) });
 
   try {
     const response = await fetch("/api/leads", {
@@ -850,6 +950,7 @@ applyIntentPrefill();
 mountLeadBar();
 mountFormAdvisor();
 mountFormProof();
+mountLeadValuePreview();
 mountDiagnostic();
 mountReadiness();
 mountRiskRouter();
