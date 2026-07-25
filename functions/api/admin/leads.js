@@ -143,6 +143,30 @@ function qualifyLead(lead) {
   };
 }
 
+function hoursSince(value) {
+  const timestamp = Date.parse(value || "");
+  if (!Number.isFinite(timestamp)) return 0;
+  return Math.max(0, (Date.now() - timestamp) / 3600000);
+}
+
+function isOpenStatus(status) {
+  return !["won", "lost", "archived"].includes(clean(status || "new", 40));
+}
+
+function followUpDueFor(lead, qualification = qualifyLead(lead)) {
+  const status = clean(lead.status || "new", 40);
+  if (!isOpenStatus(status)) return false;
+  const createdAge = hoursSince(lead.created_at);
+  const updatedAge = hoursSince(lead.updated_at || lead.created_at);
+  if (status === "new" && qualification.priority === "hot") return createdAge >= 2;
+  if (status === "new" && qualification.priority === "warm") return createdAge >= 6;
+  if (status === "new" && qualification.priority === "standard") return createdAge >= 24;
+  if (status === "new") return createdAge >= 48;
+  if (status === "contacted") return updatedAge >= 24;
+  if (status === "quoted") return updatedAge >= 72;
+  return false;
+}
+
 function increment(map, key) {
   const cleanKey = clean(key || "non precise", 120) || "non precise";
   map.set(cleanKey, (map.get(cleanKey) || 0) + 1);
@@ -161,6 +185,8 @@ function summarizeLeads(leads) {
   const cities = new Map();
   let scoreTotal = 0;
   let oldestHot = "";
+  let followup_due_count = 0;
+  let unassigned_open_count = 0;
 
   for (const lead of leads) {
     const q = lead.qualification || qualifyLead(lead);
@@ -172,6 +198,8 @@ function summarizeLeads(leads) {
     if (priority === "hot" && lead.status === "new") {
       if (!oldestHot || String(lead.created_at || "") < oldestHot) oldestHot = lead.created_at || "";
     }
+    if (followUpDueFor(lead, q)) followup_due_count += 1;
+    if (isOpenStatus(lead.status) && !clean(lead.assigned_to, 120)) unassigned_open_count += 1;
   }
 
   const count = leads.length;
@@ -181,7 +209,9 @@ function summarizeLeads(leads) {
     priority_counts,
     top_needs: topFromMap(needs),
     top_cities: topFromMap(cities),
-    oldest_hot_created_at: oldestHot
+    oldest_hot_created_at: oldestHot,
+    followup_due_count,
+    unassigned_open_count
   };
 }
 
@@ -231,18 +261,18 @@ export async function onRequestPatch({ request, env }) {
   }
 
   const reference = clean(payload.reference, 80);
-  const status = clean(payload.status, 40).toLowerCase();
+  const requestedStatus = hasOwn(payload, "status") ? clean(payload.status, 40).toLowerCase() : "";
 
   if (!reference) {
     return json({ success: false, error: "Reference lead manquante" }, 400);
   }
-  if (!allowedStatuses.has(status)) {
+  if (requestedStatus && !allowedStatuses.has(requestedStatus)) {
     return json({ success: false, error: "Statut lead invalide" }, 400);
   }
 
   try {
     const existing = await env.DB.prepare(
-      `SELECT id, reference, status, assigned_to, notes
+      `SELECT id, reference, status, assigned_to, notes, updated_at
          FROM leads
         WHERE reference = ?
         LIMIT 1`
@@ -252,29 +282,50 @@ export async function onRequestPatch({ request, env }) {
       return json({ success: false, error: "Lead introuvable" }, 404);
     }
 
-    const now = new Date().toISOString();
+    const previousStatus = allowedStatuses.has(existing.status) ? existing.status : "new";
+    const nextStatus = requestedStatus || previousStatus;
     const nextAssignedTo = hasOwn(payload, "assigned_to") ? clean(payload.assigned_to, 120) : (existing.assigned_to || "");
     const nextNotes = hasOwn(payload, "notes") ? clean(payload.notes, 1200) : (existing.notes || "");
+    const statusChanged = nextStatus !== previousStatus;
+    const assignedChanged = nextAssignedTo !== (existing.assigned_to || "");
+    const notesChanged = nextNotes !== (existing.notes || "");
 
+    if (!statusChanged && !assignedChanged && !notesChanged) {
+      return json({
+        success: true,
+        unchanged: true,
+        lead: {
+          reference,
+          status: nextStatus,
+          assigned_to: nextAssignedTo,
+          notes: nextNotes,
+          updated_at: existing.updated_at || ""
+        }
+      });
+    }
+
+    const now = new Date().toISOString();
     await env.DB.prepare(
       `UPDATE leads
           SET status = ?, assigned_to = ?, notes = ?, updated_at = ?
         WHERE id = ?`
-    ).bind(status, nextAssignedTo, nextNotes, now, existing.id).run();
+    ).bind(nextStatus, nextAssignedTo, nextNotes, now, existing.id).run();
 
-    await logLeadEvent(env, existing.id, "lead_status_updated", {
+    await logLeadEvent(env, existing.id, statusChanged ? "lead_status_updated" : "lead_followup_updated", {
       reference,
-      from_status: existing.status || "new",
-      to_status: status,
+      from_status: previousStatus,
+      to_status: nextStatus,
       assigned_to: nextAssignedTo,
-      notes: nextNotes ? "updated" : ""
+      notes: nextNotes ? "updated" : "",
+      assigned_changed: assignedChanged,
+      notes_changed: notesChanged
     }, now);
 
     return json({
       success: true,
       lead: {
         reference,
-        status,
+        status: nextStatus,
         assigned_to: nextAssignedTo,
         notes: nextNotes,
         updated_at: now
@@ -284,7 +335,6 @@ export async function onRequestPatch({ request, env }) {
     return json({ success: false, error: error.message || "Erreur base de donnees" }, 500);
   }
 }
-
 export async function onRequestOptions() {
   return new Response(null, { status: 204, headers });
 }

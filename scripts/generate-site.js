@@ -847,6 +847,7 @@ function adminPage() {
         <div class="admin-lead-controls" aria-label="Filtres leads">
           <label>Recherche<input id="lead-search" type="search" placeholder="Nom, ville, besoin, email..." /></label>
           <label>Priorite<select id="lead-priority-filter"><option value="">Toutes</option><option value="hot">Chaud</option><option value="warm">A traiter</option><option value="standard">Standard</option><option value="low">A completer</option></select></label>
+          <label>Statut<select id="lead-status-filter"><option value="">Tous</option><option value="followup">A relancer</option><option value="new">Nouveau</option><option value="contacted">Contacte</option><option value="quoted">Devis envoye</option><option value="won">Gagne</option><option value="lost">Perdu</option><option value="archived">Archive</option></select></label>
           <button class="button secondary" type="button" id="export-leads">Exporter CSV</button>
         </div>
         <div class="seo-admin-grid lead-summary-grid" id="lead-summary"><p>Chargez les leads pour afficher les priorites.</p></div>

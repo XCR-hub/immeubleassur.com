@@ -8,6 +8,7 @@ const seoBody = document.querySelector("#seo-opportunities-body");
 const leadSummary = document.querySelector("#lead-summary");
 const leadSearch = document.querySelector("#lead-search");
 const priorityFilter = document.querySelector("#lead-priority-filter");
+const statusFilter = document.querySelector("#lead-status-filter");
 const exportButton = document.querySelector("#export-leads");
 
 let allLeads = [];
@@ -45,6 +46,45 @@ function statusLabel(status) {
   return entry ? entry[1] : (status || "Nouveau");
 }
 
+function statusValue(lead) {
+  return lead?.status || "new";
+}
+
+function isOpenLead(lead) {
+  return !["won", "lost", "archived"].includes(statusValue(lead));
+}
+
+function hoursSince(value) {
+  const timestamp = Date.parse(value || "");
+  if (!Number.isFinite(timestamp)) return 0;
+  return Math.max(0, (Date.now() - timestamp) / 3600000);
+}
+
+function followUpDue(lead) {
+  const status = statusValue(lead);
+  if (!isOpenLead(lead)) return false;
+  const q = qualificationFor(lead);
+  const createdAge = hoursSince(lead.created_at);
+  const updatedAge = hoursSince(lead.updated_at || lead.created_at);
+  if (status === "new" && q.priority === "hot") return createdAge >= 2;
+  if (status === "new" && q.priority === "warm") return createdAge >= 6;
+  if (status === "new" && q.priority === "standard") return createdAge >= 24;
+  if (status === "new") return createdAge >= 48;
+  if (status === "contacted") return updatedAge >= 24;
+  if (status === "quoted") return updatedAge >= 72;
+  return false;
+}
+
+function followUpLabel(lead) {
+  if (!isOpenLead(lead)) return "Dossier cloture";
+  if (followUpDue(lead)) return "Relance prioritaire";
+  const status = statusValue(lead);
+  if (status === "new") return "Premier rappel a planifier";
+  if (status === "contacted") return "Suivi apres contact";
+  if (status === "quoted") return "Devis a suivre";
+  return "Suivi ouvert";
+}
+
 function priorityCell(priority) {
   const td = document.createElement("td");
   const span = document.createElement("span");
@@ -58,7 +98,7 @@ function statusCell(lead) {
   const td = document.createElement("td");
   const wrap = document.createElement("div");
   const select = document.createElement("select");
-  const currentStatus = lead.status || "new";
+  const currentStatus = statusValue(lead);
   const values = new Set(leadStatuses.map(([value]) => value));
   wrap.className = "lead-status-control";
   select.dataset.leadStatus = lead.reference || "";
@@ -88,6 +128,44 @@ function statusCell(lead) {
   return td;
 }
 
+function followUpCell(lead, q) {
+  const td = document.createElement("td");
+  const wrap = document.createElement("div");
+  const action = document.createElement("p");
+  const signal = document.createElement("span");
+  const assigned = document.createElement("input");
+  const notes = document.createElement("textarea");
+  const button = document.createElement("button");
+
+  wrap.className = "lead-followup";
+  action.className = "lead-next-action";
+  action.textContent = q.next_action || "";
+  signal.className = `lead-followup-signal${followUpDue(lead) ? " due" : ""}`;
+  signal.textContent = followUpLabel(lead);
+
+  assigned.className = "lead-assignee-input";
+  assigned.placeholder = "Attribue a";
+  assigned.value = lead.assigned_to || "";
+  assigned.dataset.leadAssigned = lead.reference || "";
+  assigned.setAttribute("aria-label", `Attribue a ${lead.reference || "lead"}`);
+
+  notes.className = "lead-note-input";
+  notes.placeholder = "Note interne";
+  notes.value = lead.notes || "";
+  notes.rows = 2;
+  notes.dataset.leadNotes = lead.reference || "";
+  notes.setAttribute("aria-label", `Note interne ${lead.reference || "lead"}`);
+
+  button.className = "lead-followup-save";
+  button.type = "button";
+  button.dataset.leadFollowupSave = lead.reference || "";
+  button.textContent = "Sauver suivi";
+
+  wrap.append(action, signal, assigned, notes, button);
+  td.append(wrap);
+  return td;
+}
+
 function qualificationFor(lead) {
   const score = Number(lead.lead_score || 0);
   return lead.qualification || {
@@ -111,6 +189,9 @@ function searchableText(lead) {
     lead.need,
     lead.status,
     statusLabel(lead.status),
+    lead.assigned_to,
+    lead.notes,
+    followUpLabel(lead),
     lead.message,
     q.priority,
     q.reasons?.join(" "),
@@ -121,9 +202,12 @@ function searchableText(lead) {
 function filteredLeads() {
   const query = (leadSearch?.value || "").trim().toLowerCase();
   const priority = priorityFilter?.value || "";
+  const status = statusFilter?.value || "";
   return allLeads.filter((lead) => {
     const q = qualificationFor(lead);
     if (priority && q.priority !== priority) return false;
+    if (status === "followup" && !followUpDue(lead)) return false;
+    if (status && status !== "followup" && statusValue(lead) !== status) return false;
     if (query && !searchableText(lead).includes(query)) return false;
     return true;
   });
@@ -146,6 +230,7 @@ function render(rows) {
     const tr = document.createElement("tr");
     tr.dataset.priority = q.priority || "standard";
     tr.dataset.reference = lead.reference || "";
+    tr.dataset.followup = followUpDue(lead) ? "due" : "ok";
     tr.append(
       cell(new Date(lead.created_at).toLocaleString("fr-FR")),
       cell(lead.reference),
@@ -157,7 +242,7 @@ function render(rows) {
       cell(lead.need),
       statusCell(lead),
       cell(`${q.score ?? lead.lead_score ?? ""}${q.reasons?.length ? `\n${q.reasons.slice(0, 4).join("\n")}` : ""}`),
-      cell(q.next_action || ""),
+      followUpCell(lead, q),
       cell(lead.message)
     );
     body.append(tr);
@@ -179,7 +264,15 @@ function countPriority(rows, priority) {
 }
 
 function countStatus(rows, status) {
-  return rows.filter((lead) => (lead.status || "new") === status).length;
+  return rows.filter((lead) => statusValue(lead) === status).length;
+}
+
+function countFollowUpDue(rows) {
+  return rows.filter((lead) => followUpDue(lead)).length;
+}
+
+function countUnassignedOpen(rows) {
+  return rows.filter((lead) => isOpenLead(lead) && !(lead.assigned_to || "").trim()).length;
 }
 
 function topLabel(items = []) {
@@ -197,6 +290,8 @@ function renderLeadSummary(summary = latestLeadSummary, visibleRows = filteredLe
     metricCard("Chauds", String(summary?.priority_counts?.hot ?? countPriority(allLeads, "hot")), "rappel prioritaire"),
     metricCard("A traiter", String(summary?.priority_counts?.warm ?? countPriority(allLeads, "warm")), "potentiel moyen/haut"),
     metricCard("Score moyen", String(avg || "-")),
+    metricCard("A relancer", String(summary?.followup_due_count ?? countFollowUpDue(visibleRows)), "priorite SLA"),
+    metricCard("Sans pilote", String(summary?.unassigned_open_count ?? countUnassignedOpen(visibleRows)), "ouverts"),
     metricCard("Nouveaux", String(countStatus(visibleRows, "new")), "a rappeler"),
     metricCard("Devis", String(countStatus(visibleRows, "quoted")), "en cours"),
     metricCard("Gagnes", String(countStatus(visibleRows, "won")), "a mesurer"),
@@ -216,13 +311,13 @@ function csvEscape(value) {
   return `"${String(value ?? "").replace(/"/g, '""')}"`;
 }
 
-async function updateLeadStatus(reference, status, button) {
+async function patchLead(reference, updates, button, successMessage) {
   const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
   if (!token) {
     setStatus("Token admin requis pour modifier un lead.", "error");
     return;
   }
-  if (!reference || !status) return;
+  if (!reference) return;
 
   const previousLabel = button?.textContent || "OK";
   if (button) {
@@ -237,19 +332,19 @@ async function updateLeadStatus(reference, status, button) {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ reference, status })
+      body: JSON.stringify({ reference, ...updates })
     });
     const result = await response.json();
     if (!response.ok || !result.success) {
       throw new Error(result.error || "Mise a jour impossible");
     }
 
-    const updated = result.lead || { reference, status };
+    const updated = result.lead || { reference, ...updates };
     allLeads = allLeads.map((lead) => lead.reference === reference ? { ...lead, ...updated } : lead);
     const rows = filteredLeads();
     render(rows);
     renderLeadSummary(latestLeadSummary, rows);
-    setStatus(`${reference} passe en statut ${statusLabel(updated.status)}.`, "ok");
+    setStatus(typeof successMessage === "function" ? successMessage(updated) : `${reference} mis a jour.`, "ok");
   } catch (error) {
     setStatus(error.message || "Erreur de mise a jour", "error");
   } finally {
@@ -260,9 +355,19 @@ async function updateLeadStatus(reference, status, button) {
   }
 }
 
+async function updateLeadStatus(reference, status, button) {
+  const lead = allLeads.find((item) => item.reference === reference) || {};
+  await patchLead(reference, { status, assigned_to: lead.assigned_to || "", notes: lead.notes || "" }, button, (updated) => `${reference} passe en statut ${statusLabel(updated.status)}.`);
+}
+
+async function updateLeadFollowUp(reference, assignedTo, notes, button) {
+  const lead = allLeads.find((item) => item.reference === reference) || {};
+  await patchLead(reference, { status: statusValue(lead), assigned_to: assignedTo, notes }, button, () => `${reference} suivi commercial sauvegarde.`);
+}
+
 function exportVisibleLeads() {
   const rows = filteredLeads();
-  const header = ["date", "reference", "priority", "score", "name", "phone", "email", "profile", "property_type", "city", "need", "status", "next_action", "reasons", "message"];
+  const header = ["date", "reference", "priority", "score", "name", "phone", "email", "profile", "property_type", "city", "need", "status", "status_label", "assigned_to", "follow_up_due", "next_action", "reasons", "notes", "message", "updated_at"];
   const lines = [header.map(csvEscape).join(",")];
   for (const lead of rows) {
     const q = qualificationFor(lead);
@@ -279,9 +384,14 @@ function exportVisibleLeads() {
       lead.city,
       lead.need,
       lead.status,
+      statusLabel(lead.status),
+      lead.assigned_to,
+      followUpDue(lead) ? "yes" : "no",
       q.next_action,
       q.reasons?.join(" | "),
-      lead.message
+      lead.notes,
+      lead.message,
+      lead.updated_at
     ].map(csvEscape).join(","));
   }
   const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
@@ -395,6 +505,7 @@ form?.addEventListener("submit", async (event) => {
     latestLeadSummary = result.summary || null;
     if (leadSearch) leadSearch.value = "";
     if (priorityFilter) priorityFilter.value = "";
+    if (statusFilter) statusFilter.value = "";
     refreshLeadTable();
     loadSeo().catch(() => {});
   } catch (error) {
@@ -404,16 +515,28 @@ form?.addEventListener("submit", async (event) => {
 
 leadSearch?.addEventListener("input", refreshLeadTable);
 priorityFilter?.addEventListener("change", refreshLeadTable);
+statusFilter?.addEventListener("change", refreshLeadTable);
 exportButton?.addEventListener("click", exportVisibleLeads);
 
 body?.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
-  const button = target.closest("[data-lead-status-save]");
-  if (!button) return;
-  const row = button.closest("tr");
-  const select = row?.querySelector("[data-lead-status]");
-  updateLeadStatus(button.dataset.leadStatusSave || "", select?.value || "", button);
+
+  const statusButton = target.closest("[data-lead-status-save]");
+  if (statusButton) {
+    const row = statusButton.closest("tr");
+    const select = row?.querySelector("[data-lead-status]");
+    updateLeadStatus(statusButton.dataset.leadStatusSave || "", select?.value || "", statusButton);
+    return;
+  }
+
+  const followUpButton = target.closest("[data-lead-followup-save]");
+  if (followUpButton) {
+    const row = followUpButton.closest("tr");
+    const assigned = row?.querySelector("[data-lead-assigned]");
+    const notes = row?.querySelector("[data-lead-notes]");
+    updateLeadFollowUp(followUpButton.dataset.leadFollowupSave || "", assigned?.value || "", notes?.value || "", followUpButton);
+  }
 });
 
 seoButton?.addEventListener("click", () => {

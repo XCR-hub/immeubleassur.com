@@ -24,6 +24,8 @@ const expectations = [
       "Reprendre les pieces disponibles",
       "allowedStatuses",
       "lead_status_updated",
+      "lead_followup_updated",
+      "followUpDueFor",
       "onRequestPatch"
     ]
   },
@@ -51,7 +53,7 @@ const expectations = [
   {
     file: "public/assets/admin.js",
     role: "admin-dashboard",
-    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "updateLeadStatus", "method: \"PATCH\""]
+    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\""]
   }
 ];
 

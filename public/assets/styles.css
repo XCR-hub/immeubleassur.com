@@ -763,7 +763,7 @@ address a {
 
 .admin-lead-controls {
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(180px, 240px) auto;
+  grid-template-columns: minmax(260px, 1fr) minmax(160px, 220px) minmax(160px, 220px) auto;
   gap: 12px;
   align-items: end;
   margin-top: 16px;
@@ -789,7 +789,7 @@ address a {
 
 .admin-table {
   width: 100%;
-  min-width: 1080px;
+  min-width: 1260px;
   border-collapse: collapse;
   font-size: 0.92rem;
 }
@@ -865,6 +865,67 @@ address a {
 }
 
 .lead-status-save:disabled {
+  cursor: wait;
+  opacity: .65;
+}
+.lead-followup {
+  display: grid;
+  gap: 8px;
+  min-width: 230px;
+  white-space: normal;
+}
+
+.lead-next-action {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.lead-followup-signal {
+  display: inline-flex;
+  width: max-content;
+  max-width: 100%;
+  min-height: 26px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.lead-followup-signal.due {
+  border-color: rgba(217, 164, 65, .55);
+  background: #fff7e8;
+  color: #7a4a00;
+}
+
+.lead-assignee-input,
+.lead-note-input {
+  min-height: 36px;
+  padding: 7px 9px;
+  font-size: .86rem;
+}
+
+.lead-note-input {
+  min-height: 64px;
+  resize: vertical;
+}
+
+.lead-followup-save {
+  min-height: 34px;
+  border: 1px solid rgba(15, 118, 110, .34);
+  border-radius: 7px;
+  background: #ffffff;
+  color: var(--teal-dark);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.lead-followup-save:disabled {
   cursor: wait;
   opacity: .65;
 }
