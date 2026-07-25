@@ -1,14 +1,15 @@
 {
-  "generated_at": "2026-07-25T15:20:48.017Z",
+  "generated_at": "2026-07-25T15:45:33.453Z",
   "checked_files": [
     "functions/api/leads.js",
     "functions/api/admin/leads.js",
     "public/assets/app.js",
     "functions/api/events.js",
     "functions/api/admin/seo.js",
+    "functions/_shared/ga4.js",
     "public/assets/admin.js"
   ],
-  "required_contracts": 34,
+  "required_contracts": 55,
   "missing": [],
   "status": "passed"
 }

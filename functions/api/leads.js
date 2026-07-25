@@ -24,6 +24,43 @@ function addReason(reasons, label) {
   if (!reasons.includes(label) && reasons.length < 8) reasons.push(label);
 }
 
+function unitCount(value) {
+  return Number.parseInt(String(value || "0").replace(/\D/g, ""), 10) || 0;
+}
+
+function leadValueEstimate(lead, score = 0) {
+  const units = Math.max(1, unitCount(lead.units_count));
+  const need = clean(lead.need, 80);
+  const profile = clean(lead.profile, 80);
+  const propertyType = clean(lead.property_type, 80);
+  let base = 260;
+
+  if (["multirisque-immeuble", "copropriete", "audit-contrat"].includes(need)) base = 520;
+  if (["rc-syndic", "dommages-ouvrage"].includes(need)) base = 620;
+  if (["pno", "cno", "pno-cno"].includes(need) || ["lot-copropriete", "logement-vacant", "logement-loue"].includes(propertyType)) base = units <= 2 ? 190 : 260;
+  if (["local-commercial", "commerce", "mixte"].includes(propertyType)) base += 180;
+  if (["sci", "administrateur-biens", "syndic-professionnel"].includes(profile)) base += 160;
+
+  const min = Math.round(Math.max(180, base + Math.max(0, units - 1) * 135));
+  const max = Math.round(min * (score >= 85 ? 1.75 : score >= 70 ? 1.55 : 1.35));
+  const band = max >= 9000 ? "portfolio" : max >= 3500 ? "immeuble-prioritaire" : max >= 1200 ? "immeuble-standard" : "lot-pno-cno";
+  return {
+    annual_premium_min: min,
+    annual_premium_max: max,
+    band,
+    label: `${min}-${max} EUR/an`,
+    basis: `${units} lot(s), ${need || "besoin non precise"}`
+  };
+}
+
+function slaHoursFor(score, valueEstimate) {
+  const maxValue = Number(valueEstimate?.annual_premium_max || 0);
+  if (score >= 85 || maxValue >= 9000) return 2;
+  if (score >= 70 || maxValue >= 3500) return 6;
+  if (score >= 45 || maxValue >= 1200) return 24;
+  return 48;
+}
+
 function priorityFromScore(score) {
   if (score >= 85) return "hot";
   if (score >= 70) return "warm";
@@ -35,7 +72,7 @@ function nextActionFor(payload, score) {
   const need = clean(payload.need, 80);
   const profile = clean(payload.profile, 80);
   const propertyType = clean(payload.property_type, 80);
-  const units = Number.parseInt(payload.units_count || "0", 10);
+  const units = unitCount(payload.units_count);
 
   if (/dossier pret assureur|pieces disponibles/i.test(payload.message || "") && !/pieces disponibles:\s*aucune piece/i.test(payload.message || "")) return "Reprendre les pieces disponibles, demander les manquants puis consulter les assureurs adaptes.";
   if (score >= 85) return "Rappeler en priorite et demander contrat actuel, echeance, sinistres 36 mois.";
@@ -52,7 +89,7 @@ function nextActionFor(payload, score) {
 function qualifyLead(payload) {
   let score = 20;
   const reasons = [];
-  const units = Number.parseInt(payload.units_count || "0", 10);
+  const units = unitCount(payload.units_count);
   const need = clean(payload.need, 80);
   const profile = clean(payload.profile, 80);
   const propertyType = clean(payload.property_type, 80);
@@ -105,10 +142,13 @@ function qualifyLead(payload) {
     addReason(reasons, "message detaille");
   }
   score = Math.min(score, 100);
+  const valueEstimate = leadValueEstimate(payload, score);
   return {
     score,
     priority: priorityFromScore(score),
     reasons,
+    value_estimate: valueEstimate,
+    sla_hours: slaHoursFor(score, valueEstimate),
     next_action: nextActionFor(payload, score)
   };
 }
@@ -241,6 +281,8 @@ function buildLeadEmail({ id, reference, score, qualification, record, now }) {
     `Reference: ${reference}`,
     `Score: ${score}`,
     `Priorite: ${qualification.priority}`,
+    `Valeur estimee: ${qualification.value_estimate?.label || "non estimee"}`,
+    `SLA rappel: ${qualification.sla_hours || 48}h`,
     `Prochaine action: ${qualification.next_action}`,
     `Raisons: ${qualification.reasons.length ? qualification.reasons.join(", ") : "non precisees"}`,
     `Date: ${now}`,
@@ -450,6 +492,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
       priority: qualification.priority,
       reasons: qualification.reasons,
       next_action: qualification.next_action,
+      value_estimate: qualification.value_estimate,
+      sla_hours: qualification.sla_hours,
       source: record.source,
       page_url: record.page_url,
       referrer: record.referrer,
@@ -483,7 +527,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       await logLeadEvent(env, id, "email_notification_failed", { reference, error: error.message || "Erreur SMTP" }, now);
     }
 
-    return json({ success: true, id, reference, score, priority: qualification.priority, reasons: qualification.reasons, next_action: qualification.next_action, notification: notification.status });
+    return json({ success: true, id, reference, score, priority: qualification.priority, reasons: qualification.reasons, value_estimate: qualification.value_estimate, sla_hours: qualification.sla_hours, next_action: qualification.next_action, notification: notification.status });
   } catch (error) {
     return json({ success: false, error: error.message || "Erreur base de donnees" }, 500);
   }

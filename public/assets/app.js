@@ -826,6 +826,10 @@ form?.addEventListener("submit", async (event) => {
       notification: result.notification || "unknown",
       priority: result.priority || "",
       next_action: result.next_action || "",
+      revenue_band: result.value_estimate?.band || "",
+      lead_value_min: String(result.value_estimate?.annual_premium_min || ""),
+      lead_value_max: String(result.value_estimate?.annual_premium_max || ""),
+      sla_hours: String(result.sla_hours || ""),
       target: payload.need,
       label: payload.city
     });

@@ -11,7 +11,11 @@ const expectations = [
       "readinessSignals",
       "dossier assureur prepare",
       "pieces assureur disponibles",
-      "Reprendre les pieces disponibles"
+      "Reprendre les pieces disponibles",
+      "leadValueEstimate",
+      "value_estimate",
+      "sla_hours",
+      "Valeur estimee"
     ]
   },
   {
@@ -22,10 +26,17 @@ const expectations = [
       "dossier assureur prepare",
       "pieces assureur disponibles",
       "Reprendre les pieces disponibles",
+      "leadValueEstimate",
+      "value_estimate",
+      "sla_hours",
       "allowedStatuses",
       "lead_status_updated",
       "lead_followup_updated",
       "followUpDueFor",
+      "pipeline_value",
+      "followup_due_value",
+      "sla_2h_count",
+      "top_value_lead",
       "onRequestPatch"
     ]
   },
@@ -43,7 +54,7 @@ const expectations = [
   {
     file: "functions/api/events.js",
     role: "event-api",
-    snippets: ["readiness_start", "readiness_update", "readiness_complete"]
+    snippets: ["readiness_start", "readiness_update", "readiness_complete", "revenue_band", "lead_value_max"]
   },
   {
     file: "functions/api/admin/seo.js",
@@ -51,9 +62,14 @@ const expectations = [
     snippets: ["readiness_paths", "readiness_completion_rate", "dossier-friction", "dossier-gagnant"]
   },
   {
+    file: "functions/_shared/ga4.js",
+    role: "ga4-lead-value",
+    snippets: ["lead_value_min", "lead_value_max", "revenue_band", "sla_hours"]
+  },
+  {
     file: "public/assets/admin.js",
     role: "admin-dashboard",
-    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\""]
+    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "lead-value-cell", "annual_premium_min"]
   }
 ];
 

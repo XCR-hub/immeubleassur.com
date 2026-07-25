@@ -85,6 +85,52 @@ function followUpLabel(lead) {
   return "Suivi ouvert";
 }
 
+function unitCount(value) {
+  return Number.parseInt(String(value || "0").replace(/\D/g, ""), 10) || 0;
+}
+
+function leadValueEstimate(lead, score = 0) {
+  const units = Math.max(1, unitCount(lead.units_count));
+  const need = String(lead.need || "").trim();
+  const profile = String(lead.profile || "").trim();
+  const propertyType = String(lead.property_type || "").trim();
+  let base = 260;
+  if (["multirisque-immeuble", "copropriete", "audit-contrat"].includes(need)) base = 520;
+  if (["rc-syndic", "dommages-ouvrage"].includes(need)) base = 620;
+  if (["pno", "cno", "pno-cno"].includes(need) || ["lot-copropriete", "logement-vacant", "logement-loue"].includes(propertyType)) base = units <= 2 ? 190 : 260;
+  if (["local-commercial", "commerce", "mixte"].includes(propertyType)) base += 180;
+  if (["sci", "administrateur-biens", "syndic-professionnel"].includes(profile)) base += 160;
+  const min = Math.round(Math.max(180, base + Math.max(0, units - 1) * 135));
+  const max = Math.round(min * (score >= 85 ? 1.75 : score >= 70 ? 1.55 : 1.35));
+  const band = max >= 9000 ? "portfolio" : max >= 3500 ? "immeuble-prioritaire" : max >= 1200 ? "immeuble-standard" : "lot-pno-cno";
+  return { annual_premium_min: min, annual_premium_max: max, band, label: `${min}-${max} EUR/an` };
+}
+
+function slaHoursFor(score, valueEstimate) {
+  const maxValue = Number(valueEstimate?.annual_premium_max || 0);
+  if (score >= 85 || maxValue >= 9000) return 2;
+  if (score >= 70 || maxValue >= 3500) return 6;
+  if (score >= 45 || maxValue >= 1200) return 24;
+  return 48;
+}
+
+function formatEuro(value) {
+  const amount = Number(value || 0);
+  if (!amount) return "0 EUR";
+  return `${Math.round(amount).toLocaleString("fr-FR")} EUR`;
+}
+
+function valueEstimateFor(lead, q = qualificationFor(lead)) {
+  return q.value_estimate || leadValueEstimate(lead, q.score || 0);
+}
+
+function valueCell(lead, q) {
+  const estimate = valueEstimateFor(lead, q);
+  const td = document.createElement("td");
+  td.className = "lead-value-cell";
+  td.textContent = `${formatEuro(estimate.annual_premium_min)} - ${formatEuro(estimate.annual_premium_max)}\n${estimate.band || "standard"}\nSLA ${q.sla_hours || slaHoursFor(q.score || 0, estimate)}h`;
+  return td;
+}
 function priorityCell(priority) {
   const td = document.createElement("td");
   const span = document.createElement("span");
@@ -168,10 +214,13 @@ function followUpCell(lead, q) {
 
 function qualificationFor(lead) {
   const score = Number(lead.lead_score || 0);
+  const valueEstimate = leadValueEstimate(lead, score);
   return lead.qualification || {
     score,
     priority: score >= 85 ? "hot" : score >= 70 ? "warm" : score >= 45 ? "standard" : "low",
     reasons: [],
+    value_estimate: valueEstimate,
+    sla_hours: slaHoursFor(score, valueEstimate),
     next_action: "Rappeler pour completer echeance, assureur actuel, surface et sinistres."
   };
 }
@@ -194,6 +243,9 @@ function searchableText(lead) {
     followUpLabel(lead),
     lead.message,
     q.priority,
+    q.value_estimate?.label,
+    q.value_estimate?.band,
+    String(q.sla_hours || ""),
     q.reasons?.join(" "),
     q.next_action
   ].join(" ").toLowerCase();
@@ -219,7 +271,7 @@ function render(rows) {
   if (!rows.length) {
     const tr = document.createElement("tr");
     const td = cell("Aucun lead trouve.");
-    td.colSpan = 12;
+    td.colSpan = 13;
     tr.append(td);
     body.append(tr);
     return;
@@ -242,6 +294,7 @@ function render(rows) {
       cell(lead.need),
       statusCell(lead),
       cell(`${q.score ?? lead.lead_score ?? ""}${q.reasons?.length ? `\n${q.reasons.slice(0, 4).join("\n")}` : ""}`),
+      valueCell(lead, q),
       followUpCell(lead, q),
       cell(lead.message)
     );
@@ -290,6 +343,9 @@ function renderLeadSummary(summary = latestLeadSummary, visibleRows = filteredLe
     metricCard("Chauds", String(summary?.priority_counts?.hot ?? countPriority(allLeads, "hot")), "rappel prioritaire"),
     metricCard("A traiter", String(summary?.priority_counts?.warm ?? countPriority(allLeads, "warm")), "potentiel moyen/haut"),
     metricCard("Score moyen", String(avg || "-")),
+    metricCard("Pipeline estime", summary?.pipeline_value?.label || "0 EUR/an", "dossiers ouverts"),
+    metricCard("Valeur relance", summary?.followup_due_value?.label || "0 EUR/an", "relances dues"),
+    metricCard("SLA 2h", String(summary?.sla_2h_count || 0), "rappel immediat"),
     metricCard("A relancer", String(summary?.followup_due_count ?? countFollowUpDue(visibleRows)), "priorite SLA"),
     metricCard("Sans pilote", String(summary?.unassigned_open_count ?? countUnassignedOpen(visibleRows)), "ouverts"),
     metricCard("Nouveaux", String(countStatus(visibleRows, "new")), "a rappeler"),
@@ -367,7 +423,7 @@ async function updateLeadFollowUp(reference, assignedTo, notes, button) {
 
 function exportVisibleLeads() {
   const rows = filteredLeads();
-  const header = ["date", "reference", "priority", "score", "name", "phone", "email", "profile", "property_type", "city", "need", "status", "status_label", "assigned_to", "follow_up_due", "next_action", "reasons", "notes", "message", "updated_at"];
+  const header = ["date", "reference", "priority", "score", "annual_premium_min", "annual_premium_max", "revenue_band", "sla_hours", "name", "phone", "email", "profile", "property_type", "city", "need", "status", "status_label", "assigned_to", "follow_up_due", "next_action", "reasons", "notes", "message", "updated_at"];
   const lines = [header.map(csvEscape).join(",")];
   for (const lead of rows) {
     const q = qualificationFor(lead);
@@ -376,6 +432,10 @@ function exportVisibleLeads() {
       lead.reference,
       q.priority,
       q.score,
+      valueEstimateFor(lead, q).annual_premium_min,
+      valueEstimateFor(lead, q).annual_premium_max,
+      valueEstimateFor(lead, q).band,
+      q.sla_hours || slaHoursFor(q.score || 0, valueEstimateFor(lead, q)),
       lead.name,
       lead.phone,
       lead.email,
@@ -481,7 +541,7 @@ async function loadSeo() {
     ...(publicReport.google_feedback_loop?.actions || []).map((item) => ({ score: item.priority === "high" ? 90 : item.priority === "fix" ? 88 : item.priority === "setup" ? 80 : 55, opportunity_type: `google-${item.source || "feedback"}`, url: item.url || item.cluster || "google", query: item.priority || "monitoring", recommendation: item.action || "Mesurer et optimiser." })),
     ...(publicReport.conversion_intelligence?.actions || []).map((item) => ({ score: item.score || 0, opportunity_type: "conversion-intelligence", url: item.url || item.cluster || "money-page", query: item.priority || item.cluster || "lead", recommendation: item.action || "Renforcer le passage vers devis qualifie." })),
     ...(apiResult?.lead_actions || []),
-    ...(ctaExperiments || []).slice(0, 6).map((item) => ({ score: item.leads_created || item.form_starts || item.cta_clicks || 0, opportunity_type: "test-cta", url: item.variant || "cta", query: `${item.views || 0} vues / ${item.cta_clicks || 0} clics / ${item.form_starts || 0} starts`, recommendation: "Comparer les variantes avec les leads crees avant de figer le message." })),
+    ...(ctaExperiments || []).slice(0, 6).map((item) => ({ score: item.leads_created || item.form_starts || item.cta_clicks || 0, opportunity_type: "test-cta", url: item.variant || "cta", query: `${item.views || 0} vues / ${item.cta_clicks || 0} clics / ${item.form_starts || 0} starts / ${Math.round(item.lead_value_max_total || 0)} EUR potentiel CTA`, recommendation: "Comparer les variantes avec les leads crees et leur valeur estimee avant de figer le message." })),
     ...(apiResult?.conversion_gaps || []).slice(0, 8).map((item) => ({ score: Number(item.form_starts || 0) - Number(item.leads_created || 0), opportunity_type: "conversion-gap", url: item.path, query: `${item.form_starts || 0} starts / ${item.leads_created || 0} leads`, recommendation: "Verifier intention, reassurance et friction formulaire sur cette page." })),
     ...(apiResult?.diagnostic_paths || []).slice(0, 8).map((item) => ({ score: item.completions, opportunity_type: "diagnostic", url: item.path, query: `${item.completions || 0} completions ${item.target || ""}`.trim(), recommendation: "Renforcer le CTA et le contenu du parcours diagnostic qui capte cette intention." })),
     ...(apiResult?.readiness_paths || []).slice(0, 8).map((item) => ({ score: item.completions, opportunity_type: "dossier-pret", url: item.path, query: `${item.completions || 0} dossiers, score ${Math.round(item.avg_score || 0)}%`, recommendation: "Renforcer les elements de preuve et le CTA formulaire sur les pages qui preparent le mieux le dossier." })),

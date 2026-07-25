@@ -68,6 +68,10 @@ function safeParamMap(params = {}) {
     units_bucket: clean(params.units_bucket || unitsBucket(params.units_count), 40),
     lead_priority: clean(params.lead_priority || params.priority, 40),
     lead_score: number(params.lead_score || params.score, 0),
+    lead_value_min: number(params.lead_value_min || params.value_min, 0),
+    lead_value_max: number(params.lead_value_max || params.value_max, 0),
+    revenue_band: clean(params.revenue_band, 80),
+    sla_hours: number(params.sla_hours, 0),
     engagement_time_msec: Math.max(1, number(params.engagement_time_msec, 100))
   };
   return Object.fromEntries(Object.entries(allowed).filter(([, value]) => value !== "" && value !== 0));
@@ -115,6 +119,10 @@ export function gaLeadParams({ payload = {}, record = {}, qualification = {}, re
     units_count: record.units_count || payload.units_count,
     lead_priority: qualification.priority,
     lead_score: qualification.score,
+    lead_value_min: record.value_estimate?.annual_premium_min || qualification.value_estimate?.annual_premium_min || payload.value_estimate?.annual_premium_min,
+    lead_value_max: record.value_estimate?.annual_premium_max || qualification.value_estimate?.annual_premium_max || payload.value_estimate?.annual_premium_max,
+    revenue_band: record.value_estimate?.band || qualification.value_estimate?.band || payload.value_estimate?.band,
+    sla_hours: qualification.sla_hours || payload.sla_hours,
     form_id: "lead-form",
     link_text: reference ? "lead_created" : "lead",
     engagement_time_msec: 100
