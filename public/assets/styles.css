@@ -2266,3 +2266,8 @@ textarea:focus {
 }
 /* conversion-momentum-2026-07:end */
 /* ux-conversion-2026-07:end */
+
+.quote-panel [data-invalid="true"] {
+  border-color: #b42318;
+  background: #fff7f7;
+}

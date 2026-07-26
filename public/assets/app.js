@@ -183,13 +183,74 @@ function readForm(formElement) {
   };
 }
 
-function validate(payload) {
+const fieldLabels = {
+  name: "nom",
+  phone: "telephone",
+  email: "email",
+  profile: "profil",
+  property_type: "type de bien",
+  city: "ville",
+  consent: "accord de contact"
+};
+
+function validationDetails(payload) {
   const missing = requiredFields.filter((field) => !payload[field]);
-  if (missing.length > 0) return "Merci de remplir les champs obligatoires.";
-  if (!payload.email.includes("@") || payload.email.length < 6) return "Adresse email invalide.";
-  if (payload.phone.replace(/\D/g, "").length < 9) return "Numero de telephone invalide.";
-  if (!payload.consent) return "Merci de confirmer votre accord de contact.";
-  return "";
+  const invalid = [];
+  if (!missing.includes("email") && (!payload.email.includes("@") || payload.email.length < 6)) invalid.push("email");
+  if (!missing.includes("phone") && payload.phone.replace(/\D/g, "").length < 9) invalid.push("phone");
+  if (!payload.consent) missing.push("consent");
+
+  const fields = [...missing, ...invalid];
+  if (!fields.length) return { message: "", missing, invalid, step: "complete", blocking_fields: [] };
+
+  const labels = fields.map((field) => fieldLabels[field] || field);
+  const message = missing.length
+    ? `A completer: ${labels.slice(0, 3).join(", ")}${labels.length > 3 ? "..." : ""}.`
+    : invalid.includes("email")
+      ? "Adresse email invalide."
+      : "Numero de telephone invalide.";
+  return {
+    message,
+    missing,
+    invalid,
+    step: fields[0] || "validation",
+    blocking_fields: fields,
+    labels
+  };
+}
+
+function validate(payload) {
+  return validationDetails(payload).message;
+}
+
+function clearInvalidFields(formElement) {
+  formElement.querySelectorAll("[data-invalid='true']").forEach((field) => {
+    field.removeAttribute("data-invalid");
+    field.removeAttribute("aria-invalid");
+  });
+}
+
+function markInvalidFields(formElement, details) {
+  clearInvalidFields(formElement);
+  const fields = details.blocking_fields || [];
+  for (const name of fields) {
+    const field = formElement.elements[name];
+    if (!field) continue;
+    field.dataset.invalid = "true";
+    field.setAttribute("aria-invalid", "true");
+  }
+  const first = fields.map((name) => formElement.elements[name]).find(Boolean);
+  first?.focus({ preventScroll: true });
+}
+
+function validationTelemetry(payload, details) {
+  return {
+    target: payload.need || "validation",
+    label: details.message || "validation",
+    missing: (details.blocking_fields || []).join(","),
+    step: details.step || "validation",
+    ...leadValueEventPayload(payload)
+  };
 }
 
 function localBackup(payload, result) {
@@ -891,12 +952,14 @@ form?.addEventListener("submit", async (event) => {
     return;
   }
 
-  const validationError = validate(payload);
-  if (validationError) {
-    setStatus(validationError, "error");
-    track("lead_submit_error", { target: "validation", label: validationError });
+  const validation = validationDetails(payload);
+  if (validation.message) {
+    setStatus(validation.message, "error");
+    markInvalidFields(form, validation);
+    track("lead_submit_error", validationTelemetry(payload, validation));
     return;
   }
+  clearInvalidFields(form);
 
   const submitButton = form.querySelector("button[type='submit']");
   submitButton.disabled = true;

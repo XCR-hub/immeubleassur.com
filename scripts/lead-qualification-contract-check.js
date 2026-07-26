@@ -51,7 +51,10 @@ const expectations = [
       "Dossier pret assureur",
       "lead-value-preview",
       "lead_value_hint_ready",
-      "leadValueEventPayload"
+      "leadValueEventPayload",
+      "validationDetails",
+      "validationTelemetry",
+      "markInvalidFields"
     ]
   },
   {
@@ -62,7 +65,7 @@ const expectations = [
   {
     file: "functions/api/admin/seo.js",
     role: "seo-admin",
-    snippets: ["readiness_paths", "readiness_completion_rate", "lead_value_hint_ready", "value_hint_ready", "value_hint_paths", "estimation-gagnante", "dossier-friction", "dossier-gagnant"]
+    snippets: ["readiness_paths", "readiness_completion_rate", "lead_value_hint_ready", "value_hint_ready", "value_hint_paths", "validation_errors", "validation-friction", "estimation-gagnante", "dossier-friction", "dossier-gagnant"]
   },
   {
     file: "functions/_shared/ga4.js",
@@ -72,7 +75,7 @@ const expectations = [
   {
     file: "public/assets/admin.js",
     role: "admin-dashboard",
-    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "Valeur affichee", "lead-value-cell", "annual_premium_min"]
+    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "Valeur affichee", "Erreurs formulaire", "validation-friction", "lead-value-cell", "annual_premium_min"]
   }
 ];
 

@@ -1,0 +1,58 @@
+{
+  "generated_at": "2026-07-26T00:17:25.733Z",
+  "action_count": 1000,
+  "verified_count": 1000,
+  "watch_count": 0,
+  "pages_checked": 170,
+  "system_evidence": {
+    "validation_telemetry": true,
+    "value_preview": true,
+    "admin_friction": true,
+    "event_contract": true,
+    "seo_quality": 100,
+    "money_pages": 114
+  },
+  "top_dimensions": [
+    {
+      "dimension": "validation-friction",
+      "count": 125,
+      "verified": 125
+    },
+    {
+      "dimension": "value-preview",
+      "count": 125,
+      "verified": 125
+    },
+    {
+      "dimension": "cta-continuity",
+      "count": 125,
+      "verified": 125
+    },
+    {
+      "dimension": "trust-proof",
+      "count": 125,
+      "verified": 125
+    },
+    {
+      "dimension": "internal-linking",
+      "count": 125,
+      "verified": 125
+    },
+    {
+      "dimension": "money-intent",
+      "count": 125,
+      "verified": 125
+    },
+    {
+      "dimension": "schema-quality",
+      "count": 125,
+      "verified": 125
+    },
+    {
+      "dimension": "mobile-speed",
+      "count": 125,
+      "verified": 125
+    }
+  ],
+  "status": "passed"
+}

@@ -45,7 +45,7 @@ function pct(part, total) {
   return Math.round((Number(part || 0) / denominator) * 1000) / 10;
 }
 
-function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, valueHintPaths, ctaExperiments }) {
+function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, valueHintPaths, validationErrors, ctaExperiments }) {
   const actions = [];
   const hotPendingCount = Number(hotPending?.count || 0);
   const leads30d = Number(leadStats?.leads_30d || 0);
@@ -60,6 +60,8 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
   const topReadiness = Array.isArray(readinessPaths) ? readinessPaths[0] : null;
   const valueHintsReady = Number(conversionFunnel.value_hint_ready || 0);
   const topValueHint = Array.isArray(valueHintPaths) ? valueHintPaths[0] : null;
+  const validationErrorCount = Number(conversionFunnel.validation_errors || 0);
+  const topValidation = Array.isArray(validationErrors) ? validationErrors[0] : null;
   const bestExperiment = Array.isArray(ctaExperiments) ? ctaExperiments.find((row) => Number(row.form_starts || 0) > 0 || Number(row.leads_created || 0) > 0 || Number(row.cta_clicks || 0) > 0) : null;
 
   if (hotPendingCount > 0) {
@@ -152,6 +154,16 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
     });
   }
 
+  if (topValidation && validationErrorCount > 0) {
+    actions.push({
+      score: 85,
+      opportunity_type: "validation-friction",
+      url: topValidation.path || "/devis-assurance-immeuble.html",
+      query: `${topValidation.errors || 0} blocage(s): ${topValidation.missing || "validation"}`,
+      recommendation: "Simplifier ou mieux expliquer les champs qui bloquent le plus les demandes de devis."
+    });
+  }
+
   if (bestExperiment && Number(bestExperiment.views || 0) >= 10) {
     actions.push({
       score: 73,
@@ -213,6 +225,7 @@ export async function onRequestGet({ request, env }) {
     diagnosticPaths,
     readinessPaths,
     valueHintPaths,
+    validationErrors,
     ctaExperiments
   ] = await Promise.all([
     safeAll(env, `SELECT event_type, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type ORDER BY count DESC`),
@@ -231,6 +244,7 @@ export async function onRequestGet({ request, env }) {
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.target'), ''), 'non precise') AS target, COALESCE(NULLIF(json_extract(payload, '$.route'), ''), '') AS route, COUNT(*) AS completions FROM site_events WHERE event_type = 'diagnostic_complete' AND created_at >= datetime('now', '-30 days') GROUP BY path, target, route ORDER BY completions DESC LIMIT 20`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.target'), ''), 'non precise') AS target, COUNT(*) AS completions, COALESCE(AVG(CAST(NULLIF(json_extract(payload, '$.score'), '') AS REAL)), 0) AS avg_score FROM site_events WHERE event_type = 'readiness_complete' AND created_at >= datetime('now', '-30 days') GROUP BY path, target ORDER BY completions DESC, avg_score DESC LIMIT 20`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.target'), ''), 'non precise') AS target, COUNT(*) AS completions, COALESCE(AVG(CAST(NULLIF(json_extract(payload, '$.score'), '') AS REAL)), 0) AS avg_score, COALESCE(AVG(CAST(NULLIF(json_extract(payload, '$.lead_value_max'), '') AS REAL)), 0) AS avg_value_max FROM site_events WHERE event_type = 'lead_value_hint_ready' AND created_at >= datetime('now', '-30 days') GROUP BY path, target ORDER BY completions DESC, avg_value_max DESC LIMIT 20`),
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.missing'), ''), COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'non precise')) AS missing, COUNT(*) AS errors FROM site_events WHERE event_type = 'lead_submit_error' AND created_at >= datetime('now', '-30 days') GROUP BY path, missing ORDER BY errors DESC LIMIT 20`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.experiment_variant'), ''), 'non mesure') AS variant, COALESCE(NULLIF(json_extract(payload, '$.experiment_label'), ''), '') AS label, COUNT(*) AS events, SUM(CASE WHEN event_type = 'experiment_view' THEN 1 ELSE 0 END) AS views, SUM(CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click') THEN 1 ELSE 0 END) AS cta_clicks, SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts, SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created, SUM(CASE WHEN event_type = 'lead_created' THEN COALESCE(CAST(NULLIF(json_extract(payload, '$.lead_value_max'), '') AS REAL), 0) ELSE 0 END) AS lead_value_max_total FROM site_events WHERE created_at >= datetime('now', '-30 days') AND COALESCE(NULLIF(json_extract(payload, '$.experiment_variant'), ''), '') <> '' GROUP BY variant, label ORDER BY leads_created DESC, form_starts DESC, cta_clicks DESC LIMIT 12`)
   ]);
 
@@ -239,6 +253,7 @@ export async function onRequestGet({ request, env }) {
   const ctaClicks = countFrom(eventCounts, "cta_click") + countFrom(eventCounts, "phone_click") + countFrom(eventCounts, "email_click");
   const formStarts = countFrom(eventCounts, "form_start");
   const qualityReady = countFrom(eventCounts, "form_quality_ready");
+  const validationErrorsCount = countFrom(eventCounts, "lead_submit_error");
   const valueHintReady = countFrom(eventCounts, "lead_value_hint_ready");
   const attempts = countFrom(eventCounts, "form_submit_attempt");
   const leadCreated = countFrom(eventCounts, "lead_created");
@@ -259,6 +274,7 @@ export async function onRequestGet({ request, env }) {
     readiness_completes: readinessCompletes,
     form_starts: formStarts,
     quality_ready: qualityReady,
+    validation_errors: validationErrorsCount,
     value_hint_ready: valueHintReady,
     submit_attempts: attempts,
     leads_created: leadCreated,
@@ -292,11 +308,12 @@ export async function onRequestGet({ request, env }) {
     diagnostic_paths: Array.isArray(diagnosticPaths) ? diagnosticPaths : [],
     readiness_paths: Array.isArray(readinessPaths) ? readinessPaths : [],
     value_hint_paths: Array.isArray(valueHintPaths) ? valueHintPaths : [],
+    validation_errors: Array.isArray(validationErrors) ? validationErrors : [],
     cta_experiments: Array.isArray(ctaExperiments) ? ctaExperiments : [],
-    lead_actions: buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, valueHintPaths, ctaExperiments }),
+    lead_actions: buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, valueHintPaths, validationErrors, ctaExperiments }),
     latest_run: latestRun,
     opportunities: Array.isArray(opportunities) ? opportunities : [],
     content_pipeline: Array.isArray(contentPipeline) ? contentPipeline : [],
-    warnings: [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, valueHintPaths, ctaExperiments].filter((item) => item && item.error).map((item) => item.error)
+    warnings: [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, valueHintPaths, validationErrors, ctaExperiments].filter((item) => item && item.error).map((item) => item.error)
   });
 }
