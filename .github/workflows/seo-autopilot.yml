@@ -36,6 +36,7 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
           GOOGLE_SEARCH_CONSOLE_SITE_URL: ${{ secrets.GOOGLE_SEARCH_CONSOLE_SITE_URL }}
           PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+          GOOGLE_URL_INSPECTION_LIMIT: 8
         run: npm run seo:apis
 
 

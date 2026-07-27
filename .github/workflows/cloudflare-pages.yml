@@ -28,6 +28,15 @@ jobs:
       - name: Validate JavaScript
         run: npm run check
 
+      - name: Run SEO APIs when configured
+        env:
+          GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          GOOGLE_SEARCH_CONSOLE_SITE_URL: ${{ secrets.GOOGLE_SEARCH_CONSOLE_SITE_URL }}
+          PAGESPEED_API_KEY: ${{ secrets.PAGESPEED_API_KEY }}
+          GOOGLE_URL_INSPECTION_LIMIT: 8
+        run: npm run seo:apis
+
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:

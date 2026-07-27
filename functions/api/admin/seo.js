@@ -45,6 +45,14 @@ function pct(part, total) {
   return Math.round((Number(part || 0) / denominator) * 1000) / 10;
 }
 
+function metricsObject(rows) {
+  const metrics = {};
+  if (!Array.isArray(rows)) return metrics;
+  for (const row of rows) {
+    metrics[`${row.metric_type}.${row.metric_name}`] = Number(row.value || 0);
+  }
+  return metrics;
+}
 function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, valueHintPaths, validationErrors, spamBlocks, ctaExperiments }) {
   const actions = [];
   const hotPendingCount = Number(hotPending?.count || 0);
@@ -238,6 +246,7 @@ export async function onRequestGet({ request, env }) {
     valueHintPaths,
     validationErrors,
     spamBlocks,
+    seoMetrics,
     ctaExperiments
   ] = await Promise.all([
     safeAll(env, `SELECT event_type, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type ORDER BY count DESC`),
@@ -258,6 +267,7 @@ export async function onRequestGet({ request, env }) {
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.target'), ''), 'non precise') AS target, COUNT(*) AS completions, COALESCE(AVG(CAST(NULLIF(json_extract(payload, '$.score'), '') AS REAL)), 0) AS avg_score, COALESCE(AVG(CAST(NULLIF(json_extract(payload, '$.lead_value_max'), '') AS REAL)), 0) AS avg_value_max FROM site_events WHERE event_type = 'lead_value_hint_ready' AND created_at >= datetime('now', '-30 days') GROUP BY path, target ORDER BY completions DESC, avg_value_max DESC LIMIT 20`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.missing'), ''), COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'non precise')) AS missing, COUNT(*) AS errors FROM site_events WHERE event_type = 'lead_submit_error' AND created_at >= datetime('now', '-30 days') GROUP BY path, missing ORDER BY errors DESC LIMIT 20`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'anti-spam') AS reason, COUNT(*) AS blocked, COALESCE(MAX(CAST(NULLIF(json_extract(payload, '$.spam_score'), '') AS REAL)), 0) AS max_score FROM site_events WHERE event_type = 'lead_spam_blocked' AND created_at >= datetime('now', '-30 days') GROUP BY path, reason ORDER BY blocked DESC, max_score DESC LIMIT 20`),
+    safeAll(env, `SELECT metric_type, metric_name, value, payload, created_at FROM seo_metrics WHERE run_id = (SELECT id FROM seo_runs ORDER BY created_at DESC LIMIT 1) ORDER BY metric_type, metric_name`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.experiment_variant'), ''), 'non mesure') AS variant, COALESCE(NULLIF(json_extract(payload, '$.experiment_label'), ''), '') AS label, COUNT(*) AS events, SUM(CASE WHEN event_type = 'experiment_view' THEN 1 ELSE 0 END) AS views, SUM(CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click') THEN 1 ELSE 0 END) AS cta_clicks, SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts, SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created, SUM(CASE WHEN event_type = 'lead_created' THEN COALESCE(CAST(NULLIF(json_extract(payload, '$.lead_value_max'), '') AS REAL), 0) ELSE 0 END) AS lead_value_max_total FROM site_events WHERE created_at >= datetime('now', '-30 days') AND COALESCE(NULLIF(json_extract(payload, '$.experiment_variant'), ''), '') <> '' GROUP BY variant, label ORDER BY leads_created DESC, form_starts DESC, cta_clicks DESC LIMIT 12`)
   ]);
 
@@ -326,10 +336,11 @@ export async function onRequestGet({ request, env }) {
     validation_errors: Array.isArray(validationErrors) ? validationErrors : [],
     spam_blocks: Array.isArray(spamBlocks) ? spamBlocks : [],
     cta_experiments: Array.isArray(ctaExperiments) ? ctaExperiments : [],
+    seo_metrics: metricsObject(seoMetrics),
     lead_actions: buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, valueHintPaths, validationErrors, spamBlocks, ctaExperiments }),
     latest_run: latestRun,
     opportunities: Array.isArray(opportunities) ? opportunities : [],
     content_pipeline: Array.isArray(contentPipeline) ? contentPipeline : [],
-    warnings: [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, valueHintPaths, validationErrors, spamBlocks, ctaExperiments].filter((item) => item && item.error).map((item) => item.error)
+    warnings: [eventCounts, leadStats, latestRun, opportunities, contentPipeline, topPaths, topLandingPages, leadsByNeed, leadsByCity, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, valueHintPaths, validationErrors, spamBlocks, seoMetrics, ctaExperiments].filter((item) => item && item.error).map((item) => item.error)
   });
 }

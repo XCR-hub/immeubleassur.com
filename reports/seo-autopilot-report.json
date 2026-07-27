@@ -1,20 +1,62 @@
 {
-  "generated_at": "2026-07-27T12:43:21.233Z",
-  "mode": "local-only",
+  "generated_at": "2026-07-27T15:50:09.988Z",
+  "mode": "api",
   "pages_checked": 170,
   "average_score": 100,
   "weak_pages": [],
   "opportunities": [],
   "gsc": {
     "configured": false,
-    "skipped": "--gsc not requested"
+    "skipped": "GOOGLE_SERVICE_ACCOUNT_EMAIL/KEY missing"
   },
   "pagespeed": {
-    "skipped": "--pagespeed not requested"
+    "checked": 8,
+    "rows": [
+      {
+        "url": "https://immeubleassur.com/",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/assurance-immeuble",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/assurance-copropriete",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/assurance-cno",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/assurance-pno-cno",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/devis-pno-cno",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/devis-assurance-immeuble",
+        "ok": false,
+        "status": 429
+      },
+      {
+        "url": "https://immeubleassur.com/recherches-assurance-immeuble",
+        "ok": false,
+        "status": 429
+      }
+    ]
   },
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-27T12:43:16.937Z",
+    "generated_at": "2026-07-27T15:43:59.258Z",
     "pages_checked": 170,
     "pages_changed": 121,
     "fixes_applied": 175,
@@ -146,7 +188,7 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-27T12:43:17.722Z",
+    "generated_at": "2026-07-27T15:44:02.852Z",
     "pages_checked": 171,
     "pages_expanded": 77,
     "words_added_estimate": 13247,
@@ -261,7 +303,7 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-07-27T12:43:19.805Z",
+    "generated_at": "2026-07-27T15:44:40.958Z",
     "pages_checked": 171,
     "status": "passed",
     "severe_issue_count": 0,
@@ -278,7 +320,7 @@
   },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-07-27T12:43:20.203Z",
+    "generated_at": "2026-07-27T15:44:41.700Z",
     "pages_checked": 167,
     "money_pages_checked": 114,
     "average_conversion_score": 76,
@@ -1208,7 +1250,7 @@
   },
   "cro_experiment": {
     "configured": true,
-    "generated_at": "2026-07-27T12:43:20.389Z",
+    "generated_at": "2026-07-27T15:44:42.134Z",
     "status": "passed",
     "variant_count": 3,
     "variants": [
@@ -1333,9 +1375,24 @@
       "measure-lead-quality"
     ]
   },
+  "google_api_health": {
+    "search_console_configured": false,
+    "search_console_rows": 0,
+    "search_console_opportunities": 0,
+    "query_clusters": 0,
+    "url_inspection_checked": 0,
+    "url_inspection_needs_action": 0,
+    "sitemap_submitted": false,
+    "sitemap_status": 0,
+    "pagespeed_checked": 8,
+    "pagespeed_slow_pages": 0,
+    "status": "monitoring"
+  },
   "api_connectors": {
     "google_search_console": "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL",
     "pagespeed_insights": "PAGESPEED_API_KEY optional",
+    "url_inspection": "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --url-inspection",
+    "sitemaps_api": "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --submit-sitemap",
     "ga4_measurement_protocol": "GA4_MEASUREMENT_ID + GA4_API_SECRET in Cloudflare Pages; GA4_MEASUREMENT_ID at build time for gtag client id",
     "indexing_api": "not used: reserved by Google for JobPosting/BroadcastEvent URLs"
   },

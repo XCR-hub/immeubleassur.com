@@ -13,6 +13,7 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Filtre anti-spam leads: honeypot, signaux JS, vitesse de soumission, repetition IP/email/telephone, contenu suspect et journalisation `lead_spam_blocked`.
 - Usines SEO: `scripts/seo-content-factory.js`, `scripts/lead-growth-factory.js`, `scripts/money-intent-factory.js`.
 - Autopilote `scripts/seo-autopilot.js`: audit HTML, opportunites, PageSpeed Insights, Search Console si secrets Google configures, boucle Google feedback.
+- Boucle Google APIs: Search Analytics pour requetes/CTR/position moyenne, URL Inspection pour etat d indexation des pages prioritaires et Sitemaps API pour signaler `sitemap.xml`.
 - Audit editorial `scripts/content-quality-check.js`: garde-fous people-first, anti-duplication, anti-bourrage et anti-contenu manipulatif.
 - Audit conversion `scripts/conversion-intelligence-check.js`: score des pages a intention commerciale, maillage devis, CTA, modules PNO/CNO et actions dashboard.
 - Tests CRO `scripts/cro-experiment-check.js`: variantes CTA mesurees par session, propagation lead/GA4 et reporting admin.
@@ -76,6 +77,8 @@ Secrets optionnels pour GitHub Actions / local:
 - `GOOGLE_SERVICE_ACCOUNT_KEY`
 - `GOOGLE_SEARCH_CONSOLE_SITE_URL` (ex: `sc-domain:immeubleassur.com`)
 - `PAGESPEED_API_KEY` (optionnel)
+- `GOOGLE_URL_INSPECTION_LIMIT=8`
+- `GOOGLE_URL_INSPECTION_URLS=https://immeubleassur.com/,https://immeubleassur.com/devis-assurance-immeuble`
 - `GA4_MEASUREMENT_ID` (tag public au build)
 
 Le workflow `.github/workflows/seo-autopilot.yml` lance l'audit chaque nuit. Le systeme n'utilise pas de scraping automatise des resultats Google et n'utilise pas l'Indexing API pour les pages immeuble, car Google la reserve aux contenus compatibles comme `JobPosting` ou `BroadcastEvent`.

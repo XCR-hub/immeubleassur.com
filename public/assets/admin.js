@@ -510,6 +510,7 @@ async function loadSeo() {
   }
 
   const publicReport = await fetchPublicSeoReport();
+  const googleHealth = publicReport.google_api_health || {};
   const funnel = apiResult?.conversion_funnel || {};
   const leadStats = apiResult?.lead_stats || {};
   const expansion = publicReport.opportunity_expansion || {};
@@ -521,6 +522,10 @@ async function loadSeo() {
       metricCard("Score moyen", String(publicReport.average_score || 0)),
       metricCard("Opportunites", String(publicReport.opportunities_count || 0)),
       metricCard("Google feedback", String(publicReport.google_feedback_loop?.actions?.length || 0), publicReport.google_feedback_loop?.status || "monitoring"),
+      metricCard("Search Console", `${googleHealth.search_console_rows || 0}`, `${googleHealth.query_clusters || 0} cluster(s)`),
+      metricCard("URL Inspection", `${googleHealth.url_inspection_checked || 0}`, `${googleHealth.url_inspection_needs_action || 0} a revoir`),
+      metricCard("Sitemap Google", googleHealth.sitemap_submitted ? "OK" : "-", googleHealth.sitemap_status ? `statut ${googleHealth.sitemap_status}` : "en attente"),
+      metricCard("PageSpeed API", `${googleHealth.pagespeed_checked || 0}`, `${googleHealth.pagespeed_slow_pages || 0} lente(s)`),
       metricCard("Qualite contenu", publicReport.content_quality?.status || "-", `${publicReport.content_quality?.warning_count || 0} alerte(s)`),
       metricCard("Potentiel lead", `${publicReport.conversion_intelligence?.average_money_score || 0}/100`, `${publicReport.conversion_intelligence?.money_pages_checked || 0} page(s) intention forte`),
       metricCard("Tests CTA", String(ctaExperiments.length), ctaExperiments[0] ? `${ctaExperiments[0].variant}: ${ctaExperiments[0].form_starts || 0} start(s)` : "en mesure"),

@@ -139,6 +139,68 @@ function summarizeGscRows(rows = []) {
     sample_queries: bucket.sample_queries
   })).sort((a, b) => b.opportunity_score - a.opportunity_score || b.impressions - a.impressions).slice(0, 20);
 }
+function normalizeSiteUrl(url) {
+  const value = String(url || "").trim();
+  if (!value) return "";
+  try {
+    const parsed = new URL(value, SITE);
+    if (parsed.hostname !== "immeubleassur.com") return "";
+    parsed.hash = "";
+    return parsed.toString();
+  } catch {
+    return "";
+  }
+}
+
+function urlInspectionTargets(rows = []) {
+  const envTargets = String(process.env.GOOGLE_URL_INSPECTION_URLS || "")
+    .split(",")
+    .map(normalizeSiteUrl)
+    .filter(Boolean);
+  const defaults = [
+    `${SITE}/`,
+    `${SITE}/assurance-immeuble`,
+    `${SITE}/assurance-copropriete`,
+    `${SITE}/assurance-cno`,
+    `${SITE}/assurance-pno-cno`,
+    `${SITE}/devis-assurance-immeuble`,
+    `${SITE}/courtier-assurance-immeuble`,
+    `${SITE}/tarif-assurance-immeuble`
+  ];
+  const gscPages = rows
+    .filter((row) => Number(row.opportunity_score || 0) >= 40)
+    .sort((a, b) => Number(b.opportunity_score || 0) - Number(a.opportunity_score || 0))
+    .map((row) => normalizeSiteUrl(row.page))
+    .filter(Boolean);
+  const limit = Math.max(1, Math.min(20, Number(process.env.GOOGLE_URL_INSPECTION_LIMIT || 8)));
+  return [...new Set([...envTargets, ...defaults, ...gscPages])].slice(0, limit);
+}
+
+function summarizeInspection(url, data, status, ok) {
+  const index = data?.inspectionResult?.indexStatusResult || {};
+  return {
+    url,
+    ok: Boolean(ok),
+    status,
+    verdict: index.verdict || "",
+    coverage_state: index.coverageState || "",
+    indexing_state: index.indexingState || "",
+    robots_txt_state: index.robotsTxtState || "",
+    page_fetch_state: index.pageFetchState || "",
+    user_canonical: index.userCanonical || "",
+    google_canonical: index.googleCanonical || "",
+    last_crawl_time: index.lastCrawlTime || ""
+  };
+}
+
+function inspectionNeedsAction(row) {
+  if (!row?.ok) return true;
+  const verdict = String(row.verdict || "").toUpperCase();
+  const coverage = String(row.coverage_state || "").toLowerCase();
+  const robots = String(row.robots_txt_state || "").toUpperCase();
+  const fetchState = String(row.page_fetch_state || "").toUpperCase();
+  return (verdict && verdict !== "PASS") || /not|excluded|blocked|error|duplicate|redirect/i.test(coverage) || robots.includes("DISALLOW") || fetchState.includes("ERROR");
+}
 function opportunityScore(row) {
   const impressions = Number(row.impressions || 0);
   const clicks = Number(row.clicks || 0);
@@ -194,9 +256,27 @@ async function fetchGscData() {
   const result = { configured: true, siteUrl, rows_imported: rows.length, query_clusters: summarizeGscRows(rows), opportunities };
 
   if (inspectUrls) {
-    const inspectionUrl = `${SITE}/`;
-    const inspect = await fetch("https://searchconsole.googleapis.com/v1/urlInspection/index:inspect", { method: "POST", headers, body: JSON.stringify({ inspectionUrl, siteUrl, languageCode: "fr-FR" }) });
-    result.url_inspection = { url: inspectionUrl, ok: inspect.ok, status: inspect.status, data: inspect.ok ? await inspect.json() : await inspect.text() };
+    const targets = urlInspectionTargets(rows);
+    const inspections = [];
+    for (const inspectionUrl of targets) {
+      const inspect = await fetch("https://searchconsole.googleapis.com/v1/urlInspection/index:inspect", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ inspectionUrl, siteUrl, languageCode: "fr-FR" })
+      });
+      let data = null;
+      try {
+        data = inspect.ok ? await inspect.json() : { error: await inspect.text() };
+      } catch (error) {
+        data = { error: error.message };
+      }
+      inspections.push({ ...summarizeInspection(inspectionUrl, data, inspect.status, inspect.ok), error: data?.error || "" });
+    }
+    result.url_inspections = {
+      checked: inspections.length,
+      needs_action: inspections.filter(inspectionNeedsAction).length,
+      rows: inspections
+    };
   }
 
   if (submitSitemap) {
@@ -204,7 +284,6 @@ async function fetchGscData() {
     const submit = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodedSite}/sitemaps/${encodeURIComponent(sitemapUrl)}`, { method: "PUT", headers });
     result.sitemap_submission = { sitemapUrl, ok: submit.ok, status: submit.status };
   }
-
   return result;
 }
 
@@ -332,6 +411,24 @@ function buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality, conversionInt
     }
   }
 
+  const inspectionRows = Array.isArray(gsc?.url_inspections?.rows) ? gsc.url_inspections.rows : [];
+  for (const row of inspectionRows.filter(inspectionNeedsAction).slice(0, 8)) {
+    actions.push({
+      priority: row.ok ? "high" : "fix",
+      source: "url-inspection",
+      url: row.url,
+      action: `Verifier indexation Google: verdict ${row.verdict || "inconnu"}, couverture ${row.coverage_state || "non renseignee"}, robots ${row.robots_txt_state || "non renseigne"}, fetch ${row.page_fetch_state || row.status || "non renseigne"}.`
+    });
+  }
+
+  if (gsc?.sitemap_submission && !gsc.sitemap_submission.ok) {
+    actions.push({
+      priority: "fix",
+      source: "sitemap-api",
+      url: gsc.sitemap_submission.sitemapUrl,
+      action: `Corriger la soumission sitemap Search Console: statut ${gsc.sitemap_submission.status || "inconnu"}.`
+    });
+  }
   const slowPages = (pagespeed?.rows || []).filter((row) => row.ok && Number(row.performance || 0) < 90).sort((a, b) => Number(a.performance || 0) - Number(b.performance || 0));
   for (const row of slowPages.slice(0, 5)) {
     actions.push({ priority: "medium", source: "pagespeed", url: row.url, action: `Ameliorer performance mobile PageSpeed: ${row.performance}/100, SEO ${row.seo}/100, accessibilite ${row.accessibility}/100.` });
@@ -362,10 +459,27 @@ function buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality, conversionInt
     principles: ["measure-with-gsc", "improve-by-query-cluster", "protect-page-experience", "people-first-content", "measure-lead-quality"]
   };
 }
+function buildGoogleApiHealth({ gsc, pagespeed }) {
+  const inspections = Array.isArray(gsc?.url_inspections?.rows) ? gsc.url_inspections.rows : [];
+  const slowPages = (pagespeed?.rows || []).filter((row) => row.ok && Number(row.performance || 0) < 90);
+  return {
+    search_console_configured: Boolean(gsc?.configured),
+    search_console_rows: Number(gsc?.rows_imported || 0),
+    search_console_opportunities: Array.isArray(gsc?.opportunities) ? gsc.opportunities.length : 0,
+    query_clusters: Array.isArray(gsc?.query_clusters) ? gsc.query_clusters.length : 0,
+    url_inspection_checked: Number(gsc?.url_inspections?.checked || inspections.length || 0),
+    url_inspection_needs_action: Number(gsc?.url_inspections?.needs_action || inspections.filter(inspectionNeedsAction).length || 0),
+    sitemap_submitted: Boolean(gsc?.sitemap_submission?.ok),
+    sitemap_status: Number(gsc?.sitemap_submission?.status || 0),
+    pagespeed_checked: Number(pagespeed?.checked || 0),
+    pagespeed_slow_pages: slowPages.length,
+    status: gsc?.error || slowPages.length || inspections.filter(inspectionNeedsAction).length ? "action-required" : "monitoring"
+  };
+}
 function buildMarkdown(report) {
   const topIssues = report.opportunities.slice(0, 12).map((item, index) => `${index + 1}. ${item.type} - ${item.url || item.page || "global"} - score ${item.score || item.page_score || 0}: ${item.recommendation}`).join("\n");
   return `# SEO Autopilot ImmeubleAssur\n\nGenerated: ${report.generated_at}\n\n- Pages checked: ${report.pages_checked}\n- Average score: ${report.average_score}\n- Opportunities: ${report.opportunities.length}\n- GSC configured: ${Boolean(report.gsc?.configured)}\n- PageSpeed checked: ${report.pagespeed?.checked || 0}\n- Auto-fixes applied: ${report.auto_fix?.fixes_applied || 0}\n- Pages expanded: ${report.opportunity_expansion?.pages_expanded || 0}\n- Content quality: ${report.content_quality?.status || "unknown"} (${report.content_quality?.warning_count || 0} warnings)\n- Conversion intelligence: ${report.conversion_intelligence?.average_money_score || 0}/100 money score\n- CRO experiment: ${report.cro_experiment?.status || "unknown"} (${report.cro_experiment?.variant_count || 0} variants)
-- Lead friction: ${report.lead_friction?.action_count || 0} actions (${report.lead_friction?.verified_count || 0} verified)\n- Google feedback actions: ${report.google_feedback_loop?.actions?.length || 0}\n\n## Top actions\n\n${topIssues || "No blocking issue detected."}\n`;
+- Lead friction: ${report.lead_friction?.action_count || 0} actions (${report.lead_friction?.verified_count || 0} verified)\n- Google feedback actions: ${report.google_feedback_loop?.actions?.length || 0}\n- URL inspections: ${report.google_api_health?.url_inspection_checked || 0} checked, ${report.google_api_health?.url_inspection_needs_action || 0} to review\n- Sitemap API: ${report.google_api_health?.sitemap_submitted ? "submitted" : "not submitted"}\n\n## Top actions\n\n${topIssues || "No blocking issue detected."}\n`;
 }
 
 async function run() {
@@ -387,11 +501,12 @@ async function run() {
   const croExperiment = readCroExperimentReport();
   const leadFriction = readLeadFrictionReport();
   const googleFeedbackLoop = buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality, conversionIntelligence, croExperiment });
+  const googleApiHealth = buildGoogleApiHealth({ gsc, pagespeed });
   const opportunities = [...issueOpportunities, ...contentGaps, ...gscOpps].sort((a, b) => (b.score || 0) - (a.score || 0));
-  const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, auto_fix: autoFix, opportunity_expansion: opportunityExpansion, content_quality: contentQuality, conversion_intelligence: conversionIntelligence, cro_experiment: croExperiment, lead_friction: leadFriction, google_feedback_loop: googleFeedbackLoop, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", ga4_measurement_protocol: "GA4_MEASUREMENT_ID + GA4_API_SECRET in Cloudflare Pages; GA4_MEASUREMENT_ID at build time for gtag client id", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals", "no AI-detection evasion content", "GA4 server-side generate_lead event when configured"] };
+  const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, auto_fix: autoFix, opportunity_expansion: opportunityExpansion, content_quality: contentQuality, conversion_intelligence: conversionIntelligence, cro_experiment: croExperiment, lead_friction: leadFriction, google_feedback_loop: googleFeedbackLoop, google_api_health: googleApiHealth, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", url_inspection: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --url-inspection", sitemaps_api: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --submit-sitemap", ga4_measurement_protocol: "GA4_MEASUREMENT_ID + GA4_API_SECRET in Cloudflare Pages; GA4_MEASUREMENT_ID at build time for gtag client id", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals", "no AI-detection evasion content", "GA4 server-side generate_lead event when configured"] };
   writeFileSync(join(REPORT_DIR, "seo-autopilot-report.json"), JSON.stringify(report, null, 2), "utf8");
   writeFileSync(join(REPORT_DIR, "seo-autopilot-report.md"), buildMarkdown(report), "utf8");
-  const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, opportunity_expansion: report.opportunity_expansion, content_quality: report.content_quality, conversion_intelligence: report.conversion_intelligence, cro_experiment: report.cro_experiment, lead_friction: report.lead_friction, google_feedback_loop: report.google_feedback_loop, connectors: report.api_connectors, compliance: report.compliance };
+  const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, opportunity_expansion: report.opportunity_expansion, content_quality: report.content_quality, conversion_intelligence: report.conversion_intelligence, cro_experiment: report.cro_experiment, lead_friction: report.lead_friction, google_feedback_loop: report.google_feedback_loop, google_api_health: report.google_api_health, connectors: report.api_connectors, compliance: report.compliance };
   writeFileSync(join(PUBLIC_DIR, "assets", "seo-autopilot-latest.json"), JSON.stringify(publicReport, null, 2), "utf8");
   console.log(`SEO autopilot checked ${report.pages_checked} pages, average score ${report.average_score}, opportunities ${report.opportunities.length}.`);
 }
