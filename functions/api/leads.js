@@ -24,6 +24,177 @@ function addReason(reasons, label) {
   if (!reasons.includes(label) && reasons.length < 8) reasons.push(label);
 }
 
+function addSpamReason(reasons, label) {
+  if (!reasons.includes(label) && reasons.length < 12) reasons.push(label);
+}
+
+function phoneDigits(value) {
+  return clean(value, 80).replace(/\D/g, "");
+}
+
+function emailDomain(value) {
+  const email = clean(value, 180).toLowerCase();
+  return email.includes("@") ? email.split("@").pop().slice(0, 120) : "";
+}
+
+function urlCount(value) {
+  return (clean(value, 2400).match(/https?:\/\/|www\.|\.ru\b|\.xyz\b|\.top\b|\.click\b/gi) || []).length;
+}
+
+function repeatedNoise(value) {
+  const text = clean(value, 2400).toLowerCase();
+  return /(.)\1{7,}/.test(text) || /(?:casino|viagra|crypto|forex|loan|escort|porn|seo backlink|whatsapp only|telegram)/i.test(text);
+}
+
+function suspiciousUserAgent(value) {
+  return /bot|crawl|spider|curl|wget|python|scrapy|httpclient|go-http-client|headless|selenium|phantom|puppeteer|playwright/i.test(clean(value, 500));
+}
+
+function safeNumber(value) {
+  const number = Number(value || 0);
+  return Number.isFinite(number) ? number : 0;
+}
+
+async function countRows(env, sql, binds = []) {
+  try {
+    const statement = env.DB.prepare(sql);
+    const row = binds.length ? await statement.bind(...binds).first() : await statement.first();
+    return Number(row?.count || 0);
+  } catch {
+    return 0;
+  }
+}
+
+async function loadSpamHistory(env, payload, ip) {
+  const email = clean(payload.email, 180).toLowerCase();
+  const phone = phoneDigits(payload.phone);
+  const sessionId = clean(payload.session_id, 120);
+  return {
+    ip_leads_10m: ip ? await countRows(env, `SELECT COUNT(*) AS count FROM leads WHERE ip_address = ? AND created_at >= datetime('now', '-10 minutes')`, [ip]) : 0,
+    ip_spam_10m: ip ? await countRows(env, `SELECT COUNT(*) AS count FROM site_events WHERE event_type = 'lead_spam_blocked' AND ip_address = ? AND created_at >= datetime('now', '-10 minutes')`, [ip]) : 0,
+    email_leads_24h: email ? await countRows(env, `SELECT COUNT(*) AS count FROM leads WHERE email = ? AND created_at >= datetime('now', '-24 hours')`, [email]) : 0,
+    phone_leads_24h: phone.length >= 8 ? await countRows(env, `SELECT COUNT(*) AS count FROM leads WHERE REPLACE(REPLACE(REPLACE(REPLACE(phone, ' ', ''), '.', ''), '-', ''), '+', '') LIKE ? AND created_at >= datetime('now', '-24 hours')`, [`%${phone.slice(-8)}`]) : 0,
+    session_leads_15m: sessionId ? await countRows(env, `SELECT COUNT(*) AS count FROM site_events WHERE event_type = 'lead_created' AND session_id = ? AND created_at >= datetime('now', '-15 minutes')`, [sessionId]) : 0
+  };
+}
+
+function assessSpamSubmission(payload, { ip, userAgent, history }) {
+  const reasons = [];
+  let score = 0;
+  const antiBot = payload && typeof payload.anti_bot === "object" && !Array.isArray(payload.anti_bot) ? payload.anti_bot : null;
+  const elapsed = safeNumber(antiBot?.form_elapsed_ms);
+  const interactions = safeNumber(antiBot?.interaction_count);
+  const allText = [payload.name, payload.email, payload.phone, payload.city, payload.message, payload.page_url, payload.referrer].map((item) => clean(item, 2400)).join(" ");
+  const compactContact = `${clean(payload.name, 160)} ${clean(payload.phone, 80)} ${clean(payload.city, 120)}`;
+
+  if (clean(payload.company_website)) {
+    score += 120;
+    addSpamReason(reasons, "honeypot-rempli");
+  }
+  if (!antiBot?.js_enabled) {
+    score += 70;
+    addSpamReason(reasons, "signal-js-absent");
+  }
+  if (antiBot?.js_enabled && elapsed > 0 && elapsed < 1200) {
+    score += 45;
+    addSpamReason(reasons, "soumission-instantanee");
+  } else if (antiBot?.js_enabled && elapsed > 0 && elapsed < 3000) {
+    score += 20;
+    addSpamReason(reasons, "soumission-tres-rapide");
+  }
+  if (antiBot?.js_enabled && interactions === 0) {
+    score += 20;
+    addSpamReason(reasons, "aucune-interaction-formulaire");
+  }
+  if (!clean(userAgent, 500)) {
+    score += 25;
+    addSpamReason(reasons, "user-agent-absent");
+  } else if (suspiciousUserAgent(userAgent)) {
+    score += 45;
+    addSpamReason(reasons, "user-agent-robot");
+  }
+  if (urlCount(compactContact) > 0) {
+    score += 65;
+    addSpamReason(reasons, "url-dans-identite");
+  }
+  if (urlCount(payload.message) >= 2) {
+    score += 35;
+    addSpamReason(reasons, "liens-multiples-message");
+  }
+  if (repeatedNoise(allText)) {
+    score += 40;
+    addSpamReason(reasons, "contenu-spam");
+  }
+  if (/[^\s@]+@[^\s@]+\.[^\s@]+/.test(clean(payload.name, 160))) {
+    score += 25;
+    addSpamReason(reasons, "email-dans-nom");
+  }
+  if (clean(payload.page_url, 500) && !/^https?:\/\/(www\.)?immeubleassur\.com\//i.test(clean(payload.page_url, 500))) {
+    score += 30;
+    addSpamReason(reasons, "page-origine-inconnue");
+  }
+  if (history.ip_leads_10m >= 3) {
+    score += 65;
+    addSpamReason(reasons, "volume-ip-leads");
+  }
+  if (history.ip_spam_10m >= 2) {
+    score += 80;
+    addSpamReason(reasons, "ip-deja-bloquee");
+  }
+  if (history.email_leads_24h >= 2) {
+    score += 55;
+    addSpamReason(reasons, "email-repete");
+  }
+  if (history.phone_leads_24h >= 2) {
+    score += 45;
+    addSpamReason(reasons, "telephone-repete");
+  }
+  if (history.session_leads_15m >= 2) {
+    score += 45;
+    addSpamReason(reasons, "session-repetee");
+  }
+
+  return {
+    score: Math.min(score, 150),
+    reasons,
+    blocked: score >= 70,
+    action: score >= 100 || reasons.includes("honeypot-rempli") ? "silent_drop" : "block"
+  };
+}
+
+async function logSpamAttempt(env, request, payload, assessment, now, ip, userAgent) {
+  const path = clean(payload.page_url, 500).replace(/^https?:\/\/(www\.)?immeubleassur\.com/i, "") || clean(payload.path, 500) || "/api/leads";
+  const context = {
+    target: clean(payload.need || "anti-spam", 120),
+    label: assessment.reasons.join(", ") || "anti-spam",
+    path,
+    spam_score: String(assessment.score || 0),
+    action: assessment.action,
+    reasons: assessment.reasons,
+    email_domain: emailDomain(payload.email),
+    has_phone: phoneDigits(payload.phone).length >= 8 ? "true" : "false",
+    source: clean(payload.source || "website", 120),
+    landing_page: clean(payload.utm?.landing_page, 500),
+    first_referrer: clean(payload.utm?.first_referrer || payload.referrer, 500)
+  };
+  await env.DB.prepare(
+    `INSERT INTO site_events (
+      id, event_type, page_url, target, session_id, lead_reference,
+      payload, ip_address, user_agent, created_at
+    ) VALUES (?, 'lead_spam_blocked', ?, ?, ?, '', ?, ?, ?, ?)`
+  )
+    .bind(
+      crypto.randomUUID(),
+      clean(payload.page_url, 500),
+      context.target,
+      clean(payload.session_id, 120),
+      JSON.stringify(context),
+      clean(ip, 120),
+      clean(userAgent, 500),
+      now
+    )
+    .run();
+}
 function unitCount(value) {
   return Number.parseInt(String(value || "0").replace(/\D/g, ""), 10) || 0;
 }
@@ -406,8 +577,24 @@ export async function onRequestPost({ request, env, waitUntil }) {
     return json({ success: false, error: "JSON invalide" }, 400);
   }
 
-  if (clean(payload.company_website)) {
-    return json({ success: true, reference: "IGNORED" });
+  const now = new Date().toISOString();
+  const ip =
+    request.headers.get("CF-Connecting-IP") ||
+    request.headers.get("X-Forwarded-For") ||
+    "";
+  const userAgent = request.headers.get("User-Agent") || "";
+
+  if (!env.DB) {
+    if (clean(payload.company_website)) return json({ success: true, reference: "IGNORED" });
+    return json({ success: false, error: "Binding D1 DB manquant" }, 503);
+  }
+
+  const spamHistory = await loadSpamHistory(env, payload, clean(ip, 120));
+  const spamAssessment = assessSpamSubmission(payload, { ip, userAgent, history: spamHistory });
+  if (spamAssessment.blocked) {
+    await logSpamAttempt(env, request, payload, spamAssessment, now, ip, userAgent);
+    if (spamAssessment.action === "silent_drop") return json({ success: true, reference: "FILTERED", spam_blocked: true });
+    return json({ success: false, error: "Demande bloquee par le filtre anti-spam. Contactez-nous par telephone si besoin." }, 429);
   }
 
   const validationError = validate(payload);
@@ -415,23 +602,13 @@ export async function onRequestPost({ request, env, waitUntil }) {
     return json({ success: false, error: validationError }, 422);
   }
 
-  if (!env.DB) {
-    return json({ success: false, error: "Binding D1 DB manquant" }, 503);
-  }
-
   const id = crypto.randomUUID();
   const reference = `IMB-${Date.now().toString(36).toUpperCase()}-${Math.random()
     .toString(36)
     .slice(2, 6)
     .toUpperCase()}`;
-  const now = new Date().toISOString();
   const qualification = qualifyLead(payload);
   const score = qualification.score;
-  const ip =
-    request.headers.get("CF-Connecting-IP") ||
-    request.headers.get("X-Forwarded-For") ||
-    "";
-  const userAgent = request.headers.get("User-Agent") || "";
   const experiment = payload.experiment || {};
 
   const record = {

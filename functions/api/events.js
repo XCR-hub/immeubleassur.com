@@ -28,7 +28,8 @@ const allowedEvents = new Set([
   "readiness_update",
   "readiness_complete",
   "scroll_depth",
-  "lead_form_abandoned"
+  "lead_form_abandoned",
+  "lead_spam_blocked"
 ]);
 
 const ga4EventNames = {
@@ -51,7 +52,8 @@ const ga4EventNames = {
   readiness_update: "ia_readiness_update",
   readiness_complete: "ia_readiness_complete",
   scroll_depth: "ia_scroll_depth",
-  lead_form_abandoned: "ia_lead_form_abandoned"
+  lead_form_abandoned: "ia_lead_form_abandoned",
+  lead_spam_blocked: "ia_lead_spam_blocked"
 };
 
 function ga4NameFor(eventType) {

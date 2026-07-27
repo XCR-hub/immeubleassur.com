@@ -15,7 +15,10 @@ const expectations = [
       "leadValueEstimate",
       "value_estimate",
       "sla_hours",
-      "Valeur estimee"
+      "Valeur estimee",
+      "assessSpamSubmission",
+      "lead_spam_blocked",
+      "logSpamAttempt"
     ]
   },
   {
@@ -54,18 +57,21 @@ const expectations = [
       "leadValueEventPayload",
       "validationDetails",
       "validationTelemetry",
-      "markInvalidFields"
+      "markInvalidFields",
+      "botSignalPayload",
+      "anti_bot",
+      "bindBotSignalTracking"
     ]
   },
   {
     file: "functions/api/events.js",
     role: "event-api",
-    snippets: ["readiness_start", "readiness_update", "readiness_complete", "lead_value_hint_ready", "revenue_band", "lead_value_max"]
+    snippets: ["readiness_start", "readiness_update", "readiness_complete", "lead_value_hint_ready", "lead_spam_blocked", "revenue_band", "lead_value_max"]
   },
   {
     file: "functions/api/admin/seo.js",
     role: "seo-admin",
-    snippets: ["readiness_paths", "readiness_completion_rate", "lead_value_hint_ready", "value_hint_ready", "value_hint_paths", "validation_errors", "validation-friction", "estimation-gagnante", "dossier-friction", "dossier-gagnant"]
+    snippets: ["readiness_paths", "readiness_completion_rate", "lead_value_hint_ready", "value_hint_ready", "value_hint_paths", "validation_errors", "validation-friction", "lead_spam_blocked", "spam-bloque", "estimation-gagnante", "dossier-friction", "dossier-gagnant"]
   },
   {
     file: "functions/_shared/ga4.js",
@@ -75,7 +81,7 @@ const expectations = [
   {
     file: "public/assets/admin.js",
     role: "admin-dashboard",
-    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "Valeur affichee", "Erreurs formulaire", "validation-friction", "lead-value-cell", "annual_premium_min"]
+    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "Valeur affichee", "Erreurs formulaire", "validation-friction", "Spam bloques", "spam-bloque", "lead-value-cell", "annual_premium_min"]
   }
 ];
 

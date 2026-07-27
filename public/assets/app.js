@@ -14,6 +14,11 @@ let formSubmitted = false;
 let qualityEventSent = false;
 let abandonEventSent = false;
 let valueHintEventSent = false;
+let botSignalFirstInteractionAt = 0;
+let botSignalInteractionCount = 0;
+let botSignalPointer = false;
+let botSignalKeyboard = false;
+const botSignalLoadedAt = Date.now();
 const scrollDepthSent = new Set();
 
 function getSessionId() {
@@ -156,6 +161,27 @@ function attributionPayload() {
   };
 }
 
+function noteBotInteraction(kind) {
+  if (!botSignalFirstInteractionAt) botSignalFirstInteractionAt = Date.now();
+  botSignalInteractionCount += 1;
+  if (kind === "pointer") botSignalPointer = true;
+  if (kind === "keyboard") botSignalKeyboard = true;
+}
+
+function botSignalPayload() {
+  const now = Date.now();
+  return {
+    js_enabled: true,
+    form_loaded_at: new Date(botSignalLoadedAt).toISOString(),
+    form_elapsed_ms: Math.max(0, now - botSignalLoadedAt),
+    first_interaction_ms: botSignalFirstInteractionAt ? Math.max(0, botSignalFirstInteractionAt - botSignalLoadedAt) : 0,
+    interaction_count: botSignalInteractionCount,
+    pointer_detected: botSignalPointer,
+    keyboard_detected: botSignalKeyboard,
+    session_token: Math.abs(hashString(`${sessionId}:${window.location.hostname}`)).toString(36)
+  };
+}
+
 function readForm(formElement) {
   const data = Object.fromEntries(new FormData(formElement).entries());
   const utm = readUtm();
@@ -177,6 +203,7 @@ function readForm(formElement) {
     session_id: sessionId,
     ga_client_id: gaClientId(),
     page_title: document.title,
+    anti_bot: botSignalPayload(),
     ...experimentPayload(),
     experiment: experimentPayload(),
     utm
@@ -918,6 +945,14 @@ function bindFormAbandonment() {
   });
   window.addEventListener("pagehide", () => trackFormAbandonment("pagehide"));
 }
+function bindBotSignalTracking() {
+  if (!form) return;
+  form.addEventListener("input", () => noteBotInteraction("input"), { passive: true });
+  form.addEventListener("change", () => noteBotInteraction("input"), { passive: true });
+  form.addEventListener("pointerdown", () => noteBotInteraction("pointer"), { passive: true });
+  form.addEventListener("keydown", () => noteBotInteraction("keyboard"), { passive: true });
+}
+
 function bindGrowthTracking() {
   track("page_view", { target: document.title, label: document.body.dataset.intent || inferIntent() });
   if (!experimentViewSent && !window.location.pathname.includes("/admin")) {
@@ -1020,4 +1055,5 @@ mountRiskRouter();
 enhanceHeader();
 bindScrollDepthTracking();
 bindFormAbandonment();
+bindBotSignalTracking();
 bindGrowthTracking();

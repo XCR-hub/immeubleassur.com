@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-07-27T12:48:27.854Z",
+  "checked_files": [
+    "functions/api/leads.js",
+    "public/assets/app.js",
+    "functions/api/admin/seo.js",
+    "public/assets/admin.js",
+    "functions/api/events.js"
+  ],
+  "required_markers": 21,
+  "missing": [],
+  "status": "passed"
+}

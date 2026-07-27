@@ -10,6 +10,7 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Notification email des nouveaux leads via SMTP STARTTLS (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `SMTP_TO`).
 - Passe `scripts/seo-growth-pass.js`: liens canoniques propres, JSON-LD, tracking CTA, sitemap propre, injection GA4 optionnelle et registre de 2500 actions SEO/CRO.
 - Passe `scripts/lead-friction-pass.js`: registre de 1000 actions CRO/SEO orientees friction formulaire, validation, CTA, preuves et maillage.
+- Filtre anti-spam leads: honeypot, signaux JS, vitesse de soumission, repetition IP/email/telephone, contenu suspect et journalisation `lead_spam_blocked`.
 - Usines SEO: `scripts/seo-content-factory.js`, `scripts/lead-growth-factory.js`, `scripts/money-intent-factory.js`.
 - Autopilote `scripts/seo-autopilot.js`: audit HTML, opportunites, PageSpeed Insights, Search Console si secrets Google configures, boucle Google feedback.
 - Audit editorial `scripts/content-quality-check.js`: garde-fous people-first, anti-duplication, anti-bourrage et anti-contenu manipulatif.

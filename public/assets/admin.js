@@ -535,7 +535,8 @@ async function loadSeo() {
       metricCard("CTA -> formulaire", `${funnel.cta_to_form_rate || 0}%`, `${funnel.cta_clicks || 0} clics`),
       metricCard("Formulaire -> lead", `${funnel.form_to_lead_rate || 0}%`, `${funnel.form_starts || 0} starts`),
       metricCard("Abandons", `${funnel.abandon_rate || 0}%`, `${funnel.abandoned_forms || 0} signaux`),
-      metricCard("Erreurs formulaire", String(funnel.validation_errors || 0), "champs bloquants")
+      metricCard("Erreurs formulaire", String(funnel.validation_errors || 0), "champs bloquants"),
+      metricCard("Spam bloques", String(funnel.spam_blocked || 0), "robots filtres")
     );
   }
 
@@ -549,6 +550,7 @@ async function loadSeo() {
     ...(apiResult?.readiness_paths || []).slice(0, 8).map((item) => ({ score: item.completions, opportunity_type: "dossier-pret", url: item.path, query: `${item.completions || 0} dossiers, score ${Math.round(item.avg_score || 0)}%`, recommendation: "Renforcer les elements de preuve et le CTA formulaire sur les pages qui preparent le mieux le dossier." })),
     ...(apiResult?.value_hint_paths || []).slice(0, 8).map((item) => ({ score: item.completions, opportunity_type: "estimation-prime", url: item.path, query: `${item.completions || 0} affichages, potentiel ${Math.round(item.avg_value_max || 0)} EUR`, recommendation: "Renforcer le bloc prix, les preuves et le CTA devis sur les pages qui declenchent les meilleures estimations." })),
     ...(apiResult?.validation_errors || []).slice(0, 8).map((item) => ({ score: item.errors, opportunity_type: "validation-friction", url: item.path, query: `${item.errors || 0} blocages: ${item.missing || "validation"}`, recommendation: "Rendre les champs concernes plus explicites et reduire la friction avant envoi du formulaire." })),
+    ...(apiResult?.spam_blocks || []).slice(0, 8).map((item) => ({ score: item.blocked, opportunity_type: "spam-bloque", url: item.path, query: `${item.blocked || 0} blocages: ${item.reason || "anti-spam"}`, recommendation: "Verifier les signaux robots et surveiller les attaques de formulaire sans les transformer en leads." })),
     ...(apiResult?.top_landing_pages || []).slice(0, 10).map((item) => ({ score: item.count, opportunity_type: "landing", url: item.landing_page, query: "trafic 30j", recommendation: "Surveiller le passage vers formulaire et lead." })),
     ...(apiResult?.leads_by_need || []).slice(0, 5).map((item) => ({ score: item.count, opportunity_type: "besoin", url: item.need, query: `score moyen ${Math.round(item.avg_score || 0)}`, recommendation: "Prioriser les contenus et CTA de ce besoin." })),
     ...(apiResult?.leads_by_city || []).slice(0, 5).map((item) => ({ score: item.count, opportunity_type: "ville", url: item.city, query: `score moyen ${Math.round(item.avg_score || 0)}`, recommendation: "Renforcer maillage local si la demande progresse." }))

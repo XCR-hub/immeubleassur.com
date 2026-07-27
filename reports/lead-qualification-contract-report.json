@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-26T00:17:21.891Z",
+  "generated_at": "2026-07-27T12:48:25.134Z",
   "checked_files": [
     "functions/api/leads.js",
     "functions/api/admin/leads.js",
@@ -9,7 +9,7 @@
     "functions/_shared/ga4.js",
     "public/assets/admin.js"
   ],
-  "required_contracts": 71,
+  "required_contracts": 82,
   "missing": [],
   "status": "passed"
 }

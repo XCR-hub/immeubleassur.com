@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-26T00:17:21.531Z",
+  "generated_at": "2026-07-27T12:48:24.853Z",
   "tracked_events": [
     "cta_click",
     "diagnostic_complete",
@@ -33,6 +33,7 @@
     "form_submit_attempt",
     "lead_created",
     "lead_form_abandoned",
+    "lead_spam_blocked",
     "lead_submit_error",
     "lead_submit_local_backup",
     "lead_value_hint_ready",
@@ -45,6 +46,8 @@
     "scroll_depth"
   ],
   "missing": [],
-  "unused_front_optional": [],
+  "unused_front_optional": [
+    "lead_spam_blocked"
+  ],
   "status": "passed"
 }
