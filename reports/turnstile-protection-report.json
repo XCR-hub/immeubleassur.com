@@ -1,12 +1,13 @@
 {
-  "generated_at": "2026-07-27T16:20:32.339Z",
-  "configured": false,
+  "generated_at": "2026-07-27T16:54:31.791Z",
+  "configured": true,
   "pages_checked": 170,
   "forms_detected": 161,
-  "forms_instrumented": 0,
-  "files_changed": 0,
+  "forms_instrumented": 161,
+  "files_changed": 161,
   "missing": [],
   "runtime_secret_required": "TURNSTILE_SECRET_KEY",
-  "public_site_key_required": "TURNSTILE_SITE_KEY",
+  "public_site_key": "configured",
+  "public_site_key_override": "TURNSTILE_SITE_KEY",
   "status": "passed"
 }

@@ -11,7 +11,7 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Passe `scripts/seo-growth-pass.js`: liens canoniques propres, JSON-LD, tracking CTA, sitemap propre, injection GA4 optionnelle et registre de 2500 actions SEO/CRO.
 - Passe `scripts/lead-friction-pass.js`: registre de 1000 actions CRO/SEO orientees friction formulaire, validation, CTA, preuves et maillage.
 - Filtre anti-spam leads: honeypot, signaux JS, vitesse de soumission, repetition IP/email/telephone, contenu suspect et journalisation `lead_spam_blocked`.
-- Turnstile optionnel: injection au build avec `TURNSTILE_SITE_KEY` et verification serveur avec `TURNSTILE_SECRET_KEY`.
+- Turnstile actif: cle publique integree au build, override possible avec `TURNSTILE_SITE_KEY`, verification serveur avec `TURNSTILE_SECRET_KEY`.
 - Usines SEO: `scripts/seo-content-factory.js`, `scripts/lead-growth-factory.js`, `scripts/money-intent-factory.js`.
 - Autopilote `scripts/seo-autopilot.js`: audit HTML, opportunites, PageSpeed Insights, Search Console si secrets Google configures, boucle Google feedback.
 - Boucle Google APIs: Search Analytics pour requetes/CTR/position moyenne, URL Inspection pour etat d indexation des pages prioritaires et Sitemaps API pour signaler `sitemap.xml`.
@@ -52,7 +52,7 @@ Ajouter les secrets GitHub:
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
 - `GA4_MEASUREMENT_ID` si le tag Google doit etre injecte au build
-- `TURNSTILE_SITE_KEY` pour injecter le widget anti-robot au build
+- `TURNSTILE_SITE_KEY` optionnel pour remplacer la cle publique Turnstile integree au build
 
 Ajouter aussi les variables Cloudflare Pages:
 

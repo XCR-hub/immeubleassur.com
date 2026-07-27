@@ -4,7 +4,8 @@ import { join, relative } from "node:path";
 const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
 const ASSET_DIR = join(PUBLIC_DIR, "assets");
-const siteKey = String(process.env.TURNSTILE_SITE_KEY || "").trim();
+const DEFAULT_SITE_KEY = "0x4AAAAAAD_N1OIMC1z63HG2";
+const siteKey = String(process.env.TURNSTILE_SITE_KEY || DEFAULT_SITE_KEY).trim();
 const blockPattern = /\s*<!-- turnstile-protection:start -->[\s\S]*?<!-- turnstile-protection:end -->\s*/g;
 const scriptPattern = /\s*<script src="https:\/\/challenges\.cloudflare\.com\/turnstile\/v0\/api\.js" async defer><\/script>/g;
 
@@ -24,7 +25,7 @@ function escAttr(value) {
 }
 
 function turnstileBlock() {
-  return `\n      <!-- turnstile-protection:start -->\n      <div class="turnstile-field" data-turnstile-protection="optional">\n        <div class="cf-turnstile" data-sitekey="${escAttr(siteKey)}" data-theme="light" data-size="normal"></div>\n      </div>\n      <!-- turnstile-protection:end -->\n      `;
+  return `\n      <!-- turnstile-protection:start -->\n      <div class="turnstile-field" data-turnstile-protection="optional">\n        <div class="cf-turnstile" data-sitekey="${escAttr(siteKey)}" data-theme="light" data-size="normal"></div>\n      </div>\n      <!-- turnstile-protection:end -->\n`;
 }
 
 function cleanPrevious(html) {
@@ -38,7 +39,7 @@ function protectPage(file) {
   let instrumented = false;
 
   if (siteKey && hasForm) {
-    html = html.replace(/(<button[^>]*type="submit"[^>]*>)/i, `${turnstileBlock()}$1`);
+    html = html.replace(/\s*(<button[^>]*type="submit"[^>]*>)/i, `${turnstileBlock()}$1`);
     instrumented = html.includes("turnstile-protection:start");
     if (instrumented && !html.includes("challenges.cloudflare.com/turnstile/v0/api.js")) {
       html = html.replace("</head>", `    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>\n  </head>`);
@@ -68,7 +69,8 @@ const report = {
   files_changed: rows.filter((row) => row.changed).length,
   missing,
   runtime_secret_required: "TURNSTILE_SECRET_KEY",
-  public_site_key_required: "TURNSTILE_SITE_KEY",
+  public_site_key: siteKey ? "configured" : "missing",
+  public_site_key_override: "TURNSTILE_SITE_KEY",
   status: missing.length ? "failed" : "passed"
 };
 
