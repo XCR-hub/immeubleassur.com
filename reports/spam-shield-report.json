@@ -1,13 +1,14 @@
 {
-  "generated_at": "2026-07-27T15:52:04.363Z",
+  "generated_at": "2026-07-27T16:21:57.297Z",
   "checked_files": [
     "functions/api/leads.js",
     "public/assets/app.js",
     "functions/api/admin/seo.js",
     "public/assets/admin.js",
-    "functions/api/events.js"
+    "functions/api/events.js",
+    "scripts/turnstile-protection-pass.js"
   ],
-  "required_markers": 21,
+  "required_markers": 30,
   "missing": [],
   "status": "passed"
 }

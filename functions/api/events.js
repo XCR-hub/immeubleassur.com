@@ -17,6 +17,7 @@ const allowedEvents = new Set([
   "lead_created",
   "lead_submit_error",
   "lead_submit_local_backup",
+  "lead_submit_rejected",
   "phone_click",
   "email_click",
   "form_quality_ready",
@@ -41,6 +42,7 @@ const ga4EventNames = {
   lead_created: "ia_lead_created_client",
   lead_submit_error: "ia_lead_submit_error",
   lead_submit_local_backup: "ia_lead_local_backup",
+  lead_submit_rejected: "ia_lead_submit_rejected",
   phone_click: "ia_phone_click",
   email_click: "ia_email_click",
   form_quality_ready: "ia_form_quality_ready",
@@ -122,7 +124,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
     language: clean(payload.language, 40),
     gclid: clean(payload.gclid, 160),
     gbraid: clean(payload.gbraid, 160),
-    wbraid: clean(payload.wbraid, 160)
+    wbraid: clean(payload.wbraid, 160),
+    event_status: clean(payload.status, 80),
+    turnstile: clean(payload.turnstile, 80)
   };
 
   await env.DB.prepare(

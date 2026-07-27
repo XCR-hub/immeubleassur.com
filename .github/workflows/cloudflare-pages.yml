@@ -23,6 +23,7 @@ jobs:
       - name: Generate static pages
         env:
           GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
+          TURNSTILE_SITE_KEY: ${{ secrets.TURNSTILE_SITE_KEY }}
         run: npm run generate
 
       - name: Validate JavaScript

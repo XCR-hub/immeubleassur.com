@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-27T15:51:59.212Z",
+  "generated_at": "2026-07-27T16:21:19.345Z",
   "tracked_events": [
     "cta_click",
     "diagnostic_complete",
@@ -13,6 +13,7 @@
     "lead_form_abandoned",
     "lead_submit_error",
     "lead_submit_local_backup",
+    "lead_submit_rejected",
     "lead_value_hint_ready",
     "page_view",
     "phone_click",
@@ -36,6 +37,7 @@
     "lead_spam_blocked",
     "lead_submit_error",
     "lead_submit_local_backup",
+    "lead_submit_rejected",
     "lead_value_hint_ready",
     "page_view",
     "phone_click",

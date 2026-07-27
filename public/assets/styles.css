@@ -2271,3 +2271,13 @@ textarea:focus {
   border-color: #b42318;
   background: #fff7f7;
 }
+.turnstile-field {
+  display: flex;
+  justify-content: center;
+  min-height: 70px;
+  padding: 6px 0 2px;
+}
+
+.turnstile-field iframe {
+  max-width: 100%;
+}

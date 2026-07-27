@@ -204,6 +204,8 @@ function readForm(formElement) {
     ga_client_id: gaClientId(),
     page_title: document.title,
     anti_bot: botSignalPayload(),
+    turnstile_token: String(data["cf-turnstile-response"] || "").trim(),
+    "cf-turnstile-response": String(data["cf-turnstile-response"] || "").trim(),
     ...experimentPayload(),
     experiment: experimentPayload(),
     utm
@@ -1011,7 +1013,10 @@ form?.addEventListener("submit", async (event) => {
     const result = await response.json();
 
     if (!response.ok || !result.success) {
-      throw new Error(result.error || "Envoi impossible pour le moment.");
+      const submitError = new Error(result.error || "Envoi impossible pour le moment.");
+      submitError.status = response.status;
+      submitError.result = result;
+      throw submitError;
     }
 
     formSubmitted = true;
@@ -1032,6 +1037,11 @@ form?.addEventListener("submit", async (event) => {
       label: payload.city
     });
   } catch (error) {
+    if (error.status && error.status < 500) {
+      track("lead_submit_rejected", { target: payload.need, label: error.message, status: String(error.status), turnstile: error.result?.turnstile || "" });
+      setStatus(error.message || "Demande rejetee. Verifiez les champs puis recommencez.", "error");
+      return;
+    }
     const fallbackReference = `LOCAL-${Date.now().toString(36).toUpperCase()}`;
     localBackup(payload, { success: false, reference: fallbackReference, error: error.message });
     track("lead_submit_local_backup", { lead_reference: fallbackReference, target: payload.need, label: error.message });

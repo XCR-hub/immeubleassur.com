@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-07-27T16:20:32.339Z",
+  "configured": false,
+  "pages_checked": 170,
+  "forms_detected": 161,
+  "forms_instrumented": 0,
+  "files_changed": 0,
+  "missing": [],
+  "runtime_secret_required": "TURNSTILE_SECRET_KEY",
+  "public_site_key_required": "TURNSTILE_SITE_KEY",
+  "status": "passed"
+}

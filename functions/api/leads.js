@@ -55,6 +55,36 @@ function safeNumber(value) {
   return Number.isFinite(number) ? number : 0;
 }
 
+function turnstileToken(payload) {
+  return clean(payload?.turnstile_token || payload?.["cf-turnstile-response"], 2048);
+}
+
+async function verifyTurnstile(env, token, ip) {
+  const secret = String(env.TURNSTILE_SECRET_KEY || "");
+  if (!secret) return { configured: false, ok: true, status: "skipped" };
+  if (!token) return { configured: true, ok: false, status: "missing-input-response" };
+
+  try {
+    const body = new FormData();
+    body.append("secret", secret);
+    body.append("response", token);
+    if (ip) body.append("remoteip", clean(ip, 120));
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body
+    });
+    const data = await response.json().catch(() => ({}));
+    const errors = Array.isArray(data["error-codes"]) ? data["error-codes"].join(",") : "";
+    return {
+      configured: true,
+      ok: response.ok && data.success === true,
+      status: data.success ? "passed" : errors || `http-${response.status}`
+    };
+  } catch (error) {
+    return { configured: true, ok: false, status: "verify-error", error: error.message || "Turnstile verification failed" };
+  }
+}
+
 async function countRows(env, sql, binds = []) {
   try {
     const statement = env.DB.prepare(sql);
@@ -587,6 +617,18 @@ export async function onRequestPost({ request, env, waitUntil }) {
   if (!env.DB) {
     if (clean(payload.company_website)) return json({ success: true, reference: "IGNORED" });
     return json({ success: false, error: "Binding D1 DB manquant" }, 503);
+  }
+
+  const turnstile = await verifyTurnstile(env, turnstileToken(payload), clean(ip, 120));
+  if (!turnstile.ok) {
+    const assessment = {
+      score: 100,
+      reasons: [`turnstile-${turnstile.status || "echec"}`],
+      blocked: true,
+      action: "block"
+    };
+    await logSpamAttempt(env, request, payload, assessment, now, ip, userAgent);
+    return json({ success: false, error: "Verification anti-robot invalide. Rechargez la page puis recommencez.", turnstile: "failed" }, 403);
   }
 
   const spamHistory = await loadSpamHistory(env, payload, clean(ip, 120));

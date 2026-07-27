@@ -493,6 +493,15 @@ async function fetchPublicSeoReport() {
   return response.json();
 }
 
+async function fetchOptionalAsset(path) {
+  try {
+    const response = await fetch(path, { cache: "no-store" });
+    return response.ok ? response.json() : {};
+  } catch {
+    return {};
+  }
+}
+
 function priorityCount(priorities = [], key) {
   const row = priorities.find((item) => item.priority === key);
   return Number(row?.count || 0);
@@ -509,7 +518,7 @@ async function loadSeo() {
     apiResult = await response.json();
   }
 
-  const publicReport = await fetchPublicSeoReport();
+  const [publicReport, turnstileReport] = await Promise.all([fetchPublicSeoReport(), fetchOptionalAsset("/assets/turnstile-protection-latest.json")]);
   const googleHealth = publicReport.google_api_health || {};
   const funnel = apiResult?.conversion_funnel || {};
   const leadStats = apiResult?.lead_stats || {};
@@ -541,12 +550,14 @@ async function loadSeo() {
       metricCard("Formulaire -> lead", `${funnel.form_to_lead_rate || 0}%`, `${funnel.form_starts || 0} starts`),
       metricCard("Abandons", `${funnel.abandon_rate || 0}%`, `${funnel.abandoned_forms || 0} signaux`),
       metricCard("Erreurs formulaire", String(funnel.validation_errors || 0), "champs bloquants"),
-      metricCard("Spam bloques", String(funnel.spam_blocked || 0), "robots filtres")
+      metricCard("Spam bloques", String(funnel.spam_blocked || 0), "robots filtres"),
+      metricCard("Turnstile", turnstileReport.configured ? "Actif" : "Pret", `${turnstileReport.forms_instrumented || 0}/${turnstileReport.forms_detected || 0} formulaire(s)`)
     );
   }
 
   const fallbackRows = [
     ...(publicReport.google_feedback_loop?.actions || []).map((item) => ({ score: item.priority === "high" ? 90 : item.priority === "fix" ? 88 : item.priority === "setup" ? 80 : 55, opportunity_type: `google-${item.source || "feedback"}`, url: item.url || item.cluster || "google", query: item.priority || "monitoring", recommendation: item.action || "Mesurer et optimiser." })),
+    ...(turnstileReport.configured ? [] : [{ score: 82, opportunity_type: "anti-spam-turnstile", url: "formulaires", query: "configuration", recommendation: "Configurer TURNSTILE_SITE_KEY au build et TURNSTILE_SECRET_KEY cote Cloudflare Pages pour durcir les formulaires." }]),
     ...(publicReport.conversion_intelligence?.actions || []).map((item) => ({ score: item.score || 0, opportunity_type: "conversion-intelligence", url: item.url || item.cluster || "money-page", query: item.priority || item.cluster || "lead", recommendation: item.action || "Renforcer le passage vers devis qualifie." })),
     ...(apiResult?.lead_actions || []),
     ...(ctaExperiments || []).slice(0, 6).map((item) => ({ score: item.leads_created || item.form_starts || item.cta_clicks || 0, opportunity_type: "test-cta", url: item.variant || "cta", query: `${item.views || 0} vues / ${item.cta_clicks || 0} clics / ${item.form_starts || 0} starts / ${Math.round(item.lead_value_max_total || 0)} EUR potentiel CTA`, recommendation: "Comparer les variantes avec les leads crees et leur valeur estimee avant de figer le message." })),
