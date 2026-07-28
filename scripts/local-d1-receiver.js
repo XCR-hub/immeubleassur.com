@@ -1,12 +1,25 @@
 import { createHash } from "node:crypto";
 import { createServer } from "node:http";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { gunzipSync } from "node:zlib";
 
 const DEFAULT_HOST = "0.0.0.0";
 const DEFAULT_PORT = 8789;
 const DEFAULT_DIR = join("data", "immeubleassur-d1");
+function loadEnvFile(file = ".env.local") {
+  if (!existsSync(file)) return;
+  const lines = readFileSync(file, "utf8").split(/\r?\n/);
+  for (const line of lines) {
+    if (!line || line.trim().startsWith("#") || !line.includes("=")) continue;
+    const index = line.indexOf("=");
+    const key = line.slice(0, index).trim();
+    const value = line.slice(index + 1).trim();
+    if (key && !process.env[key]) process.env[key] = value;
+  }
+}
+
+loadEnvFile();
 
 function env(name, fallback = "") {
   return process.env[name] || fallback;

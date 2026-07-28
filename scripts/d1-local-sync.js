@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { gzipSync } from "node:zlib";
@@ -7,6 +7,19 @@ import { gzipSync } from "node:zlib";
 const DEFAULT_DATABASE = "immeubleassur-db";
 const DEFAULT_TARGET_URL = "http://192.168.1.70:8789/sync/d1";
 const REPORT_PATH = join("reports", "d1-local-sync-report.json");
+function loadEnvFile(file = ".env.local") {
+  if (!existsSync(file)) return;
+  const lines = readFileSync(file, "utf8").split(/\r?\n/);
+  for (const line of lines) {
+    if (!line || line.trim().startsWith("#") || !line.includes("=")) continue;
+    const index = line.indexOf("=");
+    const key = line.slice(0, index).trim();
+    const value = line.slice(index + 1).trim();
+    if (key && !process.env[key]) process.env[key] = value;
+  }
+}
+
+loadEnvFile();
 
 function hasFlag(name) {
   return process.argv.slice(2).includes(name);
