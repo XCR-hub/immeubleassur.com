@@ -79,9 +79,14 @@ const expectations = [
     snippets: ["lead_value_min", "lead_value_max", "revenue_band", "sla_hours"]
   },
   {
+    file: "functions/api/admin/sales.js",
+    role: "admin-sales",
+    snippets: ["followUpDueFor", "due_in_hours", "call_script", "email_subject", "sales_actions", "relance_leads", "quote_followups", "pipeline_value", "due_value"]
+  },
+  {
     file: "public/assets/admin.js",
     role: "admin-dashboard",
-    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "Valeur affichee", "Erreurs formulaire", "validation-friction", "Spam bloques", "spam-bloque", "lead-value-cell", "annual_premium_min"]
+    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "Valeur affichee", "Erreurs formulaire", "validation-friction", "Spam bloques", "spam-bloque", "lead-value-cell", "annual_premium_min", "loadSales", "/api/admin/sales", "Scripts de rappel", "sales-body", "Relances dues"]
   }
 ];
 

@@ -18,6 +18,9 @@ const contentBody = document.querySelector("#content-body");
 const spamButton = document.querySelector("#load-spam");
 const spamSummary = document.querySelector("#spam-summary");
 const spamBody = document.querySelector("#spam-body");
+const salesButton = document.querySelector("#load-sales");
+const salesSummary = document.querySelector("#sales-summary");
+const salesBody = document.querySelector("#sales-body");
 const leadSummary = document.querySelector("#lead-summary");
 const leadSearch = document.querySelector("#lead-search");
 const priorityFilter = document.querySelector("#lead-priority-filter");
@@ -871,6 +874,115 @@ async function loadContent() {
   }
   renderContentTable(contentActionRows(result));
 }
+function salesRows(result = {}) {
+  const rows = [];
+  for (const item of Array.isArray(result.sales_actions) ? result.sales_actions : []) {
+    rows.push({
+      type: item.type || "action-commerciale",
+      lead: item.target || "pipeline",
+      value: String(item.priority || ""),
+      signal: item.signal || "priorite commerciale",
+      action: item.recommendation || "Traiter la relance prioritaire."
+    });
+  }
+  for (const lead of Array.isArray(result.relance_leads) ? result.relance_leads.slice(0, 40) : []) {
+    rows.push({
+      type: lead.due ? "relance-sla" : "pipeline-ouvert",
+      lead: `${lead.reference || "-"}\n${lead.name || ""}`,
+      value: `${lead.value_estimate?.label || "0 EUR/an"}\n${lead.priority || "standard"}`,
+      signal: `${lead.city || "-"} - ${lead.need || "besoin"}\n${lead.due_label || "SLA"}`,
+      action: `${lead.next_action || "Rappeler le prospect."}\nScripts de rappel: ${lead.call_script || "Verifier le dossier."}\nEmail: ${lead.email_subject || "Relance devis"}`
+    });
+  }
+  for (const item of Array.isArray(result.quote_followups) ? result.quote_followups : []) {
+    rows.push({
+      type: "devis-assureur",
+      lead: item.response_status || "pending",
+      value: `${item.count || 0} demande(s)`,
+      signal: item.oldest_requested_at ? `depuis ${reportDate(item.oldest_requested_at)}` : "a suivre",
+      action: "Relancer les assureurs et noter la reponse pour garder le pipeline mesurable."
+    });
+  }
+  for (const item of Array.isArray(result.needs) ? result.needs.slice(0, 6) : []) {
+    rows.push({
+      type: "besoin-dominant",
+      lead: item.need || "non precise",
+      value: `${item.count || 0} lead(s)`,
+      signal: `score moyen ${Math.round(Number(item.avg_score || 0))}`,
+      action: "Adapter le script commercial et le contenu SEO autour de ce besoin."
+    });
+  }
+  for (const item of Array.isArray(result.cities) ? result.cities.slice(0, 6) : []) {
+    rows.push({
+      type: "zone-active",
+      lead: item.city || "non precise",
+      value: `${item.count || 0} lead(s)`,
+      signal: `score moyen ${Math.round(Number(item.avg_score || 0))}`,
+      action: "Prioriser la relance locale puis renforcer le maillage ville si la demande progresse."
+    });
+  }
+  return rows;
+}
+
+function renderSalesTable(rows = []) {
+  if (!salesBody) return;
+  salesBody.replaceChildren();
+  if (!rows.length) {
+    const tr = document.createElement("tr");
+    const td = cell("Aucune relance commerciale chargee.");
+    td.colSpan = 5;
+    tr.append(td);
+    salesBody.append(tr);
+    return;
+  }
+
+  for (const row of rows.slice(0, 80)) {
+    const tr = document.createElement("tr");
+    tr.append(
+      cell(row.type),
+      cell(row.lead),
+      cell(row.value),
+      cell(row.signal),
+      cell(row.action)
+    );
+    salesBody.append(tr);
+  }
+}
+
+async function loadSales() {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
+  if (!token) {
+    if (salesSummary) salesSummary.replaceChildren(metricCard("Token requis", "Admin", "charger les relances"));
+    return;
+  }
+  if (salesSummary) salesSummary.replaceChildren(metricCard("Chargement", "Relances", "lecture D1"));
+
+  const response = await fetch("/api/admin/sales", { headers: { Authorization: `Bearer ${token}` } });
+  const result = await response.json();
+  if (!response.ok || !result.success) throw new Error(result.error || "Chargement relances impossible");
+
+  const summary = result.summary || {};
+  const relanceLeads = Array.isArray(result.relance_leads) ? result.relance_leads : [];
+  const actions = Array.isArray(result.sales_actions) ? result.sales_actions : [];
+  const warnings = Array.isArray(result.warnings) ? result.warnings : [];
+  const topLead = relanceLeads[0] || null;
+
+  if (salesSummary) {
+    salesSummary.replaceChildren(
+      metricCard("Leads ouverts", String(summary.open_leads || 0), "90 derniers jours"),
+      metricCard("Relances dues", String(summary.due_now || 0), summary.due_value?.label || "0 EUR/an"),
+      metricCard("A 24h", String(summary.due_24h || 0), "a securiser"),
+      metricCard("Leads chauds", String(summary.hot_open || 0), "rappel prioritaire"),
+      metricCard("Sans pilote", String(summary.unassigned_open || 0), "assignation"),
+      metricCard("Portefeuilles", String(summary.portfolio_open || 0), "forte valeur"),
+      metricCard("Pipeline", summary.pipeline_value?.label || "0 EUR/an", "prime estimee"),
+      metricCard("Top relance", topLead?.reference || "-", topLead?.due_label || "aucune"),
+      metricCard("Actions", String(actions.length), warnings.length ? `${warnings.length} alerte(s)` : "priorisees")
+    );
+  }
+  renderSalesTable(salesRows(result));
+}
 function spamRows(result = {}) {
   const rows = [];
   for (const item of Array.isArray(result.actions) ? result.actions : []) {
@@ -1082,6 +1194,7 @@ form?.addEventListener("submit", async (event) => {
     loadNewsletter().catch(() => {});
     loadContent().catch(() => {});
     loadSpam().catch(() => {});
+    loadSales().catch(() => {});
   } catch (error) {
     setStatus(error.message || "Erreur de chargement", "error");
   }
@@ -1138,6 +1251,11 @@ contentButton?.addEventListener("click", () => {
 spamButton?.addEventListener("click", () => {
   loadSpam().catch((error) => {
     if (spamSummary) spamSummary.replaceChildren(metricCard("Erreur", "Anti-spam", error.message || "chargement impossible"));
+  });
+});
+salesButton?.addEventListener("click", () => {
+  loadSales().catch((error) => {
+    if (salesSummary) salesSummary.replaceChildren(metricCard("Erreur", "Relances", error.message || "chargement impossible"));
   });
 });
 newsletterSendButton?.addEventListener("click", () => {

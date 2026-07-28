@@ -2441,3 +2441,10 @@ textarea:focus {
 .admin-spam-table {
   min-width: 1120px;
 }
+.admin-sales-panel {
+  margin-top: 1.5rem;
+}
+
+.admin-sales-table {
+  min-width: 1180px;
+}

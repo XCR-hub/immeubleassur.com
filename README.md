@@ -22,6 +22,7 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Observabilite integrations: endpoint admin /api/admin/integrations et panneau admin pour verifier IA, Pexels, SerpApi, Google, SMTP, Turnstile et D1 sans exposer les valeurs de secrets.
 - Pipeline contenu admin: endpoint `/api/admin/content` et panneau admin pour suivre pages faibles, opportunites SEO, derniers runs IA/SEO/SerpApi/media et veille editoriale.
 - Bouclier anti-spam admin: endpoint `/api/admin/spam` et panneau admin pour suivre blocages, raisons, pages ciblees, sources masquees et erreurs de validation.
+- Centre de relance commerciale: endpoint `/api/admin/sales` et panneau admin pour piloter SLA, leads chauds, pipeline estime, scripts de rappel et brouillons email.
 - Autopilote `scripts/seo-autopilot.js`: audit HTML, opportunites, PageSpeed Insights, Search Console si secrets Google configures, boucle Google feedback.
 - Boucle Google APIs: Search Analytics pour requetes/CTR/position moyenne, URL Inspection pour etat d indexation des pages prioritaires et Sitemaps API pour signaler `sitemap.xml`.
 - Audit editorial `scripts/content-quality-check.js`: garde-fous people-first, anti-duplication, anti-bourrage et anti-contenu manipulatif.
@@ -113,6 +114,8 @@ Le panneau /admin.html peut aussi appeler /api/admin/integrations avec le meme t
 Le panneau /admin.html appelle aussi `/api/admin/content` pour prioriser les contenus a renforcer a partir de D1: qualite, opportunites, veille et derniers runs techniques.
 
 Le panneau /admin.html appelle aussi `/api/admin/spam` pour suivre les robots et les blocages sans exposer les IP brutes; seules des empreintes masquees sont retournees.
+
+Le panneau /admin.html appelle aussi `/api/admin/sales` pour prioriser les relances commerciales, les retards SLA, les dossiers a forte valeur et les scripts de rappel.
 
 ## Politique contenu IA
 
