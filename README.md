@@ -56,6 +56,35 @@ wrangler d1 create immeubleassur-db
 npm run db:remote
 ```
 
+## Synchronisation vers 192.168.1.70
+
+Cloudflare D1 reste la base active du site en production. Le serveur `192.168.1.70` est prepare comme destination de sauvegarde, archive et reporting. La synchronisation cree un snapshot compresse avec schema, manifest et fichiers JSONL par table; les donnees ne sont jamais ajoutees au depot Git.
+
+Sur le serveur de donnees:
+
+```powershell
+$env:LOCAL_DB_SYNC_TOKEN="remplacer-par-un-secret-long"
+$env:LOCAL_DB_SYNC_DIR="D:\immeubleassur-d1"
+npm run db:receiver
+```
+
+Depuis le poste/projet qui a acces a Cloudflare:
+
+```powershell
+$env:LOCAL_DB_SYNC_URL="http://192.168.1.70:8789/sync/d1"
+$env:LOCAL_DB_SYNC_TOKEN="le-meme-secret"
+npm run db:sync:local
+```
+
+Commandes utiles:
+
+```powershell
+npm run db:sync:dry-run
+npm run db:sync:check
+```
+
+Variables optionnelles: `D1_SYNC_TABLES` pour limiter les tables, `D1_SYNC_ROW_LIMIT` pour tester sur un extrait, `D1_SYNC_OUTPUT_DIR` pour changer le dossier local de snapshots. Le recepteur expose aussi `/health` pour verifier qu'il ecoute avant d'envoyer.
+
 ## Publication Cloudflare
 
 Ajouter les secrets GitHub:
