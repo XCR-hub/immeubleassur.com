@@ -1,0 +1,19 @@
+; Template BIND si le registrar demande une zone complete.
+; Remplacer les NS example-dns.invalid par les nameservers reels du registrar ou de l'hebergeur DNS choisi.
+$ORIGIN immeubleassur.com.
+$TTL 300
+@ IN SOA ns1.example-dns.invalid. hostmaster.immeubleassur.com. (
+  2026072901 ; serial
+  3600       ; refresh
+  900        ; retry
+  1209600    ; expire
+  300        ; minimum
+)
+@ IN NS ns1.example-dns.invalid.
+@ IN NS ns2.example-dns.invalid.
+@ IN A 80.15.56.123
+www IN CNAME immeubleassur.com.
+@ IN MX 10 mail.xcr.fr.
+@ IN TXT "v=spf1 mx a:mail.xcr.fr ~all"
+_dmarc IN TXT "v=DMARC1; p=quarantine; rua=mailto:team@immeubleassur.com; fo=1"
+@ IN CAA 0 issue "letsencrypt.org"

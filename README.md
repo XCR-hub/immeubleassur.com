@@ -97,11 +97,11 @@ Le panneau integrations affiche les secrets par nom uniquement, jamais leurs val
 
 ## DNS et independance
 
-Le runtime et la base sont locaux. Le point DNS doit etre traite separement chez le registrar pour une autarcie complete.
+Le runtime et la base sont locaux. Comme l'IP publique est fixe (`80.15.56.123`), aucun DDNS n'est necessaire. Le point DNS doit etre traite separement chez le registrar pour une autarcie complete.
 
 Etat constate le 2026-07-29:
 
 - A record public: `80.15.56.123`
 - nameservers: `arely.ns.cloudflare.com` et `rocky.ns.cloudflare.com`
 
-Tant que ces nameservers restent actifs, Cloudflare reste l'autorite DNS du domaine, meme si le site et la base ne dependent plus de Cloudflare. Pour supprimer cette derniere dependance, il faut changer les nameservers chez le registrar vers un DNS gere hors Cloudflare, puis recréer les enregistrements DNS necessaires (`A`, `www`, MX/SPF/DKIM/DMARC si applicables).
+Tant que ces nameservers restent actifs, Cloudflare reste l'autorite DNS du domaine, meme si le site et la base ne dependent plus de Cloudflare. Pour supprimer cette derniere dependance, recopier `dns/registrar-records.json` chez le registrar ou dans le nouveau DNS, puis changer les nameservers chez le registrar vers un DNS gere hors Cloudflare. Controle normal: `npm run dns:autarky`. Controle final apres migration: `npm run dns:autarky:strict`.

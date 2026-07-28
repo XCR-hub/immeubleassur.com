@@ -1,0 +1,95 @@
+{
+  "generated_at": "2026-07-28T23:33:33.589Z",
+  "domain": "immeubleassur.com",
+  "fixed_ipv4": "80.15.56.123",
+  "resolvers": [
+    "9.9.9.9",
+    "8.8.8.8"
+  ],
+  "status": "registrar-migration-required",
+  "checks": {
+    "a_record": {
+      "expected": "80.15.56.123",
+      "observed": [
+        "80.15.56.123"
+      ],
+      "ok": true,
+      "error": ""
+    },
+    "nameservers": {
+      "observed": [
+        "arely.ns.cloudflare.com",
+        "rocky.ns.cloudflare.com"
+      ],
+      "cloudflare_present": true,
+      "cloudflare_nameservers": [
+        "arely.ns.cloudflare.com",
+        "rocky.ns.cloudflare.com"
+      ],
+      "error": ""
+    },
+    "mail": {
+      "observed_mx": [
+        "mail.xcr.fr"
+      ],
+      "txt_spf_present": true,
+      "dmarc_present": true,
+      "mx_error": "",
+      "txt_error": "",
+      "dmarc_error": ""
+    }
+  },
+  "planned_records": {
+    "domain": "immeubleassur.com",
+    "fixed_ipv4": "80.15.56.123",
+    "purpose": "Records a recreer chez le registrar ou chez le nouveau DNS avant de quitter les nameservers Cloudflare.",
+    "records": [
+      {
+        "type": "A",
+        "name": "@",
+        "value": "80.15.56.123",
+        "ttl": 300,
+        "note": "IP fixe Orange vers le serveur local"
+      },
+      {
+        "type": "CNAME",
+        "name": "www",
+        "value": "immeubleassur.com.",
+        "ttl": 300
+      },
+      {
+        "type": "MX",
+        "name": "@",
+        "priority": 10,
+        "value": "mail.xcr.fr.",
+        "ttl": 300
+      },
+      {
+        "type": "TXT",
+        "name": "@",
+        "value": "v=spf1 mx a:mail.xcr.fr ~all",
+        "ttl": 300
+      },
+      {
+        "type": "TXT",
+        "name": "_dmarc",
+        "value": "v=DMARC1; p=quarantine; rua=mailto:team@immeubleassur.com; fo=1",
+        "ttl": 300
+      },
+      {
+        "type": "CAA",
+        "name": "@",
+        "flags": 0,
+        "tag": "issue",
+        "value": "letsencrypt.org",
+        "ttl": 300
+      }
+    ],
+    "dkim": {
+      "status": "a fournir par le serveur mail si DKIM est active",
+      "record_name": "selector._domainkey",
+      "record_type": "TXT"
+    }
+  },
+  "next_action": "IP fixe OK: recopier dns/registrar-records.json chez le registrar, puis remplacer les nameservers Cloudflare."
+}
