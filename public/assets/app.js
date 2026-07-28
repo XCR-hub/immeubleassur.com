@@ -595,6 +595,8 @@ function applyIntentPrefill() {
     copropriete: "copropriete",
     sci: "multirisque-immeuble",
     mixte: "audit-contrat",
+    audit: "audit-contrat",
+    "audit-contrat": "audit-contrat",
     immeuble: "multirisque-immeuble"
   };
   const profileMap = {
@@ -602,7 +604,9 @@ function applyIntentPrefill() {
     copropriete: "syndic-professionnel",
     cno: "bailleur",
     pno: "bailleur",
-    mixte: "bailleur"
+    mixte: "bailleur",
+    audit: "bailleur",
+    "audit-contrat": "bailleur"
   };
   const propertyMap = {
     cno: "lot-copropriete",
@@ -610,6 +614,8 @@ function applyIntentPrefill() {
     copropriete: "copropriete",
     sci: "immeuble-locatif",
     mixte: "local-commercial",
+    audit: "immeuble-locatif",
+    "audit-contrat": "immeuble-locatif",
     immeuble: "immeuble-locatif"
   };
   applyFormValues({ need: needMap[intent], profile: profileMap[intent], property_type: propertyMap[intent] });
@@ -895,6 +901,140 @@ function mountRiskRouter() {
   options.forEach((option) => option.addEventListener("click", () => render(option.dataset.risk, true)));
   render(router.dataset.activeRisk || "cno");
 }
+function quoteFastTrackRows() {
+  return {
+    cno: {
+      label: "CNO",
+      title: "Coproprietaire non occupant",
+      text: "Lot en copropriete, logement vacant ou loue: verifier RC, contrat immeuble et assurance occupant.",
+      proof: "Pieces cles: adresse, occupation, contrat copropriete.",
+      href: "/devis-pno-cno?intent=cno",
+      need: "cno",
+      profile: "bailleur",
+      property_type: "lot-copropriete"
+    },
+    pno: {
+      label: "PNO",
+      title: "Proprietaire bailleur",
+      text: "Logement loue, vacant ou en attente de locataire: cadrer garanties, vacance et franchises.",
+      proof: "Pieces cles: bail, occupation, surface, sinistres.",
+      href: "/devis-pno-cno?intent=pno",
+      need: "pno",
+      profile: "bailleur",
+      property_type: "logement-loue"
+    },
+    copropriete: {
+      label: "Copropriete",
+      title: "Syndic ou conseil syndical",
+      text: "Parties communes, RC syndicat, lots, travaux et sinistres doivent etre presentes clairement.",
+      proof: "Pieces cles: nombre de lots, contrat actuel, sinistres 36 mois.",
+      href: "/devis-assurance-immeuble?intent=copropriete",
+      need: "copropriete",
+      profile: "syndic-professionnel",
+      property_type: "copropriete"
+    },
+    sci: {
+      label: "SCI",
+      title: "SCI ou patrimoine multi-biens",
+      text: "Regrouper les biens, contrats et occupants pour eviter doublons et trous de garantie.",
+      proof: "Pieces cles: liste des biens, lots, contrats existants.",
+      href: "/devis-assurance-immeuble?intent=sci",
+      need: "multirisque-immeuble",
+      profile: "sci",
+      property_type: "immeuble-locatif"
+    },
+    immeuble: {
+      label: "Immeuble",
+      title: "Immeuble locatif ou mixte",
+      text: "Transformer le batiment en fiche risque: lots, usage, entretien, sinistres et garanties attendues.",
+      proof: "Pieces cles: lots, prime actuelle, echeance, travaux.",
+      href: "/devis-assurance-immeuble?intent=immeuble",
+      need: "multirisque-immeuble",
+      profile: "bailleur",
+      property_type: "immeuble-locatif"
+    },
+    audit: {
+      label: "Audit",
+      title: "Contrat a comparer avant echeance",
+      text: "Lire franchises, exclusions, plafonds, recours et service sinistre avant de consulter le marche.",
+      proof: "Pieces cles: contrat actuel, appel de prime, echeance.",
+      href: "/devis-assurance-immeuble?intent=audit-contrat",
+      need: "audit-contrat",
+      profile: "bailleur",
+      property_type: "immeuble-locatif"
+    }
+  };
+}
+
+function quoteFastTrackIntent() {
+  const params = new URLSearchParams(window.location.search);
+  const requested = (params.get("intent") || params.get("need") || inferIntent()).toLowerCase();
+  if (["cno", "pno", "copropriete", "sci", "immeuble"].includes(requested)) return requested;
+  if (["audit", "audit-contrat", "prix", "comparateur"].includes(requested)) return "audit";
+  if (requested === "website") return "immeuble";
+  return "immeuble";
+}
+
+function quoteFastTrackMessage(row) {
+  return `${row.title}. ${row.proof} Objectif: obtenir un devis exploitable et comparer les garanties sans allers-retours.`;
+}
+
+function renderQuoteFastTrack(shell, key, shouldTrack = false) {
+  const rows = quoteFastTrackRows();
+  const row = rows[key] || rows.immeuble;
+  shell.dataset.activeIntent = key;
+  shell.querySelectorAll("[data-quote-fast-option]").forEach((button) => {
+    const active = button.dataset.quoteFastOption === key;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+  shell.querySelector("[data-quote-fast-title]").textContent = row.title;
+  shell.querySelector("[data-quote-fast-text]").textContent = row.text;
+  shell.querySelector("[data-quote-fast-proof]").textContent = row.proof;
+  const cta = shell.querySelector("[data-quote-fast-continue]");
+  cta.href = row.href;
+  cta.dataset.intent = key;
+  if (shouldTrack) track("quote_router_select", { target: key, label: row.title, route: row.href });
+}
+
+function quoteFastTrackApply(row) {
+  if (!form) return false;
+  applyFormValues({ ...row, message: quoteFastTrackMessage(row) });
+  return true;
+}
+
+function mountQuoteFastTrack() {
+  if (window.location.pathname.includes("/admin") || window.location.pathname.includes("/merci")) return;
+  if (document.querySelector(".quote-fast-track")) return;
+  const anchor = document.querySelector(".conversion-strip") || document.querySelector(".page-hero") || document.querySelector(".hero") || document.querySelector(".article-head");
+  if (!anchor) return;
+  const rows = quoteFastTrackRows();
+  const initial = quoteFastTrackIntent();
+  const shell = document.createElement("section");
+  shell.className = "quote-fast-track band";
+  shell.setAttribute("aria-label", "Acces rapide devis assurance immeuble");
+  shell.innerHTML = `<div class="quote-fast-track-inner"><div class="quote-fast-copy"><p class="eyebrow dark">Devis immediat</p><h2>Aller directement au bon parcours assurance immeuble.</h2><p data-quote-fast-text></p><strong data-quote-fast-proof></strong></div><div class="quote-fast-panel"><div class="quote-fast-options" role="group" aria-label="Type de demande">${Object.entries(rows).map(([key, row]) => `<button type="button" data-quote-fast-option="${key}" aria-pressed="false">${row.label}</button>`).join("")}</div><div class="quote-fast-result"><span>Parcours recommande</span><h3 data-quote-fast-title></h3><a class="button primary" data-track="quote-fast-continue" data-quote-fast-continue href="/devis-assurance-immeuble">Continuer mon devis</a><a class="button secondary" data-track="quote-fast-phone" href="tel:+33180855786">Appeler maintenant</a></div></div></div>`;
+  anchor.insertAdjacentElement("afterend", shell);
+  renderQuoteFastTrack(shell, initial);
+  track("quote_router_view", { target: initial, label: window.location.pathname });
+  shell.querySelectorAll("[data-quote-fast-option]").forEach((button) => {
+    button.addEventListener("click", () => renderQuoteFastTrack(shell, button.dataset.quoteFastOption, true));
+  });
+  shell.querySelector("[data-quote-fast-continue]")?.addEventListener("click", (event) => {
+    const key = shell.dataset.activeIntent || initial;
+    const row = rows[key] || rows.immeuble;
+    track("quote_router_continue", { target: key, label: row.title, route: row.href, mode: form ? "prefill" : "navigate" });
+    if (!quoteFastTrackApply(row)) return;
+    event.preventDefault();
+    if (!formStarted) {
+      formStarted = true;
+      track("form_start", { target: "quote-fast-track", label: key });
+    }
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+    const focusTarget = form.querySelector("input[name='name'], input[name='phone'], input[name='email']");
+    focusTarget?.focus({ preventScroll: true });
+  });
+}
 // ux-conversion-runtime:end
 function enhanceHeader() {
   const header = document.querySelector(".site-header[data-elevate]");
@@ -1132,6 +1272,7 @@ mountLeadValuePreview();
 mountDiagnostic();
 mountReadiness();
 mountRiskRouter();
+mountQuoteFastTrack();
 bindNewsletterForms();
 enhanceHeader();
 bindScrollDepthTracking();
