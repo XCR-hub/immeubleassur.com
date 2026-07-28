@@ -8,6 +8,7 @@ const checks = [
   ["package.json", "leads:sla:monitor"],
   ["package.json", "leads:quality:monitor"],
   ["package.json", "conversion:funnel:monitor"],
+  ["package.json", "conversion:actions:sync"],
   ["scripts/local-production-server.js", "openLocalD1"],
   ["scripts/local-production-server.js", "SEND_SMTP_MAIL"],
   ["scripts/local-production-monitor.js", "sqlite_backup_age"],
@@ -18,6 +19,9 @@ const checks = [
   ["scripts/local-lead-quality-monitor.js", "LOCAL_LEAD_QUALITY_REPORT"],
   ["scripts/local-conversion-funnel-monitor.js", "Conversion funnel monitor"],
   ["scripts/local-conversion-funnel-monitor.js", "LOCAL_CONVERSION_FUNNEL_REPORT"],
+  ["scripts/local-conversion-action-sync.js", "Conversion action sync"],
+  ["scripts/local-conversion-action-sync.js", "seo_opportunities"],
+  ["scripts/local-conversion-action-sync.js", "LOCAL_CONVERSION_ACTION_SYNC_REPORT"],
   ["functions/api/admin/runtime-health.js", "sanitizeMonitorReport"],
   ["functions/api/admin/runtime-health.js", "LOCAL_PRODUCTION_MONITOR_REPORT"],
   ["functions/api/admin/runtime-health.js", "sanitizeLeadSlaReport"],
@@ -37,7 +41,8 @@ const checks = [
   ["README.md", "Cloudflare D1 n'est plus requis"],
   ["README.md", "leads:sla:monitor"],
   ["README.md", "leads:quality:monitor"],
-  ["README.md", "conversion:funnel:monitor"]
+  ["README.md", "conversion:funnel:monitor"],
+  ["README.md", "conversion:actions:sync"]
 ];
 
 const missing = [];
