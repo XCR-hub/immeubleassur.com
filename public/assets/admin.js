@@ -147,6 +147,25 @@ function formatBytes(value) {
   return `${bytes} o`;
 }
 
+function monitorStatusLabel(monitor) {
+  if (!monitor?.available) return "Indispo";
+  return monitor.success ? "OK" : "Alerte";
+}
+
+function monitorDetail(monitor) {
+  if (!monitor?.available) return "rapport absent";
+  const total = Array.isArray(monitor.checks) ? monitor.checks.length : 0;
+  const ok = Number(monitor.summary?.ok || 0);
+  const age = monitor.age_minutes === null || monitor.age_minutes === undefined ? "-" : `${monitor.age_minutes} min`;
+  return `${ok}/${total} checks, age ${age}`;
+}
+
+function monitorSignal(monitor) {
+  if (!monitor?.available) return "rapport local non trouve";
+  const failed = (monitor.checks || []).filter((item) => !item.ok).map((item) => item.name).slice(0, 3);
+  return failed.length ? failed.join(", ") : `dernier OK ${reportDate(monitor.generated_at)}`;
+}
+
 function valueEstimateFor(lead, q = qualificationFor(lead)) {
   return q.value_estimate || leadValueEstimate(lead, q.score || 0);
 }
@@ -671,7 +690,8 @@ async function loadIntegrations() {
       metricCard("PageSpeed", String(googleHealth.pagespeed_checked || 0), `${googleHealth.pagespeed_slow_pages || 0} lente(s)`),
       metricCard("Newsletter", String(subscriberCount(reports.newsletter_subscribers, "active")), reports.latest_newsletter_issue?.status || "rapport public"),
       metricCard("Anti-spam", String(spamBlocks || eventCount(reports.site_events_30d, "lead_spam_blocked")), turnstileReport.configured ? "Turnstile actif" : "Turnstile pret"),
-      metricCard("Runtime", runtimeHealth ? `${runtimeHealth.runtime?.platform || "local"} / ${runtimeHealth.database?.driver || "db"}` : "Token requis", runtimeHealth?.database?.size_bytes ? `${runtimeHealth.database.table_count || 0} tables, ${formatBytes(runtimeHealth.database.size_bytes)}` : "diagnostic protege")
+      metricCard("Runtime", runtimeHealth ? `${runtimeHealth.runtime?.platform || "local"} / ${runtimeHealth.database?.driver || "db"}` : "Token requis", runtimeHealth?.database?.size_bytes ? `${runtimeHealth.database.table_count || 0} tables, ${formatBytes(runtimeHealth.database.size_bytes)}` : "diagnostic protege"),
+      metricCard("Production", monitorStatusLabel(runtimeHealth?.monitor), monitorDetail(runtimeHealth?.monitor))
     );
   }
 
@@ -689,6 +709,15 @@ async function loadIntegrations() {
       { label: "Pexels", status: mediaReport.status || "rapport public", scope: "Dernier build media.", signal: `${mediaReport.assets_count || 0} asset(s)`, action: "Configurer PEXELS_API_KEY pour injecter des visuels attribues." },
       { label: "SerpApi", status: searchReport.status || "rapport public", scope: "Dernier suivi positions.", signal: `${searchReport.keywords_checked || 0} requete(s)`, action: "Configurer SERP_API_KEY pour remplacer l'estimation locale." }
     ];
+  if (runtimeHealth?.monitor?.available) {
+    rows.unshift({
+      label: "Monitoring production",
+      status: monitorStatusLabel(runtimeHealth.monitor),
+      scope: `Site, /health, telemetry, SQLite\nAlertes: ${runtimeHealth.monitor.alert?.status || "-"}`,
+      signal: monitorSignal(runtimeHealth.monitor),
+      action: runtimeHealth.monitor.success ? "Continuer la surveillance planifiee toutes les 15 minutes." : "Ouvrir le rapport serveur et corriger le check en alerte."
+    });
+  }
   if (runtimeHealth) {
     rows.unshift({
       label: "Serveur local",
