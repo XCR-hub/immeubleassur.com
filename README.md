@@ -4,7 +4,7 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 
 ## Stack
 
-- Site statique HTML/CSS/JS, deployable sur Cloudflare Pages.
+- Site statique HTML/CSS/JS, deploye en production autonome sur serveur Windows local; Cloudflare Pages reste un secours manuel.
 - Cloudflare Pages Function `functions/api/leads.js` pour les demandes de devis.
 - Cloudflare Pages Function `functions/api/admin/leads.js` pour consulter les derniers leads avec `ADMIN_API_TOKEN`, valeur estimee, SLA de rappel et suivi commercial.
 - Notification email des nouveaux leads via SMTP STARTTLS (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `SMTP_TO`).
@@ -29,8 +29,8 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Audit editorial `scripts/content-quality-check.js`: garde-fous people-first, anti-duplication, anti-bourrage et anti-contenu manipulatif.
 - Audit conversion `scripts/conversion-intelligence-check.js`: score des pages a intention commerciale, maillage devis, CTA, modules PNO/CNO et actions dashboard.
 - Tests CRO `scripts/cro-experiment-check.js`: variantes CTA mesurees par session, propagation lead/GA4 et reporting admin.
-- Cloudflare D1 avec le schema `schema.sql`.
-- Workflow GitHub Actions pret pour deployer via Wrangler.
+- SQLite local avec le schema `schema.sql`; Cloudflare D1 n'est plus requis en production autonome.
+- Workflow GitHub Actions Cloudflare Pages conserve en declenchement manuel uniquement.
 
 ## Demarrage local
 
@@ -68,6 +68,8 @@ Variables principales sur le serveur:
 LOCAL_SITE_HOST=0.0.0.0
 LOCAL_SITE_PORT=8790
 LOCAL_SQLITE_DB=F:\immeubleassur-data\immeubleassur.sqlite
+LOCAL_SQLITE_BACKUP_DIR=F:\immeubleassur-backups\sqlite
+LOCAL_SQLITE_BACKUP_KEEP=30
 SITE_ORIGIN=https://immeubleassur.com
 ADMIN_API_TOKEN=secret-admin
 SMTP_HOST=mail.xcr.fr
@@ -82,15 +84,17 @@ Commandes utiles:
 
 ```powershell
 npm run db:sqlite:restore -- --snapshot F:\immeubleassur-d1 --db F:\immeubleassur-data\immeubleassur.sqlite --replace
+npm run db:sqlite:backup -- --db F:\immeubleassur-data\immeubleassur.sqlite --out F:\immeubleassur-backups\sqlite
 npm run serve:local
 npm run db:sqlite:import-reports
 npm run local:autarky:check
 ```
 
-Pour la mise en ligne publique sans Pages/D1, le serveur Windows doit recevoir le trafic HTTP/HTTPS depuis la box/routeur, puis `immeubleassur.com` doit pointer vers l'IP publique du site. Tant que ce routage externe n'est pas confirme, Cloudflare Pages/D1 doit rester en secours pour eviter une coupure.
+Pour la mise en ligne publique sans Pages/D1, la Livebox redirige les ports 80/443 vers le serveur Windows, Caddy termine HTTPS et relaie vers Node sur 8790. `/health` reste public mais minimal; le diagnostic detaille est protege par `/api/admin/runtime-health` avec `ADMIN_API_TOKEN`.
+
 ## Synchronisation vers 192.168.1.70
 
-Cloudflare D1 reste la base active du site en production. Le serveur `192.168.1.70` est prepare comme destination de sauvegarde, archive et reporting. La synchronisation cree un snapshot compresse avec schema, manifest et fichiers JSONL par table; les donnees ne sont jamais ajoutees au depot Git.
+Section historique/migration: Cloudflare D1 ne doit plus etre considere comme la base active en production autonome. Le serveur `192.168.1.70` peut encore recevoir ou restaurer un snapshot D1 si un retour arriere ou une migration est necessaire. La synchronisation cree un snapshot compresse avec schema, manifest et fichiers JSONL par table; les donnees ne sont jamais ajoutees au depot Git.
 
 Sur le serveur de donnees:
 
@@ -133,7 +137,7 @@ Ajouter aussi les variables Cloudflare Pages:
 - SMTP: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`, `SMTP_TO`
 - GA4 serveur: `GA4_MEASUREMENT_ID`, `GA4_API_SECRET`, `GA4_REGION=eu`
 
-Puis pousser la branche `main`. Le workflow `.github/workflows/cloudflare-pages.yml` publiera le site.
+Le workflow `.github/workflows/cloudflare-pages.yml` est volontairement manuel (`workflow_dispatch`) pour eviter de redeployer Pages a chaque push. L'hebergement actif reste le serveur local.
 
 ## SEO continu
 

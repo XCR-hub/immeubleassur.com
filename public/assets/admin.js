@@ -139,6 +139,14 @@ function formatEuro(value) {
   return `${Math.round(amount).toLocaleString("fr-FR")} EUR`;
 }
 
+function formatBytes(value) {
+  const bytes = Number(value || 0);
+  if (!bytes) return "0 o";
+  if (bytes >= 1048576) return `${(bytes / 1048576).toFixed(1)} Mo`;
+  if (bytes >= 1024) return `${Math.round(bytes / 1024)} Ko`;
+  return `${bytes} o`;
+}
+
 function valueEstimateFor(lead, q = qualificationFor(lead)) {
   return q.value_estimate || leadValueEstimate(lead, q.score || 0);
 }
@@ -632,10 +640,18 @@ async function loadIntegrations() {
   ]);
 
   let apiResult = null;
+  let runtimeHealth = null;
   if (token) {
     const response = await fetch("/api/admin/integrations", { headers: { Authorization: `Bearer ${token}` } });
     apiResult = await response.json();
     if (!response.ok || !apiResult.success) throw new Error(apiResult.error || "Audit integrations impossible");
+    try {
+      const runtimeResponse = await fetch("/api/admin/runtime-health", { headers: { Authorization: `Bearer ${token}` } });
+      const runtimeResult = await runtimeResponse.json();
+      if (runtimeResponse.ok && runtimeResult.success) runtimeHealth = runtimeResult;
+    } catch {
+      runtimeHealth = null;
+    }
   }
 
   const connectors = apiResult?.connectors || [];
@@ -654,7 +670,8 @@ async function loadIntegrations() {
       metricCard("Search Console", String(googleHealth.search_console_rows || 0), `${googleHealth.query_clusters || 0} cluster(s)`),
       metricCard("PageSpeed", String(googleHealth.pagespeed_checked || 0), `${googleHealth.pagespeed_slow_pages || 0} lente(s)`),
       metricCard("Newsletter", String(subscriberCount(reports.newsletter_subscribers, "active")), reports.latest_newsletter_issue?.status || "rapport public"),
-      metricCard("Anti-spam", String(spamBlocks || eventCount(reports.site_events_30d, "lead_spam_blocked")), turnstileReport.configured ? "Turnstile actif" : "Turnstile pret")
+      metricCard("Anti-spam", String(spamBlocks || eventCount(reports.site_events_30d, "lead_spam_blocked")), turnstileReport.configured ? "Turnstile actif" : "Turnstile pret"),
+      metricCard("Runtime", runtimeHealth ? `${runtimeHealth.runtime?.platform || "local"} / ${runtimeHealth.database?.driver || "db"}` : "Token requis", runtimeHealth?.database?.size_bytes ? `${runtimeHealth.database.table_count || 0} tables, ${formatBytes(runtimeHealth.database.size_bytes)}` : "diagnostic protege")
     );
   }
 
@@ -672,6 +689,15 @@ async function loadIntegrations() {
       { label: "Pexels", status: mediaReport.status || "rapport public", scope: "Dernier build media.", signal: `${mediaReport.assets_count || 0} asset(s)`, action: "Configurer PEXELS_API_KEY pour injecter des visuels attribues." },
       { label: "SerpApi", status: searchReport.status || "rapport public", scope: "Dernier suivi positions.", signal: `${searchReport.keywords_checked || 0} requete(s)`, action: "Configurer SERP_API_KEY pour remplacer l'estimation locale." }
     ];
+  if (runtimeHealth) {
+    rows.unshift({
+      label: "Serveur local",
+      status: "OK",
+      scope: `${runtimeHealth.runtime?.platform || "local-node"}\nBase ${runtimeHealth.database?.driver || "sqlite"}`,
+      signal: `${runtimeHealth.database?.table_count || 0} table(s), ${formatBytes(runtimeHealth.database?.size_bytes)}`,
+      action: "Surveiller /health public et sauvegardes SQLite planifiees."
+    });
+  }
   renderIntegrationsTable(rows);
 }
 function newsletterStat(rows = [], key) {

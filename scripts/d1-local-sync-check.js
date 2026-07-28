@@ -20,7 +20,7 @@ const expectations = [
   {
     file: "README.md",
     role: "documentation",
-    snippets: ["192.168.1.70", "LOCAL_DB_SYNC_TOKEN", "npm run db:sync:local", "Cloudflare D1 reste la base active"]
+    snippets: ["192.168.1.70", "LOCAL_DB_SYNC_TOKEN", "npm run db:sync:local", "Cloudflare D1 ne doit plus etre considere comme la base active"]
   },
   {
     file: ".gitignore",

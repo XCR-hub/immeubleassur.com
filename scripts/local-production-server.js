@@ -28,6 +28,7 @@ const apiRoutes = new Map([
   ["/api/admin/newsletter", "functions/api/admin/newsletter.js"],
   ["/api/admin/sales", "functions/api/admin/sales.js"],
   ["/api/admin/seo", "functions/api/admin/seo.js"],
+  ["/api/admin/runtime-health", "functions/api/admin/runtime-health.js"],
   ["/api/admin/spam", "functions/api/admin/spam.js"]
 ]);
 
@@ -50,11 +51,15 @@ const contentTypes = {
   ".webmanifest": "application/manifest+json; charset=utf-8"
 };
 
-function json(response, status, body) {
+function json(response, status, body, options = {}) {
   response.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store"
   });
+  if (options.head) {
+    response.end();
+    return;
+  }
   response.end(JSON.stringify(body));
 }
 
@@ -192,8 +197,19 @@ function handleStatic(request, response) {
 
 const server = createServer((request, response) => {
   const pathname = apiPathOf(request.url);
-  if (request.method === "GET" && new URL(request.url || "/", "http://local").pathname === "/health") {
-    return json(response, 200, { success: true, service: "immeubleassur-local-site", mode: "sqlite", database: db.health() });
+  if (["GET", "HEAD"].includes(request.method || "GET") && new URL(request.url || "/", "http://local").pathname === "/health") {
+    return json(
+      response,
+      200,
+      {
+        success: true,
+        service: "immeubleassur-local-site",
+        status: "ok",
+        mode: "sqlite",
+        generated_at: new Date().toISOString()
+      },
+      { head: request.method === "HEAD" }
+    );
   }
   if (pathname) {
     handleApi(request, response, pathname).catch((error) => {
