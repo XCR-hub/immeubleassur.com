@@ -23,6 +23,7 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Pipeline contenu admin: endpoint `/api/admin/content` et panneau admin pour suivre pages faibles, opportunites SEO, derniers runs IA/SEO/SerpApi/media et veille editoriale.
 - Bouclier anti-spam admin: endpoint `/api/admin/spam` et panneau admin pour suivre blocages, raisons, pages ciblees, sources masquees et erreurs de validation.
 - Centre de relance commerciale: endpoint `/api/admin/sales` et panneau admin pour piloter SLA, leads chauds, pipeline estime, scripts de rappel et brouillons email.
+- Attribution acquisition: endpoint `/api/admin/attribution` et panneau admin pour relier sources, landing pages, campagnes, besoins, conversions et valeur estimee en agregats.
 - Autopilote `scripts/seo-autopilot.js`: audit HTML, opportunites, PageSpeed Insights, Search Console si secrets Google configures, boucle Google feedback.
 - Boucle Google APIs: Search Analytics pour requetes/CTR/position moyenne, URL Inspection pour etat d indexation des pages prioritaires et Sitemaps API pour signaler `sitemap.xml`.
 - Audit editorial `scripts/content-quality-check.js`: garde-fous people-first, anti-duplication, anti-bourrage et anti-contenu manipulatif.
@@ -116,6 +117,8 @@ Le panneau /admin.html appelle aussi `/api/admin/content` pour prioriser les con
 Le panneau /admin.html appelle aussi `/api/admin/spam` pour suivre les robots et les blocages sans exposer les IP brutes; seules des empreintes masquees sont retournees.
 
 Le panneau /admin.html appelle aussi `/api/admin/sales` pour prioriser les relances commerciales, les retards SLA, les dossiers a forte valeur et les scripts de rappel.
+
+Le panneau /admin.html appelle aussi `/api/admin/attribution` pour comprendre quels canaux, campagnes et pages generent les leads les plus qualifies. La reponse est agregee et ne retourne aucun contact nominatif.
 
 ## Politique contenu IA
 

@@ -21,6 +21,9 @@ const spamBody = document.querySelector("#spam-body");
 const salesButton = document.querySelector("#load-sales");
 const salesSummary = document.querySelector("#sales-summary");
 const salesBody = document.querySelector("#sales-body");
+const attributionButton = document.querySelector("#load-attribution");
+const attributionSummary = document.querySelector("#attribution-summary");
+const attributionBody = document.querySelector("#attribution-body");
 const leadSummary = document.querySelector("#lead-summary");
 const leadSearch = document.querySelector("#lead-search");
 const priorityFilter = document.querySelector("#lead-priority-filter");
@@ -983,6 +986,105 @@ async function loadSales() {
   }
   renderSalesTable(salesRows(result));
 }
+function attributionRows(result = {}) {
+  const rows = [];
+  for (const item of Array.isArray(result.actions) ? result.actions : []) {
+    rows.push({
+      type: item.type || "action-attribution",
+      source: item.target || "acquisition",
+      traffic: String(item.priority || ""),
+      conversion: item.signal || "signal priorise",
+      action: item.recommendation || "Analyser la source et renforcer le parcours lead."
+    });
+  }
+
+  const attribution = result.attribution || {};
+  const groups = [
+    ["source", attribution.sources || []],
+    ["landing", attribution.landing_pages || []],
+    ["campagne", attribution.campaigns || []],
+    ["besoin", attribution.needs || []],
+    ["page", attribution.paths || []]
+  ];
+  for (const [type, items] of groups) {
+    for (const item of Array.isArray(items) ? items.slice(0, 8) : []) {
+      rows.push({
+        type,
+        source: item.key || "non precise",
+        traffic: `${item.page_views || 0} vues\n${item.form_starts || 0} start(s)`,
+        conversion: `${item.leads || 0} lead(s), ${item.hot_leads || 0} chaud(s)\n${item.value_label || "0 EUR/an"}`,
+        action: `CTA ${item.cta_rate || 0}% / start ${item.start_rate || 0}% / lead ${item.lead_rate || 0}%. Score moyen ${Math.round(Number(item.avg_score || 0))}.`
+      });
+    }
+  }
+  return rows;
+}
+
+function renderAttributionTable(rows = []) {
+  if (!attributionBody) return;
+  attributionBody.replaceChildren();
+  if (!rows.length) {
+    const tr = document.createElement("tr");
+    const td = cell("Aucun signal d'attribution charge.");
+    td.colSpan = 5;
+    tr.append(td);
+    attributionBody.append(tr);
+    return;
+  }
+
+  for (const row of rows.slice(0, 80)) {
+    const tr = document.createElement("tr");
+    tr.append(
+      cell(row.type),
+      cell(row.source),
+      cell(row.traffic),
+      cell(row.conversion),
+      cell(row.action)
+    );
+    attributionBody.append(tr);
+  }
+}
+
+async function loadAttribution() {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
+  if (!token) {
+    if (attributionSummary) attributionSummary.replaceChildren(metricCard("Token requis", "Admin", "charger l'attribution"));
+    return;
+  }
+  if (attributionSummary) attributionSummary.replaceChildren(metricCard("Chargement", "Attribution", "lecture D1"));
+
+  const response = await fetch("/api/admin/attribution", { headers: { Authorization: `Bearer ${token}` } });
+  const result = await response.json();
+  if (!response.ok || !result.success) throw new Error(result.error || "Chargement attribution impossible");
+
+  const summary = result.summary || {};
+  const attribution = result.attribution || {};
+  const sources = Array.isArray(attribution.sources) ? attribution.sources : [];
+  const landings = Array.isArray(attribution.landing_pages) ? attribution.landing_pages : [];
+  const campaigns = Array.isArray(attribution.campaigns) ? attribution.campaigns : [];
+  const needs = Array.isArray(attribution.needs) ? attribution.needs : [];
+  const actions = Array.isArray(result.actions) ? result.actions : [];
+  const warnings = Array.isArray(result.warnings) ? result.warnings : [];
+
+  if (attributionSummary) {
+    attributionSummary.replaceChildren(
+      metricCard("Vues 30j", String(summary.page_views_30d || 0), "trafic mesure"),
+      metricCard("Starts", String(summary.form_starts_30d || 0), `${summary.form_to_lead_rate || 0}% vers lead`),
+      metricCard("Leads 30j", String(summary.leads_30d || 0), `${summary.hot_leads_30d || 0} chaud(s)`),
+      metricCard("Visiteur -> lead", `${summary.visitor_to_lead_rate || 0}%`, "global"),
+      metricCard("Top source", summary.top_source || "-", summary.top_source_value || "0 EUR/an"),
+      metricCard("Top landing", summary.top_landing_page || "-", "valeur estimee"),
+      metricCard("Top besoin", summary.top_need || "-", "intention"),
+      metricCard("Sources", String(sources.length), "canaux"),
+      metricCard("Landings", String(landings.length), "pages"),
+      metricCard("Campagnes", String(campaigns.length), "UTM"),
+      metricCard("Besoins", String(needs.length), "segments"),
+      metricCard("Actions", String(actions.length), warnings.length ? `${warnings.length} alerte(s)` : "priorisees")
+    );
+  }
+  renderAttributionTable(attributionRows(result));
+}
 function spamRows(result = {}) {
   const rows = [];
   for (const item of Array.isArray(result.actions) ? result.actions : []) {
@@ -1195,6 +1297,7 @@ form?.addEventListener("submit", async (event) => {
     loadContent().catch(() => {});
     loadSpam().catch(() => {});
     loadSales().catch(() => {});
+    loadAttribution().catch(() => {});
   } catch (error) {
     setStatus(error.message || "Erreur de chargement", "error");
   }
@@ -1256,6 +1359,11 @@ spamButton?.addEventListener("click", () => {
 salesButton?.addEventListener("click", () => {
   loadSales().catch((error) => {
     if (salesSummary) salesSummary.replaceChildren(metricCard("Erreur", "Relances", error.message || "chargement impossible"));
+  });
+});
+attributionButton?.addEventListener("click", () => {
+  loadAttribution().catch((error) => {
+    if (attributionSummary) attributionSummary.replaceChildren(metricCard("Erreur", "Attribution", error.message || "chargement impossible"));
   });
 });
 newsletterSendButton?.addEventListener("click", () => {

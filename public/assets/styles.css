@@ -2448,3 +2448,10 @@ textarea:focus {
 .admin-sales-table {
   min-width: 1180px;
 }
+.admin-attribution-panel {
+  margin-top: 1.5rem;
+}
+
+.admin-attribution-table {
+  min-width: 1180px;
+}

@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-07-28T03:38:22.467Z",
+  "checked_files": [
+    "functions/api/admin/attribution.js",
+    "public/assets/admin.js",
+    "scripts/generate-site.js",
+    "scripts/seo-content-factory.js",
+    "package.json"
+  ],
+  "required_contracts": 27,
+  "missing": [],
+  "status": "passed"
+}
