@@ -154,6 +154,84 @@ function sanitizeLeadQualityReport(report) {
   };
 }
 
+function sanitizeConversionFunnelReport(report) {
+  if (!report || typeof report !== "object") return { available: false };
+  const generatedAt = report.generated_at || "";
+  const ageMinutes = generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null;
+  const numericSummary = (summary = {}) => ({
+    lookback_days: Number(summary.lookback_days || 0),
+    page_views: Number(summary.page_views || 0),
+    quote_router_views: Number(summary.quote_router_views || 0),
+    quote_router_selects: Number(summary.quote_router_selects || 0),
+    quote_router_continues: Number(summary.quote_router_continues || 0),
+    quote_continue_rate: Number(summary.quote_continue_rate || 0),
+    cta_clicks: Number(summary.cta_clicks || 0),
+    phone_clicks: Number(summary.phone_clicks || 0),
+    form_starts: Number(summary.form_starts || 0),
+    submit_attempts: Number(summary.submit_attempts || 0),
+    submit_errors: Number(summary.submit_errors || 0),
+    abandoned_forms: Number(summary.abandoned_forms || 0),
+    leads_event: Number(summary.leads_event || 0),
+    leads_db: Number(summary.leads_db || 0),
+    hot_leads_db: Number(summary.hot_leads_db || 0),
+    average_lead_score_db: Number(summary.average_lead_score_db || 0),
+    page_to_form_rate: Number(summary.page_to_form_rate || 0),
+    form_to_submit_rate: Number(summary.form_to_submit_rate || 0),
+    submit_to_lead_rate: Number(summary.submit_to_lead_rate || 0),
+    form_to_lead_rate: Number(summary.form_to_lead_rate || 0)
+  });
+  return {
+    available: true,
+    success: report.success === true,
+    attention_required: report.attention_required === true,
+    generated_at: generatedAt,
+    age_minutes: ageMinutes,
+    summary: numericSummary(report.summary),
+    top_paths: Array.isArray(report.top_paths)
+      ? report.top_paths.slice(0, 8).map((item) => ({
+          path: item.path || "/",
+          sessions: Number(item.sessions || 0),
+          page_views: Number(item.page_views || 0),
+          quote_router_continues: Number(item.quote_router_continues || 0),
+          cta_clicks: Number(item.cta_clicks || 0),
+          phone_clicks: Number(item.phone_clicks || 0),
+          form_starts: Number(item.form_starts || 0),
+          submit_attempts: Number(item.submit_attempts || 0),
+          submit_errors: Number(item.submit_errors || 0),
+          abandoned_forms: Number(item.abandoned_forms || 0),
+          leads_created: Number(item.leads_created || 0),
+          start_rate: Number(item.start_rate || 0),
+          lead_rate: Number(item.lead_rate || 0),
+          quote_continue_rate: Number(item.quote_continue_rate || 0)
+        }))
+      : [],
+    cta_variants: Array.isArray(report.cta_variants)
+      ? report.cta_variants.slice(0, 6).map((item) => ({
+          variant: item.variant || "",
+          label: item.label || "",
+          views: Number(item.views || 0),
+          cta_clicks: Number(item.cta_clicks || 0),
+          quote_router_continues: Number(item.quote_router_continues || 0),
+          form_starts: Number(item.form_starts || 0),
+          submit_attempts: Number(item.submit_attempts || 0),
+          leads_created: Number(item.leads_created || 0),
+          start_rate: Number(item.start_rate || 0),
+          lead_rate: Number(item.lead_rate || 0)
+        }))
+      : [],
+    recommendations: Array.isArray(report.recommendations)
+      ? report.recommendations.slice(0, 8).map((item) => ({
+          type: item.type || "",
+          severity: item.severity || "",
+          path: item.path || "/",
+          signal: item.signal || "",
+          action: item.action || "",
+          score: Number(item.score || 0)
+        }))
+      : []
+  };
+}
+
 export async function onRequestGet({ request, env }) {
   if (!isAuthorized(request, env)) return json({ success: false, error: "Non autorise" }, 401);
 
@@ -164,6 +242,8 @@ export async function onRequestGet({ request, env }) {
   const leadSlaReport = await readLocalJson(leadSlaPath);
   const leadQualityPath = env.LOCAL_LEAD_QUALITY_REPORT || "reports/local-lead-quality-report.json";
   const leadQualityReport = await readLocalJson(leadQualityPath);
+  const conversionFunnelPath = env.LOCAL_CONVERSION_FUNNEL_REPORT || "reports/local-conversion-funnel-report.json";
+  const conversionFunnelReport = await readLocalJson(conversionFunnelPath);
   return json({
     success: true,
     generated_at: new Date().toISOString(),
@@ -183,6 +263,7 @@ export async function onRequestGet({ request, env }) {
         },
     monitor: sanitizeMonitorReport(monitorReport),
     lead_sla: sanitizeLeadSlaReport(leadSlaReport),
-    lead_quality: sanitizeLeadQualityReport(leadQualityReport)
+    lead_quality: sanitizeLeadQualityReport(leadQualityReport),
+    conversion_funnel: sanitizeConversionFunnelReport(conversionFunnelReport)
   });
 }

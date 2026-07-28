@@ -7,6 +7,7 @@ const checks = [
   ["package.json", "production:monitor"],
   ["package.json", "leads:sla:monitor"],
   ["package.json", "leads:quality:monitor"],
+  ["package.json", "conversion:funnel:monitor"],
   ["scripts/local-production-server.js", "openLocalD1"],
   ["scripts/local-production-server.js", "SEND_SMTP_MAIL"],
   ["scripts/local-production-monitor.js", "sqlite_backup_age"],
@@ -15,14 +16,18 @@ const checks = [
   ["scripts/local-lead-sla-monitor.js", "LOCAL_LEAD_SLA_ALERTS"],
   ["scripts/local-lead-quality-monitor.js", "Lead quality monitor"],
   ["scripts/local-lead-quality-monitor.js", "LOCAL_LEAD_QUALITY_REPORT"],
+  ["scripts/local-conversion-funnel-monitor.js", "Conversion funnel monitor"],
+  ["scripts/local-conversion-funnel-monitor.js", "LOCAL_CONVERSION_FUNNEL_REPORT"],
   ["functions/api/admin/runtime-health.js", "sanitizeMonitorReport"],
   ["functions/api/admin/runtime-health.js", "LOCAL_PRODUCTION_MONITOR_REPORT"],
   ["functions/api/admin/runtime-health.js", "sanitizeLeadSlaReport"],
   ["functions/api/admin/runtime-health.js", "LOCAL_LEAD_SLA_REPORT"],
   ["functions/api/admin/runtime-health.js", "LOCAL_LEAD_QUALITY_REPORT"],
+  ["functions/api/admin/runtime-health.js", "LOCAL_CONVERSION_FUNNEL_REPORT"],
   ["public/assets/admin.js", "Monitoring production"],
   ["public/assets/admin.js", "SLA leads"],
   ["public/assets/admin.js", "Qualite leads"],
+  ["public/assets/admin.js", "Funnel leads"],
   ["scripts/local-production-server.js", "__IMMEUBLEASSUR_SEND_SMTP_MAIL"],
   ["functions/_shared/smtp.js", "__IMMEUBLEASSUR_SEND_SMTP_MAIL"],
   ["scripts/local-d1-sqlite.js", "DatabaseSync"],
@@ -31,7 +36,8 @@ const checks = [
   ["README.md", "Production autonome"],
   ["README.md", "Cloudflare D1 n'est plus requis"],
   ["README.md", "leads:sla:monitor"],
-  ["README.md", "leads:quality:monitor"]
+  ["README.md", "leads:quality:monitor"],
+  ["README.md", "conversion:funnel:monitor"]
 ];
 
 const missing = [];

@@ -210,6 +210,28 @@ function leadQualitySignal(report) {
   return `completude ${report.summary?.core_completion_rate || 0}%`;
 }
 
+function conversionFunnelStatusLabel(report) {
+  if (!report?.available) return "Indispo";
+  const critical = (report.recommendations || []).some((item) => item.severity === "critical");
+  if (critical || report.attention_required) return "A corriger";
+  if ((report.recommendations || []).some((item) => item.severity === "high")) return "A surveiller";
+  return report.success ? "OK" : "Alerte";
+}
+
+function conversionFunnelDetail(report) {
+  if (!report?.available) return "rapport absent";
+  const summary = report.summary || {};
+  const age = report.age_minutes === null || report.age_minutes === undefined ? "-" : `${report.age_minutes} min`;
+  return `${summary.form_to_lead_rate || 0}% form->lead, ${summary.leads_db || 0} lead(s), age ${age}`;
+}
+
+function conversionFunnelSignal(report) {
+  if (!report?.available) return "rapport local non trouve";
+  const recommendation = (report.recommendations || [])[0];
+  if (recommendation) return `${recommendation.path || "/"}: ${recommendation.signal || recommendation.type}`;
+  const summary = report.summary || {};
+  return `routeur ${summary.quote_continue_rate || 0}% / start ${summary.page_to_form_rate || 0}%`;
+}
 function valueEstimateFor(lead, q = qualificationFor(lead)) {
   return q.value_estimate || leadValueEstimate(lead, q.score || 0);
 }
@@ -737,7 +759,8 @@ async function loadIntegrations() {
       metricCard("Runtime", runtimeHealth ? `${runtimeHealth.runtime?.platform || "local"} / ${runtimeHealth.database?.driver || "db"}` : "Token requis", runtimeHealth?.database?.size_bytes ? `${runtimeHealth.database.table_count || 0} tables, ${formatBytes(runtimeHealth.database.size_bytes)}` : "diagnostic protege"),
       metricCard("Production", monitorStatusLabel(runtimeHealth?.monitor), monitorDetail(runtimeHealth?.monitor)),
       metricCard("SLA leads", leadSlaStatusLabel(runtimeHealth?.lead_sla), leadSlaDetail(runtimeHealth?.lead_sla)),
-      metricCard("Qualite leads", leadQualityStatusLabel(runtimeHealth?.lead_quality), leadQualityDetail(runtimeHealth?.lead_quality))
+      metricCard("Qualite leads", leadQualityStatusLabel(runtimeHealth?.lead_quality), leadQualityDetail(runtimeHealth?.lead_quality)),
+      metricCard("Funnel leads", conversionFunnelStatusLabel(runtimeHealth?.conversion_funnel), conversionFunnelDetail(runtimeHealth?.conversion_funnel))
     );
   }
 
@@ -762,6 +785,16 @@ async function loadIntegrations() {
       scope: `Site, /health, telemetry, SQLite\nAlertes: ${runtimeHealth.monitor.alert?.status || "-"}`,
       signal: monitorSignal(runtimeHealth.monitor),
       action: runtimeHealth.monitor.success ? "Continuer la surveillance planifiee toutes les 15 minutes." : "Ouvrir le rapport serveur et corriger le check en alerte."
+    });
+  }
+  if (runtimeHealth?.conversion_funnel?.available) {
+    const recommendation = runtimeHealth.conversion_funnel.recommendations?.[0];
+    rows.unshift({
+      label: "Funnel leads",
+      status: conversionFunnelStatusLabel(runtimeHealth.conversion_funnel),
+      scope: `Form->lead: ${runtimeHealth.conversion_funnel.summary?.form_to_lead_rate || 0}%\nRouteur: ${runtimeHealth.conversion_funnel.summary?.quote_continue_rate || 0}%`,
+      signal: conversionFunnelSignal(runtimeHealth.conversion_funnel),
+      action: recommendation?.action || "Continuer la mesure locale du tunnel et prioriser les pages a intention devis."
     });
   }
   if (runtimeHealth?.lead_quality?.available) {
