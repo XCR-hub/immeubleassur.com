@@ -70,6 +70,10 @@ LOCAL_SITE_PORT=8790
 LOCAL_SQLITE_DB=F:\immeubleassur-data\immeubleassur.sqlite
 LOCAL_SQLITE_BACKUP_DIR=F:\immeubleassur-backups\sqlite
 LOCAL_SQLITE_BACKUP_KEEP=30
+LOCAL_SQLITE_BACKUP_MAX_AGE_HOURS=8
+LOCAL_PRODUCTION_MONITOR_REPORT=F:\immeubleassur-monitor\latest.json
+LOCAL_MONITOR_ALERTS=0
+LOCAL_MONITOR_ALERT_TO=team@immeubleassur.com
 SITE_ORIGIN=https://immeubleassur.com
 ADMIN_API_TOKEN=secret-admin
 SMTP_HOST=mail.xcr.fr
@@ -85,12 +89,13 @@ Commandes utiles:
 ```powershell
 npm run db:sqlite:restore -- --snapshot F:\immeubleassur-d1 --db F:\immeubleassur-data\immeubleassur.sqlite --replace
 npm run db:sqlite:backup -- --db F:\immeubleassur-data\immeubleassur.sqlite --out F:\immeubleassur-backups\sqlite
+npm run production:monitor -- --origin https://immeubleassur.com --db F:\immeubleassur-data\immeubleassur.sqlite --backup-dir F:\immeubleassur-backups\sqlite --out F:\immeubleassur-monitor\latest.json
 npm run serve:local
 npm run db:sqlite:import-reports
 npm run local:autarky:check
 ```
 
-Pour la mise en ligne publique sans Pages/D1, la Livebox redirige les ports 80/443 vers le serveur Windows, Caddy termine HTTPS et relaie vers Node sur 8790. `/health` reste public mais minimal; le diagnostic detaille est protege par `/api/admin/runtime-health` avec `ADMIN_API_TOKEN`.
+Pour la mise en ligne publique sans Pages/D1, la Livebox redirige les ports 80/443 vers le serveur Windows, Caddy termine HTTPS et relaie vers Node sur 8790. `/health` reste public mais minimal; le diagnostic detaille est protege par `/api/admin/runtime-health` avec `ADMIN_API_TOKEN`. Le moniteur production:monitor controle la page publique, /health, le filtre telemetry, SQLite et la fraicheur des sauvegardes; il peut envoyer une alerte SMTP si LOCAL_MONITOR_ALERTS=1.
 
 ## Synchronisation vers 192.168.1.70
 
