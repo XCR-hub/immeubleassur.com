@@ -80,14 +80,24 @@ function rowsFromWranglerJson(raw) {
   return [];
 }
 
+function psQuote(value) {
+  return "'" + String(value).replace(/'/g, "''") + "'";
+}
+
+function runWrangler(args) {
+  const options = { encoding: "utf8", windowsHide: true, maxBuffer: 1024 * 1024 * 80 };
+  if (process.platform !== "win32") return spawnSync("npx", args, options);
+  const command = `& ${["npx", ...args].map(psQuote).join(" ")}`;
+  return spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", command], options);
+}
+
 function queryTable({ database, remote, table, rowLimit }) {
   const suffix = rowLimit > 0 ? ` LIMIT ${rowLimit}` : "";
   const command = `SELECT * FROM ${quoteIdentifier(table)}${suffix};`;
   const args = ["wrangler", "d1", "execute", database, remote ? "--remote" : "--local", "--json", "--command", command];
-  const commandName = process.platform === "win32" ? "npx.cmd" : "npx";
-  const result = spawnSync(commandName, args, { encoding: "utf8", windowsHide: true });
+  const result = runWrangler(args);
   if (result.status !== 0) {
-    const detail = result.stderr || result.stdout || `code ${result.status}`;
+    const detail = result.error?.message || result.stderr || result.stdout || `code ${result.status}`;
     throw new Error(`Export D1 impossible pour ${table}: ${detail.slice(0, 1200)}`);
   }
   return rowsFromWranglerJson(result.stdout);

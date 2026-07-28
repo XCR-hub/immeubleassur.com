@@ -1,34 +1,240 @@
 {
-  "generated_at": "2026-07-28T14:17:58.417Z",
-  "status": "planned",
+  "generated_at": "2026-07-28T14:56:17.624Z",
+  "status": "synced",
   "source": "cloudflare-d1-remote",
   "database": "immeubleassur-db",
   "target_url": "http://192.168.1.70:8789/sync/d1",
-  "snapshot_id": "2026-07-28T14-17-58-414Z",
+  "snapshot_id": "2026-07-28T14-56-17-622Z",
   "output_root": "backups\\d1",
   "tables": [
-    "leads",
-    "lead_events",
-    "quote_requests",
-    "site_settings",
-    "site_events",
-    "seo_runs",
-    "seo_metrics",
-    "seo_opportunities",
-    "content_pipeline",
-    "newsletter_subscribers",
-    "editorial_sources",
-    "editorial_watch_items",
-    "newsletter_issues",
-    "newsletter_events",
-    "ai_generation_runs",
-    "search_intelligence_runs",
-    "search_rankings",
-    "media_runs",
-    "media_assets"
+    {
+      "table": "leads",
+      "rows": 0,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\leads.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "lead_events",
+      "rows": 0,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\lead_events.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "quote_requests",
+      "rows": 0,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\quote_requests.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "site_settings",
+      "rows": 4,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\site_settings.jsonl",
+      "sha256": "df34569631265792ff486a241d8ed2fcc0738c01266b972638e9fa20c5d37879"
+    },
+    {
+      "table": "site_events",
+      "rows": 73,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\site_events.jsonl",
+      "sha256": "19cf9bb51043fcc088135d01b71b0d89854937880a4549afa6a79e24e6cf06ae"
+    },
+    {
+      "table": "seo_runs",
+      "rows": 24,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\seo_runs.jsonl",
+      "sha256": "b4cfae911bd1b9d025f07b0ad3891bbbfb7870808706d584e55812e6e4e3abef"
+    },
+    {
+      "table": "seo_metrics",
+      "rows": 308,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\seo_metrics.jsonl",
+      "sha256": "b011162d0c28a5a032715f9da8d617021fc2436446baa1fd1e2cab58259c88fc"
+    },
+    {
+      "table": "seo_opportunities",
+      "rows": 484,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\seo_opportunities.jsonl",
+      "sha256": "338dba663ebd55dddbc931771f89fb88e2f776641c83df087d0d7284339f0178"
+    },
+    {
+      "table": "content_pipeline",
+      "rows": 37,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\content_pipeline.jsonl",
+      "sha256": "f54f56778e3b1046d4fec6ba25a247150c0ea5efce7d85045eaa70b3142ac876"
+    },
+    {
+      "table": "newsletter_subscribers",
+      "rows": 0,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\newsletter_subscribers.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "editorial_sources",
+      "rows": 5,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\editorial_sources.jsonl",
+      "sha256": "fb6614a3e58caadcad4f721b91adb5783c450166f8b7e88a29af7584830d5f05"
+    },
+    {
+      "table": "editorial_watch_items",
+      "rows": 13,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\editorial_watch_items.jsonl",
+      "sha256": "b670f4100196a20ae8fc2d4409040f4e77b9cc4786b4fb470f70deba003c157f"
+    },
+    {
+      "table": "newsletter_issues",
+      "rows": 1,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\newsletter_issues.jsonl",
+      "sha256": "5a2c83e98e0429a1601b5631eb9c0cea75c7e172e603515594d5917fc151bf73"
+    },
+    {
+      "table": "newsletter_events",
+      "rows": 0,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\newsletter_events.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "table": "ai_generation_runs",
+      "rows": 1,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\ai_generation_runs.jsonl",
+      "sha256": "929c4a16a728d21d0458751499febc76274af4d0b1b03a22a22b60425bbc05e5"
+    },
+    {
+      "table": "search_intelligence_runs",
+      "rows": 3,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\search_intelligence_runs.jsonl",
+      "sha256": "ccacf0cadf2753da10f2aa150031f56cacad4a4a82c034d68601bc2cc4178b47"
+    },
+    {
+      "table": "search_rankings",
+      "rows": 30,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\search_rankings.jsonl",
+      "sha256": "2d0a91430fbf4ce855421688acc903f1a18004c0ef4a36218a38b96a07c04bf4"
+    },
+    {
+      "table": "media_runs",
+      "rows": 1,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\media_runs.jsonl",
+      "sha256": "6f390d13b44b4303f07e440ffa7f7b80b501e1d0b64dc6d7ba45c7619849368f"
+    },
+    {
+      "table": "media_assets",
+      "rows": 5,
+      "file": "backups\\d1\\2026-07-28T14-56-17-622Z\\media_assets.jsonl",
+      "sha256": "d0f3ae72c3ed94ae55b51c352e1b7c630a2766856eb50bd81247858b3651eafd"
+    }
   ],
   "row_limit": null,
   "receiver_token_configured": true,
-  "pushed": false,
-  "warnings": []
+  "pushed": true,
+  "warnings": [],
+  "snapshot_dir": "backups\\d1\\2026-07-28T14-56-17-622Z",
+  "total_rows": 989,
+  "gzip_bytes": 37067,
+  "receiver": {
+    "success": true,
+    "site": "immeubleassur.com",
+    "database": "immeubleassur-db",
+    "snapshot_id": "2026-07-28T14-56-17-622Z",
+    "received_at": "2026-07-28T15:00:57.492Z",
+    "generated_at": "2026-07-28T14:56:17.624Z",
+    "gzip_bytes": 37067,
+    "payload_sha256": "d0704b91b5fbb1c67bfabb53ce1ca16c22a911e5efc8e0036fd980af8501122b",
+    "tables": [
+      {
+        "table": "leads",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "lead_events",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "quote_requests",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "site_settings",
+        "rows": 4,
+        "sha256": "df34569631265792ff486a241d8ed2fcc0738c01266b972638e9fa20c5d37879"
+      },
+      {
+        "table": "site_events",
+        "rows": 73,
+        "sha256": "19cf9bb51043fcc088135d01b71b0d89854937880a4549afa6a79e24e6cf06ae"
+      },
+      {
+        "table": "seo_runs",
+        "rows": 24,
+        "sha256": "b4cfae911bd1b9d025f07b0ad3891bbbfb7870808706d584e55812e6e4e3abef"
+      },
+      {
+        "table": "seo_metrics",
+        "rows": 308,
+        "sha256": "b011162d0c28a5a032715f9da8d617021fc2436446baa1fd1e2cab58259c88fc"
+      },
+      {
+        "table": "seo_opportunities",
+        "rows": 484,
+        "sha256": "338dba663ebd55dddbc931771f89fb88e2f776641c83df087d0d7284339f0178"
+      },
+      {
+        "table": "content_pipeline",
+        "rows": 37,
+        "sha256": "f54f56778e3b1046d4fec6ba25a247150c0ea5efce7d85045eaa70b3142ac876"
+      },
+      {
+        "table": "newsletter_subscribers",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "editorial_sources",
+        "rows": 5,
+        "sha256": "fb6614a3e58caadcad4f721b91adb5783c450166f8b7e88a29af7584830d5f05"
+      },
+      {
+        "table": "editorial_watch_items",
+        "rows": 13,
+        "sha256": "b670f4100196a20ae8fc2d4409040f4e77b9cc4786b4fb470f70deba003c157f"
+      },
+      {
+        "table": "newsletter_issues",
+        "rows": 1,
+        "sha256": "5a2c83e98e0429a1601b5631eb9c0cea75c7e172e603515594d5917fc151bf73"
+      },
+      {
+        "table": "newsletter_events",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "table": "ai_generation_runs",
+        "rows": 1,
+        "sha256": "929c4a16a728d21d0458751499febc76274af4d0b1b03a22a22b60425bbc05e5"
+      },
+      {
+        "table": "search_intelligence_runs",
+        "rows": 3,
+        "sha256": "ccacf0cadf2753da10f2aa150031f56cacad4a4a82c034d68601bc2cc4178b47"
+      },
+      {
+        "table": "search_rankings",
+        "rows": 30,
+        "sha256": "2d0a91430fbf4ce855421688acc903f1a18004c0ef4a36218a38b96a07c04bf4"
+      },
+      {
+        "table": "media_runs",
+        "rows": 1,
+        "sha256": "6f390d13b44b4303f07e440ffa7f7b80b501e1d0b64dc6d7ba45c7619849368f"
+      },
+      {
+        "table": "media_assets",
+        "rows": 5,
+        "sha256": "d0f3ae72c3ed94ae55b51c352e1b7c630a2766856eb50bd81247858b3651eafd"
+      }
+    ],
+    "total_rows": 989
+  }
 }

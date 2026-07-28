@@ -10,3 +10,4 @@ backups/
 data/
 *.sqlite
 *.sqlite3
+.sync-admin.cred.xml
