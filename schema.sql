@@ -260,3 +260,65 @@ CREATE TABLE IF NOT EXISTS ai_generation_runs (
 
 CREATE INDEX IF NOT EXISTS idx_ai_generation_runs_created_at ON ai_generation_runs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_ai_generation_runs_provider ON ai_generation_runs(provider);
+CREATE TABLE IF NOT EXISTS search_intelligence_runs (
+  id TEXT PRIMARY KEY,
+  provider TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'completed',
+  keywords_checked INTEGER NOT NULL DEFAULT 0,
+  average_position REAL,
+  first_page_count INTEGER NOT NULL DEFAULT 0,
+  payload TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_search_intelligence_runs_created_at ON search_intelligence_runs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_search_intelligence_runs_provider ON search_intelligence_runs(provider);
+
+CREATE TABLE IF NOT EXISTS search_rankings (
+  id TEXT PRIMARY KEY,
+  run_id TEXT REFERENCES search_intelligence_runs(id) ON DELETE CASCADE,
+  keyword TEXT NOT NULL,
+  target_url TEXT NOT NULL,
+  position INTEGER,
+  found_url TEXT,
+  top_domains TEXT,
+  recommendation TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_search_rankings_run_id ON search_rankings(run_id);
+CREATE INDEX IF NOT EXISTS idx_search_rankings_keyword ON search_rankings(keyword);
+CREATE INDEX IF NOT EXISTS idx_search_rankings_position ON search_rankings(position);
+CREATE INDEX IF NOT EXISTS idx_search_rankings_created_at ON search_rankings(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS media_runs (
+  id TEXT PRIMARY KEY,
+  provider TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'completed',
+  assets_count INTEGER NOT NULL DEFAULT 0,
+  payload TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_media_runs_created_at ON media_runs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_media_runs_provider ON media_runs(provider);
+
+CREATE TABLE IF NOT EXISTS media_assets (
+  id TEXT PRIMARY KEY,
+  run_id TEXT REFERENCES media_runs(id) ON DELETE CASCADE,
+  provider TEXT NOT NULL,
+  topic TEXT,
+  source_url TEXT,
+  image_url TEXT,
+  alt_text TEXT,
+  photographer TEXT,
+  photographer_url TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_media_assets_run_id ON media_assets(run_id);
+CREATE INDEX IF NOT EXISTS idx_media_assets_provider ON media_assets(provider);
+CREATE INDEX IF NOT EXISTS idx_media_assets_topic ON media_assets(topic);
+CREATE INDEX IF NOT EXISTS idx_media_assets_created_at ON media_assets(created_at DESC);

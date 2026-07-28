@@ -15,8 +15,10 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Usines SEO: `scripts/seo-content-factory.js`, `scripts/lead-growth-factory.js`, `scripts/money-intent-factory.js`.
 - Autopilote editorial `scripts/editorial-autopilot.js`: generation de veille, newsletter, numero publiable, plan articles/FAQ/villes/news et export D1.
 - Veille sources publiques: flux RSS/pages publiques avec attribution, sans recopie d'articles tiers ni scraping des resultats Google.
-- Connecteurs IA optionnels: OpenAI, Claude/Anthropic et Gemini via variables d'environnement; fallback local si aucune cle n'est configuree.
+- Connecteurs IA optionnels: OpenAI, Claude/Anthropic, Gemini, OpenRouter et HuggingFace via variables d'environnement; fallback local si aucune cle n'est configuree.
 - Systeme newsletter: page d'inscription, endpoint `/api/newsletter`, desinscription, tables D1 abonnes/issues/evenements et endpoint admin `/api/admin/newsletter`.
+- Autopilote media `scripts/media-autopilot.js`: selection de visuels Pexels avec attribution, rapports JSON/D1 et injection responsive quand `PEXELS_API_KEY` est configuree.
+- Intelligence SERP `scripts/search-intelligence.js`: suivi des positions via SerpApi, concurrents visibles, recommandations par requete et export D1, sans scraping direct des pages Google.
 - Autopilote `scripts/seo-autopilot.js`: audit HTML, opportunites, PageSpeed Insights, Search Console si secrets Google configures, boucle Google feedback.
 - Boucle Google APIs: Search Analytics pour requetes/CTR/position moyenne, URL Inspection pour etat d indexation des pages prioritaires et Sitemaps API pour signaler `sitemap.xml`.
 - Audit editorial `scripts/content-quality-check.js`: garde-fous people-first, anti-duplication, anti-bourrage et anti-contenu manipulatif.
@@ -77,6 +79,8 @@ npm run content:quality
 npm run seo:audit
 npm run seo:apis
 npm run editorial:autopilot
+npm run media:autopilot
+npm run search:intelligence
 ```
 
 Secrets optionnels pour GitHub Actions / local:
@@ -91,6 +95,10 @@ Secrets optionnels pour GitHub Actions / local:
 - `OPENAI_API_KEY`, `OPENAI_MODEL` optionnels pour synthese editoriale
 - `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` optionnels pour Claude
 - `GEMINI_API_KEY`, `GEMINI_MODEL` optionnels pour Gemini
+- `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` optionnels pour OpenRouter
+- `HUGGINGFACE_API_KEY`, `HUGGINGFACE_MODEL` optionnels pour HuggingFace
+- `PEXELS_API_KEY` optionnel pour les visuels avec attribution
+- `SERP_API_KEY` optionnel pour le suivi de positions via SerpApi
 - `NEWSLETTER_SEND_LIMIT` pour limiter les envois par declenchement
 
 Le workflow `.github/workflows/seo-autopilot.yml` lance l'audit chaque nuit. Le systeme n'utilise pas de scraping automatise des resultats Google et n'utilise pas l'Indexing API pour les pages immeuble, car Google la reserve aux contenus compatibles comme `JobPosting` ou `BroadcastEvent`.

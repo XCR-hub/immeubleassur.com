@@ -40,6 +40,11 @@ jobs:
         run: npm run seo:apis
 
 
+      - name: Run search intelligence with SerpApi when configured
+        env:
+          SERP_API_KEY: ${{ secrets.SERP_API_KEY }}
+        run: npm run search:intelligence -- --serp
+
       - name: Export SEO report to D1 SQL
         run: npm run seo:sql
 
@@ -49,7 +54,9 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            npx wrangler d1 execute immeubleassur-db --remote --file=schema.sql
             npx wrangler d1 execute immeubleassur-db --remote --file=reports/seo-autopilot-d1.sql
+            npx wrangler d1 execute immeubleassur-db --remote --file=reports/search-intelligence-d1.sql
           else
             echo "Cloudflare secrets missing; skipping D1 SEO storage."
           fi
@@ -75,3 +82,6 @@ jobs:
             reports/editorial-autopilot-report.json
             reports/editorial-autopilot-d1.sql
             public/assets/editorial-autopilot-latest.json
+            reports/search-intelligence-report.json
+            reports/search-intelligence-d1.sql
+            public/assets/search-intelligence-latest.json

@@ -1,0 +1,89 @@
+{
+  "run_id": "media-20260728-6131942a",
+  "generated_at": "2026-07-28T01:03:12.522Z",
+  "provider": "planned-pexels",
+  "status": "skipped-no-pexels-key",
+  "mode": "planned-no-pexels-key",
+  "pexels_enabled": false,
+  "assets_count": 0,
+  "injected_pages": 0,
+  "media": [
+    {
+      "id": "media-plan-34cb50f43e21",
+      "provider": "planned-pexels",
+      "topic": "copropriete",
+      "query": "immeuble copropriete facade",
+      "alt": "Visuel a selectionner pour copropriete",
+      "photographer": "",
+      "photographer_url": "",
+      "url": "",
+      "src": "",
+      "width": null,
+      "height": null,
+      "priority": 1
+    },
+    {
+      "id": "media-plan-ee6e625d6de7",
+      "provider": "planned-pexels",
+      "topic": "immeuble",
+      "query": "apartment building entrance",
+      "alt": "Visuel a selectionner pour immeuble",
+      "photographer": "",
+      "photographer_url": "",
+      "url": "",
+      "src": "",
+      "width": null,
+      "height": null,
+      "priority": 2
+    },
+    {
+      "id": "media-plan-d13a0533d64f",
+      "provider": "planned-pexels",
+      "topic": "courtier",
+      "query": "real estate office meeting",
+      "alt": "Visuel a selectionner pour courtier",
+      "photographer": "",
+      "photographer_url": "",
+      "url": "",
+      "src": "",
+      "width": null,
+      "height": null,
+      "priority": 3
+    },
+    {
+      "id": "media-plan-d98b670f63a0",
+      "provider": "planned-pexels",
+      "topic": "travaux",
+      "query": "building renovation facade",
+      "alt": "Visuel a selectionner pour travaux",
+      "photographer": "",
+      "photographer_url": "",
+      "url": "",
+      "src": "",
+      "width": null,
+      "height": null,
+      "priority": 4
+    },
+    {
+      "id": "media-plan-3b99819c9f17",
+      "provider": "planned-pexels",
+      "topic": "villes",
+      "query": "city apartment building france",
+      "alt": "Visuel a selectionner pour villes",
+      "photographer": "",
+      "photographer_url": "",
+      "url": "",
+      "src": "",
+      "width": null,
+      "height": null,
+      "priority": 5
+    }
+  ],
+  "compliance": [
+    "pexels-api-with-attribution",
+    "no-secret-in-repository",
+    "no-dark-stock-backgrounds",
+    "images-support-real-estate-context"
+  ],
+  "errors": []
+}

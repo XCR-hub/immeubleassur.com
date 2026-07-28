@@ -2386,3 +2386,12 @@ textarea:focus {
   }
 }
 /* editorial-autopilot-2026-07:end */
+/* media-autopilot-2026-07:start */
+.media-proof-band { background: #f7fbf8; }
+.media-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; max-width: 1180px; margin: 0 auto; }
+.media-card { margin: 0; overflow: hidden; border: 1px solid rgba(21, 62, 52, 0.12); border-radius: 8px; background: #ffffff; box-shadow: 0 16px 42px rgba(18, 38, 32, 0.08); }
+.media-card img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+.media-card figcaption { padding: 10px 12px; font-size: 0.78rem; color: #51625c; line-height: 1.4; }
+.media-card figcaption a { color: #145f4d; font-weight: 700; }
+@media (max-width: 780px) { .media-grid { grid-template-columns: 1fr; } }
+/* media-autopilot-2026-07:end */

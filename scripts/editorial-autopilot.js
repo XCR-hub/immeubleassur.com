@@ -1,4 +1,4 @@
-﻿import { createHash } from "node:crypto";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
@@ -148,6 +148,8 @@ function aiProvider() {
   if (process.env.OPENAI_API_KEY) return { provider: "openai", model: process.env.OPENAI_MODEL || "gpt-4.1-mini" };
   if (process.env.ANTHROPIC_API_KEY) return { provider: "anthropic", model: process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-latest" };
   if (process.env.GEMINI_API_KEY) return { provider: "gemini", model: process.env.GEMINI_MODEL || "gemini-1.5-pro" };
+  if (process.env.OPENROUTER_API_KEY) return { provider: "openrouter", model: process.env.OPENROUTER_MODEL || "~openai/gpt-latest" };
+  if (process.env.HUGGINGFACE_API_KEY) return { provider: "huggingface", model: process.env.HUGGINGFACE_MODEL || "mistralai/Mistral-7B-Instruct-v0.3" };
   return { provider: "deterministic", model: "local-template" };
 }
 
@@ -177,6 +179,22 @@ async function callGemini(text, model) {
   return (data.candidates || []).flatMap((candidate) => candidate.content?.parts || []).map((part) => part.text || "").join("\n");
 }
 
+
+async function callOpenRouter(text, model) {
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`, "HTTP-Referer": SITE, "X-OpenRouter-Title": "ImmeubleAssur SEO Editorial Autopilot" }, body: JSON.stringify({ model, max_tokens: 900, messages: [{ role: "system", content: "Redaction assurance immeuble utile, originale, prudente." }, { role: "user", content: text }] }) });
+  if (!response.ok) throw new Error(`OpenRouter HTTP ${response.status}`);
+  const data = await response.json();
+  return data.choices?.map((choice) => choice.message?.content || "").join("\n") || "";
+}
+
+async function callHuggingFace(text, model) {
+  const endpoint = `https://api-inference.huggingface.co/models/${encodeURIComponent(model)}`;
+  const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.HUGGINGFACE_API_KEY}` }, body: JSON.stringify({ inputs: text, parameters: { max_new_tokens: 900, return_full_text: false } }) });
+  if (!response.ok) throw new Error(`HuggingFace HTTP ${response.status}`);
+  const data = await response.json();
+  if (Array.isArray(data)) return data.map((item) => item.generated_text || item.summary_text || "").join("\n");
+  return data.generated_text || data.summary_text || "";
+}
 function fallbackSynthesis(items) {
   const topics = [...new Set(items.map((item) => item.topic || "veille"))].slice(0, 5).join(", ") || "assurance immeuble";
   return [
@@ -193,7 +211,7 @@ async function synthesize(items) {
   if (!ENABLE_AI || selected.provider === "deterministic") return { ...selected, status: "skipped", text: fallbackSynthesis(items), error: "ai-disabled-or-missing-key" };
   try {
     const input = prompt(items);
-    const text = selected.provider === "openai" ? await callOpenAi(input, selected.model) : selected.provider === "anthropic" ? await callAnthropic(input, selected.model) : await callGemini(input, selected.model);
+    const text = selected.provider === "openai" ? await callOpenAi(input, selected.model) : selected.provider === "anthropic" ? await callAnthropic(input, selected.model) : selected.provider === "gemini" ? await callGemini(input, selected.model) : selected.provider === "openrouter" ? await callOpenRouter(input, selected.model) : await callHuggingFace(input, selected.model);
     return { ...selected, status: "completed", text: String(text || "").trim().slice(0, 5000) || fallbackSynthesis(items) };
   } catch (error) {
     return { ...selected, status: "failed", text: fallbackSynthesis(items), error: error.message || "ai failed" };
@@ -341,4 +359,3 @@ async function run() {
 }
 
 run().catch((error) => { console.error(error); process.exit(1); });
-

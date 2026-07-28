@@ -1,62 +1,20 @@
 {
-  "generated_at": "2026-07-28T00:36:38.510Z",
-  "mode": "api",
+  "generated_at": "2026-07-28T01:03:16.636Z",
+  "mode": "local-only",
   "pages_checked": 173,
   "average_score": 100,
   "weak_pages": [],
   "opportunities": [],
   "gsc": {
     "configured": false,
-    "skipped": "GOOGLE_SERVICE_ACCOUNT_EMAIL/KEY missing"
+    "skipped": "--gsc not requested"
   },
   "pagespeed": {
-    "checked": 8,
-    "rows": [
-      {
-        "url": "https://immeubleassur.com/",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/assurance-immeuble",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/assurance-copropriete",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/assurance-cno",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/assurance-pno-cno",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/devis-pno-cno",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/devis-assurance-immeuble",
-        "ok": false,
-        "status": 429
-      },
-      {
-        "url": "https://immeubleassur.com/recherches-assurance-immeuble",
-        "ok": false,
-        "status": 429
-      }
-    ]
+    "skipped": "--pagespeed not requested"
   },
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-28T00:36:05.138Z",
+    "generated_at": "2026-07-28T01:03:13.759Z",
     "pages_checked": 173,
     "pages_changed": 124,
     "fixes_applied": 176,
@@ -188,7 +146,7 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-28T00:36:06.530Z",
+    "generated_at": "2026-07-28T01:03:14.070Z",
     "pages_checked": 174,
     "pages_expanded": 80,
     "words_added_estimate": 13771,
@@ -303,7 +261,7 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-07-28T00:36:25.245Z",
+    "generated_at": "2026-07-28T01:03:15.495Z",
     "pages_checked": 174,
     "status": "passed",
     "severe_issue_count": 0,
@@ -320,7 +278,7 @@
   },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-07-28T00:36:25.842Z",
+    "generated_at": "2026-07-28T01:03:15.810Z",
     "pages_checked": 170,
     "money_pages_checked": 114,
     "average_conversion_score": 75,
@@ -1250,7 +1208,7 @@
   },
   "cro_experiment": {
     "configured": true,
-    "generated_at": "2026-07-28T00:36:26.164Z",
+    "generated_at": "2026-07-28T01:03:15.974Z",
     "status": "passed",
     "variant_count": 3,
     "variants": [
@@ -1384,7 +1342,7 @@
     "url_inspection_needs_action": 0,
     "sitemap_submitted": false,
     "sitemap_status": 0,
-    "pagespeed_checked": 8,
+    "pagespeed_checked": 0,
     "pagespeed_slow_pages": 0,
     "status": "monitoring"
   },

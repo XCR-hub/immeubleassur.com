@@ -36,7 +36,16 @@ jobs:
           ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ secrets.OPENROUTER_MODEL }}
+          HUGGINGFACE_API_KEY: ${{ secrets.HUGGINGFACE_API_KEY }}
+          HUGGINGFACE_MODEL: ${{ secrets.HUGGINGFACE_MODEL }}
         run: npm run editorial:autopilot -- --fetch --ai
+
+      - name: Run media autopilot with Pexels when configured
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: npm run media:autopilot -- --fetch
 
       - name: Validate site and functions
         run: npm run check
@@ -49,6 +58,7 @@ jobs:
           if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
             npx wrangler d1 execute immeubleassur-db --remote --file=schema.sql
             npx wrangler d1 execute immeubleassur-db --remote --file=reports/editorial-autopilot-d1.sql
+            npx wrangler d1 execute immeubleassur-db --remote --file=reports/media-autopilot-d1.sql
           else
             echo "Cloudflare secrets missing; skipping editorial D1 storage."
           fi
@@ -72,3 +82,6 @@ jobs:
             reports/editorial-autopilot-report.json
             reports/editorial-autopilot-d1.sql
             public/assets/editorial-autopilot-latest.json
+            reports/media-autopilot-report.json
+            reports/media-autopilot-d1.sql
+            public/assets/media-autopilot-latest.json
