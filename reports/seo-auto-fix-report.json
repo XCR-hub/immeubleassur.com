@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-27T16:54:29.739Z",
-  "pages_checked": 170,
-  "pages_changed": 121,
-  "fixes_applied": 175,
+  "generated_at": "2026-07-28T00:36:05.138Z",
+  "pages_checked": 173,
+  "pages_changed": 124,
+  "fixes_applied": 176,
   "safeguards": [
     "idempotent-markers",
     "legal-pages-no-commercial-panel",
@@ -917,8 +917,7 @@
       "url": "https://immeubleassur.com/blog",
       "fixes": [
         "description-normalized",
-        "faq-depth",
-        "conversion-panel"
+        "faq-depth"
       ],
       "title": "Blog assurance immeuble | ImmeubleAssur",
       "description": "Articles assurance immeuble, copropriete, PNO, SCI, syndic et sinistres. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour obtenir un.",
@@ -1192,6 +1191,27 @@
       "changed": true
     },
     {
+      "slug": "news/veille-assurance-immeuble-2026-07-28",
+      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Veille Assurance Immeuble 2026 07 28 | ImmeubleAssur",
+      "description": "Resume actionnable des signaux publics utiles aux syndics, bailleurs, SCI et coproprietaires non occupants. Analyse des garanties, franchises, sinistres.",
+      "changed": true
+    },
+    {
+      "slug": "newsletter-assurance-immeuble",
+      "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
+      "fixes": [
+        "content-depth"
+      ],
+      "title": "Newsletter assurance immeuble | ImmeubleAssur",
+      "description": "Newsletter ImmeubleAssur: veille assurance immeuble, copropriete, PNO, CNO, SCI, sinistres et travaux pour clients et prospects.",
+      "changed": true
+    },
+    {
       "slug": "pno-cno",
       "url": "https://immeubleassur.com/pno-cno",
       "fixes": [
@@ -1237,8 +1257,7 @@
       "url": "https://immeubleassur.com/strategie-seo-continue",
       "fixes": [
         "description-normalized",
-        "content-depth",
-        "conversion-panel"
+        "content-depth"
       ],
       "title": "Systeme SEO continu | ImmeubleAssur",
       "description": "Methode ImmeubleAssur pour piloter le SEO: contenus utiles, audits, Google Search Console, PageSpeed et conversions. Analyse des garanties, franchises, sinistres.",
@@ -1255,13 +1274,22 @@
       "changed": true
     },
     {
+      "slug": "veille-assurance-immeuble",
+      "url": "https://immeubleassur.com/veille-assurance-immeuble",
+      "fixes": [
+        "content-depth"
+      ],
+      "title": "Veille assurance immeuble et copropriete | ImmeubleAssur",
+      "description": "Veille assurance immeuble: actualites, signaux regulatoires, copropriete, PNO, CNO, SCI et newsletter pour anticiper devis et renouvellement.",
+      "changed": true
+    },
+    {
       "slug": "villes",
       "url": "https://immeubleassur.com/villes",
       "fixes": [
         "title-normalized",
         "description-normalized",
-        "content-depth",
-        "conversion-panel"
+        "content-depth"
       ],
       "title": "Assurance immeuble par ville et devis | ImmeubleAssur",
       "description": "Pages locales assurance immeuble pour Paris, Lyon, Marseille, Bordeaux, Lille, Nantes et grandes villes. Analyse des garanties, franchises, sinistres, documents.",

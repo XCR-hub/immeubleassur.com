@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-27T16:56:24.594Z",
+  "generated_at": "2026-07-28T00:36:23.670Z",
   "tracked_events": [
     "cta_click",
     "diagnostic_complete",
@@ -15,6 +15,9 @@
     "lead_submit_local_backup",
     "lead_submit_rejected",
     "lead_value_hint_ready",
+    "newsletter_subscribe_attempt",
+    "newsletter_subscribe_error",
+    "newsletter_subscribed",
     "page_view",
     "phone_click",
     "readiness_complete",
@@ -39,6 +42,10 @@
     "lead_submit_local_backup",
     "lead_submit_rejected",
     "lead_value_hint_ready",
+    "newsletter_spam_blocked",
+    "newsletter_subscribe_attempt",
+    "newsletter_subscribe_error",
+    "newsletter_subscribed",
     "page_view",
     "phone_click",
     "readiness_complete",
@@ -49,7 +56,8 @@
   ],
   "missing": [],
   "unused_front_optional": [
-    "lead_spam_blocked"
+    "lead_spam_blocked",
+    "newsletter_spam_blocked"
   ],
   "status": "passed"
 }

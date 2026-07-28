@@ -156,3 +156,107 @@ CREATE TABLE IF NOT EXISTS content_pipeline (
 CREATE INDEX IF NOT EXISTS idx_content_pipeline_category ON content_pipeline(category);
 CREATE INDEX IF NOT EXISTS idx_content_pipeline_status ON content_pipeline(status);
 CREATE INDEX IF NOT EXISTS idx_content_pipeline_quality ON content_pipeline(quality_score DESC);
+
+CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  name TEXT,
+  audience TEXT,
+  status TEXT NOT NULL DEFAULT 'active',
+  source TEXT NOT NULL DEFAULT 'website',
+  consent_text TEXT,
+  unsubscribe_token TEXT NOT NULL UNIQUE,
+  ip_address TEXT,
+  user_agent TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  confirmed_at TEXT,
+  unsubscribed_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_status ON newsletter_subscribers(status);
+CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_created_at ON newsletter_subscribers(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_audience ON newsletter_subscribers(audience);
+
+CREATE TABLE IF NOT EXISTS editorial_sources (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  url TEXT NOT NULL,
+  source_type TEXT NOT NULL DEFAULT 'rss',
+  category TEXT NOT NULL DEFAULT 'veille',
+  authority TEXT NOT NULL DEFAULT 'public',
+  crawl_policy TEXT NOT NULL DEFAULT 'rss-or-public-summary',
+  active INTEGER NOT NULL DEFAULT 1,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_editorial_sources_active ON editorial_sources(active);
+CREATE INDEX IF NOT EXISTS idx_editorial_sources_category ON editorial_sources(category);
+
+CREATE TABLE IF NOT EXISTS editorial_watch_items (
+  id TEXT PRIMARY KEY,
+  source_id TEXT REFERENCES editorial_sources(id) ON DELETE SET NULL,
+  source_name TEXT NOT NULL,
+  source_url TEXT NOT NULL,
+  title TEXT NOT NULL,
+  url TEXT NOT NULL,
+  summary TEXT,
+  relevance_score INTEGER NOT NULL DEFAULT 0,
+  topic TEXT,
+  published_at TEXT,
+  fetched_at TEXT NOT NULL,
+  payload TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_editorial_watch_items_relevance ON editorial_watch_items(relevance_score DESC);
+CREATE INDEX IF NOT EXISTS idx_editorial_watch_items_fetched_at ON editorial_watch_items(fetched_at DESC);
+CREATE INDEX IF NOT EXISTS idx_editorial_watch_items_topic ON editorial_watch_items(topic);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_editorial_watch_items_url ON editorial_watch_items(url);
+
+CREATE TABLE IF NOT EXISTS newsletter_issues (
+  id TEXT PRIMARY KEY,
+  slug TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  summary TEXT,
+  status TEXT NOT NULL DEFAULT 'draft',
+  html_url TEXT,
+  plain_text TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  published_at TEXT,
+  sent_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_newsletter_issues_created_at ON newsletter_issues(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_newsletter_issues_status ON newsletter_issues(status);
+
+CREATE TABLE IF NOT EXISTS newsletter_events (
+  id TEXT PRIMARY KEY,
+  subscriber_id TEXT REFERENCES newsletter_subscribers(id) ON DELETE SET NULL,
+  issue_id TEXT REFERENCES newsletter_issues(id) ON DELETE SET NULL,
+  event_type TEXT NOT NULL,
+  payload TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_newsletter_events_subscriber_id ON newsletter_events(subscriber_id);
+CREATE INDEX IF NOT EXISTS idx_newsletter_events_issue_id ON newsletter_events(issue_id);
+CREATE INDEX IF NOT EXISTS idx_newsletter_events_created_at ON newsletter_events(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS ai_generation_runs (
+  id TEXT PRIMARY KEY,
+  provider TEXT NOT NULL,
+  model TEXT,
+  task TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'completed',
+  input_hash TEXT,
+  output_hash TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ai_generation_runs_created_at ON ai_generation_runs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_generation_runs_provider ON ai_generation_runs(provider);

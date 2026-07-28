@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-27T16:54:30.312Z",
-  "pages_checked": 171,
-  "pages_expanded": 77,
-  "words_added_estimate": 13247,
+  "generated_at": "2026-07-28T00:36:06.530Z",
+  "pages_checked": 174,
+  "pages_expanded": 80,
+  "words_added_estimate": 13771,
   "safeguards": [
     "idempotent-markers",
     "legal-pages-skipped",
@@ -405,8 +405,8 @@
     {
       "slug": "blog",
       "url": "https://immeubleassur.com/blog",
-      "before_words": 1063,
-      "after_words": 1236,
+      "before_words": 1105,
+      "after_words": 1278,
       "expanded": true,
       "changed": true
     },
@@ -541,8 +541,8 @@
     {
       "slug": "faq",
       "url": "https://immeubleassur.com/faq",
-      "before_words": 639,
-      "after_words": 813,
+      "before_words": 710,
+      "after_words": 884,
       "expanded": true,
       "changed": true
     },
@@ -579,6 +579,22 @@
       "changed": true
     },
     {
+      "slug": "news/veille-assurance-immeuble-2026-07-28",
+      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
+      "before_words": 545,
+      "after_words": 721,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "newsletter-assurance-immeuble",
+      "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
+      "before_words": 465,
+      "after_words": 638,
+      "expanded": true,
+      "changed": true
+    },
+    {
       "slug": "pno-cno",
       "url": "https://immeubleassur.com/pno-cno",
       "before_words": 456,
@@ -605,8 +621,8 @@
     {
       "slug": "strategie-seo-continue",
       "url": "https://immeubleassur.com/strategie-seo-continue",
-      "before_words": 329,
-      "after_words": 502,
+      "before_words": 371,
+      "after_words": 544,
       "expanded": true,
       "changed": true
     },
@@ -619,10 +635,18 @@
       "changed": true
     },
     {
+      "slug": "veille-assurance-immeuble",
+      "url": "https://immeubleassur.com/veille-assurance-immeuble",
+      "before_words": 558,
+      "after_words": 733,
+      "expanded": true,
+      "changed": true
+    },
+    {
       "slug": "villes",
       "url": "https://immeubleassur.com/villes",
-      "before_words": 553,
-      "after_words": 729,
+      "before_words": 592,
+      "after_words": 768,
       "expanded": true,
       "changed": true
     }

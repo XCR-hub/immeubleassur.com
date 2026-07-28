@@ -13,6 +13,10 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Filtre anti-spam leads: honeypot, signaux JS, vitesse de soumission, repetition IP/email/telephone, contenu suspect et journalisation `lead_spam_blocked`.
 - Turnstile actif: cle publique integree au build, override possible avec `TURNSTILE_SITE_KEY`, verification serveur avec `TURNSTILE_SECRET_KEY`.
 - Usines SEO: `scripts/seo-content-factory.js`, `scripts/lead-growth-factory.js`, `scripts/money-intent-factory.js`.
+- Autopilote editorial `scripts/editorial-autopilot.js`: generation de veille, newsletter, numero publiable, plan articles/FAQ/villes/news et export D1.
+- Veille sources publiques: flux RSS/pages publiques avec attribution, sans recopie d'articles tiers ni scraping des resultats Google.
+- Connecteurs IA optionnels: OpenAI, Claude/Anthropic et Gemini via variables d'environnement; fallback local si aucune cle n'est configuree.
+- Systeme newsletter: page d'inscription, endpoint `/api/newsletter`, desinscription, tables D1 abonnes/issues/evenements et endpoint admin `/api/admin/newsletter`.
 - Autopilote `scripts/seo-autopilot.js`: audit HTML, opportunites, PageSpeed Insights, Search Console si secrets Google configures, boucle Google feedback.
 - Boucle Google APIs: Search Analytics pour requetes/CTR/position moyenne, URL Inspection pour etat d indexation des pages prioritaires et Sitemaps API pour signaler `sitemap.xml`.
 - Audit editorial `scripts/content-quality-check.js`: garde-fous people-first, anti-duplication, anti-bourrage et anti-contenu manipulatif.
@@ -72,6 +76,7 @@ npm run seo:content
 npm run content:quality
 npm run seo:audit
 npm run seo:apis
+npm run editorial:autopilot
 ```
 
 Secrets optionnels pour GitHub Actions / local:
@@ -83,8 +88,14 @@ Secrets optionnels pour GitHub Actions / local:
 - `GOOGLE_URL_INSPECTION_LIMIT=8`
 - `GOOGLE_URL_INSPECTION_URLS=https://immeubleassur.com/,https://immeubleassur.com/devis-assurance-immeuble`
 - `GA4_MEASUREMENT_ID` (tag public au build)
+- `OPENAI_API_KEY`, `OPENAI_MODEL` optionnels pour synthese editoriale
+- `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` optionnels pour Claude
+- `GEMINI_API_KEY`, `GEMINI_MODEL` optionnels pour Gemini
+- `NEWSLETTER_SEND_LIMIT` pour limiter les envois par declenchement
 
 Le workflow `.github/workflows/seo-autopilot.yml` lance l'audit chaque nuit. Le systeme n'utilise pas de scraping automatise des resultats Google et n'utilise pas l'Indexing API pour les pages immeuble, car Google la reserve aux contenus compatibles comme `JobPosting` ou `BroadcastEvent`.
+
+La newsletter utilise SMTP deja configure cote Pages. Les envois sont declenches via `/api/admin/newsletter` avec `ADMIN_API_TOKEN`; les abonnes disposent d'un lien de desinscription individuel.
 
 ## Politique contenu IA
 

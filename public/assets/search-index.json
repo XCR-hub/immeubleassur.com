@@ -815,6 +815,16 @@
     "url": "/multirisque-immeuble"
   },
   {
+    "title": "Veille Assurance Immeuble 2026 07 28",
+    "description": "Resume actionnable des signaux publics utiles aux syndics, bailleurs, SCI et coproprietaires non occupants. Analyse des garanties, franchises, sinistres.",
+    "url": "/news/veille-assurance-immeuble-2026-07-28"
+  },
+  {
+    "title": "Newsletter assurance immeuble",
+    "description": "Newsletter ImmeubleAssur: veille assurance immeuble, copropriete, PNO, CNO, SCI, sinistres et travaux pour clients et prospects.",
+    "url": "/newsletter-assurance-immeuble"
+  },
+  {
     "title": "Hub assurance PNO CNO immeuble",
     "description": "Hub assurance PNO CNO immeuble: devis, guides, differences PNO/CNO et pages specialisees pour proprietaires non occupants.",
     "url": "/pno-cno"
@@ -843,6 +853,11 @@
     "title": "Tarif assurance immeuble: comprendre le cout reel",
     "description": "Tarif assurance immeuble: facteurs de prix, franchises, exclusions, garanties, sinistres et methode de comparaison. Analyse des garanties, franchises, sinistres.",
     "url": "/tarif-assurance-immeuble"
+  },
+  {
+    "title": "Veille assurance immeuble et copropriete",
+    "description": "Veille assurance immeuble: actualites, signaux regulatoires, copropriete, PNO, CNO, SCI et newsletter pour anticiper devis et renouvellement.",
+    "url": "/veille-assurance-immeuble"
   },
   {
     "title": "Assurance immeuble par ville et devis",

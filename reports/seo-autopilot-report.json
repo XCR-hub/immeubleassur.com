@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-27T16:56:46.424Z",
+  "generated_at": "2026-07-28T00:36:38.510Z",
   "mode": "api",
-  "pages_checked": 170,
+  "pages_checked": 173,
   "average_score": 100,
   "weak_pages": [],
   "opportunities": [],
@@ -56,10 +56,10 @@
   },
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-27T16:54:29.739Z",
-    "pages_checked": 170,
-    "pages_changed": 121,
-    "fixes_applied": 175,
+    "generated_at": "2026-07-28T00:36:05.138Z",
+    "pages_checked": 173,
+    "pages_changed": 124,
+    "fixes_applied": 176,
     "safeguards": [
       "idempotent-markers",
       "legal-pages-no-commercial-panel",
@@ -188,10 +188,10 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-27T16:54:30.312Z",
-    "pages_checked": 171,
-    "pages_expanded": 77,
-    "words_added_estimate": 13247,
+    "generated_at": "2026-07-28T00:36:06.530Z",
+    "pages_checked": 174,
+    "pages_expanded": 80,
+    "words_added_estimate": 13771,
     "safeguards": [
       "idempotent-markers",
       "legal-pages-skipped",
@@ -303,8 +303,8 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-07-27T16:56:26.743Z",
-    "pages_checked": 171,
+    "generated_at": "2026-07-28T00:36:25.245Z",
+    "pages_checked": 174,
     "status": "passed",
     "severe_issue_count": 0,
     "warning_count": 0,
@@ -320,17 +320,17 @@
   },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-07-27T16:56:27.471Z",
-    "pages_checked": 167,
+    "generated_at": "2026-07-28T00:36:25.842Z",
+    "pages_checked": 170,
     "money_pages_checked": 114,
-    "average_conversion_score": 76,
+    "average_conversion_score": 75,
     "average_money_score": 82,
     "cluster_coverage": [
       {
         "cluster": "pno-cno",
-        "pages": 167,
+        "pages": 170,
         "money_pages": 114,
-        "average_score": 76,
+        "average_score": 75,
         "top_pages": [
           {
             "slug": "assurance-cno",
@@ -1250,7 +1250,7 @@
   },
   "cro_experiment": {
     "configured": true,
-    "generated_at": "2026-07-27T16:56:27.889Z",
+    "generated_at": "2026-07-28T00:36:26.164Z",
     "status": "passed",
     "variant_count": 3,
     "variants": [
@@ -1272,7 +1272,7 @@
     "action_count": 1000,
     "verified_count": 1000,
     "watch_count": 0,
-    "pages_checked": 170,
+    "pages_checked": 173,
     "top_dimensions": [
       {
         "dimension": "validation-friction",

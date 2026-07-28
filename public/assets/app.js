@@ -1054,6 +1054,76 @@ form?.addEventListener("submit", async (event) => {
   }
 });
 
+
+function newsletterStatus(formElement, message, type = "") {
+  const box = formElement.querySelector("[data-newsletter-status]") || formElement.querySelector(".form-status");
+  if (!box) return;
+  box.textContent = message;
+  box.className = `form-status ${type}`.trim();
+}
+
+function readNewsletterForm(formElement) {
+  const data = Object.fromEntries(new FormData(formElement).entries());
+  return {
+    email: String(data.email || "").trim().toLowerCase(),
+    name: String(data.name || "").trim(),
+    audience: String(data.audience || "assurance-immeuble").trim(),
+    consent: data.consent === "on",
+    company_website: String(data.company_website || "").trim(),
+    source: formElement.dataset.newsletterSource || document.body.dataset.intent || inferIntent(),
+    page_url: window.location.href,
+    path: window.location.pathname,
+    referrer: document.referrer || "",
+    session_id: sessionId,
+    ga_client_id: gaClientId()
+  };
+}
+
+function bindNewsletterForms() {
+  document.querySelectorAll(".newsletter-form").forEach((newsletterFormElement) => {
+    if (newsletterFormElement.dataset.bound === "true") return;
+    newsletterFormElement.dataset.bound = "true";
+    newsletterFormElement.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const payload = readNewsletterForm(newsletterFormElement);
+      const button = newsletterFormElement.querySelector("button[type='submit']");
+      if (payload.company_website) {
+        newsletterStatus(newsletterFormElement, "Inscription prise en compte.", "ok");
+        return;
+      }
+      if (!payload.email.includes("@") || payload.email.length < 6) {
+        newsletterStatus(newsletterFormElement, "Email invalide.", "error");
+        track("newsletter_subscribe_error", { target: payload.audience, label: "email-invalide" });
+        return;
+      }
+      if (!payload.consent) {
+        newsletterStatus(newsletterFormElement, "Consentement requis.", "error");
+        track("newsletter_subscribe_error", { target: payload.audience, label: "consentement-manquant" });
+        return;
+      }
+      button.disabled = true;
+      newsletterStatus(newsletterFormElement, "Inscription en cours...");
+      track("newsletter_subscribe_attempt", { target: payload.audience, label: payload.source });
+      try {
+        const response = await fetch("/api/newsletter", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.error || "Inscription impossible.");
+        newsletterFormElement.reset();
+        newsletterStatus(newsletterFormElement, "Inscription confirmee. Vous recevrez la veille ImmeubleAssur.", "ok");
+        track("newsletter_subscribed", { target: payload.audience, label: payload.source, status: result.status || "active" });
+      } catch (error) {
+        newsletterStatus(newsletterFormElement, error.message || "Inscription impossible pour le moment.", "error");
+        track("newsletter_subscribe_error", { target: payload.audience, label: error.message || "erreur" });
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+}
 applyIntentPrefill();
 mountLeadBar();
 mountFormAdvisor();
@@ -1062,6 +1132,7 @@ mountLeadValuePreview();
 mountDiagnostic();
 mountReadiness();
 mountRiskRouter();
+bindNewsletterForms();
 enhanceHeader();
 bindScrollDepthTracking();
 bindFormAbandonment();

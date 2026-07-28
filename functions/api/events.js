@@ -30,7 +30,11 @@ const allowedEvents = new Set([
   "readiness_complete",
   "scroll_depth",
   "lead_form_abandoned",
-  "lead_spam_blocked"
+  "lead_spam_blocked",
+  "newsletter_subscribe_attempt",
+  "newsletter_subscribed",
+  "newsletter_subscribe_error",
+  "newsletter_spam_blocked"
 ]);
 
 const ga4EventNames = {
@@ -55,7 +59,11 @@ const ga4EventNames = {
   readiness_complete: "ia_readiness_complete",
   scroll_depth: "ia_scroll_depth",
   lead_form_abandoned: "ia_lead_form_abandoned",
-  lead_spam_blocked: "ia_lead_spam_blocked"
+  lead_spam_blocked: "ia_lead_spam_blocked",
+  newsletter_subscribe_attempt: "ia_newsletter_subscribe_attempt",
+  newsletter_subscribed: "ia_newsletter_subscribed",
+  newsletter_subscribe_error: "ia_newsletter_subscribe_error",
+  newsletter_spam_blocked: "ia_newsletter_spam_blocked"
 };
 
 function ga4NameFor(eventType) {

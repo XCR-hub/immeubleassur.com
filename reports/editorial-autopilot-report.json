@@ -1,0 +1,172 @@
+{
+  "generated_at": "2026-07-28T00:36:01.358Z",
+  "mode": "local-fallback",
+  "fetch_enabled": false,
+  "ai_enabled": false,
+  "ai_provider": "deterministic",
+  "ai_model": "local-template",
+  "ai_status": "skipped",
+  "quality_score": 90,
+  "source_count": 5,
+  "watch_items": 3,
+  "issue": {
+    "id": "issue-8ddcceb57b67",
+    "slug": "news/veille-assurance-immeuble-2026-07-28",
+    "title": "Veille assurance immeuble: copropriete, contrats et devis",
+    "html_url": "/news/veille-assurance-immeuble-2026-07-28"
+  },
+  "automation_plan": {
+    "blog_briefs": [
+      {
+        "slug": "assurance-immeuble-newsletter-syndic",
+        "title": "Newsletter syndic: surveiller les echeances et sinistres immeuble",
+        "keyword": "newsletter syndic assurance immeuble",
+        "audience": "syndics professionnels et benevoles",
+        "action": "Transformer la veille en rappel actionnable avant AG ou echeance.",
+        "status": "planned"
+      },
+      {
+        "slug": "assurance-cno-coproprietaire-checklist",
+        "title": "CNO coproprietaire: checklist avant demande de devis",
+        "keyword": "assurance CNO coproprietaire",
+        "audience": "coproprietaires non occupants",
+        "action": "Lister occupation du lot, contrat immeuble, assurance occupant et responsabilites.",
+        "status": "planned"
+      },
+      {
+        "slug": "veille-assurance-immeuble-sinistre",
+        "title": "Veille assurance immeuble apres sinistre: quoi surveiller",
+        "keyword": "veille assurance immeuble sinistre",
+        "audience": "bailleurs et syndics apres degat des eaux",
+        "action": "Relier actualite, delais, preuves et preparation du dossier assureur.",
+        "status": "planned"
+      },
+      {
+        "slug": "assurance-immeuble-climat-prevention",
+        "title": "Evenements climatiques: prevention et assurance immeuble",
+        "keyword": "assurance immeuble climat",
+        "audience": "coproprietes et SCI",
+        "action": "Expliquer entretien, toiture, facade, franchises et documents de prevention.",
+        "status": "planned"
+      },
+      {
+        "slug": "assurance-pno-cno-news",
+        "title": "PNO/CNO: comment utiliser la veille pour eviter les trous de garantie",
+        "keyword": "PNO CNO garanties",
+        "audience": "bailleurs et coproprietaires",
+        "action": "Comparer roles du contrat immeuble, du lot et de l'occupant.",
+        "status": "planned"
+      },
+      {
+        "slug": "assurance-sci-newsletter",
+        "title": "SCI immobiliere: organiser une veille assurance utile",
+        "keyword": "assurance SCI immeuble",
+        "audience": "gerants de SCI",
+        "action": "Suivre contrats, echeances, sinistres et evolution du patrimoine.",
+        "status": "planned"
+      }
+    ],
+    "faq_questions": [
+      {
+        "question": "Comment savoir si une actualite change mon contrat d'assurance immeuble ?",
+        "status": "planned"
+      },
+      {
+        "question": "Faut-il resilier apres une hausse de prime ?",
+        "status": "planned"
+      },
+      {
+        "question": "Une veille juridique remplace-t-elle l'audit du contrat ?",
+        "status": "planned"
+      },
+      {
+        "question": "Comment utiliser la newsletter avant une assemblee generale ?",
+        "status": "planned"
+      },
+      {
+        "question": "Quels signaux indiquent qu'un immeuble devient plus difficile a assurer ?",
+        "status": "planned"
+      },
+      {
+        "question": "Quelle difference entre veille assurance, devis et audit de garanties ?",
+        "status": "planned"
+      }
+    ],
+    "city_news_angles": [
+      {
+        "city": "Paris",
+        "angle": "Veille locale assurance immeuble Paris",
+        "status": "planned"
+      },
+      {
+        "city": "Lyon",
+        "angle": "Veille locale assurance immeuble Lyon",
+        "status": "planned"
+      },
+      {
+        "city": "Marseille",
+        "angle": "Veille locale assurance immeuble Marseille",
+        "status": "planned"
+      },
+      {
+        "city": "Bordeaux",
+        "angle": "Veille locale assurance immeuble Bordeaux",
+        "status": "planned"
+      },
+      {
+        "city": "Lille",
+        "angle": "Veille locale assurance immeuble Lille",
+        "status": "planned"
+      },
+      {
+        "city": "Nantes",
+        "angle": "Veille locale assurance immeuble Nantes",
+        "status": "planned"
+      },
+      {
+        "city": "Nice",
+        "angle": "Veille locale assurance immeuble Nice",
+        "status": "planned"
+      },
+      {
+        "city": "Toulouse",
+        "angle": "Veille locale assurance immeuble Toulouse",
+        "status": "planned"
+      },
+      {
+        "city": "Rennes",
+        "angle": "Veille locale assurance immeuble Rennes",
+        "status": "planned"
+      },
+      {
+        "city": "Strasbourg",
+        "angle": "Veille locale assurance immeuble Strasbourg",
+        "status": "planned"
+      },
+      {
+        "city": "Montpellier",
+        "angle": "Veille locale assurance immeuble Montpellier",
+        "status": "planned"
+      },
+      {
+        "city": "Grenoble",
+        "angle": "Veille locale assurance immeuble Grenoble",
+        "status": "planned"
+      }
+    ],
+    "source_topics": [
+      "copropriete",
+      "regulateur",
+      "droit"
+    ]
+  },
+  "compliance": [
+    "rss-and-public-summary-first",
+    "source-attribution-required",
+    "no-copying-third-party-articles",
+    "no-google-results-scraping",
+    "people-first-content-before-seo-volume",
+    "ai-output-reviewed-by-quality-guards"
+  ],
+  "errors": []
+}

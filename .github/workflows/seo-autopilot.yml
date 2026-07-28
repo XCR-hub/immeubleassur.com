@@ -72,3 +72,6 @@ jobs:
             public/assets/cro-experiment-latest.json
             public/assets/seo-autopilot-latest.json
             reports/seo-autopilot-d1.sql
+            reports/editorial-autopilot-report.json
+            reports/editorial-autopilot-d1.sql
+            public/assets/editorial-autopilot-latest.json

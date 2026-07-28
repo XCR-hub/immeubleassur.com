@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-07-27T16:56:27.471Z",
-  "pages_checked": 167,
+  "generated_at": "2026-07-28T00:36:25.842Z",
+  "pages_checked": 170,
   "money_pages_checked": 114,
-  "average_conversion_score": 76,
+  "average_conversion_score": 75,
   "average_money_score": 82,
   "cluster_coverage": [
     {
       "cluster": "pno-cno",
-      "pages": 167,
+      "pages": 170,
       "money_pages": 114,
-      "average_score": 76,
+      "average_score": 75,
       "top_pages": [
         {
           "slug": "assurance-cno",

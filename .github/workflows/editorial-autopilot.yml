@@ -1,0 +1,74 @@
+name: Editorial Autopilot
+
+on:
+  schedule:
+    - cron: "44 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  editorial-autopilot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate base site
+        env:
+          GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
+          TURNSTILE_SITE_KEY: ${{ secrets.TURNSTILE_SITE_KEY }}
+        run: npm run generate
+
+      - name: Run editorial watch with AI when configured
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
+        run: npm run editorial:autopilot -- --fetch --ai
+
+      - name: Validate site and functions
+        run: npm run check
+
+      - name: Store editorial data in D1 when configured
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            npx wrangler d1 execute immeubleassur-db --remote --file=schema.sql
+            npx wrangler d1 execute immeubleassur-db --remote --file=reports/editorial-autopilot-d1.sql
+          else
+            echo "Cloudflare secrets missing; skipping editorial D1 storage."
+          fi
+
+      - name: Deploy refreshed editorial site when configured
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            npx wrangler pages deploy public --project-name=immeubleassur-com
+          else
+            echo "Cloudflare secrets missing; skipping deploy."
+          fi
+
+      - name: Upload editorial reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: immeubleassur-editorial-reports
+          path: |
+            reports/editorial-autopilot-report.json
+            reports/editorial-autopilot-d1.sql
+            public/assets/editorial-autopilot-latest.json
