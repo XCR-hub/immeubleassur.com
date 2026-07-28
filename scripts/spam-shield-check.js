@@ -6,9 +6,11 @@ const expectations = [
   { file: "functions/api/leads.js", snippets: ["assessSpamSubmission", "loadSpamHistory", "logSpamAttempt", "lead_spam_blocked", "spam_score", "honeypot-rempli", "signal-js-absent", "verifyTurnstile", "TURNSTILE_SECRET_KEY", "challenges.cloudflare.com/turnstile/v0/siteverify"] },
   { file: "public/assets/app.js", snippets: ["botSignalPayload", "anti_bot", "form_elapsed_ms", "interaction_count", "bindBotSignalTracking", "turnstile_token", "lead_submit_rejected"] },
   { file: "functions/api/admin/seo.js", snippets: ["lead_spam_blocked", "spam_blocked", "spam_blocks", "spam-bloque"] },
-  { file: "public/assets/admin.js", snippets: ["Spam bloques", "spam-bloque", "robots filtres"] },
+  { file: "functions/api/admin/spam.js", snippets: ["lead_spam_blocked", "newsletter_spam_blocked", "maskIp", "repeat_sources", "privacy", "top_reasons"] },
+  { file: "public/assets/admin.js", snippets: ["Spam bloques", "spam-bloque", "robots filtres", "loadSpam", "/api/admin/spam", "Sources masquees"] },
   { file: "functions/api/events.js", snippets: ["lead_spam_blocked", "ia_lead_spam_blocked"] },
-  { file: "scripts/turnstile-protection-pass.js", snippets: ["TURNSTILE_SITE_KEY", "turnstile-protection:start", "cf-turnstile", "turnstile-protection-report.json"] }
+  { file: "scripts/turnstile-protection-pass.js", snippets: ["TURNSTILE_SITE_KEY", "turnstile-protection:start", "cf-turnstile", "turnstile-protection-report.json"] },
+  { file: "scripts/generate-site.js", snippets: ["spam-admin:start", "load-spam", "Bouclier anti-spam"] }
 ];
 
 const missing = [];

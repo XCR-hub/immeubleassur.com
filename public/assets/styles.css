@@ -2434,3 +2434,10 @@ textarea:focus {
 .admin-content-table {
   min-width: 1120px;
 }
+.admin-spam-panel {
+  margin-top: 1.5rem;
+}
+
+.admin-spam-table {
+  min-width: 1120px;
+}

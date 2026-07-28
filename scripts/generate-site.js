@@ -866,6 +866,9 @@ function adminPage() {
       <!-- content-admin:start -->
       <section class="plain-panel admin-seo-panel admin-content-panel"><h2>Pipeline contenu SEO</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-content">Charger contenu</button><a class="button secondary" href="/recherches-assurance-immeuble.html">Voir hub recherches</a></div><div class="seo-admin-grid" id="content-summary"><p>Charge articles, FAQ, villes, opportunites et veille editoriale.</p></div><section class="admin-table-wrap" aria-label="Pipeline contenu"><table class="admin-table admin-content-table"><thead><tr><th>Type</th><th>Score</th><th>Page</th><th>Signal</th><th>Action</th></tr></thead><tbody id="content-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
       <!-- content-admin:end -->
+      <!-- spam-admin:start -->
+      <section class="plain-panel admin-seo-panel admin-spam-panel"><h2>Bouclier anti-spam</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-spam">Charger anti-spam</button><span class="admin-muted">IP masquees, raisons de blocage et signaux robots uniquement.</span></div><div class="seo-admin-grid" id="spam-summary"><p>Charge blocages formulaires, sources repetees, pages ciblees et erreurs de validation.</p></div><section class="admin-table-wrap" aria-label="Bouclier anti-spam"><table class="admin-table admin-spam-table"><thead><tr><th>Type</th><th>Volume</th><th>Signal</th><th>Derniere trace</th><th>Action</th></tr></thead><tbody id="spam-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
+      <!-- spam-admin:end -->
     </main>
     <script src="${ADMIN_JS_URL}" type="module"></script>
   </body>

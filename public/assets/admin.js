@@ -15,6 +15,9 @@ const newsletterBody = document.querySelector("#newsletter-body");
 const contentButton = document.querySelector("#load-content");
 const contentSummary = document.querySelector("#content-summary");
 const contentBody = document.querySelector("#content-body");
+const spamButton = document.querySelector("#load-spam");
+const spamSummary = document.querySelector("#spam-summary");
+const spamBody = document.querySelector("#spam-body");
 const leadSummary = document.querySelector("#lead-summary");
 const leadSearch = document.querySelector("#lead-search");
 const priorityFilter = document.querySelector("#lead-priority-filter");
@@ -868,6 +871,117 @@ async function loadContent() {
   }
   renderContentTable(contentActionRows(result));
 }
+function spamRows(result = {}) {
+  const rows = [];
+  for (const item of Array.isArray(result.actions) ? result.actions : []) {
+    rows.push({
+      type: item.type || "action-spam",
+      volume: String(item.priority || ""),
+      signal: item.signal || "",
+      last: "priorite",
+      action: item.recommendation || "Surveiller le filtre anti-spam."
+    });
+  }
+  for (const item of Array.isArray(result.top_reasons) ? result.top_reasons : []) {
+    rows.push({
+      type: item.event_type || "raison",
+      volume: `${item.blocked || 0} blocage(s)` ,
+      signal: item.reason || "anti-spam",
+      last: reportDate(item.last_seen),
+      action: `Score max ${Math.round(Number(item.max_score || 0))}. Ajuster les seuils seulement si des vrais prospects sont touches.`
+    });
+  }
+  for (const item of Array.isArray(result.top_paths) ? result.top_paths : []) {
+    rows.push({
+      type: "page-ciblee",
+      volume: `${item.blocked || 0} blocage(s)`,
+      signal: item.path || "/",
+      last: reportDate(item.last_seen),
+      action: `${item.lead_blocks || 0} lead / ${item.newsletter_blocks || 0} newsletter. Verifier Turnstile et champs pieges.`
+    });
+  }
+  for (const item of Array.isArray(result.repeat_sources) ? result.repeat_sources : []) {
+    rows.push({
+      type: "source-masquee",
+      volume: `${item.blocked || 0} blocage(s)`,
+      signal: `${item.ip_fingerprint || "ip masquee"} - ${item.user_agent_family || "ua"}`,
+      last: reportDate(item.last_seen),
+      action: `${item.sessions || 0} session(s), ${item.paths || 0} page(s). Surveiller sans exposer l'IP brute.`
+    });
+  }
+  for (const item of Array.isArray(result.validation_errors) ? result.validation_errors : []) {
+    rows.push({
+      type: "friction-validation",
+      volume: `${item.errors || 0} erreur(s)`,
+      signal: `${item.path || "/"} - ${item.missing || "validation"}`,
+      last: reportDate(item.last_seen),
+      action: "Verifier que les messages d'erreur n'augmentent pas les abandons de vrais prospects."
+    });
+  }
+  return rows;
+}
+
+function renderSpamTable(rows = []) {
+  if (!spamBody) return;
+  spamBody.replaceChildren();
+  if (!rows.length) {
+    const tr = document.createElement("tr");
+    const td = cell("Aucun signal anti-spam charge.");
+    td.colSpan = 5;
+    tr.append(td);
+    spamBody.append(tr);
+    return;
+  }
+
+  for (const row of rows.slice(0, 60)) {
+    const tr = document.createElement("tr");
+    tr.append(
+      cell(row.type),
+      cell(row.volume),
+      cell(row.signal),
+      cell(row.last),
+      cell(row.action)
+    );
+    spamBody.append(tr);
+  }
+}
+
+async function loadSpam() {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
+  if (!token) {
+    if (spamSummary) spamSummary.replaceChildren(metricCard("Token requis", "Admin", "charger le bouclier anti-spam"));
+    return;
+  }
+  if (spamSummary) spamSummary.replaceChildren(metricCard("Chargement", "Anti-spam", "lecture D1"));
+
+  const response = await fetch("/api/admin/spam", { headers: { Authorization: `Bearer ${token}` } });
+  const result = await response.json();
+  if (!response.ok || !result.success) throw new Error(result.error || "Chargement anti-spam impossible");
+
+  const summary = result.summary || {};
+  const repeatSources = Array.isArray(result.repeat_sources) ? result.repeat_sources : [];
+  const topReasons = Array.isArray(result.top_reasons) ? result.top_reasons : [];
+  const topPaths = Array.isArray(result.top_paths) ? result.top_paths : [];
+  const warnings = Array.isArray(result.warnings) ? result.warnings : [];
+
+  if (spamSummary) {
+    spamSummary.replaceChildren(
+      metricCard("Blocages 24h", String(summary.spam_blocks_24h || 0), "leads + newsletter"),
+      metricCard("Blocages 7j", String(summary.spam_blocks_7d || 0), "pression recente"),
+      metricCard("Blocages 30j", String(summary.spam_blocks_30d || 0), `${summary.block_rate || 0}% des tentatives`),
+      metricCard("Leads filtres", String(summary.lead_spam_blocks_30d || 0), "robots devis"),
+      metricCard("Newsletter filtres", String(summary.newsletter_spam_blocks_30d || 0), "robots inscription"),
+      metricCard("Tentatives", String(summary.submit_attempts_30d || 0), `${summary.leads_30d || 0} lead(s) crees`),
+      metricCard("Erreurs formulaire", String(summary.validation_errors_30d || 0), "friction a surveiller"),
+      metricCard("Sources masquees", String(repeatSources.length), "IP non exposees"),
+      metricCard("Raisons", String(topReasons.length), topReasons[0]?.reason || "aucune dominante"),
+      metricCard("Pages ciblees", String(topPaths.length), topPaths[0]?.path || "aucune"),
+      metricCard("Actions", String((result.actions || []).length), warnings.length ? `${warnings.length} alerte(s)` : "priorisees")
+    );
+  }
+  renderSpamTable(spamRows(result));
+}
 function priorityCount(priorities = [], key) {
   const row = priorities.find((item) => item.priority === key);
   return Number(row?.count || 0);
@@ -967,6 +1081,7 @@ form?.addEventListener("submit", async (event) => {
     loadIntegrations().catch(() => {});
     loadNewsletter().catch(() => {});
     loadContent().catch(() => {});
+    loadSpam().catch(() => {});
   } catch (error) {
     setStatus(error.message || "Erreur de chargement", "error");
   }
@@ -1018,6 +1133,11 @@ newsletterButton?.addEventListener("click", () => {
 contentButton?.addEventListener("click", () => {
   loadContent().catch((error) => {
     if (contentSummary) contentSummary.replaceChildren(metricCard("Erreur", "Contenu", error.message || "chargement impossible"));
+  });
+});
+spamButton?.addEventListener("click", () => {
+  loadSpam().catch((error) => {
+    if (spamSummary) spamSummary.replaceChildren(metricCard("Erreur", "Anti-spam", error.message || "chargement impossible"));
   });
 });
 newsletterSendButton?.addEventListener("click", () => {
