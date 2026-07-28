@@ -1,4 +1,4 @@
-﻿import { createHash } from "node:crypto";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
@@ -117,16 +117,6 @@ function updateDashboard(report) {
   write(dashboard, JSON.stringify(report, null, 2));
 }
 
-function d1Sql(report) {
-  const lines = ["PRAGMA foreign_keys = ON;"];
-  lines.push(`INSERT OR REPLACE INTO search_intelligence_runs (id, provider, status, keywords_checked, average_position, first_page_count, payload, created_at) VALUES (${sql(report.run_id)}, ${sql(report.provider)}, ${sql(report.status)}, ${report.keywords_checked}, ${report.average_position === null ? "NULL" : Number(report.average_position.toFixed(2))}, ${report.first_page_count}, ${sql(JSON.stringify(report.summary))}, ${sql(report.generated_at)});`);
-  for (const row of report.rankings) {
-    const id = `rank-${hash(`${report.run_id}:${row.query}`)}`;
-    lines.push(`INSERT OR REPLACE INTO search_rankings (id, run_id, keyword, target_url, position, found_url, top_domains, recommendation, payload, created_at) VALUES (${sql(id)}, ${sql(report.run_id)}, ${sql(row.query)}, ${sql(row.target_url)}, ${row.position === null ? "NULL" : Number(row.position)}, ${sql(row.found_url)}, ${sql(JSON.stringify(row.top_domains || []))}, ${sql(row.recommendation)}, ${sql(JSON.stringify(row))}, ${sql(row.checked_at)});`);
-  }
-  return `${lines.join("\n")}\n`;
-}
-
 async function run() {
   ensureDir(REPORT_DIR);
   ensureDir(join(OUT, "assets"));
@@ -155,7 +145,7 @@ async function run() {
     errors
   };
   write(join(REPORT_DIR, "search-intelligence-report.json"), JSON.stringify(report, null, 2));
-  write(join(REPORT_DIR, "search-intelligence-d1.sql"), d1Sql(report));
+
   updateDashboard(report);
   console.log(`Search intelligence checked ${report.keywords_checked} keywords via ${report.provider}; top3=${report.top3_count}, missing=${report.missing_count}.`);
 }

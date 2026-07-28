@@ -25,7 +25,6 @@ jobs:
       - name: Generate base site
         env:
           GA4_MEASUREMENT_ID: ${{ secrets.GA4_MEASUREMENT_ID }}
-          TURNSTILE_SITE_KEY: ${{ secrets.TURNSTILE_SITE_KEY }}
         run: npm run generate
 
       - name: Run editorial watch with AI when configured
@@ -50,38 +49,14 @@ jobs:
       - name: Validate site and functions
         run: npm run check
 
-      - name: Store editorial data in D1 when configured
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
-            npx wrangler d1 execute immeubleassur-db --remote --file=schema.sql
-            npx wrangler d1 execute immeubleassur-db --remote --file=reports/editorial-autopilot-d1.sql
-            npx wrangler d1 execute immeubleassur-db --remote --file=reports/media-autopilot-d1.sql
-          else
-            echo "Cloudflare secrets missing; skipping editorial D1 storage."
-          fi
-
-      - name: Deploy refreshed editorial site when configured
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
-            npx wrangler pages deploy public --project-name=immeubleassur-com
-          else
-            echo "Cloudflare secrets missing; skipping deploy."
-          fi
-
       - name: Upload editorial reports
         uses: actions/upload-artifact@v4
         with:
           name: immeubleassur-editorial-reports
           path: |
             reports/editorial-autopilot-report.json
-            reports/editorial-autopilot-d1.sql
             public/assets/editorial-autopilot-latest.json
             reports/media-autopilot-report.json
-            reports/media-autopilot-d1.sql
             public/assets/media-autopilot-latest.json
+            reports/local-antifraud-report.json
+            public/assets/local-antifraud-latest.json

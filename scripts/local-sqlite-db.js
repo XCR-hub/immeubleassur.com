@@ -13,7 +13,7 @@ function normalizeRow(row) {
   return Object.fromEntries(Object.entries(row).map(([key, value]) => [key, typeof value === "bigint" ? Number(value) : value]));
 }
 
-class LocalD1Statement {
+class LocalSqliteStatement {
   constructor(database, sql, binds = []) {
     this.database = database;
     this.sql = sql;
@@ -21,7 +21,7 @@ class LocalD1Statement {
   }
 
   bind(...binds) {
-    return new LocalD1Statement(this.database, this.sql, binds);
+    return new LocalSqliteStatement(this.database, this.sql, binds);
   }
 
   first(columnName) {
@@ -50,7 +50,7 @@ class LocalD1Statement {
   }
 }
 
-export function openLocalD1({ dbPath, schemaPath = "schema.sql" }) {
+export function openLocalSqlite({ dbPath, schemaPath = "schema.sql" }) {
   const resolvedDbPath = resolve(dbPath);
   mkdirSync(dirname(resolvedDbPath), { recursive: true });
   const database = new DatabaseSync(resolvedDbPath);
@@ -62,7 +62,7 @@ export function openLocalD1({ dbPath, schemaPath = "schema.sql" }) {
   return {
     path: resolvedDbPath,
     prepare(sql) {
-      return new LocalD1Statement(database, sql);
+      return new LocalSqliteStatement(database, sql);
     },
     exec(sql) {
       database.exec(sql);

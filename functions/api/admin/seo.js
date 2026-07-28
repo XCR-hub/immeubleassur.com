@@ -224,7 +224,7 @@ export async function onRequestGet({ request, env }) {
   }
 
   if (!env.DB) {
-    return json({ success: false, error: "Binding D1 DB manquant" }, 503);
+    return json({ success: false, error: "Base SQLite indisponible" }, 503);
   }
 
   const [

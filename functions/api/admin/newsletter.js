@@ -224,7 +224,7 @@ export async function onRequestOptions() {
 
 export async function onRequestGet({ request, env }) {
   if (!authorized(request, env)) return json({ success: false, error: "Acces refuse" }, 401);
-  if (!env.DB) return json({ success: false, error: "Binding D1 DB manquant" }, 503);
+  if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
 
   const [subscriberStats, issues, watchItems, sendStats] = await Promise.all([
     safeAll(env, `SELECT status, COUNT(*) AS count FROM newsletter_subscribers GROUP BY status ORDER BY count DESC`),
@@ -238,7 +238,7 @@ export async function onRequestGet({ request, env }) {
 
 export async function onRequestPost({ request, env }) {
   if (!authorized(request, env)) return json({ success: false, error: "Acces refuse" }, 401);
-  if (!env.DB) return json({ success: false, error: "Binding D1 DB manquant" }, 503);
+  if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
 
   let payload = {};
   try {

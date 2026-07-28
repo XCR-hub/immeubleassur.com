@@ -104,13 +104,13 @@ const connectorDefinitions = [
     optional: ["NEWSLETTER_SEND_LIMIT"]
   },
   {
-    id: "turnstile",
-    label: "Cloudflare Turnstile",
+    id: "local-antifraud",
+    label: "Anti-fraude local",
     family: "security",
-    scope: "Blocage robots sur formulaires leads et newsletter.",
-    runtime: "build/runtime",
-    required: ["TURNSTILE_SECRET_KEY"],
-    optional: ["TURNSTILE_SITE_KEY"]
+    scope: "Honeypot, signaux JS, vitesse de saisie, session, historique IP/email/telephone.",
+    runtime: "runtime",
+    required: [],
+    optional: []
   },
   {
     id: "admin-api",
@@ -191,7 +191,7 @@ function countEvent(rows, eventType) {
 
 async function reportStatus(env) {
   if (!env.DB) {
-    return { warnings: ["Binding D1 DB manquant"], reports: {} };
+    return { warnings: ["Base SQLite indisponible"], reports: {} };
   }
 
   const [
@@ -270,7 +270,7 @@ function buildActions(connectors, reports) {
       priority: 82,
       connector: "IA editoriale",
       type: "run-manquant",
-      recommendation: "Verifier que le workflow editorial importe les rapports D1 apres generation."
+      recommendation: "Verifier que le serveur local importe les rapports editoriaux apres generation."
     });
   }
 
@@ -298,7 +298,7 @@ function buildActions(connectors, reports) {
       priority: 92,
       connector: "Anti-spam",
       type: "robots-detectes",
-      recommendation: `Surveiller ${spamBlocks} blocage(s) formulaire sur 30 jours et renforcer Turnstile si le volume augmente.`
+      recommendation: `Surveiller ${spamBlocks} blocage(s) formulaire sur 30 jours et renforcer les seuils du filtre local si le volume augmente.`
     });
   }
 

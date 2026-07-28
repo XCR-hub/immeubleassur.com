@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 
-const checks = [
+const required = [
   ["package.json", "serve:local"],
   ["package.json", "db:sqlite:restore"],
   ["package.json", "db:sqlite:import-reports"],
@@ -10,7 +10,8 @@ const checks = [
   ["package.json", "conversion:funnel:monitor"],
   ["package.json", "conversion:actions:sync"],
   ["package.json", "seo:backlog:monitor"],
-  ["scripts/local-production-server.js", "openLocalD1"],
+  ["package.json", "antifraud:local"],
+  ["scripts/local-production-server.js", "openLocalSqlite"],
   ["scripts/local-production-server.js", "SEND_SMTP_MAIL"],
   ["scripts/local-production-monitor.js", "sqlite_backup_age"],
   ["scripts/local-production-monitor.js", "telemetry_filter"],
@@ -26,6 +27,8 @@ const checks = [
   ["scripts/local-seo-backlog-monitor.js", "SEO backlog monitor"],
   ["scripts/local-seo-backlog-monitor.js", "LOCAL_SEO_BACKLOG_REPORT"],
   ["scripts/local-seo-backlog-monitor.js", "seo_opportunities"],
+  ["scripts/local-antifraud-pass.js", "local-antifraud-latest.json"],
+  ["functions/api/leads.js", "localChallengeStatus"],
   ["functions/api/admin/runtime-health.js", "sanitizeMonitorReport"],
   ["functions/api/admin/runtime-health.js", "LOCAL_PRODUCTION_MONITOR_REPORT"],
   ["functions/api/admin/runtime-health.js", "sanitizeLeadSlaReport"],
@@ -38,28 +41,57 @@ const checks = [
   ["public/assets/admin.js", "Qualite leads"],
   ["public/assets/admin.js", "Funnel leads"],
   ["public/assets/admin.js", "Backlog SEO"],
+  ["public/assets/admin.js", "Anti-fraude local"],
   ["scripts/local-production-server.js", "__IMMEUBLEASSUR_SEND_SMTP_MAIL"],
   ["functions/_shared/smtp.js", "__IMMEUBLEASSUR_SEND_SMTP_MAIL"],
-  ["scripts/local-d1-sqlite.js", "DatabaseSync"],
+  ["scripts/local-sqlite-db.js", "DatabaseSync"],
   ["scripts/local-sqlite-restore.js", "snapshot.json.gz"],
   ["scripts/local-smtp.js", "STARTTLS"],
-  ["README.md", "Production autonome"],
-  ["README.md", "Cloudflare D1 n'est plus requis"],
+  ["README.md", "Production locale"],
+  ["README.md", "Aucune dependance Supabase, Cloudflare D1, Cloudflare Pages, Wrangler ou Turnstile"],
   ["README.md", "leads:sla:monitor"],
   ["README.md", "leads:quality:monitor"],
   ["README.md", "conversion:funnel:monitor"],
   ["README.md", "conversion:actions:sync"],
-  ["README.md", "seo:backlog:monitor"]
+  ["README.md", "seo:backlog:monitor"],
+  ["README.md", "nameservers"]
+];
+
+const forbidden = [
+  ["package.json", "wrangler"],
+  ["package.json", "seo-d1-export"],
+  ["package.json", "turnstile-protection"],
+  [".env.example", "CLOUDFLARE_"],
+  [".env.example", "TURNSTILE_"],
+  [".env.example", "D1_SYNC"],
+  [".github/workflows/seo-autopilot.yml", "wrangler"],
+  [".github/workflows/seo-autopilot.yml", "CLOUDFLARE_"],
+  [".github/workflows/editorial-autopilot.yml", "wrangler"],
+  [".github/workflows/editorial-autopilot.yml", "CLOUDFLARE_"],
+  ["functions/api/leads.js", "TURNSTILE_SECRET_KEY"],
+  ["functions/api/leads.js", "challenges.cloudflare"],
+  ["public/assets/app.js", "cf-turnstile-response"],
+  ["public/assets/app.js", "turnstile_token"],
+  ["public/assets/admin.js", "turnstile-protection-latest"],
+  ["public/assets/admin.js", "TURNSTILE_"],
+  ["public/index.html", "challenges.cloudflare"],
+  ["public/devis-assurance-immeuble.html", "challenges.cloudflare"]
 ];
 
 const missing = [];
-for (const [file, needle] of checks) {
+for (const [file, needle] of required) {
   if (!existsSync(file) || !readFileSync(file, "utf8").includes(needle)) missing.push(`${file}:${needle}`);
 }
 
-if (missing.length) {
-  console.error(`Autarky contract failed: ${missing.join(", ")}`);
+const violations = [];
+for (const [file, needle] of forbidden) {
+  if (existsSync(file) && readFileSync(file, "utf8").includes(needle)) violations.push(`${file}:${needle}`);
+}
+
+if (missing.length || violations.length) {
+  if (missing.length) console.error(`Autarky required markers missing: ${missing.join(", ")}`);
+  if (violations.length) console.error(`Autarky forbidden markers present: ${violations.join(", ")}`);
   process.exit(1);
 }
 
-console.log(`Autarky contract passed for ${checks.length} markers.`);
+console.log(`Autarky contract passed for ${required.length} required markers and ${forbidden.length} forbidden markers.`);

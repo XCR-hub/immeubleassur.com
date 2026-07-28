@@ -299,21 +299,6 @@ function updateSitemap(extraUrls) {
   return true;
 }
 
-function d1Sql({ items, issue, synthesis }) {
-  const now = new Date().toISOString();
-  const lines = ["PRAGMA foreign_keys = ON;"];
-  for (const source of SOURCES) {
-    lines.push(`INSERT INTO editorial_sources (id, name, url, source_type, category, authority, crawl_policy, active, payload, created_at, updated_at) VALUES (${sql(source.id)}, ${sql(source.name)}, ${sql(source.url)}, ${sql(source.source_type)}, ${sql(source.category)}, ${sql(source.authority)}, ${sql(source.crawl_policy)}, 1, ${sql(JSON.stringify(source))}, ${sql(now)}, ${sql(now)}) ON CONFLICT(id) DO UPDATE SET name = excluded.name, url = excluded.url, source_type = excluded.source_type, category = excluded.category, authority = excluded.authority, crawl_policy = excluded.crawl_policy, active = 1, payload = excluded.payload, updated_at = excluded.updated_at;`);
-  }
-  for (const item of items) {
-    const id = `watch-${hash(item.url)}`;
-    lines.push(`INSERT INTO editorial_watch_items (id, source_id, source_name, source_url, title, url, summary, relevance_score, topic, published_at, fetched_at, payload) VALUES (${sql(id)}, ${sql(item.source_id)}, ${sql(item.source_name)}, ${sql(item.source_url)}, ${sql(item.title)}, ${sql(item.url)}, ${sql(item.summary)}, ${Number(item.relevance_score || 0)}, ${sql(item.topic)}, ${sql(item.published_at || "")}, ${sql(item.fetched_at || now)}, ${sql(JSON.stringify(item))}) ON CONFLICT(url) DO UPDATE SET title = excluded.title, summary = excluded.summary, relevance_score = excluded.relevance_score, topic = excluded.topic, published_at = excluded.published_at, fetched_at = excluded.fetched_at, payload = excluded.payload;`);
-  }
-  lines.push(`INSERT INTO newsletter_issues (id, slug, title, subject, summary, status, html_url, plain_text, payload, created_at, published_at, sent_at) VALUES (${sql(issue.id)}, ${sql(issue.slug)}, ${sql(issue.title)}, ${sql(issue.subject)}, ${sql(issue.summary)}, ${sql(issue.status)}, ${sql(issue.html_url)}, ${sql(issue.plain_text)}, ${sql(JSON.stringify({ issue, synthesis_provider: synthesis.provider, synthesis_model: synthesis.model }))}, ${sql(now)}, ${sql(now)}, NULL) ON CONFLICT(slug) DO UPDATE SET title = excluded.title, subject = excluded.subject, summary = excluded.summary, status = excluded.status, html_url = excluded.html_url, plain_text = excluded.plain_text, payload = excluded.payload, published_at = excluded.published_at;`);
-  lines.push(`INSERT OR REPLACE INTO ai_generation_runs (id, provider, model, task, status, input_hash, output_hash, payload, created_at) VALUES (${sql(`ai-${hash(`${issue.slug}:${synthesis.provider}:${synthesis.status}`)}`)}, ${sql(synthesis.provider)}, ${sql(synthesis.model)}, 'editorial-synthesis', ${sql(synthesis.status)}, ${sql(hash(JSON.stringify(items)))}, ${sql(hash(synthesis.text))}, ${sql(JSON.stringify({ error: synthesis.error || "", fetch_enabled: ENABLE_FETCH, ai_enabled: ENABLE_AI }))}, ${sql(now)});`);
-  return `${lines.join("\n")}\n`;
-}
-
 function qualityScore(items, synthesis) {
   let score = 40;
   if (items.length >= 3) score += 20;
@@ -363,7 +348,7 @@ async function run() {
   };
   write(join(REPORT_DIR, "editorial-autopilot-report.json"), JSON.stringify(report, null, 2));
   write(join(OUT, "assets", "editorial-autopilot-latest.json"), JSON.stringify(report, null, 2));
-  write(join(REPORT_DIR, "editorial-autopilot-d1.sql"), d1Sql({ items, issue, synthesis }));
+
   console.log(`Editorial autopilot wrote veille, newsletter and issue ${issue.slug} with ${items.length} watch items (${synthesis.provider}/${synthesis.status}).`);
 }
 

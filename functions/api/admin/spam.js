@@ -129,7 +129,7 @@ function buildActions({ summary, topReasons, topPaths, repeatSources }) {
       priority: 92,
       type: "pression-spam-elevee",
       signal: `${blockRate}% des tentatives recentes sont filtrees`,
-      recommendation: "Verifier que Turnstile est actif en production et conserver le honeypot sur tous les formulaires."
+      recommendation: "Verifier que le filtre local reste actif en production et conserver le honeypot sur tous les formulaires."
     });
   }
 
@@ -147,7 +147,7 @@ function buildActions({ summary, topReasons, topPaths, repeatSources }) {
       priority: 84,
       type: "page-ciblee",
       signal: `${topPath.path}: ${topPath.blocked} blocage(s)`,
-      recommendation: "Controler cette page: CTA, formulaire, Turnstile visible et absence de champs ambigus."
+      recommendation: "Controler cette page: CTA, formulaire, signaux anti-robots locaux et absence de champs ambigus."
     });
   }
 
@@ -174,7 +174,7 @@ function buildActions({ summary, topReasons, topPaths, repeatSources }) {
 
 export async function onRequestGet({ request, env }) {
   if (!authorized(request, env)) return json({ success: false, error: "Acces refuse" }, 401);
-  if (!env.DB) return json({ success: false, error: "Binding D1 DB manquant" }, 503);
+  if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
 
   const [
     eventCounts,
@@ -228,7 +228,7 @@ export async function onRequestGet({ request, env }) {
     recent_blocks: sanitizeRecent(rowsOrEmpty(recentBlocks)),
     validation_errors: rowsOrEmpty(validationErrors),
     actions: buildActions({ summary, topReasons: cleanTopReasons, topPaths: cleanTopPaths, repeatSources: cleanRepeatSources }),
-    privacy: "Les IP sont masquees dans cette reponse admin; les valeurs brutes restent limitees a D1.",
+    privacy: "Les IP sont masquees dans cette reponse admin; les valeurs brutes restent limitees a SQLite local.",
     warnings: [
       errorOf(eventCounts),
       errorOf(periods),

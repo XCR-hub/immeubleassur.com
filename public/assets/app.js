@@ -204,8 +204,6 @@ function readForm(formElement) {
     ga_client_id: gaClientId(),
     page_title: document.title,
     anti_bot: botSignalPayload(),
-    turnstile_token: String(data["cf-turnstile-response"] || "").trim(),
-    "cf-turnstile-response": String(data["cf-turnstile-response"] || "").trim(),
     ...experimentPayload(),
     experiment: experimentPayload(),
     utm
@@ -1178,7 +1176,7 @@ form?.addEventListener("submit", async (event) => {
     });
   } catch (error) {
     if (error.status && error.status < 500) {
-      track("lead_submit_rejected", { target: payload.need, label: error.message, status: String(error.status), turnstile: error.result?.turnstile || "" });
+      track("lead_submit_rejected", { target: payload.need, label: error.message, status: String(error.status), challenge: error.result?.challenge || "" });
       setStatus(error.message || "Demande rejetee. Verifiez les champs puis recommencez.", "error");
       return;
     }

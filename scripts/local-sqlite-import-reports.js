@@ -1,32 +1,54 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { openLocalD1 } from "./local-d1-sqlite.js";
+import { openLocalSqlite } from "./local-sqlite-db.js";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 
 loadDefaultEnvFiles();
 
 const reportFiles = [
-  "reports/seo-autopilot-d1.sql",
-  "reports/search-intelligence-d1.sql",
-  "reports/editorial-autopilot-d1.sql",
-  "reports/media-autopilot-d1.sql"
+  "reports/seo-autopilot-report.json",
+  "reports/search-intelligence-report.json",
+  "reports/editorial-autopilot-report.json",
+  "reports/media-autopilot-report.json",
+  "reports/conversion-intelligence-report.json",
+  "reports/cro-experiment-report.json",
+  "reports/lead-friction-report.json",
+  "reports/local-antifraud-report.json"
 ];
 
-const db = openLocalD1({ dbPath: env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite")), schemaPath: "schema.sql" });
-const imported = [];
-
-try {
-  for (const file of reportFiles) {
-    if (!existsSync(file)) continue;
-    const sql = readFileSync(file, "utf8").trim();
-    if (!sql) continue;
-    db.exec(sql);
-    imported.push(file);
+function readJsonReport(file) {
+  if (!existsSync(file)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(file, "utf8"));
+    return {
+      file,
+      status: parsed.status || parsed.ai_status || parsed.provider || "present",
+      generated_at: parsed.generated_at || parsed.imported_at || ""
+    };
+  } catch (error) {
+    return { file, status: "invalid-json", error: error.message || "lecture impossible" };
   }
-  const result = { success: true, imported_at: new Date().toISOString(), imported, database: db.path };
-  mkdirSync("reports", { recursive: true });
-  writeFileSync(join("reports", "local-sqlite-import-report.json"), `${JSON.stringify(result, null, 2)}\n`, "utf8");
-  console.log(`SQLite report import complete: ${imported.length} file(s).`);
-} finally {
-  db.close();
 }
+
+const db = openLocalSqlite({ dbPath: env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite")), schemaPath: "schema.sql" });
+const reports = reportFiles.map(readJsonReport).filter(Boolean);
+const invalid = reports.filter((item) => item.status === "invalid-json");
+const result = {
+  success: invalid.length === 0,
+  imported_at: new Date().toISOString(),
+  mode: "local-json-report-check",
+  reports,
+  database: db.path,
+  note: "Les rapports sont lus depuis JSON locaux; aucune execution SQL externe n'est necessaire."
+};
+
+db.close();
+mkdirSync("reports", { recursive: true });
+writeFileSync(join("reports", "local-sqlite-import-report.json"), `${JSON.stringify(result, null, 2)}\n`, "utf8");
+
+if (invalid.length) {
+  console.error(`SQLite local report check failed: ${invalid.map((item) => item.file).join(", ")}`);
+  process.exit(1);
+}
+
+console.log(`SQLite local report check complete: ${reports.length} report(s), database ${result.database}.`);

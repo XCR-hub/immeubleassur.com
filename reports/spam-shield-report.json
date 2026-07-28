@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-28T13:59:15.550Z",
+  "generated_at": "2026-07-28T23:13:23.657Z",
   "checked_files": [
     "functions/api/leads.js",
     "public/assets/app.js",
@@ -7,10 +7,10 @@
     "functions/api/admin/spam.js",
     "public/assets/admin.js",
     "functions/api/events.js",
-    "scripts/turnstile-protection-pass.js",
+    "scripts/local-antifraud-pass.js",
     "scripts/generate-site.js"
   ],
-  "required_markers": 42,
+  "required_markers": 48,
   "missing": [],
   "status": "passed"
 }

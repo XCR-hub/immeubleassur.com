@@ -318,7 +318,7 @@ export async function onRequestGet({ request, env }) {
           tables: databaseHealth.tables
         }
       : {
-          driver: "cloudflare-d1",
+          driver: "sqlite-unavailable",
           detailed_health: "local-runtime-only"
         },
     monitor: sanitizeMonitorReport(monitorReport),

@@ -325,7 +325,7 @@ function buildActions({ leads, quoteRows, needRows, cityRows }) {
 
 export async function onRequestGet({ request, env }) {
   if (!authorized(request, env)) return json({ success: false, error: "Acces refuse" }, 401);
-  if (!env.DB) return json({ success: false, error: "Binding D1 DB manquant" }, 503);
+  if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
 
   const [
     leadRows,

@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { openLocalD1 } from "./local-d1-sqlite.js";
+import { openLocalSqlite } from "./local-sqlite-db.js";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 
 loadDefaultEnvFiles();
@@ -198,7 +198,7 @@ function run() {
   const now = new Date().toISOString();
   const runId = runIdFor(report);
   const opportunities = recommendations.map((item) => normalizeOpportunity(item, report, runId, now));
-  const db = openLocalD1({ dbPath, schemaPath: "schema.sql" });
+  const db = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
   try {
     upsertRun(db, runId, report, opportunities.length, now);
     for (const metric of metricRows(report, runId, now)) upsertMetric(db, metric);

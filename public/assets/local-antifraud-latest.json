@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-07-28T23:12:55.960Z",
+  "provider": "local-antifraud",
+  "configured": true,
+  "pages_checked": 173,
+  "forms_detected": 161,
+  "forms_instrumented": 161,
+  "legacy_widgets_removed": 0,
+  "protections": [
+    "honeypot",
+    "js-signal",
+    "session-token",
+    "form-timing",
+    "interaction-count",
+    "ip-email-phone-history"
+  ],
+  "missing_local_signals": [],
+  "status": "passed"
+}

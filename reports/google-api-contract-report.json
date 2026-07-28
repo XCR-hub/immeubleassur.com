@@ -1,16 +1,14 @@
 {
-  "generated_at": "2026-07-28T13:59:15.874Z",
+  "generated_at": "2026-07-28T23:13:24.345Z",
   "checked_files": [
     "scripts/seo-autopilot.js",
-    "scripts/seo-d1-export.js",
     "public/assets/admin.js",
     "package.json",
     ".github/workflows/seo-autopilot.yml",
-    ".github/workflows/cloudflare-pages.yml",
     "README.md",
     ".env.example"
   ],
-  "required_markers": 31,
+  "required_markers": 23,
   "missing": [],
   "status": "passed"
 }

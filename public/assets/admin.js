@@ -659,7 +659,7 @@ function subscriberCount(rows = [], status) {
 }
 
 function connectorSignal(connector, reports, publicReports) {
-  const { editorialReport, mediaReport, searchReport, seoReport, turnstileReport } = publicReports;
+  const { editorialReport, mediaReport, searchReport, seoReport, antifraudReport } = publicReports;
   const googleHealth = seoReport.google_api_health || {};
   if (connector.family === "ia") {
     const latest = reports.latest_ai_run;
@@ -694,8 +694,8 @@ function connectorSignal(connector, reports, publicReports) {
     const issue = reports.latest_newsletter_issue;
     return `${subscriberCount(reports.newsletter_subscribers, "active")} abonne(s) actif(s) / dernier numero ${issue?.status || "-"}`;
   }
-  if (connector.id === "turnstile") {
-    return `${turnstileReport.configured ? "actif" : "pret"} / ${turnstileReport.forms_instrumented || 0}/${turnstileReport.forms_detected || 0} formulaire(s)`;
+  if (connector.id === "local-antifraud") {
+    return `${antifraudReport.status || "local"} / ${antifraudReport.forms_instrumented || 0}/${antifraudReport.forms_detected || 0} formulaire(s)`;
   }
   if (connector.id === "admin-api") return "Token admin valide pour cette session";
   return connector.configured ? "secret detecte" : "secret manquant";
@@ -736,12 +736,12 @@ async function loadIntegrations() {
   if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
   if (integrationsSummary) integrationsSummary.replaceChildren(metricCard("Chargement", "API", "lecture des integrations"));
 
-  const [editorialReport, mediaReport, searchReport, seoReport, turnstileReport] = await Promise.all([
+  const [editorialReport, mediaReport, searchReport, seoReport, antifraudReport] = await Promise.all([
     fetchOptionalAsset("/assets/editorial-autopilot-latest.json"),
     fetchOptionalAsset("/assets/media-autopilot-latest.json"),
     fetchOptionalAsset("/assets/search-intelligence-latest.json"),
     fetchOptionalAsset("/assets/seo-autopilot-latest.json"),
-    fetchOptionalAsset("/assets/turnstile-protection-latest.json")
+    fetchOptionalAsset("/assets/local-antifraud-latest.json")
   ]);
 
   let apiResult = null;
@@ -761,13 +761,13 @@ async function loadIntegrations() {
 
   const connectors = apiResult?.connectors || [];
   const reports = apiResult?.reports || {};
-  const publicReports = { editorialReport, mediaReport, searchReport, seoReport, turnstileReport };
+  const publicReports = { editorialReport, mediaReport, searchReport, seoReport, antifraudReport };
   const googleHealth = seoReport.google_api_health || {};
   const spamBlocks = Number(reports.lead_spam_blocks_30d || 0) + Number(reports.newsletter_spam_blocks_30d || 0);
 
   if (integrationsSummary) {
     integrationsSummary.replaceChildren(
-      metricCard("Connecteurs runtime", connectors.length ? `${countConfigured(connectors)}/${connectors.length}` : "Token requis", connectors.length ? "secrets detectes cote Pages" : "audit secrets protege"),
+      metricCard("Connecteurs runtime", connectors.length ? `${countConfigured(connectors)}/${connectors.length}` : "Token requis", connectors.length ? "configuration locale verifiee" : "audit secrets protege"),
       metricCard("IA configurees", connectors.length ? `${countConfigured(connectors, "ia")}/${countFamily(connectors, "ia")}` : "-", `${editorialReport.ai_provider || "deterministic"} / ${editorialReport.ai_status || "public"}`),
       metricCard("Veille", editorialReport.mode || "-", `${editorialReport.watch_items || 0} signal(s), qualite ${editorialReport.quality_score || 0}`),
       metricCard("Pexels", mediaReport.pexels_enabled ? "Actif" : "Fallback", `${mediaReport.assets_count || 0} asset(s)`),
@@ -775,7 +775,7 @@ async function loadIntegrations() {
       metricCard("Search Console", String(googleHealth.search_console_rows || 0), `${googleHealth.query_clusters || 0} cluster(s)`),
       metricCard("PageSpeed", String(googleHealth.pagespeed_checked || 0), `${googleHealth.pagespeed_slow_pages || 0} lente(s)`),
       metricCard("Newsletter", String(subscriberCount(reports.newsletter_subscribers, "active")), reports.latest_newsletter_issue?.status || "rapport public"),
-      metricCard("Anti-spam", String(spamBlocks || eventCount(reports.site_events_30d, "lead_spam_blocked")), turnstileReport.configured ? "Turnstile actif" : "Turnstile pret"),
+      metricCard("Anti-spam", String(spamBlocks || eventCount(reports.site_events_30d, "lead_spam_blocked")), antifraudReport.configured ? "filtre local actif" : "filtre local pret"),
       metricCard("Runtime", runtimeHealth ? `${runtimeHealth.runtime?.platform || "local"} / ${runtimeHealth.database?.driver || "db"}` : "Token requis", runtimeHealth?.database?.size_bytes ? `${runtimeHealth.database.table_count || 0} tables, ${formatBytes(runtimeHealth.database.size_bytes)}` : "diagnostic protege"),
       metricCard("Production", monitorStatusLabel(runtimeHealth?.monitor), monitorDetail(runtimeHealth?.monitor)),
       metricCard("SLA leads", leadSlaStatusLabel(runtimeHealth?.lead_sla), leadSlaDetail(runtimeHealth?.lead_sla)),
@@ -911,7 +911,7 @@ async function loadNewsletter(message = "") {
     if (newsletterSummary) newsletterSummary.replaceChildren(metricCard("Token requis", "Admin", "charger les donnees newsletter"));
     return;
   }
-  if (newsletterSummary) newsletterSummary.replaceChildren(metricCard("Chargement", "Newsletter", "lecture D1"));
+  if (newsletterSummary) newsletterSummary.replaceChildren(metricCard("Chargement", "Newsletter", "lecture SQLite"));
 
   const response = await fetch("/api/admin/newsletter", { headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json();
@@ -1032,7 +1032,7 @@ async function loadContent() {
     if (contentSummary) contentSummary.replaceChildren(metricCard("Token requis", "Admin", "charger le pipeline contenu"));
     return;
   }
-  if (contentSummary) contentSummary.replaceChildren(metricCard("Chargement", "Contenu", "lecture D1"));
+  if (contentSummary) contentSummary.replaceChildren(metricCard("Chargement", "Contenu", "lecture SQLite"));
 
   const response = await fetch("/api/admin/content", { headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json();
@@ -1049,9 +1049,9 @@ async function loadContent() {
     contentSummary.replaceChildren(
       metricCard("Pages pipeline", String(summary.pipeline_pages || contentCount(pipelineStats)), `${contentCount(pipelineStats, "published")} publiee(s)`),
       metricCard("Qualite moyenne", `${summary.average_quality || 0}/100`, `${summary.low_quality_pages ?? lowQualityPages.length} page(s) sous 80`),
-      metricCard("Opportunites SEO", String(summary.open_opportunities ?? opportunities.length), "ouvertes dans D1"),
+      metricCard("Opportunites SEO", String(summary.open_opportunities ?? opportunities.length), "ouvertes dans SQLite"),
       metricCard("Veille editoriale", String(summary.watch_items ?? watchItems.length), "signaux classes"),
-      metricCard("Dernier run SEO", result.latest_seo_run ? reportDate(result.latest_seo_run.created_at) : "Aucun", result.latest_seo_run?.status || "import D1"),
+      metricCard("Dernier run SEO", result.latest_seo_run ? reportDate(result.latest_seo_run.created_at) : "Aucun", result.latest_seo_run?.status || "import SQLite"),
       metricCard("Dernier run IA", result.latest_ai_run ? reportDate(result.latest_ai_run.created_at) : "Aucun", result.latest_ai_run?.provider || "generation"),
       metricCard("Positions", result.latest_search_run ? `${result.latest_search_run.first_page_count || 0} top 10` : "Aucun", result.latest_search_run?.status || "SerpApi/Search"),
       metricCard("Media", result.latest_media_run ? `${result.latest_media_run.assets_count || 0} asset(s)` : "Aucun", result.latest_media_run?.provider || "visuels"),
@@ -1142,7 +1142,7 @@ async function loadSales() {
     if (salesSummary) salesSummary.replaceChildren(metricCard("Token requis", "Admin", "charger les relances"));
     return;
   }
-  if (salesSummary) salesSummary.replaceChildren(metricCard("Chargement", "Relances", "lecture D1"));
+  if (salesSummary) salesSummary.replaceChildren(metricCard("Chargement", "Relances", "lecture SQLite"));
 
   const response = await fetch("/api/admin/sales", { headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json();
@@ -1235,7 +1235,7 @@ async function loadAttribution() {
     if (attributionSummary) attributionSummary.replaceChildren(metricCard("Token requis", "Admin", "charger l'attribution"));
     return;
   }
-  if (attributionSummary) attributionSummary.replaceChildren(metricCard("Chargement", "Attribution", "lecture D1"));
+  if (attributionSummary) attributionSummary.replaceChildren(metricCard("Chargement", "Attribution", "lecture SQLite"));
 
   const response = await fetch("/api/admin/attribution", { headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json();
@@ -1294,7 +1294,7 @@ function spamRows(result = {}) {
       volume: `${item.blocked || 0} blocage(s)`,
       signal: item.path || "/",
       last: reportDate(item.last_seen),
-      action: `${item.lead_blocks || 0} lead / ${item.newsletter_blocks || 0} newsletter. Verifier Turnstile et champs pieges.`
+      action: `${item.lead_blocks || 0} lead / ${item.newsletter_blocks || 0} newsletter. Verifier filtre local et champs pieges.`
     });
   }
   for (const item of Array.isArray(result.repeat_sources) ? result.repeat_sources : []) {
@@ -1350,7 +1350,7 @@ async function loadSpam() {
     if (spamSummary) spamSummary.replaceChildren(metricCard("Token requis", "Admin", "charger le bouclier anti-spam"));
     return;
   }
-  if (spamSummary) spamSummary.replaceChildren(metricCard("Chargement", "Anti-spam", "lecture D1"));
+  if (spamSummary) spamSummary.replaceChildren(metricCard("Chargement", "Anti-spam", "lecture SQLite"));
 
   const response = await fetch("/api/admin/spam", { headers: { Authorization: `Bearer ${token}` } });
   const result = await response.json();
@@ -1395,7 +1395,7 @@ async function loadSeo() {
     apiResult = await response.json();
   }
 
-  const [publicReport, turnstileReport] = await Promise.all([fetchPublicSeoReport(), fetchOptionalAsset("/assets/turnstile-protection-latest.json")]);
+  const [publicReport, antifraudReport] = await Promise.all([fetchPublicSeoReport(), fetchOptionalAsset("/assets/local-antifraud-latest.json")]);
   const googleHealth = publicReport.google_api_health || {};
   const funnel = apiResult?.conversion_funnel || {};
   const leadStats = apiResult?.lead_stats || {};
@@ -1428,13 +1428,13 @@ async function loadSeo() {
       metricCard("Abandons", `${funnel.abandon_rate || 0}%`, `${funnel.abandoned_forms || 0} signaux`),
       metricCard("Erreurs formulaire", String(funnel.validation_errors || 0), "champs bloquants"),
       metricCard("Spam bloques", String(funnel.spam_blocked || 0), "robots filtres"),
-      metricCard("Turnstile", turnstileReport.configured ? "Actif" : "Pret", `${turnstileReport.forms_instrumented || 0}/${turnstileReport.forms_detected || 0} formulaire(s)`)
+      metricCard("Anti-fraude local", antifraudReport.status === "passed" ? "Actif" : "A verifier", `${antifraudReport.forms_instrumented || 0}/${antifraudReport.forms_detected || 0} formulaire(s)`)
     );
   }
 
   const fallbackRows = [
     ...(publicReport.google_feedback_loop?.actions || []).map((item) => ({ score: item.priority === "high" ? 90 : item.priority === "fix" ? 88 : item.priority === "setup" ? 80 : 55, opportunity_type: `google-${item.source || "feedback"}`, url: item.url || item.cluster || "google", query: item.priority || "monitoring", recommendation: item.action || "Mesurer et optimiser." })),
-    ...(turnstileReport.configured ? [] : [{ score: 82, opportunity_type: "anti-spam-turnstile", url: "formulaires", query: "configuration", recommendation: "Configurer TURNSTILE_SITE_KEY au build et TURNSTILE_SECRET_KEY cote Cloudflare Pages pour durcir les formulaires." }]),
+    ...(antifraudReport.status === "passed" ? [] : [{ score: 82, opportunity_type: "anti-spam-local", url: "formulaires", query: "configuration", recommendation: "Verifier le honeypot, les signaux JS et le jeton de session local sur tous les formulaires." }]),
     ...(publicReport.conversion_intelligence?.actions || []).map((item) => ({ score: item.score || 0, opportunity_type: "conversion-intelligence", url: item.url || item.cluster || "money-page", query: item.priority || item.cluster || "lead", recommendation: item.action || "Renforcer le passage vers devis qualifie." })),
     ...(apiResult?.lead_actions || []),
     ...(ctaExperiments || []).slice(0, 6).map((item) => ({ score: item.leads_created || item.form_starts || item.cta_clicks || 0, opportunity_type: "test-cta", url: item.variant || "cta", query: `${item.views || 0} vues / ${item.cta_clicks || 0} clics / ${item.form_starts || 0} starts / ${Math.round(item.lead_value_max_total || 0)} EUR potentiel CTA`, recommendation: "Comparer les variantes avec les leads crees et leur valeur estimee avant de figer le message." })),

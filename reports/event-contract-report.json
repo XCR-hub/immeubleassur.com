@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-28T13:59:12.014Z",
+  "generated_at": "2026-07-28T23:13:18.232Z",
   "tracked_events": [
     "cta_click",
     "diagnostic_complete",
@@ -20,6 +20,9 @@
     "newsletter_subscribed",
     "page_view",
     "phone_click",
+    "quote_router_continue",
+    "quote_router_select",
+    "quote_router_view",
     "readiness_complete",
     "readiness_start",
     "readiness_update",
@@ -48,6 +51,9 @@
     "newsletter_subscribed",
     "page_view",
     "phone_click",
+    "quote_router_continue",
+    "quote_router_select",
+    "quote_router_view",
     "readiness_complete",
     "readiness_start",
     "readiness_update",
@@ -59,5 +65,15 @@
     "lead_spam_blocked",
     "newsletter_spam_blocked"
   ],
+  "required_api_guards": [
+    "shouldDropTelemetry",
+    "allowedEventHosts",
+    "trustedEventPage",
+    "volume-ip-evenements",
+    "volume-session-evenements",
+    "doublon-evenement-passif",
+    "telemetry-filtered"
+  ],
+  "missing_api_guards": [],
   "status": "passed"
 }

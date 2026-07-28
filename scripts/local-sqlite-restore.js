@@ -3,7 +3,7 @@ import { dirname, join, resolve } from "node:path";
 import { gunzipSync } from "node:zlib";
 import { DatabaseSync } from "node:sqlite";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
-import { quoteSqlIdentifier } from "./local-d1-sqlite.js";
+import { quoteSqlIdentifier } from "./local-sqlite-db.js";
 
 loadDefaultEnvFiles();
 
@@ -18,7 +18,7 @@ function hasFlag(name) {
 }
 
 function snapshotFileFrom(input) {
-  const target = resolve(input || env("LOCAL_DB_SYNC_DIR", join("data", "immeubleassur-d1")));
+  const target = resolve(input || env("LOCAL_SQLITE_RESTORE_DIR", join("data", "immeubleassur-snapshot")));
   if (target.endsWith(".gz") && existsSync(target)) return target;
   const direct = join(target, "snapshot.json.gz");
   if (existsSync(direct)) return direct;

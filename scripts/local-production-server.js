@@ -2,7 +2,7 @@ import { createReadStream, existsSync, mkdirSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { openLocalD1 } from "./local-d1-sqlite.js";
+import { openLocalSqlite } from "./local-sqlite-db.js";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { sendNodeSmtpMail } from "./local-smtp.js";
 
@@ -12,7 +12,7 @@ const root = resolve(env("LOCAL_SITE_ROOT", "public"));
 const host = env("LOCAL_SITE_HOST", env("HOST", "0.0.0.0"));
 const port = Number.parseInt(env("LOCAL_SITE_PORT", env("PORT", "8790")), 10) || 8790;
 const dbPath = env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite"));
-const db = openLocalD1({ dbPath, schemaPath: "schema.sql" });
+const db = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
 const moduleCache = new Map();
 
 globalThis.__IMMEUBLEASSUR_SEND_SMTP_MAIL = sendNodeSmtpMail;

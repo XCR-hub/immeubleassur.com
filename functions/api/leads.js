@@ -79,34 +79,19 @@ function safeNumber(value) {
   return Number.isFinite(number) ? number : 0;
 }
 
-function turnstileToken(payload) {
-  return clean(payload?.turnstile_token || payload?.["cf-turnstile-response"], 2048);
-}
+function localChallengeStatus(payload) {
+  const antiBot = payload && typeof payload.anti_bot === "object" && !Array.isArray(payload.anti_bot) ? payload.anti_bot : null;
+  const sessionId = clean(payload?.session_id, 120);
+  const expectedToken = expectedSessionToken(payload || {});
+  const submittedToken = clean(antiBot?.session_token, 80);
+  const elapsed = safeNumber(antiBot?.form_elapsed_ms);
 
-async function verifyTurnstile(env, token, ip) {
-  const secret = String(env.TURNSTILE_SECRET_KEY || "");
-  if (!secret) return { configured: false, ok: true, status: "skipped" };
-  if (!token) return { configured: true, ok: false, status: "missing-input-response" };
-
-  try {
-    const body = new FormData();
-    body.append("secret", secret);
-    body.append("response", token);
-    if (ip) body.append("remoteip", clean(ip, 120));
-    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-      method: "POST",
-      body
-    });
-    const data = await response.json().catch(() => ({}));
-    const errors = Array.isArray(data["error-codes"]) ? data["error-codes"].join(",") : "";
-    return {
-      configured: true,
-      ok: response.ok && data.success === true,
-      status: data.success ? "passed" : errors || `http-${response.status}`
-    };
-  } catch (error) {
-    return { configured: true, ok: false, status: "verify-error", error: error.message || "Turnstile verification failed" };
-  }
+  if (clean(payload?.company_website)) return { ok: true, status: "honeypot-handled" };
+  if (!sessionId) return { ok: false, status: "session-manquante" };
+  if (!antiBot?.js_enabled) return { ok: false, status: "signal-js-absent" };
+  if (expectedToken && submittedToken !== expectedToken) return { ok: false, status: "jeton-session-invalide" };
+  if (elapsed > 0 && elapsed < 700) return { ok: false, status: "soumission-instantanee" };
+  return { ok: true, status: "local-ok" };
 }
 
 async function countRows(env, sql, binds = []) {
@@ -630,19 +615,19 @@ export async function onRequestPost({ request, env, waitUntil }) {
 
   if (!env.DB) {
     if (clean(payload.company_website)) return json({ success: true, reference: "IGNORED" });
-    return json({ success: false, error: "Binding D1 DB manquant" }, 503);
+    return json({ success: false, error: "Base SQLite indisponible" }, 503);
   }
 
-  const turnstile = await verifyTurnstile(env, turnstileToken(payload), clean(ip, 120));
-  if (!turnstile.ok) {
+  const challenge = localChallengeStatus(payload);
+  if (!challenge.ok) {
     const assessment = {
-      score: 100,
-      reasons: [`turnstile-${turnstile.status || "echec"}`],
+      score: 90,
+      reasons: [`local-challenge-${challenge.status || "echec"}`],
       blocked: true,
       action: "block"
     };
     await logSpamAttempt(env, request, payload, assessment, now, ip, userAgent);
-    return json({ success: false, error: "Verification anti-robot invalide. Rechargez la page puis recommencez.", turnstile: "failed" }, 403);
+    return json({ success: false, error: "Verification anti-robot invalide. Rechargez la page puis recommencez.", challenge: "local-failed" }, 403);
   }
 
   const spamHistory = await loadSpamHistory(env, payload, clean(ip, 120));

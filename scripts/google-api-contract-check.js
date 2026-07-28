@@ -17,10 +17,6 @@ const expectations = [
     ]
   },
   {
-    file: "scripts/seo-d1-export.js",
-    snippets: ["google_api", "google-feedback", "google-url-inspection", "url_inspection_needs_action", "priorityScore"]
-  },
-  {
     file: "public/assets/admin.js",
     snippets: ["Search Console", "URL Inspection", "Sitemap Google", "google_api_health"]
   },
@@ -31,13 +27,10 @@ const expectations = [
   {
     file: ".github/workflows/seo-autopilot.yml",
     snippets: ["GOOGLE_URL_INSPECTION_LIMIT", "npm run seo:apis"]
-  },  {
-    file: ".github/workflows/cloudflare-pages.yml",
-    snippets: ["Run SEO APIs when configured", "GOOGLE_URL_INSPECTION_LIMIT", "npm run seo:apis"]
   },
   {
     file: "README.md",
-    snippets: ["URL Inspection", "Sitemaps API", "GOOGLE_URL_INSPECTION_LIMIT"]
+    snippets: ["Google Search Console", "PageSpeed", "GOOGLE_URL_INSPECTION_LIMIT"]
   },
   {
     file: ".env.example",

@@ -836,7 +836,7 @@ function adminPage() {
     ${nav()}
     <main class="plain-main">
       <h1>Leads immeuble</h1>
-      <p>Acces protege par le secret Cloudflare Pages ADMIN_API_TOKEN.</p>
+      <p>Acces protege par ADMIN_API_TOKEN cote serveur local.</p>
       <section class="plain-panel">
         <form class="admin-toolbar" id="admin-form">
           <label>Token admin<input id="admin-token" type="password" autocomplete="current-password" required placeholder="Token admin" /></label>
@@ -858,7 +858,7 @@ function adminPage() {
         </table>
       </section>
       <!-- sales-admin:start -->
-      <section class="plain-panel admin-seo-panel admin-sales-panel"><h2>Centre de relance commerciale</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-sales">Charger relances</button><span class="admin-muted">SLA, scripts de rappel et priorites commerciales depuis D1.</span></div><div class="seo-admin-grid" id="sales-summary"><p>Charge relances dues, pipeline estime, leads chauds et scripts de rappel.</p></div><section class="admin-table-wrap" aria-label="Centre de relance commerciale"><table class="admin-table admin-sales-table"><thead><tr><th>Type</th><th>Lead</th><th>Valeur</th><th>Signal</th><th>Action</th></tr></thead><tbody id="sales-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
+      <section class="plain-panel admin-seo-panel admin-sales-panel"><h2>Centre de relance commerciale</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-sales">Charger relances</button><span class="admin-muted">SLA, scripts de rappel et priorites commerciales depuis SQLite.</span></div><div class="seo-admin-grid" id="sales-summary"><p>Charge relances dues, pipeline estime, leads chauds et scripts de rappel.</p></div><section class="admin-table-wrap" aria-label="Centre de relance commerciale"><table class="admin-table admin-sales-table"><thead><tr><th>Type</th><th>Lead</th><th>Valeur</th><th>Signal</th><th>Action</th></tr></thead><tbody id="sales-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
       <!-- sales-admin:end -->
       <!-- attribution-admin:start -->
       <section class="plain-panel admin-seo-panel admin-attribution-panel"><h2>Attribution acquisition</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-attribution">Charger attribution</button><span class="admin-muted">Sources, landing pages, campagnes et besoins mesures en agregats.</span></div><div class="seo-admin-grid" id="attribution-summary"><p>Charge les canaux, pages et campagnes qui generent les leads les plus qualifies.</p></div><section class="admin-table-wrap" aria-label="Attribution acquisition"><table class="admin-table admin-attribution-table"><thead><tr><th>Type</th><th>Source ou page</th><th>Trafic</th><th>Conversion</th><th>Action</th></tr></thead><tbody id="attribution-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>

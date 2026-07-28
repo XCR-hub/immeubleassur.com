@@ -273,7 +273,7 @@ function buildActions(attribution, summary) {
       type: "conversion-globale",
       target: "formulaire",
       signal: `${summary.form_starts_30d} start(s), 0 lead`,
-      recommendation: "Verifier immediatement validation, Turnstile, API leads et message d'erreur."
+      recommendation: "Verifier immediatement validation, filtre local, API leads et message d'erreur."
     });
   }
 
@@ -282,7 +282,7 @@ function buildActions(attribution, summary) {
 
 export async function onRequestGet({ request, env }) {
   if (!authorized(request, env)) return json({ success: false, error: "Acces refuse" }, 401);
-  if (!env.DB) return json({ success: false, error: "Binding D1 DB manquant" }, 503);
+  if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
 
   const [eventRows, leadRows, totals] = await Promise.all([
     safeAll(env, `SELECT event_type, page_url, target, COALESCE(NULLIF(json_extract(payload, '$.path'), ''), '') AS path, COALESCE(NULLIF(json_extract(payload, '$.landing_page'), ''), '') AS landing_page, COALESCE(NULLIF(json_extract(payload, '$.first_referrer'), ''), '') AS first_referrer, COALESCE(NULLIF(json_extract(payload, '$.utm_source'), ''), '') AS utm_source, COALESCE(NULLIF(json_extract(payload, '$.utm_medium'), ''), '') AS utm_medium, COALESCE(NULLIF(json_extract(payload, '$.utm_campaign'), ''), '') AS utm_campaign, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type, page_url, target, path, landing_page, first_referrer, utm_source, utm_medium, utm_campaign ORDER BY count DESC LIMIT 600`),

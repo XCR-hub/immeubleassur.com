@@ -92,8 +92,8 @@ function buildContentActions({ lowQualityPages, topOpportunities, watchItems, la
       type: "run-seo-manquant",
       score: 82,
       target: "seo_runs",
-      signal: "aucun run D1",
-      recommendation: "Verifier l'import D1 du rapport SEO apres chaque build pour garder le pilotage actionnable."
+      signal: "aucun run SQLite",
+      recommendation: "Verifier l'import SQLite du rapport SEO apres chaque build pour garder le pilotage actionnable."
     });
   }
 
@@ -103,7 +103,7 @@ function buildContentActions({ lowQualityPages, topOpportunities, watchItems, la
       type: "run-ia-manquant",
       score: 80,
       target: "ai_generation_runs",
-      signal: "aucun run D1",
+      signal: "aucun run SQLite",
       recommendation: "Verifier les secrets IA GitHub Actions et l'import des generations pour suivre provider, modele et qualite."
     });
   }
@@ -117,7 +117,7 @@ export async function onRequestGet({ request, env }) {
   if (!authorized(request, env)) {
     return json({ success: false, error: "Acces refuse" }, 401);
   }
-  if (!env.DB) return json({ success: false, error: "Binding D1 DB manquant" }, 503);
+  if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
 
   const [
     pipelineStats,

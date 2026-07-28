@@ -96,40 +96,8 @@ function dotStuff(message) {
     .join("\r\n");
 }
 
-async function sendCloudflareSmtpMail(config, message) {
-  const { connect } = await import("cloudflare:sockets");
-  let socket = connect(
-    { hostname: config.host, port: config.port },
-    { secureTransport: config.secureTransport }
-  );
-  await socket.opened;
-  let session = smtpSession(socket);
-
-  let response = await session.readResponse();
-  assertSmtp(response, 220, "Accueil SMTP");
-  await smtpCommand(session, "EHLO immeubleassur.com", 250, "EHLO");
-
-  if (config.secureTransport === "starttls") {
-    await smtpCommand(session, "STARTTLS", 220, "STARTTLS");
-    session.release();
-    socket = socket.startTls();
-    await socket.opened;
-    session = smtpSession(socket);
-    await smtpCommand(session, "EHLO immeubleassur.com", 250, "EHLO TLS");
-  }
-
-  await smtpAuth(session, config.username, config.password);
-  await smtpCommand(session, `MAIL FROM:<${clean(config.from, 180)}>`, 250, "MAIL FROM");
-  for (const recipient of config.to || []) {
-    await smtpCommand(session, `RCPT TO:<${clean(recipient, 180)}>`, [250, 251], "RCPT TO");
-  }
-  await smtpCommand(session, "DATA", 354, "DATA");
-  await session.writeRaw(`${dotStuff(message)}\r\n.\r\n`);
-  response = await session.readResponse();
-  assertSmtp(response, 250, "Fin DATA");
-  await session.writeLine("QUIT");
-  socket.close().catch(() => {});
-  return response.lines.join(" | ");
+async function sendRuntimeSmtpMail() {
+  throw new Error("Adaptateur SMTP local indisponible");
 }
 
 export async function sendPortableSmtpMail(config, message, env = {}) {
@@ -139,5 +107,5 @@ export async function sendPortableSmtpMail(config, message, env = {}) {
   if (typeof globalThis.__IMMEUBLEASSUR_SEND_SMTP_MAIL === "function") {
     return globalThis.__IMMEUBLEASSUR_SEND_SMTP_MAIL(config, message);
   }
-  return sendCloudflareSmtpMail(config, message);
+  return sendRuntimeSmtpMail(config, message);
 }

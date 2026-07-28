@@ -180,7 +180,7 @@ export async function onRequestOptions() {
 }
 
 export async function onRequestPost({ request, env, waitUntil }) {
-  if (!env.DB) return json({ success: false, error: "Binding D1 DB manquant" }, 503);
+  if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
 
   let payload;
   try {
@@ -235,7 +235,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     gbraid: clean(payload.gbraid, 160),
     wbraid: clean(payload.wbraid, 160),
     event_status: clean(payload.status, 80),
-    turnstile: clean(payload.turnstile, 80)
+    challenge: clean(payload.challenge, 80)
   };
 
   await env.DB.prepare(

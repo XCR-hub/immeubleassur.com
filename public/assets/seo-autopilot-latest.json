@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-28T03:33:49.586Z",
+  "generated_at": "2026-07-28T23:12:58.555Z",
   "pages_checked": 173,
   "average_score": 100,
   "opportunities_count": 0,
@@ -7,7 +7,7 @@
   "top_opportunities": [],
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-28T03:33:46.361Z",
+    "generated_at": "2026-07-28T23:12:54.016Z",
     "pages_checked": 173,
     "pages_changed": 124,
     "fixes_applied": 176,
@@ -139,7 +139,7 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-28T03:33:46.767Z",
+    "generated_at": "2026-07-28T23:12:54.728Z",
     "pages_checked": 174,
     "pages_expanded": 80,
     "words_added_estimate": 13771,
@@ -254,7 +254,7 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-07-28T03:33:48.448Z",
+    "generated_at": "2026-07-28T23:12:56.999Z",
     "pages_checked": 174,
     "status": "passed",
     "severe_issue_count": 0,
@@ -271,7 +271,7 @@
   },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-07-28T03:33:48.777Z",
+    "generated_at": "2026-07-28T23:12:57.526Z",
     "pages_checked": 170,
     "money_pages_checked": 114,
     "average_conversion_score": 75,
@@ -1201,7 +1201,7 @@
   },
   "cro_experiment": {
     "configured": true,
-    "generated_at": "2026-07-28T03:33:48.956Z",
+    "generated_at": "2026-07-28T23:12:57.755Z",
     "status": "passed",
     "variant_count": 3,
     "variants": [
@@ -1344,7 +1344,7 @@
     "pagespeed_insights": "PAGESPEED_API_KEY optional",
     "url_inspection": "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --url-inspection",
     "sitemaps_api": "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --submit-sitemap",
-    "ga4_measurement_protocol": "GA4_MEASUREMENT_ID + GA4_API_SECRET in Cloudflare Pages; GA4_MEASUREMENT_ID at build time for gtag client id",
+    "ga4_measurement_protocol": "GA4_MEASUREMENT_ID + GA4_API_SECRET cote serveur local; GA4_MEASUREMENT_ID au build pour le client gtag",
     "indexing_api": "not used: reserved by Google for JobPosting/BroadcastEvent URLs"
   },
   "compliance": [

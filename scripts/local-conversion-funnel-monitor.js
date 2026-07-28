@@ -171,7 +171,7 @@ function recommendations(summary, paths) {
       addRecommendation(items, "routeur-sans-suite", "high", row.path, `${row.quote_router_views} vues routeur, 0 continuation`, "Revoir le libelle du parcours recommande et rendre le bouton principal plus explicite.", 86);
     }
     if (row.form_starts >= 3 && row.leads_created === 0) {
-      addRecommendation(items, "formulaire-sans-lead", "high", row.path, `${row.form_starts} starts, 0 lead`, "Verifier les champs bloquants, Turnstile, messages d'erreur et preuve de rappel.", 84);
+      addRecommendation(items, "formulaire-sans-lead", "high", row.path, `${row.form_starts} starts, 0 lead`, "Verifier les champs bloquants, le filtre local, les messages d'erreur et la preuve de rappel.", 84);
     }
     if (row.submit_attempts > row.leads_created && row.submit_errors >= 1) {
       addRecommendation(items, "erreurs-submit", "medium", row.path, `${row.submit_errors} erreur(s) pour ${row.submit_attempts} tentative(s)`, "Identifier les champs rejetes et simplifier le texte d'aide avant soumission.", 72);

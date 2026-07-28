@@ -1,4 +1,4 @@
-﻿import { createHash } from "node:crypto";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
@@ -108,16 +108,6 @@ function injectMedia(media) {
   return targets.filter((file) => injectBlock(join(OUT, file), block)).length;
 }
 
-function d1Sql(report) {
-  const now = report.generated_at;
-  const lines = ["PRAGMA foreign_keys = ON;"];
-  lines.push(`INSERT OR REPLACE INTO media_runs (id, provider, status, assets_count, payload, created_at) VALUES (${sql(report.run_id)}, ${sql(report.provider)}, ${sql(report.status)}, ${report.assets_count}, ${sql(JSON.stringify({ mode: report.mode, errors: report.errors }))}, ${sql(now)});`);
-  for (const item of report.media) {
-    lines.push(`INSERT OR REPLACE INTO media_assets (id, run_id, provider, topic, source_url, image_url, alt_text, photographer, photographer_url, payload, created_at) VALUES (${sql(item.id)}, ${sql(report.run_id)}, ${sql(item.provider)}, ${sql(item.topic)}, ${sql(item.url)}, ${sql(item.src)}, ${sql(item.alt)}, ${sql(item.photographer)}, ${sql(item.photographer_url)}, ${sql(JSON.stringify(item))}, ${sql(now)});`);
-  }
-  return `${lines.join("\n")}\n`;
-}
-
 async function run() {
   ensureDir(REPORT_DIR);
   ensureDir(join(OUT, "assets"));
@@ -137,7 +127,7 @@ async function run() {
     errors
   };
   write(join(REPORT_DIR, "media-autopilot-report.json"), JSON.stringify(report, null, 2));
-  write(join(REPORT_DIR, "media-autopilot-d1.sql"), d1Sql(report));
+
   write(join(OUT, "assets", "media-autopilot-latest.json"), JSON.stringify(report, null, 2));
   console.log(`Media autopilot ${report.status}; assets=${report.assets_count}, injected_pages=${injected_pages}.`);
 }
