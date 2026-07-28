@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 const REPORT_DIR = "reports";
 const expectations = [
-  { file: "functions/api/leads.js", snippets: ["assessSpamSubmission", "loadSpamHistory", "logSpamAttempt", "lead_spam_blocked", "spam_score", "honeypot-rempli", "signal-js-absent", "verifyTurnstile", "TURNSTILE_SECRET_KEY", "challenges.cloudflare.com/turnstile/v0/siteverify"] },
+  { file: "functions/api/leads.js", snippets: ["assessSpamSubmission", "loadSpamHistory", "logSpamAttempt", "lead_spam_blocked", "spam_score", "honeypot-rempli", "signal-js-absent", "verifyTurnstile", "TURNSTILE_SECRET_KEY", "challenges.cloudflare.com/turnstile/v0/siteverify", "expectedSessionToken", "jeton-session-invalide", "email-jetable", "rafale-ip", "session-deja-bloquee"] },
   { file: "public/assets/app.js", snippets: ["botSignalPayload", "anti_bot", "form_elapsed_ms", "interaction_count", "bindBotSignalTracking", "turnstile_token", "lead_submit_rejected"] },
   { file: "functions/api/admin/seo.js", snippets: ["lead_spam_blocked", "spam_blocked", "spam_blocks", "spam-bloque"] },
   { file: "functions/api/admin/spam.js", snippets: ["lead_spam_blocked", "newsletter_spam_blocked", "maskIp", "repeat_sources", "privacy", "top_reasons"] },

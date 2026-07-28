@@ -37,6 +37,30 @@ function emailDomain(value) {
   return email.includes("@") ? email.split("@").pop().slice(0, 120) : "";
 }
 
+function hashString(value) {
+  return String(value || "").split("").reduce((sum, char) => ((sum << 5) - sum + char.charCodeAt(0)) | 0, 0);
+}
+
+function hostnameOf(value) {
+  try {
+    return new URL(clean(value, 500)).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function expectedSessionToken(payload) {
+  const sessionId = clean(payload.session_id, 120);
+  const hostname = hostnameOf(payload.page_url);
+  if (!sessionId || !hostname) return "";
+  return Math.abs(hashString(`${sessionId}:${hostname}`)).toString(36);
+}
+
+function disposableEmailDomain(value) {
+  const domain = emailDomain(value);
+  return /(^|\.)(yopmail|mailinator|guerrillamail|10minutemail|tempmail|temp-mail|trashmail|sharklasers|spamgourmet|dispostable|moakt|fakeinbox|maildrop|emailondeck)\./i.test(`${domain}.`);
+}
+
 function urlCount(value) {
   return (clean(value, 2400).match(/https?:\/\/|www\.|\.ru\b|\.xyz\b|\.top\b|\.click\b/gi) || []).length;
 }
@@ -102,9 +126,11 @@ async function loadSpamHistory(env, payload, ip) {
   return {
     ip_leads_10m: ip ? await countRows(env, `SELECT COUNT(*) AS count FROM leads WHERE ip_address = ? AND created_at >= datetime('now', '-10 minutes')`, [ip]) : 0,
     ip_spam_10m: ip ? await countRows(env, `SELECT COUNT(*) AS count FROM site_events WHERE event_type = 'lead_spam_blocked' AND ip_address = ? AND created_at >= datetime('now', '-10 minutes')`, [ip]) : 0,
+    ip_events_2m: ip ? await countRows(env, `SELECT COUNT(*) AS count FROM site_events WHERE ip_address = ? AND event_type IN ('form_submit_attempt', 'lead_submit_error', 'lead_spam_blocked', 'lead_created') AND created_at >= datetime('now', '-2 minutes')`, [ip]) : 0,
     email_leads_24h: email ? await countRows(env, `SELECT COUNT(*) AS count FROM leads WHERE email = ? AND created_at >= datetime('now', '-24 hours')`, [email]) : 0,
     phone_leads_24h: phone.length >= 8 ? await countRows(env, `SELECT COUNT(*) AS count FROM leads WHERE REPLACE(REPLACE(REPLACE(REPLACE(phone, ' ', ''), '.', ''), '-', ''), '+', '') LIKE ? AND created_at >= datetime('now', '-24 hours')`, [`%${phone.slice(-8)}`]) : 0,
-    session_leads_15m: sessionId ? await countRows(env, `SELECT COUNT(*) AS count FROM site_events WHERE event_type = 'lead_created' AND session_id = ? AND created_at >= datetime('now', '-15 minutes')`, [sessionId]) : 0
+    session_leads_15m: sessionId ? await countRows(env, `SELECT COUNT(*) AS count FROM site_events WHERE event_type = 'lead_created' AND session_id = ? AND created_at >= datetime('now', '-15 minutes')`, [sessionId]) : 0,
+    session_spam_15m: sessionId ? await countRows(env, `SELECT COUNT(*) AS count FROM site_events WHERE event_type = 'lead_spam_blocked' AND session_id = ? AND created_at >= datetime('now', '-15 minutes')`, [sessionId]) : 0
   };
 }
 
@@ -116,6 +142,8 @@ function assessSpamSubmission(payload, { ip, userAgent, history }) {
   const interactions = safeNumber(antiBot?.interaction_count);
   const allText = [payload.name, payload.email, payload.phone, payload.city, payload.message, payload.page_url, payload.referrer].map((item) => clean(item, 2400)).join(" ");
   const compactContact = `${clean(payload.name, 160)} ${clean(payload.phone, 80)} ${clean(payload.city, 120)}`;
+  const expectedToken = expectedSessionToken(payload);
+  const submittedToken = clean(antiBot?.session_token, 80);
 
   if (clean(payload.company_website)) {
     score += 120;
@@ -135,6 +163,10 @@ function assessSpamSubmission(payload, { ip, userAgent, history }) {
   if (antiBot?.js_enabled && interactions === 0) {
     score += 20;
     addSpamReason(reasons, "aucune-interaction-formulaire");
+  }
+  if (antiBot?.js_enabled && expectedToken && submittedToken !== expectedToken) {
+    score += 35;
+    addSpamReason(reasons, "jeton-session-invalide");
   }
   if (!clean(userAgent, 500)) {
     score += 25;
@@ -159,6 +191,10 @@ function assessSpamSubmission(payload, { ip, userAgent, history }) {
     score += 25;
     addSpamReason(reasons, "email-dans-nom");
   }
+  if (disposableEmailDomain(payload.email)) {
+    score += 45;
+    addSpamReason(reasons, "email-jetable");
+  }
   if (clean(payload.page_url, 500) && !/^https?:\/\/(www\.)?immeubleassur\.com\//i.test(clean(payload.page_url, 500))) {
     score += 30;
     addSpamReason(reasons, "page-origine-inconnue");
@@ -171,6 +207,10 @@ function assessSpamSubmission(payload, { ip, userAgent, history }) {
     score += 80;
     addSpamReason(reasons, "ip-deja-bloquee");
   }
+  if (history.ip_events_2m >= 8) {
+    score += 55;
+    addSpamReason(reasons, "rafale-ip");
+  }
   if (history.email_leads_24h >= 2) {
     score += 55;
     addSpamReason(reasons, "email-repete");
@@ -182,6 +222,10 @@ function assessSpamSubmission(payload, { ip, userAgent, history }) {
   if (history.session_leads_15m >= 2) {
     score += 45;
     addSpamReason(reasons, "session-repetee");
+  }
+  if (history.session_spam_15m >= 1) {
+    score += 55;
+    addSpamReason(reasons, "session-deja-bloquee");
   }
 
   return {
