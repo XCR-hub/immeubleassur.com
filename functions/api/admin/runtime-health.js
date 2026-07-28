@@ -104,6 +104,56 @@ function sanitizeLeadSlaReport(report) {
   };
 }
 
+function sanitizeLeadQualityReport(report) {
+  if (!report || typeof report !== "object") return { available: false };
+  const generatedAt = report.generated_at || "";
+  const ageMinutes = generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null;
+  return {
+    available: true,
+    success: report.success === true,
+    attention_required: report.attention_required === true,
+    generated_at: generatedAt,
+    age_minutes: ageMinutes,
+    summary: {
+      lookback_days: Number(report.summary?.lookback_days || 0),
+      leads_24h: Number(report.summary?.leads_24h || 0),
+      leads_7d: Number(report.summary?.leads_7d || 0),
+      leads_period: Number(report.summary?.leads_period || 0),
+      open_leads: Number(report.summary?.open_leads || 0),
+      hot_leads: Number(report.summary?.hot_leads || 0),
+      warm_leads: Number(report.summary?.warm_leads || 0),
+      average_score: Number(report.summary?.average_score || 0),
+      quality_score: Number(report.summary?.quality_score || 0),
+      core_completion_rate: Number(report.summary?.core_completion_rate || 0),
+      issue_count: Number(report.summary?.issue_count || 0),
+      critical_issues: Number(report.summary?.critical_issues || 0),
+      high_issues: Number(report.summary?.high_issues || 0)
+    },
+    issues: Array.isArray(report.issues)
+      ? report.issues.slice(0, 10).map((issue) => ({
+          type: issue.type || "",
+          severity: issue.severity || "",
+          label: issue.label || "",
+          count: Number(issue.count || 0),
+          action: issue.action || "",
+          references: Array.isArray(issue.references) ? issue.references.slice(0, 8) : []
+        }))
+      : [],
+    sample_leads: Array.isArray(report.sample_leads)
+      ? report.sample_leads.slice(0, 8).map((lead) => ({
+          reference: lead.reference || "",
+          priority: lead.priority || "",
+          status: lead.status || "",
+          city: lead.city || "",
+          need: lead.need || "",
+          score: Number(lead.score || 0),
+          page_path: lead.page_path || "",
+          issue_types: Array.isArray(lead.issue_types) ? lead.issue_types.slice(0, 6) : []
+        }))
+      : []
+  };
+}
+
 export async function onRequestGet({ request, env }) {
   if (!isAuthorized(request, env)) return json({ success: false, error: "Non autorise" }, 401);
 
@@ -112,6 +162,8 @@ export async function onRequestGet({ request, env }) {
   const monitorReport = await readLocalJson(monitorPath);
   const leadSlaPath = env.LOCAL_LEAD_SLA_REPORT || "reports/local-lead-sla-report.json";
   const leadSlaReport = await readLocalJson(leadSlaPath);
+  const leadQualityPath = env.LOCAL_LEAD_QUALITY_REPORT || "reports/local-lead-quality-report.json";
+  const leadQualityReport = await readLocalJson(leadQualityPath);
   return json({
     success: true,
     generated_at: new Date().toISOString(),
@@ -130,6 +182,7 @@ export async function onRequestGet({ request, env }) {
           detailed_health: "local-runtime-only"
         },
     monitor: sanitizeMonitorReport(monitorReport),
-    lead_sla: sanitizeLeadSlaReport(leadSlaReport)
+    lead_sla: sanitizeLeadSlaReport(leadSlaReport),
+    lead_quality: sanitizeLeadQualityReport(leadQualityReport)
   });
 }

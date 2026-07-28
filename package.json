@@ -46,8 +46,9 @@
                     "db:sqlite:backup":  "node scripts/local-sqlite-backup.js",
                     "production:monitor":  "node scripts/local-production-monitor.js",
                     "leads:sla:monitor":  "node scripts/local-lead-sla-monitor.js",
+                    "leads:quality:monitor":  "node scripts/local-lead-quality-monitor.js",
                     "db:sqlite:import-reports":  "node scripts/local-sqlite-import-reports.js",
-                    "local:autarky:check":  "node --check functions/_shared/smtp.js \u0026\u0026 node --check scripts/local-env.js \u0026\u0026 node --check scripts/local-d1-sqlite.js \u0026\u0026 node --check scripts/local-smtp.js \u0026\u0026 node --check scripts/local-production-server.js \u0026\u0026 node --check scripts/local-production-monitor.js \u0026\u0026 node --check scripts/local-lead-sla-monitor.js \u0026\u0026 node --check scripts/local-sqlite-restore.js \u0026\u0026 node --check scripts/local-sqlite-backup.js \u0026\u0026 node --check scripts/local-sqlite-import-reports.js \u0026\u0026 node --check scripts/local-autarky-check.js \u0026\u0026 node scripts/local-autarky-check.js"
+                    "local:autarky:check":  "node --check functions/_shared/smtp.js \u0026\u0026 node --check scripts/local-env.js \u0026\u0026 node --check scripts/local-d1-sqlite.js \u0026\u0026 node --check scripts/local-smtp.js \u0026\u0026 node --check scripts/local-production-server.js \u0026\u0026 node --check scripts/local-production-monitor.js \u0026\u0026 node --check scripts/local-lead-sla-monitor.js \u0026\u0026 node --check scripts/local-lead-quality-monitor.js \u0026\u0026 node --check scripts/local-sqlite-restore.js \u0026\u0026 node --check scripts/local-sqlite-backup.js \u0026\u0026 node --check scripts/local-sqlite-import-reports.js \u0026\u0026 node --check scripts/local-autarky-check.js \u0026\u0026 node scripts/local-autarky-check.js"
                 },
     "devDependencies":  {
                             "wrangler":  "^4.0.0"

@@ -188,6 +188,28 @@ function leadSlaSignal(report) {
   return next ? `prochaine relance dans ${next} min` : `dernier OK ${reportDate(report.generated_at)}`;
 }
 
+function leadQualityStatusLabel(report) {
+  if (!report?.available) return "Indispo";
+  if (Number(report.summary?.critical_issues || 0) > 0) return "Critique";
+  if (Number(report.summary?.high_issues || 0) > 0 || Number(report.summary?.quality_score || 0) < 85) return "A corriger";
+  return report.success ? "OK" : "Alerte";
+}
+
+function leadQualityDetail(report) {
+  if (!report?.available) return "rapport absent";
+  const score = Number(report.summary?.quality_score || 0);
+  const leads = Number(report.summary?.leads_period || 0);
+  const issues = Number(report.summary?.issue_count || 0);
+  return `${score}/100, ${issues} signal(s), ${leads} lead(s)`;
+}
+
+function leadQualitySignal(report) {
+  if (!report?.available) return "rapport local non trouve";
+  const issue = (report.issues || [])[0];
+  if (issue) return `${issue.label || issue.type}: ${issue.count || 0}`;
+  return `completude ${report.summary?.core_completion_rate || 0}%`;
+}
+
 function valueEstimateFor(lead, q = qualificationFor(lead)) {
   return q.value_estimate || leadValueEstimate(lead, q.score || 0);
 }
@@ -714,7 +736,8 @@ async function loadIntegrations() {
       metricCard("Anti-spam", String(spamBlocks || eventCount(reports.site_events_30d, "lead_spam_blocked")), turnstileReport.configured ? "Turnstile actif" : "Turnstile pret"),
       metricCard("Runtime", runtimeHealth ? `${runtimeHealth.runtime?.platform || "local"} / ${runtimeHealth.database?.driver || "db"}` : "Token requis", runtimeHealth?.database?.size_bytes ? `${runtimeHealth.database.table_count || 0} tables, ${formatBytes(runtimeHealth.database.size_bytes)}` : "diagnostic protege"),
       metricCard("Production", monitorStatusLabel(runtimeHealth?.monitor), monitorDetail(runtimeHealth?.monitor)),
-      metricCard("SLA leads", leadSlaStatusLabel(runtimeHealth?.lead_sla), leadSlaDetail(runtimeHealth?.lead_sla))
+      metricCard("SLA leads", leadSlaStatusLabel(runtimeHealth?.lead_sla), leadSlaDetail(runtimeHealth?.lead_sla)),
+      metricCard("Qualite leads", leadQualityStatusLabel(runtimeHealth?.lead_quality), leadQualityDetail(runtimeHealth?.lead_quality))
     );
   }
 
@@ -739,6 +762,15 @@ async function loadIntegrations() {
       scope: `Site, /health, telemetry, SQLite\nAlertes: ${runtimeHealth.monitor.alert?.status || "-"}`,
       signal: monitorSignal(runtimeHealth.monitor),
       action: runtimeHealth.monitor.success ? "Continuer la surveillance planifiee toutes les 15 minutes." : "Ouvrir le rapport serveur et corriger le check en alerte."
+    });
+  }
+  if (runtimeHealth?.lead_quality?.available) {
+    rows.unshift({
+      label: "Qualite leads",
+      status: leadQualityStatusLabel(runtimeHealth.lead_quality),
+      scope: `Score: ${runtimeHealth.lead_quality.summary?.quality_score || 0}/100\nCompletude: ${runtimeHealth.lead_quality.summary?.core_completion_rate || 0}%`,
+      signal: leadQualitySignal(runtimeHealth.lead_quality),
+      action: runtimeHealth.lead_quality.issues?.[0]?.action || "Continuer le controle local de qualite des demandes."
     });
   }
   if (runtimeHealth?.lead_sla?.available) {
