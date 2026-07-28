@@ -77,6 +77,98 @@ function clean(value, max = 500) {
   return String(value || "").trim().slice(0, max);
 }
 
+function hostFrom(value) {
+  const raw = clean(value, 700).toLowerCase();
+  if (!raw) return "";
+  try {
+    return new URL(raw, "https://immeubleassur.com").hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function addAllowedHost(hosts, value) {
+  const raw = clean(value, 700).toLowerCase();
+  if (!raw) return;
+  try {
+    const host = raw.includes("://") ? new URL(raw).hostname : raw.split("/")[0].split(":")[0];
+    if (host) hosts.add(host.toLowerCase());
+  } catch {}
+}
+
+function allowedEventHosts(env, request) {
+  const hosts = new Set(["immeubleassur.com", "www.immeubleassur.com", "localhost", "127.0.0.1", "192.168.1.70"]);
+  for (const value of [env.SITE_ORIGIN, env.PUBLIC_SITE_URL, env.GOOGLE_SEARCH_CONSOLE_SITE_URL, request.headers.get("Host")]) {
+    addAllowedHost(hosts, value);
+  }
+  for (const value of clean(env.ALLOWED_EVENT_HOSTS || env.EVENT_ALLOWED_HOSTS, 1000).split(/[;,]/)) {
+    addAllowedHost(hosts, value);
+  }
+  return hosts;
+}
+
+function trustedEventPage(payload, env, request) {
+  const host = hostFrom(payload.page_url);
+  return Boolean(host && allowedEventHosts(env, request).has(host));
+}
+
+function pagePath(payload) {
+  const direct = clean(payload.path, 500);
+  if (direct) return direct;
+  try {
+    return new URL(clean(payload.page_url, 700), "https://immeubleassur.com").pathname || "/";
+  } catch {
+    return "/";
+  }
+}
+
+function suspiciousUserAgent(value) {
+  return /bot|crawl|spider|curl|wget|python|scrapy|httpclient|go-http-client|headless|selenium|phantom|puppeteer|playwright/i.test(clean(value, 500));
+}
+
+function passiveTelemetryEvent(eventType) {
+  return ["page_view", "experiment_view", "scroll_depth"].includes(eventType);
+}
+
+async function countRows(env, sql, binds = []) {
+  try {
+    const statement = env.DB.prepare(sql);
+    const row = binds.length ? await statement.bind(...binds).first() : await statement.first();
+    return Number(row?.count || 0);
+  } catch {
+    return 0;
+  }
+}
+
+async function shouldDropTelemetry(env, request, { eventType, payload, ip, userAgent }) {
+  if (!trustedEventPage(payload, env, request)) return { drop: true, reason: "page-host-invalide" };
+  if (suspiciousUserAgent(userAgent)) return { drop: true, reason: "user-agent-robot" };
+
+  const sessionId = clean(payload.session_id, 120);
+  if (!sessionId && eventType !== "page_view") return { drop: true, reason: "session-absente" };
+
+  if (ip) {
+    const ipEvents = await countRows(env, `SELECT COUNT(*) AS count FROM site_events WHERE ip_address = ? AND created_at >= datetime('now', '-1 minutes')`, [clean(ip, 120)]);
+    if (ipEvents >= 120) return { drop: true, reason: "volume-ip-evenements" };
+  }
+
+  if (sessionId) {
+    const sessionEvents = await countRows(env, `SELECT COUNT(*) AS count FROM site_events WHERE session_id = ? AND created_at >= datetime('now', '-1 minutes')`, [sessionId]);
+    if (sessionEvents >= 60) return { drop: true, reason: "volume-session-evenements" };
+  }
+
+  if (sessionId && passiveTelemetryEvent(eventType)) {
+    const duplicates = await countRows(
+      env,
+      `SELECT COUNT(*) AS count FROM site_events WHERE session_id = ? AND event_type = ? AND COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') = ? AND created_at >= datetime('now', '-5 minutes')`,
+      [sessionId, eventType, pagePath(payload)]
+    );
+    if (duplicates >= 3) return { drop: true, reason: "doublon-evenement-passif" };
+  }
+
+  return { drop: false, reason: "accepted" };
+}
+
 export async function onRequestOptions() {
   return new Response(null, { status: 204, headers });
 }
@@ -97,6 +189,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const now = new Date().toISOString();
   const ip = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "";
   const userAgent = request.headers.get("User-Agent") || "";
+  const telemetryGuard = await shouldDropTelemetry(env, request, { eventType, payload, ip, userAgent });
+  if (telemetryGuard.drop) return json({ success: true, sampled: false, reason: "telemetry-filtered" });
+
   const context = {
     target: clean(payload.target, 240),
     label: clean(payload.label, 240),

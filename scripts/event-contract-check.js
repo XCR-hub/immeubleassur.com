@@ -14,6 +14,16 @@ const allowlistSource = (api.match(/const allowedEvents = new Set\(\[([\s\S]*?)\
 const allowedEvents = unique([...allowlistSource.matchAll(/["']([a-z0-9_:-]+)["']/gi)].map((match) => match[1]));
 const missing = trackedEvents.filter((event) => !allowedEvents.includes(event));
 const unused = allowedEvents.filter((event) => trackedEvents.includes(event) === false && ["post", "options", "application/json"].includes(event) === false);
+const requiredApiGuards = [
+  "shouldDropTelemetry",
+  "allowedEventHosts",
+  "trustedEventPage",
+  "volume-ip-evenements",
+  "volume-session-evenements",
+  "doublon-evenement-passif",
+  "telemetry-filtered"
+];
+const missingApiGuards = requiredApiGuards.filter((snippet) => !api.includes(snippet));
 
 const report = {
   generated_at: new Date().toISOString(),
@@ -21,15 +31,20 @@ const report = {
   allowed_events: allowedEvents,
   missing,
   unused_front_optional: unused,
-  status: missing.length ? "failed" : "passed"
+  required_api_guards: requiredApiGuards,
+  missing_api_guards: missingApiGuards,
+  status: missing.length || missingApiGuards.length ? "failed" : "passed"
 };
 
 mkdirSync(REPORT_DIR, { recursive: true });
 writeFileSync(join(REPORT_DIR, "event-contract-report.json"), JSON.stringify(report, null, 2), "utf8");
 
-if (missing.length) {
-  console.error(`Event contract failed. Missing API allowlist: ${missing.join(", ")}`);
+if (missing.length || missingApiGuards.length) {
+  const parts = [];
+  if (missing.length) parts.push(`Missing API allowlist: ${missing.join(", ")}`);
+  if (missingApiGuards.length) parts.push(`Missing API guards: ${missingApiGuards.join(", ")}`);
+  console.error(`Event contract failed. ${parts.join("; ")}`);
   process.exit(1);
 }
 
-console.log(`Event contract passed for ${trackedEvents.length} tracked event types.`);
+console.log(`Event contract passed for ${trackedEvents.length} tracked event types and ${requiredApiGuards.length} telemetry guards.`);
