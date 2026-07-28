@@ -166,6 +166,28 @@ function monitorSignal(monitor) {
   return failed.length ? failed.join(", ") : `dernier OK ${reportDate(monitor.generated_at)}`;
 }
 
+function leadSlaStatusLabel(report) {
+  if (!report?.available) return "Indispo";
+  if (Number(report.summary?.due_now || 0) > 0) return "A traiter";
+  return report.success ? "OK" : "Alerte";
+}
+
+function leadSlaDetail(report) {
+  if (!report?.available) return "rapport absent";
+  const due = Number(report.summary?.due_now || 0);
+  const open = Number(report.summary?.open_leads || 0);
+  const age = report.age_minutes === null || report.age_minutes === undefined ? "-" : `${report.age_minutes} min`;
+  return `${due} relance(s) / ${open} ouvert(s), age ${age}`;
+}
+
+function leadSlaSignal(report) {
+  if (!report?.available) return "rapport local non trouve";
+  const due = report.due_leads || [];
+  if (due.length) return due.slice(0, 3).map((lead) => `${lead.reference} ${lead.priority}`).join(", ");
+  const next = Number(report.summary?.next_due_minutes || 0);
+  return next ? `prochaine relance dans ${next} min` : `dernier OK ${reportDate(report.generated_at)}`;
+}
+
 function valueEstimateFor(lead, q = qualificationFor(lead)) {
   return q.value_estimate || leadValueEstimate(lead, q.score || 0);
 }
@@ -691,7 +713,8 @@ async function loadIntegrations() {
       metricCard("Newsletter", String(subscriberCount(reports.newsletter_subscribers, "active")), reports.latest_newsletter_issue?.status || "rapport public"),
       metricCard("Anti-spam", String(spamBlocks || eventCount(reports.site_events_30d, "lead_spam_blocked")), turnstileReport.configured ? "Turnstile actif" : "Turnstile pret"),
       metricCard("Runtime", runtimeHealth ? `${runtimeHealth.runtime?.platform || "local"} / ${runtimeHealth.database?.driver || "db"}` : "Token requis", runtimeHealth?.database?.size_bytes ? `${runtimeHealth.database.table_count || 0} tables, ${formatBytes(runtimeHealth.database.size_bytes)}` : "diagnostic protege"),
-      metricCard("Production", monitorStatusLabel(runtimeHealth?.monitor), monitorDetail(runtimeHealth?.monitor))
+      metricCard("Production", monitorStatusLabel(runtimeHealth?.monitor), monitorDetail(runtimeHealth?.monitor)),
+      metricCard("SLA leads", leadSlaStatusLabel(runtimeHealth?.lead_sla), leadSlaDetail(runtimeHealth?.lead_sla))
     );
   }
 
@@ -716,6 +739,15 @@ async function loadIntegrations() {
       scope: `Site, /health, telemetry, SQLite\nAlertes: ${runtimeHealth.monitor.alert?.status || "-"}`,
       signal: monitorSignal(runtimeHealth.monitor),
       action: runtimeHealth.monitor.success ? "Continuer la surveillance planifiee toutes les 15 minutes." : "Ouvrir le rapport serveur et corriger le check en alerte."
+    });
+  }
+  if (runtimeHealth?.lead_sla?.available) {
+    rows.unshift({
+      label: "SLA leads",
+      status: leadSlaStatusLabel(runtimeHealth.lead_sla),
+      scope: `Relances dues: ${runtimeHealth.lead_sla.summary?.due_now || 0}\nAlertes: ${runtimeHealth.lead_sla.alert?.status || "-"}`,
+      signal: leadSlaSignal(runtimeHealth.lead_sla),
+      action: Number(runtimeHealth.lead_sla.summary?.due_now || 0) > 0 ? "Traiter les references en retard dans le centre de relance commerciale." : "Conserver la surveillance locale des delais de rappel."
     });
   }
   if (runtimeHealth) {

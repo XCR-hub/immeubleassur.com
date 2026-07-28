@@ -76,6 +76,12 @@ LOCAL_MONITOR_ALERTS=0
 LOCAL_MONITOR_ALERT_TO=team@immeubleassur.com
 LOCAL_MONITOR_ALERT_COOLDOWN_MINUTES=60
 LOCAL_MONITOR_ALERT_STATE=F:\immeubleassur-monitor\alert-state.json
+LOCAL_LEAD_SLA_REPORT=F:\immeubleassur-monitor\lead-sla-latest.json
+LOCAL_LEAD_SLA_ALERTS=0
+LOCAL_LEAD_SLA_ALERT_TO=team@immeubleassur.com
+LOCAL_LEAD_SLA_ALERT_COOLDOWN_MINUTES=60
+LOCAL_LEAD_SLA_ALERT_STATE=F:\immeubleassur-monitor\lead-sla-alert-state.json
+LOCAL_LEAD_SLA_MAX_ROWS=500
 SITE_ORIGIN=https://immeubleassur.com
 ADMIN_API_TOKEN=secret-admin
 SMTP_HOST=mail.xcr.fr
@@ -92,12 +98,13 @@ Commandes utiles:
 npm run db:sqlite:restore -- --snapshot F:\immeubleassur-d1 --db F:\immeubleassur-data\immeubleassur.sqlite --replace
 npm run db:sqlite:backup -- --db F:\immeubleassur-data\immeubleassur.sqlite --out F:\immeubleassur-backups\sqlite
 npm run production:monitor -- --origin https://immeubleassur.com --db F:\immeubleassur-data\immeubleassur.sqlite --backup-dir F:\immeubleassur-backups\sqlite --out F:\immeubleassur-monitor\latest.json
+npm run leads:sla:monitor -- --db F:\immeubleassur-data\immeubleassur.sqlite --out F:\immeubleassur-monitor\lead-sla-latest.json
 npm run serve:local
 npm run db:sqlite:import-reports
 npm run local:autarky:check
 ```
 
-Pour la mise en ligne publique sans Pages/D1, la Livebox redirige les ports 80/443 vers le serveur Windows, Caddy termine HTTPS et relaie vers Node sur 8790. `/health` reste public mais minimal; le diagnostic detaille est protege par `/api/admin/runtime-health` avec `ADMIN_API_TOKEN`. Le moniteur production:monitor controle la page publique, /health, le filtre telemetry, SQLite et la fraicheur des sauvegardes; il peut envoyer une alerte SMTP si LOCAL_MONITOR_ALERTS=1.
+Pour la mise en ligne publique sans Pages/D1, la Livebox redirige les ports 80/443 vers le serveur Windows, Caddy termine HTTPS et relaie vers Node sur 8790. `/health` reste public mais minimal; le diagnostic detaille est protege par `/api/admin/runtime-health` avec `ADMIN_API_TOKEN`. Le moniteur production:monitor controle la page publique, /health, le filtre telemetry, SQLite et la fraicheur des sauvegardes; il peut envoyer une alerte SMTP si LOCAL_MONITOR_ALERTS=1. Le moniteur leads:sla:monitor lit SQLite en local, detecte les demandes ouvertes hors delai de rappel, genere un rapport sans coordonnees prospect et peut alerter team@immeubleassur.com avec cooldown.
 
 ## Synchronisation vers 192.168.1.70
 
