@@ -5,6 +5,9 @@ const body = document.querySelector("#leads-body");
 const seoButton = document.querySelector("#load-seo");
 const seoSummary = document.querySelector("#seo-summary");
 const seoBody = document.querySelector("#seo-opportunities-body");
+const integrationsButton = document.querySelector("#load-integrations");
+const integrationsSummary = document.querySelector("#integrations-summary");
+const integrationsBody = document.querySelector("#integrations-body");
 const leadSummary = document.querySelector("#lead-summary");
 const leadSearch = document.querySelector("#lead-search");
 const priorityFilter = document.querySelector("#lead-priority-filter");
@@ -502,6 +505,159 @@ async function fetchOptionalAsset(path) {
   }
 }
 
+function reportDate(value) {
+  const timestamp = Date.parse(value || "");
+  if (!Number.isFinite(timestamp)) return value || "-";
+  return new Date(timestamp).toLocaleString("fr-FR");
+}
+
+function countConfigured(connectors = [], family = "") {
+  return connectors.filter((item) => item.configured && (!family || item.family === family)).length;
+}
+
+function countFamily(connectors = [], family = "") {
+  return connectors.filter((item) => !family || item.family === family).length;
+}
+
+function eventCount(rows = [], eventType) {
+  const row = rows.find((item) => item.event_type === eventType);
+  return Number(row?.count || 0);
+}
+
+function subscriberCount(rows = [], status) {
+  const row = rows.find((item) => item.status === status);
+  return Number(row?.count || 0);
+}
+
+function connectorSignal(connector, reports, publicReports) {
+  const { editorialReport, mediaReport, searchReport, seoReport, turnstileReport } = publicReports;
+  const googleHealth = seoReport.google_api_health || {};
+  if (connector.family === "ia") {
+    const latest = reports.latest_ai_run;
+    const reportProvider = editorialReport.ai_provider || "deterministic";
+    const reportStatus = editorialReport.ai_status || editorialReport.status || "rapport public";
+    if (latest) return `${latest.provider || reportProvider} / ${latest.status || reportStatus} - ${reportDate(latest.created_at)}`;
+    return `${reportProvider} / ${reportStatus} - ${reportDate(editorialReport.generated_at)}`;
+  }
+  if (connector.id === "pexels") {
+    const latest = reports.latest_media_run || {};
+    const status = mediaReport.status || latest.status || "-";
+    const count = mediaReport.assets_count ?? latest.assets_count ?? 0;
+    return `${mediaReport.provider || latest.provider || "media"} / ${status} / ${count} asset(s)`;
+  }
+  if (connector.id === "serpapi") {
+    const latest = reports.latest_search_run || {};
+    const status = searchReport.status || latest.status || "-";
+    const checked = searchReport.keywords_checked ?? latest.keywords_checked ?? 0;
+    const firstPage = searchReport.first_page_count ?? latest.first_page_count ?? 0;
+    return `${searchReport.provider || latest.provider || "serp"} / ${status} / ${firstPage}/${checked} page 1`;
+  }
+  if (connector.id === "google-search-console") {
+    return `${googleHealth.search_console_rows || 0} lignes / ${googleHealth.url_inspection_checked || 0} inspections / ${googleHealth.sitemap_submitted ? "sitemap OK" : "sitemap attente"}`;
+  }
+  if (connector.id === "pagespeed") {
+    return `${googleHealth.pagespeed_checked || 0} page(s) / ${googleHealth.pagespeed_slow_pages || 0} lente(s)`;
+  }
+  if (connector.id === "ga4") {
+    return `${eventCount(reports.site_events_30d, "form_start")} starts / ${eventCount(reports.site_events_30d, "lead_created")} leads`;
+  }
+  if (connector.id === "smtp") {
+    const issue = reports.latest_newsletter_issue;
+    return `${subscriberCount(reports.newsletter_subscribers, "active")} abonne(s) actif(s) / dernier numero ${issue?.status || "-"}`;
+  }
+  if (connector.id === "turnstile") {
+    return `${turnstileReport.configured ? "actif" : "pret"} / ${turnstileReport.forms_instrumented || 0}/${turnstileReport.forms_detected || 0} formulaire(s)`;
+  }
+  if (connector.id === "admin-api") return "Token admin valide pour cette session";
+  return connector.configured ? "secret detecte" : "secret manquant";
+}
+
+function connectorAction(connector) {
+  if (connector.configured) return "Surveiller le prochain run et les conversions.";
+  if (connector.missing_secret_names?.length) return `Configurer ${connector.missing_secret_names.join(", ")}.`;
+  return "Verifier la configuration.";
+}
+
+function renderIntegrationsTable(rows) {
+  if (!integrationsBody) return;
+  integrationsBody.replaceChildren();
+  if (!rows.length) {
+    const tr = document.createElement("tr");
+    const td = cell("Aucun connecteur charge.");
+    td.colSpan = 5;
+    tr.append(td);
+    integrationsBody.append(tr);
+    return;
+  }
+  for (const item of rows) {
+    const tr = document.createElement("tr");
+    tr.append(
+      cell(item.label || ""),
+      cell(item.status || ""),
+      cell(item.scope || ""),
+      cell(item.signal || ""),
+      cell(item.action || "")
+    );
+    integrationsBody.append(tr);
+  }
+}
+
+async function loadIntegrations() {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
+  if (integrationsSummary) integrationsSummary.replaceChildren(metricCard("Chargement", "API", "lecture des integrations"));
+
+  const [editorialReport, mediaReport, searchReport, seoReport, turnstileReport] = await Promise.all([
+    fetchOptionalAsset("/assets/editorial-autopilot-latest.json"),
+    fetchOptionalAsset("/assets/media-autopilot-latest.json"),
+    fetchOptionalAsset("/assets/search-intelligence-latest.json"),
+    fetchOptionalAsset("/assets/seo-autopilot-latest.json"),
+    fetchOptionalAsset("/assets/turnstile-protection-latest.json")
+  ]);
+
+  let apiResult = null;
+  if (token) {
+    const response = await fetch("/api/admin/integrations", { headers: { Authorization: `Bearer ${token}` } });
+    apiResult = await response.json();
+    if (!response.ok || !apiResult.success) throw new Error(apiResult.error || "Audit integrations impossible");
+  }
+
+  const connectors = apiResult?.connectors || [];
+  const reports = apiResult?.reports || {};
+  const publicReports = { editorialReport, mediaReport, searchReport, seoReport, turnstileReport };
+  const googleHealth = seoReport.google_api_health || {};
+  const spamBlocks = Number(reports.lead_spam_blocks_30d || 0) + Number(reports.newsletter_spam_blocks_30d || 0);
+
+  if (integrationsSummary) {
+    integrationsSummary.replaceChildren(
+      metricCard("Connecteurs runtime", connectors.length ? `${countConfigured(connectors)}/${connectors.length}` : "Token requis", connectors.length ? "secrets detectes cote Pages" : "audit secrets protege"),
+      metricCard("IA configurees", connectors.length ? `${countConfigured(connectors, "ia")}/${countFamily(connectors, "ia")}` : "-", `${editorialReport.ai_provider || "deterministic"} / ${editorialReport.ai_status || "public"}`),
+      metricCard("Veille", editorialReport.mode || "-", `${editorialReport.watch_items || 0} signal(s), qualite ${editorialReport.quality_score || 0}`),
+      metricCard("Pexels", mediaReport.pexels_enabled ? "Actif" : "Fallback", `${mediaReport.assets_count || 0} asset(s)`),
+      metricCard("SerpApi", searchReport.serp_enabled ? "Actif" : "Fallback", `${searchReport.top3_count || 0} top 3 / ${searchReport.missing_count || 0} manquant(s)`),
+      metricCard("Search Console", String(googleHealth.search_console_rows || 0), `${googleHealth.query_clusters || 0} cluster(s)`),
+      metricCard("PageSpeed", String(googleHealth.pagespeed_checked || 0), `${googleHealth.pagespeed_slow_pages || 0} lente(s)`),
+      metricCard("Newsletter", String(subscriberCount(reports.newsletter_subscribers, "active")), reports.latest_newsletter_issue?.status || "rapport public"),
+      metricCard("Anti-spam", String(spamBlocks || eventCount(reports.site_events_30d, "lead_spam_blocked")), turnstileReport.configured ? "Turnstile actif" : "Turnstile pret")
+    );
+  }
+
+  const rows = connectors.length
+    ? connectors.map((connector) => ({
+      label: connector.label,
+      status: connector.configured ? "Configure" : "A configurer",
+      scope: `${connector.scope}\nSecrets: ${connector.secret_names.join(", ")}`,
+      signal: connectorSignal(connector, reports, publicReports),
+      action: connectorAction(connector)
+    }))
+    : [
+      { label: "Admin API", status: "Token requis", scope: "Audit des secrets runtime protege.", signal: "Entrez le token admin.", action: "Charger avec ADMIN_API_TOKEN pour verifier les connecteurs." },
+      { label: "Veille IA", status: editorialReport.ai_status || "rapport public", scope: "Dernier build editorial.", signal: `${editorialReport.ai_provider || "-"} - ${reportDate(editorialReport.generated_at)}`, action: "Configurer les secrets IA dans GitHub Actions pour activer un provider." },
+      { label: "Pexels", status: mediaReport.status || "rapport public", scope: "Dernier build media.", signal: `${mediaReport.assets_count || 0} asset(s)`, action: "Configurer PEXELS_API_KEY pour injecter des visuels attribues." },
+      { label: "SerpApi", status: searchReport.status || "rapport public", scope: "Dernier suivi positions.", signal: `${searchReport.keywords_checked || 0} requete(s)`, action: "Configurer SERP_API_KEY pour remplacer l'estimation locale." }
+    ];
+  renderIntegrationsTable(rows);
+}
 function priorityCount(priorities = [], key) {
   const row = priorities.find((item) => item.priority === key);
   return Number(row?.count || 0);
@@ -598,6 +754,7 @@ form?.addEventListener("submit", async (event) => {
     if (statusFilter) statusFilter.value = "";
     refreshLeadTable();
     loadSeo().catch(() => {});
+    loadIntegrations().catch(() => {});
   } catch (error) {
     setStatus(error.message || "Erreur de chargement", "error");
   }
@@ -632,5 +789,11 @@ body?.addEventListener("click", (event) => {
 seoButton?.addEventListener("click", () => {
   loadSeo().catch((error) => {
     if (seoSummary) seoSummary.replaceChildren(metricCard("Erreur", "SEO", error.message || "chargement impossible"));
+  });
+});
+
+integrationsButton?.addEventListener("click", () => {
+  loadIntegrations().catch((error) => {
+    if (integrationsSummary) integrationsSummary.replaceChildren(metricCard("Erreur", "API", error.message || "chargement impossible"));
   });
 });

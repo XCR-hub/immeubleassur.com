@@ -2395,3 +2395,18 @@ textarea:focus {
 .media-card figcaption a { color: #145f4d; font-weight: 700; }
 @media (max-width: 780px) { .media-grid { grid-template-columns: 1fr; } }
 /* media-autopilot-2026-07:end */
+
+.admin-integrations-panel {
+  margin-top: 1.5rem;
+}
+
+.admin-integrations-table {
+  min-width: 1120px;
+}
+
+.admin-muted {
+  align-self: center;
+  color: var(--muted);
+  font-size: .88rem;
+  font-weight: 800;
+}

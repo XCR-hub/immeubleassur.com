@@ -857,6 +857,9 @@ function adminPage() {
           <tbody id="leads-body"><tr><td colspan="13">Aucun chargement effectue.</td></tr></tbody>
         </table>
       </section>
+      <!-- integrations-admin:start -->
+      <section class="plain-panel admin-seo-panel admin-integrations-panel"><h2>Connecteurs API et automatisations</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-integrations">Verifier integrations</button><span class="admin-muted">Secrets masques, seuls les etats et noms de variables sont affiches.</span></div><div class="seo-admin-grid" id="integrations-summary"><p>Charge les derniers signaux IA, media, SERP, Google, newsletter et securite.</p></div><section class="admin-table-wrap" aria-label="Connecteurs API"><table class="admin-table admin-integrations-table"><thead><tr><th>Connecteur</th><th>Etat</th><th>Perimetre</th><th>Dernier signal</th><th>Action</th></tr></thead><tbody id="integrations-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
+      <!-- integrations-admin:end -->
     </main>
     <script src="${ADMIN_JS_URL}" type="module"></script>
   </body>

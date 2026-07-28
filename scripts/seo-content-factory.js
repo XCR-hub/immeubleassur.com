@@ -213,7 +213,9 @@ function injectBlock(file, marker, block) {
 function enhanceAdminPage() {
   const file = join(OUT, "admin.html");
   const block = `<section class="plain-panel admin-seo-panel"><h2>Pilotage SEO continu</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-seo">Charger SEO</button><a class="button secondary" href="/strategie-seo-continue.html">Voir systeme public</a></div><div class="seo-admin-grid" id="seo-summary"><p>Charge les derniers signaux SEO, conversions et opportunites D1.</p></div><section class="admin-table-wrap" aria-label="Opportunites SEO"><table class="admin-table"><thead><tr><th>Score</th><th>Type</th><th>URL</th><th>Requete</th><th>Action</th></tr></thead><tbody id="seo-opportunities-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>`;
+  const integrationsBlock = `<section class="plain-panel admin-seo-panel admin-integrations-panel"><h2>Connecteurs API et automatisations</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-integrations">Verifier integrations</button><span class="admin-muted">Secrets masques, seuls les etats et noms de variables sont affiches.</span></div><div class="seo-admin-grid" id="integrations-summary"><p>Charge les derniers signaux IA, media, SERP, Google, newsletter et securite.</p></div><section class="admin-table-wrap" aria-label="Connecteurs API"><table class="admin-table admin-integrations-table"><thead><tr><th>Connecteur</th><th>Etat</th><th>Perimetre</th><th>Dernier signal</th><th>Action</th></tr></thead><tbody id="integrations-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>`;
   injectBlock(file, "seo-admin", block);
+  injectBlock(file, "integrations-admin", integrationsBlock);
 }
 
 function enhanceHubs(generatedCities) {
