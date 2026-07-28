@@ -56,6 +56,38 @@ wrangler d1 create immeubleassur-db
 npm run db:remote
 ```
 
+## Production autonome sur 192.168.1.70
+
+Le site peut fonctionner sans Cloudflare Pages Functions et sans Cloudflare D1 en mode serveur local. Dans ce mode, Node sert les fichiers `public/`, expose les routes `/api/*`, emule le binding D1 sur SQLite et envoie les emails via SMTP local.
+
+Cloudflare D1 n'est plus requis pour ce mode: la base active devient le fichier SQLite defini par `LOCAL_SQLITE_DB`, par exemple `F:\immeubleassur-data\immeubleassur.sqlite`. Le snapshot D1 deja recu sur `F:\immeubleassur-d1` sert uniquement a initialiser ou restaurer la base locale.
+
+Variables principales sur le serveur:
+
+```powershell
+LOCAL_SITE_HOST=0.0.0.0
+LOCAL_SITE_PORT=8790
+LOCAL_SQLITE_DB=F:\immeubleassur-data\immeubleassur.sqlite
+SITE_ORIGIN=https://immeubleassur.com
+ADMIN_API_TOKEN=secret-admin
+SMTP_HOST=mail.xcr.fr
+SMTP_PORT=587
+SMTP_USER=team@immeubleassur.com
+SMTP_PASS=
+SMTP_FROM=team@immeubleassur.com
+SMTP_TO=team@immeubleassur.com
+```
+
+Commandes utiles:
+
+```powershell
+npm run db:sqlite:restore -- --snapshot F:\immeubleassur-d1 --db F:\immeubleassur-data\immeubleassur.sqlite --replace
+npm run serve:local
+npm run db:sqlite:import-reports
+npm run local:autarky:check
+```
+
+Pour la mise en ligne publique sans Pages/D1, le serveur Windows doit recevoir le trafic HTTP/HTTPS depuis la box/routeur, puis `immeubleassur.com` doit pointer vers l'IP publique du site. Tant que ce routage externe n'est pas confirme, Cloudflare Pages/D1 doit rester en secours pour eviter une coupure.
 ## Synchronisation vers 192.168.1.70
 
 Cloudflare D1 reste la base active du site en production. Le serveur `192.168.1.70` est prepare comme destination de sauvegarde, archive et reporting. La synchronisation cree un snapshot compresse avec schema, manifest et fichiers JSONL par table; les donnees ne sont jamais ajoutees au depot Git.

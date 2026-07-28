@@ -1,5 +1,5 @@
-import { connect } from "cloudflare:sockets";
 import { gaLeadParams, sendGa4Event } from "../_shared/ga4.js";
+import { sendPortableSmtpMail } from "../_shared/smtp.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -511,37 +511,7 @@ function buildLeadEmail({ id, reference, score, qualification, record, now }) {
 }
 
 async function sendSmtpMail(config, message) {
-  let socket = connect(
-    { hostname: config.host, port: config.port },
-    { secureTransport: config.secureTransport }
-  );
-  await socket.opened;
-  let session = smtpSession(socket);
-
-  let response = await session.readResponse();
-  assertSmtp(response, 220, "Accueil SMTP");
-  await smtpCommand(session, "EHLO immeubleassur.com", 250, "EHLO");
-
-  if (config.secureTransport === "starttls") {
-    await smtpCommand(session, "STARTTLS", 220, "STARTTLS");
-    session.release();
-    socket = socket.startTls();
-    await socket.opened;
-    session = smtpSession(socket);
-    await smtpCommand(session, "EHLO immeubleassur.com", 250, "EHLO TLS");
-  }
-  await smtpAuth(session, config.username, config.password);
-  await smtpCommand(session, `MAIL FROM:<${config.from}>`, 250, "MAIL FROM");
-  for (const recipient of config.to) {
-    await smtpCommand(session, `RCPT TO:<${recipient}>`, [250, 251], "RCPT TO");
-  }
-  await smtpCommand(session, "DATA", 354, "DATA");
-  await session.writeRaw(`${dotStuff(message)}\r\n.\r\n`);
-  response = await session.readResponse();
-  assertSmtp(response, 250, "Fin DATA");
-  await session.writeLine("QUIT");
-  socket.close().catch(() => {});
-  return response.lines.join(" | ");
+  return sendPortableSmtpMail(config, message);
 }
 
 async function notifyLeadByEmail({ id, reference, score, qualification, record, now }, env) {
