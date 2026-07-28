@@ -9,6 +9,7 @@ const checks = [
   ["package.json", "leads:quality:monitor"],
   ["package.json", "conversion:funnel:monitor"],
   ["package.json", "conversion:actions:sync"],
+  ["package.json", "seo:backlog:monitor"],
   ["scripts/local-production-server.js", "openLocalD1"],
   ["scripts/local-production-server.js", "SEND_SMTP_MAIL"],
   ["scripts/local-production-monitor.js", "sqlite_backup_age"],
@@ -22,16 +23,21 @@ const checks = [
   ["scripts/local-conversion-action-sync.js", "Conversion action sync"],
   ["scripts/local-conversion-action-sync.js", "seo_opportunities"],
   ["scripts/local-conversion-action-sync.js", "LOCAL_CONVERSION_ACTION_SYNC_REPORT"],
+  ["scripts/local-seo-backlog-monitor.js", "SEO backlog monitor"],
+  ["scripts/local-seo-backlog-monitor.js", "LOCAL_SEO_BACKLOG_REPORT"],
+  ["scripts/local-seo-backlog-monitor.js", "seo_opportunities"],
   ["functions/api/admin/runtime-health.js", "sanitizeMonitorReport"],
   ["functions/api/admin/runtime-health.js", "LOCAL_PRODUCTION_MONITOR_REPORT"],
   ["functions/api/admin/runtime-health.js", "sanitizeLeadSlaReport"],
   ["functions/api/admin/runtime-health.js", "LOCAL_LEAD_SLA_REPORT"],
   ["functions/api/admin/runtime-health.js", "LOCAL_LEAD_QUALITY_REPORT"],
   ["functions/api/admin/runtime-health.js", "LOCAL_CONVERSION_FUNNEL_REPORT"],
+  ["functions/api/admin/runtime-health.js", "LOCAL_SEO_BACKLOG_REPORT"],
   ["public/assets/admin.js", "Monitoring production"],
   ["public/assets/admin.js", "SLA leads"],
   ["public/assets/admin.js", "Qualite leads"],
   ["public/assets/admin.js", "Funnel leads"],
+  ["public/assets/admin.js", "Backlog SEO"],
   ["scripts/local-production-server.js", "__IMMEUBLEASSUR_SEND_SMTP_MAIL"],
   ["functions/_shared/smtp.js", "__IMMEUBLEASSUR_SEND_SMTP_MAIL"],
   ["scripts/local-d1-sqlite.js", "DatabaseSync"],
@@ -42,7 +48,8 @@ const checks = [
   ["README.md", "leads:sla:monitor"],
   ["README.md", "leads:quality:monitor"],
   ["README.md", "conversion:funnel:monitor"],
-  ["README.md", "conversion:actions:sync"]
+  ["README.md", "conversion:actions:sync"],
+  ["README.md", "seo:backlog:monitor"]
 ];
 
 const missing = [];

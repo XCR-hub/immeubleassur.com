@@ -232,6 +232,26 @@ function conversionFunnelSignal(report) {
   const summary = report.summary || {};
   return `routeur ${summary.quote_continue_rate || 0}% / start ${summary.page_to_form_rate || 0}%`;
 }
+function seoBacklogStatusLabel(report) {
+  if (!report?.available) return "Indispo";
+  if (Number(report.summary?.critical_open || 0) > 0) return "Critique";
+  if (Number(report.summary?.conversion_open || 0) > 0 || Number(report.summary?.old_open || 0) > 0) return "A traiter";
+  return report.success ? "OK" : "Alerte";
+}
+
+function seoBacklogDetail(report) {
+  if (!report?.available) return "rapport absent";
+  const summary = report.summary || {};
+  const age = report.age_minutes === null || report.age_minutes === undefined ? "-" : `${report.age_minutes} min`;
+  return `${summary.open_opportunities || 0} ouvertes, ${summary.critical_open || 0} critiques, age ${age}`;
+}
+
+function seoBacklogSignal(report) {
+  if (!report?.available) return "rapport local non trouve";
+  const recommendation = (report.recommendations || [])[0];
+  if (recommendation) return `${recommendation.severity || "signal"}: ${recommendation.signal || recommendation.type}`;
+  return `score moyen ${report.summary?.average_open_score || 0}, plus ancienne ${report.summary?.oldest_open_days || 0}j`;
+}
 function valueEstimateFor(lead, q = qualificationFor(lead)) {
   return q.value_estimate || leadValueEstimate(lead, q.score || 0);
 }
@@ -760,7 +780,8 @@ async function loadIntegrations() {
       metricCard("Production", monitorStatusLabel(runtimeHealth?.monitor), monitorDetail(runtimeHealth?.monitor)),
       metricCard("SLA leads", leadSlaStatusLabel(runtimeHealth?.lead_sla), leadSlaDetail(runtimeHealth?.lead_sla)),
       metricCard("Qualite leads", leadQualityStatusLabel(runtimeHealth?.lead_quality), leadQualityDetail(runtimeHealth?.lead_quality)),
-      metricCard("Funnel leads", conversionFunnelStatusLabel(runtimeHealth?.conversion_funnel), conversionFunnelDetail(runtimeHealth?.conversion_funnel))
+      metricCard("Funnel leads", conversionFunnelStatusLabel(runtimeHealth?.conversion_funnel), conversionFunnelDetail(runtimeHealth?.conversion_funnel)),
+      metricCard("Backlog SEO", seoBacklogStatusLabel(runtimeHealth?.seo_backlog), seoBacklogDetail(runtimeHealth?.seo_backlog))
     );
   }
 
@@ -785,6 +806,16 @@ async function loadIntegrations() {
       scope: `Site, /health, telemetry, SQLite\nAlertes: ${runtimeHealth.monitor.alert?.status || "-"}`,
       signal: monitorSignal(runtimeHealth.monitor),
       action: runtimeHealth.monitor.success ? "Continuer la surveillance planifiee toutes les 15 minutes." : "Ouvrir le rapport serveur et corriger le check en alerte."
+    });
+  }
+  if (runtimeHealth?.seo_backlog?.available) {
+    const recommendation = runtimeHealth.seo_backlog.recommendations?.[0];
+    rows.unshift({
+      label: "Backlog SEO/CRO",
+      status: seoBacklogStatusLabel(runtimeHealth.seo_backlog),
+      scope: `Ouvertes: ${runtimeHealth.seo_backlog.summary?.open_opportunities || 0}\nConversion: ${runtimeHealth.seo_backlog.summary?.conversion_open || 0}`,
+      signal: seoBacklogSignal(runtimeHealth.seo_backlog),
+      action: recommendation?.action || "Traiter les opportunites ouvertes par score avant de lancer de nouvelles optimisations."
     });
   }
   if (runtimeHealth?.conversion_funnel?.available) {

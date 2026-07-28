@@ -89,6 +89,9 @@ LOCAL_CONVERSION_FUNNEL_REPORT=F:\immeubleassur-monitor\conversion-funnel-latest
 LOCAL_CONVERSION_FUNNEL_LOOKBACK_DAYS=30
 LOCAL_CONVERSION_FUNNEL_MAX_PATHS=80
 LOCAL_CONVERSION_ACTION_SYNC_REPORT=F:\immeubleassur-monitor\conversion-action-sync-latest.json
+LOCAL_SEO_BACKLOG_REPORT=F:\immeubleassur-monitor\seo-backlog-latest.json
+LOCAL_SEO_BACKLOG_STALE_DAYS=14
+LOCAL_SEO_BACKLOG_MAX_ROWS=50
 SITE_ORIGIN=https://immeubleassur.com
 ADMIN_API_TOKEN=secret-admin
 SMTP_HOST=mail.xcr.fr
@@ -109,12 +112,13 @@ npm run leads:sla:monitor -- --db F:\immeubleassur-data\immeubleassur.sqlite --o
 npm run leads:quality:monitor -- --db F:\immeubleassur-data\immeubleassur.sqlite --out F:\immeubleassur-monitor\lead-quality-latest.json
 npm run conversion:funnel:monitor -- --db F:\immeubleassur-data\immeubleassur.sqlite --out F:\immeubleassur-monitor\conversion-funnel-latest.json
 npm run conversion:actions:sync -- --db F:\immeubleassur-data\immeubleassur.sqlite --report F:\immeubleassur-monitor\conversion-funnel-latest.json --out F:\immeubleassur-monitor\conversion-action-sync-latest.json
+npm run seo:backlog:monitor -- --db F:\immeubleassur-data\immeubleassur.sqlite --out F:\immeubleassur-monitor\seo-backlog-latest.json
 npm run serve:local
 npm run db:sqlite:import-reports
 npm run local:autarky:check
 ```
 
-Pour la mise en ligne publique sans Pages/D1, la Livebox redirige les ports 80/443 vers le serveur Windows, Caddy termine HTTPS et relaie vers Node sur 8790. `/health` reste public mais minimal; le diagnostic detaille est protege par `/api/admin/runtime-health` avec `ADMIN_API_TOKEN`. Le moniteur production:monitor controle la page publique, /health, le filtre telemetry, SQLite et la fraicheur des sauvegardes; il peut envoyer une alerte SMTP si LOCAL_MONITOR_ALERTS=1. Le moniteur leads:sla:monitor lit SQLite en local, detecte les demandes ouvertes hors delai de rappel, genere un rapport sans coordonnees prospect et peut alerter team@immeubleassur.com avec cooldown. Le moniteur leads:quality:monitor controle les demandes recentes: completude, score, source, page, besoin, ville et statut exploitable pour reduire les leads perdus. Le moniteur conversion:funnel:monitor mesure vues, routeur devis, CTA, starts, erreurs, abandons, appels et leads pour prioriser les fuites CRO. Le sync conversion:actions:sync transforme ces recommandations en opportunites SQLite visibles dans les panneaux SEO et contenu.
+Pour la mise en ligne publique sans Pages/D1, la Livebox redirige les ports 80/443 vers le serveur Windows, Caddy termine HTTPS et relaie vers Node sur 8790. `/health` reste public mais minimal; le diagnostic detaille est protege par `/api/admin/runtime-health` avec `ADMIN_API_TOKEN`. Le moniteur production:monitor controle la page publique, /health, le filtre telemetry, SQLite et la fraicheur des sauvegardes; il peut envoyer une alerte SMTP si LOCAL_MONITOR_ALERTS=1. Le moniteur leads:sla:monitor lit SQLite en local, detecte les demandes ouvertes hors delai de rappel, genere un rapport sans coordonnees prospect et peut alerter team@immeubleassur.com avec cooldown. Le moniteur leads:quality:monitor controle les demandes recentes: completude, score, source, page, besoin, ville et statut exploitable pour reduire les leads perdus. Le moniteur conversion:funnel:monitor mesure vues, routeur devis, CTA, starts, erreurs, abandons, appels et leads pour prioriser les fuites CRO. Le sync conversion:actions:sync transforme ces recommandations en opportunites SQLite visibles dans les panneaux SEO et contenu. Le moniteur seo:backlog:monitor surveille les opportunites ouvertes, critiques, anciennes et issues du tunnel de conversion.
 
 ## Synchronisation vers 192.168.1.70
 

@@ -232,6 +232,64 @@ function sanitizeConversionFunnelReport(report) {
   };
 }
 
+function sanitizeSeoBacklogReport(report) {
+  if (!report || typeof report !== "object") return { available: false };
+  const generatedAt = report.generated_at || "";
+  const ageMinutes = generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null;
+  const sanitizeOpportunity = (item) => ({
+    url: item.url || "",
+    query: item.query || "",
+    opportunity_type: item.opportunity_type || "",
+    score: Number(item.score || 0),
+    status: item.status || "",
+    recommendation: item.recommendation || "",
+    age_days: item.age_days ?? null
+  });
+  return {
+    available: true,
+    success: report.success === true,
+    attention_required: report.attention_required === true,
+    generated_at: generatedAt,
+    age_minutes: ageMinutes,
+    thresholds: {
+      stale_days: Number(report.thresholds?.stale_days || 0),
+      max_rows: Number(report.thresholds?.max_rows || 0)
+    },
+    summary: {
+      total_opportunities: Number(report.summary?.total_opportunities || 0),
+      open_opportunities: Number(report.summary?.open_opportunities || 0),
+      stale_opportunities: Number(report.summary?.stale_opportunities || 0),
+      critical_open: Number(report.summary?.critical_open || 0),
+      high_open: Number(report.summary?.high_open || 0),
+      conversion_open: Number(report.summary?.conversion_open || 0),
+      old_open: Number(report.summary?.old_open || 0),
+      oldest_open_days: Number(report.summary?.oldest_open_days || 0),
+      average_open_score: Number(report.summary?.average_open_score || 0)
+    },
+    type_breakdown: Array.isArray(report.type_breakdown)
+      ? report.type_breakdown.slice(0, 10).map((item) => ({
+          opportunity_type: item.opportunity_type || "",
+          count: Number(item.count || 0),
+          open_count: Number(item.open_count || 0),
+          max_score: Number(item.max_score || 0),
+          latest_updated_at: item.latest_updated_at || ""
+        }))
+      : [],
+    top_open: Array.isArray(report.top_open) ? report.top_open.slice(0, 8).map(sanitizeOpportunity) : [],
+    conversion_open: Array.isArray(report.conversion_open) ? report.conversion_open.slice(0, 8).map(sanitizeOpportunity) : [],
+    old_open: Array.isArray(report.old_open) ? report.old_open.slice(0, 8).map(sanitizeOpportunity) : [],
+    recommendations: Array.isArray(report.recommendations)
+      ? report.recommendations.slice(0, 8).map((item) => ({
+          type: item.type || "",
+          severity: item.severity || "",
+          signal: item.signal || "",
+          action: item.action || "",
+          url: item.url || "",
+          score: Number(item.score || 0)
+        }))
+      : []
+  };
+}
 export async function onRequestGet({ request, env }) {
   if (!isAuthorized(request, env)) return json({ success: false, error: "Non autorise" }, 401);
 
@@ -244,6 +302,8 @@ export async function onRequestGet({ request, env }) {
   const leadQualityReport = await readLocalJson(leadQualityPath);
   const conversionFunnelPath = env.LOCAL_CONVERSION_FUNNEL_REPORT || "reports/local-conversion-funnel-report.json";
   const conversionFunnelReport = await readLocalJson(conversionFunnelPath);
+  const seoBacklogPath = env.LOCAL_SEO_BACKLOG_REPORT || "reports/local-seo-backlog-report.json";
+  const seoBacklogReport = await readLocalJson(seoBacklogPath);
   return json({
     success: true,
     generated_at: new Date().toISOString(),
@@ -264,6 +324,7 @@ export async function onRequestGet({ request, env }) {
     monitor: sanitizeMonitorReport(monitorReport),
     lead_sla: sanitizeLeadSlaReport(leadSlaReport),
     lead_quality: sanitizeLeadQualityReport(leadQualityReport),
-    conversion_funnel: sanitizeConversionFunnelReport(conversionFunnelReport)
+    conversion_funnel: sanitizeConversionFunnelReport(conversionFunnelReport),
+    seo_backlog: sanitizeSeoBacklogReport(seoBacklogReport)
   });
 }
