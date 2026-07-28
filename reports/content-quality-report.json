@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-28T01:03:30.722Z",
+  "generated_at": "2026-07-28T01:18:31.122Z",
   "pages_checked": 174,
   "status": "passed",
   "severe_issue_count": 0,
-  "warning_count": 0,
+  "warning_count": 3,
   "duplicate_titles": [],
   "duplicate_descriptions": [],
   "repeated_paragraph_clusters": [
@@ -85,7 +85,7 @@
         "blog/checklist-sinistre-degat-des-eaux",
         "blog/franchise-degat-des-eaux-immeuble"
       ],
-      "count": 50
+      "count": 47
     },
     {
       "fingerprint": "cette synthese ajoute une lecture operationnelle intention du demandeur donnees a collecter arbitrage garanties prix et lien direct vers le parcours qui transforme la visite en dossier qualifie",
@@ -111,7 +111,7 @@
         "blog/assurance-immeuble-mixte-commerce",
         "blog/assurance-immeuble-protection-du-patrimoine"
       ],
-      "count": 80
+      "count": 77
     },
     {
       "fingerprint": "les meilleurs leads arrivent avec un statut un type de bien et une urgence clairs le diagnostic ajuste le devis le message de rappel et les signaux de conversion",
@@ -191,7 +191,7 @@
         "assurance-immeuble-nice",
         "assurance-immeuble-orleans"
       ],
-      "count": 64
+      "count": 62
     },
     {
       "fingerprint": "parce qu un immeuble doit etre presente selon son usage son entretien et ses sinistres une fiche risque locale evite les approximations et facilite la comparaison",
@@ -629,7 +629,23 @@
     }
   ],
   "severe_issues": [],
-  "warnings": [],
+  "warnings": [
+    {
+      "slug": "newsletter-assurance-immeuble",
+      "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
+      "warning": "thin-content-risk"
+    },
+    {
+      "slug": "newsletter-assurance-immeuble",
+      "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
+      "warning": "no-visible-faq"
+    },
+    {
+      "slug": "veille-assurance-immeuble",
+      "url": "https://immeubleassur.com/veille-assurance-immeuble",
+      "warning": "no-visible-faq"
+    }
+  ],
   "policy_alignment": [
     "people-first-content",
     "no-ai-evasion-language",
@@ -638,5 +654,25 @@
     "conversion-path-visible",
     "automation-supports-editorial-quality"
   ],
-  "weakest_pages": []
+  "weakest_pages": [
+    {
+      "slug": "newsletter-assurance-immeuble",
+      "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
+      "words": 317,
+      "issues": [],
+      "warnings": [
+        "thin-content-risk",
+        "no-visible-faq"
+      ]
+    },
+    {
+      "slug": "veille-assurance-immeuble",
+      "url": "https://immeubleassur.com/veille-assurance-immeuble",
+      "words": 965,
+      "issues": [],
+      "warnings": [
+        "no-visible-faq"
+      ]
+    }
+  ]
 }

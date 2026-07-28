@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-28T01:03:30.722Z",
+  "generated_at": "2026-07-28T01:18:31.122Z",
   "pages_checked": 174,
   "status": "passed",
   "severe_issue_count": 0,
-  "warning_count": 0,
+  "warning_count": 3,
   "policy_alignment": [
     "people-first-content",
     "no-ai-evasion-language",
@@ -12,5 +12,25 @@
     "conversion-path-visible",
     "automation-supports-editorial-quality"
   ],
-  "weakest_pages": []
+  "weakest_pages": [
+    {
+      "slug": "newsletter-assurance-immeuble",
+      "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
+      "words": 317,
+      "issues": [],
+      "warnings": [
+        "thin-content-risk",
+        "no-visible-faq"
+      ]
+    },
+    {
+      "slug": "veille-assurance-immeuble",
+      "url": "https://immeubleassur.com/veille-assurance-immeuble",
+      "words": 965,
+      "issues": [],
+      "warnings": [
+        "no-visible-faq"
+      ]
+    }
+  ]
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-28T01:03:16.636Z",
+  "generated_at": "2026-07-28T01:17:48.160Z",
   "pages_checked": 173,
   "average_score": 100,
   "opportunities_count": 0,
@@ -7,7 +7,7 @@
   "top_opportunities": [],
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-28T01:03:13.759Z",
+    "generated_at": "2026-07-28T01:17:43.250Z",
     "pages_checked": 173,
     "pages_changed": 124,
     "fixes_applied": 176,
@@ -139,7 +139,7 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-28T01:03:14.070Z",
+    "generated_at": "2026-07-28T01:17:44.143Z",
     "pages_checked": 174,
     "pages_expanded": 80,
     "words_added_estimate": 13771,
@@ -254,7 +254,7 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-07-28T01:03:15.495Z",
+    "generated_at": "2026-07-28T01:17:46.531Z",
     "pages_checked": 174,
     "status": "passed",
     "severe_issue_count": 0,
@@ -271,7 +271,7 @@
   },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-07-28T01:03:15.810Z",
+    "generated_at": "2026-07-28T01:17:47.016Z",
     "pages_checked": 170,
     "money_pages_checked": 114,
     "average_conversion_score": 75,
@@ -1201,7 +1201,7 @@
   },
   "cro_experiment": {
     "configured": true,
-    "generated_at": "2026-07-28T01:03:15.974Z",
+    "generated_at": "2026-07-28T01:17:47.319Z",
     "status": "passed",
     "variant_count": 3,
     "variants": [

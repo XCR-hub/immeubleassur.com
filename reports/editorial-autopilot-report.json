@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-07-28T01:03:12.332Z",
-  "mode": "local-fallback",
-  "fetch_enabled": false,
-  "ai_enabled": false,
+  "generated_at": "2026-07-28T01:17:59.630Z",
+  "mode": "fetched",
+  "fetch_enabled": true,
+  "ai_enabled": true,
   "ai_provider": "deterministic",
   "ai_model": "local-template",
   "ai_status": "skipped",
-  "quality_score": 90,
+  "quality_score": 80,
   "source_count": 5,
-  "watch_items": 3,
+  "watch_items": 10,
   "issue": {
     "id": "issue-8ddcceb57b67",
     "slug": "news/veille-assurance-immeuble-2026-07-28",
-    "title": "Veille assurance immeuble: copropriete, contrats et devis",
+    "title": "Veille assurance immeuble: veille, contrats et devis",
     "html_url": "/news/veille-assurance-immeuble-2026-07-28"
   },
   "automation_plan": {
@@ -155,9 +155,8 @@
       }
     ],
     "source_topics": [
-      "copropriete",
-      "regulateur",
-      "droit"
+      "veille",
+      "sinistres"
     ]
   },
   "compliance": [
@@ -168,5 +167,10 @@
     "people-first-content-before-seo-volume",
     "ai-output-reviewed-by-quality-guards"
   ],
-  "errors": []
+  "errors": [
+    {
+      "source": "service-public-professionnels",
+      "error": "HTTP 404"
+    }
+  ]
 }

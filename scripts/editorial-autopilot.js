@@ -68,7 +68,16 @@ function footer() {
 
 function layout({ slug, title, description, body }) {
   const canonical = siteUrl(slug);
-  const schema = { "@context": "https://schema.org", "@type": "WebPage", name: title, description, url: canonical, publisher: { "@type": "InsuranceAgency", name: "ImmeubleAssur", email: EMAIL, telephone: PHONE_HREF } };
+  const faqItems = [...body.matchAll(/<details><summary>([\s\S]*?)<\/summary><p>([\s\S]*?)<\/p><\/details>/gi)].map((match) => ({ "@type": "Question", name: stripHtml(match[1]), acceptedAnswer: { "@type": "Answer", text: stripHtml(match[2]) } }));
+  const graph = [
+    { "@type": ["InsuranceAgency", "FinancialService"], "@id": `${SITE}/#organization`, name: "ImmeubleAssur", url: SITE, email: EMAIL, telephone: PHONE_HREF },
+    { "@type": "WebSite", "@id": `${SITE}/#website`, url: SITE, name: "ImmeubleAssur", publisher: { "@id": `${SITE}/#organization` } },
+    { "@type": "WebPage", "@id": `${canonical}#webpage`, url: canonical, name: title, description, isPartOf: { "@id": `${SITE}/#website` }, publisher: { "@id": `${SITE}/#organization` } },
+    { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Accueil", item: `${SITE}/` }, { "@type": "ListItem", position: 2, name: title, item: canonical }] },
+    { "@type": "Service", name: title, serviceType: "Assurance immeuble", provider: { "@id": `${SITE}/#organization` }, areaServed: "France", url: canonical }
+  ];
+  if (faqItems.length) graph.push({ "@type": "FAQPage", mainEntity: faqItems });
+  const schema = { "@context": "https://schema.org", "@graph": graph };
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="description" content="${attr(description)}" /><link rel="canonical" href="${canonical}" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="${STYLES_URL}" /><title>${esc(title)} | ImmeubleAssur</title><script type="application/ld+json">${JSON.stringify(schema)}</script></head><body><a class="skip-link" href="#main-content">Aller au contenu principal</a>${nav()}<main id="main-content">${body}</main>${footer()}<script src="${APP_JS_URL}" type="module"></script></body></html>`;
 }
 
