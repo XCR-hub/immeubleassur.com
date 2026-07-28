@@ -2410,3 +2410,20 @@ textarea:focus {
   font-size: .88rem;
   font-weight: 800;
 }
+.admin-newsletter-panel {
+  margin-top: 1.5rem;
+}
+
+.admin-newsletter-actions {
+  grid-template-columns: minmax(220px, 320px) minmax(220px, 280px);
+}
+
+.admin-newsletter-actions .button.secondary {
+  border-color: var(--line);
+  color: var(--teal-dark);
+  background: #ffffff;
+}
+
+.admin-newsletter-table {
+  min-width: 1080px;
+}

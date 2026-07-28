@@ -239,7 +239,9 @@ async function sendLatestIssue(request, env) {
   }
 
   await env.DB.prepare(`UPDATE newsletter_issues SET sent_at = ?, status = 'published' WHERE id = ?`).bind(now, issue.id).run();
-  return json({ success: true, issue: { id: issue.id, slug: issue.slug, subject: issue.subject }, sent: results.filter((row) => row.status === "sent").length, failed: results.filter((row) => row.status === "failed").length, limit, results });
+  const sent = results.filter((row) => row.status === "sent").length;
+  const failed = results.filter((row) => row.status === "failed").length;
+  return json({ success: true, issue: { id: issue.id, slug: issue.slug, subject: issue.subject }, sent, failed, limit, attempted: results.length });
 }
 
 export async function onRequestOptions() {

@@ -8,6 +8,10 @@ const seoBody = document.querySelector("#seo-opportunities-body");
 const integrationsButton = document.querySelector("#load-integrations");
 const integrationsSummary = document.querySelector("#integrations-summary");
 const integrationsBody = document.querySelector("#integrations-body");
+const newsletterButton = document.querySelector("#load-newsletter");
+const newsletterSendButton = document.querySelector("#send-newsletter");
+const newsletterSummary = document.querySelector("#newsletter-summary");
+const newsletterBody = document.querySelector("#newsletter-body");
 const leadSummary = document.querySelector("#lead-summary");
 const leadSearch = document.querySelector("#lead-search");
 const priorityFilter = document.querySelector("#lead-priority-filter");
@@ -658,6 +662,121 @@ async function loadIntegrations() {
     ];
   renderIntegrationsTable(rows);
 }
+function newsletterStat(rows = [], key) {
+  const row = rows.find((item) => item.status === key || item.event_type === key);
+  return Number(row?.count || 0);
+}
+
+function renderNewsletterTable(issues = [], watchItems = []) {
+  if (!newsletterBody) return;
+  newsletterBody.replaceChildren();
+  const rows = [
+    ...issues.slice(0, 12).map((issue) => ({
+      type: "Numero",
+      status: issue.status || "-",
+      title: issue.title || issue.subject || "-",
+      date: issue.sent_at || issue.published_at || issue.created_at || "",
+      action: issue.html_url ? `Voir ${issue.html_url}` : "Preparer le prochain envoi"
+    })),
+    ...watchItems.slice(0, 12).map((item) => ({
+      type: item.topic || "Veille",
+      status: `score ${item.relevance_score || 0}`,
+      title: item.title || "-",
+      date: item.published_at || item.fetched_at || "",
+      action: item.source_name ? `${item.source_name} - source publique` : "Source publique"
+    }))
+  ];
+
+  if (!rows.length) {
+    const tr = document.createElement("tr");
+    const td = cell("Aucun signal newsletter charge.");
+    td.colSpan = 5;
+    tr.append(td);
+    newsletterBody.append(tr);
+    return;
+  }
+
+  for (const row of rows.slice(0, 24)) {
+    const tr = document.createElement("tr");
+    tr.append(
+      cell(row.type),
+      cell(row.status),
+      cell(row.title),
+      cell(reportDate(row.date)),
+      cell(row.action)
+    );
+    newsletterBody.append(tr);
+  }
+}
+
+async function loadNewsletter(message = "") {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
+  if (!token) {
+    if (newsletterSummary) newsletterSummary.replaceChildren(metricCard("Token requis", "Admin", "charger les donnees newsletter"));
+    return;
+  }
+  if (newsletterSummary) newsletterSummary.replaceChildren(metricCard("Chargement", "Newsletter", "lecture D1"));
+
+  const response = await fetch("/api/admin/newsletter", { headers: { Authorization: `Bearer ${token}` } });
+  const result = await response.json();
+  if (!response.ok || !result.success) throw new Error(result.error || "Chargement newsletter impossible");
+
+  const issues = Array.isArray(result.issues) ? result.issues : [];
+  const latest = issues[0] || {};
+  const activeSubscribers = newsletterStat(result.subscriber_stats, "active");
+  const unsubscribed = newsletterStat(result.subscriber_stats, "unsubscribed");
+  const sent30d = newsletterStat(result.send_stats, "sent");
+  const failed30d = newsletterStat(result.send_stats, "send_failed");
+
+  if (newsletterSummary) {
+    newsletterSummary.replaceChildren(
+      metricCard("Abonnes actifs", String(activeSubscribers), `${unsubscribed} desinscrit(s)`),
+      metricCard("Numeros", String(issues.length), latest.title || "dernier numero"),
+      metricCard("SMTP", result.smtp_configured ? "Actif" : "A configurer", "envoi admin protege"),
+      metricCard("Envoyes 30j", String(sent30d), `${failed30d} echec(s)`),
+      metricCard("Veille", String((result.watch_items || []).length), "signaux editoriaux"),
+      metricCard("Dernier envoi", latest.sent_at ? reportDate(latest.sent_at) : "Jamais", latest.status || "brouillon"),
+      metricCard("Action", message || "Pret", latest.subject || "charger puis envoyer")
+    );
+  }
+  renderNewsletterTable(issues, Array.isArray(result.watch_items) ? result.watch_items : []);
+}
+
+async function sendNewsletter() {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (!token) {
+    if (newsletterSummary) newsletterSummary.replaceChildren(metricCard("Token requis", "Admin", "envoi impossible"));
+    return;
+  }
+  if (!window.confirm("Envoyer le dernier numero de newsletter aux abonnes actifs ?")) return;
+
+  const previousLabel = newsletterSendButton?.textContent || "Envoyer dernier numero";
+  if (newsletterSendButton) {
+    newsletterSendButton.disabled = true;
+    newsletterSendButton.textContent = "Envoi...";
+  }
+  try {
+    const response = await fetch("/api/admin/newsletter", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ action: "send_latest" })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || "Envoi newsletter impossible");
+    await loadNewsletter(`${result.sent || 0} envoye(s), ${result.failed || 0} echec(s)`);
+  } catch (error) {
+    if (newsletterSummary) newsletterSummary.replaceChildren(metricCard("Erreur", "Newsletter", error.message || "envoi impossible"));
+  } finally {
+    if (newsletterSendButton) {
+      newsletterSendButton.disabled = false;
+      newsletterSendButton.textContent = previousLabel;
+    }
+  }
+}
 function priorityCount(priorities = [], key) {
   const row = priorities.find((item) => item.priority === key);
   return Number(row?.count || 0);
@@ -755,6 +874,7 @@ form?.addEventListener("submit", async (event) => {
     refreshLeadTable();
     loadSeo().catch(() => {});
     loadIntegrations().catch(() => {});
+    loadNewsletter().catch(() => {});
   } catch (error) {
     setStatus(error.message || "Erreur de chargement", "error");
   }
@@ -796,4 +916,13 @@ integrationsButton?.addEventListener("click", () => {
   loadIntegrations().catch((error) => {
     if (integrationsSummary) integrationsSummary.replaceChildren(metricCard("Erreur", "API", error.message || "chargement impossible"));
   });
+});
+newsletterButton?.addEventListener("click", () => {
+  loadNewsletter().catch((error) => {
+    if (newsletterSummary) newsletterSummary.replaceChildren(metricCard("Erreur", "Newsletter", error.message || "chargement impossible"));
+  });
+});
+
+newsletterSendButton?.addEventListener("click", () => {
+  sendNewsletter();
 });

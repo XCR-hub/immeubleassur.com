@@ -16,7 +16,7 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Autopilote editorial `scripts/editorial-autopilot.js`: generation de veille, newsletter, numero publiable, plan articles/FAQ/villes/news et export D1.
 - Veille sources publiques: flux RSS/pages publiques avec attribution, sans recopie d'articles tiers ni scraping des resultats Google.
 - Connecteurs IA optionnels: OpenAI, Claude/Anthropic, Gemini, OpenRouter et HuggingFace via variables d'environnement; fallback local si aucune cle n'est configuree.
-- Systeme newsletter: page d'inscription, endpoint `/api/newsletter`, desinscription, tables D1 abonnes/issues/evenements et endpoint admin `/api/admin/newsletter`.
+- Systeme newsletter: page d'inscription, endpoint `/api/newsletter`, desinscription, tables D1 abonnes/issues/evenements, endpoint admin `/api/admin/newsletter` et panneau admin de pilotage/envoi.
 - Autopilote media `scripts/media-autopilot.js`: selection de visuels Pexels avec attribution, rapports JSON/D1 et injection responsive quand `PEXELS_API_KEY` est configuree.
 - Intelligence SERP `scripts/search-intelligence.js`: suivi des positions via SerpApi, concurrents visibles, recommandations par requete et export D1, sans scraping direct des pages Google.
 - Observabilite integrations: endpoint admin /api/admin/integrations et panneau admin pour verifier IA, Pexels, SerpApi, Google, SMTP, Turnstile et D1 sans exposer les valeurs de secrets.
@@ -104,7 +104,7 @@ Secrets optionnels pour GitHub Actions / local:
 
 Le workflow `.github/workflows/seo-autopilot.yml` lance l'audit chaque nuit. Le systeme n'utilise pas de scraping automatise des resultats Google et n'utilise pas l'Indexing API pour les pages immeuble, car Google la reserve aux contenus compatibles comme `JobPosting` ou `BroadcastEvent`.
 
-La newsletter utilise SMTP deja configure cote Pages. Les envois sont declenches via `/api/admin/newsletter` avec `ADMIN_API_TOKEN`; les abonnes disposent d'un lien de desinscription individuel.
+La newsletter utilise SMTP deja configure cote Pages. Les envois sont declenches via `/api/admin/newsletter` ou le panneau `/admin.html` avec `ADMIN_API_TOKEN`; les abonnes disposent d'un lien de desinscription individuel. La reponse d'envoi expose des compteurs agreges, pas la liste des emails.
 
 Le panneau /admin.html peut aussi appeler /api/admin/integrations avec le meme token. Il signale les variables absentes par leur nom uniquement; les cles doivent rester dans GitHub Secrets ou Cloudflare Pages, jamais dans le depot.
 

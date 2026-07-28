@@ -860,6 +860,9 @@ function adminPage() {
       <!-- integrations-admin:start -->
       <section class="plain-panel admin-seo-panel admin-integrations-panel"><h2>Connecteurs API et automatisations</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-integrations">Verifier integrations</button><span class="admin-muted">Secrets masques, seuls les etats et noms de variables sont affiches.</span></div><div class="seo-admin-grid" id="integrations-summary"><p>Charge les derniers signaux IA, media, SERP, Google, newsletter et securite.</p></div><section class="admin-table-wrap" aria-label="Connecteurs API"><table class="admin-table admin-integrations-table"><thead><tr><th>Connecteur</th><th>Etat</th><th>Perimetre</th><th>Dernier signal</th><th>Action</th></tr></thead><tbody id="integrations-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
       <!-- integrations-admin:end -->
+      <!-- newsletter-admin:start -->
+      <section class="plain-panel admin-seo-panel admin-newsletter-panel"><h2>Pilotage newsletter</h2><div class="admin-toolbar admin-newsletter-actions"><button class="submit-button" type="button" id="load-newsletter">Charger newsletter</button><button class="button secondary" type="button" id="send-newsletter">Envoyer dernier numero</button></div><div class="seo-admin-grid" id="newsletter-summary"><p>Charge les abonnes, numeros, envois et signaux de veille.</p></div><section class="admin-table-wrap" aria-label="Newsletter et veille"><table class="admin-table admin-newsletter-table"><thead><tr><th>Type</th><th>Statut</th><th>Titre</th><th>Date</th><th>Action</th></tr></thead><tbody id="newsletter-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
+      <!-- newsletter-admin:end -->
     </main>
     <script src="${ADMIN_JS_URL}" type="module"></script>
   </body>
