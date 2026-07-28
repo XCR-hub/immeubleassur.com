@@ -2427,3 +2427,10 @@ textarea:focus {
 .admin-newsletter-table {
   min-width: 1080px;
 }
+.admin-content-panel {
+  margin-top: 1.5rem;
+}
+
+.admin-content-table {
+  min-width: 1120px;
+}

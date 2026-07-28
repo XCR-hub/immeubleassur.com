@@ -12,6 +12,9 @@ const newsletterButton = document.querySelector("#load-newsletter");
 const newsletterSendButton = document.querySelector("#send-newsletter");
 const newsletterSummary = document.querySelector("#newsletter-summary");
 const newsletterBody = document.querySelector("#newsletter-body");
+const contentButton = document.querySelector("#load-content");
+const contentSummary = document.querySelector("#content-summary");
+const contentBody = document.querySelector("#content-body");
 const leadSummary = document.querySelector("#lead-summary");
 const leadSearch = document.querySelector("#lead-search");
 const priorityFilter = document.querySelector("#lead-priority-filter");
@@ -777,6 +780,94 @@ async function sendNewsletter() {
     }
   }
 }
+function contentCount(rows = [], status = "") {
+  return rows
+    .filter((row) => !status || row.status === status)
+    .reduce((sum, row) => sum + Number(row.count || 0), 0);
+}
+
+function contentActionRows(result = {}) {
+  const actions = Array.isArray(result.content_actions) ? result.content_actions : [];
+  if (actions.length) {
+    return actions.map((item) => ({
+      type: item.type || "action-contenu",
+      score: item.score ?? item.priority ?? "",
+      target: item.target || "",
+      signal: item.signal || "",
+      action: item.recommendation || "Renforcer le contenu et le passage vers devis."
+    }));
+  }
+
+  const freshPages = Array.isArray(result.fresh_pages) ? result.fresh_pages : [];
+  return freshPages.slice(0, 24).map((page) => ({
+    type: `publie-${page.category || "contenu"}`,
+    score: page.quality_score || "",
+    target: page.slug || "",
+    signal: page.updated_at ? `mis a jour ${reportDate(page.updated_at)}` : page.status || "publie",
+    action: `Surveiller impressions, CTR et demandes de devis sur ${page.title || page.slug}.`
+  }));
+}
+
+function renderContentTable(rows = []) {
+  if (!contentBody) return;
+  contentBody.replaceChildren();
+  if (!rows.length) {
+    const tr = document.createElement("tr");
+    const td = cell("Aucune action contenu chargee.");
+    td.colSpan = 5;
+    tr.append(td);
+    contentBody.append(tr);
+    return;
+  }
+
+  for (const row of rows.slice(0, 50)) {
+    const tr = document.createElement("tr");
+    tr.append(
+      cell(row.type),
+      cell(String(row.score ?? "")),
+      cell(row.target),
+      cell(row.signal),
+      cell(row.action)
+    );
+    contentBody.append(tr);
+  }
+}
+
+async function loadContent() {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
+  if (!token) {
+    if (contentSummary) contentSummary.replaceChildren(metricCard("Token requis", "Admin", "charger le pipeline contenu"));
+    return;
+  }
+  if (contentSummary) contentSummary.replaceChildren(metricCard("Chargement", "Contenu", "lecture D1"));
+
+  const response = await fetch("/api/admin/content", { headers: { Authorization: `Bearer ${token}` } });
+  const result = await response.json();
+  if (!response.ok || !result.success) throw new Error(result.error || "Chargement contenu impossible");
+
+  const summary = result.summary || {};
+  const pipelineStats = Array.isArray(result.pipeline_stats) ? result.pipeline_stats : [];
+  const lowQualityPages = Array.isArray(result.low_quality_pages) ? result.low_quality_pages : [];
+  const opportunities = Array.isArray(result.top_opportunities) ? result.top_opportunities : [];
+  const watchItems = Array.isArray(result.watch_items) ? result.watch_items : [];
+  const warnings = Array.isArray(result.warnings) ? result.warnings : [];
+
+  if (contentSummary) {
+    contentSummary.replaceChildren(
+      metricCard("Pages pipeline", String(summary.pipeline_pages || contentCount(pipelineStats)), `${contentCount(pipelineStats, "published")} publiee(s)`),
+      metricCard("Qualite moyenne", `${summary.average_quality || 0}/100`, `${summary.low_quality_pages ?? lowQualityPages.length} page(s) sous 80`),
+      metricCard("Opportunites SEO", String(summary.open_opportunities ?? opportunities.length), "ouvertes dans D1"),
+      metricCard("Veille editoriale", String(summary.watch_items ?? watchItems.length), "signaux classes"),
+      metricCard("Dernier run SEO", result.latest_seo_run ? reportDate(result.latest_seo_run.created_at) : "Aucun", result.latest_seo_run?.status || "import D1"),
+      metricCard("Dernier run IA", result.latest_ai_run ? reportDate(result.latest_ai_run.created_at) : "Aucun", result.latest_ai_run?.provider || "generation"),
+      metricCard("Positions", result.latest_search_run ? `${result.latest_search_run.first_page_count || 0} top 10` : "Aucun", result.latest_search_run?.status || "SerpApi/Search"),
+      metricCard("Media", result.latest_media_run ? `${result.latest_media_run.assets_count || 0} asset(s)` : "Aucun", result.latest_media_run?.provider || "visuels"),
+      metricCard("Actions", String((result.content_actions || []).length), warnings.length ? `${warnings.length} alerte(s)` : "priorisees")
+    );
+  }
+  renderContentTable(contentActionRows(result));
+}
 function priorityCount(priorities = [], key) {
   const row = priorities.find((item) => item.priority === key);
   return Number(row?.count || 0);
@@ -875,6 +966,7 @@ form?.addEventListener("submit", async (event) => {
     loadSeo().catch(() => {});
     loadIntegrations().catch(() => {});
     loadNewsletter().catch(() => {});
+    loadContent().catch(() => {});
   } catch (error) {
     setStatus(error.message || "Erreur de chargement", "error");
   }
@@ -923,6 +1015,11 @@ newsletterButton?.addEventListener("click", () => {
   });
 });
 
+contentButton?.addEventListener("click", () => {
+  loadContent().catch((error) => {
+    if (contentSummary) contentSummary.replaceChildren(metricCard("Erreur", "Contenu", error.message || "chargement impossible"));
+  });
+});
 newsletterSendButton?.addEventListener("click", () => {
   sendNewsletter();
 });

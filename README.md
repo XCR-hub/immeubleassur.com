@@ -20,6 +20,7 @@ Site courtier specialise assurance immeuble, copropriete, PNO, SCI et syndic.
 - Autopilote media `scripts/media-autopilot.js`: selection de visuels Pexels avec attribution, rapports JSON/D1 et injection responsive quand `PEXELS_API_KEY` est configuree.
 - Intelligence SERP `scripts/search-intelligence.js`: suivi des positions via SerpApi, concurrents visibles, recommandations par requete et export D1, sans scraping direct des pages Google.
 - Observabilite integrations: endpoint admin /api/admin/integrations et panneau admin pour verifier IA, Pexels, SerpApi, Google, SMTP, Turnstile et D1 sans exposer les valeurs de secrets.
+- Pipeline contenu admin: endpoint `/api/admin/content` et panneau admin pour suivre pages faibles, opportunites SEO, derniers runs IA/SEO/SerpApi/media et veille editoriale.
 - Autopilote `scripts/seo-autopilot.js`: audit HTML, opportunites, PageSpeed Insights, Search Console si secrets Google configures, boucle Google feedback.
 - Boucle Google APIs: Search Analytics pour requetes/CTR/position moyenne, URL Inspection pour etat d indexation des pages prioritaires et Sitemaps API pour signaler `sitemap.xml`.
 - Audit editorial `scripts/content-quality-check.js`: garde-fous people-first, anti-duplication, anti-bourrage et anti-contenu manipulatif.
@@ -107,6 +108,8 @@ Le workflow `.github/workflows/seo-autopilot.yml` lance l'audit chaque nuit. Le 
 La newsletter utilise SMTP deja configure cote Pages. Les envois sont declenches via `/api/admin/newsletter` ou le panneau `/admin.html` avec `ADMIN_API_TOKEN`; les abonnes disposent d'un lien de desinscription individuel. La reponse d'envoi expose des compteurs agreges, pas la liste des emails.
 
 Le panneau /admin.html peut aussi appeler /api/admin/integrations avec le meme token. Il signale les variables absentes par leur nom uniquement; les cles doivent rester dans GitHub Secrets ou Cloudflare Pages, jamais dans le depot.
+
+Le panneau /admin.html appelle aussi `/api/admin/content` pour prioriser les contenus a renforcer a partir de D1: qualite, opportunites, veille et derniers runs techniques.
 
 ## Politique contenu IA
 

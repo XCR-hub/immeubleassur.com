@@ -863,6 +863,9 @@ function adminPage() {
       <!-- newsletter-admin:start -->
       <section class="plain-panel admin-seo-panel admin-newsletter-panel"><h2>Pilotage newsletter</h2><div class="admin-toolbar admin-newsletter-actions"><button class="submit-button" type="button" id="load-newsletter">Charger newsletter</button><button class="button secondary" type="button" id="send-newsletter">Envoyer dernier numero</button></div><div class="seo-admin-grid" id="newsletter-summary"><p>Charge les abonnes, numeros, envois et signaux de veille.</p></div><section class="admin-table-wrap" aria-label="Newsletter et veille"><table class="admin-table admin-newsletter-table"><thead><tr><th>Type</th><th>Statut</th><th>Titre</th><th>Date</th><th>Action</th></tr></thead><tbody id="newsletter-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
       <!-- newsletter-admin:end -->
+      <!-- content-admin:start -->
+      <section class="plain-panel admin-seo-panel admin-content-panel"><h2>Pipeline contenu SEO</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-content">Charger contenu</button><a class="button secondary" href="/recherches-assurance-immeuble.html">Voir hub recherches</a></div><div class="seo-admin-grid" id="content-summary"><p>Charge articles, FAQ, villes, opportunites et veille editoriale.</p></div><section class="admin-table-wrap" aria-label="Pipeline contenu"><table class="admin-table admin-content-table"><thead><tr><th>Type</th><th>Score</th><th>Page</th><th>Signal</th><th>Action</th></tr></thead><tbody id="content-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
+      <!-- content-admin:end -->
     </main>
     <script src="${ADMIN_JS_URL}" type="module"></script>
   </body>
