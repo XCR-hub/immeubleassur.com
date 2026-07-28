@@ -159,8 +159,39 @@ function mailConfig() {
   };
 }
 
-async function maybeAlert(report) {
+function alertStatePath(reportPath) {
+  return resolve(env("LOCAL_MONITOR_ALERT_STATE", join(dirname(reportPath), "alert-state.json")));
+}
+
+function alertSignature(report) {
+  return report.checks.filter((item) => !item.ok).map((item) => item.name).sort().join("+") || "ok";
+}
+
+function recentlyAlerted(statePath, signature, cooldownMinutes) {
+  if (!existsSync(statePath)) return false;
+  try {
+    const state = JSON.parse(readFileSync(statePath, "utf8"));
+    const lastAt = new Date(state.last_alert_at).getTime();
+    return state.signature === signature && lastAt && Date.now() - lastAt < cooldownMinutes * 60000;
+  } catch {
+    return false;
+  }
+}
+
+function writeAlertState(statePath, signature) {
+  mkdirSync(dirname(statePath), { recursive: true });
+  writeFileSync(statePath, `${JSON.stringify({ last_alert_at: new Date().toISOString(), signature }, null, 2)}\n`, "utf8");
+}
+
+async function maybeAlert(report, reportPath) {
   if (env("LOCAL_MONITOR_ALERTS", "0") !== "1" || report.success) return { attempted: false, status: "skipped" };
+  const signature = alertSignature(report);
+  const statePath = alertStatePath(reportPath);
+  const cooldownMinutes = numberEnv("LOCAL_MONITOR_ALERT_COOLDOWN_MINUTES", 60);
+  if (recentlyAlerted(statePath, signature, cooldownMinutes)) {
+    return { attempted: false, status: "cooldown", cooldown_minutes: cooldownMinutes };
+  }
+
   const config = mailConfig();
   if (!config.host || !config.username || !config.password || !config.from || !config.to.length) {
     return { attempted: false, status: "missing-smtp-config" };
@@ -185,7 +216,8 @@ async function maybeAlert(report) {
     text
   ].join("\r\n");
   const receipt = await sendNodeSmtpMail(config, message);
-  return { attempted: true, status: "sent", receipt };
+  writeAlertState(statePath, signature);
+  return { attempted: true, status: "sent", receipt, cooldown_minutes: cooldownMinutes };
 }
 
 async function run() {
@@ -215,7 +247,7 @@ async function run() {
       warnings: checks.filter((item) => !item.ok && item.severity === "warn").length
     }
   };
-  report.alert = await maybeAlert(report).catch((error) => ({ attempted: true, status: "failed", error: error.message || "alert failed" }));
+  report.alert = await maybeAlert(report, out).catch((error) => ({ attempted: true, status: "failed", error: error.message || "alert failed" }));
 
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
