@@ -739,10 +739,11 @@ async function loadIntegrations() {
   if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
   if (integrationsSummary) integrationsSummary.replaceChildren(metricCard("Chargement", "API", "lecture des integrations"));
 
-  const [editorialReport, mediaReport, searchReport, seoReport, antifraudReport, turnstileReport] = await Promise.all([
+  const [editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport] = await Promise.all([
     fetchOptionalAsset("/assets/editorial-autopilot-latest.json"),
     fetchOptionalAsset("/assets/media-autopilot-latest.json"),
     fetchOptionalAsset("/assets/search-intelligence-latest.json"),
+    fetchOptionalAsset("/assets/search-gap-booster-latest.json"),
     fetchOptionalAsset("/assets/seo-autopilot-latest.json"),
     fetchOptionalAsset("/assets/local-antifraud-latest.json"),
     fetchOptionalAsset("/assets/turnstile-hybrid-latest.json")
@@ -765,7 +766,7 @@ async function loadIntegrations() {
 
   const connectors = apiResult?.connectors || [];
   const reports = apiResult?.reports || {};
-  const publicReports = { editorialReport, mediaReport, searchReport, seoReport, antifraudReport, turnstileReport };
+  const publicReports = { editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport };
   const googleHealth = seoReport.google_api_health || {};
   const spamBlocks = Number(reports.lead_spam_blocks_30d || 0) + Number(reports.newsletter_spam_blocks_30d || 0);
 
@@ -776,6 +777,7 @@ async function loadIntegrations() {
       metricCard("Veille", editorialReport.mode || "-", `${editorialReport.watch_items || 0} signal(s), qualite ${editorialReport.quality_score || 0}`),
       metricCard("Pexels", mediaReport.pexels_enabled ? "Actif" : "Fallback", `${mediaReport.assets_count || 0} asset(s)`),
       metricCard("SerpApi", searchReport.serp_enabled ? "Actif" : "Fallback", `${searchReport.top3_count || 0} top 3 / ${searchReport.missing_count || 0} manquant(s)`),
+      metricCard("Gaps SEO", String(searchGapReport.pages_boosted || 0), `${searchGapReport.candidates || 0} requete(s) renforcee(s)`),
       metricCard("Search Console", String(googleHealth.search_console_rows || 0), `${googleHealth.query_clusters || 0} cluster(s)`),
       metricCard("PageSpeed", String(googleHealth.pagespeed_checked || 0), `${googleHealth.pagespeed_slow_pages || 0} lente(s)`),
       metricCard("Newsletter", String(subscriberCount(reports.newsletter_subscribers, "active")), reports.latest_newsletter_issue?.status || "rapport public"),
@@ -802,7 +804,8 @@ async function loadIntegrations() {
       { label: "Admin API", status: "Token requis", scope: "Audit des secrets runtime protege.", signal: "Entrez le token admin.", action: "Charger avec ADMIN_API_TOKEN pour verifier les connecteurs." },
       { label: "Veille IA", status: editorialReport.ai_status || "rapport public", scope: "Dernier build editorial.", signal: `${editorialReport.ai_provider || "-"} - ${reportDate(editorialReport.generated_at)}`, action: "Configurer les secrets IA dans GitHub Actions pour activer un provider." },
       { label: "Pexels", status: mediaReport.status || "rapport public", scope: "Dernier build media.", signal: `${mediaReport.assets_count || 0} asset(s)`, action: "Configurer PEXELS_API_KEY pour injecter des visuels attribues." },
-      { label: "SerpApi", status: searchReport.status || "rapport public", scope: "Dernier suivi positions.", signal: `${searchReport.keywords_checked || 0} requete(s)`, action: "Configurer SERP_API_KEY pour remplacer l'estimation locale." }
+      { label: "SerpApi", status: searchReport.status || "rapport public", scope: "Dernier suivi positions.", signal: `${searchReport.keywords_checked || 0} requete(s)`, action: "Configurer SERP_API_KEY pour remplacer l'estimation locale." },
+      { label: "Gaps recherche", status: searchGapReport.pages_boosted ? "Renforce" : "A surveiller", scope: "Pages hors top 3 estime enrichies automatiquement.", signal: `${searchGapReport.pages_boosted || 0}/${searchGapReport.candidates || 0} page(s)`, action: "Regenerer apres chaque suivi SERP pour renforcer les requetes business absentes ou hors top 3." }
     ];
   if (runtimeHealth?.monitor?.available) {
     rows.unshift({

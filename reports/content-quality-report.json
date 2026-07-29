@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T00:22:32.639Z",
+  "generated_at": "2026-07-29T00:43:12.836Z",
   "pages_checked": 175,
   "status": "passed",
   "severe_issue_count": 0,
@@ -192,6 +192,62 @@
         "assurance-immeuble-orleans"
       ],
       "count": 64
+    },
+    {
+      "fingerprint": "ce renforcement transforme le signal de classement en contenu utile intention preuves de specialisation questions de decision et passage direct vers un dossier de devis exploitable",
+      "pages": [
+        "assurance-coproprietaire-non-occupant",
+        "assurance-copropriete",
+        "assurance-immeuble-syndic-benevole",
+        "assurance-pno-cno",
+        "assurance-sci",
+        "courtier-assurance-immeuble",
+        "multirisque-immeuble",
+        "prix-assurance-immeuble"
+      ],
+      "count": 8
+    },
+    {
+      "fingerprint": "parce que la recherche exprime un besoin proche du devis comprendre le risque preparer les pieces et choisir les garanties avant consultation assureur",
+      "pages": [
+        "assurance-coproprietaire-non-occupant",
+        "assurance-copropriete",
+        "assurance-immeuble-syndic-benevole",
+        "assurance-pno-cno",
+        "assurance-sci",
+        "courtier-assurance-immeuble",
+        "multirisque-immeuble",
+        "prix-assurance-immeuble"
+      ],
+      "count": 8
+    },
+    {
+      "fingerprint": "un formulaire contextualise des documents attendus explicites et une lecture claire des responsabilites entre immeuble lot occupant et proprietaire",
+      "pages": [
+        "assurance-coproprietaire-non-occupant",
+        "assurance-copropriete",
+        "assurance-immeuble-syndic-benevole",
+        "assurance-pno-cno",
+        "assurance-sci",
+        "courtier-assurance-immeuble",
+        "multirisque-immeuble",
+        "prix-assurance-immeuble"
+      ],
+      "count": 8
+    },
+    {
+      "fingerprint": "le bloc ajoute des decisions concretes et des liens utiles il n ajoute ni texte cache ni duplication massive ni contenu copie depuis les resultats de recherche",
+      "pages": [
+        "assurance-coproprietaire-non-occupant",
+        "assurance-copropriete",
+        "assurance-immeuble-syndic-benevole",
+        "assurance-pno-cno",
+        "assurance-sci",
+        "courtier-assurance-immeuble",
+        "multirisque-immeuble",
+        "prix-assurance-immeuble"
+      ],
+      "count": 8
     },
     {
       "fingerprint": "parce qu un immeuble doit etre presente selon son usage son entretien et ses sinistres une fiche risque locale evite les approximations et facilite la comparaison",
@@ -587,34 +643,6 @@
     },
     {
       "fingerprint": "les pieces les plus utiles sont le contrat actuel le dernier appel de prime les sinistres sur 36 mois le nombre de lots la surface et les travaux prevus",
-      "pages": [
-        "faq/assurance-immeuble",
-        "faq/copropriete",
-        "faq/local-commercial",
-        "faq/pno",
-        "faq/prix",
-        "faq/sci",
-        "faq/sinistres",
-        "faq/travaux"
-      ],
-      "count": 8
-    },
-    {
-      "fingerprint": "quand le dossier est incomplet l assureur peut refuser surprimer ou exclure certains points une fiche risque structuree reduit ce risque",
-      "pages": [
-        "faq/assurance-immeuble",
-        "faq/copropriete",
-        "faq/local-commercial",
-        "faq/pno",
-        "faq/prix",
-        "faq/sci",
-        "faq/sinistres",
-        "faq/travaux"
-      ],
-      "count": 8
-    },
-    {
-      "fingerprint": "pour une copropriete ou une sci il faut aussi distinguer le contrat immeuble les pno les assurances occupants et les responsabilites du syndic ou du gerant",
       "pages": [
         "faq/assurance-immeuble",
         "faq/copropriete",

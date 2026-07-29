@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T00:22:15.732Z",
+  "generated_at": "2026-07-29T00:40:59.571Z",
   "pages_checked": 174,
   "average_score": 100,
   "opportunities_count": 0,
@@ -7,7 +7,7 @@
   "top_opportunities": [],
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-29T00:22:10.624Z",
+    "generated_at": "2026-07-29T00:40:53.589Z",
     "pages_checked": 174,
     "pages_changed": 124,
     "fixes_applied": 176,
@@ -139,7 +139,7 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-29T00:22:11.726Z",
+    "generated_at": "2026-07-29T00:40:54.468Z",
     "pages_checked": 175,
     "pages_expanded": 81,
     "words_added_estimate": 13947,
@@ -254,7 +254,7 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-07-29T00:22:14.278Z",
+    "generated_at": "2026-07-29T00:40:57.649Z",
     "pages_checked": 175,
     "status": "passed",
     "severe_issue_count": 0,
@@ -271,7 +271,7 @@
   },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-07-29T00:22:14.673Z",
+    "generated_at": "2026-07-29T00:40:58.188Z",
     "pages_checked": 171,
     "money_pages_checked": 114,
     "average_conversion_score": 75,
@@ -408,6 +408,12 @@
         "score": 91
       },
       {
+        "slug": "assurance-immeuble-syndic-benevole",
+        "url": "https://immeubleassur.com/assurance-immeuble-syndic-benevole",
+        "cluster": "pno-cno",
+        "score": 91
+      },
+      {
         "slug": "assurance-immeuble-aix-en-provence",
         "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence",
         "cluster": "pno-cno",
@@ -458,12 +464,6 @@
       {
         "slug": "assurance-immeuble-dijon",
         "url": "https://immeubleassur.com/assurance-immeuble-dijon",
-        "cluster": "pno-cno",
-        "score": 84
-      },
-      {
-        "slug": "assurance-immeuble-grenoble",
-        "url": "https://immeubleassur.com/assurance-immeuble-grenoble",
         "cluster": "pno-cno",
         "score": 84
       }
@@ -1201,7 +1201,7 @@
   },
   "cro_experiment": {
     "configured": true,
-    "generated_at": "2026-07-29T00:22:14.894Z",
+    "generated_at": "2026-07-29T00:40:58.401Z",
     "status": "passed",
     "variant_count": 3,
     "variants": [

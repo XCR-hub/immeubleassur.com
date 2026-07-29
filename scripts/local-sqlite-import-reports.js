@@ -8,6 +8,7 @@ loadDefaultEnvFiles();
 const reportFiles = [
   "reports/seo-autopilot-report.json",
   "reports/search-intelligence-report.json",
+  "reports/search-gap-booster-report.json",
   "reports/editorial-autopilot-report.json",
   "reports/media-autopilot-report.json",
   "reports/conversion-intelligence-report.json",

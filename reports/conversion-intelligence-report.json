@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T00:22:33.476Z",
+  "generated_at": "2026-07-29T00:43:13.426Z",
   "pages_checked": 171,
   "money_pages_checked": 114,
   "average_conversion_score": 75,
@@ -136,6 +136,12 @@
       "score": 91
     },
     {
+      "slug": "assurance-immeuble-syndic-benevole",
+      "url": "https://immeubleassur.com/assurance-immeuble-syndic-benevole",
+      "cluster": "pno-cno",
+      "score": 91
+    },
+    {
       "slug": "assurance-immeuble-aix-en-provence",
       "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence",
       "cluster": "pno-cno",
@@ -186,12 +192,6 @@
     {
       "slug": "assurance-immeuble-dijon",
       "url": "https://immeubleassur.com/assurance-immeuble-dijon",
-      "cluster": "pno-cno",
-      "score": 84
-    },
-    {
-      "slug": "assurance-immeuble-grenoble",
-      "url": "https://immeubleassur.com/assurance-immeuble-grenoble",
       "cluster": "pno-cno",
       "score": 84
     }
