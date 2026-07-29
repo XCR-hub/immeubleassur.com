@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-28T23:59:46.054Z",
-  "pages_checked": 174,
-  "pages_expanded": 80,
-  "words_added_estimate": 13771,
+  "generated_at": "2026-07-29T00:22:11.726Z",
+  "pages_checked": 175,
+  "pages_expanded": 81,
+  "words_added_estimate": 13947,
   "safeguards": [
     "idempotent-markers",
     "legal-pages-skipped",
@@ -583,6 +583,14 @@
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
       "before_words": 545,
       "after_words": 721,
+      "expanded": true,
+      "changed": false
+    },
+    {
+      "slug": "news/veille-assurance-immeuble-2026-07-29",
+      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-29",
+      "before_words": 558,
+      "after_words": 734,
       "expanded": true,
       "changed": true
     },

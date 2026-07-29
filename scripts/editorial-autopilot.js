@@ -236,7 +236,10 @@ function buildIssue(items, synthesis) {
   const slug = `news/veille-assurance-immeuble-${day}`;
   const topTopic = items[0]?.topic || "assurance immeuble";
   const title = `Veille assurance immeuble: ${topTopic}, contrats et devis`;
-  const summary = "Resume actionnable des signaux publics utiles aux syndics, bailleurs, SCI et coproprietaires non occupants.";
+  const sourceNames = [...new Set(items.map((item) => item.source_name).filter(Boolean))]
+    .slice(0, 2)
+    .join(" et ");
+  const summary = `Veille assurance immeuble du ${day}: signaux ${topTopic}, points contrats et actions devis pour syndics, bailleurs, SCI et PNO/CNO${sourceNames ? `, avec sources ${sourceNames}` : ""}.`;
   const takeaways = [
     "Verifier les contrats avant echeance reste prioritaire.",
     "Relier chaque actualite a une piece de dossier ou une clause a relire.",

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-28T23:59:49.036Z",
+  "generated_at": "2026-07-29T00:22:15.732Z",
   "mode": "local-only",
-  "pages_checked": 173,
+  "pages_checked": 174,
   "average_score": 100,
   "weak_pages": [],
   "opportunities": [],
@@ -14,8 +14,8 @@
   },
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-28T23:59:45.658Z",
-    "pages_checked": 173,
+    "generated_at": "2026-07-29T00:22:10.624Z",
+    "pages_checked": 174,
     "pages_changed": 124,
     "fixes_applied": 176,
     "safeguards": [
@@ -146,10 +146,10 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-28T23:59:46.054Z",
-    "pages_checked": 174,
-    "pages_expanded": 80,
-    "words_added_estimate": 13771,
+    "generated_at": "2026-07-29T00:22:11.726Z",
+    "pages_checked": 175,
+    "pages_expanded": 81,
+    "words_added_estimate": 13947,
     "safeguards": [
       "idempotent-markers",
       "legal-pages-skipped",
@@ -261,8 +261,8 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-07-28T23:59:47.818Z",
-    "pages_checked": 174,
+    "generated_at": "2026-07-29T00:22:14.278Z",
+    "pages_checked": 175,
     "status": "passed",
     "severe_issue_count": 0,
     "warning_count": 0,
@@ -278,15 +278,15 @@
   },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-07-28T23:59:48.169Z",
-    "pages_checked": 170,
+    "generated_at": "2026-07-29T00:22:14.673Z",
+    "pages_checked": 171,
     "money_pages_checked": 114,
     "average_conversion_score": 75,
     "average_money_score": 82,
     "cluster_coverage": [
       {
         "cluster": "pno-cno",
-        "pages": 170,
+        "pages": 171,
         "money_pages": 114,
         "average_score": 75,
         "top_pages": [
@@ -1208,7 +1208,7 @@
   },
   "cro_experiment": {
     "configured": true,
-    "generated_at": "2026-07-28T23:59:48.336Z",
+    "generated_at": "2026-07-29T00:22:14.894Z",
     "status": "passed",
     "variant_count": 3,
     "variants": [
@@ -1230,7 +1230,7 @@
     "action_count": 1000,
     "verified_count": 1000,
     "watch_count": 0,
-    "pages_checked": 173,
+    "pages_checked": 174,
     "top_dimensions": [
       {
         "dimension": "validation-friction",

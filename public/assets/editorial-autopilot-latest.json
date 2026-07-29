@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-28T23:59:44.247Z",
+  "generated_at": "2026-07-29T00:22:07.790Z",
   "mode": "local-fallback",
   "fetch_enabled": false,
   "ai_enabled": false,
@@ -10,10 +10,10 @@
   "source_count": 5,
   "watch_items": 3,
   "issue": {
-    "id": "issue-8ddcceb57b67",
-    "slug": "news/veille-assurance-immeuble-2026-07-28",
+    "id": "issue-51d0fa154a79",
+    "slug": "news/veille-assurance-immeuble-2026-07-29",
     "title": "Veille assurance immeuble: copropriete, contrats et devis",
-    "html_url": "/news/veille-assurance-immeuble-2026-07-28"
+    "html_url": "/news/veille-assurance-immeuble-2026-07-29"
   },
   "automation_plan": {
     "blog_briefs": [

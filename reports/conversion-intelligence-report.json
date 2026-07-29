@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-07-29T00:00:21.953Z",
-  "pages_checked": 170,
+  "generated_at": "2026-07-29T00:22:33.476Z",
+  "pages_checked": 171,
   "money_pages_checked": 114,
   "average_conversion_score": 75,
   "average_money_score": 82,
   "cluster_coverage": [
     {
       "cluster": "pno-cno",
-      "pages": 170,
+      "pages": 171,
       "money_pages": 114,
       "average_score": 75,
       "top_pages": [

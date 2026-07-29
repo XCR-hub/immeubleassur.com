@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-28T23:59:45.658Z",
-  "pages_checked": 173,
+  "generated_at": "2026-07-29T00:22:10.624Z",
+  "pages_checked": 174,
   "pages_changed": 124,
   "fixes_applied": 176,
   "safeguards": [
@@ -1191,14 +1191,14 @@
       "changed": true
     },
     {
-      "slug": "news/veille-assurance-immeuble-2026-07-28",
-      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
+      "slug": "news/veille-assurance-immeuble-2026-07-29",
+      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-29",
       "fixes": [
         "title-normalized",
         "description-normalized"
       ],
-      "title": "Veille Assurance Immeuble 2026 07 28 | ImmeubleAssur",
-      "description": "Resume actionnable des signaux publics utiles aux syndics, bailleurs, SCI et coproprietaires non occupants. Analyse des garanties, franchises, sinistres.",
+      "title": "Veille Assurance Immeuble 2026 07 29 | ImmeubleAssur",
+      "description": "Veille assurance immeuble du 2026-07-29: signaux copropriete, points contrats et actions devis pour syndics, bailleurs, SCI et PNO/CNO, avec sources.",
       "changed": true
     },
     {

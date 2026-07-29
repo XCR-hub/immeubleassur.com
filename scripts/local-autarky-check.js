@@ -36,6 +36,8 @@ const required = [
   ["dns/README.md", "IP publique est fixe"],
   ["functions/api/leads.js", "localChallengeStatus"],
   ["functions/api/leads.js", "verifyTurnstile"],
+  ["functions/api/newsletter.js", "localNewsletterChallengeStatus"],
+  ["functions/api/newsletter.js", "assessNewsletterSpam"],
   ["functions/api/admin/runtime-health.js", "sanitizeMonitorReport"],
   ["functions/api/admin/runtime-health.js", "LOCAL_PRODUCTION_MONITOR_REPORT"],
   ["functions/api/admin/runtime-health.js", "sanitizeLeadSlaReport"],

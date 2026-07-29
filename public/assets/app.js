@@ -1216,7 +1216,9 @@ function readNewsletterForm(formElement) {
     path: window.location.pathname,
     referrer: document.referrer || "",
     session_id: sessionId,
-    ga_client_id: gaClientId()
+    ga_client_id: gaClientId(),
+    page_title: document.title,
+    anti_bot: botSignalPayload()
   };
 }
 

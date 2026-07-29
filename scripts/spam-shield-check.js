@@ -9,6 +9,7 @@ const expectations = [
   { file: "functions/api/admin/spam.js", snippets: ["lead_spam_blocked", "newsletter_spam_blocked", "maskIp", "repeat_sources", "privacy", "top_reasons"] },
   { file: "public/assets/admin.js", snippets: ["Spam bloques", "spam-bloque", "robots filtres", "loadSpam", "/api/admin/spam", "Sources masquees", "Anti-fraude local", "Turnstile"] },
   { file: "functions/api/events.js", snippets: ["lead_spam_blocked", "ia_lead_spam_blocked", "challenge"] },
+  { file: "functions/api/newsletter.js", snippets: ["localNewsletterChallengeStatus", "assessNewsletterSpam", "loadNewsletterSpamHistory", "newsletter_spam_blocked", "spam_score", "email-jetable", "volume-ip-newsletter", "blockNewsletterSpam"] },
   { file: "scripts/local-antifraud-pass.js", snippets: ["local-antifraud", "local-antifraud-report.json", "local-antifraud-latest.json", "legacy_widgets_removed"] },
   { file: "scripts/turnstile-hybrid-pass.js", snippets: ["cloudflare-turnstile", "turnstile-hybrid-report.json", "turnstile-hybrid-latest.json", "fallback-local-antifraud"] },
   { file: "package.json", snippets: ["turnstile:hybrid", "turnstile-hybrid-pass.js"] },
