@@ -4,6 +4,10 @@ import { join } from "node:path";
 const REPORT_DIR = "reports";
 const expectations = [
   {
+    file: "scripts/live-api-readiness-check.js",
+    snippets: ["loadDefaultEnvFiles", "live-api-readiness-report.json", "no-secret-values-exported", "TURNSTILE_SITE_KEY", "SERP_API_KEY"]
+  },
+  {
     file: "scripts/search-intelligence.js",
     snippets: ["loadDefaultEnvFiles", "SERP_API_KEY", "--serp"]
   },
@@ -38,7 +42,7 @@ const expectations = [
   },
   {
     file: "package.json",
-    snippets: ["--url-inspection", "--submit-sitemap", "google:apis", "seo:live", "search:live", "media:live", "editorial:live", "google-api-contract-check.js"]
+    snippets: ["--url-inspection", "--submit-sitemap", "google:apis", "seo:live", "search:live", "media:live", "editorial:live", "live:api:readiness", "live-api-readiness-check.js", "google-api-contract-check.js"]
   },
   {
     file: ".github/workflows/seo-autopilot.yml",

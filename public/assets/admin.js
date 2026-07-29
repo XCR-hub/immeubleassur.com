@@ -647,6 +647,21 @@ function countConfigured(connectors = [], family = "") {
 function countFamily(connectors = [], family = "") {
   return connectors.filter((item) => !family || item.family === family).length;
 }
+function readinessConnectorId(connector) {
+  if (!connector) return "";
+  if (connector.family === "ia") return "editorial-ai";
+  return connector.id || "";
+}
+
+function readinessFor(readinessReport = {}, connector = {}) {
+  const id = readinessConnectorId(connector);
+  return (readinessReport.rows || []).find((item) => item.id === id) || null;
+}
+
+function readinessLabel(row) {
+  if (!row) return "-";
+  return row.ready ? "Live pret" : "Fallback";
+}
 
 function eventCount(rows = [], eventType) {
   const row = rows.find((item) => item.event_type === eventType);
@@ -659,7 +674,7 @@ function subscriberCount(rows = [], status) {
 }
 
 function connectorSignal(connector, reports, publicReports) {
-  const { editorialReport, mediaReport, searchReport, seoReport, antifraudReport, turnstileReport } = publicReports;
+  const { editorialReport, mediaReport, searchReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport } = publicReports;
   const googleHealth = seoReport.google_api_health || {};
   if (connector.family === "ia") {
     const latest = reports.latest_ai_run;
@@ -701,6 +716,8 @@ function connectorSignal(connector, reports, publicReports) {
     return `${turnstileReport.configured ? "actif" : "fallback local"} / ${turnstileReport.forms_instrumented || 0}/${turnstileReport.forms_detected || 0} formulaire(s)`;
   }
   if (connector.id === "admin-api") return "Token admin valide pour cette session";
+  const readiness = readinessFor(liveReadinessReport, connector);
+  if (readiness) return `${readinessLabel(readiness)} / ${readiness.configured_required || 0}/${readiness.required_count || 0} prerequis / ${readiness.last_report?.status || "rapport"}`;
   return connector.configured ? "secret detecte" : "secret manquant";
 }
 
@@ -739,14 +756,15 @@ async function loadIntegrations() {
   if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
   if (integrationsSummary) integrationsSummary.replaceChildren(metricCard("Chargement", "API", "lecture des integrations"));
 
-  const [editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport] = await Promise.all([
+  const [editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport] = await Promise.all([
     fetchOptionalAsset("/assets/editorial-autopilot-latest.json"),
     fetchOptionalAsset("/assets/media-autopilot-latest.json"),
     fetchOptionalAsset("/assets/search-intelligence-latest.json"),
     fetchOptionalAsset("/assets/search-gap-booster-latest.json"),
     fetchOptionalAsset("/assets/seo-autopilot-latest.json"),
     fetchOptionalAsset("/assets/local-antifraud-latest.json"),
-    fetchOptionalAsset("/assets/turnstile-hybrid-latest.json")
+    fetchOptionalAsset("/assets/turnstile-hybrid-latest.json"),
+    fetchOptionalAsset("/assets/live-api-readiness-latest.json")
   ]);
 
   let apiResult = null;
@@ -766,13 +784,14 @@ async function loadIntegrations() {
 
   const connectors = apiResult?.connectors || [];
   const reports = apiResult?.reports || {};
-  const publicReports = { editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport };
+  const publicReports = { editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport };
   const googleHealth = seoReport.google_api_health || {};
   const spamBlocks = Number(reports.lead_spam_blocks_30d || 0) + Number(reports.newsletter_spam_blocks_30d || 0);
 
   if (integrationsSummary) {
     integrationsSummary.replaceChildren(
       metricCard("Connecteurs runtime", connectors.length ? `${countConfigured(connectors)}/${connectors.length}` : "Token requis", connectors.length ? "configuration locale verifiee" : "audit secrets protege"),
+      metricCard("Live APIs", liveReadinessReport.connectors_checked ? `${liveReadinessReport.ready_count || 0}/${liveReadinessReport.connectors_checked}` : "Rapport", liveReadinessReport.status || "readiness"),
       metricCard("IA configurees", connectors.length ? `${countConfigured(connectors, "ia")}/${countFamily(connectors, "ia")}` : "-", `${editorialReport.ai_provider || "deterministic"} / ${editorialReport.ai_status || "public"}`),
       metricCard("Veille", editorialReport.mode || "-", `${editorialReport.watch_items || 0} signal(s), qualite ${editorialReport.quality_score || 0}`),
       metricCard("Pexels", mediaReport.pexels_enabled ? "Actif" : "Fallback", `${mediaReport.assets_count || 0} asset(s)`),
@@ -795,13 +814,14 @@ async function loadIntegrations() {
   const rows = connectors.length
     ? connectors.map((connector) => ({
       label: connector.label,
-      status: connector.configured ? "Configure" : "A configurer",
+      status: readinessFor(liveReadinessReport, connector) ? readinessLabel(readinessFor(liveReadinessReport, connector)) : (connector.configured ? "Configure" : "A configurer"),
       scope: `${connector.scope}\nSecrets: ${connector.secret_names.join(", ")}`,
       signal: connectorSignal(connector, reports, publicReports),
-      action: connectorAction(connector)
+      action: readinessFor(liveReadinessReport, connector)?.recommendation || connectorAction(connector)
     }))
     : [
       { label: "Admin API", status: "Token requis", scope: "Audit des secrets runtime protege.", signal: "Entrez le token admin.", action: "Charger avec ADMIN_API_TOKEN pour verifier les connecteurs." },
+      { label: "Live API readiness", status: liveReadinessReport.status || "rapport public", scope: "Prerequis API live sans valeur secrete.", signal: liveReadinessReport.connectors_checked ? `${liveReadinessReport.ready_count || 0}/${liveReadinessReport.connectors_checked} connecteur(s) prets` : "rapport absent", action: "Configurer les variables manquantes dans .env.local ou sur le serveur puis lancer npm run seo:live." },
       { label: "Veille IA", status: editorialReport.ai_status || "rapport public", scope: "Dernier build editorial.", signal: `${editorialReport.ai_provider || "-"} - ${reportDate(editorialReport.generated_at)}`, action: "Configurer les secrets IA dans GitHub Actions pour activer un provider." },
       { label: "Pexels", status: mediaReport.status || "rapport public", scope: "Dernier build media.", signal: `${mediaReport.assets_count || 0} asset(s)`, action: "Configurer PEXELS_API_KEY pour injecter des visuels attribues." },
       { label: "SerpApi", status: searchReport.status || "rapport public", scope: "Dernier suivi positions.", signal: `${searchReport.keywords_checked || 0} requete(s)`, action: "Configurer SERP_API_KEY pour remplacer l'estimation locale." },

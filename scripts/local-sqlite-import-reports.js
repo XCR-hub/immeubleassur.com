@@ -14,7 +14,8 @@ const reportFiles = [
   "reports/conversion-intelligence-report.json",
   "reports/cro-experiment-report.json",
   "reports/lead-friction-report.json",
-  "reports/local-antifraud-report.json"
+  "reports/local-antifraud-report.json",
+  "reports/live-api-readiness-report.json"
 ];
 
 function readJsonReport(file) {

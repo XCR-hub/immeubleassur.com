@@ -1,6 +1,7 @@
 {
-  "generated_at": "2026-07-29T01:29:32.787Z",
+  "generated_at": "2026-07-29T02:05:25.289Z",
   "checked_files": [
+    "scripts/live-api-readiness-check.js",
     "scripts/search-intelligence.js",
     "scripts/media-autopilot.js",
     "scripts/editorial-autopilot.js",
@@ -12,7 +13,7 @@
     "README.md",
     ".env.example"
   ],
-  "required_markers": 41,
+  "required_markers": 48,
   "missing": [],
   "status": "passed"
 }
