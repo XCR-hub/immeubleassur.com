@@ -5,15 +5,40 @@ const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
 const SITE = "https://immeubleassur.com";
 
-const clusterRules = [
-  ["pno-cno", /pno|cno|non.?occupant|coproprietaire/i],
-  ["devis-courtier", /devis|courtier|comparateur/i],
-  ["prix-tarif", /prix|tarif|cout|combien/i],
-  ["copropriete-syndic", /copro|syndic|parties communes|ag/i],
-  ["sinistre-resilie", /sinistre|resilie|refus|degat|fuite|incendie/i],
-  ["sci-bailleur", /sci|bailleur|rapport|monopropriete|locatif/i],
-  ["local-commercial", /commerce|commercial|mixte/i],
-  ["local", /assurance-immeuble-[a-z-]+/i]
+const nonLocalImmeubleSlugs = new Set([
+  "assurance-immeuble-de-rapport",
+  "assurance-immeuble-locatif",
+  "assurance-immeuble-meuble-colocation",
+  "assurance-immeuble-monopropriete",
+  "assurance-immeuble-obligatoire",
+  "assurance-immeuble-resilie",
+  "assurance-immeuble-sinistre",
+  "assurance-immeuble-syndic-benevole"
+]);
+
+const explicitSlugRules = [
+  ["newsletter-veille", /^(newsletter-assurance-immeuble|veille-assurance-immeuble|news\/)/],
+  ["pno-cno", /^(assurance-(pno|cno|pno-cno|coproprietaire-non-occupant)|devis-pno-cno|pno-cno|faq\/pno|blog\/.*(pno|cno|non-occupant|lot-vacant))/],
+  ["devis-courtier", /^(devis-assurance-immeuble|devis-assurance-immeuble-en-ligne|courtier-assurance-immeuble|comparateur-assurance-immeuble|audit-contrat-assurance-immeuble|checklist-documents-assurance-immeuble|recherches-assurance-immeuble|blog\/checklist-documents-devis-immeuble)/],
+  ["prix-tarif", /^(prix-assurance-immeuble|tarif-assurance-immeuble|faq\/prix|blog\/.*(prix|franchise|tarif|pertes-de-loyers))/],
+  ["local-commercial", /^(assurance-local-commercial|faq\/local-commercial|blog\/.*(commerce|commercial|restaurant|local-professionnel|mixte))/],
+  ["copropriete-syndic", /^(assurance-copropriete|assurance-parties-communes|rc-syndic|guide-assurance-copropriete|faq\/copropriete|blog\/.*(copropriete|syndic|protection-juridique|parking-garages))/],
+  ["sinistre-resilie", /^(gestion-sinistres-immeuble|assurance-immeuble-resilie|assurance-immeuble-sinistre|faq\/sinistres|blog\/.*(sinistre|degat|fuite|infiltration|resiliation|refus))/],
+  ["travaux", /^(dommages-ouvrage-immeuble|faq\/travaux|blog\/.*(travaux|dommages-ouvrage|renovation|ravalement|toiture))/],
+  ["sci-bailleur", /^(assurance-sci|assurance-immeuble-de-rapport|assurance-immeuble-monopropriete|assurance-immeuble-locatif|assurance-immeuble-meuble-colocation|faq\/sci|blog\/.*(sci|locatif|bailleur|colocation|patrimoine|vacant))/],
+  ["local", /^(villes|assurance-immeuble-[a-z-]+)$/]
+];
+
+const signalRules = [
+  ["devis-courtier", /devis|courtier|comparateur|audit contrat|dossier assureur/],
+  ["prix-tarif", /prix|tarif|cout|combien|franchise|prime annuelle/],
+  ["local-commercial", /commerce|commercial|restaurant|local professionnel|immeuble mixte/],
+  ["sinistre-resilie", /sinistre|resilie|resiliation|refus assureur|degat|fuite|incendie|infiltration/],
+  ["travaux", /travaux|dommages ouvrage|renovation|ravalement|toiture|chantier/],
+  ["copropriete-syndic", /copropriete|syndic|parties communes|assemblee generale|conseil syndical/],
+  ["sci-bailleur", /sci|bailleur|immeuble de rapport|monopropriete|locatif|patrimoine|colocation/],
+  ["pno-cno", /pno|cno|non[-\s]?occupant|proprietaire non occupant|coproprietaire non occupant/],
+  ["newsletter-veille", /newsletter|veille|actualites|signaux marche/]
 ];
 
 const moneySlugs = new Set([
@@ -62,6 +87,10 @@ function meta(html, pattern) {
   return ((html.match(pattern) || [])[1] || "").trim();
 }
 
+function firstH1(html) {
+  return stripHtml((html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) || [])[1] || "");
+}
+
 function pageUrl(slug) {
   return slug === "index" ? `${SITE}/` : `${SITE}/${slug}`;
 }
@@ -70,9 +99,26 @@ function wordCount(text) {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
-function detectCluster(slug, text) {
-  const source = `${slug} ${text.slice(0, 2400)}`;
-  return (clusterRules.find(([, pattern]) => pattern.test(source)) || ["assurance-immeuble"])[0];
+function normalizeSignal(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isCitySlug(slug) {
+  return /^assurance-immeuble-[a-z-]+$/.test(slug) && !nonLocalImmeubleSlugs.has(slug);
+}
+
+function detectCluster({ slug, title, description, h1 }) {
+  const normalizedSlug = normalizeSignal(slug);
+  if (isCitySlug(normalizedSlug)) return "local";
+  const explicit = explicitSlugRules.find(([, pattern]) => pattern.test(normalizedSlug));
+  if (explicit) return explicit[0];
+  const source = normalizeSignal(`${slug} ${title} ${description} ${h1}`);
+  return (signalRules.find(([, pattern]) => pattern.test(source)) || ["assurance-immeuble"])[0];
 }
 
 function internalLinks(html) {
@@ -110,15 +156,18 @@ function auditPage(file) {
   const html = readFileSync(file, "utf8");
   const slug = slugFromFile(file);
   const text = stripHtml(html);
+  const title = stripHtml(meta(html, /<title>(.*?)<\/title>/is));
+  const description = meta(html, /<meta name="description" content="([^"]*)"/i);
+  const h1 = firstH1(html);
   const links = internalLinks(html);
   const moneyLinks = links.filter((href) => /devis|pno|cno|prix|tarif|courtier|assurance-immeuble|comparateur|audit/.test(href)).length;
   return scorePage({
     slug,
     url: pageUrl(slug),
-    title: stripHtml(meta(html, /<title>(.*?)<\/title>/is)),
-    description: meta(html, /<meta name="description" content="([^"]*)"/i),
+    title,
+    description,
     words: wordCount(text),
-    cluster: detectCluster(slug, text),
+    cluster: detectCluster({ slug, title, description, h1 }),
     has_lead_form: html.includes('id="lead-form"'),
     has_diagnostic: html.includes("data-diagnostic"),
     has_readiness: html.includes("data-readiness"),
@@ -171,6 +220,11 @@ const report = {
   generated_at: new Date().toISOString(),
   pages_checked: pages.length,
   money_pages_checked: moneyPages.length,
+  cluster_count: clusters.length,
+  cluster_detection: {
+    strategy: "slug-title-description-h1",
+    safeguards: ["ignores-global-cta-copy", "city-slugs-before-thematic-rules", "no-hidden-content", "no-google-scraping"]
+  },
   average_conversion_score: Math.round(pages.reduce((sum, page) => sum + page.conversion_score, 0) / Math.max(1, pages.length)),
   average_money_score: Math.round(moneyPages.reduce((sum, page) => sum + page.conversion_score, 0) / Math.max(1, moneyPages.length)),
   cluster_coverage: clusters,
@@ -187,6 +241,8 @@ writeFileSync(join(PUBLIC_DIR, "assets", "conversion-intelligence-latest.json"),
   generated_at: report.generated_at,
   pages_checked: report.pages_checked,
   money_pages_checked: report.money_pages_checked,
+  cluster_count: report.cluster_count,
+  cluster_detection: report.cluster_detection,
   average_conversion_score: report.average_conversion_score,
   average_money_score: report.average_money_score,
   cluster_coverage: report.cluster_coverage,

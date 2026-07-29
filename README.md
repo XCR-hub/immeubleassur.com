@@ -55,6 +55,7 @@ Les scripts principaux sont:
 ```bash
 npm run generate
 npm run seo:audit
+npm run conversion:intelligence
 npm run seo:apis
 npm run content:diversity
 npm run seo:cannibalization
@@ -73,6 +74,8 @@ npm run antifraud:local
 npm run turnstile:hybrid
 npm run live:api:readiness
 ```
+
+Le rapport `conversion:intelligence` classe les pages par intention visible (`slug`, titre, description, H1) pour separer villes, PNO/CNO, devis, prix, syndic/copropriete, sinistres, SCI/bailleurs, travaux et veille sans lire les blocs CTA globaux.
 
 Les workflows GitHub Actions generent et valident les rapports, mais ne publient pas sur une plateforme externe et n'ecrivent pas dans une base externe.
 
