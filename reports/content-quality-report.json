@@ -1,12 +1,28 @@
 {
-  "generated_at": "2026-07-29T22:47:03.239Z",
+  "generated_at": "2026-07-29T23:17:35.688Z",
   "pages_checked": 175,
   "status": "passed",
   "severe_issue_count": 0,
   "warning_count": 0,
   "duplicate_titles": [],
   "duplicate_descriptions": [],
-  "repeated_paragraph_clusters": [],
+  "repeated_paragraph_clusters": [
+    {
+      "fingerprint": "une page copropriete doit permettre de passer d 39 une question juridique ou pratique a un contrat lisible pour l 39 immeuble et les parties communes",
+      "pages": [
+        "blog/assurance-copropriete-avant-ag",
+        "blog/assurance-copropriete-obligatoire",
+        "blog/assurance-parking-garages-copropriete",
+        "blog/copropriete-petite-syndic-benevole",
+        "blog/dommages-ouvrage-copropriete-travaux",
+        "blog/protection-juridique-copropriete",
+        "blog/renovation-energetique-copropriete-assurance",
+        "blog/syndic-benevole-assurance",
+        "faq/copropriete"
+      ],
+      "count": 9
+    }
+  ],
   "severe_issues": [],
   "warnings": [],
   "policy_alignment": [

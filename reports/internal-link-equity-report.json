@@ -1,0 +1,172 @@
+{
+  "generated_at": "2026-07-29T23:17:35.085Z",
+  "status": "passed",
+  "pages_checked": 175,
+  "pages_targeted": 49,
+  "pages_changed": 16,
+  "links_added": 63,
+  "pages_with_active_blocks": 49,
+  "active_internal_links": 193,
+  "noindex_skipped": 3,
+  "lead_pages_skipped": 6,
+  "cluster_targets": [
+    {
+      "cluster": "default",
+      "count": 10
+    },
+    {
+      "cluster": "copropriete-syndic",
+      "count": 9
+    },
+    {
+      "cluster": "pno-cno",
+      "count": 7
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "count": 7
+    },
+    {
+      "cluster": "sci-bailleur",
+      "count": 6
+    },
+    {
+      "cluster": "local-commercial",
+      "count": 4
+    },
+    {
+      "cluster": "prix-tarif",
+      "count": 3
+    },
+    {
+      "cluster": "travaux",
+      "count": 2
+    },
+    {
+      "cluster": "newsletter-veille",
+      "count": 1
+    }
+  ],
+  "safeguards": [
+    "visible-links-only",
+    "no-hidden-keyword-blocks",
+    "no-google-scraping",
+    "noindex-pages-skipped",
+    "lead-form-pages-not-distracted",
+    "idempotent-marker"
+  ],
+  "pages": [
+    {
+      "slug": "blog/assurance-copropriete-avant-ag",
+      "type": "blog",
+      "cluster": "copropriete-syndic",
+      "previous_internal_links": 19,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/assurance-immeuble-apres-refus-assureur",
+      "type": "blog",
+      "cluster": "sinistre-resilie",
+      "previous_internal_links": 19,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/assurance-immeuble-sans-sinistre",
+      "type": "blog",
+      "cluster": "sinistre-resilie",
+      "previous_internal_links": 20,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/checklist-sinistre-degat-des-eaux",
+      "type": "blog",
+      "cluster": "sinistre-resilie",
+      "previous_internal_links": 20,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
+      "type": "blog",
+      "cluster": "pno-cno",
+      "previous_internal_links": 23,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/copropriete-petite-syndic-benevole",
+      "type": "blog",
+      "cluster": "copropriete-syndic",
+      "previous_internal_links": 19,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/dommages-ouvrage-copropriete-travaux",
+      "type": "blog",
+      "cluster": "copropriete-syndic",
+      "previous_internal_links": 19,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/immeuble-mixte-restaurant",
+      "type": "blog",
+      "cluster": "local-commercial",
+      "previous_internal_links": 18,
+      "links_added": 3
+    },
+    {
+      "slug": "blog/multirisque-immeuble-vs-pno",
+      "type": "blog",
+      "cluster": "pno-cno",
+      "previous_internal_links": 20,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/pertes-de-loyers-immeuble",
+      "type": "blog",
+      "cluster": "default",
+      "previous_internal_links": 20,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/pno-cno-differences-garanties",
+      "type": "blog",
+      "cluster": "pno-cno",
+      "previous_internal_links": 26,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/pno-obligatoire-copropriete",
+      "type": "blog",
+      "cluster": "pno-cno",
+      "previous_internal_links": 23,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/renovation-energetique-copropriete-assurance",
+      "type": "blog",
+      "cluster": "copropriete-syndic",
+      "previous_internal_links": 19,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/resiliation-assurance-immeuble",
+      "type": "blog",
+      "cluster": "default",
+      "previous_internal_links": 19,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/sinistres-recurrents-immeuble",
+      "type": "blog",
+      "cluster": "sinistre-resilie",
+      "previous_internal_links": 24,
+      "links_added": 4
+    },
+    {
+      "slug": "news/veille-assurance-immeuble-2026-07-29",
+      "type": "news",
+      "cluster": "newsletter-veille",
+      "previous_internal_links": 21,
+      "links_added": 4
+    }
+  ]
+}

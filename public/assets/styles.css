@@ -1787,6 +1787,14 @@ textarea:focus {
   gap: 14px;
 }
 
+.internal-link-equity-band {
+  background: #eef6f3;
+}
+
+.internal-link-equity-band .large-copy {
+  color: #304844;
+}
+
 .seo-link-panel {
   display: grid;
   gap: 8px;
