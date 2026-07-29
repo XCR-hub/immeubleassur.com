@@ -659,7 +659,7 @@ function subscriberCount(rows = [], status) {
 }
 
 function connectorSignal(connector, reports, publicReports) {
-  const { editorialReport, mediaReport, searchReport, seoReport, antifraudReport } = publicReports;
+  const { editorialReport, mediaReport, searchReport, seoReport, antifraudReport, turnstileReport } = publicReports;
   const googleHealth = seoReport.google_api_health || {};
   if (connector.family === "ia") {
     const latest = reports.latest_ai_run;
@@ -696,6 +696,9 @@ function connectorSignal(connector, reports, publicReports) {
   }
   if (connector.id === "local-antifraud") {
     return `${antifraudReport.status || "local"} / ${antifraudReport.forms_instrumented || 0}/${antifraudReport.forms_detected || 0} formulaire(s)`;
+  }
+  if (connector.id === "turnstile") {
+    return `${turnstileReport.configured ? "actif" : "fallback local"} / ${turnstileReport.forms_instrumented || 0}/${turnstileReport.forms_detected || 0} formulaire(s)`;
   }
   if (connector.id === "admin-api") return "Token admin valide pour cette session";
   return connector.configured ? "secret detecte" : "secret manquant";
@@ -736,12 +739,13 @@ async function loadIntegrations() {
   if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
   if (integrationsSummary) integrationsSummary.replaceChildren(metricCard("Chargement", "API", "lecture des integrations"));
 
-  const [editorialReport, mediaReport, searchReport, seoReport, antifraudReport] = await Promise.all([
+  const [editorialReport, mediaReport, searchReport, seoReport, antifraudReport, turnstileReport] = await Promise.all([
     fetchOptionalAsset("/assets/editorial-autopilot-latest.json"),
     fetchOptionalAsset("/assets/media-autopilot-latest.json"),
     fetchOptionalAsset("/assets/search-intelligence-latest.json"),
     fetchOptionalAsset("/assets/seo-autopilot-latest.json"),
-    fetchOptionalAsset("/assets/local-antifraud-latest.json")
+    fetchOptionalAsset("/assets/local-antifraud-latest.json"),
+    fetchOptionalAsset("/assets/turnstile-hybrid-latest.json")
   ]);
 
   let apiResult = null;
@@ -761,7 +765,7 @@ async function loadIntegrations() {
 
   const connectors = apiResult?.connectors || [];
   const reports = apiResult?.reports || {};
-  const publicReports = { editorialReport, mediaReport, searchReport, seoReport, antifraudReport };
+  const publicReports = { editorialReport, mediaReport, searchReport, seoReport, antifraudReport, turnstileReport };
   const googleHealth = seoReport.google_api_health || {};
   const spamBlocks = Number(reports.lead_spam_blocks_30d || 0) + Number(reports.newsletter_spam_blocks_30d || 0);
 
@@ -775,6 +779,7 @@ async function loadIntegrations() {
       metricCard("Search Console", String(googleHealth.search_console_rows || 0), `${googleHealth.query_clusters || 0} cluster(s)`),
       metricCard("PageSpeed", String(googleHealth.pagespeed_checked || 0), `${googleHealth.pagespeed_slow_pages || 0} lente(s)`),
       metricCard("Newsletter", String(subscriberCount(reports.newsletter_subscribers, "active")), reports.latest_newsletter_issue?.status || "rapport public"),
+      metricCard("Turnstile", turnstileReport.configured ? "Actif" : "Fallback", turnstileReport.configured ? `${turnstileReport.forms_instrumented || 0}/${turnstileReport.forms_detected || 0} formulaire(s)` : "filtre local"),
       metricCard("Anti-spam", String(spamBlocks || eventCount(reports.site_events_30d, "lead_spam_blocked")), antifraudReport.configured ? "filtre local actif" : "filtre local pret"),
       metricCard("Runtime", runtimeHealth ? `${runtimeHealth.runtime?.platform || "local"} / ${runtimeHealth.database?.driver || "db"}` : "Token requis", runtimeHealth?.database?.size_bytes ? `${runtimeHealth.database.table_count || 0} tables, ${formatBytes(runtimeHealth.database.size_bytes)}` : "diagnostic protege"),
       metricCard("Production", monitorStatusLabel(runtimeHealth?.monitor), monitorDetail(runtimeHealth?.monitor)),
@@ -1395,7 +1400,7 @@ async function loadSeo() {
     apiResult = await response.json();
   }
 
-  const [publicReport, antifraudReport] = await Promise.all([fetchPublicSeoReport(), fetchOptionalAsset("/assets/local-antifraud-latest.json")]);
+  const [publicReport, antifraudReport, turnstileReport] = await Promise.all([fetchPublicSeoReport(), fetchOptionalAsset("/assets/local-antifraud-latest.json"), fetchOptionalAsset("/assets/turnstile-hybrid-latest.json")]);
   const googleHealth = publicReport.google_api_health || {};
   const funnel = apiResult?.conversion_funnel || {};
   const leadStats = apiResult?.lead_stats || {};
@@ -1428,6 +1433,7 @@ async function loadSeo() {
       metricCard("Abandons", `${funnel.abandon_rate || 0}%`, `${funnel.abandoned_forms || 0} signaux`),
       metricCard("Erreurs formulaire", String(funnel.validation_errors || 0), "champs bloquants"),
       metricCard("Spam bloques", String(funnel.spam_blocked || 0), "robots filtres"),
+      metricCard("Turnstile", turnstileReport.configured ? "Actif" : "Fallback", turnstileReport.configured ? `${turnstileReport.forms_instrumented || 0}/${turnstileReport.forms_detected || 0} formulaire(s)` : "anti-fraude local"),
       metricCard("Anti-fraude local", antifraudReport.status === "passed" ? "Actif" : "A verifier", `${antifraudReport.forms_instrumented || 0}/${antifraudReport.forms_detected || 0} formulaire(s)`)
     );
   }

@@ -185,6 +185,7 @@ function botSignalPayload() {
 function readForm(formElement) {
   const data = Object.fromEntries(new FormData(formElement).entries());
   const utm = readUtm();
+  const turnstileResponse = String(data["cf-turnstile-response"] || "").trim();
   return {
     name: String(data.name || "").trim(),
     phone: String(data.phone || "").trim(),
@@ -197,6 +198,8 @@ function readForm(formElement) {
     message: String(data.message || "").trim(),
     consent: data.consent === "on",
     company_website: String(data.company_website || "").trim(),
+    turnstile_token: turnstileResponse,
+    "cf-turnstile-response": turnstileResponse,
     source: utm.utm_source || document.body.dataset.intent || "website",
     page_url: window.location.href,
     referrer: document.referrer || "",
@@ -1176,7 +1179,7 @@ form?.addEventListener("submit", async (event) => {
     });
   } catch (error) {
     if (error.status && error.status < 500) {
-      track("lead_submit_rejected", { target: payload.need, label: error.message, status: String(error.status), challenge: error.result?.challenge || "" });
+      track("lead_submit_rejected", { target: payload.need, label: error.message, status: String(error.status), challenge: error.result?.challenge || "", turnstile: error.result?.turnstile || "" });
       setStatus(error.message || "Demande rejetee. Verifiez les champs puis recommencez.", "error");
       return;
     }

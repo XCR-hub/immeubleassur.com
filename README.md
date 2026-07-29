@@ -9,10 +9,10 @@ Site specialise en assurance immeuble, PNO, CNO, copropriete, SCI, syndic et mul
 - Base active SQLite definie par `LOCAL_SQLITE_DB`.
 - Schema applicatif dans `schema.sql`.
 - Emails via SMTP local `mail.xcr.fr`.
-- Anti-fraude local: honeypot, signaux JS, jeton de session, temps de saisie, interactions et historique IP/email/telephone.
+- Anti-fraude local: honeypot, signaux JS, jeton de session, temps de saisie, interactions et historique IP/email/telephone. Turnstile Cloudflare peut etre ajoute en couche anti-robot optionnelle.
 - Automatisation SEO/contenu: articles, FAQ, villes, veille, newsletter, media, Search Console, PageSpeed, SerpApi et rapports JSON locaux quand les API sont configurees.
 
-Aucune dependance Supabase, Cloudflare D1, Cloudflare Pages, Wrangler ou Turnstile n'est requise pour le runtime de production autonome.
+Aucune dependance Supabase, Cloudflare D1, Cloudflare Pages ou Wrangler n'est requise pour le runtime de production autonome. Cloudflare Turnstile est optionnel: si `TURNSTILE_SITE_KEY` et `TURNSTILE_SECRET_KEY` sont absentes, les formulaires restent proteges par le filtre local.
 
 ## Production locale
 
@@ -65,6 +65,7 @@ npm run seo:backlog:monitor
 npm run leads:sla:monitor
 npm run leads:quality:monitor
 npm run antifraud:local
+npm run turnstile:hybrid
 ```
 
 Les workflows GitHub Actions generent et valident les rapports, mais ne publient pas sur une plateforme externe et n'ecrivent pas dans une base externe.
@@ -87,7 +88,7 @@ SMTP_TO=team@immeubleassur.com
 SITE_ORIGIN=https://immeubleassur.com
 ```
 
-Variables optionnelles pour l'optimisation continue: Google Search Console, PageSpeed, URL Inspection (`GOOGLE_URL_INSPECTION_LIMIT`), GA4, SerpApi, Pexels, OpenAI, Anthropic, Gemini, OpenRouter et HuggingFace.
+Variables optionnelles pour l'optimisation continue: Google Search Console, PageSpeed, URL Inspection (`GOOGLE_URL_INSPECTION_LIMIT`), GA4, SerpApi, Pexels, OpenAI, Anthropic, Gemini, OpenRouter et HuggingFace. Pour retrouver la verification automatique Cloudflare sur les formulaires, renseigner aussi `TURNSTILE_SITE_KEY` et `TURNSTILE_SECRET_KEY`.
 
 ## Admin
 
@@ -104,4 +105,4 @@ Etat constate le 2026-07-29:
 - A record public: `80.15.56.123`
 - nameservers: `arely.ns.cloudflare.com` et `rocky.ns.cloudflare.com`
 
-Tant que ces nameservers restent actifs, Cloudflare reste l'autorite DNS du domaine, meme si le site et la base ne dependent plus de Cloudflare. Pour supprimer cette derniere dependance, recopier `dns/registrar-records.json` chez le registrar ou dans le nouveau DNS, puis changer les nameservers chez le registrar vers un DNS gere hors Cloudflare. Controle normal: `npm run dns:autarky`. Controle final apres migration: `npm run dns:autarky:strict`.
+Tant que ces nameservers restent actifs, Cloudflare reste l'autorite DNS du domaine, ce qui est le compromis retenu maintenant. On ne revient pas vers IONOS comme cible DNS. Pour l'autarcie complete a terme, il faudra mettre en place un DNS secondaire/autoritaire hors Cloudflare dans le futur datacenter, recopier `dns/registrar-records.json`, puis changer les nameservers chez le registrar. Controle normal: `npm run dns:autarky`. Controle final apres migration: `npm run dns:autarky:strict`.

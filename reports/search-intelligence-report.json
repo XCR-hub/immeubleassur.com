@@ -1,6 +1,6 @@
 {
-  "run_id": "serp-20260728-74d34189",
-  "generated_at": "2026-07-28T23:12:51.781Z",
+  "run_id": "serp-20260728-f3d53a1f",
+  "generated_at": "2026-07-28T23:59:44.607Z",
   "provider": "local-estimate",
   "status": "skipped-no-serp-key",
   "serp_enabled": false,
@@ -22,7 +22,7 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-28T23:12:51.776Z",
+      "checked_at": "2026-07-28T23:59:44.603Z",
       "recommendation": "Maintenir /assurance-immeuble: surveiller CTR, fraicheur et conversion sur assurance immeuble."
     },
     {
@@ -38,7 +38,7 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-28T23:12:51.778Z",
+      "checked_at": "2026-07-28T23:59:44.605Z",
       "recommendation": "Maintenir /devis-assurance-immeuble: surveiller CTR, fraicheur et conversion sur devis assurance immeuble."
     },
     {
@@ -55,7 +55,7 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-28T23:12:51.778Z",
+      "checked_at": "2026-07-28T23:59:44.605Z",
       "recommendation": "Optimiser /assurance-copropriete: viser top 3 sur assurance copropriete avec preuve, schema FAQ et intention devis."
     },
     {
@@ -70,7 +70,7 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-28T23:12:51.778Z",
+      "checked_at": "2026-07-28T23:59:44.605Z",
       "recommendation": "Optimiser /assurance-pno-cno: viser top 3 sur assurance PNO CNO avec preuve, schema FAQ et intention devis."
     },
     {
@@ -86,7 +86,7 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-28T23:12:51.778Z",
+      "checked_at": "2026-07-28T23:59:44.605Z",
       "recommendation": "Renforcer /assurance-coproprietaire-non-occupant: contenu expert, FAQ visible, liens internes et CTA devis pour assurance coproprietaire non occupant."
     },
     {
@@ -103,7 +103,7 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-28T23:12:51.778Z",
+      "checked_at": "2026-07-28T23:59:44.605Z",
       "recommendation": "Renforcer /assurance-sci: contenu expert, FAQ visible, liens internes et CTA devis pour assurance SCI immeuble."
     },
     {
@@ -118,7 +118,7 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-28T23:12:51.778Z",
+      "checked_at": "2026-07-28T23:59:44.605Z",
       "recommendation": "Renforcer /courtier-assurance-immeuble: contenu expert, FAQ visible, liens internes et CTA devis pour courtier assurance immeuble."
     },
     {
@@ -134,7 +134,7 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-28T23:12:51.778Z",
+      "checked_at": "2026-07-28T23:59:44.605Z",
       "recommendation": "Renforcer /prix-assurance-immeuble: contenu expert, FAQ visible, liens internes et CTA devis pour prix assurance immeuble."
     },
     {
@@ -151,7 +151,7 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-28T23:12:51.778Z",
+      "checked_at": "2026-07-28T23:59:44.605Z",
       "recommendation": "Renforcer /multirisque-immeuble: contenu expert, FAQ visible, liens internes et CTA devis pour multirisque immeuble."
     },
     {
@@ -166,7 +166,7 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-28T23:12:51.778Z",
+      "checked_at": "2026-07-28T23:59:44.605Z",
       "recommendation": "Renforcer /assurance-immeuble-syndic-benevole: contenu expert, FAQ visible, liens internes et CTA devis pour assurance immeuble syndic benevole."
     }
   ],

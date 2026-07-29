@@ -113,6 +113,15 @@ const connectorDefinitions = [
     optional: []
   },
   {
+    id: "turnstile",
+    label: "Cloudflare Turnstile",
+    family: "security",
+    scope: "Verification anti-robot automatique sur formulaires, en complement du filtre local.",
+    runtime: "build/runtime",
+    required: ["TURNSTILE_SITE_KEY", "TURNSTILE_SECRET_KEY"],
+    optional: ["TURNSTILE_FAIL_OPEN", "TURNSTILE_THEME"]
+  },
+  {
     id: "admin-api",
     label: "Admin API",
     family: "security",

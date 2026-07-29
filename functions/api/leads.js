@@ -94,6 +94,45 @@ function localChallengeStatus(payload) {
   return { ok: true, status: "local-ok" };
 }
 
+function turnstileToken(payload) {
+  return clean(payload?.turnstile_token || payload?.["cf-turnstile-response"], 2048);
+}
+
+async function verifyTurnstile(env, payload, ip) {
+  const siteKey = clean(env?.TURNSTILE_SITE_KEY, 200);
+  const secret = clean(env?.TURNSTILE_SECRET_KEY, 2048);
+  if (!siteKey || !secret) return { ok: true, configured: false, status: "fallback-local" };
+
+  const token = turnstileToken(payload);
+  if (!token) return { ok: false, configured: true, status: "token-manquant", errorCodes: ["missing-input-response"] };
+
+  const body = new URLSearchParams();
+  body.set("secret", secret);
+  body.set("response", token);
+  const remoteIp = clean(ip, 120).split(",")[0].trim();
+  if (remoteIp) body.set("remoteip", remoteIp);
+
+  try {
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body
+    });
+    const result = await response.json().catch(() => ({}));
+    const errorCodes = Array.isArray(result["error-codes"]) ? result["error-codes"].slice(0, 5) : [];
+    if (response.ok && result.success) return { ok: true, configured: true, status: "verified" };
+
+    return { ok: false, configured: true, status: "refuse", errorCodes };
+  } catch {
+    const failOpen = clean(env?.TURNSTILE_FAIL_OPEN, 20) === "1";
+    return {
+      ok: failOpen,
+      configured: true,
+      status: failOpen ? "indisponible-fail-open" : "indisponible",
+      errorCodes: ["siteverify-unreachable"]
+    };
+  }
+}
+
 async function countRows(env, sql, binds = []) {
   try {
     const statement = env.DB.prepare(sql);
@@ -628,6 +667,18 @@ export async function onRequestPost({ request, env, waitUntil }) {
     };
     await logSpamAttempt(env, request, payload, assessment, now, ip, userAgent);
     return json({ success: false, error: "Verification anti-robot invalide. Rechargez la page puis recommencez.", challenge: "local-failed" }, 403);
+  }
+
+  const turnstile = await verifyTurnstile(env, payload, ip);
+  if (!turnstile.ok) {
+    const assessment = {
+      score: 95,
+      reasons: [`turnstile-${turnstile.status || "echec"}`, ...(turnstile.errorCodes || []).map((code) => `turnstile-${clean(code, 60)}`).slice(0, 3)],
+      blocked: true,
+      action: "block"
+    };
+    await logSpamAttempt(env, request, payload, assessment, now, ip, userAgent);
+    return json({ success: false, error: "Verification anti-robot Cloudflare invalide. Rechargez la page puis recommencez.", challenge: "turnstile-failed", turnstile: turnstile.status }, 403);
   }
 
   const spamHistory = await loadSpamHistory(env, payload, clean(ip, 120));
