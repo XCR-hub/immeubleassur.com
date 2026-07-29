@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T03:14:14.531Z",
+  "generated_at": "2026-07-29T11:30:49.576Z",
   "mode": "local-only",
   "pages_checked": 174,
   "average_score": 100,
@@ -14,7 +14,7 @@
   },
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-29T03:13:48.138Z",
+    "generated_at": "2026-07-29T11:30:38.051Z",
     "pages_checked": 174,
     "pages_changed": 124,
     "fixes_applied": 174,
@@ -146,7 +146,7 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-29T03:13:50.482Z",
+    "generated_at": "2026-07-29T11:30:38.713Z",
     "pages_checked": 175,
     "pages_expanded": 74,
     "words_added_estimate": 12722,
@@ -261,7 +261,7 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-07-29T03:13:58.495Z",
+    "generated_at": "2026-07-29T11:30:47.033Z",
     "pages_checked": 175,
     "status": "passed",
     "severe_issue_count": 0,
@@ -278,7 +278,7 @@
   },
   "cannibalization": {
     "configured": true,
-    "generated_at": "2026-07-29T03:14:01.585Z",
+    "generated_at": "2026-07-29T11:30:48.013Z",
     "status": "watch",
     "pages_checked": 171,
     "clusters_checked": 11,
@@ -1156,9 +1156,194 @@
       "supports-canonical-intent-planning"
     ]
   },
+  "intent_differentiation": {
+    "configured": true,
+    "status": "passed",
+    "generated_at": "2026-07-29T11:30:46.110Z",
+    "target_pages": 21,
+    "pages_changed": 21,
+    "conflicts_addressed": 25,
+    "safeguards": [
+      "visible-content-only",
+      "no-hidden-keyword-blocks",
+      "no-google-scraping",
+      "links-secondary-to-primary-intent",
+      "idempotent-marker"
+    ],
+    "pages": [
+      {
+        "slug": "assurance-cno",
+        "url": "https://immeubleassur.com/assurance-cno",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "pno-cno"
+      },
+      {
+        "slug": "assurance-coproprietaire-non-occupant",
+        "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "pno-cno"
+      },
+      {
+        "slug": "assurance-immeuble-monopropriete",
+        "url": "https://immeubleassur.com/assurance-immeuble-monopropriete",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "assurance-sci"
+      },
+      {
+        "slug": "assurance-immeuble-obligatoire",
+        "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "multirisque-immeuble"
+      },
+      {
+        "slug": "assurance-immeuble-sinistre",
+        "url": "https://immeubleassur.com/assurance-immeuble-sinistre",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "gestion-sinistres-immeuble"
+      },
+      {
+        "slug": "assurance-pno-cno",
+        "url": "https://immeubleassur.com/assurance-pno-cno",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "pno-cno"
+      },
+      {
+        "slug": "blog/assurance-immeuble-avec-ascenseur",
+        "url": "https://immeubleassur.com/blog/assurance-immeuble-avec-ascenseur",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "multirisque-immeuble"
+      },
+      {
+        "slug": "blog/checklist-sinistre-degat-des-eaux",
+        "url": "https://immeubleassur.com/blog/checklist-sinistre-degat-des-eaux",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "gestion-sinistres-immeuble"
+      },
+      {
+        "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
+        "url": "https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "pno-cno"
+      },
+      {
+        "slug": "blog/copropriete-petite-syndic-benevole",
+        "url": "https://immeubleassur.com/blog/copropriete-petite-syndic-benevole",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "assurance-copropriete"
+      },
+      {
+        "slug": "blog/dommages-ouvrage-copropriete-travaux",
+        "url": "https://immeubleassur.com/blog/dommages-ouvrage-copropriete-travaux",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "assurance-copropriete"
+      },
+      {
+        "slug": "blog/immeuble-mixte-restaurant",
+        "url": "https://immeubleassur.com/blog/immeuble-mixte-restaurant",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "blog/local-commercial-vacant"
+      },
+      {
+        "slug": "blog/pertes-de-loyers-immeuble",
+        "url": "https://immeubleassur.com/blog/pertes-de-loyers-immeuble",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "multirisque-immeuble"
+      },
+      {
+        "slug": "blog/pno-cno-differences-garanties",
+        "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "pno-cno"
+      },
+      {
+        "slug": "blog/pno-obligatoire-copropriete",
+        "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "pno-cno"
+      },
+      {
+        "slug": "blog/preparer-renouvellement-assurance-immeuble",
+        "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "multirisque-immeuble"
+      },
+      {
+        "slug": "blog/renovation-energetique-copropriete-assurance",
+        "url": "https://immeubleassur.com/blog/renovation-energetique-copropriete-assurance",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 4,
+        "primary_slug": "assurance-copropriete"
+      },
+      {
+        "slug": "blog/resiliation-assurance-immeuble",
+        "url": "https://immeubleassur.com/blog/resiliation-assurance-immeuble",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "gestion-sinistres-immeuble"
+      },
+      {
+        "slug": "blog/sinistres-recurrents-immeuble",
+        "url": "https://immeubleassur.com/blog/sinistres-recurrents-immeuble",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 2,
+        "primary_slug": "gestion-sinistres-immeuble"
+      },
+      {
+        "slug": "comparateur-assurance-immeuble",
+        "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "devis-assurance-immeuble"
+      },
+      {
+        "slug": "news/veille-assurance-immeuble-2026-07-29",
+        "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-29",
+        "changed": true,
+        "differentiated": true,
+        "conflicts_addressed": 1,
+        "primary_slug": "veille-assurance-immeuble"
+      }
+    ]
+  },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-07-29T03:14:05.349Z",
+    "generated_at": "2026-07-29T11:30:48.559Z",
     "pages_checked": 171,
     "money_pages_checked": 114,
     "average_conversion_score": 84,
@@ -1366,7 +1551,7 @@
   },
   "cro_experiment": {
     "configured": true,
-    "generated_at": "2026-07-29T03:14:09.214Z",
+    "generated_at": "2026-07-29T11:30:48.753Z",
     "status": "passed",
     "variant_count": 3,
     "variants": [
@@ -1444,6 +1629,11 @@
         "priority": "high",
         "source": "seo-cannibalization",
         "action": "10 risque(s) fort(s) de cannibalisation SEO a differencier: role de page, titre, maillage et intention primaire."
+      },
+      {
+        "priority": "low",
+        "source": "seo-intent-differentiation",
+        "action": "25 signal(aux) deja recadres par contenu visible et maillage interne; verifier ensuite les titres et angles editoriaux restants."
       }
     ],
     "principles": [
@@ -1482,6 +1672,7 @@
     "Search Console average position is the source for Google ranking signals",
     "no AI-detection evasion content",
     "GA4 server-side generate_lead event when configured",
-    "cannibalization watchlist protects primary search intents"
+    "cannibalization watchlist protects primary search intents",
+    "visible intent differentiation avoids hidden keyword stuffing"
   ]
 }

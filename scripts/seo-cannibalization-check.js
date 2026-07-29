@@ -4,6 +4,9 @@ import { extname, join, relative } from "node:path";
 const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
 const SITE = "https://immeubleassur.com";
+const generatedSeoBlockPatterns = [
+  /<!-- seo-intent-differentiation:start -->[\s\S]*?<!-- seo-intent-differentiation:end -->/gi
+];
 
 const ignoredSlugs = new Set(["admin", "mentions-legales", "confidentialite", "merci"]);
 const stopwords = new Set("assurance assurances immeuble immeubles immeubleassur pour avec dans depuis cette votre vous nous notre nos vos des les une aux sur par qui que quoi dont plus moins prix devis contrat contrats garantie garanties syndic copropriete proprietaire proprietaires bailleur bailleurs courtier comparateur guide article faq formulaire demande audit page besoin risque risques faire etre sont vers entre sans aussi comme avant apres chaque peut doivent doivent actuel actuelle actuels dossier dossiers assureur assureurs travaux pieces piece franchises franchise prime primes exclusions exclusion echeance usage usages utiles utile information informations analyse analyses occupation responsabilite responsabilites parcours garanties garantie sinistre sinistres obtenir proposition propositions reponse reponses couvrir couvert couvertes declaration declarations".split(" "));
@@ -31,7 +34,9 @@ function walk(dir) {
 }
 
 function stripHtml(value) {
-  return String(value || "")
+  let html = String(value || "");
+  for (const pattern of generatedSeoBlockPatterns) html = html.replace(pattern, " ");
+  return html
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]*>/g, " ")
