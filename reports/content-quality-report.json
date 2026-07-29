@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T01:03:25.844Z",
+  "generated_at": "2026-07-29T01:18:35.321Z",
   "pages_checked": 175,
   "status": "passed",
   "severe_issue_count": 0,
@@ -78,14 +78,14 @@
         "blog/assurance-immeuble-local-professionnel",
         "blog/assurance-immeuble-mixte-commerce",
         "blog/assurance-immeuble-protection-du-patrimoine",
-        "blog/assurance-immeuble-sans-sinistre",
         "blog/assurance-immeuble-vacant",
         "blog/audit-franchises-assurance-immeuble",
         "blog/checklist-documents-devis-immeuble",
-        "blog/checklist-sinistre-degat-des-eaux",
-        "blog/franchise-degat-des-eaux-immeuble"
+        "blog/franchise-degat-des-eaux-immeuble",
+        "blog/immeuble-mixte-restaurant",
+        "blog/infiltration-toiture-terrasse"
       ],
-      "count": 51
+      "count": 47
     },
     {
       "fingerprint": "cette synthese ajoute une lecture operationnelle intention du demandeur donnees a collecter arbitrage garanties prix et lien direct vers le parcours qui transforme la visite en dossier qualifie",
@@ -111,64 +111,85 @@
         "blog/assurance-immeuble-mixte-commerce",
         "blog/assurance-immeuble-protection-du-patrimoine"
       ],
-      "count": 80
+      "count": 74
     },
     {
       "fingerprint": "les meilleurs leads arrivent avec un statut un type de bien et une urgence clairs le diagnostic ajuste le devis le message de rappel et les signaux de conversion",
       "pages": [
         "assurance-cno",
         "assurance-copropriete",
-        "assurance-immeuble",
-        "assurance-local-commercial",
-        "assurance-pno-cno",
-        "assurance-pno",
-        "assurance-sci",
-        "devis-assurance-immeuble",
-        "devis-pno-cno",
-        "index",
-        "pno-cno",
-        "prix-assurance-immeuble"
+        "assurance-immeuble-agen",
+        "assurance-immeuble-albi",
+        "assurance-immeuble-angouleme",
+        "assurance-immeuble-annecy",
+        "assurance-immeuble-antibes",
+        "assurance-immeuble-arras",
+        "assurance-immeuble-avignon",
+        "assurance-immeuble-bayonne",
+        "assurance-immeuble-beauvais",
+        "assurance-immeuble-beziers",
+        "assurance-immeuble-biarritz",
+        "assurance-immeuble-blois",
+        "assurance-immeuble-bourges",
+        "assurance-immeuble-caen",
+        "assurance-immeuble-calais",
+        "assurance-immeuble-cannes",
+        "assurance-immeuble-carcassonne",
+        "assurance-immeuble-chalon-sur-saone"
       ],
-      "count": 12
+      "count": 74
     },
     {
       "fingerprint": "chaque piece cochee rend la demande plus exploitable echeance contrat actuel sinistres lots et travaux le formulaire reprend ensuite les elements disponibles",
       "pages": [
         "assurance-cno",
         "assurance-copropriete",
-        "assurance-immeuble",
-        "assurance-local-commercial",
-        "assurance-pno-cno",
-        "assurance-pno",
-        "assurance-sci",
-        "devis-assurance-immeuble",
-        "devis-pno-cno",
-        "index",
-        "pno-cno",
-        "prix-assurance-immeuble"
+        "assurance-immeuble-agen",
+        "assurance-immeuble-albi",
+        "assurance-immeuble-angouleme",
+        "assurance-immeuble-annecy",
+        "assurance-immeuble-antibes",
+        "assurance-immeuble-arras",
+        "assurance-immeuble-avignon",
+        "assurance-immeuble-bayonne",
+        "assurance-immeuble-beauvais",
+        "assurance-immeuble-beziers",
+        "assurance-immeuble-biarritz",
+        "assurance-immeuble-blois",
+        "assurance-immeuble-bourges",
+        "assurance-immeuble-caen",
+        "assurance-immeuble-calais",
+        "assurance-immeuble-cannes",
+        "assurance-immeuble-carcassonne",
+        "assurance-immeuble-chalon-sur-saone"
       ],
-      "count": 12
+      "count": 74
     },
     {
       "fingerprint": "les recherches assurance immeuble ne valent pas toutes le meme parcours immeubleassur oriente vite vers cno pno multirisque immeuble ou audit contrat pour augmenter les leads exploitables",
       "pages": [
         "assurance-cno",
         "assurance-copropriete",
-        "assurance-immeuble-resilie",
-        "assurance-immeuble-sinistre",
-        "assurance-immeuble",
-        "assurance-pno-cno",
-        "assurance-pno",
-        "comparateur-assurance-immeuble",
-        "courtier-assurance-immeuble",
-        "devis-assurance-immeuble-en-ligne",
-        "devis-assurance-immeuble",
-        "devis-pno-cno",
-        "index",
-        "pno-cno",
-        "tarif-assurance-immeuble"
+        "assurance-immeuble-agen",
+        "assurance-immeuble-albi",
+        "assurance-immeuble-angouleme",
+        "assurance-immeuble-annecy",
+        "assurance-immeuble-antibes",
+        "assurance-immeuble-arras",
+        "assurance-immeuble-avignon",
+        "assurance-immeuble-bayonne",
+        "assurance-immeuble-beauvais",
+        "assurance-immeuble-beziers",
+        "assurance-immeuble-biarritz",
+        "assurance-immeuble-blois",
+        "assurance-immeuble-bourges",
+        "assurance-immeuble-caen",
+        "assurance-immeuble-calais",
+        "assurance-immeuble-cannes",
+        "assurance-immeuble-carcassonne",
+        "assurance-immeuble-chalon-sur-saone"
       ],
-      "count": 15
+      "count": 77
     },
     {
       "fingerprint": "immeubleassur privilegie une qualification concrete contexte du bien responsabilites historique sinistre travaux contrat actuel et attentes du demandeur cette lecture evite les comparaisons superficielles et aide a obten",
@@ -194,7 +215,7 @@
         "assurance-immeuble-nice",
         "assurance-immeuble-orleans"
       ],
-      "count": 64
+      "count": 62
     },
     {
       "fingerprint": "ce renforcement transforme le signal de classement en contenu utile intention preuves de specialisation questions de decision et passage direct vers un dossier de devis exploitable",

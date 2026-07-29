@@ -11,6 +11,12 @@ const READINESS_START = "<!-- ux-readiness:start -->";
 const READINESS_END = "<!-- ux-readiness:end -->";
 const MOMENTUM_START = "<!-- ux-conversion-momentum:start -->";
 const MOMENTUM_END = "<!-- ux-conversion-momentum:end -->";
+const CONVERSION_REPORT = join(REPORT_DIR, "conversion-intelligence-report.json");
+const UX_REPORT = join(REPORT_DIR, "ux-conversion-report.json");
+const REPORT_DRIVEN_LIMIT = 40;
+const REPORT_DRIVEN_MAX_SCORE = 81;
+const SAFE_SLUG = /^[a-z0-9-]+(?:\/[a-z0-9-]+)?$/;
+const SAFE_HTML_FILE = /^[a-z0-9-]+(?:\/[a-z0-9-]+)?\.html$/;
 const DIAGNOSTIC_FILES = [
   "index.html",
   "devis-assurance-immeuble.html",
@@ -42,6 +48,48 @@ const MOMENTUM_FILES = [
   "assurance-immeuble-resilie.html",
   "assurance-immeuble-sinistre.html"
 ];
+
+function uniqueFiles(files) {
+  return [...new Set(files.filter(Boolean))];
+}
+
+function htmlFileFromSlug(slug) {
+  if (slug === "index") return "index.html";
+  if (!SAFE_SLUG.test(slug)) return "";
+  return `${slug}.html`;
+}
+
+function existingHtmlFile(fileName) {
+  const normalized = String(fileName || "").replace(/\\/g, "/");
+  if (!SAFE_HTML_FILE.test(normalized)) return "";
+  return existsSync(join("public", normalized)) ? normalized : "";
+}
+
+function previousReportFiles() {
+  if (!existsSync(UX_REPORT)) return [];
+  try {
+    const report = JSON.parse(readFileSync(UX_REPORT, "utf8"));
+    return (report.report_driven_files || []).map(existingHtmlFile).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function reportDrivenFiles() {
+  if (!existsSync(CONVERSION_REPORT)) return previousReportFiles();
+  try {
+    const report = JSON.parse(readFileSync(CONVERSION_REPORT, "utf8"));
+    const weakFiles = (report.weak_money_pages || [])
+      .filter((page) => Number(page.score) <= REPORT_DRIVEN_MAX_SCORE)
+      .map((page) => htmlFileFromSlug(String(page.slug || "")))
+      .map(existingHtmlFile)
+      .filter(Boolean)
+      .slice(0, REPORT_DRIVEN_LIMIT);
+    return uniqueFiles([...previousReportFiles(), ...weakFiles]);
+  } catch {
+    return previousReportFiles();
+  }
+}
 
 function routerBlock() {
   return `${ROUTER_START}
@@ -211,6 +259,7 @@ function insertReadiness(html) {
   }
   return html.replace(/\s*<\/main>/i, `\n${block}\n</main>`);
 }
+
 function insertMomentum(html) {
   const block = momentumBlock();
   if (html.includes(READINESS_END)) {
@@ -220,7 +269,9 @@ function insertMomentum(html) {
     return html.replace(/\s*<section class="band page-band"/, `\n${block}\n    <section class="band page-band"`);
   }
   return html.replace(/\s*<\/main>/i, `\n${block}\n</main>`);
-}function updateFile(file, transform) {
+}
+
+function updateFile(file, transform) {
   if (!existsSync(file)) return false;
   const original = readFileSync(file, "utf8");
   const next = transform(original);
@@ -229,11 +280,14 @@ function insertMomentum(html) {
 }
 
 const routerChanged = updateFile(HOME_FILE, (html) => insertRouter(removeMarked(html, ROUTER_START, ROUTER_END)));
+const reportFiles = reportDrivenFiles();
+const diagnosticTargets = uniqueFiles([...DIAGNOSTIC_FILES, ...reportFiles]);
+const momentumTargets = uniqueFiles([...MOMENTUM_FILES, ...reportFiles]);
 let diagnosticChanged = 0;
 let diagnosticChecked = 0;
 let readinessChanged = 0;
 let readinessChecked = 0;
-for (const fileName of DIAGNOSTIC_FILES) {
+for (const fileName of diagnosticTargets) {
   const file = join("public", fileName);
   const existed = existsSync(file);
   const changed = updateFile(file, (html) => {
@@ -252,7 +306,7 @@ for (const fileName of DIAGNOSTIC_FILES) {
 
 let momentumChanged = 0;
 let momentumChecked = 0;
-for (const fileName of MOMENTUM_FILES) {
+for (const fileName of momentumTargets) {
   const file = join("public", fileName);
   const existed = existsSync(file);
   const changed = updateFile(file, (html) => insertMomentum(removeMarked(html, MOMENTUM_START, MOMENTUM_END)));
@@ -264,11 +318,13 @@ writeFileSync(join(REPORT_DIR, "ux-conversion-report.json"), JSON.stringify({
   generated_at: new Date().toISOString(),
   home_router: existsSync(HOME_FILE) && readFileSync(HOME_FILE, "utf8").includes("risk-router"),
   router_changed: routerChanged,
+  report_driven_pages: reportFiles.length,
+  report_driven_files: reportFiles,
   diagnostic_pages_checked: diagnosticChecked,
   diagnostic_pages_changed: diagnosticChanged,
   readiness_pages_checked: readinessChecked,
   readiness_pages_changed: readinessChanged,
-  improvements: ["intent-router", "risk-specific-cta", "lead-prefill-links", "homepage-decision-support", "diagnostic-express", "diagnostic-prefill", "diagnostic-event-loop", "readiness-checklist", "readiness-prefill", "readiness-event-loop"]
+  improvements: ["intent-router", "risk-specific-cta", "lead-prefill-links", "homepage-decision-support", "diagnostic-express", "diagnostic-prefill", "diagnostic-event-loop", "readiness-checklist", "readiness-prefill", "readiness-event-loop", "conversion-intelligence-feedback-loop"]
 }, null, 2), "utf8");
 
 console.log(`UX conversion pass ${routerChanged ? "updated" : "checked"} homepage router, injected ${diagnosticChanged}/${diagnosticChecked} diagnostic blocks, ${readinessChanged}/${readinessChecked} readiness blocks and ${momentumChanged}/${momentumChecked} momentum blocks.`);

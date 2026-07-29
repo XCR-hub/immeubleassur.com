@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-29T01:00:23.014Z",
+  "generated_at": "2026-07-29T01:17:39.700Z",
   "pages_checked": 174,
   "pages_changed": 124,
-  "fixes_applied": 176,
+  "fixes_applied": 174,
   "safeguards": [
     "idempotent-markers",
     "legal-pages-no-commercial-panel",
@@ -687,8 +687,7 @@
       "url": "https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire",
       "fixes": [
         "title-normalized",
-        "description-normalized",
-        "content-depth"
+        "description-normalized"
       ],
       "title": "CNO coproprietaire non occupant | ImmeubleAssur",
       "description": "Responsabilite civile, lot loue ou vacant, syndic et assurance immeuble: comprendre le role de la CNO. Analyse des garanties, franchises, sinistres, documents.",
@@ -796,8 +795,7 @@
       "slug": "blog/pno-cno-differences-garanties",
       "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
       "fixes": [
-        "description-normalized",
-        "content-depth"
+        "description-normalized"
       ],
       "title": "PNO ou CNO: differences, garanties et choix du contrat | ImmeubleAssur",
       "description": "Comparer PNO et CNO pour choisir une assurance adaptee au lot, a l'immeuble et au statut du proprietaire. Analyse des garanties, franchises, sinistres, documents.",
