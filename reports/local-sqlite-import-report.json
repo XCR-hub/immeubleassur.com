@@ -1,6 +1,7 @@
 {
   "success": true,
-  "imported_at": "2026-07-29T23:36:25.297Z",
+  "imported_at": "2026-07-29T23:36:16.766Z",
+  "imported_at_source": "latest-report-generated-at",
   "mode": "local-json-report-check",
   "reports": [
     {
@@ -79,6 +80,10 @@
       "generated_at": "2026-07-29T23:08:56.022Z"
     }
   ],
-  "database": "C:\\Users\\TCERD\\Documents\\GitHub\\immeubleassur.com\\data\\immeubleassur.sqlite",
+  "database": {
+    "engine": "sqlite",
+    "path_source": "LOCAL_SQLITE_DB",
+    "file": "immeubleassur.sqlite"
+  },
   "note": "Les rapports sont lus depuis JSON locaux; aucune execution SQL externe n'est necessaire."
 }

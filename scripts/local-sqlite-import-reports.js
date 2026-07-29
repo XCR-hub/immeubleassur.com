@@ -37,15 +37,35 @@ function readJsonReport(file) {
   }
 }
 
+function latestGeneratedAt(reports) {
+  return reports
+    .map((item) => item.generated_at)
+    .filter(Boolean)
+    .sort()
+    .at(-1) || "";
+}
+
+function localDatabaseFile(value) {
+  return String(value || "")
+    .split(/[\\/]/)
+    .filter(Boolean)
+    .at(-1) || "immeubleassur.sqlite";
+}
+
 const db = openLocalSqlite({ dbPath: env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite")), schemaPath: "schema.sql" });
 const reports = reportFiles.map(readJsonReport).filter(Boolean);
 const invalid = reports.filter((item) => item.status === "invalid-json");
 const result = {
   success: invalid.length === 0,
-  imported_at: new Date().toISOString(),
+  imported_at: latestGeneratedAt(reports),
+  imported_at_source: "latest-report-generated-at",
   mode: "local-json-report-check",
   reports,
-  database: db.path,
+  database: {
+    engine: "sqlite",
+    path_source: "LOCAL_SQLITE_DB",
+    file: localDatabaseFile(db.path)
+  },
   note: "Les rapports sont lus depuis JSON locaux; aucune execution SQL externe n'est necessaire."
 };
 
@@ -58,4 +78,4 @@ if (invalid.length) {
   process.exit(1);
 }
 
-console.log(`SQLite local report check complete: ${reports.length} report(s), database ${result.database}.`);
+console.log(`SQLite local report check complete: ${reports.length} report(s), database ${result.database.file} via ${result.database.path_source}.`);
