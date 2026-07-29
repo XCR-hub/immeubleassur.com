@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T02:37:37.494Z",
+  "generated_at": "2026-07-29T03:13:54.792Z",
   "status": "partial",
   "connectors_checked": 8,
   "ready_count": 1,
@@ -35,7 +35,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T02:37:37.345Z",
+        "generated_at": "2026-07-29T03:13:54.378Z",
         "status": "fallback-local-antifraud",
         "summary": {
           "provider": "cloudflare-turnstile",
@@ -75,7 +75,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T02:37:32.592Z",
+        "generated_at": "2026-07-29T03:13:45.219Z",
         "status": "skipped-no-serp-key",
         "summary": {
           "provider": "local-estimate",
@@ -115,7 +115,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T02:37:32.399Z",
+        "generated_at": "2026-07-29T03:13:44.827Z",
         "status": "skipped-no-pexels-key",
         "summary": {
           "provider": "planned-pexels",
@@ -167,7 +167,7 @@
       ],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T02:37:32.222Z",
+        "generated_at": "2026-07-29T03:13:44.304Z",
         "status": "local-fallback",
         "summary": {
           "provider": "",
@@ -213,7 +213,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T02:35:04.424Z",
+        "generated_at": "2026-07-29T03:09:25.125Z",
         "status": "local-only",
         "summary": {
           "provider": "",
@@ -253,7 +253,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T02:35:04.424Z",
+        "generated_at": "2026-07-29T03:09:25.125Z",
         "status": "local-only",
         "summary": {
           "provider": "",
@@ -298,7 +298,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T02:37:36.276Z",
+        "generated_at": "2026-07-29T03:13:53.528Z",
         "status": "present",
         "summary": {
           "provider": "",

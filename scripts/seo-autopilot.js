@@ -358,6 +358,23 @@ function readContentQualityReport() {
   };
 }
 
+function readCannibalizationReport() {
+  const report = readJsonFile(join(REPORT_DIR, "seo-cannibalization-report.json"), null);
+  if (!report) return { configured: true, skipped: "seo-cannibalization-report missing" };
+  return {
+    configured: true,
+    generated_at: report.generated_at,
+    status: report.status || "unknown",
+    pages_checked: report.pages_checked || 0,
+    clusters_checked: report.clusters_checked || 0,
+    high_risk_count: report.high_risk_count || 0,
+    medium_risk_count: report.medium_risk_count || 0,
+    watch_count: report.watch_count || 0,
+    cluster_summary: (report.cluster_summary || []).slice(0, 12),
+    watchlist: (report.watchlist || []).slice(0, 20),
+    safeguards: report.safeguards || []
+  };
+}
 function readConversionIntelligenceReport() {
   const report = readJsonFile(join(REPORT_DIR, "conversion-intelligence-report.json"), null);
   if (!report) return { configured: true, skipped: "conversion-intelligence-report missing" };
@@ -402,7 +419,7 @@ function readLeadFrictionReport() {
     top_dimensions: report.top_dimensions || []
   };
 }
-function buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality, conversionIntelligence, croExperiment }) {
+function buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality, cannibalization, conversionIntelligence, croExperiment }) {
   const actions = [];
   if (!gsc?.configured) {
     actions.push({ priority: "setup", source: "google-search-console", action: "Configurer GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY et GOOGLE_SEARCH_CONSOLE_SITE_URL pour recuperer requetes, pages, CTR et position moyenne." });
@@ -443,6 +460,11 @@ function buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality, conversionInt
     actions.push({ priority: "low", source: "content-quality", action: `${contentQuality.warning_count} avertissement(s) editorial(aux) non bloquants a surveiller: densite, FAQ, conversion ou similarite.` });
   }
 
+  if (cannibalization?.high_risk_count > 0) {
+    actions.push({ priority: "high", source: "seo-cannibalization", action: `${cannibalization.high_risk_count} risque(s) fort(s) de cannibalisation SEO a differencier: role de page, titre, maillage et intention primaire.` });
+  } else if (cannibalization?.medium_risk_count > 0) {
+    actions.push({ priority: "medium", source: "seo-cannibalization", action: `${cannibalization.medium_risk_count} recouvrement(s) moyen(s) a surveiller pour proteger les pages money.` });
+  }
   if (croExperiment?.status && croExperiment.status !== "passed") {
     actions.push({ priority: "medium", source: "cro-experiment", action: "Retablir le contrat de test CTA pour mesurer les variantes jusqu au lead." });
   }
@@ -500,16 +522,17 @@ async function run() {
   const autoFix = readAutoFixReport();
   const opportunityExpansion = readOpportunityExpansionReport();
   const contentQuality = readContentQualityReport();
+  const cannibalization = readCannibalizationReport();
   const conversionIntelligence = readConversionIntelligenceReport();
   const croExperiment = readCroExperimentReport();
   const leadFriction = readLeadFrictionReport();
-  const googleFeedbackLoop = buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality, conversionIntelligence, croExperiment });
+  const googleFeedbackLoop = buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality, cannibalization, conversionIntelligence, croExperiment });
   const googleApiHealth = buildGoogleApiHealth({ gsc, pagespeed });
   const opportunities = [...issueOpportunities, ...contentGaps, ...gscOpps].sort((a, b) => (b.score || 0) - (a.score || 0));
-  const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, auto_fix: autoFix, opportunity_expansion: opportunityExpansion, content_quality: contentQuality, conversion_intelligence: conversionIntelligence, cro_experiment: croExperiment, lead_friction: leadFriction, google_feedback_loop: googleFeedbackLoop, google_api_health: googleApiHealth, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", url_inspection: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --url-inspection", sitemaps_api: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --submit-sitemap", ga4_measurement_protocol: "GA4_MEASUREMENT_ID + GA4_API_SECRET cote serveur local; GA4_MEASUREMENT_ID au build pour le client gtag", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals", "no AI-detection evasion content", "GA4 server-side generate_lead event when configured"] };
+  const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, auto_fix: autoFix, opportunity_expansion: opportunityExpansion, content_quality: contentQuality, cannibalization, conversion_intelligence: conversionIntelligence, cro_experiment: croExperiment, lead_friction: leadFriction, google_feedback_loop: googleFeedbackLoop, google_api_health: googleApiHealth, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", url_inspection: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --url-inspection", sitemaps_api: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --submit-sitemap", ga4_measurement_protocol: "GA4_MEASUREMENT_ID + GA4_API_SECRET cote serveur local; GA4_MEASUREMENT_ID au build pour le client gtag", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals", "no AI-detection evasion content", "GA4 server-side generate_lead event when configured", "cannibalization watchlist protects primary search intents"] };
   writeFileSync(join(REPORT_DIR, "seo-autopilot-report.json"), JSON.stringify(report, null, 2), "utf8");
   writeFileSync(join(REPORT_DIR, "seo-autopilot-report.md"), buildMarkdown(report), "utf8");
-  const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, opportunity_expansion: report.opportunity_expansion, content_quality: report.content_quality, conversion_intelligence: report.conversion_intelligence, cro_experiment: report.cro_experiment, lead_friction: report.lead_friction, google_feedback_loop: report.google_feedback_loop, google_api_health: report.google_api_health, connectors: report.api_connectors, compliance: report.compliance };
+  const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, opportunity_expansion: report.opportunity_expansion, content_quality: report.content_quality, cannibalization: report.cannibalization, conversion_intelligence: report.conversion_intelligence, cro_experiment: report.cro_experiment, lead_friction: report.lead_friction, google_feedback_loop: report.google_feedback_loop, google_api_health: report.google_api_health, connectors: report.api_connectors, compliance: report.compliance };
   writeFileSync(join(PUBLIC_DIR, "assets", "seo-autopilot-latest.json"), JSON.stringify(publicReport, null, 2), "utf8");
   console.log(`SEO autopilot checked ${report.pages_checked} pages, average score ${report.average_score}, opportunities ${report.opportunities.length}.`);
 }

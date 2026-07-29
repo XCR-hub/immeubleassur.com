@@ -1,62 +1,67 @@
 {
   "success": true,
-  "imported_at": "2026-07-29T02:40:13.492Z",
+  "imported_at": "2026-07-29T03:15:12.520Z",
   "mode": "local-json-report-check",
   "reports": [
     {
       "file": "reports/seo-autopilot-report.json",
       "status": "present",
-      "generated_at": "2026-07-29T02:37:39.611Z"
+      "generated_at": "2026-07-29T03:14:14.531Z"
     },
     {
       "file": "reports/search-intelligence-report.json",
       "status": "skipped-no-serp-key",
-      "generated_at": "2026-07-29T02:37:32.592Z"
+      "generated_at": "2026-07-29T03:13:45.219Z"
     },
     {
       "file": "reports/search-gap-booster-report.json",
       "status": "local-estimate",
-      "generated_at": "2026-07-29T02:37:34.909Z"
+      "generated_at": "2026-07-29T03:13:50.952Z"
     },
     {
       "file": "reports/editorial-autopilot-report.json",
       "status": "skipped",
-      "generated_at": "2026-07-29T02:37:32.222Z"
+      "generated_at": "2026-07-29T03:13:44.304Z"
     },
     {
       "file": "reports/media-autopilot-report.json",
       "status": "skipped-no-pexels-key",
-      "generated_at": "2026-07-29T02:37:32.399Z"
+      "generated_at": "2026-07-29T03:13:44.827Z"
     },
     {
       "file": "reports/conversion-intelligence-report.json",
       "status": "present",
-      "generated_at": "2026-07-29T02:39:46.243Z"
+      "generated_at": "2026-07-29T03:14:51.391Z"
     },
     {
       "file": "reports/cro-experiment-report.json",
       "status": "passed",
-      "generated_at": "2026-07-29T02:39:46.602Z"
+      "generated_at": "2026-07-29T03:14:52.134Z"
     },
     {
       "file": "reports/lead-friction-report.json",
       "status": "passed",
-      "generated_at": "2026-07-29T02:39:47.107Z"
+      "generated_at": "2026-07-29T03:14:52.822Z"
     },
     {
       "file": "reports/local-antifraud-report.json",
       "status": "passed",
-      "generated_at": "2026-07-29T02:37:36.907Z"
+      "generated_at": "2026-07-29T03:13:53.973Z"
     },
     {
       "file": "reports/content-diversity-report.json",
       "status": "present",
-      "generated_at": "2026-07-29T02:37:35.555Z"
+      "generated_at": "2026-07-29T03:13:51.935Z"
+    },
+    {
+      "file": "reports/seo-cannibalization-report.json",
+      "status": "watch",
+      "generated_at": "2026-07-29T03:14:50.172Z"
     },
     {
       "file": "reports/live-api-readiness-report.json",
       "status": "partial",
-      "generated_at": "2026-07-29T02:37:37.494Z"
+      "generated_at": "2026-07-29T03:13:54.792Z"
     }
   ],
   "database": "C:\\Users\\TCERD\\Documents\\GitHub\\immeubleassur.com\\data\\immeubleassur.sqlite",

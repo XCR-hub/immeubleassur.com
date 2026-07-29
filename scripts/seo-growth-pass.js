@@ -226,6 +226,10 @@ function cleanTrailingWhitespace(html) {
   return html.replace(/[ \t]+$/gm, "");
 }
 
+function removeMarkedBlock(html, start, end) {
+  const pattern = new RegExp(`\\s*${start}[\\s\\S]*?${end}\\s*`, "g");
+  return html.replace(pattern, "\n");
+}
 function enhanceHtml(file) {
   const slug = slugFromFile(file);
   let html = readFileSync(file, "utf8");
@@ -238,9 +242,9 @@ function enhanceHtml(file) {
   html = normalizeLinks(html);
   html = enhanceCtaTracking(html);
   html = ensureLeadMagnet(html, slug);
-  html = html.replace(/<!-- growth-meta:start -->[\s\S]*?<!-- growth-meta:end -->\n?/g, "");
-  html = html.replace(/<!-- growth-schema:start -->[\s\S]*?<!-- growth-schema:end -->\n?/g, "");
-  html = html.replace(/<!-- analytics:start -->[\s\S]*?<!-- analytics:end -->\n?/g, "");
+  html = removeMarkedBlock(html, "<!-- growth-meta:start -->", "<!-- growth-meta:end -->");
+  html = removeMarkedBlock(html, "<!-- growth-schema:start -->", "<!-- growth-schema:end -->");
+  html = removeMarkedBlock(html, "<!-- analytics:start -->", "<!-- analytics:end -->");
   if (!privateSlugs.has(slug)) {
     html = html.replace(/<link rel="canonical" href="[^"]+" \/>/, `<link rel="canonical" href="${url}" />`);
     html = html.replace(/<meta property="og:url" content="[^"]+" \/>/, `<meta property="og:url" content="${url}" />`);
