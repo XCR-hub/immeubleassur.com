@@ -1,6 +1,6 @@
 # SEO Autopilot ImmeubleAssur
 
-Generated: 2026-07-29T00:40:59.571Z
+Generated: 2026-07-29T01:00:46.358Z
 
 - Pages checked: 174
 - Average score: 100
@@ -8,7 +8,7 @@ Generated: 2026-07-29T00:40:59.571Z
 - GSC configured: false
 - PageSpeed checked: 0
 - Auto-fixes applied: 176
-- Pages expanded: 81
+- Pages expanded: 80
 - Content quality: passed (0 warnings)
 - Conversion intelligence: 82/100 money score
 - CRO experiment: passed (3 variants)

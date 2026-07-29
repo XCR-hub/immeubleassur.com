@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T00:40:59.571Z",
+  "generated_at": "2026-07-29T01:00:46.358Z",
   "pages_checked": 174,
   "average_score": 100,
   "opportunities_count": 0,
@@ -7,7 +7,7 @@
   "top_opportunities": [],
   "auto_fix": {
     "configured": true,
-    "generated_at": "2026-07-29T00:40:53.589Z",
+    "generated_at": "2026-07-29T01:00:23.014Z",
     "pages_checked": 174,
     "pages_changed": 124,
     "fixes_applied": 176,
@@ -139,10 +139,10 @@
   },
   "opportunity_expansion": {
     "configured": true,
-    "generated_at": "2026-07-29T00:40:54.468Z",
+    "generated_at": "2026-07-29T01:00:26.849Z",
     "pages_checked": 175,
-    "pages_expanded": 81,
-    "words_added_estimate": 13947,
+    "pages_expanded": 80,
+    "words_added_estimate": 13769,
     "safeguards": [
       "idempotent-markers",
       "legal-pages-skipped",
@@ -254,7 +254,7 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-07-29T00:40:57.649Z",
+    "generated_at": "2026-07-29T01:00:37.875Z",
     "pages_checked": 175,
     "status": "passed",
     "severe_issue_count": 0,
@@ -271,17 +271,17 @@
   },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-07-29T00:40:58.188Z",
+    "generated_at": "2026-07-29T01:00:39.329Z",
     "pages_checked": 171,
     "money_pages_checked": 114,
-    "average_conversion_score": 75,
+    "average_conversion_score": 76,
     "average_money_score": 82,
     "cluster_coverage": [
       {
         "cluster": "pno-cno",
         "pages": 171,
         "money_pages": 114,
-        "average_score": 75,
+        "average_score": 76,
         "top_pages": [
           {
             "slug": "assurance-cno",
@@ -378,6 +378,12 @@
         "score": 100
       },
       {
+        "slug": "pno-cno",
+        "url": "https://immeubleassur.com/pno-cno",
+        "cluster": "pno-cno",
+        "score": 100
+      },
+      {
         "slug": "prix-assurance-immeuble",
         "url": "https://immeubleassur.com/prix-assurance-immeuble",
         "cluster": "pno-cno",
@@ -460,27 +466,9 @@
         "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
         "cluster": "pno-cno",
         "score": 84
-      },
-      {
-        "slug": "assurance-immeuble-dijon",
-        "url": "https://immeubleassur.com/assurance-immeuble-dijon",
-        "cluster": "pno-cno",
-        "score": 84
       }
     ],
     "weak_money_pages": [
-      {
-        "slug": "pno-cno",
-        "url": "https://immeubleassur.com/pno-cno",
-        "cluster": "pno-cno",
-        "score": 48,
-        "actions": [
-          "Ajouter un formulaire ou un CTA direct vers devis.",
-          "Ajouter un deuxieme CTA contextuel avant la fin de page.",
-          "Ajouter le diagnostic express pour qualifier l'intention.",
-          "Ajouter le module dossier pret assureur."
-        ]
-      },
       {
         "slug": "blog/checklist-documents-devis-immeuble",
         "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
@@ -948,17 +936,21 @@
           "Ajouter un bloc priorite business PNO/CNO/immeuble.",
           "Renforcer la profondeur utile sans duplication."
         ]
+      },
+      {
+        "slug": "assurance-immeuble-narbonne",
+        "url": "https://immeubleassur.com/assurance-immeuble-narbonne",
+        "cluster": "pno-cno",
+        "score": 77,
+        "actions": [
+          "Ajouter le diagnostic express pour qualifier l'intention.",
+          "Ajouter le module dossier pret assureur.",
+          "Ajouter un bloc priorite business PNO/CNO/immeuble.",
+          "Renforcer la profondeur utile sans duplication."
+        ]
       }
     ],
     "actions": [
-      {
-        "priority": "high",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/pno-cno",
-        "cluster": "pno-cno",
-        "score": 48,
-        "action": "Ajouter un formulaire ou un CTA direct vers devis."
-      },
       {
         "priority": "medium",
         "source": "conversion-intelligence",
@@ -1190,6 +1182,14 @@
         "cluster": "pno-cno",
         "score": 77,
         "action": "Ajouter le diagnostic express pour qualifier l'intention."
+      },
+      {
+        "priority": "medium",
+        "source": "conversion-intelligence",
+        "url": "https://immeubleassur.com/assurance-immeuble-evreux",
+        "cluster": "pno-cno",
+        "score": 77,
+        "action": "Ajouter le diagnostic express pour qualifier l'intention."
       }
     ],
     "safeguards": [
@@ -1201,7 +1201,7 @@
   },
   "cro_experiment": {
     "configured": true,
-    "generated_at": "2026-07-29T00:40:58.401Z",
+    "generated_at": "2026-07-29T01:00:41.051Z",
     "status": "passed",
     "variant_count": 3,
     "variants": [
@@ -1268,19 +1268,12 @@
     ]
   },
   "google_feedback_loop": {
-    "status": "action-required",
+    "status": "monitoring",
     "actions": [
       {
         "priority": "setup",
         "source": "google-search-console",
         "action": "Configurer GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY et GOOGLE_SEARCH_CONSOLE_SITE_URL pour recuperer requetes, pages, CTR et position moyenne."
-      },
-      {
-        "priority": "high",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/pno-cno",
-        "cluster": "pno-cno",
-        "action": "pno-cno: score conversion 48/100. Ajouter un formulaire ou un CTA direct vers devis."
       },
       {
         "priority": "medium",
@@ -1316,6 +1309,13 @@
         "url": "https://immeubleassur.com/faq/sinistres",
         "cluster": "pno-cno",
         "action": "pno-cno: score conversion 72/100. Ajouter un deuxieme CTA contextuel avant la fin de page."
+      },
+      {
+        "priority": "medium",
+        "source": "conversion-intelligence",
+        "url": "https://immeubleassur.com/assurance-immeuble-agen",
+        "cluster": "pno-cno",
+        "action": "pno-cno: score conversion 77/100. Ajouter le diagnostic express pour qualifier l'intention."
       }
     ],
     "principles": [

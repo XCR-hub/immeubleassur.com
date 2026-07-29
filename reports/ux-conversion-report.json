@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-07-29T00:40:52.252Z",
+  "generated_at": "2026-07-29T01:00:20.655Z",
   "home_router": true,
   "router_changed": true,
-  "diagnostic_pages_checked": 11,
-  "diagnostic_pages_changed": 11,
-  "readiness_pages_checked": 11,
-  "readiness_pages_changed": 11,
+  "diagnostic_pages_checked": 12,
+  "diagnostic_pages_changed": 12,
+  "readiness_pages_checked": 12,
+  "readiness_pages_changed": 12,
   "improvements": [
     "intent-router",
     "risk-specific-cta",

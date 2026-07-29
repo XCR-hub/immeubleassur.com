@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T00:40:53.589Z",
+  "generated_at": "2026-07-29T01:00:23.014Z",
   "pages_checked": 174,
   "pages_changed": 124,
   "fixes_applied": 176,
@@ -1215,7 +1215,7 @@
       "slug": "pno-cno",
       "url": "https://immeubleassur.com/pno-cno",
       "fixes": [
-        "content-depth"
+        "faq-depth"
       ],
       "title": "Hub assurance PNO CNO immeuble | ImmeubleAssur",
       "description": "Hub assurance PNO CNO immeuble: devis, guides, differences PNO/CNO et pages specialisees pour proprietaires non occupants.",

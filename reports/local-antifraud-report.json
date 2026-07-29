@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-29T00:40:56.362Z",
+  "generated_at": "2026-07-29T01:00:33.666Z",
   "provider": "local-antifraud",
   "configured": true,
   "pages_checked": 174,
-  "forms_detected": 161,
-  "forms_instrumented": 161,
+  "forms_detected": 162,
+  "forms_instrumented": 162,
   "legacy_widgets_removed": 0,
   "protections": [
     "honeypot",

@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-29T00:40:54.468Z",
+  "generated_at": "2026-07-29T01:00:26.849Z",
   "pages_checked": 175,
-  "pages_expanded": 81,
-  "words_added_estimate": 13947,
+  "pages_expanded": 80,
+  "words_added_estimate": 13769,
   "safeguards": [
     "idempotent-markers",
     "legal-pages-skipped",
@@ -599,14 +599,6 @@
       "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
       "before_words": 465,
       "after_words": 638,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "pno-cno",
-      "url": "https://immeubleassur.com/pno-cno",
-      "before_words": 456,
-      "after_words": 634,
       "expanded": true,
       "changed": true
     },

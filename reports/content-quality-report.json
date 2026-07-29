@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T00:43:12.836Z",
+  "generated_at": "2026-07-29T01:03:25.844Z",
   "pages_checked": 175,
   "status": "passed",
   "severe_issue_count": 0,
@@ -111,7 +111,7 @@
         "blog/assurance-immeuble-mixte-commerce",
         "blog/assurance-immeuble-protection-du-patrimoine"
       ],
-      "count": 81
+      "count": 80
     },
     {
       "fingerprint": "les meilleurs leads arrivent avec un statut un type de bien et une urgence clairs le diagnostic ajuste le devis le message de rappel et les signaux de conversion",
@@ -126,9 +126,10 @@
         "devis-assurance-immeuble",
         "devis-pno-cno",
         "index",
+        "pno-cno",
         "prix-assurance-immeuble"
       ],
-      "count": 11
+      "count": 12
     },
     {
       "fingerprint": "chaque piece cochee rend la demande plus exploitable echeance contrat actuel sinistres lots et travaux le formulaire reprend ensuite les elements disponibles",
@@ -143,9 +144,10 @@
         "devis-assurance-immeuble",
         "devis-pno-cno",
         "index",
+        "pno-cno",
         "prix-assurance-immeuble"
       ],
-      "count": 11
+      "count": 12
     },
     {
       "fingerprint": "les recherches assurance immeuble ne valent pas toutes le meme parcours immeubleassur oriente vite vers cno pno multirisque immeuble ou audit contrat pour augmenter les leads exploitables",
@@ -163,9 +165,10 @@
         "devis-assurance-immeuble",
         "devis-pno-cno",
         "index",
+        "pno-cno",
         "tarif-assurance-immeuble"
       ],
-      "count": 14
+      "count": 15
     },
     {
       "fingerprint": "immeubleassur privilegie une qualification concrete contexte du bien responsabilites historique sinistre travaux contrat actuel et attentes du demandeur cette lecture evite les comparaisons superficielles et aide a obten",
