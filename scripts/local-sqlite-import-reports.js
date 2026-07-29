@@ -15,6 +15,7 @@ const reportFiles = [
   "reports/cro-experiment-report.json",
   "reports/lead-friction-report.json",
   "reports/local-antifraud-report.json",
+  "reports/content-diversity-report.json",
   "reports/live-api-readiness-report.json"
 ];
 

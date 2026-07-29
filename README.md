@@ -56,6 +56,7 @@ Les scripts principaux sont:
 npm run generate
 npm run seo:audit
 npm run seo:apis
+npm run content:diversity
 npm run editorial:autopilot
 npm run media:autopilot
 npm run search:intelligence
