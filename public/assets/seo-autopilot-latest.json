@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T11:30:49.576Z",
+  "generated_at": "2026-07-29T11:42:12.558Z",
   "pages_checked": 174,
   "average_score": 100,
   "opportunities_count": 0,
@@ -254,7 +254,7 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-07-29T11:30:47.033Z",
+    "generated_at": "2026-07-29T11:41:55.372Z",
     "pages_checked": 175,
     "status": "passed",
     "severe_issue_count": 0,
@@ -271,7 +271,7 @@
   },
   "cannibalization": {
     "configured": true,
-    "generated_at": "2026-07-29T11:30:48.013Z",
+    "generated_at": "2026-07-29T11:41:56.068Z",
     "status": "watch",
     "pages_checked": 171,
     "clusters_checked": 11,
@@ -1152,9 +1152,11 @@
   "intent_differentiation": {
     "configured": true,
     "status": "passed",
-    "generated_at": "2026-07-29T11:30:46.110Z",
+    "generated_at": "2026-07-29T11:41:54.812Z",
     "target_pages": 21,
-    "pages_changed": 21,
+    "pages_changed": 0,
+    "pages_changed_this_run": 0,
+    "pages_with_active_blocks": 21,
     "conflicts_addressed": 25,
     "safeguards": [
       "visible-content-only",
@@ -1167,7 +1169,7 @@
       {
         "slug": "assurance-cno",
         "url": "https://immeubleassur.com/assurance-cno",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "pno-cno"
@@ -1175,7 +1177,7 @@
       {
         "slug": "assurance-coproprietaire-non-occupant",
         "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "pno-cno"
@@ -1183,7 +1185,7 @@
       {
         "slug": "assurance-immeuble-monopropriete",
         "url": "https://immeubleassur.com/assurance-immeuble-monopropriete",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "assurance-sci"
@@ -1191,7 +1193,7 @@
       {
         "slug": "assurance-immeuble-obligatoire",
         "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "multirisque-immeuble"
@@ -1199,7 +1201,7 @@
       {
         "slug": "assurance-immeuble-sinistre",
         "url": "https://immeubleassur.com/assurance-immeuble-sinistre",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "gestion-sinistres-immeuble"
@@ -1207,7 +1209,7 @@
       {
         "slug": "assurance-pno-cno",
         "url": "https://immeubleassur.com/assurance-pno-cno",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "pno-cno"
@@ -1215,7 +1217,7 @@
       {
         "slug": "blog/assurance-immeuble-avec-ascenseur",
         "url": "https://immeubleassur.com/blog/assurance-immeuble-avec-ascenseur",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "multirisque-immeuble"
@@ -1223,7 +1225,7 @@
       {
         "slug": "blog/checklist-sinistre-degat-des-eaux",
         "url": "https://immeubleassur.com/blog/checklist-sinistre-degat-des-eaux",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "gestion-sinistres-immeuble"
@@ -1231,7 +1233,7 @@
       {
         "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
         "url": "https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "pno-cno"
@@ -1239,7 +1241,7 @@
       {
         "slug": "blog/copropriete-petite-syndic-benevole",
         "url": "https://immeubleassur.com/blog/copropriete-petite-syndic-benevole",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "assurance-copropriete"
@@ -1247,7 +1249,7 @@
       {
         "slug": "blog/dommages-ouvrage-copropriete-travaux",
         "url": "https://immeubleassur.com/blog/dommages-ouvrage-copropriete-travaux",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "assurance-copropriete"
@@ -1255,7 +1257,7 @@
       {
         "slug": "blog/immeuble-mixte-restaurant",
         "url": "https://immeubleassur.com/blog/immeuble-mixte-restaurant",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "blog/local-commercial-vacant"
@@ -1263,7 +1265,7 @@
       {
         "slug": "blog/pertes-de-loyers-immeuble",
         "url": "https://immeubleassur.com/blog/pertes-de-loyers-immeuble",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "multirisque-immeuble"
@@ -1271,7 +1273,7 @@
       {
         "slug": "blog/pno-cno-differences-garanties",
         "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "pno-cno"
@@ -1279,7 +1281,7 @@
       {
         "slug": "blog/pno-obligatoire-copropriete",
         "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "pno-cno"
@@ -1287,7 +1289,7 @@
       {
         "slug": "blog/preparer-renouvellement-assurance-immeuble",
         "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "multirisque-immeuble"
@@ -1295,7 +1297,7 @@
       {
         "slug": "blog/renovation-energetique-copropriete-assurance",
         "url": "https://immeubleassur.com/blog/renovation-energetique-copropriete-assurance",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 4,
         "primary_slug": "assurance-copropriete"
@@ -1303,7 +1305,7 @@
       {
         "slug": "blog/resiliation-assurance-immeuble",
         "url": "https://immeubleassur.com/blog/resiliation-assurance-immeuble",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "gestion-sinistres-immeuble"
@@ -1311,7 +1313,7 @@
       {
         "slug": "blog/sinistres-recurrents-immeuble",
         "url": "https://immeubleassur.com/blog/sinistres-recurrents-immeuble",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 2,
         "primary_slug": "gestion-sinistres-immeuble"
@@ -1319,7 +1321,7 @@
       {
         "slug": "comparateur-assurance-immeuble",
         "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "devis-assurance-immeuble"
@@ -1327,7 +1329,7 @@
       {
         "slug": "news/veille-assurance-immeuble-2026-07-29",
         "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-29",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "veille-assurance-immeuble"
@@ -1336,7 +1338,7 @@
   },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-07-29T11:30:48.559Z",
+    "generated_at": "2026-07-29T11:41:56.730Z",
     "pages_checked": 171,
     "money_pages_checked": 114,
     "average_conversion_score": 84,
@@ -1544,7 +1546,7 @@
   },
   "cro_experiment": {
     "configured": true,
-    "generated_at": "2026-07-29T11:30:48.753Z",
+    "generated_at": "2026-07-29T11:41:57.619Z",
     "status": "passed",
     "variant_count": 3,
     "variants": [

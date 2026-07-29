@@ -384,6 +384,8 @@ function readIntentDifferentiationReport() {
     generated_at: report.generated_at || "",
     target_pages: report.target_pages || 0,
     pages_changed: report.pages_changed || 0,
+    pages_changed_this_run: report.pages_changed_this_run || report.pages_changed || 0,
+    pages_with_active_blocks: report.pages_with_active_blocks || report.target_pages || 0,
     conflicts_addressed: report.conflicts_addressed || 0,
     safeguards: report.safeguards || [],
     pages: (report.pages || []).slice(0, 25)

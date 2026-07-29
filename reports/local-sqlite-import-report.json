@@ -1,12 +1,12 @@
 {
   "success": true,
-  "imported_at": "2026-07-29T11:34:27.419Z",
+  "imported_at": "2026-07-29T11:42:17.683Z",
   "mode": "local-json-report-check",
   "reports": [
     {
       "file": "reports/seo-autopilot-report.json",
       "status": "present",
-      "generated_at": "2026-07-29T11:30:49.576Z"
+      "generated_at": "2026-07-29T11:42:12.558Z"
     },
     {
       "file": "reports/search-intelligence-report.json",
@@ -31,17 +31,17 @@
     {
       "file": "reports/conversion-intelligence-report.json",
       "status": "present",
-      "generated_at": "2026-07-29T11:34:12.871Z"
+      "generated_at": "2026-07-29T11:41:56.730Z"
     },
     {
       "file": "reports/cro-experiment-report.json",
       "status": "passed",
-      "generated_at": "2026-07-29T11:34:13.253Z"
+      "generated_at": "2026-07-29T11:41:57.619Z"
     },
     {
       "file": "reports/lead-friction-report.json",
       "status": "passed",
-      "generated_at": "2026-07-29T11:34:13.799Z"
+      "generated_at": "2026-07-29T11:41:58.129Z"
     },
     {
       "file": "reports/local-antifraud-report.json",
@@ -56,12 +56,12 @@
     {
       "file": "reports/seo-cannibalization-report.json",
       "status": "watch",
-      "generated_at": "2026-07-29T11:34:12.303Z"
+      "generated_at": "2026-07-29T11:41:56.068Z"
     },
     {
       "file": "reports/seo-intent-differentiation-report.json",
       "status": "passed",
-      "generated_at": "2026-07-29T11:34:10.692Z"
+      "generated_at": "2026-07-29T11:41:54.812Z"
     },
     {
       "file": "reports/live-api-readiness-report.json",
