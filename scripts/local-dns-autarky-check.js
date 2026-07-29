@@ -1,6 +1,9 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { loadDefaultEnvFiles } from "./local-env.js";
 import dns from "node:dns/promises";
+
+loadDefaultEnvFiles();
 
 const DOMAIN = process.env.DNS_DOMAIN || "immeubleassur.com";
 const EXPECTED_A = process.env.DNS_EXPECTED_A || "80.15.56.123";

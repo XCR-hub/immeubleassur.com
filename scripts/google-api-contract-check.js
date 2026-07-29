@@ -4,6 +4,22 @@ import { join } from "node:path";
 const REPORT_DIR = "reports";
 const expectations = [
   {
+    file: "scripts/search-intelligence.js",
+    snippets: ["loadDefaultEnvFiles", "SERP_API_KEY", "--serp"]
+  },
+  {
+    file: "scripts/media-autopilot.js",
+    snippets: ["loadDefaultEnvFiles", "PEXELS_API_KEY", "--fetch"]
+  },
+  {
+    file: "scripts/editorial-autopilot.js",
+    snippets: ["loadDefaultEnvFiles", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GEMINI_API_KEY", "--ai"]
+  },
+  {
+    file: "scripts/turnstile-hybrid-pass.js",
+    snippets: ["loadDefaultEnvFiles", "TURNSTILE_SITE_KEY", "turnstile-hybrid"]
+  },
+  {
     file: "scripts/seo-autopilot.js",
     snippets: [
       "urlInspectionTargets",
@@ -22,7 +38,7 @@ const expectations = [
   },
   {
     file: "package.json",
-    snippets: ["--url-inspection", "--submit-sitemap", "google:apis", "google-api-contract-check.js"]
+    snippets: ["--url-inspection", "--submit-sitemap", "google:apis", "seo:live", "search:live", "media:live", "editorial:live", "google-api-contract-check.js"]
   },
   {
     file: ".github/workflows/seo-autopilot.yml",

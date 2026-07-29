@@ -1,5 +1,8 @@
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative } from "node:path";
+import { loadDefaultEnvFiles } from "./local-env.js";
+
+loadDefaultEnvFiles();
 
 const SITE = "https://immeubleassur.com";
 const PUBLIC_DIR = "public";

@@ -1,6 +1,9 @@
 import { createSign } from "node:crypto";
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join, relative } from "node:path";
+import { loadDefaultEnvFiles } from "./local-env.js";
+
+loadDefaultEnvFiles();
 
 const SITE = "https://immeubleassur.com";
 const PUBLIC_DIR = "public";

@@ -1,5 +1,8 @@
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
+import { loadDefaultEnvFiles } from "./local-env.js";
+
+loadDefaultEnvFiles();
 
 const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";

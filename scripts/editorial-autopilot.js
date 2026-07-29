@@ -1,6 +1,9 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { loadDefaultEnvFiles } from "./local-env.js";
+
+loadDefaultEnvFiles();
 
 const SITE = "https://immeubleassur.com";
 const OUT = "public";

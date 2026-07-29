@@ -1,6 +1,10 @@
 {
-  "generated_at": "2026-07-29T01:18:43.329Z",
+  "generated_at": "2026-07-29T01:29:32.787Z",
   "checked_files": [
+    "scripts/search-intelligence.js",
+    "scripts/media-autopilot.js",
+    "scripts/editorial-autopilot.js",
+    "scripts/turnstile-hybrid-pass.js",
     "scripts/seo-autopilot.js",
     "public/assets/admin.js",
     "package.json",
@@ -8,7 +12,7 @@
     "README.md",
     ".env.example"
   ],
-  "required_markers": 23,
+  "required_markers": 41,
   "missing": [],
   "status": "passed"
 }
