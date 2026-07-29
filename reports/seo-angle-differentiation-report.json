@@ -1,0 +1,193 @@
+{
+  "generated_at": "2026-07-29T22:47:02.259Z",
+  "status": "passed",
+  "pages_targeted": 22,
+  "pages_changed": 0,
+  "noindex_pages": 2,
+  "sitemap_entries_removed": 0,
+  "safeguards": [
+    "visible-content-only",
+    "title-h1-meta-differentiation",
+    "no-hidden-keyword-blocks",
+    "no-google-scraping",
+    "noindex-only-for-duplicate-archive"
+  ],
+  "pages": [
+    {
+      "slug": "news/veille-assurance-immeuble-2026-07-28",
+      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
+      "changed": false,
+      "indexable": false,
+      "title": "Archive veille immeuble 28 juillet 2026",
+      "h1": "Archive du 28 juillet 2026: signaux assurance immeuble a relire."
+    },
+    {
+      "slug": "news/veille-assurance-immeuble-2026-07-29",
+      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-29",
+      "changed": false,
+      "indexable": true,
+      "title": "Veille immeuble 29 juillet 2026: dernier signal",
+      "h1": "Veille assurance immeuble du 29 juillet 2026."
+    },
+    {
+      "slug": "assurance-cno",
+      "url": "https://immeubleassur.com/assurance-cno",
+      "changed": false,
+      "indexable": true,
+      "title": "Assurance CNO lot vacant ou loue en copropriete",
+      "h1": "Assurance CNO: couvrir le lot du coproprietaire non occupant."
+    },
+    {
+      "slug": "assurance-coproprietaire-non-occupant",
+      "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant",
+      "changed": false,
+      "indexable": false,
+      "title": "Coproprietaire non occupant: page consolidee CNO",
+      "h1": "Coproprietaire non occupant: continuer vers l'assurance CNO."
+    },
+    {
+      "slug": "devis-pno-cno",
+      "url": "https://immeubleassur.com/devis-pno-cno",
+      "changed": false,
+      "indexable": true,
+      "title": "Devis PNO CNO: qualifier un lot avant rappel",
+      "h1": "Demander un devis PNO/CNO avec un dossier exploitable."
+    },
+    {
+      "slug": "blog/assurance-immeuble-sans-sinistre",
+      "url": "https://immeubleassur.com/blog/assurance-immeuble-sans-sinistre",
+      "changed": false,
+      "indexable": true,
+      "title": "Immeuble sans sinistre: valoriser un bon historique",
+      "h1": "Immeuble sans sinistre: comment valoriser le dossier assureur."
+    },
+    {
+      "slug": "blog/sinistres-recurrents-immeuble",
+      "url": "https://immeubleassur.com/blog/sinistres-recurrents-immeuble",
+      "changed": false,
+      "indexable": true,
+      "title": "Sinistres recurrents immeuble: redresser le dossier",
+      "h1": "Sinistres recurrents dans un immeuble: reconstruire un dossier credible."
+    },
+    {
+      "slug": "assurance-immeuble-resilie",
+      "url": "https://immeubleassur.com/assurance-immeuble-resilie",
+      "changed": false,
+      "indexable": true,
+      "title": "Assurance immeuble resilie: retrouver une solution",
+      "h1": "Assurance immeuble resiliee: refaire accepter le dossier."
+    },
+    {
+      "slug": "assurance-immeuble-sinistre",
+      "url": "https://immeubleassur.com/assurance-immeuble-sinistre",
+      "changed": false,
+      "indexable": true,
+      "title": "Assurance immeuble avec sinistres: dossier a defendre",
+      "h1": "Assurance immeuble avec sinistres: presenter les causes et correctifs."
+    },
+    {
+      "slug": "blog/multirisque-immeuble-vs-pno",
+      "url": "https://immeubleassur.com/blog/multirisque-immeuble-vs-pno",
+      "changed": false,
+      "indexable": true,
+      "title": "Multirisque immeuble vs PNO: qui couvre quoi",
+      "h1": "Multirisque immeuble ou PNO: separer batiment, lot et occupant."
+    },
+    {
+      "slug": "blog/pno-obligatoire-copropriete",
+      "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
+      "changed": false,
+      "indexable": true,
+      "title": "PNO obligatoire en copropriete: cas reels",
+      "h1": "PNO obligatoire en copropriete: quand le coproprietaire doit agir."
+    },
+    {
+      "slug": "assurance-batiment-proprietaire",
+      "url": "https://immeubleassur.com/assurance-batiment-proprietaire",
+      "changed": false,
+      "indexable": true,
+      "title": "Assurance batiment proprietaire: murs et locaux",
+      "h1": "Assurance batiment proprietaire: proteger les murs, locaux et dependances."
+    },
+    {
+      "slug": "assurance-immeuble-monopropriete",
+      "url": "https://immeubleassur.com/assurance-immeuble-monopropriete",
+      "changed": false,
+      "indexable": true,
+      "title": "Assurance immeuble en monopropriete familiale",
+      "h1": "Assurance monopropriete: un seul proprietaire, plusieurs responsabilites."
+    },
+    {
+      "slug": "blog/assurance-copropriete-avant-ag",
+      "url": "https://immeubleassur.com/blog/assurance-copropriete-avant-ag",
+      "changed": false,
+      "indexable": true,
+      "title": "Assurance copropriete avant AG: points a voter",
+      "h1": "Avant l'AG de copropriete: verifier les sujets assurance a voter."
+    },
+    {
+      "slug": "blog/copropriete-petite-syndic-benevole",
+      "url": "https://immeubleassur.com/blog/copropriete-petite-syndic-benevole",
+      "changed": false,
+      "indexable": true,
+      "title": "Petite copropriete: assurance du syndic benevole",
+      "h1": "Petite copropriete avec syndic benevole: tenir le contrat au quotidien."
+    },
+    {
+      "slug": "blog/dommages-ouvrage-copropriete-travaux",
+      "url": "https://immeubleassur.com/blog/dommages-ouvrage-copropriete-travaux",
+      "changed": false,
+      "indexable": true,
+      "title": "Dommages ouvrage copropriete: travaux votes",
+      "h1": "Dommages ouvrage en copropriete: securiser des travaux votes."
+    },
+    {
+      "slug": "blog/renovation-energetique-copropriete-assurance",
+      "url": "https://immeubleassur.com/blog/renovation-energetique-copropriete-assurance",
+      "changed": false,
+      "indexable": true,
+      "title": "Renovation energetique copropriete: impact assurance",
+      "h1": "Renovation energetique en copropriete: anticiper l'impact assurance."
+    },
+    {
+      "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
+      "url": "https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire",
+      "changed": false,
+      "indexable": true,
+      "title": "CNO coproprietaire non occupant: obligation RC",
+      "h1": "CNO obligatoire: verifier la responsabilite civile du coproprietaire."
+    },
+    {
+      "slug": "blog/pno-cno-differences-garanties",
+      "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
+      "changed": false,
+      "indexable": true,
+      "title": "PNO ou CNO: differences de garanties",
+      "h1": "PNO ou CNO: comprendre les differences de garanties."
+    },
+    {
+      "slug": "blog/assurance-immeuble-apres-refus-assureur",
+      "url": "https://immeubleassur.com/blog/assurance-immeuble-apres-refus-assureur",
+      "changed": false,
+      "indexable": true,
+      "title": "Refus assureur immeuble: preparer une relance",
+      "h1": "Apres un refus assureur: retravailler le dossier immeuble."
+    },
+    {
+      "slug": "blog/resiliation-assurance-immeuble",
+      "url": "https://immeubleassur.com/blog/resiliation-assurance-immeuble",
+      "changed": false,
+      "indexable": true,
+      "title": "Resiliation assurance immeuble: plan de remplacement",
+      "h1": "Resiliation assurance immeuble: organiser le remplacement du contrat."
+    },
+    {
+      "slug": "blog/checklist-sinistre-degat-des-eaux",
+      "url": "https://immeubleassur.com/blog/checklist-sinistre-degat-des-eaux",
+      "changed": false,
+      "indexable": true,
+      "title": "Checklist degat des eaux immeuble: preuves utiles",
+      "h1": "Degat des eaux immeuble: checklist des preuves a reunir."
+    }
+  ]
+}

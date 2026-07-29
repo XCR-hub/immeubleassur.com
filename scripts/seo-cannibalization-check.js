@@ -9,7 +9,7 @@ const generatedSeoBlockPatterns = [
 ];
 
 const ignoredSlugs = new Set(["admin", "mentions-legales", "confidentialite", "merci"]);
-const stopwords = new Set("assurance assurances immeuble immeubles immeubleassur pour avec dans depuis cette votre vous nous notre nos vos des les une aux sur par qui que quoi dont plus moins prix devis contrat contrats garantie garanties syndic copropriete proprietaire proprietaires bailleur bailleurs courtier comparateur guide article faq formulaire demande audit page besoin risque risques faire etre sont vers entre sans aussi comme avant apres chaque peut doivent doivent actuel actuelle actuels dossier dossiers assureur assureurs travaux pieces piece franchises franchise prime primes exclusions exclusion echeance usage usages utiles utile information informations analyse analyses occupation responsabilite responsabilites parcours garanties garantie sinistre sinistres obtenir proposition propositions reponse reponses couvrir couvert couvertes declaration declarations".split(" "));
+const stopwords = new Set("assurance assurances immeuble immeubles immeubleassur pour avec dans depuis cette votre vous nous notre nos vos des les une aux sur par qui que quoi dont plus moins prix devis contrat contrats garantie garanties syndic copropriete proprietaire proprietaires bailleur bailleurs courtier comparateur guide article faq formulaire demande audit page besoin risque risques faire etre sont vers entre sans aussi comme avant apres chaque peut doivent doivent actuel actuelle actuels dossier dossiers assureur assureurs travaux pieces piece franchises franchise prime primes exclusions exclusion echeance usage usages utiles utile information informations analyse analyses occupation responsabilite responsabilites parcours garanties garantie sinistre sinistres obtenir proposition propositions reponse reponses couvrir couvert couvertes declaration declarations clair claire comparable recherche approfondir construire point points fiche fiches methode priorite adresse documents choisir comparer".split(" "));
 
 
 const primaryByCluster = {
@@ -66,6 +66,11 @@ function pageUrl(slug) {
 
 function readMeta(html, pattern) {
   return ((html.match(pattern) || [])[1] || "").trim();
+}
+
+function isNoIndex(html) {
+  const robots = readMeta(html, /<meta name="robots" content="([^"]*)"/i).toLowerCase();
+  return /(^|,\s*)noindex(\s*,|$)/.test(robots);
 }
 
 function cityFromSlug(slug) {
@@ -156,6 +161,7 @@ function recommendationFor(primary, secondary) {
 
 function auditPage(file) {
   const html = readFileSync(file, "utf8");
+  if (isNoIndex(html)) return null;
   const slug = slugFromFile(file);
   const text = stripHtml(html);
   const title = stripHtml(readMeta(html, /<title>(.*?)<\/title>/is));
@@ -236,7 +242,9 @@ function buildWatchlist(pages) {
 mkdirSync(REPORT_DIR, { recursive: true });
 mkdirSync(join(PUBLIC_DIR, "assets"), { recursive: true });
 
-const pages = walk(PUBLIC_DIR).map(auditPage).filter((page) => !ignoredSlugs.has(page.slug));
+const audited = walk(PUBLIC_DIR).map(auditPage);
+const noindexSkipped = audited.filter((page) => page === null).length;
+const pages = audited.filter(Boolean).filter((page) => !ignoredSlugs.has(page.slug));
 const watchlist = buildWatchlist(pages);
 const highRisk = watchlist.filter((item) => item.risk === "high");
 const mediumRisk = watchlist.filter((item) => item.risk === "medium");

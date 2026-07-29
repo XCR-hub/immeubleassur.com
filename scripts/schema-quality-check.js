@@ -32,6 +32,11 @@ function canonicalOf(html) {
   return (html.match(/<link rel="canonical" href="([^"]+)"\s*\/>/i) || [])[1] || "";
 }
 
+function isNoIndex(html) {
+  const robots = (html.match(/<meta name="robots" content="([^"]*)"/i) || [])[1] || "";
+  return /(^|,\s*)noindex(\s*,|$)/i.test(robots);
+}
+
 function extractJsonLd(html, file, issues) {
   const blocks = [...html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];
   return blocks.map((match, index) => {
@@ -127,7 +132,8 @@ function validateSitemap(publicUrls) {
 }
 
 const publicFiles = walk(PUBLIC_DIR).filter((file) => !privateSlugs.has(slugFromFile(file)));
-const publicUrls = new Set(publicFiles.map((file) => pageUrl(slugFromFile(file))));
+const indexablePublicFiles = publicFiles.filter((file) => !isNoIndex(readFileSync(file, "utf8")));
+const publicUrls = new Set(indexablePublicFiles.map((file) => pageUrl(slugFromFile(file))));
 const issues = publicFiles.flatMap(validatePage).concat(validateSitemap(publicUrls));
 
 if (issues.length) {

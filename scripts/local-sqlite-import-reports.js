@@ -18,6 +18,7 @@ const reportFiles = [
   "reports/content-diversity-report.json",
   "reports/seo-cannibalization-report.json",
   "reports/seo-intent-differentiation-report.json",
+  "reports/seo-angle-differentiation-report.json",
   "reports/live-api-readiness-report.json"
 ];
 

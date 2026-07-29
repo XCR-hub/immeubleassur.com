@@ -59,6 +59,7 @@ npm run seo:apis
 npm run content:diversity
 npm run seo:cannibalization
 npm run seo:intent:differentiate
+npm run seo:angles
 npm run editorial:autopilot
 npm run media:autopilot
 npm run search:intelligence
