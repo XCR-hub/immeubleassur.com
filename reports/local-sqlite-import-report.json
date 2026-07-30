@@ -1,13 +1,13 @@
 {
   "success": true,
-  "imported_at": "2026-07-30T01:21:32.454Z",
+  "imported_at": "2026-07-30T01:21:50.173Z",
   "imported_at_source": "latest-report-generated-at",
   "mode": "local-json-report-check",
   "reports": [
     {
       "file": "reports/seo-autopilot-report.json",
       "status": "present",
-      "generated_at": "2026-07-30T01:20:41.864Z"
+      "generated_at": "2026-07-30T01:21:50.173Z"
     },
     {
       "file": "reports/search-intelligence-report.json",
