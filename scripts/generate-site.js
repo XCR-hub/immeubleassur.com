@@ -787,10 +787,13 @@ function guidePage(guide) {
   return layout({ slug: guide.slug, title: guide.title, description: guide.description, body });
 }
 
+function intentExitBlock() {
+  return `<section class="band compare-band lead-urgency-exits" aria-label="Parcours devis prioritaires"><div class="section-head"><p class="eyebrow dark">Passer a l'action</p><h2>Transformer la lecture en demande qualifiee.</h2></div><div class="card-grid"><article class="content-card"><h3><a href="/devis-assurance-immeuble?intent=sinistre">Audit sinistre ou resiliation</a></h3><p>Prioriser les dossiers avec sinistre, refus assureur, echeance proche ou contrat difficile.</p></article><article class="content-card"><h3><a href="/devis-assurance-immeuble?intent=prix">Devis prix et garanties</a></h3><p>Comparer prime, franchises, plafonds et exclusions avec une fiche risque exploitable.</p></article><article class="content-card"><h3><a href="/devis-pno-cno?intent=pno-cno">Parcours PNO/CNO</a></h3><p>Qualifier un lot loue, vacant ou non occupant et verifier le contrat immeuble associe.</p></article><article class="content-card"><h3><a href="/devis-assurance-immeuble?intent=travaux">Travaux et immeuble mixte</a></h3><p>Anticiper ravalement, toiture, dommages-ouvrage, local commercial ou changement d'usage.</p></article></div></section>`;
+}
 function listingPage({ slug, title, description, intro, cards }) {
   const body = `
     <section class="page-hero compact-hero"><div class="container"><p class="eyebrow">ImmeubleAssur</p><h1>${esc(title)}</h1><p>${esc(intro)}</p></div></section>
-    <section class="band page-band"><div class="card-grid">${cards.join("")}</div></section>`;
+    <section class="band page-band"><div class="card-grid">${cards.join("")}</div></section>${intentExitBlock()}`;
   return layout({ slug, title, description, body });
 }
 

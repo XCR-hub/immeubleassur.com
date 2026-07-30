@@ -1,64 +1,12 @@
 {
-  "generated_at": "2026-07-30T03:57:18.432Z",
-  "pages_checked": 175,
+  "generated_at": "2026-07-30T23:28:02.506Z",
+  "pages_checked": 176,
   "status": "passed",
   "severe_issue_count": 0,
   "warning_count": 0,
   "duplicate_titles": [],
   "duplicate_descriptions": [],
   "repeated_paragraph_clusters": [
-    {
-      "fingerprint": "le contenu utile doit aider le visiteur a comprendre son risque et a transmettre les informations qui permettront une reponse assureur exploitable",
-      "pages": [
-        "assurance-batiment-proprietaire",
-        "assurance-immeuble-locatif",
-        "assurance-local-commercial",
-        "assurance-parties-communes",
-        "audit-contrat-assurance-immeuble",
-        "blog/assurance-colocation-immeuble",
-        "blog/assurance-immeuble-ancien",
-        "blog/assurance-immeuble-apres-refus-assureur",
-        "blog/assurance-immeuble-avec-ascenseur",
-        "blog/assurance-immeuble-etudiant",
-        "blog/assurance-immeuble-local-professionnel",
-        "blog/assurance-immeuble-mixte-commerce",
-        "blog/assurance-immeuble-protection-du-patrimoine",
-        "blog/assurance-immeuble-vacant",
-        "blog/audit-franchises-assurance-immeuble",
-        "blog/franchise-degat-des-eaux-immeuble",
-        "blog/infiltration-toiture-terrasse",
-        "blog/local-commercial-vacant",
-        "blog/preparer-renouvellement-assurance-immeuble",
-        "blog/ravalement-toiture-travaux-assurance"
-      ],
-      "count": 42
-    },
-    {
-      "fingerprint": "cette synthese ajoute une lecture operationnelle intention du demandeur donnees a collecter arbitrage garanties prix et lien direct vers le parcours qui transforme la visite en dossier qualifie",
-      "pages": [
-        "assurance-batiment-proprietaire",
-        "assurance-immeuble-locatif",
-        "assurance-local-commercial",
-        "assurance-parties-communes",
-        "audit-contrat-assurance-immeuble",
-        "blog/assurance-colocation-immeuble",
-        "blog/assurance-copropriete-obligatoire",
-        "blog/assurance-immeuble-ancien",
-        "blog/assurance-immeuble-apres-refus-assureur",
-        "blog/assurance-immeuble-avec-ascenseur",
-        "blog/assurance-immeuble-etudiant",
-        "blog/assurance-immeuble-local-professionnel",
-        "blog/assurance-immeuble-mixte-commerce",
-        "blog/assurance-immeuble-protection-du-patrimoine",
-        "blog/assurance-immeuble-vacant",
-        "blog/assurance-lot-vacant-copropriete",
-        "blog/assurance-parking-garages-copropriete",
-        "blog/assurance-sci-patrimoine-locatif",
-        "blog/audit-franchises-assurance-immeuble",
-        "blog/franchise-degat-des-eaux-immeuble"
-      ],
-      "count": 58
-    },
     {
       "fingerprint": "le syndic le conseil syndical ou le coproprietaire doivent relier parties communes rc sinistres travaux et franchises avant de comparer",
       "pages": [

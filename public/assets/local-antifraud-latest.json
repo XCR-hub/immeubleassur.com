@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-29T23:08:55.332Z",
+  "generated_at": "2026-07-30T23:27:30.878Z",
   "provider": "local-antifraud",
   "configured": true,
-  "pages_checked": 174,
+  "pages_checked": 175,
   "forms_detected": 162,
   "forms_instrumented": 162,
   "legacy_widgets_removed": 0,

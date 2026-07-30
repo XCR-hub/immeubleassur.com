@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T23:08:56.022Z",
+  "generated_at": "2026-07-30T23:27:31.277Z",
   "status": "partial",
   "connectors_checked": 8,
   "ready_count": 1,
@@ -35,13 +35,13 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T23:08:55.758Z",
+        "generated_at": "2026-07-30T23:27:31.138Z",
         "status": "fallback-local-antifraud",
         "summary": {
           "provider": "cloudflare-turnstile",
           "mode": "fallback-local-antifraud",
           "configured": false,
-          "pages_checked": 174,
+          "pages_checked": 175,
           "forms_detected": 162,
           "forms_instrumented": 0
         }
@@ -75,7 +75,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T23:08:48.184Z",
+        "generated_at": "2026-07-30T23:27:28.198Z",
         "status": "skipped-no-serp-key",
         "summary": {
           "provider": "local-estimate",
@@ -115,7 +115,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T23:08:47.835Z",
+        "generated_at": "2026-07-30T23:27:28.025Z",
         "status": "skipped-no-pexels-key",
         "summary": {
           "provider": "planned-pexels",
@@ -167,7 +167,7 @@
       ],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T23:08:47.474Z",
+        "generated_at": "2026-07-30T23:27:27.870Z",
         "status": "local-fallback",
         "summary": {
           "provider": "",
@@ -213,13 +213,13 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T22:47:29.525Z",
+        "generated_at": "2026-07-30T23:27:17.182Z",
         "status": "local-only",
         "summary": {
           "provider": "",
           "mode": "local-only",
           "configured": false,
-          "pages_checked": 174,
+          "pages_checked": 175,
           "forms_detected": 0,
           "forms_instrumented": 0
         }
@@ -253,13 +253,13 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T22:47:29.525Z",
+        "generated_at": "2026-07-30T23:27:17.182Z",
         "status": "local-only",
         "summary": {
           "provider": "",
           "mode": "local-only",
           "configured": false,
-          "pages_checked": 174,
+          "pages_checked": 175,
           "forms_detected": 0,
           "forms_instrumented": 0
         }
@@ -298,7 +298,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-29T23:08:54.801Z",
+        "generated_at": "2026-07-30T23:27:30.627Z",
         "status": "present",
         "summary": {
           "provider": "",

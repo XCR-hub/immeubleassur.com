@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-07-30T03:57:15.993Z",
+  "generated_at": "2026-07-30T23:28:00.862Z",
   "status": "passed",
-  "source_report_generated_at": "2026-07-30T03:57:15.515Z",
-  "pages_checked": 175,
-  "target_pages": 9,
-  "pages_changed": 7,
-  "pages_changed_this_run": 7,
-  "pages_with_active_blocks": 9,
-  "conflicts_addressed": 11,
+  "source_report_generated_at": "2026-07-30T23:28:00.475Z",
+  "pages_checked": 176,
+  "target_pages": 11,
+  "pages_changed": 17,
+  "pages_changed_this_run": 17,
+  "pages_with_active_blocks": 11,
+  "conflicts_addressed": 12,
   "safeguards": [
     "visible-content-only",
     "no-hidden-keyword-blocks",
@@ -17,6 +17,14 @@
   ],
   "pages": [
     {
+      "slug": "assurance-cno",
+      "url": "https://immeubleassur.com/assurance-cno",
+      "changed": true,
+      "differentiated": true,
+      "conflicts_addressed": 1,
+      "primary_slug": "pno-cno"
+    },
+    {
       "slug": "assurance-immeuble-obligatoire",
       "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
       "changed": false,
@@ -25,28 +33,12 @@
       "primary_slug": "multirisque-immeuble"
     },
     {
-      "slug": "blog/assurance-immeuble-avec-ascenseur",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-avec-ascenseur",
+      "slug": "assurance-pno-cno",
+      "url": "https://immeubleassur.com/assurance-pno-cno",
       "changed": true,
       "differentiated": true,
       "conflicts_addressed": 1,
-      "primary_slug": "multirisque-immeuble"
-    },
-    {
-      "slug": "blog/assurance-immeuble-protection-du-patrimoine",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-protection-du-patrimoine",
-      "changed": true,
-      "differentiated": true,
-      "conflicts_addressed": 2,
-      "primary_slug": "assurance-sci"
-    },
-    {
-      "slug": "blog/assurance-immeuble-vacant",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-vacant",
-      "changed": true,
-      "differentiated": true,
-      "conflicts_addressed": 1,
-      "primary_slug": "multirisque-immeuble"
+      "primary_slug": "pno-cno"
     },
     {
       "slug": "blog/checklist-sinistre-degat-des-eaux",
@@ -57,20 +49,36 @@
       "primary_slug": "gestion-sinistres-immeuble"
     },
     {
-      "slug": "blog/pno-obligatoire-copropriete",
-      "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
+      "slug": "blog/immeuble-mixte-restaurant",
+      "url": "https://immeubleassur.com/blog/immeuble-mixte-restaurant",
+      "changed": true,
+      "differentiated": true,
+      "conflicts_addressed": 1,
+      "primary_slug": "blog/local-commercial-vacant"
+    },
+    {
+      "slug": "blog/pertes-de-loyers-immeuble",
+      "url": "https://immeubleassur.com/blog/pertes-de-loyers-immeuble",
+      "changed": true,
+      "differentiated": true,
+      "conflicts_addressed": 1,
+      "primary_slug": "multirisque-immeuble"
+    },
+    {
+      "slug": "blog/pno-cno-differences-garanties",
+      "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
       "changed": true,
       "differentiated": true,
       "conflicts_addressed": 1,
       "primary_slug": "pno-cno"
     },
     {
-      "slug": "blog/preparer-renouvellement-assurance-immeuble",
-      "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
+      "slug": "blog/pno-obligatoire-copropriete",
+      "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
       "changed": true,
       "differentiated": true,
       "conflicts_addressed": 1,
-      "primary_slug": "multirisque-immeuble"
+      "primary_slug": "pno-cno"
     },
     {
       "slug": "blog/sinistres-recurrents-immeuble",
@@ -87,6 +95,14 @@
       "differentiated": true,
       "conflicts_addressed": 1,
       "primary_slug": "devis-assurance-immeuble"
+    },
+    {
+      "slug": "news/veille-assurance-immeuble-2026-07-30",
+      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-30",
+      "changed": true,
+      "differentiated": true,
+      "conflicts_addressed": 1,
+      "primary_slug": "veille-assurance-immeuble"
     }
   ]
 }
