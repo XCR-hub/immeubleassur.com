@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T01:21:31.389Z",
+  "generated_at": "2026-07-30T02:25:46.313Z",
   "pages_checked": 171,
   "money_pages_checked": 114,
   "cluster_count": 10,
@@ -171,17 +171,12 @@
       "cluster": "sci-bailleur",
       "pages": 11,
       "money_pages": 4,
-      "average_score": 82,
+      "average_score": 81,
       "top_pages": [
         {
           "slug": "assurance-sci",
           "url": "https://immeubleassur.com/assurance-sci",
           "score": 100
-        },
-        {
-          "slug": "assurance-immeuble-monopropriete",
-          "url": "https://immeubleassur.com/assurance-immeuble-monopropriete",
-          "score": 91
         },
         {
           "slug": "blog/assurance-immeuble-protection-du-patrimoine",
@@ -201,6 +196,11 @@
         {
           "slug": "assurance-immeuble-locatif",
           "url": "https://immeubleassur.com/assurance-immeuble-locatif",
+          "score": 84
+        },
+        {
+          "slug": "assurance-immeuble-meuble-colocation",
+          "url": "https://immeubleassur.com/assurance-immeuble-meuble-colocation",
           "score": 84
         }
       ]
@@ -285,7 +285,7 @@
       "cluster": "local-commercial",
       "pages": 6,
       "money_pages": 0,
-      "average_score": 86,
+      "average_score": 85,
       "top_pages": [
         {
           "slug": "assurance-local-commercial",
@@ -298,11 +298,6 @@
           "score": 86
         },
         {
-          "slug": "blog/immeuble-mixte-restaurant",
-          "url": "https://immeubleassur.com/blog/immeuble-mixte-restaurant",
-          "score": 86
-        },
-        {
           "slug": "blog/local-commercial-vacant",
           "url": "https://immeubleassur.com/blog/local-commercial-vacant",
           "score": 86
@@ -310,6 +305,11 @@
         {
           "slug": "blog/assurance-immeuble-mixte-commerce",
           "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
+          "score": 79
+        },
+        {
+          "slug": "blog/immeuble-mixte-restaurant",
+          "url": "https://immeubleassur.com/blog/immeuble-mixte-restaurant",
           "score": 79
         },
         {

@@ -17,8 +17,8 @@ const profiles = {
     summary: "Quand la recherche porte sur un lot, une vacance ou un coproprietaire non occupant, le maillage doit envoyer vers la page qui qualifie vraiment le dossier.",
     links: [
       ["/devis-pno-cno?intent=cno", "Devis CNO qualifie"],
+      ["/devis-pno-cno?intent=pno", "Devis PNO bailleur"],
       ["/assurance-cno", "Comprendre la CNO"],
-      ["/assurance-pno-cno", "Comparer PNO et CNO"],
       ["/faq/pno", "FAQ PNO/CNO"]
     ]
   },

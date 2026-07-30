@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-07-30T01:21:27.891Z",
+  "generated_at": "2026-07-30T02:25:41.019Z",
   "status": "passed",
-  "source_report_generated_at": "2026-07-30T01:21:27.323Z",
+  "source_report_generated_at": "2026-07-30T02:25:40.317Z",
   "pages_checked": 175,
-  "target_pages": 10,
-  "pages_changed": 6,
-  "pages_changed_this_run": 6,
-  "pages_with_active_blocks": 10,
+  "target_pages": 9,
+  "pages_changed": 13,
+  "pages_changed_this_run": 13,
+  "pages_with_active_blocks": 9,
   "conflicts_addressed": 11,
   "safeguards": [
     "visible-content-only",
@@ -17,14 +17,6 @@
   ],
   "pages": [
     {
-      "slug": "assurance-cno",
-      "url": "https://immeubleassur.com/assurance-cno",
-      "changed": false,
-      "differentiated": true,
-      "conflicts_addressed": 1,
-      "primary_slug": "pno-cno"
-    },
-    {
       "slug": "assurance-immeuble-obligatoire",
       "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
       "changed": false,
@@ -33,12 +25,28 @@
       "primary_slug": "multirisque-immeuble"
     },
     {
-      "slug": "assurance-pno-cno",
-      "url": "https://immeubleassur.com/assurance-pno-cno",
-      "changed": false,
+      "slug": "blog/assurance-immeuble-avec-ascenseur",
+      "url": "https://immeubleassur.com/blog/assurance-immeuble-avec-ascenseur",
+      "changed": true,
       "differentiated": true,
       "conflicts_addressed": 1,
-      "primary_slug": "pno-cno"
+      "primary_slug": "multirisque-immeuble"
+    },
+    {
+      "slug": "blog/assurance-immeuble-protection-du-patrimoine",
+      "url": "https://immeubleassur.com/blog/assurance-immeuble-protection-du-patrimoine",
+      "changed": true,
+      "differentiated": true,
+      "conflicts_addressed": 2,
+      "primary_slug": "assurance-sci"
+    },
+    {
+      "slug": "blog/assurance-immeuble-vacant",
+      "url": "https://immeubleassur.com/blog/assurance-immeuble-vacant",
+      "changed": true,
+      "differentiated": true,
+      "conflicts_addressed": 1,
+      "primary_slug": "multirisque-immeuble"
     },
     {
       "slug": "blog/checklist-sinistre-degat-des-eaux",
@@ -49,36 +57,20 @@
       "primary_slug": "gestion-sinistres-immeuble"
     },
     {
-      "slug": "blog/immeuble-mixte-restaurant",
-      "url": "https://immeubleassur.com/blog/immeuble-mixte-restaurant",
-      "changed": true,
-      "differentiated": true,
-      "conflicts_addressed": 1,
-      "primary_slug": "blog/local-commercial-vacant"
-    },
-    {
-      "slug": "blog/pertes-de-loyers-immeuble",
-      "url": "https://immeubleassur.com/blog/pertes-de-loyers-immeuble",
-      "changed": true,
-      "differentiated": true,
-      "conflicts_addressed": 1,
-      "primary_slug": "multirisque-immeuble"
-    },
-    {
-      "slug": "blog/pno-cno-differences-garanties",
-      "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
-      "changed": true,
-      "differentiated": true,
-      "conflicts_addressed": 1,
-      "primary_slug": "pno-cno"
-    },
-    {
       "slug": "blog/pno-obligatoire-copropriete",
       "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
       "changed": true,
       "differentiated": true,
       "conflicts_addressed": 1,
       "primary_slug": "pno-cno"
+    },
+    {
+      "slug": "blog/preparer-renouvellement-assurance-immeuble",
+      "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
+      "changed": true,
+      "differentiated": true,
+      "conflicts_addressed": 1,
+      "primary_slug": "multirisque-immeuble"
     },
     {
       "slug": "blog/sinistres-recurrents-immeuble",
@@ -91,7 +83,7 @@
     {
       "slug": "comparateur-assurance-immeuble",
       "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-      "changed": false,
+      "changed": true,
       "differentiated": true,
       "conflicts_addressed": 1,
       "primary_slug": "devis-assurance-immeuble"

@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-30T01:21:28.323Z",
+  "generated_at": "2026-07-30T02:25:41.590Z",
   "status": "passed",
   "pages_targeted": 22,
-  "pages_changed": 14,
+  "pages_changed": 17,
   "noindex_pages": 2,
   "sitemap_entries_removed": 0,
   "safeguards": [
@@ -16,7 +16,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-28",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
-      "changed": false,
+      "changed": true,
       "indexable": false,
       "title": "Archive veille immeuble 28 juillet 2026",
       "h1": "Archive du 28 juillet 2026: signaux assurance immeuble a relire."
@@ -48,7 +48,7 @@
     {
       "slug": "devis-pno-cno",
       "url": "https://immeubleassur.com/devis-pno-cno",
-      "changed": false,
+      "changed": true,
       "indexable": true,
       "title": "Devis PNO CNO: qualifier un lot avant rappel",
       "h1": "Demander un devis PNO/CNO avec un dossier exploitable."
@@ -104,7 +104,7 @@
     {
       "slug": "assurance-batiment-proprietaire",
       "url": "https://immeubleassur.com/assurance-batiment-proprietaire",
-      "changed": false,
+      "changed": true,
       "indexable": true,
       "title": "Assurance batiment proprietaire: murs et locaux",
       "h1": "Assurance batiment proprietaire: proteger les murs, locaux et dependances."

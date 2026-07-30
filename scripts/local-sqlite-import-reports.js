@@ -14,6 +14,7 @@ const reportFiles = [
   "reports/conversion-intelligence-report.json",
   "reports/cro-experiment-report.json",
   "reports/lead-friction-report.json",
+  "reports/lead-intent-routing-report.json",
   "reports/local-antifraud-report.json",
   "reports/content-diversity-report.json",
   "reports/seo-cannibalization-report.json",
@@ -80,3 +81,4 @@ if (invalid.length) {
 }
 
 console.log(`SQLite local report check complete: ${reports.length} report(s), database ${result.database.file} via ${result.database.path_source}.`);
+

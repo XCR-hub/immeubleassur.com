@@ -1,0 +1,52 @@
+{
+  "generated_at": "2026-07-30T02:26:10.405Z",
+  "status": "passed",
+  "checked_files": [
+    "public/assets/app.js",
+    "functions/api/leads.js",
+    "functions/api/events.js",
+    "functions/_shared/ga4.js"
+  ],
+  "required_intents": [
+    "travaux",
+    "veille",
+    "local-commercial",
+    "prix",
+    "sinistre",
+    "copropriete",
+    "sci",
+    "immeuble",
+    "pno",
+    "cno"
+  ],
+  "money_intents": [
+    "travaux",
+    "veille",
+    "local-commercial",
+    "prix",
+    "sinistre"
+  ],
+  "intent_link_counts": {
+    "travaux": 4,
+    "veille": 3,
+    "local-commercial": 8,
+    "prix": 7,
+    "sinistre": 18,
+    "copropriete": 27,
+    "sci": 18,
+    "immeuble": 151,
+    "pno": 9,
+    "cno": 84
+  },
+  "missing_required_intent_links": [],
+  "missing_money_intent_links": [],
+  "bridge_status": "passed",
+  "active_bridges": 43,
+  "missing": [],
+  "safeguards": [
+    "query intent prefills form",
+    "lead payload persists intent/source_path",
+    "GA4 receives lead_intent",
+    "visible bridge links remain present"
+  ]
+}

@@ -139,7 +139,7 @@ function linksFor(slug) {
     ["Comparer", "/comparateur-assurance-immeuble"],
     ["Documents", "/checklist-documents-assurance-immeuble"]
   ];
-  if (slug.includes("pno") || slug.includes("cno")) return [["Devis PNO CNO", "/devis-pno-cno"], ["Assurance CNO", "/assurance-cno"], ["FAQ PNO", "/faq/pno"], ["Comparer", "/comparateur-assurance-immeuble"]];
+  if (slug.includes("pno") || slug.includes("cno")) return [["Devis PNO", "/devis-pno-cno?intent=pno"], ["Devis CNO", "/devis-pno-cno?intent=cno"], ["FAQ PNO", "/faq/pno"], ["Comparer", "/comparateur-assurance-immeuble"]];
   if (slug.includes("copro")) return [["Assurance copropriete", "/assurance-copropriete"], ["Guide copropriete", "/guide-assurance-copropriete-2026"], ["RC syndic", "/rc-syndic"], ["Devis", "/devis-assurance-immeuble"]];
   if (slug.includes("sci")) return [["Assurance SCI", "/assurance-sci"], ["PNO CNO", "/assurance-pno-cno"], ["Audit contrat", "/audit-contrat-assurance-immeuble"], ["Devis", "/devis-assurance-immeuble?intent=sci"]];
   return base;

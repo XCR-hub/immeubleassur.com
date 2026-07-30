@@ -363,7 +363,8 @@ function qualifyLead(payload) {
   const profile = clean(payload.profile, 80);
   const propertyType = clean(payload.property_type, 80);
   const source = clean(payload.source, 80);
-  const readinessText = `${payload.message || ""} ${source}`;
+  const intent = clean(payload.intent || payload.utm?.intent, 80);
+  const readinessText = `${payload.message || ""} ${source} ${intent}`;
   const readinessSignals = ["contrat actuel", "appel de prime", "sinistres 36 mois", "nombre de lots", "echeance", "travaux prevus"].filter((item) => readinessText.toLowerCase().includes(item)).length;
 
   if (units >= 2) {
@@ -389,6 +390,10 @@ function qualifyLead(payload) {
   if (["pno", "cno", "pno-cno"].includes(need)) {
     score += 18;
     addReason(reasons, "intention PNO/CNO");
+  }
+  if (["travaux", "sinistre", "prix", "veille", "audit-contrat", "local-commercial"].includes(intent)) {
+    score += 8;
+    addReason(reasons, "intention SEO qualifiee");
   }
   if (["lot-copropriete", "logement-vacant", "logement-loue", "local-commercial"].includes(propertyType)) {
     score += 12;
@@ -443,6 +448,9 @@ function cleanUtm(raw = {}) {
     gclid: clean(raw.gclid, 160),
     gbraid: clean(raw.gbraid, 160),
     wbraid: clean(raw.wbraid, 160),
+    intent: clean(raw.intent, 80),
+    source_path: clean(raw.source_path, 500),
+    landing_path: clean(raw.landing_path, 500),
     landing_page: clean(raw.landing_page, 500),
     first_referrer: clean(raw.first_referrer, 500)
   };
@@ -571,6 +579,8 @@ function buildLeadEmail({ id, reference, score, qualification, record, now }) {
     `Page: ${record.page_url || "non precisee"}`,
     `Landing: ${record.utm?.landing_page || "non precisee"}`,
     `Source: ${record.source || "website"}`,
+    `Intent: ${record.intent || "non precise"}`,
+    `Chemin source: ${record.source_path || "non precise"}`,
     `Campagne: ${record.utm?.utm_campaign || "non precisee"}`,
     `Test CTA: ${record.experiment_variant || "non mesure"}`,
     `Lead ID: ${id}`
@@ -714,6 +724,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
     need: clean(payload.need, 80),
     message: clean(payload.message, 2000),
     source: clean(payload.source || "website", 80),
+    intent: clean(payload.intent || payload.utm?.intent, 80),
+    source_path: clean(payload.source_path || payload.utm?.source_path, 500),
+    landing_path: clean(payload.landing_path || payload.utm?.landing_path, 500),
     page_url: clean(payload.page_url, 500),
     referrer: clean(payload.referrer, 500),
     session_id: clean(payload.session_id, 120),
@@ -764,6 +777,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
       value_estimate: qualification.value_estimate,
       sla_hours: qualification.sla_hours,
       source: record.source,
+      intent: record.intent,
+      source_path: record.source_path,
+      landing_path: record.landing_path,
       page_url: record.page_url,
       referrer: record.referrer,
       session_id: record.session_id,
@@ -801,3 +817,4 @@ export async function onRequestPost({ request, env, waitUntil }) {
     return json({ success: false, error: error.message || "Erreur base de donnees" }, 500);
   }
 }
+

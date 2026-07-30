@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-30T01:21:30.769Z",
+  "generated_at": "2026-07-30T02:25:44.900Z",
   "status": "passed",
   "pages_checked": 169,
   "clusters_checked": 11,
   "high_risk_count": 0,
-  "medium_risk_count": 51,
+  "medium_risk_count": 41,
   "watch_count": 80,
   "cluster_summary": [
     {
@@ -56,15 +56,15 @@
       ],
       "representative_terms": [
         "plafonds",
+        "donnees",
         "batiment",
         "surface",
-        "contenu",
         "conseil",
+        "contenu",
         "accelerent",
+        "aider",
         "appel",
-        "assurer",
-        "donnees",
-        "consulter",
+        "historique",
         "multirisque",
         "clauses"
       ]
@@ -95,14 +95,14 @@
         "communes",
         "conseil",
         "parties",
-        "coproprietaire",
         "plafonds",
-        "syndicat",
+        "coproprietaire",
         "appel",
         "syndical",
+        "donnees",
         "batiment",
+        "syndicat",
         "benevole",
-        "prevus",
         "contenu"
       ]
     },
@@ -138,13 +138,13 @@
         "vacant",
         "occupe",
         "vacance",
-        "civile",
         "logement",
+        "civile",
         "profil",
         "qualifie",
         "biens",
         "statut",
-        "communes"
+        "rappel"
       ]
     },
     {
@@ -166,16 +166,16 @@
         }
       ],
       "representative_terms": [
+        "donnees",
         "locatif",
         "patrimoine",
         "rapport",
         "plafonds",
-        "vacance",
-        "biens",
         "locaux",
         "multirisque",
-        "appel",
-        "clauses",
+        "vacance",
+        "biens",
+        "demander",
         "liste",
         "occupants"
       ]
@@ -204,13 +204,13 @@
         "plafonds",
         "historique",
         "gestion",
+        "donnees",
         "refus",
         "biens",
         "causes",
         "difficile",
         "fuite",
-        "administrateur",
-        "conseil"
+        "administrateur"
       ]
     },
     {
@@ -233,17 +233,17 @@
       ],
       "representative_terms": [
         "plafonds",
-        "accelerent",
-        "batiment",
         "exploitable",
         "locaux",
         "surface",
+        "accelerent",
         "appel",
-        "assurer",
+        "batiment",
+        "coproprietaire",
+        "donnees",
         "ligne",
         "qualifie",
-        "rappel",
-        "rapport"
+        "rappel"
       ]
     },
     {
@@ -265,18 +265,18 @@
         }
       ],
       "representative_terms": [
-        "budget",
         "charge",
         "comparaison",
         "plafonds",
         "reste",
-        "tarif",
         "appel",
+        "budget",
         "comprendre",
         "probable",
         "profil",
+        "tarif",
         "arbitrage",
-        "occupant"
+        "consulter"
       ]
     },
     {
@@ -297,15 +297,15 @@
         "activite",
         "commerce",
         "commercial",
+        "donnees",
         "local",
         "locataire",
         "mixte",
         "restaurant",
+        "plafonds",
         "change",
         "clarifier",
-        "plafonds",
-        "vacance",
-        "appel"
+        "commerciale"
       ]
     },
     {
@@ -354,6 +354,7 @@
       "representative_terms": [
         "chantier",
         "dommages",
+        "donnees",
         "entreprises",
         "ouvrage",
         "preparer",
@@ -362,37 +363,11 @@
         "reception",
         "toiture",
         "verifier",
-        "votes",
-        "aller"
+        "votes"
       ]
     }
   ],
   "watchlist": [
-    {
-      "cluster": "local-commercial",
-      "risk": "medium",
-      "score": 56.89,
-      "primary_slug": "blog/local-commercial-vacant",
-      "pages": [
-        "blog/immeuble-mixte-restaurant",
-        "blog/local-commercial-vacant"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "restaurant",
-        "activite",
-        "local",
-        "commercial",
-        "mixte",
-        "commerce",
-        "plafonds",
-        "locataire"
-      ],
-      "recommendation": "Clarifier blog/immeuble-mixte-restaurant comme support informationnel et renforcer le lien vers blog/local-commercial-vacant."
-    },
     {
       "cluster": "sinistre-resilie",
       "risk": "medium",
@@ -417,6 +392,31 @@
         "profil"
       ],
       "recommendation": "Clarifier blog/sinistres-recurrents-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "assurance-immeuble",
+      "risk": "medium",
+      "score": 56.13,
+      "primary_slug": "multirisque-immeuble",
+      "pages": [
+        "blog/assurance-colocation-immeuble",
+        "blog/assurance-immeuble-avec-ascenseur"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "plafonds",
+        "donnees",
+        "quand",
+        "sujet",
+        "surface",
+        "aider",
+        "appel",
+        "clauses"
+      ],
+      "recommendation": "Clarifier blog/assurance-immeuble-avec-ascenseur comme support informationnel et renforcer le lien vers multirisque-immeuble."
     },
     {
       "cluster": "sinistre-resilie",
@@ -444,79 +444,54 @@
       "recommendation": "Clarifier blog/sinistres-recurrents-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
     },
     {
-      "cluster": "pno-cno",
+      "cluster": "devis-courtier",
       "risk": "medium",
-      "score": 55.6,
-      "primary_slug": "pno-cno",
+      "score": 55.59,
+      "primary_slug": "devis-assurance-immeuble",
       "pages": [
-        "assurance-cno",
-        "assurance-pno-cno"
+        "comparateur-assurance-immeuble",
+        "devis-assurance-immeuble"
       ],
       "page_types": [
-        "service",
-        "service"
+        "lead",
+        "lead"
       ],
       "shared_terms": [
-        "occupant",
-        "coproprietaire",
-        "vacant",
-        "occupe",
-        "civile",
-        "logement",
-        "statut",
-        "vacance"
-      ],
-      "recommendation": "Renforcer l'angle unique de assurance-cno et ajouter un lien contextuel vers pno-cno."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "medium",
-      "score": 55.41,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "blog/assurance-immeuble-avec-ascenseur",
-        "blog/pertes-de-loyers-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "clauses",
+        "batiment",
         "plafonds",
-        "sujet",
-        "quand",
-        "surface",
-        "appel",
-        "concerne",
-        "conseil"
+        "rapport",
+        "monopropriete",
+        "donnees",
+        "ligne",
+        "locaux",
+        "obligatoire"
       ],
-      "recommendation": "Clarifier blog/pertes-de-loyers-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
+      "recommendation": "Differencier l'intention formulaire de comparateur-assurance-immeuble et confirmer le renvoi vers devis-assurance-immeuble quand le besoin est plus large."
     },
     {
-      "cluster": "pno-cno",
+      "cluster": "sci-bailleur",
       "risk": "medium",
-      "score": 55.32,
-      "primary_slug": "pno-cno",
+      "score": 55.2,
+      "primary_slug": "assurance-sci",
       "pages": [
-        "blog/cno-coproprietaire-non-occupant-obligatoire",
-        "blog/pno-cno-differences-garanties"
+        "blog/assurance-immeuble-etudiant",
+        "blog/assurance-immeuble-protection-du-patrimoine"
       ],
       "page_types": [
         "blog",
         "blog"
       ],
       "shared_terms": [
-        "occupant",
-        "coproprietaire",
-        "civile",
-        "vacant",
-        "vacance",
-        "occupe",
-        "qualifie",
-        "statut"
+        "plafonds",
+        "donnees",
+        "patrimoine",
+        "prevus",
+        "quand",
+        "rapport",
+        "appel",
+        "clauses"
       ],
-      "recommendation": "Clarifier blog/pno-cno-differences-garanties comme support informationnel et renforcer le lien vers pno-cno."
+      "recommendation": "Clarifier blog/assurance-immeuble-protection-du-patrimoine comme support informationnel et renforcer le lien vers assurance-sci."
     },
     {
       "cluster": "assurance-immeuble",
@@ -540,6 +515,81 @@
         "locaux"
       ],
       "recommendation": "Renforcer l'angle unique de assurance-immeuble-obligatoire et ajouter un lien contextuel vers multirisque-immeuble."
+    },
+    {
+      "cluster": "assurance-immeuble",
+      "risk": "medium",
+      "score": 54.81,
+      "primary_slug": "multirisque-immeuble",
+      "pages": [
+        "blog/assurance-immeuble-avec-ascenseur",
+        "blog/assurance-immeuble-vacant"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "clauses",
+        "plafonds",
+        "donnees",
+        "quand",
+        "sujet",
+        "surface",
+        "aider",
+        "appel"
+      ],
+      "recommendation": "Clarifier blog/assurance-immeuble-vacant comme support informationnel et renforcer le lien vers multirisque-immeuble."
+    },
+    {
+      "cluster": "sci-bailleur",
+      "risk": "medium",
+      "score": 54.8,
+      "primary_slug": "assurance-sci",
+      "pages": [
+        "blog/assurance-immeuble-local-professionnel",
+        "blog/assurance-immeuble-protection-du-patrimoine"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "plafonds",
+        "donnees",
+        "patrimoine",
+        "prevus",
+        "quand",
+        "rapport",
+        "appel",
+        "clauses"
+      ],
+      "recommendation": "Clarifier blog/assurance-immeuble-protection-du-patrimoine comme support informationnel et renforcer le lien vers assurance-sci."
+    },
+    {
+      "cluster": "assurance-immeuble",
+      "risk": "medium",
+      "score": 54.66,
+      "primary_slug": "multirisque-immeuble",
+      "pages": [
+        "audit-contrat-assurance-immeuble",
+        "blog/preparer-renouvellement-assurance-immeuble"
+      ],
+      "page_types": [
+        "lead",
+        "blog"
+      ],
+      "shared_terms": [
+        "plafonds",
+        "conseil",
+        "donnees",
+        "surface",
+        "accelerent",
+        "batiment",
+        "consulter",
+        "contenu"
+      ],
+      "recommendation": "Clarifier blog/preparer-renouvellement-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
     },
     {
       "cluster": "pno-cno",
@@ -567,56 +617,6 @@
       "recommendation": "Clarifier blog/pno-obligatoire-copropriete comme support informationnel et renforcer le lien vers pno-cno."
     },
     {
-      "cluster": "devis-courtier",
-      "risk": "medium",
-      "score": 54.28,
-      "primary_slug": "devis-assurance-immeuble",
-      "pages": [
-        "comparateur-assurance-immeuble",
-        "devis-assurance-immeuble"
-      ],
-      "page_types": [
-        "lead",
-        "lead"
-      ],
-      "shared_terms": [
-        "batiment",
-        "plafonds",
-        "rapport",
-        "monopropriete",
-        "ligne",
-        "locaux",
-        "obligatoire",
-        "surface"
-      ],
-      "recommendation": "Differencier l'intention formulaire de comparateur-assurance-immeuble et confirmer le renvoi vers devis-assurance-immeuble quand le besoin est plus large."
-    },
-    {
-      "cluster": "pno-cno",
-      "risk": "medium",
-      "score": 54.22,
-      "primary_slug": "pno-cno",
-      "pages": [
-        "assurance-cno",
-        "devis-pno-cno"
-      ],
-      "page_types": [
-        "service",
-        "lead"
-      ],
-      "shared_terms": [
-        "occupant",
-        "coproprietaire",
-        "vacant",
-        "occupe",
-        "civile",
-        "logement",
-        "statut",
-        "vacance"
-      ],
-      "recommendation": "Renforcer l'angle unique de assurance-cno et ajouter un lien contextuel vers pno-cno."
-    },
-    {
       "cluster": "sinistre-resilie",
       "risk": "medium",
       "score": 54.1,
@@ -639,80 +639,6 @@
         "plafonds"
       ],
       "recommendation": "Clarifier blog/checklist-sinistre-degat-des-eaux comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
-    },
-    {
-      "cluster": "copropriete-syndic",
-      "risk": "medium",
-      "score": 53.99,
-      "primary_slug": "assurance-copropriete",
-      "pages": [
-        "blog/assurance-copropriete-avant-ag",
-        "blog/copropriete-petite-syndic-benevole"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "communes",
-        "conseil",
-        "parties",
-        "syndical",
-        "appel",
-        "benevole",
-        "concerne",
-        "coproprietaire"
-      ],
-      "recommendation": "Clarifier blog/copropriete-petite-syndic-benevole comme support informationnel et renforcer le lien vers assurance-copropriete."
-    },
-    {
-      "cluster": "copropriete-syndic",
-      "risk": "medium",
-      "score": 53.99,
-      "primary_slug": "assurance-copropriete",
-      "pages": [
-        "blog/assurance-copropriete-avant-ag",
-        "blog/renovation-energetique-copropriete-assurance"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "communes",
-        "conseil",
-        "parties",
-        "syndical",
-        "appel",
-        "concerne",
-        "coproprietaire"
-      ],
-      "recommendation": "Clarifier blog/renovation-energetique-copropriete-assurance comme support informationnel et renforcer le lien vers assurance-copropriete."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "medium",
-      "score": 53.95,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "blog/assurance-colocation-immeuble",
-        "blog/assurance-immeuble-avec-ascenseur"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "plafonds",
-        "sujet",
-        "quand",
-        "surface",
-        "appel",
-        "clauses",
-        "concerne",
-        "conseil"
-      ],
-      "recommendation": "Clarifier blog/assurance-immeuble-avec-ascenseur comme support informationnel et renforcer le lien vers multirisque-immeuble."
     },
     {
       "cluster": "sinistre-resilie",
@@ -740,303 +666,9 @@
       "recommendation": "Renforcer l'angle unique de assurance-immeuble-resilie et ajouter un lien contextuel vers gestion-sinistres-immeuble."
     },
     {
-      "cluster": "copropriete-syndic",
-      "risk": "medium",
-      "score": 53.2,
-      "primary_slug": "assurance-copropriete",
-      "pages": [
-        "blog/assurance-copropriete-avant-ag",
-        "blog/protection-juridique-copropriete"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "communes",
-        "conseil",
-        "parties",
-        "syndical",
-        "appel",
-        "benevole",
-        "concerne",
-        "coproprietaire"
-      ],
-      "recommendation": "Clarifier blog/protection-juridique-copropriete comme support informationnel et renforcer le lien vers assurance-copropriete."
-    },
-    {
-      "cluster": "sci-bailleur",
-      "risk": "medium",
-      "score": 52.79,
-      "primary_slug": "assurance-sci",
-      "pages": [
-        "blog/assurance-immeuble-etudiant",
-        "blog/assurance-immeuble-protection-du-patrimoine"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "plafonds",
-        "patrimoine",
-        "prevus",
-        "quand",
-        "rapport",
-        "appel",
-        "clauses",
-        "concerne"
-      ],
-      "recommendation": "Clarifier blog/assurance-immeuble-protection-du-patrimoine comme support informationnel et renforcer le lien vers assurance-sci."
-    },
-    {
       "cluster": "assurance-immeuble",
       "risk": "medium",
-      "score": 52.73,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "blog/assurance-immeuble-avec-ascenseur",
-        "blog/assurance-immeuble-vacant"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "clauses",
-        "plafonds",
-        "sujet",
-        "quand",
-        "surface",
-        "appel",
-        "concerne"
-      ],
-      "recommendation": "Clarifier blog/assurance-immeuble-vacant comme support informationnel et renforcer le lien vers multirisque-immeuble."
-    },
-    {
-      "cluster": "sci-bailleur",
-      "risk": "medium",
-      "score": 52.67,
-      "primary_slug": "assurance-sci",
-      "pages": [
-        "blog/assurance-immeuble-local-professionnel",
-        "blog/assurance-immeuble-protection-du-patrimoine"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "plafonds",
-        "patrimoine",
-        "prevus",
-        "quand",
-        "rapport",
-        "appel",
-        "clauses"
-      ],
-      "recommendation": "Clarifier blog/assurance-immeuble-protection-du-patrimoine comme support informationnel et renforcer le lien vers assurance-sci."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "medium",
-      "score": 52.65,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "audit-contrat-assurance-immeuble",
-        "blog/preparer-renouvellement-assurance-immeuble"
-      ],
-      "page_types": [
-        "lead",
-        "blog"
-      ],
-      "shared_terms": [
-        "plafonds",
-        "conseil",
-        "surface",
-        "accelerent",
-        "batiment",
-        "consulter",
-        "contenu",
-        "derniers"
-      ],
-      "recommendation": "Clarifier blog/preparer-renouvellement-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
-    },
-    {
-      "cluster": "copropriete-syndic",
-      "risk": "medium",
-      "score": 52.45,
-      "primary_slug": "assurance-copropriete",
-      "pages": [
-        "blog/dommages-ouvrage-copropriete-travaux",
-        "blog/renovation-energetique-copropriete-assurance"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "dommages",
-        "communes",
-        "parties",
-        "conseil",
-        "syndical",
-        "appel",
-        "concerne",
-        "coproprietaire"
-      ],
-      "recommendation": "Clarifier blog/renovation-energetique-copropriete-assurance comme support informationnel et renforcer le lien vers assurance-copropriete."
-    },
-    {
-      "cluster": "copropriete-syndic",
-      "risk": "medium",
-      "score": 52.29,
-      "primary_slug": "assurance-copropriete",
-      "pages": [
-        "blog/protection-juridique-copropriete",
-        "blog/renovation-energetique-copropriete-assurance"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "communes",
-        "parties",
-        "plafonds",
-        "conseil",
-        "syndical",
-        "appel",
-        "concerne",
-        "coproprietaire"
-      ],
-      "recommendation": "Clarifier blog/renovation-energetique-copropriete-assurance comme support informationnel et renforcer le lien vers assurance-copropriete."
-    },
-    {
-      "cluster": "copropriete-syndic",
-      "risk": "medium",
-      "score": 51.88,
-      "primary_slug": "assurance-copropriete",
-      "pages": [
-        "blog/copropriete-petite-syndic-benevole",
-        "blog/renovation-energetique-copropriete-assurance"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "communes",
-        "parties",
-        "conseil",
-        "syndical",
-        "appel",
-        "concerne",
-        "coproprietaire",
-        "plafonds"
-      ],
-      "recommendation": "Clarifier blog/renovation-energetique-copropriete-assurance comme support informationnel et renforcer le lien vers assurance-copropriete."
-    },
-    {
-      "cluster": "sci-bailleur",
-      "risk": "medium",
-      "score": 51.87,
-      "primary_slug": "assurance-sci",
-      "pages": [
-        "blog/assurance-immeuble-etudiant",
-        "blog/sci-familiale-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "locatif",
-        "plafonds",
-        "patrimoine",
-        "rapport",
-        "clauses"
-      ],
-      "recommendation": "Clarifier blog/sci-familiale-immeuble comme support informationnel et renforcer le lien vers assurance-sci."
-    },
-    {
-      "cluster": "copropriete-syndic",
-      "risk": "medium",
-      "score": 51.77,
-      "primary_slug": "assurance-copropriete",
-      "pages": [
-        "blog/assurance-copropriete-avant-ag",
-        "blog/assurance-parking-garages-copropriete"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "communes",
-        "conseil",
-        "parties",
-        "syndical",
-        "appel",
-        "concerne",
-        "coproprietaire"
-      ],
-      "recommendation": "Clarifier blog/assurance-parking-garages-copropriete comme support informationnel et renforcer le lien vers assurance-copropriete."
-    },
-    {
-      "cluster": "copropriete-syndic",
-      "risk": "medium",
-      "score": 51.68,
-      "primary_slug": "assurance-copropriete",
-      "pages": [
-        "blog/copropriete-petite-syndic-benevole",
-        "blog/protection-juridique-copropriete"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "benevole",
-        "communes",
-        "parties",
-        "conseil",
-        "syndical",
-        "appel",
-        "concerne",
-        "coproprietaire"
-      ],
-      "recommendation": "Clarifier blog/protection-juridique-copropriete comme support informationnel et renforcer le lien vers assurance-copropriete."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "medium",
-      "score": 51.32,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "audit-contrat-assurance-immeuble",
-        "contact"
-      ],
-      "page_types": [
-        "lead",
-        "lead"
-      ],
-      "shared_terms": [
-        "plafonds",
-        "conseil",
-        "surface",
-        "accelerent",
-        "assurer",
-        "batiment",
-        "contenu",
-        "derniers"
-      ],
-      "recommendation": "Differencier l'intention formulaire de contact et confirmer le renvoi vers multirisque-immeuble quand le besoin est plus large."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "medium",
-      "score": 51.14,
+      "score": 53.22,
       "primary_slug": "multirisque-immeuble",
       "pages": [
         "blog/assurance-immeuble-avec-ascenseur",
@@ -1049,45 +681,69 @@
       "shared_terms": [
         "clauses",
         "plafonds",
+        "donnees",
         "quand",
+        "aider",
         "appel",
         "concerne"
       ],
       "recommendation": "Clarifier blog/resiliation-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
     },
     {
-      "cluster": "copropriete-syndic",
+      "cluster": "sci-bailleur",
       "risk": "medium",
-      "score": 51.06,
-      "primary_slug": "assurance-copropriete",
+      "score": 53.17,
+      "primary_slug": "assurance-sci",
       "pages": [
-        "blog/assurance-copropriete-avant-ag",
-        "blog/dommages-ouvrage-copropriete-travaux"
+        "blog/assurance-immeuble-etudiant",
+        "blog/sci-familiale-immeuble"
       ],
       "page_types": [
         "blog",
         "blog"
       ],
       "shared_terms": [
-        "communes",
-        "conseil",
-        "parties",
-        "syndical",
-        "appel",
-        "votes",
-        "concerne",
-        "coproprietaire"
+        "locatif",
+        "plafonds",
+        "donnees",
+        "patrimoine",
+        "rapport"
       ],
-      "recommendation": "Clarifier blog/dommages-ouvrage-copropriete-travaux comme support informationnel et renforcer le lien vers assurance-copropriete."
+      "recommendation": "Clarifier blog/sci-familiale-immeuble comme support informationnel et renforcer le lien vers assurance-sci."
     },
     {
-      "cluster": "assurance-immeuble",
+      "cluster": "pno-cno",
       "risk": "medium",
-      "score": 51.05,
-      "primary_slug": "multirisque-immeuble",
+      "score": 52.73,
+      "primary_slug": "pno-cno",
       "pages": [
-        "blog/assurance-colocation-immeuble",
-        "blog/pertes-de-loyers-immeuble"
+        "assurance-cno",
+        "assurance-pno-cno"
+      ],
+      "page_types": [
+        "service",
+        "service"
+      ],
+      "shared_terms": [
+        "occupant",
+        "coproprietaire",
+        "vacant",
+        "logement",
+        "civile",
+        "occupe",
+        "statut",
+        "biens"
+      ],
+      "recommendation": "Renforcer l'angle unique de assurance-cno et ajouter un lien contextuel vers pno-cno."
+    },
+    {
+      "cluster": "sci-bailleur",
+      "risk": "medium",
+      "score": 52.66,
+      "primary_slug": "assurance-sci",
+      "pages": [
+        "blog/assurance-immeuble-etudiant",
+        "blog/assurance-immeuble-local-professionnel"
       ],
       "page_types": [
         "blog",
@@ -1095,20 +751,70 @@
       ],
       "shared_terms": [
         "plafonds",
-        "sujet",
+        "donnees",
+        "patrimoine",
+        "prevus",
         "quand",
-        "surface",
+        "rapport",
         "appel",
-        "clauses",
-        "concerne",
-        "conseil"
+        "clauses"
       ],
-      "recommendation": "Clarifier blog/pertes-de-loyers-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
+      "recommendation": "Clarifier blog/assurance-immeuble-local-professionnel comme support informationnel et renforcer le lien vers assurance-sci."
+    },
+    {
+      "cluster": "pno-cno",
+      "risk": "medium",
+      "score": 52.62,
+      "primary_slug": "pno-cno",
+      "pages": [
+        "blog/cno-coproprietaire-non-occupant-obligatoire",
+        "blog/pno-cno-differences-garanties"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "coproprietaire",
+        "occupant",
+        "civile",
+        "vacant",
+        "qualifie",
+        "statut",
+        "vacance",
+        "biens"
+      ],
+      "recommendation": "Clarifier blog/pno-cno-differences-garanties comme support informationnel et renforcer le lien vers pno-cno."
+    },
+    {
+      "cluster": "assurance-immeuble",
+      "risk": "medium",
+      "score": 52.41,
+      "primary_slug": "multirisque-immeuble",
+      "pages": [
+        "audit-contrat-assurance-immeuble",
+        "contact"
+      ],
+      "page_types": [
+        "lead",
+        "lead"
+      ],
+      "shared_terms": [
+        "plafonds",
+        "conseil",
+        "donnees",
+        "surface",
+        "syndical",
+        "accelerent",
+        "batiment",
+        "contenu"
+      ],
+      "recommendation": "Differencier l'intention formulaire de contact et confirmer le renvoi vers multirisque-immeuble quand le besoin est plus large."
     },
     {
       "cluster": "copropriete-syndic",
       "risk": "medium",
-      "score": 50.99,
+      "score": 52.17,
       "primary_slug": "assurance-copropriete",
       "pages": [
         "blog/assurance-parking-garages-copropriete",
@@ -1126,42 +832,115 @@
         "appel",
         "concerne",
         "coproprietaire",
-        "plafonds"
+        "donnees"
       ],
       "recommendation": "Clarifier blog/protection-juridique-copropriete comme support informationnel et renforcer le lien vers assurance-copropriete."
     },
     {
+      "cluster": "sci-bailleur",
+      "risk": "medium",
+      "score": 52.12,
+      "primary_slug": "assurance-sci",
+      "pages": [
+        "assurance-immeuble-de-rapport",
+        "assurance-immeuble-monopropriete"
+      ],
+      "page_types": [
+        "service",
+        "service"
+      ],
+      "shared_terms": [
+        "locaux",
+        "plafonds",
+        "commercial",
+        "demander",
+        "entretien",
+        "occupant"
+      ],
+      "recommendation": "Renforcer l'angle unique de assurance-immeuble-monopropriete et ajouter un lien contextuel vers assurance-sci."
+    },
+    {
       "cluster": "copropriete-syndic",
       "risk": "medium",
-      "score": 50.89,
+      "score": 50.87,
       "primary_slug": "assurance-copropriete",
       "pages": [
-        "blog/assurance-parking-garages-copropriete",
-        "blog/copropriete-petite-syndic-benevole"
+        "assurance-immeuble-syndic-benevole",
+        "courtier-assurance-immeuble"
+      ],
+      "page_types": [
+        "service",
+        "lead"
+      ],
+      "shared_terms": [
+        "syndicat",
+        "occupant",
+        "eviter",
+        "google",
+        "plafonds",
+        "pourquoi",
+        "clarifier",
+        "comment"
+      ],
+      "recommendation": "Differencier l'intention formulaire de courtier-assurance-immeuble et confirmer le renvoi vers assurance-copropriete quand le besoin est plus large."
+    },
+    {
+      "cluster": "assurance-immeuble",
+      "risk": "medium",
+      "score": 50.78,
+      "primary_slug": "multirisque-immeuble",
+      "pages": [
+        "blog/assurance-colocation-immeuble",
+        "blog/assurance-immeuble-vacant"
       ],
       "page_types": [
         "blog",
         "blog"
       ],
       "shared_terms": [
-        "communes",
-        "parties",
-        "conseil",
-        "syndical",
+        "plafonds",
+        "donnees",
+        "quand",
+        "sujet",
+        "surface",
+        "aider",
         "appel",
-        "concerne",
-        "coproprietaire",
-        "plafonds"
+        "clauses"
       ],
-      "recommendation": "Clarifier blog/copropriete-petite-syndic-benevole comme support informationnel et renforcer le lien vers assurance-copropriete."
+      "recommendation": "Clarifier blog/assurance-immeuble-vacant comme support informationnel et renforcer le lien vers multirisque-immeuble."
+    },
+    {
+      "cluster": "assurance-immeuble",
+      "risk": "medium",
+      "score": 50.65,
+      "primary_slug": "multirisque-immeuble",
+      "pages": [
+        "checklist-documents-assurance-immeuble",
+        "contact"
+      ],
+      "page_types": [
+        "service",
+        "lead"
+      ],
+      "shared_terms": [
+        "donnees",
+        "nombre",
+        "plafonds",
+        "surface",
+        "accelerent",
+        "batiment",
+        "conseil",
+        "contenu"
+      ],
+      "recommendation": "Renforcer l'angle unique de checklist-documents-assurance-immeuble et ajouter un lien contextuel vers multirisque-immeuble."
     },
     {
       "cluster": "copropriete-syndic",
       "risk": "medium",
-      "score": 50.35,
+      "score": 50.6,
       "primary_slug": "assurance-copropriete",
       "pages": [
-        "blog/assurance-parking-garages-copropriete",
+        "blog/assurance-copropriete-avant-ag",
         "blog/renovation-energetique-copropriete-assurance"
       ],
       "page_types": [
@@ -1169,16 +948,62 @@
         "blog"
       ],
       "shared_terms": [
-        "communes",
-        "parties",
         "conseil",
         "syndical",
+        "communes",
+        "parties",
         "appel",
-        "concerne",
         "coproprietaire",
         "plafonds"
       ],
       "recommendation": "Clarifier blog/renovation-energetique-copropriete-assurance comme support informationnel et renforcer le lien vers assurance-copropriete."
+    },
+    {
+      "cluster": "copropriete-syndic",
+      "risk": "medium",
+      "score": 50.56,
+      "primary_slug": "assurance-copropriete",
+      "pages": [
+        "blog/assurance-copropriete-avant-ag",
+        "blog/copropriete-petite-syndic-benevole"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "conseil",
+        "syndical",
+        "communes",
+        "parties",
+        "appel",
+        "coproprietaire",
+        "plafonds"
+      ],
+      "recommendation": "Clarifier blog/copropriete-petite-syndic-benevole comme support informationnel et renforcer le lien vers assurance-copropriete."
+    },
+    {
+      "cluster": "sci-bailleur",
+      "risk": "medium",
+      "score": 50.5,
+      "primary_slug": "assurance-sci",
+      "pages": [
+        "blog/assurance-immeuble-protection-du-patrimoine",
+        "blog/sci-familiale-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "patrimoine",
+        "plafonds",
+        "donnees",
+        "liste",
+        "occupants",
+        "rapport"
+      ],
+      "recommendation": "Clarifier blog/sci-familiale-immeuble comme support informationnel et renforcer le lien vers assurance-sci."
     },
     {
       "cluster": "copropriete-syndic",
@@ -1205,107 +1030,80 @@
       "recommendation": "Renforcer l'angle unique de assurance-immeuble-syndic-benevole et ajouter un lien contextuel vers assurance-copropriete."
     },
     {
-      "cluster": "copropriete-syndic",
+      "cluster": "sinistre-resilie",
       "risk": "medium",
-      "score": 50.24,
-      "primary_slug": "assurance-copropriete",
+      "score": 49.53,
+      "primary_slug": "gestion-sinistres-immeuble",
       "pages": [
-        "blog/copropriete-petite-syndic-benevole",
-        "blog/dommages-ouvrage-copropriete-travaux"
+        "blog/assurance-immeuble-apres-refus-assureur",
+        "blog/infiltration-toiture-terrasse"
       ],
       "page_types": [
         "blog",
         "blog"
       ],
       "shared_terms": [
-        "communes",
-        "parties",
-        "conseil",
-        "syndical",
-        "appel",
-        "clarifier",
-        "concerne",
-        "coproprietaire"
-      ],
-      "recommendation": "Clarifier blog/dommages-ouvrage-copropriete-travaux comme support informationnel et renforcer le lien vers assurance-copropriete."
-    },
-    {
-      "cluster": "sci-bailleur",
-      "risk": "medium",
-      "score": 50.11,
-      "primary_slug": "assurance-sci",
-      "pages": [
-        "blog/assurance-immeuble-etudiant",
-        "blog/assurance-immeuble-local-professionnel"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
+        "correctives",
+        "mesures",
         "plafonds",
-        "patrimoine",
-        "prevus",
-        "quand",
-        "rapport",
-        "appel",
-        "clauses"
+        "donnees",
+        "gestion"
       ],
-      "recommendation": "Clarifier blog/assurance-immeuble-local-professionnel comme support informationnel et renforcer le lien vers assurance-sci."
+      "recommendation": "Clarifier blog/infiltration-toiture-terrasse comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
     },
     {
       "cluster": "copropriete-syndic",
       "risk": "medium",
-      "score": 50.07,
+      "score": 49.44,
       "primary_slug": "assurance-copropriete",
       "pages": [
         "blog/dommages-ouvrage-copropriete-travaux",
-        "blog/protection-juridique-copropriete"
+        "blog/renovation-energetique-copropriete-assurance"
       ],
       "page_types": [
         "blog",
         "blog"
       ],
       "shared_terms": [
-        "quand",
-        "communes",
-        "parties",
+        "anticiper",
         "conseil",
         "syndical",
-        "appel",
-        "concerne",
-        "coproprietaire"
+        "communes",
+        "parties",
+        "coproprietaire",
+        "plafonds",
+        "appel"
       ],
-      "recommendation": "Clarifier blog/protection-juridique-copropriete comme support informationnel et renforcer le lien vers assurance-copropriete."
+      "recommendation": "Clarifier blog/renovation-energetique-copropriete-assurance comme support informationnel et renforcer le lien vers assurance-copropriete."
     },
     {
       "cluster": "assurance-immeuble",
       "risk": "medium",
-      "score": 49.38,
+      "score": 49.39,
       "primary_slug": "multirisque-immeuble",
       "pages": [
-        "blog/assurance-immeuble-vacant",
-        "blog/pertes-de-loyers-immeuble"
+        "blog/assurance-colocation-immeuble",
+        "blog/resiliation-assurance-immeuble"
       ],
       "page_types": [
         "blog",
         "blog"
       ],
       "shared_terms": [
-        "clauses",
         "plafonds",
-        "sujet",
+        "donnees",
         "quand",
-        "surface",
+        "aider",
         "appel",
+        "clauses",
         "concerne"
       ],
-      "recommendation": "Clarifier blog/pertes-de-loyers-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
+      "recommendation": "Clarifier blog/resiliation-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
     },
     {
       "cluster": "prix-tarif",
       "risk": "medium",
-      "score": 49.35,
+      "score": 49.32,
       "primary_slug": "prix-assurance-immeuble",
       "pages": [
         "blog/audit-franchises-assurance-immeuble",
@@ -1323,230 +1121,14 @@
         "suffit",
         "tarif",
         "appel",
-        "budget"
+        "comparaison"
       ],
       "recommendation": "Clarifier blog/audit-franchises-assurance-immeuble comme support informationnel et renforcer le lien vers prix-assurance-immeuble."
     },
     {
-      "cluster": "sci-bailleur",
-      "risk": "medium",
-      "score": 49.35,
-      "primary_slug": "assurance-sci",
-      "pages": [
-        "blog/assurance-immeuble-protection-du-patrimoine",
-        "blog/sci-familiale-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "patrimoine",
-        "plafonds",
-        "liste",
-        "occupants",
-        "rapport",
-        "clauses"
-      ],
-      "recommendation": "Clarifier blog/sci-familiale-immeuble comme support informationnel et renforcer le lien vers assurance-sci."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "medium",
-      "score": 49.04,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "checklist-documents-assurance-immeuble",
-        "contact"
-      ],
-      "page_types": [
-        "service",
-        "lead"
-      ],
-      "shared_terms": [
-        "nombre",
-        "plafonds",
-        "surface",
-        "accelerent",
-        "assurer",
-        "batiment",
-        "conseil",
-        "contenu"
-      ],
-      "recommendation": "Renforcer l'angle unique de checklist-documents-assurance-immeuble et ajouter un lien contextuel vers multirisque-immeuble."
-    },
-    {
-      "cluster": "local-commercial",
-      "risk": "medium",
-      "score": 49,
-      "primary_slug": "blog/local-commercial-vacant",
-      "pages": [
-        "blog/assurance-immeuble-mixte-commerce",
-        "blog/immeuble-mixte-restaurant"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "mixte",
-        "commerce",
-        "commercial",
-        "local",
-        "activite",
-        "commerciale",
-        "locataire",
-        "plafonds"
-      ],
-      "recommendation": "Clarifier blog/assurance-immeuble-mixte-commerce comme support informationnel et renforcer le lien vers blog/local-commercial-vacant."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "medium",
-      "score": 48.27,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "blog/assurance-colocation-immeuble",
-        "blog/assurance-immeuble-vacant"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "plafonds",
-        "sujet",
-        "quand",
-        "surface",
-        "appel",
-        "clauses",
-        "concerne"
-      ],
-      "recommendation": "Clarifier blog/assurance-immeuble-vacant comme support informationnel et renforcer le lien vers multirisque-immeuble."
-    },
-    {
-      "cluster": "pno-cno",
-      "risk": "medium",
-      "score": 48.19,
-      "primary_slug": "pno-cno",
-      "pages": [
-        "assurance-cno",
-        "blog/cno-coproprietaire-non-occupant-obligatoire"
-      ],
-      "page_types": [
-        "service",
-        "blog"
-      ],
-      "shared_terms": [
-        "occupant",
-        "coproprietaire",
-        "vacant",
-        "occupe",
-        "civile",
-        "logement",
-        "statut",
-        "vacance"
-      ],
-      "recommendation": "Clarifier blog/cno-coproprietaire-non-occupant-obligatoire comme support informationnel et renforcer le lien vers pno-cno."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "medium",
-      "score": 47.95,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "blog/pertes-de-loyers-immeuble",
-        "blog/resiliation-assurance-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "plafonds",
-        "quand",
-        "appel",
-        "clauses",
-        "concerne"
-      ],
-      "recommendation": "Clarifier blog/resiliation-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
-    },
-    {
-      "cluster": "sinistre-resilie",
-      "risk": "medium",
-      "score": 47.79,
-      "primary_slug": "gestion-sinistres-immeuble",
-      "pages": [
-        "blog/assurance-immeuble-apres-refus-assureur",
-        "blog/infiltration-toiture-terrasse"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "correctives",
-        "mesures",
-        "plafonds",
-        "gestion",
-        "quand"
-      ],
-      "recommendation": "Clarifier blog/infiltration-toiture-terrasse comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
-    },
-    {
       "cluster": "copropriete-syndic",
       "risk": "medium",
-      "score": 47.77,
-      "primary_slug": "assurance-copropriete",
-      "pages": [
-        "blog/assurance-parking-garages-copropriete",
-        "blog/dommages-ouvrage-copropriete-travaux"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "communes",
-        "parties",
-        "conseil",
-        "syndical",
-        "appel",
-        "concerne",
-        "coproprietaire",
-        "plafonds"
-      ],
-      "recommendation": "Clarifier blog/dommages-ouvrage-copropriete-travaux comme support informationnel et renforcer le lien vers assurance-copropriete."
-    },
-    {
-      "cluster": "pno-cno",
-      "risk": "medium",
-      "score": 47.14,
-      "primary_slug": "pno-cno",
-      "pages": [
-        "assurance-pno-cno",
-        "devis-pno-cno"
-      ],
-      "page_types": [
-        "service",
-        "lead"
-      ],
-      "shared_terms": [
-        "occupant",
-        "coproprietaire",
-        "vacant",
-        "occupe",
-        "logement",
-        "vacance",
-        "civile",
-        "portefeuille"
-      ],
-      "recommendation": "Differencier l'intention formulaire de devis-pno-cno et confirmer le renvoi vers pno-cno quand le besoin est plus large."
-    },
-    {
-      "cluster": "copropriete-syndic",
-      "risk": "medium",
-      "score": 46.94,
+      "score": 49.25,
       "primary_slug": "assurance-copropriete",
       "pages": [
         "dommages-ouvrage-immeuble",
@@ -1558,23 +1140,47 @@
       ],
       "shared_terms": [
         "multirisque",
+        "donnees",
         "plafonds",
         "protection",
         "surface",
         "accelerent",
         "batiment",
-        "conseil",
-        "contenu"
+        "conseil"
       ],
       "recommendation": "Renforcer l'angle unique de dommages-ouvrage-immeuble et ajouter un lien contextuel vers assurance-copropriete."
     },
     {
+      "cluster": "copropriete-syndic",
+      "risk": "medium",
+      "score": 48.38,
+      "primary_slug": "assurance-copropriete",
+      "pages": [
+        "blog/copropriete-petite-syndic-benevole",
+        "blog/renovation-energetique-copropriete-assurance"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "conseil",
+        "syndical",
+        "communes",
+        "parties",
+        "coproprietaire",
+        "plafonds",
+        "appel"
+      ],
+      "recommendation": "Clarifier blog/renovation-energetique-copropriete-assurance comme support informationnel et renforcer le lien vers assurance-copropriete."
+    },
+    {
       "cluster": "assurance-immeuble",
       "risk": "medium",
-      "score": 46.89,
+      "score": 47.87,
       "primary_slug": "multirisque-immeuble",
       "pages": [
-        "blog/assurance-colocation-immeuble",
+        "blog/assurance-immeuble-vacant",
         "blog/resiliation-assurance-immeuble"
       ],
       "page_types": [
@@ -1582,18 +1188,118 @@
         "blog"
       ],
       "shared_terms": [
-        "plafonds",
-        "quand",
-        "appel",
         "clauses",
-        "concerne"
+        "plafonds",
+        "donnees",
+        "quand",
+        "aider",
+        "appel"
       ],
       "recommendation": "Clarifier blog/resiliation-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
     },
     {
+      "cluster": "pno-cno",
+      "risk": "medium",
+      "score": 47.84,
+      "primary_slug": "pno-cno",
+      "pages": [
+        "assurance-cno",
+        "devis-pno-cno"
+      ],
+      "page_types": [
+        "service",
+        "lead"
+      ],
+      "shared_terms": [
+        "occupant",
+        "coproprietaire",
+        "vacant",
+        "logement",
+        "civile",
+        "occupe",
+        "statut",
+        "biens"
+      ],
+      "recommendation": "Renforcer l'angle unique de assurance-cno et ajouter un lien contextuel vers pno-cno."
+    },
+    {
+      "cluster": "copropriete-syndic",
+      "risk": "medium",
+      "score": 47.69,
+      "primary_slug": "assurance-copropriete",
+      "pages": [
+        "blog/assurance-copropriete-avant-ag",
+        "blog/dommages-ouvrage-copropriete-travaux"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "conseil",
+        "syndical",
+        "communes",
+        "parties",
+        "appel",
+        "coproprietaire",
+        "plafonds"
+      ],
+      "recommendation": "Clarifier blog/dommages-ouvrage-copropriete-travaux comme support informationnel et renforcer le lien vers assurance-copropriete."
+    },
+    {
       "cluster": "local-commercial",
       "risk": "medium",
-      "score": 46.68,
+      "score": 47.52,
+      "primary_slug": "blog/local-commercial-vacant",
+      "pages": [
+        "blog/immeuble-mixte-restaurant",
+        "blog/local-commercial-vacant"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "restaurant",
+        "activite",
+        "local",
+        "commercial",
+        "mixte",
+        "commerce",
+        "locataire",
+        "plafonds"
+      ],
+      "recommendation": "Clarifier blog/immeuble-mixte-restaurant comme support informationnel et renforcer le lien vers blog/local-commercial-vacant."
+    },
+    {
+      "cluster": "copropriete-syndic",
+      "risk": "medium",
+      "score": 46.91,
+      "primary_slug": "assurance-copropriete",
+      "pages": [
+        "blog/copropriete-petite-syndic-benevole",
+        "blog/dommages-ouvrage-copropriete-travaux"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "conseil",
+        "syndical",
+        "communes",
+        "parties",
+        "clarifier",
+        "coproprietaire",
+        "plafonds",
+        "appel"
+      ],
+      "recommendation": "Clarifier blog/dommages-ouvrage-copropriete-travaux comme support informationnel et renforcer le lien vers assurance-copropriete."
+    },
+    {
+      "cluster": "local-commercial",
+      "risk": "medium",
+      "score": 46.61,
       "primary_slug": "blog/local-commercial-vacant",
       "pages": [
         "blog/local-commercial-vacant",
@@ -1607,8 +1313,8 @@
         "local",
         "commercial",
         "vacant",
-        "activite",
         "mixte",
+        "activite",
         "vacance",
         "verifier",
         "commerce"
@@ -1616,153 +1322,84 @@
       "recommendation": "Clarifier faq/local-commercial comme support informationnel et renforcer le lien vers blog/local-commercial-vacant."
     },
     {
-      "cluster": "sci-bailleur",
-      "risk": "watch",
-      "score": 45.62,
-      "primary_slug": "assurance-sci",
+      "cluster": "assurance-immeuble",
+      "risk": "medium",
+      "score": 46.23,
+      "primary_slug": "multirisque-immeuble",
       "pages": [
-        "assurance-immeuble-de-rapport",
-        "assurance-immeuble-monopropriete"
+        "blog/preparer-renouvellement-assurance-immeuble",
+        "contact"
+      ],
+      "page_types": [
+        "blog",
+        "lead"
+      ],
+      "shared_terms": [
+        "surface",
+        "donnees",
+        "nombre",
+        "plafonds",
+        "accelerent",
+        "batiment",
+        "conseil",
+        "contenu"
+      ],
+      "recommendation": "Clarifier blog/preparer-renouvellement-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
+    },
+    {
+      "cluster": "pno-cno",
+      "risk": "medium",
+      "score": 46.18,
+      "primary_slug": "pno-cno",
+      "pages": [
+        "blog/cno-coproprietaire-non-occupant-obligatoire",
+        "blog/pno-obligatoire-copropriete"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "coproprietaire",
+        "occupant",
+        "civile",
+        "vacant",
+        "obligatoire",
+        "obligation",
+        "qualifie",
+        "profil"
+      ],
+      "recommendation": "Clarifier blog/pno-obligatoire-copropriete comme support informationnel et renforcer le lien vers pno-cno."
+    },
+    {
+      "cluster": "pno-cno",
+      "risk": "watch",
+      "score": 45.72,
+      "primary_slug": "pno-cno",
+      "pages": [
+        "assurance-cno",
+        "assurance-pno"
       ],
       "page_types": [
         "service",
         "service"
       ],
       "shared_terms": [
-        "locaux",
-        "vacance",
-        "plafonds",
-        "commercial",
-        "pourquoi",
-        "quelles"
-      ],
-      "recommendation": "Renforcer l'angle unique de assurance-immeuble-monopropriete et ajouter un lien contextuel vers assurance-sci."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "watch",
-      "score": 45.5,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "blog/assurance-immeuble-vacant",
-        "blog/resiliation-assurance-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "clauses",
-        "plafonds",
-        "quand",
-        "appel",
-        "concerne"
-      ],
-      "recommendation": "Clarifier blog/resiliation-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
-    },
-    {
-      "cluster": "devis-courtier",
-      "risk": "watch",
-      "score": 45.34,
-      "primary_slug": "devis-assurance-immeuble",
-      "pages": [
-        "blog/checklist-documents-devis-immeuble",
-        "devis-assurance-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "lead"
-      ],
-      "shared_terms": [
-        "rappel",
-        "surface",
-        "coproprietaire",
-        "exploitable",
-        "nombre",
-        "plafonds",
-        "profil",
-        "qualifie"
-      ],
-      "recommendation": "Clarifier blog/checklist-documents-devis-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
-    },
-    {
-      "cluster": "sci-bailleur",
-      "risk": "watch",
-      "score": 44.61,
-      "primary_slug": "assurance-sci",
-      "pages": [
-        "blog/assurance-sci-patrimoine-locatif",
-        "blog/sci-familiale-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "patrimoine",
-        "locatif",
-        "biens",
-        "doublons",
-        "liste",
-        "occupants",
-        "portefeuille",
-        "rapport"
-      ],
-      "recommendation": "Clarifier blog/sci-familiale-immeuble comme support informationnel et renforcer le lien vers assurance-sci."
-    },
-    {
-      "cluster": "copropriete-syndic",
-      "risk": "watch",
-      "score": 44.26,
-      "primary_slug": "assurance-copropriete",
-      "pages": [
-        "assurance-immeuble-syndic-benevole",
-        "courtier-assurance-immeuble"
-      ],
-      "page_types": [
-        "service",
-        "lead"
-      ],
-      "shared_terms": [
-        "syndicat",
         "occupant",
-        "eviter",
-        "google",
-        "plafonds",
-        "pourquoi",
-        "communes",
-        "concretes"
-      ],
-      "recommendation": "Differencier l'intention formulaire de courtier-assurance-immeuble et confirmer le renvoi vers assurance-copropriete quand le besoin est plus large."
-    },
-    {
-      "cluster": "copropriete-syndic",
-      "risk": "watch",
-      "score": 44.13,
-      "primary_slug": "assurance-copropriete",
-      "pages": [
-        "blog/assurance-copropriete-avant-ag",
-        "blog/assurance-copropriete-obligatoire"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "communes",
-        "conseil",
-        "parties",
-        "syndical",
-        "appel",
         "coproprietaire",
-        "coproprietaires"
+        "vacant",
+        "logement",
+        "civile",
+        "occupe",
+        "biens",
+        "vacance"
       ],
-      "recommendation": "Clarifier blog/assurance-copropriete-obligatoire comme support informationnel et renforcer le lien vers assurance-copropriete."
+      "recommendation": "Renforcer l'angle unique de assurance-pno et ajouter un lien contextuel vers pno-cno."
     },
     {
       "cluster": "newsletter-veille",
       "risk": "watch",
-      "score": 44.09,
+      "score": 45.51,
       "primary_slug": "veille-assurance-immeuble",
       "pages": [
         "newsletter-assurance-immeuble",
@@ -1783,13 +1420,61 @@
       "recommendation": "Renforcer l'angle unique de newsletter-assurance-immeuble et ajouter un lien contextuel vers veille-assurance-immeuble."
     },
     {
+      "cluster": "assurance-immeuble",
+      "risk": "watch",
+      "score": 45.48,
+      "primary_slug": "multirisque-immeuble",
+      "pages": [
+        "blog/assurance-immeuble-avec-ascenseur",
+        "blog/pertes-de-loyers-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "clauses",
+        "plafonds",
+        "donnees",
+        "sujet",
+        "concerne",
+        "conseil"
+      ],
+      "recommendation": "Clarifier blog/pertes-de-loyers-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
+    },
+    {
+      "cluster": "sci-bailleur",
+      "risk": "watch",
+      "score": 45.47,
+      "primary_slug": "assurance-sci",
+      "pages": [
+        "blog/assurance-sci-patrimoine-locatif",
+        "blog/sci-familiale-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "patrimoine",
+        "biens",
+        "locatif",
+        "doublons",
+        "donnees",
+        "liste",
+        "occupants",
+        "portefeuille"
+      ],
+      "recommendation": "Clarifier blog/sci-familiale-immeuble comme support informationnel et renforcer le lien vers assurance-sci."
+    },
+    {
       "cluster": "pno-cno",
       "risk": "watch",
-      "score": 44.07,
+      "score": 45.02,
       "primary_slug": "pno-cno",
       "pages": [
         "assurance-cno",
-        "assurance-pno"
+        "pno-cno"
       ],
       "page_types": [
         "service",
@@ -1799,38 +1484,106 @@
         "occupant",
         "coproprietaire",
         "vacant",
-        "occupe",
-        "civile",
         "logement",
-        "vacance",
+        "civile",
+        "occupe",
+        "statut",
         "biens"
       ],
-      "recommendation": "Renforcer l'angle unique de assurance-pno et ajouter un lien contextuel vers pno-cno."
+      "recommendation": "Renforcer l'angle unique de assurance-cno et ajouter un lien contextuel vers pno-cno."
     },
     {
-      "cluster": "pno-cno",
+      "cluster": "copropriete-syndic",
       "risk": "watch",
-      "score": 43.79,
-      "primary_slug": "pno-cno",
+      "score": 44.85,
+      "primary_slug": "assurance-copropriete",
       "pages": [
-        "blog/cno-coproprietaire-non-occupant-obligatoire",
-        "blog/pno-obligatoire-copropriete"
+        "blog/assurance-copropriete-avant-ag",
+        "blog/protection-juridique-copropriete"
       ],
       "page_types": [
         "blog",
         "blog"
       ],
       "shared_terms": [
+        "conseil",
+        "syndical",
+        "communes",
+        "parties",
+        "appel",
+        "coproprietaire",
+        "plafonds"
+      ],
+      "recommendation": "Clarifier blog/protection-juridique-copropriete comme support informationnel et renforcer le lien vers assurance-copropriete."
+    },
+    {
+      "cluster": "sci-bailleur",
+      "risk": "watch",
+      "score": 44.27,
+      "primary_slug": "assurance-sci",
+      "pages": [
+        "assurance-immeuble-locatif",
+        "assurance-local-commercial"
+      ],
+      "page_types": [
+        "service",
+        "service"
+      ],
+      "shared_terms": [
+        "multirisque",
+        "protection",
+        "vacance",
+        "donnees",
+        "juridique",
+        "principal"
+      ],
+      "recommendation": "Renforcer l'angle unique de assurance-local-commercial et ajouter un lien contextuel vers assurance-sci."
+    },
+    {
+      "cluster": "sci-bailleur",
+      "risk": "watch",
+      "score": 44.14,
+      "primary_slug": "assurance-sci",
+      "pages": [
+        "blog/assurance-immeuble-local-professionnel",
+        "blog/sci-familiale-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "plafonds",
+        "donnees",
+        "patrimoine",
+        "rapport"
+      ],
+      "recommendation": "Clarifier blog/sci-familiale-immeuble comme support informationnel et renforcer le lien vers assurance-sci."
+    },
+    {
+      "cluster": "pno-cno",
+      "risk": "watch",
+      "score": 43.95,
+      "primary_slug": "pno-cno",
+      "pages": [
+        "assurance-cno",
+        "blog/cno-coproprietaire-non-occupant-obligatoire"
+      ],
+      "page_types": [
+        "service",
+        "blog"
+      ],
+      "shared_terms": [
         "occupant",
         "coproprietaire",
-        "civile",
         "vacant",
-        "obligatoire",
-        "obligation",
-        "occupe",
-        "qualifie"
+        "logement",
+        "civile",
+        "statut",
+        "biens",
+        "profil"
       ],
-      "recommendation": "Clarifier blog/pno-obligatoire-copropriete comme support informationnel et renforcer le lien vers pno-cno."
+      "recommendation": "Clarifier blog/cno-coproprietaire-non-occupant-obligatoire comme support informationnel et renforcer le lien vers pno-cno."
     },
     {
       "cluster": "copropriete-syndic",
@@ -1858,174 +1611,57 @@
       "recommendation": "Renforcer l'angle unique de assurance-immeuble et ajouter un lien contextuel vers assurance-copropriete."
     },
     {
-      "cluster": "pno-cno",
+      "cluster": "copropriete-syndic",
       "risk": "watch",
-      "score": 43.57,
-      "primary_slug": "pno-cno",
+      "score": 43.64,
+      "primary_slug": "assurance-copropriete",
       "pages": [
-        "blog/cno-coproprietaire-non-occupant-obligatoire",
-        "blog/pno-bailleur-copropriete"
+        "blog/assurance-copropriete-avant-ag",
+        "blog/assurance-parking-garages-copropriete"
       ],
       "page_types": [
         "blog",
         "blog"
       ],
       "shared_terms": [
-        "occupant",
-        "coproprietaire",
-        "civile",
-        "vacant",
-        "vacance",
-        "occupe",
-        "qualifie",
-        "communes"
-      ],
-      "recommendation": "Clarifier blog/pno-bailleur-copropriete comme support informationnel et renforcer le lien vers pno-cno."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "watch",
-      "score": 43.35,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "blog/preparer-renouvellement-assurance-immeuble",
-        "contact"
-      ],
-      "page_types": [
-        "blog",
-        "lead"
-      ],
-      "shared_terms": [
-        "surface",
-        "nombre",
-        "plafonds",
-        "accelerent",
-        "batiment",
         "conseil",
-        "contenu",
-        "derniers"
-      ],
-      "recommendation": "Clarifier blog/preparer-renouvellement-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
-    },
-    {
-      "cluster": "pno-cno",
-      "risk": "watch",
-      "score": 43.08,
-      "primary_slug": "pno-cno",
-      "pages": [
-        "blog/pno-bailleur-copropriete",
-        "blog/pno-cno-differences-garanties"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "occupant",
+        "syndical",
+        "communes",
+        "parties",
+        "appel",
         "coproprietaire",
-        "vacant",
-        "occupe",
-        "vacance",
-        "qualifie",
-        "civile",
-        "couvre"
+        "plafonds"
       ],
-      "recommendation": "Clarifier blog/pno-cno-differences-garanties comme support informationnel et renforcer le lien vers pno-cno."
-    },
-    {
-      "cluster": "sinistre-resilie",
-      "risk": "watch",
-      "score": 43.08,
-      "primary_slug": "gestion-sinistres-immeuble",
-      "pages": [
-        "blog/assurance-immeuble-apres-refus-assureur",
-        "blog/sinistres-recurrents-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "refus",
-        "correctives",
-        "mesures",
-        "historique",
-        "consultation",
-        "plafonds",
-        "resiliation",
-        "causes"
-      ],
-      "recommendation": "Clarifier blog/sinistres-recurrents-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "watch",
-      "score": 43,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "assurance-batiment-proprietaire",
-        "assurance-immeuble-obligatoire"
-      ],
-      "page_types": [
-        "service",
-        "service"
-      ],
-      "shared_terms": [
-        "locaux",
-        "plafonds",
-        "commercial",
-        "pourquoi",
-        "quelles"
-      ],
-      "recommendation": "Renforcer l'angle unique de assurance-immeuble-obligatoire et ajouter un lien contextuel vers multirisque-immeuble."
-    },
-    {
-      "cluster": "sci-bailleur",
-      "risk": "watch",
-      "score": 42.83,
-      "primary_slug": "assurance-sci",
-      "pages": [
-        "blog/assurance-immeuble-local-professionnel",
-        "blog/sci-familiale-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "plafonds",
-        "patrimoine",
-        "rapport",
-        "clauses"
-      ],
-      "recommendation": "Clarifier blog/sci-familiale-immeuble comme support informationnel et renforcer le lien vers assurance-sci."
-    },
-    {
-      "cluster": "sci-bailleur",
-      "risk": "watch",
-      "score": 42.64,
-      "primary_slug": "assurance-sci",
-      "pages": [
-        "assurance-immeuble-locatif",
-        "assurance-local-commercial"
-      ],
-      "page_types": [
-        "service",
-        "service"
-      ],
-      "shared_terms": [
-        "multirisque",
-        "protection",
-        "vacance",
-        "juridique",
-        "principal"
-      ],
-      "recommendation": "Renforcer l'angle unique de assurance-local-commercial et ajouter un lien contextuel vers assurance-sci."
+      "recommendation": "Clarifier blog/assurance-parking-garages-copropriete comme support informationnel et renforcer le lien vers assurance-copropriete."
     },
     {
       "cluster": "copropriete-syndic",
       "risk": "watch",
-      "score": 42.23,
+      "score": 43.18,
+      "primary_slug": "assurance-copropriete",
+      "pages": [
+        "blog/protection-juridique-copropriete",
+        "blog/renovation-energetique-copropriete-assurance"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "communes",
+        "parties",
+        "plafonds",
+        "conseil",
+        "syndical",
+        "appel",
+        "coproprietaire"
+      ],
+      "recommendation": "Clarifier blog/renovation-energetique-copropriete-assurance comme support informationnel et renforcer le lien vers assurance-copropriete."
+    },
+    {
+      "cluster": "copropriete-syndic",
+      "risk": "watch",
+      "score": 43.06,
       "primary_slug": "assurance-copropriete",
       "pages": [
         "blog/assurance-copropriete-obligatoire",
@@ -2048,34 +1684,227 @@
       "recommendation": "Clarifier blog/assurance-copropriete-obligatoire comme support informationnel et renforcer le lien vers assurance-copropriete."
     },
     {
-      "cluster": "pno-cno",
+      "cluster": "assurance-immeuble",
       "risk": "watch",
-      "score": 42.1,
-      "primary_slug": "pno-cno",
+      "score": 43,
+      "primary_slug": "multirisque-immeuble",
       "pages": [
-        "assurance-cno",
-        "pno-cno"
+        "assurance-batiment-proprietaire",
+        "assurance-immeuble-obligatoire"
       ],
       "page_types": [
         "service",
         "service"
       ],
       "shared_terms": [
-        "occupant",
-        "coproprietaire",
-        "vacant",
-        "occupe",
-        "civile",
-        "logement",
-        "statut",
-        "vacance"
+        "locaux",
+        "plafonds",
+        "commercial",
+        "pourquoi",
+        "quelles",
+        "demander"
       ],
-      "recommendation": "Renforcer l'angle unique de assurance-cno et ajouter un lien contextuel vers pno-cno."
+      "recommendation": "Renforcer l'angle unique de assurance-immeuble-obligatoire et ajouter un lien contextuel vers multirisque-immeuble."
+    },
+    {
+      "cluster": "copropriete-syndic",
+      "risk": "watch",
+      "score": 42.82,
+      "primary_slug": "assurance-copropriete",
+      "pages": [
+        "blog/copropriete-petite-syndic-benevole",
+        "blog/protection-juridique-copropriete"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "conseil",
+        "syndical",
+        "communes",
+        "parties",
+        "coproprietaire",
+        "plafonds",
+        "appel",
+        "concerne"
+      ],
+      "recommendation": "Clarifier blog/protection-juridique-copropriete comme support informationnel et renforcer le lien vers assurance-copropriete."
+    },
+    {
+      "cluster": "assurance-immeuble",
+      "risk": "watch",
+      "score": 42.58,
+      "primary_slug": "multirisque-immeuble",
+      "pages": [
+        "blog/assurance-colocation-immeuble",
+        "blog/pertes-de-loyers-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "plafonds",
+        "donnees",
+        "sujet",
+        "clauses",
+        "concerne",
+        "conseil"
+      ],
+      "recommendation": "Clarifier blog/pertes-de-loyers-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
+    },
+    {
+      "cluster": "assurance-immeuble",
+      "risk": "watch",
+      "score": 42.47,
+      "primary_slug": "multirisque-immeuble",
+      "pages": [
+        "blog/preparer-renouvellement-assurance-immeuble",
+        "checklist-documents-assurance-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "service"
+      ],
+      "shared_terms": [
+        "surface",
+        "donnees",
+        "nombre",
+        "plafonds",
+        "accelerent",
+        "batiment",
+        "conseil",
+        "contenu"
+      ],
+      "recommendation": "Clarifier blog/preparer-renouvellement-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
+    },
+    {
+      "cluster": "copropriete-syndic",
+      "risk": "watch",
+      "score": 42.4,
+      "primary_slug": "assurance-copropriete",
+      "pages": [
+        "blog/dommages-ouvrage-copropriete-travaux",
+        "blog/protection-juridique-copropriete"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "quand",
+        "conseil",
+        "syndical",
+        "communes",
+        "parties",
+        "coproprietaire",
+        "plafonds",
+        "appel"
+      ],
+      "recommendation": "Clarifier blog/protection-juridique-copropriete comme support informationnel et renforcer le lien vers assurance-copropriete."
+    },
+    {
+      "cluster": "copropriete-syndic",
+      "risk": "watch",
+      "score": 42.2,
+      "primary_slug": "assurance-copropriete",
+      "pages": [
+        "blog/assurance-parking-garages-copropriete",
+        "blog/copropriete-petite-syndic-benevole"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "communes",
+        "parties",
+        "conseil",
+        "syndical",
+        "appel",
+        "concerne",
+        "coproprietaire",
+        "donnees"
+      ],
+      "recommendation": "Clarifier blog/copropriete-petite-syndic-benevole comme support informationnel et renforcer le lien vers assurance-copropriete."
     },
     {
       "cluster": "sinistre-resilie",
       "risk": "watch",
-      "score": 42.1,
+      "score": 42.18,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "pages": [
+        "blog/assurance-immeuble-apres-refus-assureur",
+        "blog/sinistres-recurrents-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "refus",
+        "correctives",
+        "mesures",
+        "consultation",
+        "historique",
+        "plafonds",
+        "resiliation",
+        "causes"
+      ],
+      "recommendation": "Clarifier blog/sinistres-recurrents-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "pno-cno",
+      "risk": "watch",
+      "score": 41.95,
+      "primary_slug": "pno-cno",
+      "pages": [
+        "blog/pno-bailleur-copropriete",
+        "blog/pno-obligatoire-copropriete"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "occupant",
+        "coproprietaire",
+        "vacant",
+        "occupe",
+        "qualifie",
+        "conseil",
+        "profil",
+        "rappel"
+      ],
+      "recommendation": "Clarifier blog/pno-obligatoire-copropriete comme support informationnel et renforcer le lien vers pno-cno."
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "risk": "watch",
+      "score": 41.9,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "pages": [
+        "blog/franchise-degat-des-eaux-immeuble",
+        "blog/infiltration-toiture-terrasse"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "correctives",
+        "mesures",
+        "plafonds",
+        "donnees",
+        "gestion"
+      ],
+      "recommendation": "Clarifier blog/infiltration-toiture-terrasse comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "risk": "watch",
+      "score": 41.67,
       "primary_slug": "gestion-sinistres-immeuble",
       "pages": [
         "blog/assurance-immeuble-apres-refus-assureur",
@@ -2095,29 +1924,100 @@
       "recommendation": "Clarifier blog/assurance-immeuble-sans-sinistre comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
     },
     {
-      "cluster": "pno-cno",
+      "cluster": "copropriete-syndic",
       "risk": "watch",
-      "score": 40.89,
-      "primary_slug": "pno-cno",
+      "score": 41.51,
+      "primary_slug": "assurance-copropriete",
       "pages": [
-        "blog/assurance-lot-vacant-copropriete",
-        "blog/cno-coproprietaire-non-occupant-obligatoire"
+        "blog/assurance-parking-garages-copropriete",
+        "blog/renovation-energetique-copropriete-assurance"
       ],
       "page_types": [
         "blog",
         "blog"
       ],
       "shared_terms": [
-        "vacant",
-        "verifier",
-        "occupant",
-        "vacance",
         "communes",
         "parties",
+        "conseil",
+        "syndical",
+        "appel",
         "coproprietaire",
-        "logement"
+        "plafonds"
       ],
-      "recommendation": "Clarifier blog/cno-coproprietaire-non-occupant-obligatoire comme support informationnel et renforcer le lien vers pno-cno."
+      "recommendation": "Clarifier blog/renovation-energetique-copropriete-assurance comme support informationnel et renforcer le lien vers assurance-copropriete."
+    },
+    {
+      "cluster": "assurance-immeuble",
+      "risk": "watch",
+      "score": 41.2,
+      "primary_slug": "multirisque-immeuble",
+      "pages": [
+        "blog/assurance-immeuble-vacant",
+        "blog/pertes-de-loyers-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "clauses",
+        "obligations",
+        "plafonds",
+        "donnees",
+        "sujet"
+      ],
+      "recommendation": "Clarifier blog/pertes-de-loyers-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
+    },
+    {
+      "cluster": "local-commercial",
+      "risk": "watch",
+      "score": 41.18,
+      "primary_slug": "blog/local-commercial-vacant",
+      "pages": [
+        "blog/assurance-immeuble-mixte-commerce",
+        "blog/immeuble-mixte-restaurant"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "mixte",
+        "commercial",
+        "local",
+        "commerce",
+        "activite",
+        "commerciale",
+        "donnees",
+        "locataire"
+      ],
+      "recommendation": "Clarifier blog/assurance-immeuble-mixte-commerce comme support informationnel et renforcer le lien vers blog/local-commercial-vacant."
+    },
+    {
+      "cluster": "pno-cno",
+      "risk": "watch",
+      "score": 40.97,
+      "primary_slug": "pno-cno",
+      "pages": [
+        "assurance-pno-cno",
+        "devis-pno-cno"
+      ],
+      "page_types": [
+        "service",
+        "lead"
+      ],
+      "shared_terms": [
+        "occupant",
+        "coproprietaire",
+        "vacant",
+        "logement",
+        "occupe",
+        "portefeuille",
+        "profil",
+        "statut"
+      ],
+      "recommendation": "Differencier l'intention formulaire de devis-pno-cno et confirmer le renvoi vers pno-cno quand le besoin est plus large."
     },
     {
       "cluster": "assurance-immeuble",
@@ -2135,14 +2035,40 @@
       "shared_terms": [
         "locaux",
         "plafonds",
-        "commercial"
+        "commercial",
+        "demander"
       ],
       "recommendation": "Renforcer l'angle unique de assurance-immeuble-meuble-colocation et ajouter un lien contextuel vers multirisque-immeuble."
     },
     {
+      "cluster": "assurance-immeuble",
+      "risk": "watch",
+      "score": 40.56,
+      "primary_slug": "multirisque-immeuble",
+      "pages": [
+        "audit-contrat-assurance-immeuble",
+        "checklist-documents-assurance-immeuble"
+      ],
+      "page_types": [
+        "lead",
+        "service"
+      ],
+      "shared_terms": [
+        "plafonds",
+        "conseil",
+        "donnees",
+        "surface",
+        "accelerent",
+        "batiment",
+        "contenu",
+        "derniers"
+      ],
+      "recommendation": "Renforcer l'angle unique de checklist-documents-assurance-immeuble et ajouter un lien contextuel vers multirisque-immeuble."
+    },
+    {
       "cluster": "sinistre-resilie",
       "risk": "watch",
-      "score": 40.78,
+      "score": 40.37,
       "primary_slug": "gestion-sinistres-immeuble",
       "pages": [
         "blog/assurance-immeuble-apres-refus-assureur",
@@ -2162,31 +2088,33 @@
       "recommendation": "Clarifier blog/checklist-sinistre-degat-des-eaux comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
     },
     {
-      "cluster": "sinistre-resilie",
+      "cluster": "copropriete-syndic",
       "risk": "watch",
-      "score": 40.17,
-      "primary_slug": "gestion-sinistres-immeuble",
+      "score": 40.33,
+      "primary_slug": "assurance-copropriete",
       "pages": [
-        "blog/franchise-degat-des-eaux-immeuble",
-        "blog/infiltration-toiture-terrasse"
+        "blog/assurance-parking-garages-copropriete",
+        "blog/dommages-ouvrage-copropriete-travaux"
       ],
       "page_types": [
         "blog",
         "blog"
       ],
       "shared_terms": [
-        "correctives",
-        "mesures",
-        "plafonds",
-        "gestion",
-        "conseil"
+        "communes",
+        "parties",
+        "conseil",
+        "syndical",
+        "appel",
+        "coproprietaire",
+        "plafonds"
       ],
-      "recommendation": "Clarifier blog/infiltration-toiture-terrasse comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+      "recommendation": "Clarifier blog/dommages-ouvrage-copropriete-travaux comme support informationnel et renforcer le lien vers assurance-copropriete."
     },
     {
       "cluster": "copropriete-syndic",
       "risk": "watch",
-      "score": 39.95,
+      "score": 40.32,
       "primary_slug": "assurance-copropriete",
       "pages": [
         "assurance-immeuble-syndic-benevole",
@@ -2209,57 +2137,28 @@
     {
       "cluster": "assurance-immeuble",
       "risk": "watch",
-      "score": 39.92,
+      "score": 40.25,
       "primary_slug": "multirisque-immeuble",
       "pages": [
-        "blog/preparer-renouvellement-assurance-immeuble",
-        "checklist-documents-assurance-immeuble"
+        "blog/pertes-de-loyers-immeuble",
+        "blog/resiliation-assurance-immeuble"
       ],
       "page_types": [
         "blog",
-        "service"
-      ],
-      "shared_terms": [
-        "surface",
-        "nombre",
-        "plafonds",
-        "accelerent",
-        "batiment",
-        "conseil",
-        "contenu",
-        "derniers"
-      ],
-      "recommendation": "Clarifier blog/preparer-renouvellement-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "watch",
-      "score": 39.52,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "audit-contrat-assurance-immeuble",
-        "checklist-documents-assurance-immeuble"
-      ],
-      "page_types": [
-        "lead",
-        "service"
+        "blog"
       ],
       "shared_terms": [
         "plafonds",
-        "conseil",
-        "surface",
-        "accelerent",
-        "assurer",
-        "batiment",
-        "contenu",
-        "derniers"
+        "clauses",
+        "concerne",
+        "donnees"
       ],
-      "recommendation": "Renforcer l'angle unique de checklist-documents-assurance-immeuble et ajouter un lien contextuel vers multirisque-immeuble."
+      "recommendation": "Clarifier blog/resiliation-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
     },
     {
       "cluster": "newsletter-veille",
       "risk": "watch",
-      "score": 39.49,
+      "score": 39.98,
       "primary_slug": "veille-assurance-immeuble",
       "pages": [
         "news/veille-assurance-immeuble-2026-07-29",
@@ -2282,13 +2181,110 @@
       "recommendation": "Renforcer l'angle unique de news/veille-assurance-immeuble-2026-07-29 et ajouter un lien contextuel vers veille-assurance-immeuble."
     },
     {
+      "cluster": "sci-bailleur",
+      "risk": "watch",
+      "score": 39.98,
+      "primary_slug": "assurance-sci",
+      "pages": [
+        "assurance-immeuble-locatif",
+        "assurance-sci"
+      ],
+      "page_types": [
+        "service",
+        "service"
+      ],
+      "shared_terms": [
+        "locatif",
+        "multirisque",
+        "protection",
+        "vacance",
+        "donnees",
+        "juridique"
+      ],
+      "recommendation": "Renforcer l'angle unique de assurance-immeuble-locatif et ajouter un lien contextuel vers assurance-sci."
+    },
+    {
+      "cluster": "local-commercial",
+      "risk": "watch",
+      "score": 39.67,
+      "primary_slug": "blog/local-commercial-vacant",
+      "pages": [
+        "blog/assurance-immeuble-mixte-commerce",
+        "blog/local-commercial-vacant"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "mixte",
+        "commercial",
+        "local",
+        "commerce",
+        "activite",
+        "donnees",
+        "locataire",
+        "plafonds"
+      ],
+      "recommendation": "Clarifier blog/assurance-immeuble-mixte-commerce comme support informationnel et renforcer le lien vers blog/local-commercial-vacant."
+    },
+    {
       "cluster": "pno-cno",
       "risk": "watch",
-      "score": 39.46,
+      "score": 39.48,
+      "primary_slug": "pno-cno",
+      "pages": [
+        "blog/cno-coproprietaire-non-occupant-obligatoire",
+        "blog/pno-bailleur-copropriete"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "coproprietaire",
+        "occupant",
+        "vacant",
+        "qualifie",
+        "vacance",
+        "biens",
+        "logement",
+        "profil"
+      ],
+      "recommendation": "Clarifier blog/pno-bailleur-copropriete comme support informationnel et renforcer le lien vers pno-cno."
+    },
+    {
+      "cluster": "pno-cno",
+      "risk": "watch",
+      "score": 38.78,
+      "primary_slug": "pno-cno",
+      "pages": [
+        "blog/assurance-lot-vacant-copropriete",
+        "blog/cno-coproprietaire-non-occupant-obligatoire"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "vacant",
+        "verifier",
+        "occupant",
+        "vacance",
+        "coproprietaire",
+        "logement",
+        "nombre"
+      ],
+      "recommendation": "Clarifier blog/cno-coproprietaire-non-occupant-obligatoire comme support informationnel et renforcer le lien vers pno-cno."
+    },
+    {
+      "cluster": "pno-cno",
+      "risk": "watch",
+      "score": 38.77,
       "primary_slug": "pno-cno",
       "pages": [
         "blog/pno-bailleur-copropriete",
-        "blog/pno-obligatoire-copropriete"
+        "blog/pno-cno-differences-garanties"
       ],
       "page_types": [
         "blog",
@@ -2297,14 +2293,14 @@
       "shared_terms": [
         "occupant",
         "coproprietaire",
+        "vacance",
         "vacant",
         "occupe",
         "qualifie",
-        "civile",
-        "conseil",
+        "logement",
         "profil"
       ],
-      "recommendation": "Clarifier blog/pno-obligatoire-copropriete comme support informationnel et renforcer le lien vers pno-cno."
+      "recommendation": "Clarifier blog/pno-cno-differences-garanties comme support informationnel et renforcer le lien vers pno-cno."
     }
   ],
   "safeguards": [

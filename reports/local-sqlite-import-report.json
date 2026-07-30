@@ -1,13 +1,13 @@
 {
   "success": true,
-  "imported_at": "2026-07-30T01:21:50.173Z",
+  "imported_at": "2026-07-30T02:25:48.415Z",
   "imported_at_source": "latest-report-generated-at",
   "mode": "local-json-report-check",
   "reports": [
     {
       "file": "reports/seo-autopilot-report.json",
       "status": "present",
-      "generated_at": "2026-07-30T01:21:50.173Z"
+      "generated_at": "2026-07-30T02:25:12.980Z"
     },
     {
       "file": "reports/search-intelligence-report.json",
@@ -32,17 +32,22 @@
     {
       "file": "reports/conversion-intelligence-report.json",
       "status": "present",
-      "generated_at": "2026-07-30T01:21:31.389Z"
+      "generated_at": "2026-07-30T02:25:46.313Z"
     },
     {
       "file": "reports/cro-experiment-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T01:21:31.761Z"
+      "generated_at": "2026-07-30T02:25:47.195Z"
     },
     {
       "file": "reports/lead-friction-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T01:21:32.454Z"
+      "generated_at": "2026-07-30T02:25:48.415Z"
+    },
+    {
+      "file": "reports/lead-intent-routing-report.json",
+      "status": "passed",
+      "generated_at": "2026-07-30T02:25:34.857Z"
     },
     {
       "file": "reports/local-antifraud-report.json",
@@ -57,27 +62,27 @@
     {
       "file": "reports/seo-cannibalization-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T01:21:30.769Z"
+      "generated_at": "2026-07-30T02:25:44.900Z"
     },
     {
       "file": "reports/seo-intent-differentiation-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T01:21:27.891Z"
+      "generated_at": "2026-07-30T02:25:41.019Z"
     },
     {
       "file": "reports/seo-angle-differentiation-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T01:21:28.323Z"
+      "generated_at": "2026-07-30T02:25:41.590Z"
     },
     {
       "file": "reports/internal-link-equity-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T01:21:28.947Z"
+      "generated_at": "2026-07-30T02:25:42.383Z"
     },
     {
       "file": "reports/cluster-conversion-bridge-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T01:21:29.466Z"
+      "generated_at": "2026-07-30T02:25:43.148Z"
     },
     {
       "file": "reports/live-api-readiness-report.json",

@@ -63,6 +63,7 @@ npm run seo:intent:differentiate
 npm run seo:angles
 npm run seo:links
 npm run conversion:bridge
+npm run lead:intent
 npm run editorial:autopilot
 npm run media:autopilot
 npm run search:intelligence
@@ -76,7 +77,7 @@ npm run turnstile:hybrid
 npm run live:api:readiness
 ```
 
-Le rapport `conversion:intelligence` classe les pages par intention visible (`slug`, titre, description, H1) pour separer villes, PNO/CNO, devis, prix, syndic/copropriete, sinistres, SCI/bailleurs, travaux et veille sans lire les blocs CTA globaux.
+Le rapport `conversion:intelligence` classe les pages par intention visible (`slug`, titre, description, H1) pour separer villes, PNO/CNO, devis, prix, syndic/copropriete, sinistres, SCI/bailleurs, travaux et veille sans lire les blocs CTA globaux. Le controle `lead:intent` verifie que les liens SEO `?intent=...` pre-remplissent le formulaire et restent transmis a l API, aux emails et a GA4.
 
 Les workflows GitHub Actions generent et valident les rapports, mais ne publient pas sur une plateforme externe et n'ecrivent pas dans une base externe.
 
@@ -118,3 +119,4 @@ Etat constate le 2026-07-29:
 - nameservers: `arely.ns.cloudflare.com` et `rocky.ns.cloudflare.com`
 
 Tant que ces nameservers restent actifs, Cloudflare reste l'autorite DNS du domaine, ce qui est le compromis retenu maintenant. On ne revient pas vers IONOS comme cible DNS. Pour l'autarcie complete a terme, il faudra mettre en place un DNS secondaire/autoritaire hors Cloudflare dans le futur datacenter, recopier `dns/registrar-records.json`, puis changer les nameservers chez le registrar. Controle normal: `npm run dns:autarky`. Controle final apres migration: `npm run dns:autarky:strict`.
+

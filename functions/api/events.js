@@ -13,6 +13,7 @@ const allowedEvents = new Set([
   "experiment_view",
   "cta_click",
   "form_start",
+  "lead_intent_prefill",
   "form_submit_attempt",
   "lead_created",
   "lead_submit_error",
@@ -45,6 +46,7 @@ const ga4EventNames = {
   experiment_view: "ia_experiment_view",
   cta_click: "ia_cta_click",
   form_start: "form_start",
+  lead_intent_prefill: "ia_lead_intent_prefill",
   form_submit_attempt: "ia_form_submit_attempt",
   lead_created: "ia_lead_created_client",
   lead_submit_error: "ia_lead_submit_error",
@@ -278,3 +280,4 @@ export async function onRequestPost({ request, env, waitUntil }) {
 
   return json({ success: true });
 }
+

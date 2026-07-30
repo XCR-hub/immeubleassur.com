@@ -117,14 +117,67 @@ function parseStoredAttribution() {
   }
 }
 
+function currentPathWithQuery() {
+  return `${window.location.pathname}${window.location.search}`.slice(0, 500);
+}
+
+function normalizeLeadIntent(value) {
+  const key = String(value || "").trim().toLowerCase().replace(/_/g, "-").replace(/\s+/g, "-");
+  const aliases = {
+    "assurance-immeuble": "immeuble",
+    "multirisque": "immeuble",
+    "multirisque-immeuble": "immeuble",
+    "mrh-immeuble": "immeuble",
+    "dommages-ouvrage": "travaux",
+    "dommage-ouvrage": "travaux",
+    "do": "travaux",
+    "renovation": "travaux",
+    "local": "local-commercial",
+    "commerce": "local-commercial",
+    "mixte": "local-commercial",
+    "immeuble-mixte": "local-commercial",
+    "tarif": "prix",
+    "comparateur": "prix",
+    "comparaison": "prix",
+    "audit": "audit-contrat",
+    "resiliation": "sinistre",
+    "refus": "sinistre",
+    "sinistres": "sinistre",
+    "actualite": "veille",
+    "actualites": "veille",
+    "news": "veille"
+  };
+  return aliases[key] || key;
+}
+
+function queryLeadIntent() {
+  const params = new URLSearchParams(window.location.search);
+  return normalizeLeadIntent(params.get("intent") || params.get("need") || "");
+}
+
+function currentLeadIntent() {
+  return queryLeadIntent() || normalizeLeadIntent(document.body.dataset.intent) || normalizeLeadIntent(inferIntent());
+}
+
+function leadSourceFromAttribution(utm = {}) {
+  const intent = normalizeLeadIntent(utm.intent) || currentLeadIntent();
+  if (utm.utm_source) return utm.utm_source;
+  if (intent && intent !== "website") return `intent:${intent}`.slice(0, 80);
+  return document.body.dataset.intent || inferIntent() || "website";
+}
+
 function captureAttribution() {
   const params = new URLSearchParams(window.location.search);
   const current = Object.fromEntries(attributionKeys().map((key) => [key, params.get(key) || ""]).filter(([, value]) => value));
   const existing = parseStoredAttribution();
   const hasCurrent = Object.keys(current).length > 0;
+  const intent = queryLeadIntent();
   const next = {
     ...existing,
     utm: hasCurrent ? { ...(existing.utm || {}), ...current } : (existing.utm || {}),
+    intent: intent || existing.intent || "",
+    source_path: intent ? currentPathWithQuery() : (existing.source_path || currentPathWithQuery()),
+    landing_path: existing.landing_path || window.location.pathname,
     landing_page: existing.landing_page || window.location.href,
     first_referrer: existing.first_referrer || document.referrer || "",
     captured_at: existing.captured_at || new Date().toISOString()
@@ -136,9 +189,13 @@ function readUtm() {
   const params = new URLSearchParams(window.location.search);
   const current = Object.fromEntries(attributionKeys().map((key) => [key, params.get(key) || ""]).filter(([, value]) => value));
   const stored = parseStoredAttribution();
+  const intent = queryLeadIntent();
   return {
     ...(stored.utm || {}),
     ...current,
+    intent: intent || stored.intent || "",
+    source_path: intent ? currentPathWithQuery() : (stored.source_path || currentPathWithQuery()),
+    landing_path: stored.landing_path || window.location.pathname,
     landing_page: stored.landing_page || window.location.href,
     first_referrer: stored.first_referrer || document.referrer || ""
   };
@@ -146,8 +203,12 @@ function readUtm() {
 
 function attributionPayload() {
   const utm = readUtm();
+  const intent = normalizeLeadIntent(utm.intent) || currentLeadIntent();
   return {
-    source: utm.utm_source || document.body.dataset.intent || inferIntent(),
+    source: leadSourceFromAttribution(utm),
+    intent,
+    source_path: utm.source_path || currentPathWithQuery(),
+    landing_path: utm.landing_path || window.location.pathname,
     utm_source: utm.utm_source || "",
     utm_medium: utm.utm_medium || "",
     utm_campaign: utm.utm_campaign || "",
@@ -185,6 +246,7 @@ function botSignalPayload() {
 function readForm(formElement) {
   const data = Object.fromEntries(new FormData(formElement).entries());
   const utm = readUtm();
+  const attribution = attributionPayload();
   const turnstileResponse = String(data["cf-turnstile-response"] || "").trim();
   return {
     name: String(data.name || "").trim(),
@@ -200,7 +262,10 @@ function readForm(formElement) {
     company_website: String(data.company_website || "").trim(),
     turnstile_token: turnstileResponse,
     "cf-turnstile-response": turnstileResponse,
-    source: utm.utm_source || document.body.dataset.intent || "website",
+    source: attribution.source,
+    intent: attribution.intent,
+    source_path: attribution.source_path,
+    landing_path: attribution.landing_path,
     page_url: window.location.href,
     referrer: document.referrer || "",
     session_id: sessionId,
@@ -209,7 +274,7 @@ function readForm(formElement) {
     anti_bot: botSignalPayload(),
     ...experimentPayload(),
     experiment: experimentPayload(),
-    utm
+    utm: { ...utm, intent: attribution.intent, source_path: attribution.source_path, landing_path: attribution.landing_path }
   };
 }
 
@@ -296,24 +361,53 @@ function inferIntent() {
   if (path.includes("pno")) return "pno";
   if (path.includes("copro")) return "copropriete";
   if (path.includes("sci")) return "sci";
+  if (path.includes("dommages-ouvrage") || path.includes("travaux") || path.includes("renovation")) return "travaux";
+  if (path.includes("local-commercial") || path.includes("immeuble-mixte") || path.includes("commerce")) return "local-commercial";
+  if (path.includes("sinistre") || path.includes("resiliation") || path.includes("refus")) return "sinistre";
+  if (path.includes("comparateur") || path.includes("prix") || path.includes("tarif")) return "prix";
+  if (path.includes("veille") || path.includes("/news/")) return "veille";
+  if (path.includes("audit")) return "audit-contrat";
+  if (path.includes("devis")) return "devis";
   if (path.includes("immeuble")) return "immeuble";
   return "website";
 }
 
 function intentLabel(intent) {
-  return ({ cno: "CNO", pno: "PNO", copropriete: "Copropriete", sci: "SCI", immeuble: "Immeuble" })[intent] || "Immeuble";
+  return ({
+    cno: "CNO",
+    pno: "PNO",
+    "pno-cno": "PNO/CNO",
+    copropriete: "Copropriete",
+    sci: "SCI",
+    travaux: "Travaux",
+    "local-commercial": "Local commercial",
+    prix: "Prix",
+    sinistre: "Sinistre",
+    veille: "Veille",
+    devis: "Devis",
+    "audit-contrat": "Audit",
+    immeuble: "Immeuble"
+  })[intent] || "Immeuble";
 }
 
 function mountLeadBar() {
   if (document.querySelector(".lead-action-bar") || window.location.pathname.includes("/admin") || window.location.pathname.includes("/merci")) return;
-  document.body.dataset.intent = inferIntent();
+  document.body.dataset.intent = currentLeadIntent();
   const intent = document.body.dataset.intent;
   const label = intentLabel(intent);
   const routes = {
     cno: "/devis-pno-cno?intent=cno",
     pno: "/devis-pno-cno?intent=pno",
+    "pno-cno": "/devis-pno-cno?intent=pno-cno",
     copropriete: "/devis-assurance-immeuble?intent=copropriete",
     sci: "/devis-assurance-immeuble?intent=sci",
+    travaux: "/devis-assurance-immeuble?intent=travaux",
+    "local-commercial": "/devis-assurance-immeuble?intent=local-commercial",
+    prix: "/devis-assurance-immeuble?intent=prix",
+    sinistre: "/devis-assurance-immeuble?intent=sinistre",
+    veille: "/devis-assurance-immeuble?intent=veille",
+    devis: "/devis-assurance-immeuble?intent=devis",
+    "audit-contrat": "/devis-assurance-immeuble?intent=audit-contrat",
     immeuble: "/devis-assurance-immeuble?intent=immeuble",
     website: "/devis-assurance-immeuble"
   };
@@ -541,15 +635,26 @@ const selectAliases = {
     cno: ["cno", "pno-cno", "pno"],
     "pno-cno": ["pno-cno", "cno", "pno"],
     pno: ["pno", "pno-cno"],
+    sci: ["multirisque-immeuble", "audit-contrat"],
+    immeuble: ["multirisque-immeuble"],
+    devis: ["multirisque-immeuble", "audit-contrat"],
+    prix: ["multirisque-immeuble", "audit-contrat"],
+    travaux: ["dommages-ouvrage", "audit-contrat", "multirisque-immeuble"],
+    veille: ["audit-contrat", "multirisque-immeuble"],
+    sinistre: ["audit-contrat", "multirisque-immeuble"],
+    "audit-contrat": ["audit-contrat", "multirisque-immeuble"],
+    "local-commercial": ["multirisque-immeuble", "audit-contrat"],
     mixte: ["audit-contrat", "multirisque-immeuble"]
   },
   property_type: {
     "lot-copropriete": ["lot-copropriete", "copropriete"],
     "logement-vacant": ["logement-vacant", "immeuble-locatif"],
     "logement-loue": ["logement-loue", "immeuble-locatif"],
+    "immeuble-locatif": ["immeuble-locatif", "mixte"],
     "local-commercial": ["local-commercial", "commerce", "mixte"],
     copropriete: ["copropriete", "lot-copropriete"],
-    commerce: ["commerce", "local-commercial", "mixte"]
+    commerce: ["commerce", "local-commercial", "mixte"],
+    mixte: ["mixte", "local-commercial", "commerce", "immeuble-locatif"]
   }
 };
 
@@ -586,8 +691,7 @@ function applyFormValues(values) {
 
 function applyIntentPrefill() {
   if (!form) return;
-  const params = new URLSearchParams(window.location.search);
-  const intent = (params.get("intent") || params.get("need") || "").toLowerCase();
+  const intent = queryLeadIntent();
   if (!intent) return;
   const needMap = {
     cno: "cno",
@@ -595,7 +699,12 @@ function applyIntentPrefill() {
     "pno-cno": "pno-cno",
     copropriete: "copropriete",
     sci: "multirisque-immeuble",
-    mixte: "audit-contrat",
+    travaux: "dommages-ouvrage",
+    "local-commercial": "multirisque-immeuble",
+    prix: "multirisque-immeuble",
+    devis: "multirisque-immeuble",
+    veille: "audit-contrat",
+    sinistre: "audit-contrat",
     audit: "audit-contrat",
     "audit-contrat": "audit-contrat",
     immeuble: "multirisque-immeuble"
@@ -603,8 +712,15 @@ function applyIntentPrefill() {
   const profileMap = {
     sci: "sci",
     copropriete: "syndic-professionnel",
+    travaux: "syndic-professionnel",
     cno: "bailleur",
     pno: "bailleur",
+    "pno-cno": "bailleur",
+    "local-commercial": "bailleur",
+    prix: "bailleur",
+    devis: "bailleur",
+    veille: "bailleur",
+    sinistre: "bailleur",
     mixte: "bailleur",
     audit: "bailleur",
     "audit-contrat": "bailleur"
@@ -612,16 +728,38 @@ function applyIntentPrefill() {
   const propertyMap = {
     cno: "lot-copropriete",
     pno: "logement-loue",
+    "pno-cno": "lot-copropriete",
     copropriete: "copropriete",
     sci: "immeuble-locatif",
+    travaux: "copropriete",
+    "local-commercial": "local-commercial",
+    prix: "immeuble-locatif",
+    devis: "immeuble-locatif",
+    veille: "immeuble-locatif",
+    sinistre: "immeuble-locatif",
     mixte: "local-commercial",
     audit: "immeuble-locatif",
     "audit-contrat": "immeuble-locatif",
     immeuble: "immeuble-locatif"
   };
-  applyFormValues({ need: needMap[intent], profile: profileMap[intent], property_type: propertyMap[intent] });
+  const messageMap = {
+    cno: "Je souhaite verifier la bonne assurance CNO pour un lot en copropriete.",
+    pno: "Je souhaite verifier la bonne assurance PNO pour un logement loue ou vacant.",
+    "pno-cno": "Je souhaite comparer PNO et CNO selon ma situation.",
+    copropriete: "Je souhaite qualifier une copropriete avant consultation assureur.",
+    sci: "Je souhaite organiser l'assurance d'un patrimoine en SCI.",
+    travaux: "Je souhaite verifier les garanties avant ou apres travaux sur l'immeuble.",
+    "local-commercial": "Je souhaite assurer un immeuble avec local commercial ou usage mixte.",
+    prix: "Je souhaite comparer prix, franchises et garanties pour mon immeuble.",
+    devis: "Je souhaite obtenir un devis specialise assurance immeuble.",
+    veille: "Je souhaite transformer une information de veille en audit assurance immeuble.",
+    sinistre: "Je souhaite analyser mon contrat apres sinistre, refus, resiliation ou aggravation.",
+    "audit-contrat": "Je souhaite auditer mon contrat assurance immeuble actuel.",
+    immeuble: "Je souhaite obtenir une analyse assurance immeuble multirisque."
+  };
+  const applied = applyFormValues({ need: needMap[intent], profile: profileMap[intent], property_type: propertyMap[intent], message: messageMap[intent] });
+  if (applied) track("lead_intent_prefill", { target: intent, label: `${needMap[intent] || ""}:${propertyMap[intent] || ""}` });
 }
-
 function mountFormProof() {
   if (!form || form.querySelector(".ux-form-proof")) return;
   const anchor = form.querySelector(".form-advisor") || form.querySelector(".form-heading") || form.firstElementChild;
@@ -954,6 +1092,56 @@ function quoteFastTrackRows() {
       profile: "bailleur",
       property_type: "immeuble-locatif"
     },
+    travaux: {
+      label: "Travaux",
+      title: "Travaux ou dommages ouvrage",
+      text: "Verifier l'impact des travaux votes, de la renovation ou de la dommages ouvrage sur le contrat immeuble.",
+      proof: "Pieces cles: devis travaux, PV d'AG, assureur actuel.",
+      href: "/devis-assurance-immeuble?intent=travaux",
+      need: "dommages-ouvrage",
+      profile: "syndic-professionnel",
+      property_type: "copropriete"
+    },
+    "local-commercial": {
+      label: "Local",
+      title: "Immeuble avec local commercial",
+      text: "Qualifier l'activite, le bail, la vacance et les garanties du locataire avant consultation.",
+      proof: "Pieces cles: bail, activite, extraction, assurance occupant.",
+      href: "/devis-assurance-immeuble?intent=local-commercial",
+      need: "multirisque-immeuble",
+      profile: "bailleur",
+      property_type: "local-commercial"
+    },
+    sinistre: {
+      label: "Sinistre",
+      title: "Sinistre, refus ou resiliation",
+      text: "Analyser le contrat et l'historique avant de solliciter un nouvel assureur.",
+      proof: "Pieces cles: releve sinistres, courriers assureur, travaux correctifs.",
+      href: "/devis-assurance-immeuble?intent=sinistre",
+      need: "audit-contrat",
+      profile: "bailleur",
+      property_type: "immeuble-locatif"
+    },
+    prix: {
+      label: "Prix",
+      title: "Comparer prix et garanties",
+      text: "Comparer la prime avec franchises, plafonds, exclusions et qualite de gestion sinistre.",
+      proof: "Pieces cles: appel de prime, contrat actuel, lots, surface.",
+      href: "/devis-assurance-immeuble?intent=prix",
+      need: "multirisque-immeuble",
+      profile: "bailleur",
+      property_type: "immeuble-locatif"
+    },
+    veille: {
+      label: "Veille",
+      title: "Transformer une veille en audit",
+      text: "Relier une actualite assurance immeuble au contrat, aux garanties et aux actions utiles.",
+      proof: "Pieces cles: contrat actuel, question identifiee, echeance.",
+      href: "/devis-assurance-immeuble?intent=veille",
+      need: "audit-contrat",
+      profile: "bailleur",
+      property_type: "immeuble-locatif"
+    },
     audit: {
       label: "Audit",
       title: "Contrat a comparer avant echeance",
@@ -968,11 +1156,10 @@ function quoteFastTrackRows() {
 }
 
 function quoteFastTrackIntent() {
-  const params = new URLSearchParams(window.location.search);
-  const requested = (params.get("intent") || params.get("need") || inferIntent()).toLowerCase();
-  if (["cno", "pno", "copropriete", "sci", "immeuble"].includes(requested)) return requested;
-  if (["audit", "audit-contrat", "prix", "comparateur"].includes(requested)) return "audit";
-  if (requested === "website") return "immeuble";
+  const requested = currentLeadIntent();
+  if (["cno", "pno", "copropriete", "sci", "immeuble", "travaux", "local-commercial", "sinistre", "prix", "veille"].includes(requested)) return requested;
+  if (["audit", "audit-contrat"].includes(requested)) return "audit";
+  if (requested === "devis" || requested === "website") return "immeuble";
   return "immeuble";
 }
 
@@ -1097,7 +1284,7 @@ function bindBotSignalTracking() {
 }
 
 function bindGrowthTracking() {
-  track("page_view", { target: document.title, label: document.body.dataset.intent || inferIntent() });
+  track("page_view", { target: document.title, label: currentLeadIntent() });
   if (!experimentViewSent && !window.location.pathname.includes("/admin")) {
     experimentViewSent = true;
     track("experiment_view", { target: ctaExperiment.id, label: ctaExperiment.variant });
@@ -1211,7 +1398,7 @@ function readNewsletterForm(formElement) {
     audience: String(data.audience || "assurance-immeuble").trim(),
     consent: data.consent === "on",
     company_website: String(data.company_website || "").trim(),
-    source: formElement.dataset.newsletterSource || document.body.dataset.intent || inferIntent(),
+    source: formElement.dataset.newsletterSource || currentLeadIntent(),
     page_url: window.location.href,
     path: window.location.pathname,
     referrer: document.referrer || "",
@@ -1282,3 +1469,10 @@ bindScrollDepthTracking();
 bindFormAbandonment();
 bindBotSignalTracking();
 bindGrowthTracking();
+
+
+
+
+
+
+

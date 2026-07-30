@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-30T01:21:28.947Z",
+  "generated_at": "2026-07-30T02:25:42.383Z",
   "status": "passed",
   "pages_checked": 175,
   "pages_targeted": 49,
-  "pages_changed": 16,
-  "links_added": 63,
+  "pages_changed": 18,
+  "links_added": 72,
   "pages_with_active_blocks": 49,
   "active_internal_links": 193,
   "noindex_skipped": 3,
@@ -60,7 +60,7 @@
       "slug": "blog/assurance-copropriete-avant-ag",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 21,
+      "previous_internal_links": 17,
       "links_added": 4
     },
     {
@@ -71,10 +71,31 @@
       "links_added": 4
     },
     {
+      "slug": "blog/assurance-immeuble-avec-ascenseur",
+      "type": "blog",
+      "cluster": "default",
+      "previous_internal_links": 20,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/assurance-immeuble-protection-du-patrimoine",
+      "type": "blog",
+      "cluster": "sci-bailleur",
+      "previous_internal_links": 23,
+      "links_added": 4
+    },
+    {
       "slug": "blog/assurance-immeuble-sans-sinistre",
       "type": "blog",
       "cluster": "sinistre-resilie",
       "previous_internal_links": 22,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/assurance-immeuble-vacant",
+      "type": "blog",
+      "cluster": "default",
+      "previous_internal_links": 20,
       "links_added": 4
     },
     {
@@ -88,29 +109,22 @@
       "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 25,
+      "previous_internal_links": 21,
       "links_added": 4
     },
     {
       "slug": "blog/copropriete-petite-syndic-benevole",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 21,
+      "previous_internal_links": 17,
       "links_added": 4
     },
     {
       "slug": "blog/dommages-ouvrage-copropriete-travaux",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 21,
+      "previous_internal_links": 17,
       "links_added": 4
-    },
-    {
-      "slug": "blog/immeuble-mixte-restaurant",
-      "type": "blog",
-      "cluster": "local-commercial",
-      "previous_internal_links": 20,
-      "links_added": 3
     },
     {
       "slug": "blog/multirisque-immeuble-vs-pno",
@@ -120,17 +134,10 @@
       "links_added": 4
     },
     {
-      "slug": "blog/pertes-de-loyers-immeuble",
-      "type": "blog",
-      "cluster": "default",
-      "previous_internal_links": 20,
-      "links_added": 4
-    },
-    {
       "slug": "blog/pno-cno-differences-garanties",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 26,
+      "previous_internal_links": 19,
       "links_added": 4
     },
     {
@@ -141,10 +148,17 @@
       "links_added": 4
     },
     {
+      "slug": "blog/preparer-renouvellement-assurance-immeuble",
+      "type": "blog",
+      "cluster": "default",
+      "previous_internal_links": 21,
+      "links_added": 4
+    },
+    {
       "slug": "blog/renovation-energetique-copropriete-assurance",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 21,
+      "previous_internal_links": 17,
       "links_added": 4
     },
     {

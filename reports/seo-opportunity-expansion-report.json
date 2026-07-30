@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-29T23:08:51.364Z",
+  "generated_at": "2026-07-30T02:20:38.887Z",
   "pages_checked": 175,
-  "pages_expanded": 74,
-  "words_added_estimate": 12722,
+  "pages_expanded": 58,
+  "words_added_estimate": 9991,
   "safeguards": [
     "idempotent-markers",
     "legal-pages-skipped",
@@ -13,120 +13,72 @@
     {
       "slug": "assurance-batiment-proprietaire",
       "url": "https://immeubleassur.com/assurance-batiment-proprietaire",
-      "before_words": 634,
-      "after_words": 811,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "assurance-cno",
-      "url": "https://immeubleassur.com/assurance-cno",
-      "before_words": 731,
-      "after_words": 909,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "assurance-coproprietaire-non-occupant",
-      "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant",
-      "before_words": 634,
-      "after_words": 796,
+      "before_words": 721,
+      "after_words": 897,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "assurance-immeuble-locatif",
       "url": "https://immeubleassur.com/assurance-immeuble-locatif",
-      "before_words": 526,
-      "after_words": 700,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-monopropriete",
-      "url": "https://immeubleassur.com/assurance-immeuble-monopropriete",
-      "before_words": 619,
-      "after_words": 793,
+      "before_words": 543,
+      "after_words": 717,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "assurance-local-commercial",
       "url": "https://immeubleassur.com/assurance-local-commercial",
-      "before_words": 682,
-      "after_words": 857,
+      "before_words": 723,
+      "after_words": 898,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "assurance-parties-communes",
       "url": "https://immeubleassur.com/assurance-parties-communes",
-      "before_words": 626,
-      "after_words": 800,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "assurance-pno-cno",
-      "url": "https://immeubleassur.com/assurance-pno-cno",
-      "before_words": 732,
-      "after_words": 910,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "assurance-sci",
-      "url": "https://immeubleassur.com/assurance-sci",
-      "before_words": 695,
-      "after_words": 850,
+      "before_words": 639,
+      "after_words": 813,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "audit-contrat-assurance-immeuble",
       "url": "https://immeubleassur.com/audit-contrat-assurance-immeuble",
-      "before_words": 485,
-      "after_words": 659,
+      "before_words": 497,
+      "after_words": 671,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/assurance-colocation-immeuble",
       "url": "https://immeubleassur.com/blog/assurance-colocation-immeuble",
-      "before_words": 648,
-      "after_words": 825,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/assurance-copropriete-avant-ag",
-      "url": "https://immeubleassur.com/blog/assurance-copropriete-avant-ag",
-      "before_words": 652,
-      "after_words": 814,
+      "before_words": 672,
+      "after_words": 849,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/assurance-copropriete-obligatoire",
       "url": "https://immeubleassur.com/blog/assurance-copropriete-obligatoire",
-      "before_words": 405,
-      "after_words": 567,
+      "before_words": 518,
+      "after_words": 680,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/assurance-immeuble-ancien",
       "url": "https://immeubleassur.com/blog/assurance-immeuble-ancien",
-      "before_words": 660,
-      "after_words": 833,
+      "before_words": 701,
+      "after_words": 874,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/assurance-immeuble-apres-refus-assureur",
       "url": "https://immeubleassur.com/blog/assurance-immeuble-apres-refus-assureur",
-      "before_words": 648,
-      "after_words": 821,
+      "before_words": 755,
+      "after_words": 931,
       "expanded": true,
       "changed": true
     },
@@ -141,392 +93,312 @@
     {
       "slug": "blog/assurance-immeuble-etudiant",
       "url": "https://immeubleassur.com/blog/assurance-immeuble-etudiant",
-      "before_words": 644,
-      "after_words": 820,
+      "before_words": 711,
+      "after_words": 887,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/assurance-immeuble-local-professionnel",
       "url": "https://immeubleassur.com/blog/assurance-immeuble-local-professionnel",
-      "before_words": 648,
-      "after_words": 825,
+      "before_words": 724,
+      "after_words": 901,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/assurance-immeuble-mixte-commerce",
       "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
-      "before_words": 382,
-      "after_words": 557,
+      "before_words": 484,
+      "after_words": 659,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/assurance-immeuble-protection-du-patrimoine",
       "url": "https://immeubleassur.com/blog/assurance-immeuble-protection-du-patrimoine",
-      "before_words": 648,
-      "after_words": 821,
+      "before_words": 701,
+      "after_words": 874,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/assurance-immeuble-vacant",
       "url": "https://immeubleassur.com/blog/assurance-immeuble-vacant",
-      "before_words": 659,
-      "after_words": 835,
+      "before_words": 675,
+      "after_words": 851,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/assurance-lot-vacant-copropriete",
       "url": "https://immeubleassur.com/blog/assurance-lot-vacant-copropriete",
-      "before_words": 569,
-      "after_words": 731,
+      "before_words": 682,
+      "after_words": 844,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/assurance-parking-garages-copropriete",
       "url": "https://immeubleassur.com/blog/assurance-parking-garages-copropriete",
-      "before_words": 656,
-      "after_words": 818,
+      "before_words": 743,
+      "after_words": 905,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/assurance-sci-patrimoine-locatif",
       "url": "https://immeubleassur.com/blog/assurance-sci-patrimoine-locatif",
-      "before_words": 380,
-      "after_words": 535,
+      "before_words": 499,
+      "after_words": 654,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/audit-franchises-assurance-immeuble",
       "url": "https://immeubleassur.com/blog/audit-franchises-assurance-immeuble",
-      "before_words": 651,
-      "after_words": 826,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/checklist-documents-devis-immeuble",
-      "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
-      "before_words": 626,
-      "after_words": 803,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
-      "url": "https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire",
-      "before_words": 677,
-      "after_words": 855,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/copropriete-petite-syndic-benevole",
-      "url": "https://immeubleassur.com/blog/copropriete-petite-syndic-benevole",
-      "before_words": 660,
-      "after_words": 822,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/dommages-ouvrage-copropriete-travaux",
-      "url": "https://immeubleassur.com/blog/dommages-ouvrage-copropriete-travaux",
-      "before_words": 648,
-      "after_words": 810,
+      "before_words": 730,
+      "after_words": 905,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/franchise-degat-des-eaux-immeuble",
       "url": "https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble",
-      "before_words": 407,
-      "after_words": 579,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/immeuble-mixte-restaurant",
-      "url": "https://immeubleassur.com/blog/immeuble-mixte-restaurant",
-      "before_words": 640,
-      "after_words": 815,
+      "before_words": 512,
+      "after_words": 684,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/infiltration-toiture-terrasse",
       "url": "https://immeubleassur.com/blog/infiltration-toiture-terrasse",
-      "before_words": 647,
-      "after_words": 820,
+      "before_words": 691,
+      "after_words": 864,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/local-commercial-vacant",
       "url": "https://immeubleassur.com/blog/local-commercial-vacant",
-      "before_words": 645,
-      "after_words": 820,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/pertes-de-loyers-immeuble",
-      "url": "https://immeubleassur.com/blog/pertes-de-loyers-immeuble",
-      "before_words": 659,
-      "after_words": 833,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/pno-bailleur-copropriete",
-      "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
-      "before_words": 649,
-      "after_words": 827,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/pno-cno-differences-garanties",
-      "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
-      "before_words": 689,
-      "after_words": 867,
+      "before_words": 682,
+      "after_words": 857,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/preparer-renouvellement-assurance-immeuble",
       "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
-      "before_words": 401,
-      "after_words": 578,
+      "before_words": 465,
+      "after_words": 642,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/protection-juridique-copropriete",
       "url": "https://immeubleassur.com/blog/protection-juridique-copropriete",
-      "before_words": 655,
-      "after_words": 817,
+      "before_words": 735,
+      "after_words": 897,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "blog/ravalement-toiture-travaux-assurance",
       "url": "https://immeubleassur.com/blog/ravalement-toiture-travaux-assurance",
-      "before_words": 651,
-      "after_words": 825,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/renovation-energetique-copropriete-assurance",
-      "url": "https://immeubleassur.com/blog/renovation-energetique-copropriete-assurance",
-      "before_words": 648,
-      "after_words": 810,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/resiliation-assurance-immeuble",
-      "url": "https://immeubleassur.com/blog/resiliation-assurance-immeuble",
-      "before_words": 651,
-      "after_words": 827,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/sci-familiale-immeuble",
-      "url": "https://immeubleassur.com/blog/sci-familiale-immeuble",
-      "before_words": 642,
-      "after_words": 797,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog/syndic-benevole-assurance",
-      "url": "https://immeubleassur.com/blog/syndic-benevole-assurance",
-      "before_words": 387,
-      "after_words": 564,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "blog",
-      "url": "https://immeubleassur.com/blog",
-      "before_words": 1105,
-      "after_words": 1278,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "checklist-documents-assurance-immeuble",
-      "url": "https://immeubleassur.com/checklist-documents-assurance-immeuble",
-      "before_words": 368,
-      "after_words": 542,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "comparateur-assurance-immeuble",
-      "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-      "before_words": 606,
-      "after_words": 779,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "contact",
-      "url": "https://immeubleassur.com/contact",
-      "before_words": 322,
-      "after_words": 495,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "courtier-assurance-immeuble",
-      "url": "https://immeubleassur.com/courtier-assurance-immeuble",
-      "before_words": 698,
-      "after_words": 875,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "devis-assurance-immeuble-en-ligne",
-      "url": "https://immeubleassur.com/devis-assurance-immeuble-en-ligne",
-      "before_words": 705,
-      "after_words": 882,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "devis-assurance-immeuble",
-      "url": "https://immeubleassur.com/devis-assurance-immeuble",
-      "before_words": 719,
-      "after_words": 892,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "devis-pno-cno",
-      "url": "https://immeubleassur.com/devis-pno-cno",
-      "before_words": 721,
-      "after_words": 899,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "dommages-ouvrage-immeuble",
-      "url": "https://immeubleassur.com/dommages-ouvrage-immeuble",
-      "before_words": 486,
-      "after_words": 660,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "faq/assurance-immeuble",
-      "url": "https://immeubleassur.com/faq/assurance-immeuble",
-      "before_words": 592,
-      "after_words": 761,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "faq/copropriete",
-      "url": "https://immeubleassur.com/faq/copropriete",
-      "before_words": 419,
-      "after_words": 588,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "faq/local-commercial",
-      "url": "https://immeubleassur.com/faq/local-commercial",
-      "before_words": 423,
-      "after_words": 594,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "faq/pno",
-      "url": "https://immeubleassur.com/faq/pno",
-      "before_words": 656,
-      "after_words": 829,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "faq/prix",
-      "url": "https://immeubleassur.com/faq/prix",
-      "before_words": 653,
-      "after_words": 824,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "faq/sci",
-      "url": "https://immeubleassur.com/faq/sci",
-      "before_words": 418,
-      "after_words": 588,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "faq/sinistres",
-      "url": "https://immeubleassur.com/faq/sinistres",
-      "before_words": 646,
-      "after_words": 814,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "faq/travaux",
-      "url": "https://immeubleassur.com/faq/travaux",
-      "before_words": 419,
-      "after_words": 589,
-      "expanded": true,
-      "changed": true
-    },
-    {
-      "slug": "faq",
-      "url": "https://immeubleassur.com/faq",
       "before_words": 710,
       "after_words": 884,
       "expanded": true,
       "changed": true
     },
     {
+      "slug": "blog/resiliation-assurance-immeuble",
+      "url": "https://immeubleassur.com/blog/resiliation-assurance-immeuble",
+      "before_words": 724,
+      "after_words": 900,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "blog/sci-familiale-immeuble",
+      "url": "https://immeubleassur.com/blog/sci-familiale-immeuble",
+      "before_words": 702,
+      "after_words": 857,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "blog/syndic-benevole-assurance",
+      "url": "https://immeubleassur.com/blog/syndic-benevole-assurance",
+      "before_words": 504,
+      "after_words": 681,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "blog",
+      "url": "https://immeubleassur.com/blog",
+      "before_words": 1099,
+      "after_words": 1272,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "checklist-documents-assurance-immeuble",
+      "url": "https://immeubleassur.com/checklist-documents-assurance-immeuble",
+      "before_words": 380,
+      "after_words": 554,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "comparateur-assurance-immeuble",
+      "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
+      "before_words": 768,
+      "after_words": 941,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "contact",
+      "url": "https://immeubleassur.com/contact",
+      "before_words": 333,
+      "after_words": 506,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "devis-assurance-immeuble-en-ligne",
+      "url": "https://immeubleassur.com/devis-assurance-immeuble-en-ligne",
+      "before_words": 735,
+      "after_words": 912,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "devis-assurance-immeuble",
+      "url": "https://immeubleassur.com/devis-assurance-immeuble",
+      "before_words": 752,
+      "after_words": 925,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "devis-pno-cno",
+      "url": "https://immeubleassur.com/devis-pno-cno",
+      "before_words": 812,
+      "after_words": 989,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "dommages-ouvrage-immeuble",
+      "url": "https://immeubleassur.com/dommages-ouvrage-immeuble",
+      "before_words": 501,
+      "after_words": 675,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "faq/assurance-immeuble",
+      "url": "https://immeubleassur.com/faq/assurance-immeuble",
+      "before_words": 648,
+      "after_words": 817,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "faq/copropriete",
+      "url": "https://immeubleassur.com/faq/copropriete",
+      "before_words": 543,
+      "after_words": 712,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "faq/local-commercial",
+      "url": "https://immeubleassur.com/faq/local-commercial",
+      "before_words": 542,
+      "after_words": 713,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "faq/pno",
+      "url": "https://immeubleassur.com/faq/pno",
+      "before_words": 836,
+      "after_words": 1008,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "faq/prix",
+      "url": "https://immeubleassur.com/faq/prix",
+      "before_words": 815,
+      "after_words": 986,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "faq/sci",
+      "url": "https://immeubleassur.com/faq/sci",
+      "before_words": 556,
+      "after_words": 726,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "faq/sinistres",
+      "url": "https://immeubleassur.com/faq/sinistres",
+      "before_words": 787,
+      "after_words": 955,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "faq/travaux",
+      "url": "https://immeubleassur.com/faq/travaux",
+      "before_words": 552,
+      "after_words": 722,
+      "expanded": true,
+      "changed": true
+    },
+    {
+      "slug": "faq",
+      "url": "https://immeubleassur.com/faq",
+      "before_words": 772,
+      "after_words": 946,
+      "expanded": true,
+      "changed": true
+    },
+    {
       "slug": "gestion-sinistres-immeuble",
       "url": "https://immeubleassur.com/gestion-sinistres-immeuble",
-      "before_words": 486,
-      "after_words": 658,
+      "before_words": 500,
+      "after_words": 672,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "guide-assurance-copropriete-2026",
       "url": "https://immeubleassur.com/guide-assurance-copropriete-2026",
-      "before_words": 352,
-      "after_words": 514,
+      "before_words": 369,
+      "after_words": 531,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "guides",
       "url": "https://immeubleassur.com/guides",
-      "before_words": 295,
-      "after_words": 470,
+      "before_words": 352,
+      "after_words": 527,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "multirisque-immeuble",
       "url": "https://immeubleassur.com/multirisque-immeuble",
-      "before_words": 486,
-      "after_words": 658,
+      "before_words": 715,
+      "after_words": 887,
       "expanded": true,
       "changed": true
     },
@@ -541,64 +413,64 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-29",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-29",
-      "before_words": 558,
-      "after_words": 734,
+      "before_words": 719,
+      "after_words": 896,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "newsletter-assurance-immeuble",
       "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
-      "before_words": 465,
-      "after_words": 638,
+      "before_words": 519,
+      "after_words": 692,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "rc-syndic",
       "url": "https://immeubleassur.com/rc-syndic",
-      "before_words": 496,
-      "after_words": 669,
+      "before_words": 512,
+      "after_words": 685,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "recherches-assurance-immeuble",
       "url": "https://immeubleassur.com/recherches-assurance-immeuble",
-      "before_words": 559,
-      "after_words": 734,
+      "before_words": 555,
+      "after_words": 730,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "strategie-seo-continue",
       "url": "https://immeubleassur.com/strategie-seo-continue",
-      "before_words": 371,
-      "after_words": 544,
+      "before_words": 365,
+      "after_words": 538,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "tarif-assurance-immeuble",
       "url": "https://immeubleassur.com/tarif-assurance-immeuble",
-      "before_words": 706,
-      "after_words": 883,
+      "before_words": 743,
+      "after_words": 920,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "veille-assurance-immeuble",
       "url": "https://immeubleassur.com/veille-assurance-immeuble",
-      "before_words": 558,
-      "after_words": 733,
+      "before_words": 619,
+      "after_words": 794,
       "expanded": true,
       "changed": true
     },
     {
       "slug": "villes",
       "url": "https://immeubleassur.com/villes",
-      "before_words": 592,
-      "after_words": 768,
+      "before_words": 638,
+      "after_words": 814,
       "expanded": true,
       "changed": true
     }
