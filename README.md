@@ -62,6 +62,7 @@ npm run seo:cannibalization
 npm run seo:intent:differentiate
 npm run seo:angles
 npm run seo:links
+npm run conversion:bridge
 npm run editorial:autopilot
 npm run media:autopilot
 npm run search:intelligence

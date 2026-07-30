@@ -1,13 +1,13 @@
 {
   "success": true,
-  "imported_at": "2026-07-29T23:36:16.766Z",
+  "imported_at": "2026-07-30T01:21:32.454Z",
   "imported_at_source": "latest-report-generated-at",
   "mode": "local-json-report-check",
   "reports": [
     {
       "file": "reports/seo-autopilot-report.json",
       "status": "present",
-      "generated_at": "2026-07-29T23:36:16.766Z"
+      "generated_at": "2026-07-30T01:20:41.864Z"
     },
     {
       "file": "reports/search-intelligence-report.json",
@@ -32,17 +32,17 @@
     {
       "file": "reports/conversion-intelligence-report.json",
       "status": "present",
-      "generated_at": "2026-07-29T23:36:09.572Z"
+      "generated_at": "2026-07-30T01:21:31.389Z"
     },
     {
       "file": "reports/cro-experiment-report.json",
       "status": "passed",
-      "generated_at": "2026-07-29T23:34:02.353Z"
+      "generated_at": "2026-07-30T01:21:31.761Z"
     },
     {
       "file": "reports/lead-friction-report.json",
       "status": "passed",
-      "generated_at": "2026-07-29T23:34:02.789Z"
+      "generated_at": "2026-07-30T01:21:32.454Z"
     },
     {
       "file": "reports/local-antifraud-report.json",
@@ -57,22 +57,27 @@
     {
       "file": "reports/seo-cannibalization-report.json",
       "status": "passed",
-      "generated_at": "2026-07-29T23:34:01.485Z"
+      "generated_at": "2026-07-30T01:21:30.769Z"
     },
     {
       "file": "reports/seo-intent-differentiation-report.json",
       "status": "passed",
-      "generated_at": "2026-07-29T23:33:58.960Z"
+      "generated_at": "2026-07-30T01:21:27.891Z"
     },
     {
       "file": "reports/seo-angle-differentiation-report.json",
       "status": "passed",
-      "generated_at": "2026-07-29T23:33:59.417Z"
+      "generated_at": "2026-07-30T01:21:28.323Z"
     },
     {
       "file": "reports/internal-link-equity-report.json",
       "status": "passed",
-      "generated_at": "2026-07-29T23:34:00.075Z"
+      "generated_at": "2026-07-30T01:21:28.947Z"
+    },
+    {
+      "file": "reports/cluster-conversion-bridge-report.json",
+      "status": "passed",
+      "generated_at": "2026-07-30T01:21:29.466Z"
     },
     {
       "file": "reports/live-api-readiness-report.json",

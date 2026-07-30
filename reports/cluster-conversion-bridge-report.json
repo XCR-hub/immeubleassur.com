@@ -1,0 +1,111 @@
+{
+  "generated_at": "2026-07-30T01:21:29.466Z",
+  "status": "passed",
+  "pages_checked": 175,
+  "pages_targeted": 43,
+  "pages_changed": 12,
+  "active_bridges": 43,
+  "cluster_targets": [
+    {
+      "cluster": "copropriete-syndic",
+      "count": 15
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "count": 7
+    },
+    {
+      "cluster": "sci-bailleur",
+      "count": 6
+    },
+    {
+      "cluster": "local-commercial",
+      "count": 4
+    },
+    {
+      "cluster": "devis-courtier",
+      "count": 3
+    },
+    {
+      "cluster": "newsletter-veille",
+      "count": 3
+    },
+    {
+      "cluster": "prix-tarif",
+      "count": 3
+    },
+    {
+      "cluster": "travaux",
+      "count": 2
+    }
+  ],
+  "safeguards": [
+    "visible-cta-only",
+    "idempotent-marker",
+    "no-hidden-text",
+    "no-google-scraping",
+    "lead-pages-not-distracted"
+  ],
+  "pages": [
+    {
+      "slug": "blog/assurance-copropriete-avant-ag",
+      "type": "blog",
+      "cluster": "copropriete-syndic"
+    },
+    {
+      "slug": "blog/assurance-immeuble-apres-refus-assureur",
+      "type": "blog",
+      "cluster": "sinistre-resilie"
+    },
+    {
+      "slug": "blog/assurance-immeuble-sans-sinistre",
+      "type": "blog",
+      "cluster": "sinistre-resilie"
+    },
+    {
+      "slug": "blog/checklist-sinistre-degat-des-eaux",
+      "type": "blog",
+      "cluster": "sinistre-resilie"
+    },
+    {
+      "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
+      "type": "blog",
+      "cluster": "copropriete-syndic"
+    },
+    {
+      "slug": "blog/copropriete-petite-syndic-benevole",
+      "type": "blog",
+      "cluster": "copropriete-syndic"
+    },
+    {
+      "slug": "blog/dommages-ouvrage-copropriete-travaux",
+      "type": "blog",
+      "cluster": "copropriete-syndic"
+    },
+    {
+      "slug": "blog/immeuble-mixte-restaurant",
+      "type": "blog",
+      "cluster": "local-commercial"
+    },
+    {
+      "slug": "blog/pno-obligatoire-copropriete",
+      "type": "blog",
+      "cluster": "copropriete-syndic"
+    },
+    {
+      "slug": "blog/renovation-energetique-copropriete-assurance",
+      "type": "blog",
+      "cluster": "copropriete-syndic"
+    },
+    {
+      "slug": "blog/sinistres-recurrents-immeuble",
+      "type": "blog",
+      "cluster": "sinistre-resilie"
+    },
+    {
+      "slug": "news/veille-assurance-immeuble-2026-07-29",
+      "type": "news",
+      "cluster": "newsletter-veille"
+    }
+  ]
+}

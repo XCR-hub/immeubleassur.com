@@ -2252,6 +2252,62 @@ textarea:focus {
   text-align: center;
 }
 
+.cluster-conversion-bridge {
+  background: #f3faf7;
+}
+
+.cluster-conversion-panel {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid rgba(15, 118, 110, .22);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(13, 27, 30, .08);
+}
+
+.cluster-conversion-panel strong {
+  color: var(--teal-dark);
+  font-size: 1.02rem;
+}
+
+.cluster-conversion-panel ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cluster-conversion-panel li {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #334155;
+  font-weight: 750;
+}
+
+.cluster-conversion-panel li::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--coral);
+}
+
+.cluster-conversion-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.cluster-conversion-actions .button {
+  width: 100%;
+  text-align: center;
+}
+
 @media (max-width: 980px) {
   .conversion-momentum {
     grid-template-columns: 1fr;
@@ -2263,7 +2319,8 @@ textarea:focus {
     padding-inline: 14px;
   }
 
-  .momentum-grid {
+  .momentum-grid,
+  .cluster-conversion-actions {
     grid-template-columns: 1fr;
   }
 

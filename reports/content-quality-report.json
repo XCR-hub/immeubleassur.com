@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T23:34:00.741Z",
+  "generated_at": "2026-07-30T01:21:29.988Z",
   "pages_checked": 175,
   "status": "passed",
   "severe_issue_count": 0,
@@ -7,6 +7,27 @@
   "duplicate_titles": [],
   "duplicate_descriptions": [],
   "repeated_paragraph_clusters": [
+    {
+      "fingerprint": "le syndic le conseil syndical ou le coproprietaire doivent relier parties communes rc sinistres travaux et franchises avant de comparer",
+      "pages": [
+        "blog/assurance-copropriete-avant-ag",
+        "blog/assurance-copropriete-obligatoire",
+        "blog/assurance-lot-vacant-copropriete",
+        "blog/assurance-parking-garages-copropriete",
+        "blog/cno-coproprietaire-non-occupant-obligatoire",
+        "blog/copropriete-petite-syndic-benevole",
+        "blog/dommages-ouvrage-copropriete-travaux",
+        "blog/pno-bailleur-copropriete",
+        "blog/pno-obligatoire-copropriete",
+        "blog/protection-juridique-copropriete",
+        "blog/renovation-energetique-copropriete-assurance",
+        "blog/syndic-benevole-assurance",
+        "faq/copropriete",
+        "faq/pno",
+        "guides"
+      ],
+      "count": 15
+    },
     {
       "fingerprint": "une page copropriete doit permettre de passer d 39 une question juridique ou pratique a un contrat lisible pour l 39 immeuble et les parties communes",
       "pages": [

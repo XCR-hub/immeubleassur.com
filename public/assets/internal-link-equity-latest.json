@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T23:34:00.075Z",
+  "generated_at": "2026-07-30T01:21:28.947Z",
   "status": "passed",
   "pages_checked": 175,
   "pages_targeted": 49,
@@ -60,56 +60,56 @@
       "slug": "blog/assurance-copropriete-avant-ag",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 19,
+      "previous_internal_links": 21,
       "links_added": 4
     },
     {
       "slug": "blog/assurance-immeuble-apres-refus-assureur",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 19,
+      "previous_internal_links": 21,
       "links_added": 4
     },
     {
       "slug": "blog/assurance-immeuble-sans-sinistre",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 20,
+      "previous_internal_links": 22,
       "links_added": 4
     },
     {
       "slug": "blog/checklist-sinistre-degat-des-eaux",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 20,
+      "previous_internal_links": 25,
       "links_added": 4
     },
     {
       "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 23,
+      "previous_internal_links": 25,
       "links_added": 4
     },
     {
       "slug": "blog/copropriete-petite-syndic-benevole",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 19,
+      "previous_internal_links": 21,
       "links_added": 4
     },
     {
       "slug": "blog/dommages-ouvrage-copropriete-travaux",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 19,
+      "previous_internal_links": 21,
       "links_added": 4
     },
     {
       "slug": "blog/immeuble-mixte-restaurant",
       "type": "blog",
       "cluster": "local-commercial",
-      "previous_internal_links": 18,
+      "previous_internal_links": 20,
       "links_added": 3
     },
     {
@@ -137,14 +137,14 @@
       "slug": "blog/pno-obligatoire-copropriete",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 23,
+      "previous_internal_links": 25,
       "links_added": 4
     },
     {
       "slug": "blog/renovation-energetique-copropriete-assurance",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 19,
+      "previous_internal_links": 21,
       "links_added": 4
     },
     {
@@ -158,14 +158,14 @@
       "slug": "blog/sinistres-recurrents-immeuble",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 24,
+      "previous_internal_links": 26,
       "links_added": 4
     },
     {
       "slug": "news/veille-assurance-immeuble-2026-07-29",
       "type": "news",
       "cluster": "newsletter-veille",
-      "previous_internal_links": 21,
+      "previous_internal_links": 23,
       "links_added": 4
     }
   ]

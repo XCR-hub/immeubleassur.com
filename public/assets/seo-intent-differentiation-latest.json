@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-07-29T23:33:58.960Z",
+  "generated_at": "2026-07-30T01:21:27.891Z",
   "status": "passed",
-  "target_pages": 9,
-  "pages_changed": 5,
-  "pages_changed_this_run": 5,
-  "pages_with_active_blocks": 9,
-  "conflicts_addressed": 10,
+  "target_pages": 10,
+  "pages_changed": 6,
+  "pages_changed_this_run": 6,
+  "pages_with_active_blocks": 10,
+  "conflicts_addressed": 11,
   "safeguards": [
     "visible-content-only",
     "no-hidden-keyword-blocks",
@@ -37,6 +37,14 @@
       "differentiated": true,
       "conflicts_addressed": 1,
       "primary_slug": "pno-cno"
+    },
+    {
+      "slug": "blog/checklist-sinistre-degat-des-eaux",
+      "url": "https://immeubleassur.com/blog/checklist-sinistre-degat-des-eaux",
+      "changed": true,
+      "differentiated": true,
+      "conflicts_addressed": 1,
+      "primary_slug": "gestion-sinistres-immeuble"
     },
     {
       "slug": "blog/immeuble-mixte-restaurant",
