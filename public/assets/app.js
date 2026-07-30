@@ -14,6 +14,7 @@ let formSubmitted = false;
 let qualityEventSent = false;
 let abandonEventSent = false;
 let valueHintEventSent = false;
+let urgencyEventSent = false;
 let botSignalFirstInteractionAt = 0;
 let botSignalInteractionCount = 0;
 let botSignalPointer = false;
@@ -248,7 +249,7 @@ function readForm(formElement) {
   const utm = readUtm();
   const attribution = attributionPayload();
   const turnstileResponse = String(data["cf-turnstile-response"] || "").trim();
-  return {
+  const payload = {
     name: String(data.name || "").trim(),
     phone: String(data.phone || "").trim(),
     email: String(data.email || "").trim().toLowerCase(),
@@ -275,6 +276,13 @@ function readForm(formElement) {
     ...experimentPayload(),
     experiment: experimentPayload(),
     utm: { ...utm, intent: attribution.intent, source_path: attribution.source_path, landing_path: attribution.landing_path }
+  };
+  const urgency = leadUrgency(payload);
+  return {
+    ...payload,
+    lead_urgency: urgency.level,
+    lead_urgency_label: urgency.label,
+    lead_urgency_reason: urgency.reason
   };
 }
 
@@ -434,6 +442,22 @@ function unitCount(value) {
   return Number.parseInt(String(value || "0").replace(/\D/g, ""), 10) || 0;
 }
 
+function leadUrgency(payload = {}) {
+  const intent = payload.intent || currentLeadIntent();
+  const text = `${payload.message || ""} ${payload.need || ""} ${payload.property_type || ""} ${payload.source || ""} ${intent}`.toLowerCase();
+  const units = unitCount(payload.units_count);
+  if (/sinistre|degat|resili|refus|mise en demeure|sans assurance|urgent|aujourd|demain|echeance proche/.test(text)) {
+    return { level: "immediate", label: "Urgence immediate", reason: "sinistre/resiliation/echeance", sla_hours: 2, score_boost: 12 };
+  }
+  if (/echeance|preavis|travaux|chantier|ravalement|toiture|dommages-ouvrage|local-commercial/.test(text) || units >= 10) {
+    return { level: "this-month", label: "A traiter ce mois-ci", reason: "echeance/travaux/immeuble multi-lots", sla_hours: 6, score_boost: 8 };
+  }
+  if (/prix|tarif|comparateur|devis|audit|veille/.test(text)) {
+    return { level: "quote-ready", label: "Devis a cadrer", reason: "comparaison/prix/audit", sla_hours: 24, score_boost: 4 };
+  }
+  return { level: "standard", label: "Qualification standard", reason: "information minimale", sla_hours: 48, score_boost: 0 };
+}
+
 function leadValueEstimate(payload, score = 0) {
   const units = Math.max(1, unitCount(payload.units_count));
   const need = String(payload.need || "").trim();
@@ -459,12 +483,13 @@ function leadValueEstimate(payload, score = 0) {
   };
 }
 
-function slaHoursFor(score, valueEstimate) {
+function slaHoursFor(score, valueEstimate, urgency = null) {
   const maxValue = Number(valueEstimate?.annual_premium_max || 0);
-  if (score >= 85 || maxValue >= 9000) return 2;
-  if (score >= 70 || maxValue >= 3500) return 6;
-  if (score >= 45 || maxValue >= 1200) return 24;
-  return 48;
+  let base = 48;
+  if (score >= 85 || maxValue >= 9000) base = 2;
+  else if (score >= 70 || maxValue >= 3500) base = 6;
+  else if (score >= 45 || maxValue >= 1200) base = 24;
+  return urgency?.sla_hours ? Math.min(base, urgency.sla_hours) : base;
 }
 function leadQualification(payload) {
   let score = 20;
@@ -474,7 +499,8 @@ function leadQualification(payload) {
   const profile = String(payload.profile || "").trim();
   const propertyType = String(payload.property_type || "").trim();
   const source = String(payload.source || "").trim();
-  const readinessText = `${payload.message || ""} ${source}`;
+  const urgency = leadUrgency(payload);
+  const readinessText = `${payload.message || ""} ${source} ${payload.intent || ""} ${urgency.level}`;
   const readinessSignals = ["contrat actuel", "appel de prime", "sinistres 36 mois", "nombre de lots", "echeance", "travaux prevus"].filter((item) => readinessText.toLowerCase().includes(item)).length;
 
   if (units >= 2) {
@@ -509,6 +535,10 @@ function leadQualification(payload) {
     score += 10;
     addReason(reasons, "mot-cle PNO/CNO detecte");
   }
+  if (urgency.score_boost) {
+    score += urgency.score_boost;
+    addReason(reasons, `urgence ${urgency.level}`);
+  }
   if (/dossier pret assureur|pieces disponibles/i.test(readinessText) && !/pieces disponibles:\s*aucune piece/i.test(readinessText)) {
     score += 12;
     addReason(reasons, "dossier assureur prepare");
@@ -524,7 +554,7 @@ function leadQualification(payload) {
 
   score = Math.min(score, 100);
   const valueEstimate = leadValueEstimate(payload, score);
-  return { score, priority: priorityFromScore(score), reasons, value_estimate: valueEstimate, sla_hours: slaHoursFor(score, valueEstimate) };
+  return { score, priority: priorityFromScore(score), reasons, value_estimate: valueEstimate, sla_hours: slaHoursFor(score, valueEstimate, urgency), urgency };
 }
 
 function leadQuality(payload) {
@@ -533,13 +563,16 @@ function leadQuality(payload) {
 
 function leadValueEventPayload(payload, qualification = leadQualification(payload)) {
   const estimate = qualification.value_estimate || leadValueEstimate(payload, qualification.score || 0);
+  const urgency = qualification.urgency || leadUrgency(payload);
   return {
     score: String(qualification.score || ""),
     priority: qualification.priority || "",
     revenue_band: estimate.band || "",
     lead_value_min: String(estimate.annual_premium_min || ""),
     lead_value_max: String(estimate.annual_premium_max || ""),
-    sla_hours: String(qualification.sla_hours || slaHoursFor(qualification.score || 0, estimate))
+    sla_hours: String(qualification.sla_hours || slaHoursFor(qualification.score || 0, estimate, urgency)),
+    lead_urgency: urgency.level || "",
+    lead_urgency_reason: urgency.reason || ""
   };
 }
 
@@ -562,13 +595,27 @@ function updateLeadValuePreview(preview, formElement) {
   const payload = readForm(formElement);
   const qualification = leadQualification(payload);
   const estimate = qualification.value_estimate;
+  const urgency = qualification.urgency || leadUrgency(payload);
   preview.dataset.level = qualification.sla_hours <= 6 ? "urgent" : qualification.score >= 55 ? "ready" : "base";
+  preview.dataset.urgency = urgency.level;
   preview.querySelector("[data-value-range]").textContent = `${formatEuro(estimate.annual_premium_min)} - ${formatEuro(estimate.annual_premium_max)}/an`;
   preview.querySelector("[data-value-sla]").textContent = `Rappel ${qualification.sla_hours}h`;
+  preview.querySelector("[data-value-urgency]").textContent = urgency.label;
   preview.querySelector("[data-value-docs]").textContent = documentChecklistFor(payload).join(" + ");
-  preview.querySelector("[data-value-note]").textContent = qualification.score >= 70
-    ? "Dossier lisible: ajoutez echeance ou sinistres pour accelerer la consultation."
-    : "Fourchette indicative, ajustee apres analyse du risque et des garanties.";
+  preview.querySelector("[data-value-note]").textContent = urgency.level === "immediate"
+    ? "Signal urgent detecte: le dossier doit etre traite avant les demandes standard."
+    : qualification.score >= 70
+      ? "Dossier lisible: ajoutez echeance ou sinistres pour accelerer la consultation."
+      : "Fourchette indicative, ajustee apres analyse du risque et des garanties.";
+
+  if (urgency.level !== "standard" && !urgencyEventSent) {
+    urgencyEventSent = true;
+    track("lead_urgency_detected", {
+      target: payload.need || "unknown",
+      label: urgency.level,
+      ...leadValueEventPayload(payload, qualification)
+    });
+  }
 
   if (qualification.score >= 70 && !valueHintEventSent) {
     valueHintEventSent = true;
@@ -585,7 +632,7 @@ function mountLeadValuePreview() {
   const anchor = form.querySelector(".ux-form-proof") || form.querySelector(".form-advisor") || form.querySelector(".form-heading") || form.firstElementChild;
   const preview = document.createElement("div");
   preview.className = "lead-value-preview";
-  preview.innerHTML = `<div class="lead-value-preview-main"><span><strong data-value-range>0 EUR - 0 EUR/an</strong><small>Prime indicative</small></span><span><strong data-value-sla>Rappel 48h</strong><small>Priorite dossier</small></span><span><strong data-value-docs>Contrat actuel</strong><small>Pieces cles</small></span></div><p data-value-note>Fourchette indicative, ajustee apres analyse du risque et des garanties.</p>`;
+  preview.innerHTML = `<div class="lead-value-preview-main"><span><strong data-value-range>0 EUR - 0 EUR/an</strong><small>Prime indicative</small></span><span><strong data-value-sla>Rappel 48h</strong><small>Priorite dossier</small></span><span><strong data-value-urgency>Qualification standard</strong><small>Urgence</small></span><span><strong data-value-docs>Contrat actuel</strong><small>Pieces cles</small></span></div><p data-value-note>Fourchette indicative, ajustee apres analyse du risque et des garanties.</p>`;
   anchor.insertAdjacentElement("afterend", preview);
   updateLeadValuePreview(preview, form);
   form.addEventListener("input", () => updateLeadValuePreview(preview, form));
@@ -1361,6 +1408,8 @@ form?.addEventListener("submit", async (event) => {
       lead_value_min: String(result.value_estimate?.annual_premium_min || ""),
       lead_value_max: String(result.value_estimate?.annual_premium_max || ""),
       sla_hours: String(result.sla_hours || ""),
+      lead_urgency: result.lead_urgency || payload.lead_urgency || "",
+      lead_urgency_reason: result.lead_urgency_reason || payload.lead_urgency_reason || "",
       target: payload.need,
       label: payload.city
     });

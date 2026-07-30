@@ -15,6 +15,9 @@ const expectations = [
       "leadValueEstimate",
       "value_estimate",
       "sla_hours",
+      "leadUrgency",
+      "lead_urgency",
+      "Urgence:",
       "Valeur estimee",
       "assessSpamSubmission",
       "lead_spam_blocked",
@@ -32,6 +35,8 @@ const expectations = [
       "leadValueEstimate",
       "value_estimate",
       "sla_hours",
+      "leadUrgency",
+      "Urgence immediate",
       "allowedStatuses",
       "lead_status_updated",
       "lead_followup_updated",
@@ -52,6 +57,9 @@ const expectations = [
       "pieces assureur disponibles",
       "readiness_complete",
       "Dossier pret assureur",
+      "leadUrgency",
+      "lead_urgency_detected",
+      "data-value-urgency",
       "lead-value-preview",
       "lead_value_hint_ready",
       "leadValueEventPayload",
@@ -66,7 +74,7 @@ const expectations = [
   {
     file: "functions/api/events.js",
     role: "event-api",
-    snippets: ["readiness_start", "readiness_update", "readiness_complete", "lead_value_hint_ready", "lead_spam_blocked", "revenue_band", "lead_value_max"]
+    snippets: ["readiness_start", "readiness_update", "readiness_complete", "lead_value_hint_ready", "lead_urgency_detected", "lead_spam_blocked", "revenue_band", "lead_value_max", "lead_urgency"]
   },
   {
     file: "functions/api/admin/seo.js",
@@ -76,17 +84,17 @@ const expectations = [
   {
     file: "functions/_shared/ga4.js",
     role: "ga4-lead-value",
-    snippets: ["lead_value_min", "lead_value_max", "revenue_band", "sla_hours"]
+    snippets: ["lead_value_min", "lead_value_max", "revenue_band", "sla_hours", "lead_urgency", "lead_urgency_reason"]
   },
   {
     file: "functions/api/admin/sales.js",
     role: "admin-sales",
-    snippets: ["followUpDueFor", "due_in_hours", "call_script", "email_subject", "sales_actions", "relance_leads", "quote_followups", "pipeline_value", "due_value"]
+    snippets: ["followUpDueFor", "due_in_hours", "leadUrgency", "lead_urgency", "call_script", "email_subject", "sales_actions", "relance_leads", "quote_followups", "pipeline_value", "due_value"]
   },
   {
     file: "public/assets/admin.js",
     role: "admin-dashboard",
-    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "Valeur affichee", "Erreurs formulaire", "validation-friction", "Spam bloques", "spam-bloque", "lead-value-cell", "annual_premium_min", "loadSales", "/api/admin/sales", "Scripts de rappel", "sales-body", "Relances dues"]
+    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "Valeur affichee", "Erreurs formulaire", "validation-friction", "Spam bloques", "spam-bloque", "lead-value-cell", "annual_premium_min", "lead_urgency", "urgencyLabel", "loadSales", "/api/admin/sales", "Scripts de rappel", "sales-body", "Relances dues"]
   }
 ];
 

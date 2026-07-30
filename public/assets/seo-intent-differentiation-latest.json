@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-30T02:25:41.019Z",
+  "generated_at": "2026-07-30T03:57:15.993Z",
   "status": "passed",
   "target_pages": 9,
-  "pages_changed": 13,
-  "pages_changed_this_run": 13,
+  "pages_changed": 7,
+  "pages_changed_this_run": 7,
   "pages_with_active_blocks": 9,
   "conflicts_addressed": 11,
   "safeguards": [
@@ -81,7 +81,7 @@
     {
       "slug": "comparateur-assurance-immeuble",
       "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-      "changed": true,
+      "changed": false,
       "differentiated": true,
       "conflicts_addressed": 1,
       "primary_slug": "devis-assurance-immeuble"

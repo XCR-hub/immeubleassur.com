@@ -1,13 +1,13 @@
 {
   "success": true,
-  "imported_at": "2026-07-30T02:25:48.415Z",
+  "imported_at": "2026-07-30T03:57:52.936Z",
   "imported_at_source": "latest-report-generated-at",
   "mode": "local-json-report-check",
   "reports": [
     {
       "file": "reports/seo-autopilot-report.json",
       "status": "present",
-      "generated_at": "2026-07-30T02:25:12.980Z"
+      "generated_at": "2026-07-30T03:56:12.968Z"
     },
     {
       "file": "reports/search-intelligence-report.json",
@@ -32,22 +32,22 @@
     {
       "file": "reports/conversion-intelligence-report.json",
       "status": "present",
-      "generated_at": "2026-07-30T02:25:46.313Z"
+      "generated_at": "2026-07-30T03:57:19.982Z"
     },
     {
       "file": "reports/cro-experiment-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T02:25:47.195Z"
+      "generated_at": "2026-07-30T03:57:22.212Z"
     },
     {
       "file": "reports/lead-friction-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T02:25:48.415Z"
+      "generated_at": "2026-07-30T03:57:22.962Z"
     },
     {
       "file": "reports/lead-intent-routing-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T02:25:34.857Z"
+      "generated_at": "2026-07-30T03:57:52.936Z"
     },
     {
       "file": "reports/local-antifraud-report.json",
@@ -62,27 +62,27 @@
     {
       "file": "reports/seo-cannibalization-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T02:25:44.900Z"
+      "generated_at": "2026-07-30T03:57:19.197Z"
     },
     {
       "file": "reports/seo-intent-differentiation-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T02:25:41.019Z"
+      "generated_at": "2026-07-30T03:57:15.993Z"
     },
     {
       "file": "reports/seo-angle-differentiation-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T02:25:41.590Z"
+      "generated_at": "2026-07-30T03:57:16.366Z"
     },
     {
       "file": "reports/internal-link-equity-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T02:25:42.383Z"
+      "generated_at": "2026-07-30T03:57:16.908Z"
     },
     {
       "file": "reports/cluster-conversion-bridge-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T02:25:43.148Z"
+      "generated_at": "2026-07-30T03:57:17.787Z"
     },
     {
       "file": "reports/live-api-readiness-report.json",

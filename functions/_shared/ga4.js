@@ -75,6 +75,8 @@ function safeParamMap(params = {}) {
     lead_value_max: number(params.lead_value_max || params.value_max, 0),
     revenue_band: clean(params.revenue_band, 80),
     sla_hours: number(params.sla_hours, 0),
+    lead_urgency: clean(params.lead_urgency, 80),
+    lead_urgency_reason: clean(params.lead_urgency_reason, 160),
     engagement_time_msec: Math.max(1, number(params.engagement_time_msec, 100))
   };
   return Object.fromEntries(Object.entries(allowed).filter(([, value]) => value !== "" && value !== 0));
@@ -129,6 +131,8 @@ export function gaLeadParams({ payload = {}, record = {}, qualification = {}, re
     lead_value_max: record.value_estimate?.annual_premium_max || qualification.value_estimate?.annual_premium_max || payload.value_estimate?.annual_premium_max,
     revenue_band: record.value_estimate?.band || qualification.value_estimate?.band || payload.value_estimate?.band,
     sla_hours: qualification.sla_hours || payload.sla_hours,
+    lead_urgency: record.lead_urgency || payload.lead_urgency || payload.utm?.lead_urgency || qualification.urgency?.level,
+    lead_urgency_reason: record.lead_urgency_reason || payload.lead_urgency_reason || payload.utm?.lead_urgency_reason || qualification.urgency?.reason,
     form_id: "lead-form",
     link_text: reference ? "lead_created" : "lead",
     engagement_time_msec: 100

@@ -79,12 +79,28 @@ function priorityFromScore(score) {
   return "low";
 }
 
-function slaHoursFor(score, valueEstimate) {
+function slaHoursFor(score, valueEstimate, urgency = null) {
   const maxValue = Number(valueEstimate?.annual_premium_max || 0);
-  if (score >= 85 || maxValue >= 9000) return 2;
-  if (score >= 70 || maxValue >= 3500) return 6;
-  if (score >= 45 || maxValue >= 1200) return 24;
-  return 48;
+  let base = 48;
+  if (score >= 85 || maxValue >= 9000) base = 2;
+  else if (score >= 70 || maxValue >= 3500) base = 6;
+  else if (score >= 45 || maxValue >= 1200) base = 24;
+  return urgency?.sla_hours ? Math.min(base, urgency.sla_hours) : base;
+}
+
+function leadUrgency(lead = {}) {
+  const text = `${lead.message || ""} ${lead.need || ""} ${lead.property_type || ""} ${lead.source || ""} ${lead.page_url || ""}`.toLowerCase();
+  const units = unitCount(lead.units_count);
+  if (/sinistre|degat|resili|refus|mise en demeure|sans assurance|urgent|aujourd|demain|echeance proche/.test(text)) {
+    return { level: "immediate", label: "Urgence immediate", reason: "sinistre/resiliation/echeance", sla_hours: 2 };
+  }
+  if (/echeance|preavis|travaux|chantier|ravalement|toiture|dommages-ouvrage|local-commercial/.test(text) || units >= 10) {
+    return { level: "this-month", label: "A traiter ce mois-ci", reason: "echeance/travaux/immeuble multi-lots", sla_hours: 6 };
+  }
+  if (/prix|tarif|comparateur|devis|audit|veille/.test(text)) {
+    return { level: "quote-ready", label: "Devis a cadrer", reason: "comparaison/prix/audit", sla_hours: 24 };
+  }
+  return { level: "standard", label: "Qualification standard", reason: "information minimale", sla_hours: 48 };
 }
 
 function hoursSince(value) {
@@ -102,8 +118,11 @@ function followUpDueFor(lead) {
   if (!isOpenStatus(status)) return false;
   const score = Number(lead.lead_score || 0);
   const priority = priorityFromScore(score);
+  const urgency = leadUrgency(lead);
   const createdAge = hoursSince(lead.created_at);
   const updatedAge = hoursSince(lead.updated_at || lead.created_at);
+  if (status === "new" && urgency.level === "immediate") return createdAge >= 2;
+  if (status === "new" && urgency.level === "this-month") return createdAge >= 6;
   if (status === "new" && priority === "hot") return createdAge >= 2;
   if (status === "new" && priority === "warm") return createdAge >= 6;
   if (status === "new" && priority === "standard") return createdAge >= 24;
@@ -127,7 +146,9 @@ function nextActionFor(lead, score) {
   const propertyType = clean(lead.property_type, 80);
   const units = unitCount(lead.units_count);
   const message = clean(lead.message, 2200).toLowerCase();
+  const urgency = leadUrgency(lead);
 
+  if (urgency.level === "immediate") return "Rappeler en urgence: verifier sinistre, resiliation, absence de couverture ou echeance proche.";
   if (/dossier pret assureur|pieces disponibles/i.test(message) && !/pieces disponibles:\s*aucune piece/i.test(message)) return "Reprendre les pieces deja disponibles puis demander uniquement les manquants.";
   if (score >= 85) return "Rappeler en priorite, confirmer echeance, contrat actuel, prime et sinistres 36 mois.";
   if (["pno", "cno", "pno-cno"].includes(need) || propertyType === "lot-copropriete") return "Verifier occupation du lot, contrat immeuble et assurance occupant.";
@@ -141,11 +162,12 @@ function callScriptFor(lead, valueEstimate, slaHours) {
   const city = clean(lead.city || "votre immeuble", 120);
   const units = clean(lead.units_count || "", 40);
   const value = valueEstimate?.label || "a qualifier";
+  const urgency = leadUrgency(lead);
   const intro = `Bonjour ${clean(lead.name, 80) || ""}, je vous appelle d'ImmeubleAssur au sujet de votre demande ${need} a ${city}.`;
   const qualifier = units
     ? `Je valide rapidement les ${units} lot(s), l'echeance, la prime actuelle et les sinistres 36 mois pour consulter les assureurs adaptes.`
     : "Je valide rapidement les lots, l'echeance, la prime actuelle et les sinistres 36 mois pour consulter les assureurs adaptes.";
-  return `${intro} ${qualifier} Potentiel estime ${value}; rappel cible ${slaHours}h.`;
+  return `${intro} ${qualifier} Potentiel estime ${value}; ${urgency.label.toLowerCase()}; rappel cible ${slaHours}h.`;
 }
 
 function emailDraftFor(lead, valueEstimate) {
@@ -172,7 +194,8 @@ function emailDraftFor(lead, valueEstimate) {
 function enrichLead(lead) {
   const score = Number(lead.lead_score || 0);
   const valueEstimate = leadValueEstimate(lead, score);
-  const slaHours = slaHoursFor(score, valueEstimate);
+  const urgency = leadUrgency(lead);
+  const slaHours = slaHoursFor(score, valueEstimate, urgency);
   const dueIn = dueInHours(lead, slaHours);
   const due = followUpDueFor(lead);
   const priority = priorityFromScore(score);
@@ -202,6 +225,9 @@ function enrichLead(lead) {
     due_label: due ? `${Math.abs(dueIn)}h de retard` : `${Math.max(0, dueIn)}h restantes`,
     value_estimate: valueEstimate,
     sla_hours: slaHours,
+    urgency,
+    lead_urgency: urgency.level,
+    lead_urgency_reason: urgency.reason,
     next_action: action,
     call_script: callScriptFor(lead, valueEstimate, slaHours),
     email_subject: email.subject,

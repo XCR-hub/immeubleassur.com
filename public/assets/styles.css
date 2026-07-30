@@ -1453,7 +1453,7 @@ details:hover {
 
 .lead-value-preview-main {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -1566,6 +1566,10 @@ textarea:focus {
   .auto-seo-depth .auto-seo-grid,
   .auto-conversion-panel {
     grid-template-columns: 1fr;
+  }
+
+  .lead-value-preview-main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

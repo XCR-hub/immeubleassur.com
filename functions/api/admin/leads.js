@@ -66,12 +66,13 @@ function leadValueEstimate(lead, score = 0) {
   };
 }
 
-function slaHoursFor(score, valueEstimate) {
+function slaHoursFor(score, valueEstimate, urgency = null) {
   const maxValue = Number(valueEstimate?.annual_premium_max || 0);
-  if (score >= 85 || maxValue >= 9000) return 2;
-  if (score >= 70 || maxValue >= 3500) return 6;
-  if (score >= 45 || maxValue >= 1200) return 24;
-  return 48;
+  let base = 48;
+  if (score >= 85 || maxValue >= 9000) base = 2;
+  else if (score >= 70 || maxValue >= 3500) base = 6;
+  else if (score >= 45 || maxValue >= 1200) base = 24;
+  return urgency?.sla_hours ? Math.min(base, urgency.sla_hours) : base;
 }
 
 function priorityFromScore(score) {
@@ -95,12 +96,28 @@ function readinessSignalCount(value) {
   return ["contrat actuel", "appel de prime", "sinistres 36 mois", "nombre de lots", "echeance", "travaux prevus"].filter((item) => text.includes(item)).length;
 }
 
+function leadUrgency(lead = {}) {
+  const text = `${lead.message || ""} ${lead.need || ""} ${lead.property_type || ""} ${lead.source || ""} ${lead.page_url || ""}`.toLowerCase();
+  const units = unitCount(lead.units_count);
+  if (/sinistre|degat|resili|refus|mise en demeure|sans assurance|urgent|aujourd|demain|echeance proche/.test(text)) {
+    return { level: "immediate", label: "Urgence immediate", reason: "sinistre/resiliation/echeance", sla_hours: 2, score_boost: 12 };
+  }
+  if (/echeance|preavis|travaux|chantier|ravalement|toiture|dommages-ouvrage|local-commercial/.test(text) || units >= 10) {
+    return { level: "this-month", label: "A traiter ce mois-ci", reason: "echeance/travaux/immeuble multi-lots", sla_hours: 6, score_boost: 8 };
+  }
+  if (/prix|tarif|comparateur|devis|audit|veille/.test(text)) {
+    return { level: "quote-ready", label: "Devis a cadrer", reason: "comparaison/prix/audit", sla_hours: 24, score_boost: 4 };
+  }
+  return { level: "standard", label: "Qualification standard", reason: "information minimale", sla_hours: 48, score_boost: 0 };
+}
 function nextActionFor(lead, score) {
   const need = clean(lead.need, 80);
   const profile = clean(lead.profile, 80);
   const propertyType = clean(lead.property_type, 80);
   const units = unitCount(lead.units_count);
+  const urgency = leadUrgency(lead);
 
+  if (urgency.level === "immediate") return "Rappeler en urgence: verifier sinistre, resiliation, absence de couverture ou echeance proche.";
   if (hasPreparedDossier(lead.message || "")) return "Reprendre les pieces disponibles, demander les manquants puis consulter les assureurs adaptes.";
   if (score >= 85) return "Rappeler en priorite et demander contrat actuel, echeance, sinistres 36 mois.";
   if (["pno", "cno", "pno-cno"].includes(need) || propertyType === "lot-copropriete") {
@@ -121,7 +138,8 @@ function qualifyLead(lead) {
   const profile = clean(lead.profile, 80);
   const propertyType = clean(lead.property_type, 80);
   const source = clean(lead.source, 80);
-  const readinessText = `${lead.message || ""} ${source}`;
+  const urgency = leadUrgency(lead);
+  const readinessText = `${lead.message || ""} ${source} ${lead.page_url || ""} ${urgency.level}`;
   const readinessSignals = readinessSignalCount(readinessText);
 
   if (units >= 2) {
@@ -147,6 +165,10 @@ function qualifyLead(lead) {
   if (["pno", "cno", "pno-cno"].includes(need)) {
     score += 18;
     addReason(reasons, "intention PNO/CNO");
+  }
+  if (urgency.score_boost) {
+    score += urgency.score_boost;
+    addReason(reasons, `urgence ${urgency.level}`);
   }
   if (["lot-copropriete", "logement-vacant", "logement-loue", "local-commercial"].includes(propertyType)) {
     score += 12;
@@ -178,7 +200,8 @@ function qualifyLead(lead) {
     priority: priorityFromScore(score),
     reasons,
     value_estimate: valueEstimate,
-    sla_hours: slaHoursFor(score, valueEstimate),
+    sla_hours: slaHoursFor(score, valueEstimate, urgency),
+    urgency,
     next_action: nextActionFor(lead, score)
   };
 }

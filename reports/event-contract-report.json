@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T02:25:32.980Z",
+  "generated_at": "2026-07-30T03:57:11.004Z",
   "tracked_events": [
     "cta_click",
     "diagnostic_complete",
@@ -15,6 +15,7 @@
     "lead_submit_error",
     "lead_submit_local_backup",
     "lead_submit_rejected",
+    "lead_urgency_detected",
     "lead_value_hint_ready",
     "newsletter_subscribe_attempt",
     "newsletter_subscribe_error",
@@ -46,6 +47,7 @@
     "lead_submit_error",
     "lead_submit_local_backup",
     "lead_submit_rejected",
+    "lead_urgency_detected",
     "lead_value_hint_ready",
     "newsletter_spam_blocked",
     "newsletter_subscribe_attempt",

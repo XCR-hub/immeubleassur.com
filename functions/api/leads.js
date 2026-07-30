@@ -297,6 +297,22 @@ function unitCount(value) {
   return Number.parseInt(String(value || "0").replace(/\D/g, ""), 10) || 0;
 }
 
+function leadUrgency(payload = {}) {
+  const intent = clean(payload.intent || payload.utm?.intent, 80);
+  const text = `${payload.message || ""} ${payload.need || ""} ${payload.property_type || ""} ${payload.source || ""} ${intent}`.toLowerCase();
+  const units = unitCount(payload.units_count);
+  if (/sinistre|degat|resili|refus|mise en demeure|sans assurance|urgent|aujourd|demain|echeance proche/.test(text)) {
+    return { level: "immediate", label: "Urgence immediate", reason: "sinistre/resiliation/echeance", sla_hours: 2, score_boost: 12 };
+  }
+  if (/echeance|preavis|travaux|chantier|ravalement|toiture|dommages-ouvrage|local-commercial/.test(text) || units >= 10) {
+    return { level: "this-month", label: "A traiter ce mois-ci", reason: "echeance/travaux/immeuble multi-lots", sla_hours: 6, score_boost: 8 };
+  }
+  if (/prix|tarif|comparateur|devis|audit|veille/.test(text)) {
+    return { level: "quote-ready", label: "Devis a cadrer", reason: "comparaison/prix/audit", sla_hours: 24, score_boost: 4 };
+  }
+  return { level: "standard", label: "Qualification standard", reason: "information minimale", sla_hours: 48, score_boost: 0 };
+}
+
 function leadValueEstimate(lead, score = 0) {
   const units = Math.max(1, unitCount(lead.units_count));
   const need = clean(lead.need, 80);
@@ -322,12 +338,13 @@ function leadValueEstimate(lead, score = 0) {
   };
 }
 
-function slaHoursFor(score, valueEstimate) {
+function slaHoursFor(score, valueEstimate, urgency = null) {
   const maxValue = Number(valueEstimate?.annual_premium_max || 0);
-  if (score >= 85 || maxValue >= 9000) return 2;
-  if (score >= 70 || maxValue >= 3500) return 6;
-  if (score >= 45 || maxValue >= 1200) return 24;
-  return 48;
+  let base = 48;
+  if (score >= 85 || maxValue >= 9000) base = 2;
+  else if (score >= 70 || maxValue >= 3500) base = 6;
+  else if (score >= 45 || maxValue >= 1200) base = 24;
+  return urgency?.sla_hours ? Math.min(base, urgency.sla_hours) : base;
 }
 
 function priorityFromScore(score) {
@@ -364,7 +381,8 @@ function qualifyLead(payload) {
   const propertyType = clean(payload.property_type, 80);
   const source = clean(payload.source, 80);
   const intent = clean(payload.intent || payload.utm?.intent, 80);
-  const readinessText = `${payload.message || ""} ${source} ${intent}`;
+  const urgency = leadUrgency(payload);
+  const readinessText = `${payload.message || ""} ${source} ${intent} ${urgency.level}`;
   const readinessSignals = ["contrat actuel", "appel de prime", "sinistres 36 mois", "nombre de lots", "echeance", "travaux prevus"].filter((item) => readinessText.toLowerCase().includes(item)).length;
 
   if (units >= 2) {
@@ -395,6 +413,10 @@ function qualifyLead(payload) {
     score += 8;
     addReason(reasons, "intention SEO qualifiee");
   }
+  if (urgency.score_boost) {
+    score += urgency.score_boost;
+    addReason(reasons, `urgence ${urgency.level}`);
+  }
   if (["lot-copropriete", "logement-vacant", "logement-loue", "local-commercial"].includes(propertyType)) {
     score += 12;
     addReason(reasons, "situation du bien exploitable");
@@ -422,7 +444,8 @@ function qualifyLead(payload) {
     priority: priorityFromScore(score),
     reasons,
     value_estimate: valueEstimate,
-    sla_hours: slaHoursFor(score, valueEstimate),
+    sla_hours: slaHoursFor(score, valueEstimate, urgency),
+    urgency,
     next_action: nextActionFor(payload, score)
   };
 }
@@ -451,6 +474,8 @@ function cleanUtm(raw = {}) {
     intent: clean(raw.intent, 80),
     source_path: clean(raw.source_path, 500),
     landing_path: clean(raw.landing_path, 500),
+    lead_urgency: clean(raw.lead_urgency, 80),
+    lead_urgency_reason: clean(raw.lead_urgency_reason, 160),
     landing_page: clean(raw.landing_page, 500),
     first_referrer: clean(raw.first_referrer, 500)
   };
@@ -580,6 +605,8 @@ function buildLeadEmail({ id, reference, score, qualification, record, now }) {
     `Landing: ${record.utm?.landing_page || "non precisee"}`,
     `Source: ${record.source || "website"}`,
     `Intent: ${record.intent || "non precise"}`,
+    `Urgence: ${record.lead_urgency || qualification.urgency?.level || "standard"}`,
+    `Raison urgence: ${record.lead_urgency_reason || qualification.urgency?.reason || "information minimale"}`,
     `Chemin source: ${record.source_path || "non precise"}`,
     `Campagne: ${record.utm?.utm_campaign || "non precisee"}`,
     `Test CTA: ${record.experiment_variant || "non mesure"}`,
@@ -727,6 +754,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
     intent: clean(payload.intent || payload.utm?.intent, 80),
     source_path: clean(payload.source_path || payload.utm?.source_path, 500),
     landing_path: clean(payload.landing_path || payload.utm?.landing_path, 500),
+    lead_urgency: clean(payload.lead_urgency || payload.utm?.lead_urgency || qualification.urgency?.level, 80),
+    lead_urgency_reason: clean(payload.lead_urgency_reason || payload.utm?.lead_urgency_reason || qualification.urgency?.reason, 160),
     page_url: clean(payload.page_url, 500),
     referrer: clean(payload.referrer, 500),
     session_id: clean(payload.session_id, 120),
@@ -780,6 +809,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
       intent: record.intent,
       source_path: record.source_path,
       landing_path: record.landing_path,
+      lead_urgency: record.lead_urgency,
+      lead_urgency_reason: record.lead_urgency_reason,
       page_url: record.page_url,
       referrer: record.referrer,
       session_id: record.session_id,
@@ -812,7 +843,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       await logLeadEvent(env, id, "email_notification_failed", { reference, error: error.message || "Erreur SMTP" }, now);
     }
 
-    return json({ success: true, id, reference, score, priority: qualification.priority, reasons: qualification.reasons, value_estimate: qualification.value_estimate, sla_hours: qualification.sla_hours, next_action: qualification.next_action, notification: notification.status });
+    return json({ success: true, id, reference, score, priority: qualification.priority, reasons: qualification.reasons, value_estimate: qualification.value_estimate, sla_hours: qualification.sla_hours, lead_urgency: record.lead_urgency, lead_urgency_reason: record.lead_urgency_reason, next_action: qualification.next_action, notification: notification.status });
   } catch (error) {
     return json({ success: false, error: error.message || "Erreur base de donnees" }, 500);
   }

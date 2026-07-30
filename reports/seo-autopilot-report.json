@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T02:26:10.640Z",
+  "generated_at": "2026-07-30T03:57:53.246Z",
   "mode": "local-only",
   "pages_checked": 174,
   "average_score": 100,
@@ -261,7 +261,7 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-07-30T02:25:43.788Z",
+    "generated_at": "2026-07-30T03:57:18.432Z",
     "pages_checked": 175,
     "status": "passed",
     "severe_issue_count": 0,
@@ -278,7 +278,7 @@
   },
   "cannibalization": {
     "configured": true,
-    "generated_at": "2026-07-30T02:25:44.900Z",
+    "generated_at": "2026-07-30T03:57:19.197Z",
     "status": "passed",
     "pages_checked": 169,
     "clusters_checked": 11,
@@ -1150,10 +1150,10 @@
   "intent_differentiation": {
     "configured": true,
     "status": "passed",
-    "generated_at": "2026-07-30T02:25:41.019Z",
+    "generated_at": "2026-07-30T03:57:15.993Z",
     "target_pages": 9,
-    "pages_changed": 13,
-    "pages_changed_this_run": 13,
+    "pages_changed": 7,
+    "pages_changed_this_run": 7,
     "conflicts_addressed": 11,
     "safeguards": [
       "visible-content-only",
@@ -1230,7 +1230,7 @@
       {
         "slug": "comparateur-assurance-immeuble",
         "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-        "changed": true,
+        "changed": false,
         "differentiated": true,
         "conflicts_addressed": 1,
         "primary_slug": "devis-assurance-immeuble"
@@ -1240,9 +1240,9 @@
   "angle_differentiation": {
     "configured": true,
     "status": "passed",
-    "generated_at": "2026-07-30T02:25:41.590Z",
+    "generated_at": "2026-07-30T03:57:16.366Z",
     "pages_targeted": 22,
-    "pages_changed": 17,
+    "pages_changed": 14,
     "noindex_pages": 2,
     "sitemap_entries_removed": 0,
     "safeguards": [
@@ -1256,7 +1256,7 @@
       {
         "slug": "news/veille-assurance-immeuble-2026-07-28",
         "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
-        "changed": true,
+        "changed": false,
         "indexable": false,
         "title": "Archive veille immeuble 28 juillet 2026",
         "h1": "Archive du 28 juillet 2026: signaux assurance immeuble a relire."
@@ -1288,7 +1288,7 @@
       {
         "slug": "devis-pno-cno",
         "url": "https://immeubleassur.com/devis-pno-cno",
-        "changed": true,
+        "changed": false,
         "indexable": true,
         "title": "Devis PNO CNO: qualifier un lot avant rappel",
         "h1": "Demander un devis PNO/CNO avec un dossier exploitable."
@@ -1344,7 +1344,7 @@
       {
         "slug": "assurance-batiment-proprietaire",
         "url": "https://immeubleassur.com/assurance-batiment-proprietaire",
-        "changed": true,
+        "changed": false,
         "indexable": true,
         "title": "Assurance batiment proprietaire: murs et locaux",
         "h1": "Assurance batiment proprietaire: proteger les murs, locaux et dependances."
@@ -1434,7 +1434,7 @@
   "internal_link_equity": {
     "configured": true,
     "status": "passed",
-    "generated_at": "2026-07-30T02:25:42.383Z",
+    "generated_at": "2026-07-30T03:57:16.908Z",
     "pages_checked": 175,
     "pages_targeted": 49,
     "pages_changed": 18,
@@ -1620,10 +1620,10 @@
   "cluster_conversion_bridge": {
     "configured": true,
     "status": "passed",
-    "generated_at": "2026-07-30T02:25:43.148Z",
+    "generated_at": "2026-07-30T03:57:17.787Z",
     "pages_checked": 175,
     "pages_targeted": 43,
-    "pages_changed": 39,
+    "pages_changed": 12,
     "active_bridges": 43,
     "cluster_targets": [
       {
@@ -1673,34 +1673,9 @@
         "cluster": "copropriete-syndic"
       },
       {
-        "slug": "blog/assurance-copropriete-obligatoire",
-        "type": "blog",
-        "cluster": "copropriete-syndic"
-      },
-      {
-        "slug": "blog/assurance-immeuble-ancien",
-        "type": "blog",
-        "cluster": "devis-courtier"
-      },
-      {
         "slug": "blog/assurance-immeuble-apres-refus-assureur",
         "type": "blog",
         "cluster": "sinistre-resilie"
-      },
-      {
-        "slug": "blog/assurance-immeuble-etudiant",
-        "type": "blog",
-        "cluster": "sci-bailleur"
-      },
-      {
-        "slug": "blog/assurance-immeuble-local-professionnel",
-        "type": "blog",
-        "cluster": "sci-bailleur"
-      },
-      {
-        "slug": "blog/assurance-immeuble-mixte-commerce",
-        "type": "blog",
-        "cluster": "local-commercial"
       },
       {
         "slug": "blog/assurance-immeuble-protection-du-patrimoine",
@@ -1711,26 +1686,6 @@
         "slug": "blog/assurance-immeuble-sans-sinistre",
         "type": "blog",
         "cluster": "sinistre-resilie"
-      },
-      {
-        "slug": "blog/assurance-lot-vacant-copropriete",
-        "type": "blog",
-        "cluster": "copropriete-syndic"
-      },
-      {
-        "slug": "blog/assurance-parking-garages-copropriete",
-        "type": "blog",
-        "cluster": "copropriete-syndic"
-      },
-      {
-        "slug": "blog/assurance-sci-patrimoine-locatif",
-        "type": "blog",
-        "cluster": "sci-bailleur"
-      },
-      {
-        "slug": "blog/audit-franchises-assurance-immeuble",
-        "type": "blog",
-        "cluster": "prix-tarif"
       },
       {
         "slug": "blog/checklist-sinistre-degat-des-eaux",
@@ -1753,34 +1708,9 @@
         "cluster": "copropriete-syndic"
       },
       {
-        "slug": "blog/franchise-degat-des-eaux-immeuble",
-        "type": "blog",
-        "cluster": "sinistre-resilie"
-      },
-      {
-        "slug": "blog/infiltration-toiture-terrasse",
-        "type": "blog",
-        "cluster": "sinistre-resilie"
-      },
-      {
-        "slug": "blog/local-commercial-vacant",
-        "type": "blog",
-        "cluster": "local-commercial"
-      },
-      {
         "slug": "blog/pno-obligatoire-copropriete",
         "type": "blog",
         "cluster": "copropriete-syndic"
-      },
-      {
-        "slug": "blog/protection-juridique-copropriete",
-        "type": "blog",
-        "cluster": "copropriete-syndic"
-      },
-      {
-        "slug": "blog/ravalement-toiture-travaux-assurance",
-        "type": "blog",
-        "cluster": "travaux"
       },
       {
         "slug": "blog/renovation-energetique-copropriete-assurance",
@@ -1788,15 +1718,20 @@
         "cluster": "copropriete-syndic"
       },
       {
-        "slug": "blog/sci-familiale-immeuble",
+        "slug": "blog/sinistres-recurrents-immeuble",
         "type": "blog",
-        "cluster": "sci-bailleur"
+        "cluster": "sinistre-resilie"
+      },
+      {
+        "slug": "news/veille-assurance-immeuble-2026-07-29",
+        "type": "news",
+        "cluster": "newsletter-veille"
       }
     ]
   },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-07-30T02:25:46.313Z",
+    "generated_at": "2026-07-30T03:57:19.982Z",
     "pages_checked": 171,
     "money_pages_checked": 114,
     "average_conversion_score": 88,
@@ -2331,7 +2266,7 @@
   },
   "cro_experiment": {
     "configured": true,
-    "generated_at": "2026-07-30T02:25:47.195Z",
+    "generated_at": "2026-07-30T03:57:22.212Z",
     "status": "passed",
     "variant_count": 3,
     "variants": [

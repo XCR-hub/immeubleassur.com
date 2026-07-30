@@ -51,6 +51,10 @@ function priorityLabel(priority) {
   return ({ hot: "Chaud", warm: "A traiter", standard: "Standard", low: "A completer" })[priority] || "Standard";
 }
 
+function urgencyLabel(urgency) {
+  return ({ immediate: "Urgence immediate", "this-month": "A traiter ce mois-ci", "quote-ready": "Devis a cadrer", standard: "Qualification standard" })[urgency] || "Qualification standard";
+}
+
 const leadStatuses = [
   ["new", "Nouveau"],
   ["contacted", "Contacte"],
@@ -260,7 +264,8 @@ function valueCell(lead, q) {
   const estimate = valueEstimateFor(lead, q);
   const td = document.createElement("td");
   td.className = "lead-value-cell";
-  td.textContent = `${formatEuro(estimate.annual_premium_min)} - ${formatEuro(estimate.annual_premium_max)}\n${estimate.band || "standard"}\nSLA ${q.sla_hours || slaHoursFor(q.score || 0, estimate)}h`;
+  const urgency = q.urgency || { level: q.lead_urgency || "standard", reason: q.lead_urgency_reason || "information minimale" };
+  td.textContent = `${formatEuro(estimate.annual_premium_min)} - ${formatEuro(estimate.annual_premium_max)}\n${estimate.band || "standard"}\nSLA ${q.sla_hours || slaHoursFor(q.score || 0, estimate)}h\n${urgencyLabel(urgency.level)}`;
   return td;
 }
 function priorityCell(priority) {
@@ -353,6 +358,7 @@ function qualificationFor(lead) {
     reasons: [],
     value_estimate: valueEstimate,
     sla_hours: slaHoursFor(score, valueEstimate),
+    urgency: { level: lead.lead_urgency || "standard", reason: lead.lead_urgency_reason || "information minimale" },
     next_action: "Rappeler pour completer echeance, assureur actuel, surface et sinistres."
   };
 }
@@ -378,6 +384,8 @@ function searchableText(lead) {
     q.value_estimate?.label,
     q.value_estimate?.band,
     String(q.sla_hours || ""),
+    q.urgency?.level,
+    q.urgency?.reason,
     q.reasons?.join(" "),
     q.next_action
   ].join(" ").toLowerCase();
@@ -555,7 +563,7 @@ async function updateLeadFollowUp(reference, assignedTo, notes, button) {
 
 function exportVisibleLeads() {
   const rows = filteredLeads();
-  const header = ["date", "reference", "priority", "score", "annual_premium_min", "annual_premium_max", "revenue_band", "sla_hours", "name", "phone", "email", "profile", "property_type", "city", "need", "status", "status_label", "assigned_to", "follow_up_due", "next_action", "reasons", "notes", "message", "updated_at"];
+  const header = ["date", "reference", "priority", "score", "annual_premium_min", "annual_premium_max", "revenue_band", "sla_hours", "lead_urgency", "lead_urgency_reason", "name", "phone", "email", "profile", "property_type", "city", "need", "status", "status_label", "assigned_to", "follow_up_due", "next_action", "reasons", "notes", "message", "updated_at"];
   const lines = [header.map(csvEscape).join(",")];
   for (const lead of rows) {
     const q = qualificationFor(lead);
@@ -568,6 +576,8 @@ function exportVisibleLeads() {
       valueEstimateFor(lead, q).annual_premium_max,
       valueEstimateFor(lead, q).band,
       q.sla_hours || slaHoursFor(q.score || 0, valueEstimateFor(lead, q)),
+      q.urgency?.level || lead.lead_urgency || "standard",
+      q.urgency?.reason || lead.lead_urgency_reason || "information minimale",
       lead.name,
       lead.phone,
       lead.email,
