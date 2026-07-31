@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T15:30:05.489Z",
+  "generated_at": "2026-07-31T16:15:28.799Z",
   "checked_files": [
     "functions/api/leads.js",
     "public/assets/app.js",
@@ -16,7 +16,7 @@
     "package.json",
     "scripts/generate-site.js"
   ],
-  "required_markers": 143,
+  "required_markers": 150,
   "forbidden_markers": 2,
   "missing": [],
   "forbidden_hits": [],

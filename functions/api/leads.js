@@ -645,6 +645,25 @@ function parseRecipients(value) {
     .slice(0, 10);
 }
 
+function leadMailConfig(env) {
+  const host = clean(env.SMTP_HOST, 160);
+  const port = Number.parseInt(env.SMTP_PORT || "587", 10);
+  const username = clean(env.SMTP_USER || env.SMTP_FROM, 180);
+  const password = String(env.SMTP_PASS || "");
+  const from = clean(env.SMTP_FROM || username, 180);
+  const recipients = parseRecipients(env.SMTP_TO || env.CONTACT_EMAIL || from);
+  if (!host || !port || !username || !password || !from || recipients.length === 0) return null;
+  return {
+    host,
+    port,
+    username,
+    password,
+    from,
+    to: recipients,
+    secureTransport: port === 465 ? "on" : "starttls"
+  };
+}
+
 function smtpSession(socket) {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
@@ -775,22 +794,46 @@ async function sendSmtpMail(config, message) {
   return sendPortableSmtpMail(config, message);
 }
 
-async function notifyLeadByEmail({ id, reference, score, qualification, record, now }, env) {
-  const host = clean(env.SMTP_HOST, 160);
-  const port = Number.parseInt(env.SMTP_PORT || "587", 10);
-  const username = clean(env.SMTP_USER || env.SMTP_FROM, 180);
-  const password = String(env.SMTP_PASS || "");
-  const from = clean(env.SMTP_FROM || username, 180);
-  const recipients = parseRecipients(env.SMTP_TO || env.CONTACT_EMAIL || from);
+function buildDuplicateLeadEmail({ duplicate, record, now }) {
+  const subject = `Retour prospect ImmeubleAssur ${duplicate.reference}`;
+  const text = [
+    `Reference existante: ${duplicate.reference}`,
+    `Motif doublon: ${duplicate.duplicate_reason || "doublon-contact"}`,
+    `Score existant: ${Number(duplicate.lead_score || 0)}`,
+    `Lead cree le: ${duplicate.created_at || "non precise"}`,
+    `Retour recu le: ${now}`,
+    "",
+    "Le prospect vient de renvoyer une demande sur un dossier deja ouvert.",
+    "Action: rappeler rapidement le dossier existant au lieu de creer un nouveau lead.",
+    "",
+    `Nom: ${record.name}`,
+    `Telephone: ${record.phone}`,
+    `Email: ${record.email}`,
+    `Profil: ${record.profile}`,
+    `Type de bien: ${record.property_type}`,
+    `Ville: ${record.city}`,
+    `Lots: ${record.units_count || "non precise"}`,
+    `Besoin: ${record.need || "non precise"}`,
+    "",
+    "Message renvoye:",
+    record.message || "Aucun message.",
+    "",
+    `Page: ${record.page_url || "non precisee"}`,
+    `Source: ${record.source || "website"}`,
+    `Intent: ${record.intent || "non precise"}`,
+    `Session: ${record.session_id || "non precisee"}`
+  ].join("\n");
+  return { subject, text };
+}
 
-  if (!host || !port || !username || !password || !from || recipients.length === 0) {
-    return { attempted: false, status: "skipped" };
-  }
+async function notifyLeadByEmail({ id, reference, score, qualification, record, now }, env) {
+  const config = leadMailConfig(env);
+  if (!config) return { attempted: false, status: "skipped" };
 
   const { subject, text } = buildLeadEmail({ id, reference, score, qualification, record, now });
   const headers = [
-    `From: ImmeubleAssur <${from}>`,
-    `To: ${recipients.join(", ")}`,
+    `From: ImmeubleAssur <${config.from}>`,
+    `To: ${config.to.join(", ")}`,
     `Reply-To: ${headerSafe(record.email)}`,
     `Subject: ${headerSafe(subject)}`,
     `Date: ${new Date(now).toUTCString()}`,
@@ -800,19 +843,30 @@ async function notifyLeadByEmail({ id, reference, score, qualification, record, 
     "Content-Transfer-Encoding: 8bit"
   ];
 
-  const receipt = await sendSmtpMail(
-    {
-      host,
-      port,
-      username,
-      password,
-      from,
-      to: recipients,
-      secureTransport: port === 465 ? "on" : "starttls"
-    },
-    `${headers.join("\r\n")}\r\n\r\n${text}`
-  );
+  const receipt = await sendSmtpMail(config, `${headers.join("\r\n")}\r\n\r\n${text}`);
+  return { attempted: true, status: "sent", receipt };
+}
 
+async function notifyDuplicateLeadByEmail({ duplicate, record, now }, env) {
+  const config = leadMailConfig(env);
+  if (!config) return { attempted: false, status: "skipped" };
+
+  const { subject, text } = buildDuplicateLeadEmail({ duplicate, record, now });
+  const parsedNow = Date.parse(now);
+  const messageIdTime = Number.isFinite(parsedNow) ? parsedNow : Date.now();
+  const headers = [
+    `From: ImmeubleAssur <${config.from}>`,
+    `To: ${config.to.join(", ")}`,
+    `Reply-To: ${headerSafe(record.email)}`,
+    `Subject: ${headerSafe(subject)}`,
+    `Date: ${new Date(now).toUTCString()}`,
+    `Message-ID: <duplicate.${duplicate.reference}.${messageIdTime}@immeubleassur.com>`,
+    "MIME-Version: 1.0",
+    "Content-Type: text/plain; charset=UTF-8",
+    "Content-Transfer-Encoding: 8bit"
+  ];
+
+  const receipt = await sendSmtpMail(config, `${headers.join("\r\n")}\r\n\r\n${text}`);
   return { attempted: true, status: "sent", receipt };
 }
 
@@ -940,6 +994,16 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const duplicateLead = await findRecentDuplicateLead(env, record);
   if (duplicateLead) {
     await logDuplicateLead(env, request, payload, record, duplicateLead, now, ip, userAgent);
+    let notification = { attempted: false, status: "skipped" };
+    try {
+      notification = await notifyDuplicateLeadByEmail({ duplicate: duplicateLead, record, now }, env);
+      if (notification.attempted) {
+        await logLeadEvent(env, duplicateLead.id, "duplicate_email_notification_sent", { reference: duplicateLead.reference, duplicate_reason: duplicateLead.duplicate_reason, receipt: notification.receipt }, now);
+      }
+    } catch (error) {
+      notification = { attempted: true, status: "failed" };
+      await logLeadEvent(env, duplicateLead.id, "duplicate_email_notification_failed", { reference: duplicateLead.reference, duplicate_reason: duplicateLead.duplicate_reason, error: error.message || "Erreur SMTP" }, now);
+    }
     return reply({
       success: true,
       duplicate: true,
@@ -948,7 +1012,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       reference: duplicateLead.reference,
       score: Number(duplicateLead.lead_score || 0),
       duplicate_reason: duplicateLead.duplicate_reason,
-      notification: "skipped"
+      notification: notification.status
     });
   }
 

@@ -87,6 +87,7 @@ async function run() {
     const leadCount = await DB.prepare("SELECT COUNT(*) AS count FROM leads").first("count");
     const duplicateEvents = await DB.prepare("SELECT COUNT(*) AS count FROM site_events WHERE event_type = ?").bind("lead_duplicate_filtered").first("count");
     const duplicateLeadEvents = await DB.prepare("SELECT COUNT(*) AS count FROM lead_events WHERE event_type = ?").bind("lead_duplicate_filtered").first("count");
+    const duplicateNotificationEvents = await DB.prepare("SELECT COUNT(*) AS count FROM lead_events WHERE event_type IN (?, ?)").bind("duplicate_email_notification_sent", "duplicate_email_notification_failed").first("count");
     const [adminSpam, adminSeo, adminIntegrations, adminSales] = await Promise.all([
       adminGet(getAdminSpam, DB, "/api/admin/spam"),
       adminGet(getAdminSeo, DB, "/api/admin/seo"),
@@ -101,7 +102,7 @@ async function run() {
     const adminSalesLeadMarked = (adminSales.body?.relance_leads || []).some((lead) => lead.duplicate_followup && lead.reference === first.body?.reference);
 
     const report = {
-      success: first.status === 200 && first.body?.success === true && !first.body?.duplicate && second.status === 200 && second.body?.duplicate === true && leadCount === 1 && duplicateEvents === 1 && duplicateLeadEvents === 1 && adminSpam.status === 200 && adminSeo.status === 200 && adminIntegrations.status === 200 && adminSales.status === 200 && adminSpamDuplicates === 1 && adminSeoDuplicates === 1 && adminIntegrationsDuplicates === 1 && adminSalesDuplicateFollowups === 1 && adminSalesDuplicateRows === 1 && adminSalesLeadMarked,
+      success: first.status === 200 && first.body?.success === true && !first.body?.duplicate && second.status === 200 && second.body?.duplicate === true && second.body?.notification === "skipped" && leadCount === 1 && duplicateEvents === 1 && duplicateLeadEvents === 1 && duplicateNotificationEvents === 0 && adminSpam.status === 200 && adminSeo.status === 200 && adminIntegrations.status === 200 && adminSales.status === 200 && adminSpamDuplicates === 1 && adminSeoDuplicates === 1 && adminIntegrationsDuplicates === 1 && adminSalesDuplicateFollowups === 1 && adminSalesDuplicateRows === 1 && adminSalesLeadMarked,
       scenario: "repeated-lead-dedupe",
       first: {
         status: first.status,
@@ -115,12 +116,14 @@ async function run() {
         success: second.body?.success === true,
         duplicate: second.body?.duplicate === true,
         result_status: second.body?.status || "",
-        duplicate_reason: second.body?.duplicate_reason || ""
+        duplicate_reason: second.body?.duplicate_reason || "",
+        notification: second.body?.notification || ""
       },
       counts: {
         leads: leadCount,
         duplicate_site_events: duplicateEvents,
-        duplicate_lead_events: duplicateLeadEvents
+        duplicate_lead_events: duplicateLeadEvents,
+        duplicate_notification_events: duplicateNotificationEvents
       },
       admin: {
         spam: {
@@ -146,7 +149,7 @@ async function run() {
           lead_marked: adminSalesLeadMarked
         }
       },
-      safeguards: ["sqlite-temp-db", "no-smtp-config", "no-real-lead-persisted", "duplicate-does-not-create-new-lead", "admin-duplicate-metrics-verified", "sales-duplicate-followup-verified"]
+      safeguards: ["sqlite-temp-db", "no-smtp-config", "no-real-lead-persisted", "duplicate-does-not-create-new-lead", "duplicate-email-skips-without-smtp", "admin-duplicate-metrics-verified", "sales-duplicate-followup-verified"]
     };
 
     mkdirSync(dirname(REPORT_PATH), { recursive: true });
