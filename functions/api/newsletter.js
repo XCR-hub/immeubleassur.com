@@ -106,7 +106,26 @@ function turnstileToken(payload) {
   return clean(payload?.turnstile_token || payload?.newsletter_turnstile_token || payload?.["cf-turnstile-response"], 2048);
 }
 
-async function verifyNewsletterTurnstile(env, payload, ip) {
+function turnstileAllowedHostnames(env) {
+  const configured = clean(env?.TURNSTILE_ALLOWED_HOSTNAMES, 500)
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+  return configured.length ? configured : ["immeubleassur.com", "www.immeubleassur.com"];
+}
+
+function turnstileHostnameValid(env, hostname) {
+  const value = clean(hostname, 255).toLowerCase();
+  if (!value) return false;
+  return turnstileAllowedHostnames(env).includes(value);
+}
+
+function turnstileActionValid(action, expectedAction) {
+  const value = clean(action, 120);
+  return Boolean(value && value === expectedAction);
+}
+
+async function verifyNewsletterTurnstile(env, payload, ip, expectedAction = "newsletter_subscribe") {
   const siteKey = clean(env?.TURNSTILE_SITE_KEY, 200);
   const secret = clean(env?.TURNSTILE_SECRET_KEY, 2048);
   if (!siteKey || !secret) return { ok: true, configured: false, status: "fallback-local" };
@@ -127,9 +146,20 @@ async function verifyNewsletterTurnstile(env, payload, ip) {
     });
     const result = await response.json().catch(() => ({}));
     const errorCodes = Array.isArray(result["error-codes"]) ? result["error-codes"].slice(0, 5) : [];
-    if (response.ok && result.success) return { ok: true, configured: true, status: "verified" };
+    const hostname = clean(result.hostname, 255).toLowerCase();
+    const action = clean(result.action, 120);
 
-    return { ok: false, configured: true, status: "refuse", errorCodes };
+    if (response.ok && result.success) {
+      if (!turnstileHostnameValid(env, hostname)) {
+        return { ok: false, configured: true, status: hostname ? "hostname-invalide" : "hostname-manquant", errorCodes: ["invalid-hostname"], hostname, action };
+      }
+      if (!turnstileActionValid(action, expectedAction)) {
+        return { ok: false, configured: true, status: action ? "action-invalide" : "action-manquante", errorCodes: ["invalid-action"], hostname, action };
+      }
+      return { ok: true, configured: true, status: "verified", hostname, action };
+    }
+
+    return { ok: false, configured: true, status: "refuse", errorCodes, hostname, action };
   } catch {
     const failOpen = clean(env?.TURNSTILE_FAIL_OPEN, 20) === "1";
     return {
@@ -285,6 +315,8 @@ async function logSiteEvent(env, request, payload, eventType, now) {
         reasons,
         challenge: clean(spam.challenge || "", 120),
         turnstile: clean(spam.turnstile_status || "", 120),
+        turnstile_action: clean(spam.turnstile_action || "", 120),
+        turnstile_hostname: clean(spam.turnstile_hostname || "", 255),
         turnstile_errors: Array.isArray(spam.turnstile_errors) ? spam.turnstile_errors.slice(0, 5).join(", ") : "",
         has_name: clean(payload.name, 160) ? "true" : "false",
         form_elapsed_ms: payload.anti_bot ? String(safeNumber(payload.anti_bot.form_elapsed_ms)) : ""
@@ -367,6 +399,8 @@ export async function onRequestPost({ request, env }) {
         action: "block",
         challenge: "turnstile-failed",
         turnstile_status: turnstile.status || "",
+        turnstile_action: turnstile.action || "",
+        turnstile_hostname: turnstile.hostname || "",
         turnstile_errors: turnstile.errorCodes || []
       },
       now,
