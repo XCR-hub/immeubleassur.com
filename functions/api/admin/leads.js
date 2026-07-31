@@ -251,6 +251,8 @@ function summarizeLeads(leads) {
   const priority_counts = { hot: 0, warm: 0, standard: 0, low: 0 };
   const needs = new Map();
   const cities = new Map();
+  const sourcePaths = new Map();
+  let contentBridgeCount = 0;
   let scoreTotal = 0;
   let oldestHot = "";
   let followup_due_count = 0;
@@ -278,6 +280,8 @@ function summarizeLeads(leads) {
     }
     increment(needs, lead.need);
     increment(cities, lead.city);
+    if (clean(lead.source_path, 500)) increment(sourcePaths, lead.source_path);
+    if (clean(lead.content_bridge, 20) === "1") contentBridgeCount += 1;
     if (priority === "hot" && lead.status === "new") {
       if (!oldestHot || String(lead.created_at || "") < oldestHot) oldestHot = lead.created_at || "";
     }
@@ -296,6 +300,8 @@ function summarizeLeads(leads) {
     priority_counts,
     top_needs: topFromMap(needs),
     top_cities: topFromMap(cities),
+    top_source_paths: topFromMap(sourcePaths),
+    content_bridge_count: contentBridgeCount,
     oldest_hot_created_at: oldestHot,
     pipeline_value: { annual_premium_min: pipelineValueMin, annual_premium_max: pipelineValueMax, label: valueLabel(pipelineValueMin, pipelineValueMax) },
     followup_due_value: { annual_premium_min: followupValueMin, annual_premium_max: followupValueMax, label: valueLabel(followupValueMin, followupValueMax) },
@@ -316,11 +322,19 @@ export async function onRequestGet({ request, env }) {
   }
 
   const { results } = await env.DB.prepare(
-    `SELECT reference, name, phone, email, profile, property_type, city,
-            units_count, need, message, lead_score, status, assigned_to, notes,
-            source, page_url, referrer, created_at, updated_at
-       FROM leads
-      ORDER BY created_at DESC
+    `SELECT l.reference, l.name, l.phone, l.email, l.profile, l.property_type, l.city,
+            l.units_count, l.need, l.message, l.lead_score, l.status, l.assigned_to, l.notes,
+            l.source, l.page_url, l.referrer, l.created_at, l.updated_at,
+            COALESCE(NULLIF(json_extract(le.payload, '$.source_path'), ''), '') AS source_path,
+            COALESCE(NULLIF(json_extract(le.payload, '$.landing_path'), ''), '') AS landing_path,
+            COALESCE(NULLIF(json_extract(le.payload, '$.content_bridge'), ''), '') AS content_bridge,
+            COALESCE(NULLIF(json_extract(le.payload, '$.content_kind'), ''), '') AS content_kind,
+            COALESCE(NULLIF(json_extract(le.payload, '$.lead_urgency'), ''), '') AS lead_urgency,
+            COALESCE(NULLIF(json_extract(le.payload, '$.lead_urgency_reason'), ''), '') AS lead_urgency_reason,
+            COALESCE(NULLIF(json_extract(le.payload, '$.experiment_variant'), ''), '') AS experiment_variant
+       FROM leads l
+       LEFT JOIN lead_events le ON le.lead_id = l.id AND le.event_type = 'lead_created'
+      ORDER BY l.created_at DESC
       LIMIT 100`
   ).all();
 

@@ -789,7 +789,7 @@ address a {
 
 .admin-table {
   width: 100%;
-  min-width: 1420px;
+  min-width: 1580px;
   border-collapse: collapse;
   font-size: 0.92rem;
 }
@@ -872,6 +872,14 @@ address a {
   min-width: 150px;
   color: var(--teal-dark);
   font-weight: 800;
+}
+
+.lead-origin-cell {
+  min-width: 190px;
+  color: var(--muted);
+  font-size: .84rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 .lead-followup {
   display: grid;

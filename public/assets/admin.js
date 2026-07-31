@@ -290,6 +290,26 @@ function valueCell(lead, q) {
   td.textContent = `${formatEuro(estimate.annual_premium_min)} - ${formatEuro(estimate.annual_premium_max)}\n${estimate.band || "standard"}\nSLA ${q.sla_hours || slaHoursFor(q.score || 0, estimate)}h\n${urgencyLabel(urgency.level)}`;
   return td;
 }
+function leadOriginText(lead) {
+  const parts = [];
+  const kind = lead.content_kind ? ` ${lead.content_kind}` : "";
+  if (String(lead.content_bridge || "") === "1") parts.push(`Pont contenu${kind}`);
+  if (lead.source_path) parts.push(`Source: ${lead.source_path}`);
+  if (lead.landing_path) parts.push(`Landing: ${lead.landing_path}`);
+  if (lead.experiment_variant) parts.push(`CTA: ${lead.experiment_variant}`);
+  if (!parts.length && lead.page_url) parts.push(`Page: ${lead.page_url}`);
+  if (!parts.length && lead.source) parts.push(`Canal: ${lead.source}`);
+  return parts.join("\n") || "-";
+}
+
+function leadOriginCell(lead) {
+  const td = document.createElement("td");
+  td.className = "lead-origin-cell";
+  td.setAttribute("data-label", "Origine");
+  td.textContent = leadOriginText(lead);
+  return td;
+}
+
 function priorityCell(priority) {
   const td = document.createElement("td");
   const span = document.createElement("span");
@@ -398,6 +418,14 @@ function searchableText(lead) {
     lead.need,
     lead.status,
     statusLabel(lead.status),
+    lead.source,
+    lead.page_url,
+    lead.source_path,
+    lead.landing_path,
+    lead.content_bridge,
+    lead.content_kind,
+    lead.experiment_variant,
+    leadOriginText(lead),
     lead.assigned_to,
     lead.notes,
     followUpLabel(lead),
@@ -433,7 +461,7 @@ function render(rows) {
   if (!rows.length) {
     const tr = document.createElement("tr");
     const td = cell("Aucun lead trouve.");
-    td.colSpan = 13;
+    td.colSpan = 14;
     tr.append(td);
     body.append(tr);
     return;
@@ -454,6 +482,7 @@ function render(rows) {
       cell(`${lead.property_type}${lead.units_count ? `\n${lead.units_count} lots` : ""}`),
       cell(lead.city),
       cell(lead.need),
+      leadOriginCell(lead),
       statusCell(lead),
       cell(`${q.score ?? lead.lead_score ?? ""}${q.reasons?.length ? `\n${q.reasons.slice(0, 4).join("\n")}` : ""}`),
       valueCell(lead, q),
@@ -514,7 +543,9 @@ function renderLeadSummary(summary = latestLeadSummary, visibleRows = filteredLe
     metricCard("Devis", String(countStatus(visibleRows, "quoted")), "en cours"),
     metricCard("Gagnes", String(countStatus(visibleRows, "won")), "a mesurer"),
     metricCard("Besoin dominant", topLabel(summary?.top_needs)),
-    metricCard("Ville dominante", topLabel(summary?.top_cities))
+    metricCard("Ville dominante", topLabel(summary?.top_cities)),
+    metricCard("Pont leads", String(summary?.content_bridge_count || 0), "issus du pont contenu"),
+    metricCard("Source dominante", topLabel(summary?.top_source_paths), "origine SEO")
   );
 }
 
@@ -585,7 +616,7 @@ async function updateLeadFollowUp(reference, assignedTo, notes, button) {
 
 function exportVisibleLeads() {
   const rows = filteredLeads();
-  const header = ["date", "reference", "priority", "score", "annual_premium_min", "annual_premium_max", "revenue_band", "sla_hours", "lead_urgency", "lead_urgency_reason", "name", "phone", "email", "profile", "property_type", "city", "need", "status", "status_label", "assigned_to", "follow_up_due", "next_action", "reasons", "notes", "message", "updated_at"];
+  const header = ["date", "reference", "priority", "score", "annual_premium_min", "annual_premium_max", "revenue_band", "sla_hours", "lead_urgency", "lead_urgency_reason", "source_path", "landing_path", "content_bridge", "content_kind", "experiment_variant", "name", "phone", "email", "profile", "property_type", "city", "need", "status", "status_label", "assigned_to", "follow_up_due", "next_action", "reasons", "notes", "message", "updated_at"];
   const lines = [header.map(csvEscape).join(",")];
   for (const lead of rows) {
     const q = qualificationFor(lead);
@@ -600,6 +631,11 @@ function exportVisibleLeads() {
       q.sla_hours || slaHoursFor(q.score || 0, valueEstimateFor(lead, q)),
       q.urgency?.level || lead.lead_urgency || "standard",
       q.urgency?.reason || lead.lead_urgency_reason || "information minimale",
+      lead.source_path,
+      lead.landing_path,
+      lead.content_bridge,
+      lead.content_kind,
+      lead.experiment_variant,
       lead.name,
       lead.phone,
       lead.email,
