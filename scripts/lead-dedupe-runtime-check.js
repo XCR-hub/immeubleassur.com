@@ -101,7 +101,8 @@ async function run() {
     };
 
     mkdirSync(dirname(REPORT_PATH), { recursive: true });
-    writeFileSync(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+    const reportText = `${JSON.stringify(report, null, 2)}\n`;
+    writeFileSync(REPORT_PATH, process.platform === "win32" ? reportText.replace(/\n/g, "\r\n") : reportText, "utf8");
     if (!report.success) {
       console.error(`Lead dedupe runtime failed: ${JSON.stringify(report.counts)}`);
       process.exit(1);
