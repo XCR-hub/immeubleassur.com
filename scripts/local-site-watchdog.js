@@ -181,8 +181,12 @@ async function main() {
   console.log("immeubleassur_node_watchdog=recovered");
 }
 
-main().catch((error) => {
-  writeReport("failed", { action: "exception", error: error.message || "watchdog failed" });
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => {
+    process.exit(process.exitCode || 0);
+  })
+  .catch((error) => {
+    writeReport("failed", { action: "exception", error: error.message || "watchdog failed" });
+    console.error(error);
+    process.exit(1);
+  });
