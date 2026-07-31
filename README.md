@@ -102,7 +102,9 @@ SMTP_TO=team@immeubleassur.com
 SITE_ORIGIN=https://immeubleassur.com
 ```
 
-Variables optionnelles pour l'optimisation continue: Google Search Console, PageSpeed, URL Inspection (`GOOGLE_URL_INSPECTION_LIMIT`), GA4, SerpApi, Pexels, OpenAI, Anthropic, Gemini, OpenRouter et HuggingFace. Pour retrouver la verification automatique Cloudflare sur les formulaires, renseigner aussi `TURNSTILE_SITE_KEY` et `TURNSTILE_SECRET_KEY`.
+Variables optionnelles pour l'optimisation continue: Google Search Console, PageSpeed, URL Inspection (`GOOGLE_URL_INSPECTION_LIMIT`), GA4, SerpApi, Pexels, OpenAI, Anthropic, Gemini, OpenRouter et HuggingFace. Les rapports live serveur peuvent etre sortis du depot avec `LOCAL_INTENT_CONVERSION_REPORT`, `LOCAL_INTENT_CONVERSION_PUBLIC_REPORT` et `LOCAL_SQLITE_IMPORT_REPORT`, par exemple vers `F:\immeubleassur-monitor`.
+
+Pour retrouver la verification automatique Cloudflare sur les formulaires, renseigner aussi `TURNSTILE_SITE_KEY` et `TURNSTILE_SECRET_KEY`.
 
 La procedure d'activation sans exposition de secrets est documentee dans `docs/live-api-readiness.md`. Le controle `npm run live:api:readiness` publie uniquement les statuts et les noms de variables manquantes.
 

@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+﻿import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { openLocalSqlite } from "./local-sqlite-db.js";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 
@@ -74,8 +74,9 @@ const result = {
 };
 
 db.close();
-mkdirSync("reports", { recursive: true });
-writeFileSync(join("reports", "local-sqlite-import-report.json"), `${JSON.stringify(result, null, 2)}\n`, "utf8");
+const reportOut = resolve(env("LOCAL_SQLITE_IMPORT_REPORT", join("reports", "local-sqlite-import-report.json")));
+mkdirSync(dirname(reportOut), { recursive: true });
+writeFileSync(reportOut, `${JSON.stringify(result, null, 2)}\n`, "utf8");
 
 if (invalid.length) {
   console.error(`SQLite local report check failed: ${invalid.map((item) => item.file).join(", ")}`);
