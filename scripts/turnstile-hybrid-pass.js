@@ -13,7 +13,20 @@ const configured = SITE_KEY.length > 0;
 const legacyBlockPattern = /\s*<!-- turnstile-protection:start -->[\s\S]*?<!-- turnstile-protection:end -->\s*/gi;
 const hybridBlockPattern = /\s*<!-- turnstile-hybrid:start -->[\s\S]*?<!-- turnstile-hybrid:end -->\s*/gi;
 const turnstileScriptPattern = /\s*<script\b[^>]*turnstile\/v0\/api\.js[^>]*><\/script>\s*/gi;
-const leadFormPattern = /<form\b[^>]*\bid="lead-form"[^>]*>[\s\S]*?<\/form>/gi;
+const formTargets = [
+  {
+    key: "lead",
+    label: "lead form",
+    action: "lead_form",
+    pattern: /<form\b(?=[^>]*\bid=["']lead-form["'])[^>]*>[\s\S]*?<\/form>/gi
+  },
+  {
+    key: "newsletter",
+    label: "newsletter form",
+    action: "newsletter_subscribe",
+    pattern: /<form\b(?=[^>]*\bclass=["'][^"']*\bnewsletter-form\b[^"']*["'])[^>]*>[\s\S]*?<\/form>/gi
+  }
+];
 
 function walk(dir) {
   return readdirSync(dir).flatMap((name) => {
@@ -30,6 +43,10 @@ function escAttr(value) {
     .replace(/>/g, "&gt;");
 }
 
+function escapeRegExp(value) {
+  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function cleanTurnstile(html) {
   return html
     .replace(legacyBlockPattern, "\n")
@@ -37,13 +54,13 @@ function cleanTurnstile(html) {
     .replace(turnstileScriptPattern, "\n");
 }
 
-function widgetMarkup() {
-  return `<!-- turnstile-hybrid:start -->\n<div class="turnstile-field" data-turnstile-hybrid="cloudflare-optional"><div class="cf-turnstile" data-sitekey="${escAttr(SITE_KEY)}" data-theme="${escAttr(THEME)}" data-action="lead_form"></div></div>\n<!-- turnstile-hybrid:end -->`;
+function widgetMarkup(action) {
+  return `<!-- turnstile-hybrid:start -->\n<div class="turnstile-field" data-turnstile-hybrid="cloudflare-optional"><div class="cf-turnstile" data-sitekey="${escAttr(SITE_KEY)}" data-theme="${escAttr(THEME)}" data-action="${escAttr(action)}"></div></div>\n<!-- turnstile-hybrid:end -->`;
 }
 
-function injectWidgetInForm(formHtml) {
+function injectWidgetInForm(formHtml, action) {
   if (!configured) return formHtml;
-  const widget = widgetMarkup();
+  const widget = widgetMarkup(action);
   if (/<button\b[^>]*type="submit"[^>]*>/i.test(formHtml)) {
     return formHtml.replace(/<button\b[^>]*type="submit"[^>]*>/i, `${widget}\n$&`);
   }
@@ -57,25 +74,45 @@ function ensureApiScript(html) {
   return `${html}\n${script}\n`;
 }
 
+function countPattern(html, pattern) {
+  const matches = html.match(pattern);
+  return matches ? matches.length : 0;
+}
+
+function countActionWidgets(html, action) {
+  const pattern = new RegExp(`class="cf-turnstile"[^>]*data-action="${escapeRegExp(action)}"`, "g");
+  const matches = html.match(pattern);
+  return matches ? matches.length : 0;
+}
+
 function inspectPage(file) {
   const original = readFileSync(file, "utf8");
   const cleaned = cleanTurnstile(original);
-  const formsDetected = (cleaned.match(leadFormPattern) || []).length;
+  const detected = Object.fromEntries(formTargets.map((target) => [target.key, countPattern(cleaned, target.pattern)]));
+  const formsDetected = Object.values(detected).reduce((sum, count) => sum + count, 0);
   let html = cleaned;
 
   if (configured && formsDetected) {
-    html = html.replace(leadFormPattern, (formHtml) => injectWidgetInForm(formHtml));
+    for (const target of formTargets) {
+      html = html.replace(target.pattern, (formHtml) => injectWidgetInForm(formHtml, target.action));
+    }
     html = ensureApiScript(html);
   }
 
   if (html !== original) writeFileSync(file, html, "utf8");
 
-  const formsInstrumented = configured ? (html.match(/class="cf-turnstile"/g) || []).length : 0;
+  const instrumented = Object.fromEntries(
+    formTargets.map((target) => [target.key, configured ? Math.min(countActionWidgets(html, target.action), detected[target.key]) : 0])
+  );
+  const formsInstrumented = Object.values(instrumented).reduce((sum, count) => sum + count, 0);
+
   return {
     file: relative(PUBLIC_DIR, file).replace(/\\/g, "/"),
     has_form: formsDetected > 0,
     forms_detected: formsDetected,
-    forms_instrumented: Math.min(formsInstrumented, formsDetected),
+    forms_instrumented: formsInstrumented,
+    target_counts: detected,
+    target_instrumented: instrumented,
     updated: html !== original
   };
 }
@@ -86,6 +123,12 @@ const formRows = rows.filter((row) => row.has_form);
 const missingWidgets = configured
   ? formRows.filter((row) => row.forms_instrumented < row.forms_detected).map((row) => row.file)
   : [];
+const totals = Object.fromEntries(
+  formTargets.flatMap((target) => [
+    [`${target.key}_forms_detected`, formRows.reduce((sum, row) => sum + (row.target_counts[target.key] || 0), 0)],
+    [`${target.key}_forms_instrumented`, formRows.reduce((sum, row) => sum + (row.target_instrumented[target.key] || 0), 0)]
+  ])
+);
 const report = {
   generated_at: new Date().toISOString(),
   provider: "cloudflare-turnstile",
@@ -98,11 +141,16 @@ const report = {
   pages_checked: rows.length,
   forms_detected: formRows.reduce((sum, row) => sum + row.forms_detected, 0),
   forms_instrumented: formRows.reduce((sum, row) => sum + row.forms_instrumented, 0),
+  lead_forms_detected: totals.lead_forms_detected || 0,
+  lead_forms_instrumented: totals.lead_forms_instrumented || 0,
+  newsletter_forms_detected: totals.newsletter_forms_detected || 0,
+  newsletter_forms_instrumented: totals.newsletter_forms_instrumented || 0,
+  actions: formTargets.map((target) => ({ key: target.key, action: target.action, label: target.label })),
   pages_updated: rows.filter((row) => row.updated).length,
   missing_widgets: missingWidgets,
   status: configured ? (missingWidgets.length ? "failed" : "passed") : "fallback-local-antifraud",
   protections: configured
-    ? ["cloudflare-turnstile", "server-siteverify", "honeypot", "local-js-session", "local-history-filter"]
+    ? ["cloudflare-turnstile", "server-siteverify", "newsletter-turnstile", "honeypot", "local-js-session", "local-history-filter"]
     : ["honeypot", "local-js-session", "local-history-filter"]
 };
 
@@ -118,5 +166,5 @@ if (missingWidgets.length) {
 }
 
 console.log(configured
-  ? `Turnstile hybrid pass instrumented ${report.forms_instrumented}/${report.forms_detected} lead form(s).`
-  : `Turnstile hybrid pass kept local anti-fraud fallback for ${report.forms_detected} lead form(s).`);
+  ? `Turnstile hybrid pass instrumented ${report.forms_instrumented}/${report.forms_detected} protected form(s): ${report.lead_forms_instrumented} lead, ${report.newsletter_forms_instrumented} newsletter.`
+  : `Turnstile hybrid pass kept local anti-fraud fallback for ${report.forms_detected} protected form(s).`);

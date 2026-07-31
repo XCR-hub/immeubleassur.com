@@ -244,6 +244,18 @@ function botSignalPayload() {
   };
 }
 
+function resetTurnstileWidgets(scope = document) {
+  const root = scope || document;
+  if (!window.turnstile || !root.querySelectorAll) return;
+  root.querySelectorAll(".cf-turnstile").forEach((widget) => {
+    try {
+      window.turnstile.reset(widget);
+    } catch {
+      try { window.turnstile.reset(); } catch {}
+    }
+  });
+}
+
 function readForm(formElement) {
   const data = Object.fromEntries(new FormData(formElement).entries());
   const utm = readUtm();
@@ -1427,6 +1439,7 @@ form?.addEventListener("submit", async (event) => {
       "error"
     );
   } finally {
+    resetTurnstileWidgets(form);
     submitButton.disabled = false;
   }
 });
@@ -1441,12 +1454,16 @@ function newsletterStatus(formElement, message, type = "") {
 
 function readNewsletterForm(formElement) {
   const data = Object.fromEntries(new FormData(formElement).entries());
+  const turnstileResponse = String(data["cf-turnstile-response"] || "").trim();
   return {
     email: String(data.email || "").trim().toLowerCase(),
     name: String(data.name || "").trim(),
     audience: String(data.audience || "assurance-immeuble").trim(),
     consent: data.consent === "on",
     company_website: String(data.company_website || "").trim(),
+    turnstile_token: turnstileResponse,
+    newsletter_turnstile_token: turnstileResponse,
+    "cf-turnstile-response": turnstileResponse,
     source: formElement.dataset.newsletterSource || currentLeadIntent(),
     page_url: window.location.href,
     path: window.location.pathname,
@@ -1490,14 +1507,27 @@ function bindNewsletterForms() {
           body: JSON.stringify(payload)
         });
         const result = await response.json();
-        if (!response.ok || !result.success) throw new Error(result.error || "Inscription impossible.");
+        if (!response.ok || !result.success) {
+          const submitError = new Error(result.error || "Inscription impossible.");
+          submitError.status = response.status;
+          submitError.result = result;
+          throw submitError;
+        }
         newsletterFormElement.reset();
+        resetTurnstileWidgets(newsletterFormElement);
         newsletterStatus(newsletterFormElement, "Inscription confirmee. Vous recevrez la veille ImmeubleAssur.", "ok");
         track("newsletter_subscribed", { target: payload.audience, label: payload.source, status: result.status || "active" });
       } catch (error) {
         newsletterStatus(newsletterFormElement, error.message || "Inscription impossible pour le moment.", "error");
-        track("newsletter_subscribe_error", { target: payload.audience, label: error.message || "erreur" });
+        track("newsletter_subscribe_error", {
+          target: payload.audience,
+          label: error.message || "erreur",
+          status: String(error.status || ""),
+          challenge: error.result?.challenge || "",
+          turnstile: error.result?.turnstile || ""
+        });
       } finally {
+        resetTurnstileWidgets(newsletterFormElement);
         button.disabled = false;
       }
     });

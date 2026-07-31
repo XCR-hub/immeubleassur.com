@@ -102,6 +102,45 @@ function localNewsletterChallengeStatus(payload) {
   return { ok: true, status: "local-ok" };
 }
 
+function turnstileToken(payload) {
+  return clean(payload?.turnstile_token || payload?.newsletter_turnstile_token || payload?.["cf-turnstile-response"], 2048);
+}
+
+async function verifyNewsletterTurnstile(env, payload, ip) {
+  const siteKey = clean(env?.TURNSTILE_SITE_KEY, 200);
+  const secret = clean(env?.TURNSTILE_SECRET_KEY, 2048);
+  if (!siteKey || !secret) return { ok: true, configured: false, status: "fallback-local" };
+
+  const token = turnstileToken(payload);
+  if (!token) return { ok: false, configured: true, status: "token-manquant", errorCodes: ["missing-input-response"] };
+
+  const body = new URLSearchParams();
+  body.set("secret", secret);
+  body.set("response", token);
+  const remoteIp = clean(ip, 120).split(",")[0].trim();
+  if (remoteIp) body.set("remoteip", remoteIp);
+
+  try {
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body
+    });
+    const result = await response.json().catch(() => ({}));
+    const errorCodes = Array.isArray(result["error-codes"]) ? result["error-codes"].slice(0, 5) : [];
+    if (response.ok && result.success) return { ok: true, configured: true, status: "verified" };
+
+    return { ok: false, configured: true, status: "refuse", errorCodes };
+  } catch {
+    const failOpen = clean(env?.TURNSTILE_FAIL_OPEN, 20) === "1";
+    return {
+      ok: failOpen,
+      configured: true,
+      status: failOpen ? "indisponible-fail-open" : "indisponible",
+      errorCodes: ["siteverify-unreachable"]
+    };
+  }
+}
+
 async function countRows(env, sql, binds = []) {
   try {
     const statement = env.DB.prepare(sql);
@@ -245,6 +284,8 @@ async function logSiteEvent(env, request, payload, eventType, now) {
         action: clean(spam.action || "", 80),
         reasons,
         challenge: clean(spam.challenge || "", 120),
+        turnstile: clean(spam.turnstile_status || "", 120),
+        turnstile_errors: Array.isArray(spam.turnstile_errors) ? spam.turnstile_errors.slice(0, 5).join(", ") : "",
         has_name: clean(payload.name, 160) ? "true" : "false",
         form_elapsed_ms: payload.anti_bot ? String(safeNumber(payload.anti_bot.form_elapsed_ms)) : ""
       }),
@@ -258,7 +299,7 @@ async function logSiteEvent(env, request, payload, eventType, now) {
 async function blockNewsletterSpam(env, request, payload, assessment, now, status = 429, message = "Trop de tentatives. Reessayez plus tard.") {
   await logSiteEvent(env, request, { ...payload, spam_assessment: assessment }, "newsletter_spam_blocked", now);
   if (assessment.action === "silent_drop") return json({ success: true, status: "filtered" });
-  return json({ success: false, error: message, challenge: assessment.challenge || "newsletter-spam" }, status);
+  return json({ success: false, error: message, challenge: assessment.challenge || "newsletter-spam", turnstile: clean(assessment.turnstile_status || "", 120) }, status);
 }
 
 export async function onRequestOptions() {
@@ -313,6 +354,26 @@ export async function onRequestPost({ request, env }) {
     );
   }
 
+  const turnstile = await verifyNewsletterTurnstile(env, payload, ip);
+  if (!turnstile.ok) {
+    return blockNewsletterSpam(
+      env,
+      request,
+      payload,
+      {
+        score: 95,
+        reasons: [`turnstile-${turnstile.status || "echec"}`, ...(turnstile.errorCodes || [])],
+        blocked: true,
+        action: "block",
+        challenge: "turnstile-failed",
+        turnstile_status: turnstile.status || "",
+        turnstile_errors: turnstile.errorCodes || []
+      },
+      now,
+      403,
+      "Verification anti-robot Cloudflare invalide. Rechargez la page puis recommencez."
+    );
+  }
   if (!emailValid(payload.email)) return json({ success: false, error: "Email invalide" }, 422);
   if (payload.consent !== true) return json({ success: false, error: "Consentement requis" }, 422);
 
