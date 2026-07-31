@@ -38,7 +38,8 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","@id":"https://immeubleassur.com/blog/assurance-sci-patrimoine-locatif#faq","mainEntity":[{"@type":"Question","name":"Une SCI doit-elle tout regrouper ?","acceptedAnswer":{"@type":"Answer","text":"Pas toujours. Le bon montage depend des lots, de l'occupation, des baux et des contrats existants."}},{"@type":"Question","name":"Quels risques sont sensibles ?","acceptedAnswer":{"@type":"Answer","text":"Vacance, locaux commerciaux, sinistres recurrents, travaux et incoherences entre contrats."}},{"@type":"Question","name":"Pourquoi auditer les contrats ?","acceptedAnswer":{"@type":"Answer","text":"L'audit identifie les doublons, exclusions et franchises qui peuvent fragiliser le patrimoine."}},{"@type":"Question","name":"Faut-il regrouper les lots ?","acceptedAnswer":{"@type":"Answer","text":"Cela depend du portefeuille, des assureurs disponibles et de la coherence des garanties recherchees."}},{"@type":"Question","name":"Pourquoi auditer l'existant ?","acceptedAnswer":{"@type":"Answer","text":"L'audit revele les doublons, exclusions et franchises qui peuvent fragiliser le patrimoine."}},{"@type":"Question","name":"Quels profils sont concernes ?","acceptedAnswer":{"@type":"Answer","text":"SCI familiale, SCI patrimoniale, bailleur multi-lots et administrateur de biens."}}]}</script>
 <!-- growth-schema:end -->
 
-  </head>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</head>
   <body>
     <a class="skip-link" href="#main-content">Aller au contenu principal</a>
 
@@ -129,7 +130,10 @@
       </label>
       <label>Message<textarea name="message" rows="3" placeholder="Adresse, surface, assureur actuel, echeance, sinistres recents..."></textarea></label>
       <label class="consent-row"><input type="checkbox" name="consent" required /><span>J'accepte d'etre recontacte pour recevoir mon analyse et mon devis.</span></label>
-      <button class="submit-button" type="submit" data-track="lead-submit">Obtenir mon devis immeuble</button>
+      <!-- turnstile-hybrid:start -->
+<div class="turnstile-field" data-turnstile-hybrid="cloudflare-optional"><div class="cf-turnstile" data-sitekey="0x4AAAAAAD_N1OIMC1z63HG2" data-theme="light" data-action="lead_form"></div></div>
+<!-- turnstile-hybrid:end -->
+<button class="submit-button" type="submit" data-track="lead-submit">Obtenir mon devis immeuble</button>
       <p class="form-note">Donnees transmises a ImmeubleAssur pour traiter votre demande.</p>
       <div class="form-status" role="status" aria-live="polite"></div>
     </form></aside>

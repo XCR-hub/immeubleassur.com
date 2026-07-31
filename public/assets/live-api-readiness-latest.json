@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-31T01:52:24.598Z",
+  "generated_at": "2026-07-31T03:26:33.505Z",
   "status": "partial",
   "connectors_checked": 8,
-  "ready_count": 1,
-  "fallback_count": 7,
+  "ready_count": 2,
+  "fallback_count": 6,
   "rows": [
     {
       "id": "turnstile",
@@ -16,10 +16,10 @@
       "command": "npm run turnstile:hybrid",
       "report": "reports/turnstile-hybrid-report.json",
       "objective": "Activer le challenge anti-robot automatique sur les formulaires.",
-      "ready": false,
-      "status": "fallback",
+      "ready": true,
+      "status": "ready",
       "required_count": 2,
-      "configured_required": 0,
+      "configured_required": 2,
       "optional_count": 0,
       "configured_optional": 0,
       "required_names": [
@@ -28,25 +28,22 @@
       ],
       "required_any_names": [],
       "optional_names": [],
-      "missing_required_names": [
-        "TURNSTILE_SITE_KEY",
-        "TURNSTILE_SECRET_KEY"
-      ],
+      "missing_required_names": [],
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-31T01:52:24.329Z",
-        "status": "fallback-local-antifraud",
+        "generated_at": "2026-07-31T03:25:37.751Z",
+        "status": "passed",
         "summary": {
           "provider": "cloudflare-turnstile",
-          "mode": "fallback-local-antifraud",
-          "configured": false,
+          "mode": "hybrid-turnstile-local-antifraud",
+          "configured": true,
           "pages_checked": 176,
           "forms_detected": 162,
-          "forms_instrumented": 0
+          "forms_instrumented": 162
         }
       },
-      "recommendation": "Configurer TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY puis executer npm run turnstile:hybrid."
+      "recommendation": "Executer npm run turnstile:hybrid pour rafraichir le signal live."
     },
     {
       "id": "serpapi",
@@ -213,13 +210,13 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-31T01:41:56.467Z",
+        "generated_at": "2026-07-31T01:52:32.399Z",
         "status": "local-only",
         "summary": {
           "provider": "",
           "mode": "local-only",
           "configured": false,
-          "pages_checked": 175,
+          "pages_checked": 176,
           "forms_detected": 0,
           "forms_instrumented": 0
         }
@@ -253,13 +250,13 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-31T01:41:56.467Z",
+        "generated_at": "2026-07-31T01:52:32.399Z",
         "status": "local-only",
         "summary": {
           "provider": "",
           "mode": "local-only",
           "configured": false,
-          "pages_checked": 175,
+          "pages_checked": 176,
           "forms_detected": 0,
           "forms_instrumented": 0
         }

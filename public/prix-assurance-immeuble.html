@@ -39,7 +39,8 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","@id":"https://immeubleassur.com/prix-assurance-immeuble#faq","mainEntity":[{"@type":"Question","name":"Quels elements accelerent le devis ?","acceptedAnswer":{"@type":"Answer","text":"Adresse, nombre de lots, surface, usage, contrat actuel, echeance et sinistres des 36 derniers mois."}},{"@type":"Question","name":"Pourquoi parler des sinistres ?","acceptedAnswer":{"@type":"Answer","text":"Un historique explique et documente permet de defendre le dossier et d'eviter les refus automatiques."}},{"@type":"Question","name":"Comment comparer deux offres ?","acceptedAnswer":{"@type":"Answer","text":"Il faut lire la prime avec les franchises, plafonds, exclusions, garanties de recours et service sinistre."}},{"@type":"Question","name":"Pourquoi cette page cible prix assurance immeuble ?","acceptedAnswer":{"@type":"Answer","text":"Parce que prix assurance immeuble exprime un besoin proche du devis, la page aide a comprendre le budget reel, les franchises et le reste a charge probable, preparer les pieces et choisir les garanties avant consultation."}},{"@type":"Question","name":"Quel element fait gagner un lead qualifie ?","acceptedAnswer":{"@type":"Answer","text":"Le gain de lead sur prix assurance immeuble vient du formulaire contextualise, des documents attendus et d'une lecture claire entre immeuble, lot, occupant et proprietaire."}},{"@type":"Question","name":"Comment eviter une page SEO artificielle ?","acceptedAnswer":{"@type":"Answer","text":"Pour prix assurance immeuble, le bloc reste visible et utile: decisions concretes, liens internes pertinents et aucun texte cache ni contenu copie depuis les resultats de recherche."}}]}</script>
 <!-- growth-schema:end -->
 
-  </head>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</head>
   <body>
     <a class="skip-link" href="#main-content">Aller au contenu principal</a>
 
@@ -201,7 +202,10 @@
       </label>
       <label>Message<textarea name="message" rows="3" placeholder="Adresse, surface, assureur actuel, echeance, sinistres recents..."></textarea></label>
       <label class="consent-row"><input type="checkbox" name="consent" required /><span>J'accepte d'etre recontacte pour recevoir mon analyse et mon devis.</span></label>
-      <button class="submit-button" type="submit" data-track="lead-submit">Obtenir mon devis immeuble</button>
+      <!-- turnstile-hybrid:start -->
+<div class="turnstile-field" data-turnstile-hybrid="cloudflare-optional"><div class="cf-turnstile" data-sitekey="0x4AAAAAAD_N1OIMC1z63HG2" data-theme="light" data-action="lead_form"></div></div>
+<!-- turnstile-hybrid:end -->
+<button class="submit-button" type="submit" data-track="lead-submit">Obtenir mon devis immeuble</button>
       <p class="form-note">Donnees transmises a ImmeubleAssur pour traiter votre demande.</p>
       <div class="form-status" role="status" aria-live="polite"></div>
     </form>
