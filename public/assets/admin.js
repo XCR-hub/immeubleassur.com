@@ -1270,9 +1270,9 @@ function attributionRows(result = {}) {
       rows.push({
         type,
         source: item.key || "non precise",
-        traffic: `${item.page_views || 0} vues\n${item.form_starts || 0} start(s)`,
+        traffic: `${item.page_views || 0} vues\n${item.form_starts || 0} start(s)\n${item.form_abandons || 0} abandon(s)`,
         conversion: `${item.leads || 0} lead(s), ${item.hot_leads || 0} chaud(s)\n${item.value_label || "0 EUR/an"}`,
-        action: `CTA ${item.cta_rate || 0}% / start ${item.start_rate || 0}% / lead ${item.lead_rate || 0}%. Score moyen ${Math.round(Number(item.avg_score || 0))}.`
+        action: `CTA ${item.cta_rate || 0}% / start ${item.start_rate || 0}% / abandon ${item.abandon_rate || 0}% / lead ${item.lead_rate || 0}%. Score moyen ${Math.round(Number(item.avg_score || 0))}.`
       });
     }
   }
@@ -1330,6 +1330,7 @@ async function loadAttribution() {
     attributionSummary.replaceChildren(
       metricCard("Vues 30j", String(summary.page_views_30d || 0), "trafic mesure"),
       metricCard("Starts", String(summary.form_starts_30d || 0), `${summary.form_to_lead_rate || 0}% vers lead`),
+      metricCard("Abandons", String(summary.form_abandons_30d || 0), `${summary.form_abandon_rate || 0}% abandon/start`),
       metricCard("Leads 30j", String(summary.leads_30d || 0), `${summary.hot_leads_30d || 0} chaud(s)`),
       metricCard("Visiteur -> lead", `${summary.visitor_to_lead_rate || 0}%`, "global"),
       metricCard("Top source", summary.top_source || "-", summary.top_source_value || "0 EUR/an"),

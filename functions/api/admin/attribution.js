@@ -102,6 +102,7 @@ function addMetric(map, key, mutator) {
     page_views: 0,
     cta_clicks: 0,
     form_starts: 0,
+    form_abandons: 0,
     submit_attempts: 0,
     leads: 0,
     hot_leads: 0,
@@ -120,6 +121,7 @@ function rowsFromMap(map, limit = 20) {
       avg_score: row.leads ? Math.round((row.avg_score_total / row.leads) * 10) / 10 : 0,
       cta_rate: pct(row.cta_clicks, row.page_views),
       start_rate: pct(row.form_starts, row.page_views),
+      abandon_rate: pct(row.form_abandons, row.form_starts),
       lead_rate: pct(row.leads, row.form_starts),
       value_label: row.value_max ? `${Math.round(row.value_min)}-${Math.round(row.value_max)} EUR/an` : "0 EUR/an"
     }))
@@ -146,6 +148,7 @@ function buildAttribution({ events, leads }) {
       if (type === "page_view") row.page_views += Number(event.count || 0);
       if (["cta_click", "phone_click", "email_click"].includes(type)) row.cta_clicks += Number(event.count || 0);
       if (type === "form_start") row.form_starts += Number(event.count || 0);
+      if (type === "lead_form_abandoned") row.form_abandons += Number(event.count || 0);
       if (type === "form_submit_attempt") row.submit_attempts += Number(event.count || 0);
     };
     addMetric(sources, source, apply);
@@ -193,9 +196,11 @@ function buildSummary(attribution, totals) {
   return {
     page_views_30d: Number(totals?.page_views || 0),
     form_starts_30d: Number(totals?.form_starts || 0),
+    form_abandons_30d: Number(totals?.form_abandons || 0),
     leads_30d: Number(totals?.leads || 0),
     hot_leads_30d: Number(totals?.hot_leads || 0),
     visitor_to_lead_rate: pct(totals?.leads, totals?.page_views),
+    form_abandon_rate: pct(totals?.form_abandons, totals?.form_starts),
     form_to_lead_rate: pct(totals?.leads, totals?.form_starts),
     top_source: topSource?.key || "-",
     top_source_value: topSource?.value_label || "0 EUR/an",
@@ -209,6 +214,8 @@ function buildActions(attribution, summary) {
   const topSource = attribution.sources[0];
   const topLanding = attribution.landing_pages[0];
   const weakLanding = attribution.landing_pages.find((row) => Number(row.form_starts || 0) >= 3 && Number(row.leads || 0) === 0);
+  const abandonLanding = attribution.landing_pages.find((row) => Number(row.form_abandons || 0) >= 3 && Number(row.abandon_rate || 0) >= 40);
+  const abandonPath = attribution.paths.find((row) => Number(row.form_abandons || 0) >= 3 && Number(row.abandon_rate || 0) >= 40);
   const strongNeed = attribution.needs.find((row) => Number(row.leads || 0) > 0 && Number(row.avg_score || 0) >= 70);
   const lowStartPath = attribution.paths.find((row) => Number(row.page_views || 0) >= 20 && Number(row.form_starts || 0) === 0);
   const paidNoLead = attribution.campaigns.find((row) => row.key !== "sans campagne" && Number(row.submit_attempts || 0) > 0 && Number(row.leads || 0) === 0);
@@ -238,6 +245,24 @@ function buildActions(attribution, summary) {
       target: weakLanding.key,
       signal: `${weakLanding.form_starts} depart(s), 0 lead`,
       recommendation: "Verifier les champs bloquants, le message de reassurance et la promesse de rappel sur cette page."
+    });
+  }
+  if (abandonLanding) {
+    actions.push({
+      priority: 89,
+      type: "abandon-formulaire",
+      target: abandonLanding.key,
+      signal: `${abandonLanding.form_abandons} abandon(s), ${abandonLanding.abandon_rate}% abandon/start`,
+      recommendation: "Reduire la friction visible: rassurance rappel, champs optionnels repousses, message anti-robot clair et CTA telephone proche du formulaire."
+    });
+  }
+  if (abandonPath && abandonPath.key !== abandonLanding?.key) {
+    actions.push({
+      priority: 87,
+      type: "page-abandon",
+      target: abandonPath.key,
+      signal: `${abandonPath.form_abandons} abandon(s), ${abandonPath.abandon_rate}% abandon/start`,
+      recommendation: "Tester une version plus courte du formulaire ou un pre-remplissage par intention sur cette page."
     });
   }
   if (strongNeed) {
@@ -277,6 +302,16 @@ function buildActions(attribution, summary) {
     });
   }
 
+  if (Number(summary.form_abandons_30d || 0) >= 5 && Number(summary.form_abandon_rate || 0) >= 40) {
+    actions.push({
+      priority: 85,
+      type: "abandon-global",
+      target: "formulaire",
+      signal: `${summary.form_abandons_30d} abandon(s), ${summary.form_abandon_rate}% abandon/start`,
+      recommendation: "Controler le formulaire mobile, la vitesse, Turnstile, les erreurs de validation et le texte de confiance avant d'acheter plus de trafic."
+    });
+  }
+
   return actions.sort((a, b) => Number(b.priority || 0) - Number(a.priority || 0)).slice(0, 20);
 }
 
@@ -287,7 +322,7 @@ export async function onRequestGet({ request, env }) {
   const [eventRows, leadRows, totals] = await Promise.all([
     safeAll(env, `SELECT event_type, page_url, target, COALESCE(NULLIF(json_extract(payload, '$.path'), ''), '') AS path, COALESCE(NULLIF(json_extract(payload, '$.landing_page'), ''), '') AS landing_page, COALESCE(NULLIF(json_extract(payload, '$.first_referrer'), ''), '') AS first_referrer, COALESCE(NULLIF(json_extract(payload, '$.utm_source'), ''), '') AS utm_source, COALESCE(NULLIF(json_extract(payload, '$.utm_medium'), ''), '') AS utm_medium, COALESCE(NULLIF(json_extract(payload, '$.utm_campaign'), ''), '') AS utm_campaign, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type, page_url, target, path, landing_page, first_referrer, utm_source, utm_medium, utm_campaign ORDER BY count DESC LIMIT 600`),
     safeAll(env, `SELECT l.reference, l.source, l.page_url, l.referrer, l.need, l.profile, l.property_type, l.units_count, l.lead_score, l.created_at, COALESCE(NULLIF(json_extract(le.payload, '$.utm.utm_source'), ''), '') AS utm_source, COALESCE(NULLIF(json_extract(le.payload, '$.utm.utm_medium'), ''), '') AS utm_medium, COALESCE(NULLIF(json_extract(le.payload, '$.utm.utm_campaign'), ''), '') AS utm_campaign, COALESCE(NULLIF(json_extract(le.payload, '$.utm.landing_page'), ''), '') AS landing_page, COALESCE(NULLIF(json_extract(le.payload, '$.utm.first_referrer'), ''), '') AS first_referrer FROM leads l LEFT JOIN lead_events le ON le.lead_id = l.id AND le.event_type = 'lead_created' WHERE l.created_at >= datetime('now', '-30 days') ORDER BY l.created_at DESC LIMIT 250`),
-    safeFirst(env, `SELECT (SELECT COUNT(*) FROM site_events WHERE event_type = 'page_view' AND created_at >= datetime('now', '-30 days')) AS page_views, (SELECT COUNT(*) FROM site_events WHERE event_type = 'form_start' AND created_at >= datetime('now', '-30 days')) AS form_starts, (SELECT COUNT(*) FROM leads WHERE created_at >= datetime('now', '-30 days')) AS leads, (SELECT COUNT(*) FROM leads WHERE lead_score >= 80 AND created_at >= datetime('now', '-30 days')) AS hot_leads`)
+    safeFirst(env, `SELECT (SELECT COUNT(*) FROM site_events WHERE event_type = 'page_view' AND created_at >= datetime('now', '-30 days')) AS page_views, (SELECT COUNT(*) FROM site_events WHERE event_type = 'form_start' AND created_at >= datetime('now', '-30 days')) AS form_starts, (SELECT COUNT(*) FROM site_events WHERE event_type = 'lead_form_abandoned' AND created_at >= datetime('now', '-30 days')) AS form_abandons, (SELECT COUNT(*) FROM leads WHERE created_at >= datetime('now', '-30 days')) AS leads, (SELECT COUNT(*) FROM leads WHERE lead_score >= 80 AND created_at >= datetime('now', '-30 days')) AS hot_leads`)
   ]);
 
   const attribution = buildAttribution({

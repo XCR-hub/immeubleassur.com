@@ -14,6 +14,10 @@ const expectations = [
       "campaigns",
       "visitor_to_lead_rate",
       "form_to_lead_rate",
+      "lead_form_abandoned",
+      "form_abandons",
+      "form_abandon_rate",
+      "abandon-formulaire",
       "actions",
       "Donnees agregees"
     ]
@@ -29,6 +33,8 @@ const expectations = [
       "attribution-body",
       "Top source",
       "Visiteur -> lead",
+      "Abandons",
+      "abandon_rate",
       "Campagnes"
     ]
   },

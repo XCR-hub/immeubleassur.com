@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T16:15:18.329Z",
+  "generated_at": "2026-07-31T16:38:00.513Z",
   "checked_files": [
     "functions/api/admin/attribution.js",
     "public/assets/admin.js",
@@ -7,7 +7,7 @@
     "scripts/seo-content-factory.js",
     "package.json"
   ],
-  "required_contracts": 27,
+  "required_contracts": 33,
   "missing": [],
   "status": "passed"
 }
