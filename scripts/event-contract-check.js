@@ -18,12 +18,20 @@ const requiredApiGuards = [
   "shouldDropTelemetry",
   "allowedEventHosts",
   "trustedEventPage",
+  "requestOriginStatus",
+  "corsHeadersFor",
+  "corsOriginAllowed",
+  "DEFAULT_CORS_ORIGIN",
+  "Vary",
+  "origin-evenement-invalide",
   "volume-ip-evenements",
   "volume-session-evenements",
   "doublon-evenement-passif",
   "telemetry-filtered"
 ];
 const missingApiGuards = requiredApiGuards.filter((snippet) => !api.includes(snippet));
+const forbiddenApiSnippets = ["\"Access-Control-Allow-Origin\": \"*\""];
+const forbiddenApiHits = forbiddenApiSnippets.filter((snippet) => api.includes(snippet));
 
 const report = {
   generated_at: new Date().toISOString(),
@@ -33,16 +41,19 @@ const report = {
   unused_front_optional: unused,
   required_api_guards: requiredApiGuards,
   missing_api_guards: missingApiGuards,
-  status: missing.length || missingApiGuards.length ? "failed" : "passed"
+  forbidden_api_snippets: forbiddenApiSnippets,
+  forbidden_api_hits: forbiddenApiHits,
+  status: missing.length || missingApiGuards.length || forbiddenApiHits.length ? "failed" : "passed"
 };
 
 mkdirSync(REPORT_DIR, { recursive: true });
 writeFileSync(join(REPORT_DIR, "event-contract-report.json"), JSON.stringify(report, null, 2), "utf8");
 
-if (missing.length || missingApiGuards.length) {
+if (missing.length || missingApiGuards.length || forbiddenApiHits.length) {
   const parts = [];
   if (missing.length) parts.push(`Missing API allowlist: ${missing.join(", ")}`);
   if (missingApiGuards.length) parts.push(`Missing API guards: ${missingApiGuards.join(", ")}`);
+  if (forbiddenApiHits.length) parts.push(`Forbidden API snippets: ${forbiddenApiHits.join(", ")}`);
   console.error(`Event contract failed. ${parts.join("; ")}`);
   process.exit(1);
 }

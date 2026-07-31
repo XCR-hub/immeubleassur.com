@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T13:19:07.974Z",
+  "generated_at": "2026-07-31T14:01:38.655Z",
   "tracked_events": [
     "cta_click",
     "diagnostic_complete",
@@ -73,11 +73,21 @@
     "shouldDropTelemetry",
     "allowedEventHosts",
     "trustedEventPage",
+    "requestOriginStatus",
+    "corsHeadersFor",
+    "corsOriginAllowed",
+    "DEFAULT_CORS_ORIGIN",
+    "Vary",
+    "origin-evenement-invalide",
     "volume-ip-evenements",
     "volume-session-evenements",
     "doublon-evenement-passif",
     "telemetry-filtered"
   ],
   "missing_api_guards": [],
+  "forbidden_api_snippets": [
+    "\"Access-Control-Allow-Origin\": \"*\""
+  ],
+  "forbidden_api_hits": [],
   "status": "passed"
 }

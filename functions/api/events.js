@@ -1,11 +1,13 @@
 import { sendGa4Event } from "../_shared/ga4.js";
 
+const DEFAULT_CORS_ORIGIN = "https://immeubleassur.com";
 const headers = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": DEFAULT_CORS_ORIGIN,
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
   "Content-Type": "application/json; charset=utf-8",
-  "Cache-Control": "no-store"
+  "Cache-Control": "no-store",
+  "Vary": "Origin"
 };
 
 const allowedEvents = new Set([
@@ -79,8 +81,8 @@ const ga4EventNames = {
 function ga4NameFor(eventType) {
   return ga4EventNames[eventType] || "ia_event";
 }
-function json(body, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers });
+function json(body, status = 200, request = null, env = null) {
+  return new Response(JSON.stringify(body), { status, headers: corsHeadersFor(request, env) });
 }
 
 function clean(value, max = 500) {
@@ -115,6 +117,62 @@ function allowedEventHosts(env, request) {
     addAllowedHost(hosts, value);
   }
   return hosts;
+}
+
+function localEventHost(host) {
+  return ["localhost", "127.0.0.1", "192.168.1.70"].includes(clean(host, 120).toLowerCase());
+}
+
+function absoluteHeaderUrl(value) {
+  const raw = clean(value, 700);
+  if (!raw) return null;
+  try {
+    const parsed = new URL(raw);
+    if (!["http:", "https:"].includes(parsed.protocol)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function eventHeaderAllowed(value, env, request) {
+  const parsed = absoluteHeaderUrl(value);
+  if (!parsed) return false;
+  const hostname = parsed.hostname.toLowerCase();
+  if (!allowedEventHosts(env, request).has(hostname)) return false;
+  return parsed.protocol === "https:" || localEventHost(hostname);
+}
+
+function corsOriginAllowed(origin, env, request) {
+  return eventHeaderAllowed(origin, env, request);
+}
+
+function corsHeadersFor(request, env) {
+  const next = { ...headers };
+  const origin = clean(request?.headers?.get?.("Origin"), 500);
+  if (corsOriginAllowed(origin, env, request)) next["Access-Control-Allow-Origin"] = origin;
+  return next;
+}
+
+function requestOriginStatus(request, env) {
+  const checks = [
+    ["origin", request?.headers?.get?.("Origin")],
+    ["referer", request?.headers?.get?.("Referer")]
+  ];
+  let present = false;
+  for (const [label, value] of checks) {
+    const raw = clean(value, 700);
+    if (!raw) continue;
+    present = true;
+    const invalidStatus = label === "origin" ? "origin-evenement-invalide" : "referer-evenement-invalide";
+    const protocolStatus = label === "origin" ? "origin-protocole-invalide" : "referer-protocole-invalide";
+    const parsed = absoluteHeaderUrl(raw);
+    if (!parsed) return { ok: false, status: invalidStatus, hostname: "" };
+    const hostname = parsed.hostname.toLowerCase();
+    if (!allowedEventHosts(env, request).has(hostname)) return { ok: false, status: invalidStatus, hostname };
+    if (parsed.protocol !== "https:" && !localEventHost(hostname)) return { ok: false, status: protocolStatus, hostname };
+  }
+  return { ok: true, status: present ? "origin-evenement-ok" : "origin-evenement-absente" };
 }
 
 function trustedEventPage(payload, env, request) {
@@ -152,6 +210,8 @@ async function countRows(env, sql, binds = []) {
 
 async function shouldDropTelemetry(env, request, { eventType, payload, ip, userAgent }) {
   if (!trustedEventPage(payload, env, request)) return { drop: true, reason: "page-host-invalide" };
+  const originStatus = requestOriginStatus(request, env);
+  if (!originStatus.ok) return { drop: true, reason: originStatus.status };
   if (suspiciousUserAgent(userAgent)) return { drop: true, reason: "user-agent-robot" };
 
   const sessionId = clean(payload.session_id, 120);
@@ -179,28 +239,29 @@ async function shouldDropTelemetry(env, request, { eventType, payload, ip, userA
   return { drop: false, reason: "accepted" };
 }
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers });
+export async function onRequestOptions({ request, env }) {
+  return new Response(null, { status: 204, headers: corsHeadersFor(request, env) });
 }
 
 export async function onRequestPost({ request, env, waitUntil }) {
-  if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
+  const reply = (body, status = 200) => json(body, status, request, env);
+  if (!env.DB) return reply({ success: false, error: "Base SQLite indisponible" }, 503);
 
   let payload;
   try {
     payload = await request.json();
   } catch {
-    return json({ success: false, error: "JSON invalide" }, 400);
+    return reply({ success: false, error: "JSON invalide" }, 400);
   }
 
   const eventType = clean(payload.event_type, 80);
-  if (!allowedEvents.has(eventType)) return json({ success: false, error: "Evenement invalide" }, 422);
+  if (!allowedEvents.has(eventType)) return reply({ success: false, error: "Evenement invalide" }, 422);
 
   const now = new Date().toISOString();
   const ip = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "";
   const userAgent = request.headers.get("User-Agent") || "";
   const telemetryGuard = await shouldDropTelemetry(env, request, { eventType, payload, ip, userAgent });
-  if (telemetryGuard.drop) return json({ success: true, sampled: false, reason: "telemetry-filtered" });
+  if (telemetryGuard.drop) return reply({ success: true, sampled: false, reason: "telemetry-filtered", filter: telemetryGuard.reason });
 
   const context = {
     target: clean(payload.target, 240),
@@ -284,6 +345,6 @@ export async function onRequestPost({ request, env, waitUntil }) {
   if (typeof waitUntil === "function") waitUntil(ga4Task);
   else await ga4Task;
 
-  return json({ success: true });
+  return reply({ success: true });
 }
 
