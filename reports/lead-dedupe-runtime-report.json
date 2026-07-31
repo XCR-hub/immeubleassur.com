@@ -1,49 +1,19 @@
 {
   "success": true,
-  "generated_at": "2026-07-31T14:35:49.845Z",
+  "scenario": "repeated-lead-dedupe",
   "first": {
     "status": 200,
-    "body": {
-      "success": true,
-      "id": "f6f6b65a-9ae2-4659-be74-6d3bd1f1fa24",
-      "reference": "IMB-MS91OUDN-0ZOU",
-      "score": 100,
-      "priority": "hot",
-      "reasons": [
-        "plusieurs lots",
-        "immeuble multi-lots",
-        "profil professionnel ou SCI",
-        "besoin immeuble qualifie",
-        "urgence immediate",
-        "pieces assureur disponibles",
-        "message detaille"
-      ],
-      "value_estimate": {
-        "annual_premium_min": 2165,
-        "annual_premium_max": 3789,
-        "band": "immeuble-prioritaire",
-        "label": "2165-3789 EUR/an",
-        "basis": "12 lot(s), multirisque-immeuble"
-      },
-      "sla_hours": 2,
-      "lead_urgency": "immediate",
-      "lead_urgency_reason": "sinistre/resiliation/echeance",
-      "next_action": "Rappeler en priorite et demander contrat actuel, echeance, sinistres 36 mois.",
-      "notification": "skipped"
-    }
+    "success": true,
+    "duplicate": false,
+    "score": 100,
+    "notification": "skipped"
   },
   "second": {
     "status": 200,
-    "body": {
-      "success": true,
-      "duplicate": true,
-      "status": "duplicate_recent",
-      "id": "f6f6b65a-9ae2-4659-be74-6d3bd1f1fa24",
-      "reference": "IMB-MS91OUDN-0ZOU",
-      "score": 100,
-      "duplicate_reason": "email-telephone",
-      "notification": "skipped"
-    }
+    "success": true,
+    "duplicate": true,
+    "result_status": "duplicate_recent",
+    "duplicate_reason": "email-telephone"
   },
   "counts": {
     "leads": 1,

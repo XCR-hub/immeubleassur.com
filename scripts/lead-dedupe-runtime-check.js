@@ -77,9 +77,21 @@ async function run() {
 
     const report = {
       success: first.status === 200 && first.body?.success === true && !first.body?.duplicate && second.status === 200 && second.body?.duplicate === true && leadCount === 1 && duplicateEvents === 1 && duplicateLeadEvents === 1,
-      generated_at: new Date().toISOString(),
-      first,
-      second,
+      scenario: "repeated-lead-dedupe",
+      first: {
+        status: first.status,
+        success: first.body?.success === true,
+        duplicate: Boolean(first.body?.duplicate),
+        score: Number(first.body?.score || 0),
+        notification: first.body?.notification || ""
+      },
+      second: {
+        status: second.status,
+        success: second.body?.success === true,
+        duplicate: second.body?.duplicate === true,
+        result_status: second.body?.status || "",
+        duplicate_reason: second.body?.duplicate_reason || ""
+      },
       counts: {
         leads: leadCount,
         duplicate_site_events: duplicateEvents,
