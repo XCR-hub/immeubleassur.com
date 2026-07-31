@@ -1145,12 +1145,13 @@ function salesRows(result = {}) {
     });
   }
   for (const lead of Array.isArray(result.relance_leads) ? result.relance_leads.slice(0, 40) : []) {
+    const duplicate = lead.duplicate_followup || null;
     rows.push({
-      type: lead.due ? "relance-sla" : "pipeline-ouvert",
+      type: duplicate ? "retour-prospect" : lead.due ? "relance-sla" : "pipeline-ouvert",
       lead: `${lead.reference || "-"}\n${lead.name || ""}`,
-      value: `${lead.value_estimate?.label || "0 EUR/an"}\n${lead.priority || "standard"}`,
-      signal: `${lead.city || "-"} - ${lead.need || "besoin"}\n${lead.due_label || "SLA"}`,
-      action: `${lead.next_action || "Rappeler le prospect."}\nScripts de rappel: ${lead.call_script || "Verifier le dossier."}\nEmail: ${lead.email_subject || "Relance devis"}`
+      value: `${lead.value_estimate?.label || "0 EUR/an"}\n${lead.priority || "standard"}${duplicate ? `\n${duplicate.count || 0} renvoi(s)` : ""}`,
+      signal: duplicate ? `${lead.city || "-"} - ${lead.need || "besoin"}\nDernier retour ${reportDate(duplicate.last_duplicate_at)} - ${duplicate.reason || "doublon"}` : `${lead.city || "-"} - ${lead.need || "besoin"}\n${lead.due_label || "SLA"}`,
+      action: duplicate ? `Rappeler avant refroidissement: le prospect a renvoye une demande sur ce dossier.\n${lead.next_action || "Verifier le dossier."}\nSource: ${duplicate.path || lead.page_url || "/"}` : `${lead.next_action || "Rappeler le prospect."}\nScripts de rappel: ${lead.call_script || "Verifier le dossier."}\nEmail: ${lead.email_subject || "Relance devis"}`
     });
   }
   for (const item of Array.isArray(result.quote_followups) ? result.quote_followups : []) {
@@ -1223,6 +1224,7 @@ async function loadSales() {
 
   const summary = result.summary || {};
   const relanceLeads = Array.isArray(result.relance_leads) ? result.relance_leads : [];
+  const duplicateFollowups = Array.isArray(result.duplicate_followups) ? result.duplicate_followups : [];
   const actions = Array.isArray(result.sales_actions) ? result.sales_actions : [];
   const warnings = Array.isArray(result.warnings) ? result.warnings : [];
   const topLead = relanceLeads[0] || null;
@@ -1231,6 +1233,7 @@ async function loadSales() {
     salesSummary.replaceChildren(
       metricCard("Leads ouverts", String(summary.open_leads || 0), "90 derniers jours"),
       metricCard("Relances dues", String(summary.due_now || 0), summary.due_value?.label || "0 EUR/an"),
+      metricCard("Retours prospect", String(summary.duplicate_followups || duplicateFollowups.length), summary.duplicate_followup_value?.label || "dossier existant"),
       metricCard("A 24h", String(summary.due_24h || 0), "a securiser"),
       metricCard("Leads chauds", String(summary.hot_open || 0), "rappel prioritaire"),
       metricCard("Sans pilote", String(summary.unassigned_open || 0), "assignation"),

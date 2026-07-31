@@ -40,6 +40,21 @@ function rowsOrEmpty(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function duplicateFollowupMap(rows = []) {
+  const map = new Map();
+  for (const row of rowsOrEmpty(rows)) {
+    const reference = clean(row.reference, 80);
+    if (!reference) continue;
+    map.set(reference, {
+      count: Number(row.duplicate_count || 0),
+      last_duplicate_at: row.last_duplicate_at || "",
+      reason: clean(row.reason || "doublon-contact", 120),
+      path: clean(row.path || "/", 500)
+    });
+  }
+  return map;
+}
+
 function errorOf(value) {
   return value && value.error ? value.error : "";
 }
@@ -191,7 +206,7 @@ function emailDraftFor(lead, valueEstimate) {
   };
 }
 
-function enrichLead(lead) {
+function enrichLead(lead, duplicateFollowup = null) {
   const score = Number(lead.lead_score || 0);
   const valueEstimate = leadValueEstimate(lead, score);
   const urgency = leadUrgency(lead);
@@ -202,6 +217,7 @@ function enrichLead(lead) {
   const status = clean(lead.status || "new", 40);
   const action = nextActionFor(lead, score);
   const email = emailDraftFor(lead, valueEstimate);
+  const duplicateSignal = duplicateFollowup && Number(duplicateFollowup.count || 0) > 0 && isOpenStatus(status) ? duplicateFollowup : null;
   return {
     reference: lead.reference,
     name: clean(lead.name, 120),
@@ -223,6 +239,9 @@ function enrichLead(lead) {
     due,
     due_in_hours: dueIn,
     due_label: due ? `${Math.abs(dueIn)}h de retard` : `${Math.max(0, dueIn)}h restantes`,
+    duplicate_followup: duplicateSignal,
+    duplicate_followup_count: Number(duplicateSignal?.count || 0),
+    duplicate_followup_at: duplicateSignal?.last_duplicate_at || "",
     value_estimate: valueEstimate,
     sla_hours: slaHours,
     urgency,
@@ -249,6 +268,9 @@ function buildSummary(leads, statusRows, eventRows) {
   let valueMax = 0;
   let dueValueMin = 0;
   let dueValueMax = 0;
+  let duplicateFollowups = 0;
+  let duplicateValueMin = 0;
+  let duplicateValueMax = 0;
   let portfolio = 0;
 
   for (const lead of leads) {
@@ -265,6 +287,11 @@ function buildSummary(leads, statusRows, eventRows) {
     } else if (Number(lead.due_in_hours || 0) <= 24) {
       due24h += 1;
     }
+    if (lead.duplicate_followup) {
+      duplicateFollowups += 1;
+      duplicateValueMin += Number(lead.value_estimate?.annual_premium_min || 0);
+      duplicateValueMax += Number(lead.value_estimate?.annual_premium_max || 0);
+    }
   }
 
   return {
@@ -274,8 +301,10 @@ function buildSummary(leads, statusRows, eventRows) {
     hot_open: hot,
     unassigned_open: unassigned,
     portfolio_open: portfolio,
+    duplicate_followups: duplicateFollowups,
     pipeline_value: { annual_premium_min: valueMin, annual_premium_max: valueMax, label: valueLabel(valueMin, valueMax) },
     due_value: { annual_premium_min: dueValueMin, annual_premium_max: dueValueMax, label: valueLabel(dueValueMin, dueValueMax) },
+    duplicate_followup_value: { annual_premium_min: duplicateValueMin, annual_premium_max: duplicateValueMax, label: valueLabel(duplicateValueMin, duplicateValueMax) },
     statuses: statusRows,
     recent_events: eventRows
   };
@@ -285,6 +314,7 @@ function buildActions({ leads, quoteRows, needRows, cityRows }) {
   const actions = [];
   const dueLeads = leads.filter((lead) => lead.due);
   const topDue = dueLeads[0];
+  const duplicateReturn = leads.find((lead) => lead.duplicate_followup && isOpenStatus(lead.status));
   const hotUnassigned = leads.find((lead) => lead.priority === "hot" && !lead.assigned_to && isOpenStatus(lead.status));
   const topValue = leads.find((lead) => isOpenStatus(lead.status) && Number(lead.value_estimate?.annual_premium_max || 0) >= 3500);
   const staleQuotes = quoteRows.filter((row) => Number(row.count || 0) > 0);
@@ -298,6 +328,15 @@ function buildActions({ leads, quoteRows, needRows, cityRows }) {
       target: topDue.reference,
       signal: `${dueLeads.length} relance(s) en retard`,
       recommendation: `Traiter ${topDue.reference}: ${topDue.next_action}`
+    });
+  }
+  if (duplicateReturn) {
+    actions.push({
+      priority: 98,
+      type: "retour-prospect",
+      target: duplicateReturn.reference,
+      signal: `${duplicateReturn.duplicate_followup_count || 0} renvoi(s) formulaire, dernier ${duplicateReturn.duplicate_followup_at || "recent"}`,
+      recommendation: `Rappeler ${duplicateReturn.reference}: le prospect a renvoye une demande sur un dossier existant.`
     });
   }
   if (hotUnassigned) {
@@ -359,17 +398,21 @@ export async function onRequestGet({ request, env }) {
     eventRows,
     quoteRows,
     needRows,
-    cityRows
+    cityRows,
+    duplicateRows
   ] = await Promise.all([
     safeAll(env, `SELECT reference, name, phone, email, profile, property_type, city, units_count, need, message, lead_score, status, assigned_to, source, page_url, created_at, updated_at FROM leads WHERE created_at >= datetime('now', '-90 days') ORDER BY created_at DESC LIMIT 200`),
     safeAll(env, `SELECT status, COUNT(*) AS count, COALESCE(AVG(lead_score), 0) AS avg_score FROM leads WHERE created_at >= datetime('now', '-90 days') GROUP BY status ORDER BY count DESC`),
     safeAll(env, `SELECT event_type, COUNT(*) AS count, MAX(created_at) AS last_seen FROM lead_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type ORDER BY last_seen DESC LIMIT 20`),
     safeAll(env, `SELECT response_status, COUNT(*) AS count, MIN(requested_at) AS oldest_requested_at FROM quote_requests WHERE response_status IN ('pending', 'sent') GROUP BY response_status ORDER BY count DESC`),
     safeAll(env, `SELECT COALESCE(NULLIF(need, ''), 'non precise') AS need, COUNT(*) AS count, COALESCE(AVG(lead_score), 0) AS avg_score FROM leads WHERE created_at >= datetime('now', '-90 days') GROUP BY need ORDER BY count DESC, avg_score DESC LIMIT 12`),
-    safeAll(env, `SELECT COALESCE(NULLIF(city, ''), 'non precise') AS city, COUNT(*) AS count, COALESCE(AVG(lead_score), 0) AS avg_score FROM leads WHERE created_at >= datetime('now', '-90 days') GROUP BY city ORDER BY count DESC, avg_score DESC LIMIT 12`)
+    safeAll(env, `SELECT COALESCE(NULLIF(city, ''), 'non precise') AS city, COUNT(*) AS count, COALESCE(AVG(lead_score), 0) AS avg_score FROM leads WHERE created_at >= datetime('now', '-90 days') GROUP BY city ORDER BY count DESC, avg_score DESC LIMIT 12`),
+    safeAll(env, `SELECT l.reference, COUNT(*) AS duplicate_count, MAX(e.created_at) AS last_duplicate_at, COALESCE(MAX(NULLIF(json_extract(e.payload, '$.duplicate_reason'), '')), MAX(NULLIF(json_extract(e.payload, '$.label'), '')), 'doublon-contact') AS reason, COALESCE(MAX(NULLIF(json_extract(e.payload, '$.path'), '')), l.page_url, '/') AS path FROM lead_events e JOIN leads l ON l.id = e.lead_id WHERE e.event_type = 'lead_duplicate_filtered' AND e.created_at >= datetime('now', '-7 days') GROUP BY l.reference, l.page_url ORDER BY last_duplicate_at DESC LIMIT 50`)
   ]);
 
-  const leads = rowsOrEmpty(leadRows).map(enrichLead).sort((a, b) => {
+  const duplicateByReference = duplicateFollowupMap(duplicateRows);
+  const leads = rowsOrEmpty(leadRows).map((lead) => enrichLead(lead, duplicateByReference.get(lead.reference))).sort((a, b) => {
+    if (Boolean(a.duplicate_followup) !== Boolean(b.duplicate_followup)) return a.duplicate_followup ? -1 : 1;
     if (a.due !== b.due) return a.due ? -1 : 1;
     return Number(b.value_estimate?.annual_premium_max || 0) - Number(a.value_estimate?.annual_premium_max || 0);
   });
@@ -380,16 +423,18 @@ export async function onRequestGet({ request, env }) {
   const cleanQuoteRows = rowsOrEmpty(quoteRows);
   const cleanNeedRows = rowsOrEmpty(needRows);
   const cleanCityRows = rowsOrEmpty(cityRows);
+  const cleanDuplicateRows = rowsOrEmpty(duplicateRows);
 
   return json({
     success: true,
     generated_at: new Date().toISOString(),
     summary: buildSummary(visibleLeads, cleanStatusRows, cleanEventRows),
     relance_leads: visibleLeads,
+    duplicate_followups: cleanDuplicateRows,
     quote_followups: cleanQuoteRows,
     needs: cleanNeedRows,
     cities: cleanCityRows,
     sales_actions: buildActions({ leads: visibleLeads, quoteRows: cleanQuoteRows, needRows: cleanNeedRows, cityRows: cleanCityRows }),
-    warnings: [errorOf(leadRows), errorOf(statusRows), errorOf(eventRows), errorOf(quoteRows), errorOf(needRows), errorOf(cityRows)].filter(Boolean)
+    warnings: [errorOf(leadRows), errorOf(statusRows), errorOf(eventRows), errorOf(quoteRows), errorOf(needRows), errorOf(cityRows), errorOf(duplicateRows)].filter(Boolean)
   });
 }

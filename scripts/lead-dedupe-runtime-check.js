@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { openLocalSqlite } from "./local-sqlite-db.js";
 import { onRequestPost } from "../functions/api/leads.js";
 import { onRequestGet as getAdminIntegrations } from "../functions/api/admin/integrations.js";
+import { onRequestGet as getAdminSales } from "../functions/api/admin/sales.js";
 import { onRequestGet as getAdminSeo } from "../functions/api/admin/seo.js";
 import { onRequestGet as getAdminSpam } from "../functions/api/admin/spam.js";
 
@@ -86,17 +87,21 @@ async function run() {
     const leadCount = await DB.prepare("SELECT COUNT(*) AS count FROM leads").first("count");
     const duplicateEvents = await DB.prepare("SELECT COUNT(*) AS count FROM site_events WHERE event_type = ?").bind("lead_duplicate_filtered").first("count");
     const duplicateLeadEvents = await DB.prepare("SELECT COUNT(*) AS count FROM lead_events WHERE event_type = ?").bind("lead_duplicate_filtered").first("count");
-    const [adminSpam, adminSeo, adminIntegrations] = await Promise.all([
+    const [adminSpam, adminSeo, adminIntegrations, adminSales] = await Promise.all([
       adminGet(getAdminSpam, DB, "/api/admin/spam"),
       adminGet(getAdminSeo, DB, "/api/admin/seo"),
-      adminGet(getAdminIntegrations, DB, "/api/admin/integrations")
+      adminGet(getAdminIntegrations, DB, "/api/admin/integrations"),
+      adminGet(getAdminSales, DB, "/api/admin/sales")
     ]);
     const adminSpamDuplicates = Number(adminSpam.body?.summary?.duplicate_leads_30d || 0);
     const adminSeoDuplicates = Number(adminSeo.body?.conversion_funnel?.duplicate_filtered || 0);
     const adminIntegrationsDuplicates = Number(adminIntegrations.body?.reports?.lead_duplicates_30d || 0);
+    const adminSalesDuplicateFollowups = Number(adminSales.body?.summary?.duplicate_followups || 0);
+    const adminSalesDuplicateRows = Array.isArray(adminSales.body?.duplicate_followups) ? adminSales.body.duplicate_followups.length : 0;
+    const adminSalesLeadMarked = (adminSales.body?.relance_leads || []).some((lead) => lead.duplicate_followup && lead.reference === first.body?.reference);
 
     const report = {
-      success: first.status === 200 && first.body?.success === true && !first.body?.duplicate && second.status === 200 && second.body?.duplicate === true && leadCount === 1 && duplicateEvents === 1 && duplicateLeadEvents === 1 && adminSpam.status === 200 && adminSeo.status === 200 && adminIntegrations.status === 200 && adminSpamDuplicates === 1 && adminSeoDuplicates === 1 && adminIntegrationsDuplicates === 1,
+      success: first.status === 200 && first.body?.success === true && !first.body?.duplicate && second.status === 200 && second.body?.duplicate === true && leadCount === 1 && duplicateEvents === 1 && duplicateLeadEvents === 1 && adminSpam.status === 200 && adminSeo.status === 200 && adminIntegrations.status === 200 && adminSales.status === 200 && adminSpamDuplicates === 1 && adminSeoDuplicates === 1 && adminIntegrationsDuplicates === 1 && adminSalesDuplicateFollowups === 1 && adminSalesDuplicateRows === 1 && adminSalesLeadMarked,
       scenario: "repeated-lead-dedupe",
       first: {
         status: first.status,
@@ -133,9 +138,15 @@ async function run() {
           status: adminIntegrations.status,
           lead_duplicates_30d: adminIntegrationsDuplicates,
           duplicate_rows: Array.isArray(adminIntegrations.body?.reports?.recent_duplicate_leads) ? adminIntegrations.body.reports.recent_duplicate_leads.length : 0
+        },
+        sales: {
+          status: adminSales.status,
+          duplicate_followups: adminSalesDuplicateFollowups,
+          duplicate_rows: adminSalesDuplicateRows,
+          lead_marked: adminSalesLeadMarked
         }
       },
-      safeguards: ["sqlite-temp-db", "no-smtp-config", "no-real-lead-persisted", "duplicate-does-not-create-new-lead", "admin-duplicate-metrics-verified"]
+      safeguards: ["sqlite-temp-db", "no-smtp-config", "no-real-lead-persisted", "duplicate-does-not-create-new-lead", "admin-duplicate-metrics-verified", "sales-duplicate-followup-verified"]
     };
 
     mkdirSync(dirname(REPORT_PATH), { recursive: true });

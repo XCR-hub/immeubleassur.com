@@ -36,6 +36,12 @@
       "status": 200,
       "lead_duplicates_30d": 1,
       "duplicate_rows": 1
+    },
+    "sales": {
+      "status": 200,
+      "duplicate_followups": 1,
+      "duplicate_rows": 1,
+      "lead_marked": true
     }
   },
   "safeguards": [
@@ -43,6 +49,7 @@
     "no-smtp-config",
     "no-real-lead-persisted",
     "duplicate-does-not-create-new-lead",
-    "admin-duplicate-metrics-verified"
+    "admin-duplicate-metrics-verified",
+    "sales-duplicate-followup-verified"
   ]
 }
