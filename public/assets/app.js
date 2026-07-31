@@ -1409,6 +1409,16 @@ form?.addEventListener("submit", async (event) => {
     formSubmitted = true;
     localBackup(payload, result);
     form.reset();
+    if (result.duplicate) {
+      setStatus(`Demande deja recue. Reference ${result.reference}. Nous conservons le dossier prioritaire deja ouvert.`, "ok");
+      track("lead_duplicate_returned", {
+        lead_reference: result.reference,
+        target: payload.need,
+        label: result.duplicate_reason || "duplicate_recent",
+        score: String(result.score || "")
+      });
+      return;
+    }
     setStatus(`Demande recue. Reference ${result.reference}. Un conseiller vous rappelle rapidement.`, "ok");
     track("lead_created", {
       lead_reference: result.reference,

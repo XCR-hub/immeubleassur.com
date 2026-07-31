@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T14:01:56.039Z",
+  "generated_at": "2026-07-31T14:36:32.519Z",
   "checked_files": [
     "functions/api/leads.js",
     "public/assets/app.js",
@@ -10,10 +10,11 @@
     "functions/api/newsletter.js",
     "scripts/local-antifraud-pass.js",
     "scripts/turnstile-hybrid-pass.js",
+    "scripts/lead-dedupe-runtime-check.js",
     "package.json",
     "scripts/generate-site.js"
   ],
-  "required_markers": 103,
+  "required_markers": 116,
   "forbidden_markers": 2,
   "missing": [],
   "forbidden_hits": [],

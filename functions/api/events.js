@@ -22,6 +22,7 @@ const allowedEvents = new Set([
   "lead_submit_error",
   "lead_submit_local_backup",
   "lead_submit_rejected",
+  "lead_duplicate_returned",
   "phone_click",
   "email_click",
   "form_quality_ready",
@@ -56,6 +57,7 @@ const ga4EventNames = {
   lead_submit_error: "ia_lead_submit_error",
   lead_submit_local_backup: "ia_lead_local_backup",
   lead_submit_rejected: "ia_lead_submit_rejected",
+  lead_duplicate_returned: "ia_lead_duplicate_returned",
   phone_click: "ia_phone_click",
   email_click: "ia_email_click",
   form_quality_ready: "ia_form_quality_ready",
@@ -304,7 +306,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
     gbraid: clean(payload.gbraid, 160),
     wbraid: clean(payload.wbraid, 160),
     event_status: clean(payload.status, 80),
-    challenge: clean(payload.challenge, 80)
+    challenge: clean(payload.challenge, 80),
+    duplicate_reason: clean(payload.duplicate_reason || payload.label, 120)
   };
 
   await env.DB.prepare(

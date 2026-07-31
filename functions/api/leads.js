@@ -338,6 +338,77 @@ function assessSpamSubmission(payload, { ip, userAgent, history }) {
   };
 }
 
+function leadDuplicateReason(record, existing) {
+  const sameEmail = clean(existing.email, 180).toLowerCase() === clean(record.email, 180).toLowerCase();
+  const phone = phoneDigits(record.phone);
+  const samePhone = phone.length >= 8 && phoneDigits(existing.phone).endsWith(phone.slice(-8));
+  const sameCity = clean(existing.city, 120).toLowerCase() === clean(record.city, 120).toLowerCase();
+  const sameNeed = clean(existing.need, 80) && clean(existing.need, 80) === clean(record.need, 80);
+  const sameProperty = clean(existing.property_type, 80) === clean(record.property_type, 80);
+
+  if (sameEmail && samePhone) return "email-telephone";
+  if (samePhone && sameCity && (sameNeed || sameProperty)) return "telephone-ville-besoin";
+  if (sameEmail && sameCity && (sameNeed || sameProperty)) return "email-ville-besoin";
+  return "";
+}
+
+async function findRecentDuplicateLead(env, record) {
+  const email = clean(record.email, 180).toLowerCase();
+  const phone = phoneDigits(record.phone);
+  if (!email && phone.length < 8) return null;
+  const phonePattern = phone.length >= 8 ? `%${phone.slice(-8)}` : "__no_phone_match__";
+  const { results = [] } = await env.DB.prepare(
+    `SELECT id, reference, email, phone, city, need, property_type, lead_score, created_at
+       FROM leads
+      WHERE created_at >= datetime('now', '-24 hours')
+        AND (email = ? OR REPLACE(REPLACE(REPLACE(REPLACE(phone, ' ', ''), '.', ''), '-', ''), '+', '') LIKE ?)
+      ORDER BY created_at DESC
+      LIMIT 12`
+  ).bind(email || "__no_email_match__", phonePattern).all();
+
+  for (const existing of results || []) {
+    const reason = leadDuplicateReason(record, existing);
+    if (reason) return { ...existing, duplicate_reason: reason };
+  }
+  return null;
+}
+
+async function logDuplicateLead(env, request, payload, record, duplicate, now, ip, userAgent) {
+  const path = clean(record.page_url || payload.page_url, 500).replace(/^https?:\/\/(www\.)?immeubleassur\.com/i, "") || clean(payload.path, 500) || "/api/leads";
+  const context = {
+    target: clean(record.need || "lead-duplicate", 120),
+    label: clean(duplicate.duplicate_reason || "doublon-contact", 120),
+    path,
+    duplicate_reason: clean(duplicate.duplicate_reason || "", 120),
+    existing_reference: clean(duplicate.reference, 80),
+    existing_created_at: clean(duplicate.created_at, 80),
+    source: clean(record.source || "website", 120),
+    city: clean(record.city, 120),
+    page_url: clean(record.page_url, 500),
+    session_id: clean(record.session_id, 120),
+    contact_match: [record.email && "email", phoneDigits(record.phone).length >= 8 && "telephone"].filter(Boolean).join("+")
+  };
+  await env.DB.prepare(
+    `INSERT INTO site_events (
+      id, event_type, page_url, target, session_id, lead_reference,
+      payload, ip_address, user_agent, created_at
+    ) VALUES (?, 'lead_duplicate_filtered', ?, ?, ?, ?, ?, ?, ?, ?)`
+  )
+    .bind(
+      crypto.randomUUID(),
+      clean(record.page_url, 500),
+      context.target,
+      clean(record.session_id, 120),
+      clean(duplicate.reference, 80),
+      JSON.stringify(context),
+      clean(ip, 120),
+      clean(userAgent, 500),
+      now
+    )
+    .run();
+
+  await logLeadEvent(env, duplicate.id, "lead_duplicate_filtered", context, now);
+}
 async function logSpamAttempt(env, request, payload, assessment, now, ip, userAgent) {
   const path = clean(payload.page_url, 500).replace(/^https?:\/\/(www\.)?immeubleassur\.com/i, "") || clean(payload.path, 500) || "/api/leads";
   const context = {
@@ -836,11 +907,6 @@ export async function onRequestPost({ request, env, waitUntil }) {
     return reply({ success: false, error: validationError }, 422);
   }
 
-  const id = crypto.randomUUID();
-  const reference = `IMB-${Date.now().toString(36).toUpperCase()}-${Math.random()
-    .toString(36)
-    .slice(2, 6)
-    .toUpperCase()}`;
   const qualification = qualifyLead(payload);
   const score = qualification.score;
   const experiment = payload.experiment || {};
@@ -870,6 +936,27 @@ export async function onRequestPost({ request, env, waitUntil }) {
     experiment_label: clean(payload.experiment_label || experiment.experiment_label, 120),
     utm: cleanUtm(payload.utm || {})
   };
+
+  const duplicateLead = await findRecentDuplicateLead(env, record);
+  if (duplicateLead) {
+    await logDuplicateLead(env, request, payload, record, duplicateLead, now, ip, userAgent);
+    return reply({
+      success: true,
+      duplicate: true,
+      status: "duplicate_recent",
+      id: duplicateLead.id,
+      reference: duplicateLead.reference,
+      score: Number(duplicateLead.lead_score || 0),
+      duplicate_reason: duplicateLead.duplicate_reason,
+      notification: "skipped"
+    });
+  }
+
+  const id = crypto.randomUUID();
+  const reference = `IMB-${Date.now().toString(36).toUpperCase()}-${Math.random()
+    .toString(36)
+    .slice(2, 6)
+    .toUpperCase()}`;
 
   try {
     await env.DB.prepare(
