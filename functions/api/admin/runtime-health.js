@@ -325,6 +325,17 @@ function sanitizeSeoBacklogReport(report) {
     recommendation: item.recommendation || "",
     age_days: item.age_days ?? null
   });
+  const sanitizeSourceQuality = (item) => ({
+    source: item.source || "",
+    leads: Number(item.leads || 0),
+    hot_leads: Number(item.hot_leads || 0),
+    warm_leads: Number(item.warm_leads || 0),
+    bridge_leads: Number(item.bridge_leads || 0),
+    average_score: Number(item.average_score || 0),
+    quality_score: Number(item.quality_score || 0),
+    top_need: item.top_need || "",
+    value_label: item.value_label || ""
+  });
   return {
     available: true,
     success: report.success === true,
@@ -343,6 +354,10 @@ function sanitizeSeoBacklogReport(report) {
       high_open: Number(report.summary?.high_open || 0),
       conversion_open: Number(report.summary?.conversion_open || 0),
       old_open: Number(report.summary?.old_open || 0),
+      qualified_source_count: Number(report.summary?.qualified_source_count || 0),
+      top_qualified_source: report.summary?.top_qualified_source || "",
+      top_qualified_source_score: Number(report.summary?.top_qualified_source_score || 0),
+      top_qualified_source_leads: Number(report.summary?.top_qualified_source_leads || 0),
       oldest_open_days: Number(report.summary?.oldest_open_days || 0),
       average_open_score: Number(report.summary?.average_open_score || 0)
     },
@@ -357,6 +372,7 @@ function sanitizeSeoBacklogReport(report) {
       : [],
     top_open: Array.isArray(report.top_open) ? report.top_open.slice(0, 8).map(sanitizeOpportunity) : [],
     conversion_open: Array.isArray(report.conversion_open) ? report.conversion_open.slice(0, 8).map(sanitizeOpportunity) : [],
+    source_quality: Array.isArray(report.source_quality) ? report.source_quality.slice(0, 8).map(sanitizeSourceQuality) : [],
     old_open: Array.isArray(report.old_open) ? report.old_open.slice(0, 8).map(sanitizeOpportunity) : [],
     recommendations: Array.isArray(report.recommendations)
       ? report.recommendations.slice(0, 8).map((item) => ({

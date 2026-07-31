@@ -262,6 +262,7 @@ function seoBacklogStatusLabel(report) {
   if (!report?.available) return "Indispo";
   if (Number(report.summary?.critical_open || 0) > 0) return "Critique";
   if (Number(report.summary?.conversion_open || 0) > 0 || Number(report.summary?.old_open || 0) > 0) return "A traiter";
+  if (Number(report.summary?.qualified_source_count || 0) > 0) return "A renforcer";
   return report.success ? "OK" : "Alerte";
 }
 
@@ -269,13 +270,14 @@ function seoBacklogDetail(report) {
   if (!report?.available) return "rapport absent";
   const summary = report.summary || {};
   const age = report.age_minutes === null || report.age_minutes === undefined ? "-" : `${report.age_minutes} min`;
-  return `${summary.open_opportunities || 0} ouvertes, ${summary.critical_open || 0} critiques, age ${age}`;
+  return `${summary.open_opportunities || 0} ouvertes, ${summary.qualified_source_count || 0} source(s) qualifiee(s), age ${age}`;
 }
 
 function seoBacklogSignal(report) {
   if (!report?.available) return "rapport local non trouve";
   const recommendation = (report.recommendations || [])[0];
   if (recommendation) return `${recommendation.severity || "signal"}: ${recommendation.signal || recommendation.type}`;
+  if (report.summary?.top_qualified_source) return `${report.summary.top_qualified_source}: ${report.summary.top_qualified_source_leads || 0} lead(s), score ${report.summary.top_qualified_source_score || 0}`;
   return `score moyen ${report.summary?.average_open_score || 0}, plus ancienne ${report.summary?.oldest_open_days || 0}j`;
 }
 function valueEstimateFor(lead, q = qualificationFor(lead)) {
@@ -918,7 +920,7 @@ async function loadIntegrations() {
     rows.unshift({
       label: "Backlog SEO/CRO",
       status: seoBacklogStatusLabel(runtimeHealth.seo_backlog),
-      scope: `Ouvertes: ${runtimeHealth.seo_backlog.summary?.open_opportunities || 0}\nConversion: ${runtimeHealth.seo_backlog.summary?.conversion_open || 0}`,
+      scope: `Ouvertes: ${runtimeHealth.seo_backlog.summary?.open_opportunities || 0}\nSources qualifiees: ${runtimeHealth.seo_backlog.summary?.qualified_source_count || 0}`,
       signal: seoBacklogSignal(runtimeHealth.seo_backlog),
       action: recommendation?.action || "Traiter les opportunites ouvertes par score avant de lancer de nouvelles optimisations."
     });

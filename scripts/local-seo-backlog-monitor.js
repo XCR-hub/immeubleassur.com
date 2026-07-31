@@ -20,6 +20,47 @@ function clean(value, max = 600) {
   return String(value || "").trim().slice(0, max);
 }
 
+function tableExists(database, name) {
+  const row = database.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?").get(name);
+  return Boolean(row?.name);
+}
+
+function unitCount(value) {
+  return Number.parseInt(String(value || "0").replace(/\D/g, ""), 10) || 0;
+}
+
+function leadValueEstimate(lead) {
+  const score = Number(lead.lead_score || 0);
+  const units = Math.max(1, unitCount(lead.units_count));
+  const need = clean(lead.need, 80);
+  const profile = clean(lead.profile, 80);
+  const propertyType = clean(lead.property_type, 80);
+  let base = 260;
+  if (["multirisque-immeuble", "copropriete", "audit-contrat"].includes(need)) base = 520;
+  if (["rc-syndic", "dommages-ouvrage"].includes(need)) base = 620;
+  if (["pno", "cno", "pno-cno"].includes(need) || ["lot-copropriete", "logement-vacant", "logement-loue"].includes(propertyType)) base = units <= 2 ? 190 : 260;
+  if (["local-commercial", "commerce", "mixte"].includes(propertyType)) base += 180;
+  if (["sci", "administrateur-biens", "syndic-professionnel"].includes(profile)) base += 160;
+  const min = Math.round(Math.max(180, base + Math.max(0, units - 1) * 135));
+  const max = Math.round(min * (score >= 85 ? 1.75 : score >= 70 ? 1.55 : 1.35));
+  return { min, max };
+}
+
+function valueLabel(min, max) {
+  if (!max) return "0 EUR/an";
+  return `${Math.round(min)}-${Math.round(max)} EUR/an`;
+}
+
+function sourceQualityScore(row) {
+  return Math.round(
+    Number(row.hot_leads || 0) * 38 +
+    Number(row.warm_leads || 0) * 18 +
+    Number(row.leads || 0) * 8 +
+    Number(row.average_score || 0) +
+    Math.min(Number(row.value_max || 0) / 100, 120)
+  );
+}
+
 function rowsByStatus(database) {
   return database
     .prepare(`
@@ -103,6 +144,74 @@ function conversionOpen(database, limit) {
     }));
 }
 
+function sourceQualityRows(database, limit) {
+  if (!tableExists(database, "leads") || !tableExists(database, "lead_events")) return [];
+  const rows = database
+    .prepare(`
+      SELECT
+        l.reference,
+        l.source,
+        l.page_url,
+        l.need,
+        l.profile,
+        l.property_type,
+        l.units_count,
+        l.lead_score,
+        COALESCE(NULLIF(CASE WHEN json_valid(le.payload) THEN json_extract(le.payload, '$.source_path') ELSE NULL END, ''), '') AS source_path,
+        COALESCE(NULLIF(CASE WHEN json_valid(le.payload) THEN json_extract(le.payload, '$.landing_path') ELSE NULL END, ''), '') AS landing_path,
+        COALESCE(NULLIF(CASE WHEN json_valid(le.payload) THEN json_extract(le.payload, '$.content_bridge') ELSE NULL END, ''), '') AS content_bridge
+      FROM leads l
+      LEFT JOIN lead_events le ON le.id = (
+        SELECT le2.id
+        FROM lead_events le2
+        WHERE le2.lead_id = l.id AND le2.event_type = 'lead_created'
+        ORDER BY le2.created_at DESC, le2.id DESC
+        LIMIT 1
+      )
+      WHERE l.created_at >= datetime('now', '-30 days')
+      ORDER BY l.created_at DESC
+      LIMIT 500
+    `)
+    .all();
+  const map = new Map();
+  for (const lead of rows) {
+    const source = clean(lead.source_path || lead.landing_path || lead.page_url || lead.source || "non precise", 500) || "non precise";
+    const score = Number(lead.lead_score || 0);
+    const current = map.get(source) || { source, leads: 0, hot_leads: 0, warm_leads: 0, bridge_leads: 0, score_total: 0, value_min: 0, value_max: 0, needs: new Map() };
+    const value = leadValueEstimate(lead);
+    const need = clean(lead.need || "non precise", 120) || "non precise";
+    current.leads += 1;
+    if (score >= 80) current.hot_leads += 1;
+    if (score >= 65 && score < 80) current.warm_leads += 1;
+    if (clean(lead.content_bridge, 20) === "1") current.bridge_leads += 1;
+    current.score_total += score;
+    current.value_min += value.min;
+    current.value_max += value.max;
+    current.needs.set(need, (current.needs.get(need) || 0) + 1);
+    map.set(source, current);
+  }
+  return [...map.values()]
+    .map((row) => {
+      const average_score = row.leads ? Math.round((row.score_total / row.leads) * 10) / 10 : 0;
+      const topNeed = [...row.needs.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];
+      const normalized = {
+        source: row.source,
+        leads: row.leads,
+        hot_leads: row.hot_leads,
+        warm_leads: row.warm_leads,
+        bridge_leads: row.bridge_leads,
+        average_score,
+        top_need: topNeed ? topNeed[0] : "non precise",
+        value_min: row.value_min,
+        value_max: row.value_max,
+        value_label: valueLabel(row.value_min, row.value_max)
+      };
+      return { ...normalized, quality_score: sourceQualityScore(normalized) };
+    })
+    .sort((a, b) => b.quality_score - a.quality_score || b.hot_leads - a.hot_leads || b.leads - a.leads || a.source.localeCompare(b.source))
+    .slice(0, limit);
+}
+
 function staleRows(database, days, limit) {
   return database
     .prepare(`
@@ -133,7 +242,7 @@ function ageDays(value) {
   return Math.round(Math.max(0, Date.now() - timestamp) / 8640000) / 10;
 }
 
-function summaryFrom(statusRows, topRows, conversionRows, stale) {
+function summaryFrom(statusRows, topRows, conversionRows, stale, sourceQuality) {
   const open = statusRows.find((row) => row.status === "open");
   const staleStatus = statusRows.find((row) => row.status === "stale");
   const total = statusRows.reduce((sum, row) => sum + Number(row.count || 0), 0);
@@ -145,12 +254,16 @@ function summaryFrom(statusRows, topRows, conversionRows, stale) {
     high_open: topRows.filter((row) => row.score >= 80 && row.score < 90).length,
     conversion_open: conversionRows.length,
     old_open: stale.length,
+    qualified_source_count: sourceQuality.length,
+    top_qualified_source: sourceQuality[0]?.source || "",
+    top_qualified_source_score: Number(sourceQuality[0]?.quality_score || 0),
+    top_qualified_source_leads: Number(sourceQuality[0]?.leads || 0),
     oldest_open_days: topRows.length ? Math.max(...topRows.map((row) => Number(row.age_days || 0))) : 0,
     average_open_score: topRows.length ? Math.round(topRows.reduce((sum, row) => sum + Number(row.score || 0), 0) / topRows.length) : 0
   };
 }
 
-function recommendations(summary, topRows, staleRowsList, conversionRows) {
+function recommendations(summary, topRows, staleRowsList, conversionRows, sourceQuality) {
   const actions = [];
   if (summary.critical_open > 0) {
     const top = topRows.find((row) => row.score >= 90);
@@ -172,6 +285,17 @@ function recommendations(summary, topRows, staleRowsList, conversionRows) {
       action: top?.recommendation || "Corriger la fuite du tunnel de conversion la mieux scoree.",
       url: top?.url || "admin/seo",
       score: 92
+    });
+  }
+  if (summary.qualified_source_count > 0) {
+    const top = sourceQuality[0];
+    actions.push({
+      type: "qualified-source-growth",
+      severity: Number(top?.quality_score || 0) >= 120 ? "high" : "medium",
+      signal: `${top?.leads || 0} lead(s), ${top?.hot_leads || 0} chaud(s), score ${top?.quality_score || 0}`,
+      action: `Renforcer la source ${top?.source || "non precise"}: maillage interne, contenus satellites, preuve locale et CTA devis sur le besoin ${top?.top_need || "immeuble"}.`,
+      url: top?.source || "admin/attribution",
+      score: Math.min(96, Math.max(78, Number(top?.quality_score || 0)))
     });
   }
   if (summary.old_open > 0) {
@@ -212,10 +336,11 @@ function run() {
     const topRows = topOpen(database, maxRows);
     const conversionRows = conversionOpen(database, maxRows);
     const stale = staleRows(database, staleDays, maxRows);
-    const summary = summaryFrom(statusRows, topRows, conversionRows, stale);
+    const sourceQuality = sourceQualityRows(database, Math.min(maxRows, 20));
+    const summary = summaryFrom(statusRows, topRows, conversionRows, stale, sourceQuality);
     const report = {
       success: true,
-      attention_required: summary.critical_open > 0 || summary.conversion_open > 0 || summary.old_open > 0,
+      attention_required: summary.critical_open > 0 || summary.conversion_open > 0 || summary.old_open > 0 || summary.top_qualified_source_score >= 80,
       generated_at: new Date().toISOString(),
       database: { path: dbPath, mode: "sqlite-readonly" },
       thresholds: { stale_days: staleDays, max_rows: maxRows },
@@ -238,13 +363,14 @@ function run() {
       })),
       top_open: topRows.slice(0, 20),
       conversion_open: conversionRows.slice(0, 20),
+      source_quality: sourceQuality.slice(0, 20),
       old_open: stale.slice(0, 20),
-      recommendations: recommendations(summary, topRows, stale, conversionRows)
+      recommendations: recommendations(summary, topRows, stale, conversionRows, sourceQuality)
     };
 
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
-    console.log(`SEO backlog monitor: ${summary.open_opportunities} open, ${summary.critical_open} critical, ${summary.conversion_open} conversion, ${summary.old_open} old.`);
+    console.log(`SEO backlog monitor: ${summary.open_opportunities} open, ${summary.critical_open} critical, ${summary.conversion_open} conversion, ${summary.qualified_source_count} qualified source(s), ${summary.old_open} old.`);
     console.log(`Report: ${out}`);
   } finally {
     database.close();
