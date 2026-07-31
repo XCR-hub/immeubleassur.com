@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T16:37:58.968Z",
+  "generated_at": "2026-07-31T17:09:40.716Z",
   "tracked_events": [
     "cta_click",
     "diagnostic_complete",
@@ -12,6 +12,9 @@
     "lead_created",
     "lead_duplicate_returned",
     "lead_form_abandoned",
+    "lead_form_rescue_dismissed",
+    "lead_form_rescue_phone_click",
+    "lead_form_rescue_shown",
     "lead_intent_prefill",
     "lead_submit_error",
     "lead_submit_local_backup",
@@ -44,6 +47,9 @@
     "lead_created",
     "lead_duplicate_returned",
     "lead_form_abandoned",
+    "lead_form_rescue_dismissed",
+    "lead_form_rescue_phone_click",
+    "lead_form_rescue_shown",
     "lead_intent_prefill",
     "lead_spam_blocked",
     "lead_submit_error",

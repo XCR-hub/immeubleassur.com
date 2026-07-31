@@ -15,6 +15,9 @@ let qualityEventSent = false;
 let abandonEventSent = false;
 let valueHintEventSent = false;
 let urgencyEventSent = false;
+let formRescueTimer = 0;
+let formRescueShown = false;
+let formRescueDismissed = false;
 let botSignalFirstInteractionAt = 0;
 let botSignalInteractionCount = 0;
 let botSignalPointer = false;
@@ -1334,6 +1337,64 @@ function bindFormAbandonment() {
   });
   window.addEventListener("pagehide", () => trackFormAbandonment("pagehide"));
 }
+
+function clearFormRescueTimer() {
+  if (!formRescueTimer) return;
+  window.clearTimeout(formRescueTimer);
+  formRescueTimer = 0;
+}
+
+function formHasRescueSignal(payload) {
+  return Boolean(payload.name || payload.phone || payload.email || payload.city || payload.units_count || payload.message);
+}
+
+function formRescueTelemetry(payload, reason) {
+  const qualification = leadQualification(payload);
+  return {
+    target: payload.need || "unknown",
+    label: reason,
+    ...leadValueEventPayload(payload, qualification)
+  };
+}
+
+function showFormRescue(reason = "hesitation") {
+  if (!form || formSubmitted || formRescueShown || formRescueDismissed) return;
+  const payload = readForm(form);
+  if ((!formStarted && reason !== "validation-error") || !formHasRescueSignal(payload)) return;
+
+  const panel = document.createElement("div");
+  panel.className = "form-rescue";
+  panel.innerHTML = `<div><strong>Un conseiller peut finaliser avec vous.</strong><span>Rappel direct pour cadrer l'immeuble, les garanties et l'echeance.</span></div><div class="form-rescue-actions"><a class="button secondary" href="tel:+33180855786" data-form-rescue-phone>01 80 85 57 86</a><button class="button secondary form-rescue-close" type="button" data-form-rescue-close>Continuer</button></div>`;
+
+  const anchor = form.querySelector(".form-status") || form.querySelector("button[type='submit']");
+  if (anchor) anchor.insertAdjacentElement("beforebegin", panel);
+  else form.append(panel);
+
+  formRescueShown = true;
+  track("lead_form_rescue_shown", formRescueTelemetry(payload, reason));
+
+  panel.querySelector("[data-form-rescue-phone]")?.addEventListener("click", () => {
+    track("lead_form_rescue_phone_click", formRescueTelemetry(readForm(form), "phone"));
+  });
+  panel.querySelector("[data-form-rescue-close]")?.addEventListener("click", () => {
+    formRescueDismissed = true;
+    panel.remove();
+    track("lead_form_rescue_dismissed", formRescueTelemetry(readForm(form), "continue"));
+  });
+}
+
+function scheduleFormRescue(reason = "inactivity") {
+  if (!form || formSubmitted || formRescueShown || formRescueDismissed) return;
+  clearFormRescueTimer();
+  formRescueTimer = window.setTimeout(() => showFormRescue(reason), 14000);
+}
+
+function bindFormRescue() {
+  if (!form) return;
+  form.addEventListener("focusin", () => scheduleFormRescue("focus-hesitation"));
+  form.addEventListener("input", () => scheduleFormRescue("input-hesitation"), { passive: true });
+  form.addEventListener("change", () => scheduleFormRescue("change-hesitation"), { passive: true });
+}
 function bindBotSignalTracking() {
   if (!form) return;
   form.addEventListener("input", () => noteBotInteraction("input"), { passive: true });
@@ -1381,10 +1442,12 @@ form?.addEventListener("submit", async (event) => {
     setStatus(validation.message, "error");
     markInvalidFields(form, validation);
     track("lead_submit_error", validationTelemetry(payload, validation));
+    showFormRescue("validation-error");
     return;
   }
   clearInvalidFields(form);
 
+  clearFormRescueTimer();
   const submitButton = form.querySelector("button[type='submit']");
   submitButton.disabled = true;
   setStatus("Transmission du dossier en cours...");
@@ -1558,6 +1621,7 @@ bindScrollDepthTracking();
 bindFormAbandonment();
 bindBotSignalTracking();
 bindGrowthTracking();
+bindFormRescue();
 
 
 

@@ -74,6 +74,8 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
   const topSpamBlock = Array.isArray(spamBlocks) ? spamBlocks[0] : null;
   const duplicateFilteredCount = Number(conversionFunnel.duplicate_filtered || 0);
   const topDuplicateLead = Array.isArray(duplicateLeads) ? duplicateLeads[0] : null;
+  const rescueShown = Number(conversionFunnel.form_rescue_shown || 0);
+  const rescuePhoneClicks = Number(conversionFunnel.form_rescue_phone_clicks || 0);
   const bestExperiment = Array.isArray(ctaExperiments) ? ctaExperiments.find((row) => Number(row.form_starts || 0) > 0 || Number(row.leads_created || 0) > 0 || Number(row.cta_clicks || 0) > 0) : null;
   const topGapHandled = topGap ? Number(topGap.leads_created || 0) + Number(topGap.duplicate_filtered || 0) : 0;
 
@@ -94,6 +96,26 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
       url: topAbandon.path || topAbandon.page_url || "/",
       query: `${conversionFunnel.abandon_rate}% abandon formulaire`,
       recommendation: "Rendre le CTA plus direct sur cette page et verifier la longueur percue du formulaire."
+    });
+  }
+
+  if (rescueShown >= 5 && rescuePhoneClicks === 0) {
+    actions.push({
+      score: 87,
+      opportunity_type: "rattrapage-formulaire",
+      url: topAbandon?.path || "/devis-assurance-immeuble.html",
+      query: `${rescueShown} rattrapage(s), 0 appel`,
+      recommendation: "Tester un texte plus direct, rapprocher le telephone du champ bloquant et verifier l'affichage mobile du panneau de rattrapage."
+    });
+  }
+
+  if (rescuePhoneClicks > 0) {
+    actions.push({
+      score: 73,
+      opportunity_type: "rattrapage-appel",
+      url: topAbandon?.path || "/devis-assurance-immeuble.html",
+      query: `${rescuePhoneClicks}/${rescueShown || rescuePhoneClicks} appel(s) apres rattrapage`,
+      recommendation: "Conserver le rattrapage et comparer les pages qui transforment le mieux l'hesitation en appel."
     });
   }
 
@@ -297,6 +319,9 @@ export async function onRequestGet({ request, env }) {
   const attempts = countFrom(eventCounts, "form_submit_attempt");
   const leadCreated = countFrom(eventCounts, "lead_created");
   const abandoned = countFrom(eventCounts, "lead_form_abandoned");
+  const rescueShown = countFrom(eventCounts, "lead_form_rescue_shown");
+  const rescuePhoneClicks = countFrom(eventCounts, "lead_form_rescue_phone_click");
+  const rescueDismissed = countFrom(eventCounts, "lead_form_rescue_dismissed");
   const diagnosticSelects = countFrom(eventCounts, "diagnostic_select");
   const diagnosticCompletes = countFrom(eventCounts, "diagnostic_complete");
   const readinessStarts = countFrom(eventCounts, "readiness_start");
@@ -321,6 +346,9 @@ export async function onRequestGet({ request, env }) {
     submit_attempts: attempts,
     leads_created: leadCreated,
     abandoned_forms: abandoned,
+    form_rescue_shown: rescueShown,
+    form_rescue_phone_clicks: rescuePhoneClicks,
+    form_rescue_dismissed: rescueDismissed,
     visitor_to_cta_rate: pct(ctaClicks, pageViews),
     diagnostic_completion_rate: pct(diagnosticCompletes, diagnosticSelects),
     diagnostic_to_form_rate: pct(formStarts, diagnosticCompletes),
@@ -332,7 +360,9 @@ export async function onRequestGet({ request, env }) {
     attempt_to_handled_lead_rate: pct(leadCreated + duplicateFiltered, attempts),
     value_hint_to_submit_rate: pct(attempts, valueHintReady),
     value_hint_to_lead_rate: pct(leadCreated, valueHintReady),
-    abandon_rate: pct(abandoned, formStarts)
+    abandon_rate: pct(abandoned, formStarts),
+    form_rescue_phone_rate: pct(rescuePhoneClicks, rescueShown),
+    form_rescue_dismiss_rate: pct(rescueDismissed, rescueShown)
   };
 
   return json({

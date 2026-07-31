@@ -1493,6 +1493,51 @@ details:hover {
   background: #f0fdf4;
 }
 
+.form-rescue {
+  align-items: center;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin: 4px 0 6px;
+  padding: 13px;
+}
+
+.form-rescue strong,
+.form-rescue span {
+  display: block;
+}
+
+.form-rescue strong {
+  color: var(--navy);
+  font-size: .94rem;
+}
+
+.form-rescue span {
+  color: var(--muted);
+  font-size: .82rem;
+  margin-top: 2px;
+}
+
+.form-rescue-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.form-rescue .button {
+  min-height: 40px;
+  padding: .62rem .78rem;
+  white-space: nowrap;
+}
+
+.form-rescue-close {
+  background: #ffffff;
+}
+
 input,
 select,
 textarea {
@@ -1570,6 +1615,20 @@ textarea:focus {
 
   .lead-value-preview-main {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-rescue {
+    grid-template-columns: 1fr;
+  }
+
+  .form-rescue-actions {
+    justify-content: stretch;
+  }
+
+  .form-rescue .button {
+    flex: 1 1 150px;
+    justify-content: center;
+    text-align: center;
   }
 }
 

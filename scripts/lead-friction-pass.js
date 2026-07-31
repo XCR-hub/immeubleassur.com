@@ -41,6 +41,7 @@ const conversionReport = JSON.parse(read("reports/conversion-intelligence-report
 const systemEvidence = {
   validation_telemetry: app.includes("validationDetails") && app.includes("validationTelemetry") && app.includes("lead_submit_error"),
   value_preview: app.includes("lead-value-preview") && app.includes("lead_value_hint_ready"),
+  form_rescue: app.includes("form-rescue") && app.includes("lead_form_rescue_shown") && eventsApi.includes("lead_form_rescue_phone_click") && seoApi.includes("form_rescue_phone_rate") && admin.includes("Rattrapage"),
   admin_friction: admin.includes("Erreurs formulaire") && seoApi.includes("validation_errors"),
   event_contract: eventsApi.includes("missing: clean(payload.missing") && eventsApi.includes("step: clean(payload.step"),
   seo_quality: Number(seoReport.average_score || 0),
@@ -52,6 +53,7 @@ const dimensions = [
   ["value-preview", "Fourchette indicative et SLA visibles avant envoi du formulaire."],
   ["cta-continuity", "CTA devis, telephone ou parcours diagnostic disponibles."],
   ["trust-proof", "Preuves courtier, ORIAS, rappel humain ou specialisation visibles."],
+  ["abandon-rescue", "Rattrapage formulaire suivi pour transformer hesitation en appel ou reprise."],
   ["internal-linking", "Maillage vers devis, villes, guides ou FAQ verifie."],
   ["money-intent", "Intention assurance immeuble, PNO, CNO, SCI ou copropriete couverte."],
   ["schema-quality", "Balises structurees et meta de croissance surveillees."],
@@ -68,6 +70,7 @@ for (const file of pages) {
     "value-preview": systemEvidence.value_preview && hasLeadPath,
     "cta-continuity": /data-track|class="button|lead-action-bar|devis/i.test(html),
     "trust-proof": /ORIAS|Rappel humain|Courtier|specialiste/i.test(html),
+    "abandon-rescue": systemEvidence.form_rescue && hasLeadPath,
     "internal-linking": (html.match(/<a\s+/g) || []).length >= 3,
     "money-intent": /assurance|immeuble|PNO|CNO|copropriete|SCI/i.test(html),
     "schema-quality": html.includes("application/ld+json") || html.includes("growth-meta:start"),
@@ -116,7 +119,7 @@ const report = {
     count: actions.filter((item) => item.dimension === dimension || item.dimension.endsWith(dimension)).length,
     verified: actions.filter((item) => (item.dimension === dimension || item.dimension.endsWith(dimension)) && item.status === "verified").length
   })),
-  status: actions.length === TARGET_ACTIONS && systemEvidence.validation_telemetry && systemEvidence.admin_friction ? "passed" : "watch"
+  status: actions.length === TARGET_ACTIONS && systemEvidence.validation_telemetry && systemEvidence.form_rescue && systemEvidence.admin_friction ? "passed" : "watch"
 };
 
 mkdirSync(REPORT_DIR, { recursive: true });

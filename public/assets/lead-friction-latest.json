@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T16:38:07.566Z",
+  "generated_at": "2026-07-31T17:10:00.380Z",
   "action_count": 1000,
   "verified_count": 1000,
   "watch_count": 0,
@@ -7,6 +7,7 @@
   "system_evidence": {
     "validation_telemetry": true,
     "value_preview": true,
+    "form_rescue": true,
     "admin_friction": true,
     "event_contract": true,
     "seo_quality": 100,
@@ -15,43 +16,48 @@
   "top_dimensions": [
     {
       "dimension": "validation-friction",
-      "count": 125,
-      "verified": 125
+      "count": 112,
+      "verified": 112
     },
     {
       "dimension": "value-preview",
-      "count": 125,
-      "verified": 125
+      "count": 111,
+      "verified": 111
     },
     {
       "dimension": "cta-continuity",
-      "count": 125,
-      "verified": 125
+      "count": 111,
+      "verified": 111
     },
     {
       "dimension": "trust-proof",
-      "count": 125,
-      "verified": 125
+      "count": 111,
+      "verified": 111
+    },
+    {
+      "dimension": "abandon-rescue",
+      "count": 111,
+      "verified": 111
     },
     {
       "dimension": "internal-linking",
-      "count": 125,
-      "verified": 125
+      "count": 111,
+      "verified": 111
     },
     {
       "dimension": "money-intent",
-      "count": 125,
-      "verified": 125
+      "count": 111,
+      "verified": 111
     },
     {
       "dimension": "schema-quality",
-      "count": 125,
-      "verified": 125
+      "count": 111,
+      "verified": 111
     },
     {
       "dimension": "mobile-speed",
-      "count": 125,
-      "verified": 125
+      "count": 111,
+      "verified": 111
     }
   ],
   "status": "passed",
@@ -97,30 +103,39 @@
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-batiment-proprietaire.html",
       "page": "assurance-batiment-proprietaire.html",
-      "dimension": "internal-linking",
+      "dimension": "abandon-rescue",
       "status": "verified",
-      "recommendation": "Maillage vers devis, villes, guides ou FAQ verifie."
+      "recommendation": "Rattrapage formulaire suivi pour transformer hesitation en appel ou reprise."
     },
     {
       "id": 6,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-batiment-proprietaire.html",
       "page": "assurance-batiment-proprietaire.html",
-      "dimension": "money-intent",
+      "dimension": "internal-linking",
       "status": "verified",
-      "recommendation": "Intention assurance immeuble, PNO, CNO, SCI ou copropriete couverte."
+      "recommendation": "Maillage vers devis, villes, guides ou FAQ verifie."
     },
     {
       "id": 7,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-batiment-proprietaire.html",
       "page": "assurance-batiment-proprietaire.html",
+      "dimension": "money-intent",
+      "status": "verified",
+      "recommendation": "Intention assurance immeuble, PNO, CNO, SCI ou copropriete couverte."
+    },
+    {
+      "id": 8,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-batiment-proprietaire.html",
+      "page": "assurance-batiment-proprietaire.html",
       "dimension": "schema-quality",
       "status": "verified",
       "recommendation": "Balises structurees et meta de croissance surveillees."
     },
     {
-      "id": 8,
+      "id": 9,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-batiment-proprietaire.html",
       "page": "assurance-batiment-proprietaire.html",
@@ -129,70 +144,79 @@
       "recommendation": "Viewport, assets versionnes et formulaires compacts controles."
     },
     {
-      "id": 9,
+      "id": 10,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-cno.html",
       "page": "assurance-cno.html",
       "dimension": "validation-friction",
       "status": "verified",
       "recommendation": "Champs obligatoires, invalides et consentement suivis sans donnees personnelles."
-    },
-    {
-      "id": 10,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-cno.html",
-      "page": "assurance-cno.html",
-      "dimension": "value-preview",
-      "status": "verified",
-      "recommendation": "Fourchette indicative et SLA visibles avant envoi du formulaire."
     },
     {
       "id": 11,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-cno.html",
       "page": "assurance-cno.html",
-      "dimension": "cta-continuity",
+      "dimension": "value-preview",
       "status": "verified",
-      "recommendation": "CTA devis, telephone ou parcours diagnostic disponibles."
+      "recommendation": "Fourchette indicative et SLA visibles avant envoi du formulaire."
     },
     {
       "id": 12,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-cno.html",
       "page": "assurance-cno.html",
-      "dimension": "trust-proof",
+      "dimension": "cta-continuity",
       "status": "verified",
-      "recommendation": "Preuves courtier, ORIAS, rappel humain ou specialisation visibles."
+      "recommendation": "CTA devis, telephone ou parcours diagnostic disponibles."
     },
     {
       "id": 13,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-cno.html",
       "page": "assurance-cno.html",
-      "dimension": "internal-linking",
+      "dimension": "trust-proof",
       "status": "verified",
-      "recommendation": "Maillage vers devis, villes, guides ou FAQ verifie."
+      "recommendation": "Preuves courtier, ORIAS, rappel humain ou specialisation visibles."
     },
     {
       "id": 14,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-cno.html",
       "page": "assurance-cno.html",
-      "dimension": "money-intent",
+      "dimension": "abandon-rescue",
       "status": "verified",
-      "recommendation": "Intention assurance immeuble, PNO, CNO, SCI ou copropriete couverte."
+      "recommendation": "Rattrapage formulaire suivi pour transformer hesitation en appel ou reprise."
     },
     {
       "id": 15,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-cno.html",
       "page": "assurance-cno.html",
+      "dimension": "internal-linking",
+      "status": "verified",
+      "recommendation": "Maillage vers devis, villes, guides ou FAQ verifie."
+    },
+    {
+      "id": 16,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-cno.html",
+      "page": "assurance-cno.html",
+      "dimension": "money-intent",
+      "status": "verified",
+      "recommendation": "Intention assurance immeuble, PNO, CNO, SCI ou copropriete couverte."
+    },
+    {
+      "id": 17,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-cno.html",
+      "page": "assurance-cno.html",
       "dimension": "schema-quality",
       "status": "verified",
       "recommendation": "Balises structurees et meta de croissance surveillees."
     },
     {
-      "id": 16,
+      "id": 18,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-cno.html",
       "page": "assurance-cno.html",
@@ -201,70 +225,79 @@
       "recommendation": "Viewport, assets versionnes et formulaires compacts controles."
     },
     {
-      "id": 17,
+      "id": 19,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant.html",
       "page": "assurance-coproprietaire-non-occupant.html",
       "dimension": "validation-friction",
       "status": "verified",
       "recommendation": "Champs obligatoires, invalides et consentement suivis sans donnees personnelles."
-    },
-    {
-      "id": 18,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant.html",
-      "page": "assurance-coproprietaire-non-occupant.html",
-      "dimension": "value-preview",
-      "status": "verified",
-      "recommendation": "Fourchette indicative et SLA visibles avant envoi du formulaire."
-    },
-    {
-      "id": 19,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant.html",
-      "page": "assurance-coproprietaire-non-occupant.html",
-      "dimension": "cta-continuity",
-      "status": "verified",
-      "recommendation": "CTA devis, telephone ou parcours diagnostic disponibles."
     },
     {
       "id": 20,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant.html",
       "page": "assurance-coproprietaire-non-occupant.html",
-      "dimension": "trust-proof",
+      "dimension": "value-preview",
       "status": "verified",
-      "recommendation": "Preuves courtier, ORIAS, rappel humain ou specialisation visibles."
+      "recommendation": "Fourchette indicative et SLA visibles avant envoi du formulaire."
     },
     {
       "id": 21,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant.html",
       "page": "assurance-coproprietaire-non-occupant.html",
-      "dimension": "internal-linking",
+      "dimension": "cta-continuity",
       "status": "verified",
-      "recommendation": "Maillage vers devis, villes, guides ou FAQ verifie."
+      "recommendation": "CTA devis, telephone ou parcours diagnostic disponibles."
     },
     {
       "id": 22,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant.html",
       "page": "assurance-coproprietaire-non-occupant.html",
-      "dimension": "money-intent",
+      "dimension": "trust-proof",
       "status": "verified",
-      "recommendation": "Intention assurance immeuble, PNO, CNO, SCI ou copropriete couverte."
+      "recommendation": "Preuves courtier, ORIAS, rappel humain ou specialisation visibles."
     },
     {
       "id": 23,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant.html",
       "page": "assurance-coproprietaire-non-occupant.html",
+      "dimension": "abandon-rescue",
+      "status": "verified",
+      "recommendation": "Rattrapage formulaire suivi pour transformer hesitation en appel ou reprise."
+    },
+    {
+      "id": 24,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant.html",
+      "page": "assurance-coproprietaire-non-occupant.html",
+      "dimension": "internal-linking",
+      "status": "verified",
+      "recommendation": "Maillage vers devis, villes, guides ou FAQ verifie."
+    },
+    {
+      "id": 25,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant.html",
+      "page": "assurance-coproprietaire-non-occupant.html",
+      "dimension": "money-intent",
+      "status": "verified",
+      "recommendation": "Intention assurance immeuble, PNO, CNO, SCI ou copropriete couverte."
+    },
+    {
+      "id": 26,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant.html",
+      "page": "assurance-coproprietaire-non-occupant.html",
       "dimension": "schema-quality",
       "status": "verified",
       "recommendation": "Balises structurees et meta de croissance surveillees."
     },
     {
-      "id": 24,
+      "id": 27,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant.html",
       "page": "assurance-coproprietaire-non-occupant.html",
@@ -273,70 +306,79 @@
       "recommendation": "Viewport, assets versionnes et formulaires compacts controles."
     },
     {
-      "id": 25,
+      "id": 28,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-copropriete.html",
       "page": "assurance-copropriete.html",
       "dimension": "validation-friction",
       "status": "verified",
       "recommendation": "Champs obligatoires, invalides et consentement suivis sans donnees personnelles."
-    },
-    {
-      "id": 26,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-copropriete.html",
-      "page": "assurance-copropriete.html",
-      "dimension": "value-preview",
-      "status": "verified",
-      "recommendation": "Fourchette indicative et SLA visibles avant envoi du formulaire."
-    },
-    {
-      "id": 27,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-copropriete.html",
-      "page": "assurance-copropriete.html",
-      "dimension": "cta-continuity",
-      "status": "verified",
-      "recommendation": "CTA devis, telephone ou parcours diagnostic disponibles."
-    },
-    {
-      "id": 28,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-copropriete.html",
-      "page": "assurance-copropriete.html",
-      "dimension": "trust-proof",
-      "status": "verified",
-      "recommendation": "Preuves courtier, ORIAS, rappel humain ou specialisation visibles."
     },
     {
       "id": 29,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-copropriete.html",
       "page": "assurance-copropriete.html",
-      "dimension": "internal-linking",
+      "dimension": "value-preview",
       "status": "verified",
-      "recommendation": "Maillage vers devis, villes, guides ou FAQ verifie."
+      "recommendation": "Fourchette indicative et SLA visibles avant envoi du formulaire."
     },
     {
       "id": 30,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-copropriete.html",
       "page": "assurance-copropriete.html",
-      "dimension": "money-intent",
+      "dimension": "cta-continuity",
       "status": "verified",
-      "recommendation": "Intention assurance immeuble, PNO, CNO, SCI ou copropriete couverte."
+      "recommendation": "CTA devis, telephone ou parcours diagnostic disponibles."
     },
     {
       "id": 31,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-copropriete.html",
       "page": "assurance-copropriete.html",
+      "dimension": "trust-proof",
+      "status": "verified",
+      "recommendation": "Preuves courtier, ORIAS, rappel humain ou specialisation visibles."
+    },
+    {
+      "id": 32,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-copropriete.html",
+      "page": "assurance-copropriete.html",
+      "dimension": "abandon-rescue",
+      "status": "verified",
+      "recommendation": "Rattrapage formulaire suivi pour transformer hesitation en appel ou reprise."
+    },
+    {
+      "id": 33,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-copropriete.html",
+      "page": "assurance-copropriete.html",
+      "dimension": "internal-linking",
+      "status": "verified",
+      "recommendation": "Maillage vers devis, villes, guides ou FAQ verifie."
+    },
+    {
+      "id": 34,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-copropriete.html",
+      "page": "assurance-copropriete.html",
+      "dimension": "money-intent",
+      "status": "verified",
+      "recommendation": "Intention assurance immeuble, PNO, CNO, SCI ou copropriete couverte."
+    },
+    {
+      "id": 35,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-copropriete.html",
+      "page": "assurance-copropriete.html",
       "dimension": "schema-quality",
       "status": "verified",
       "recommendation": "Balises structurees et meta de croissance surveillees."
     },
     {
-      "id": 32,
+      "id": 36,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-copropriete.html",
       "page": "assurance-copropriete.html",
@@ -345,61 +387,70 @@
       "recommendation": "Viewport, assets versionnes et formulaires compacts controles."
     },
     {
-      "id": 33,
+      "id": 37,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
       "page": "assurance-immeuble-agen.html",
       "dimension": "validation-friction",
       "status": "verified",
       "recommendation": "Champs obligatoires, invalides et consentement suivis sans donnees personnelles."
-    },
-    {
-      "id": 34,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
-      "page": "assurance-immeuble-agen.html",
-      "dimension": "value-preview",
-      "status": "verified",
-      "recommendation": "Fourchette indicative et SLA visibles avant envoi du formulaire."
-    },
-    {
-      "id": 35,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
-      "page": "assurance-immeuble-agen.html",
-      "dimension": "cta-continuity",
-      "status": "verified",
-      "recommendation": "CTA devis, telephone ou parcours diagnostic disponibles."
-    },
-    {
-      "id": 36,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
-      "page": "assurance-immeuble-agen.html",
-      "dimension": "trust-proof",
-      "status": "verified",
-      "recommendation": "Preuves courtier, ORIAS, rappel humain ou specialisation visibles."
-    },
-    {
-      "id": 37,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
-      "page": "assurance-immeuble-agen.html",
-      "dimension": "internal-linking",
-      "status": "verified",
-      "recommendation": "Maillage vers devis, villes, guides ou FAQ verifie."
     },
     {
       "id": 38,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
       "page": "assurance-immeuble-agen.html",
+      "dimension": "value-preview",
+      "status": "verified",
+      "recommendation": "Fourchette indicative et SLA visibles avant envoi du formulaire."
+    },
+    {
+      "id": 39,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
+      "page": "assurance-immeuble-agen.html",
+      "dimension": "cta-continuity",
+      "status": "verified",
+      "recommendation": "CTA devis, telephone ou parcours diagnostic disponibles."
+    },
+    {
+      "id": 40,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
+      "page": "assurance-immeuble-agen.html",
+      "dimension": "trust-proof",
+      "status": "verified",
+      "recommendation": "Preuves courtier, ORIAS, rappel humain ou specialisation visibles."
+    },
+    {
+      "id": 41,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
+      "page": "assurance-immeuble-agen.html",
+      "dimension": "abandon-rescue",
+      "status": "verified",
+      "recommendation": "Rattrapage formulaire suivi pour transformer hesitation en appel ou reprise."
+    },
+    {
+      "id": 42,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
+      "page": "assurance-immeuble-agen.html",
+      "dimension": "internal-linking",
+      "status": "verified",
+      "recommendation": "Maillage vers devis, villes, guides ou FAQ verifie."
+    },
+    {
+      "id": 43,
+      "batch": "lead-friction-2026-07-26",
+      "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
+      "page": "assurance-immeuble-agen.html",
       "dimension": "money-intent",
       "status": "verified",
       "recommendation": "Intention assurance immeuble, PNO, CNO, SCI ou copropriete couverte."
     },
     {
-      "id": 39,
+      "id": 44,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
       "page": "assurance-immeuble-agen.html",
@@ -408,7 +459,7 @@
       "recommendation": "Balises structurees et meta de croissance surveillees."
     },
     {
-      "id": 40,
+      "id": 45,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-immeuble-agen.html",
       "page": "assurance-immeuble-agen.html",
@@ -417,7 +468,7 @@
       "recommendation": "Viewport, assets versionnes et formulaires compacts controles."
     },
     {
-      "id": 41,
+      "id": 46,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence.html",
       "page": "assurance-immeuble-aix-en-provence.html",
@@ -426,7 +477,7 @@
       "recommendation": "Champs obligatoires, invalides et consentement suivis sans donnees personnelles."
     },
     {
-      "id": 42,
+      "id": 47,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence.html",
       "page": "assurance-immeuble-aix-en-provence.html",
@@ -435,7 +486,7 @@
       "recommendation": "Fourchette indicative et SLA visibles avant envoi du formulaire."
     },
     {
-      "id": 43,
+      "id": 48,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence.html",
       "page": "assurance-immeuble-aix-en-provence.html",
@@ -444,7 +495,7 @@
       "recommendation": "CTA devis, telephone ou parcours diagnostic disponibles."
     },
     {
-      "id": 44,
+      "id": 49,
       "batch": "lead-friction-2026-07-26",
       "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence.html",
       "page": "assurance-immeuble-aix-en-provence.html",
@@ -453,58 +504,13 @@
       "recommendation": "Preuves courtier, ORIAS, rappel humain ou specialisation visibles."
     },
     {
-      "id": 45,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence.html",
-      "page": "assurance-immeuble-aix-en-provence.html",
-      "dimension": "internal-linking",
-      "status": "verified",
-      "recommendation": "Maillage vers devis, villes, guides ou FAQ verifie."
-    },
-    {
-      "id": 46,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence.html",
-      "page": "assurance-immeuble-aix-en-provence.html",
-      "dimension": "money-intent",
-      "status": "verified",
-      "recommendation": "Intention assurance immeuble, PNO, CNO, SCI ou copropriete couverte."
-    },
-    {
-      "id": 47,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence.html",
-      "page": "assurance-immeuble-aix-en-provence.html",
-      "dimension": "schema-quality",
-      "status": "verified",
-      "recommendation": "Balises structurees et meta de croissance surveillees."
-    },
-    {
-      "id": 48,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence.html",
-      "page": "assurance-immeuble-aix-en-provence.html",
-      "dimension": "mobile-speed",
-      "status": "verified",
-      "recommendation": "Viewport, assets versionnes et formulaires compacts controles."
-    },
-    {
-      "id": 49,
-      "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-immeuble-albi.html",
-      "page": "assurance-immeuble-albi.html",
-      "dimension": "validation-friction",
-      "status": "verified",
-      "recommendation": "Champs obligatoires, invalides et consentement suivis sans donnees personnelles."
-    },
-    {
       "id": 50,
       "batch": "lead-friction-2026-07-26",
-      "url": "https://immeubleassur.com/assurance-immeuble-albi.html",
-      "page": "assurance-immeuble-albi.html",
-      "dimension": "value-preview",
+      "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence.html",
+      "page": "assurance-immeuble-aix-en-provence.html",
+      "dimension": "abandon-rescue",
       "status": "verified",
-      "recommendation": "Fourchette indicative et SLA visibles avant envoi du formulaire."
+      "recommendation": "Rattrapage formulaire suivi pour transformer hesitation en appel ou reprise."
     }
   ]
 }
