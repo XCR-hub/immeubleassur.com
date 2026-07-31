@@ -106,14 +106,16 @@ function countFrom(rows, key) {
   return numberOf(row?.count);
 }
 
-function buildActions({ summary, topReasons, topPaths, repeatSources }) {
+function buildActions({ summary, topReasons, topPaths, repeatSources, duplicates }) {
   const actions = [];
   const blocks30d = numberOf(summary.spam_blocks_30d);
   const submitAttempts = numberOf(summary.submit_attempts_30d);
+  const duplicateLeads30d = numberOf(summary.duplicate_leads_30d);
   const blockRate = pct(blocks30d, blocks30d + submitAttempts);
   const topReason = topReasons[0];
   const topPath = topPaths[0];
   const repeatSource = repeatSources[0];
+  const topDuplicate = duplicates[0];
 
   if (blocks30d > 0) {
     actions.push({
@@ -160,6 +162,24 @@ function buildActions({ summary, topReasons, topPaths, repeatSources }) {
     });
   }
 
+  if (duplicateLeads30d > 0) {
+    actions.push({
+      priority: 90,
+      type: "doublons-filtres",
+      signal: `${duplicateLeads30d} demande(s) deja connue(s) sur 30 jours`,
+      recommendation: "Ne pas les compter comme nouveaux leads; utiliser ces signaux pour relancer le dossier existant."
+    });
+  }
+
+  if (topDuplicate && numberOf(topDuplicate.duplicates) >= 3) {
+    actions.push({
+      priority: 83,
+      type: "page-doublons",
+      signal: `${topDuplicate.path}: ${topDuplicate.duplicates} doublon(s)`,
+      recommendation: "Verifier si cette page provoque des renvois repetes et ajouter un message de confirmation plus visible si besoin."
+    });
+  }
+
   if (!actions.length) {
     actions.push({
       priority: 60,
@@ -183,13 +203,17 @@ export async function onRequestGet({ request, env }) {
     topPaths,
     repeatSources,
     recentBlocks,
-    validationErrors
+    validationErrors,
+    duplicates
   ] = await Promise.all([
-    safeAll(env, `SELECT event_type, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') AND event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked', 'lead_submit_error', 'form_submit_attempt', 'lead_created', 'form_start') GROUP BY event_type ORDER BY count DESC`),
+    safeAll(env, `SELECT event_type, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') AND event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked', 'lead_submit_error', 'form_submit_attempt', 'lead_created', 'form_start', 'lead_duplicate_filtered') GROUP BY event_type ORDER BY count DESC`),
     safeFirst(env, `SELECT
       SUM(CASE WHEN event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked') AND created_at >= datetime('now', '-24 hours') THEN 1 ELSE 0 END) AS spam_blocks_24h,
       SUM(CASE WHEN event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked') AND created_at >= datetime('now', '-7 days') THEN 1 ELSE 0 END) AS spam_blocks_7d,
       SUM(CASE WHEN event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked') AND created_at >= datetime('now', '-30 days') THEN 1 ELSE 0 END) AS spam_blocks_30d,
+      SUM(CASE WHEN event_type = 'lead_duplicate_filtered' AND created_at >= datetime('now', '-24 hours') THEN 1 ELSE 0 END) AS duplicate_leads_24h,
+      SUM(CASE WHEN event_type = 'lead_duplicate_filtered' AND created_at >= datetime('now', '-7 days') THEN 1 ELSE 0 END) AS duplicate_leads_7d,
+      SUM(CASE WHEN event_type = 'lead_duplicate_filtered' AND created_at >= datetime('now', '-30 days') THEN 1 ELSE 0 END) AS duplicate_leads_30d,
       SUM(CASE WHEN event_type = 'form_submit_attempt' AND created_at >= datetime('now', '-30 days') THEN 1 ELSE 0 END) AS submit_attempts_30d,
       SUM(CASE WHEN event_type = 'lead_created' AND created_at >= datetime('now', '-30 days') THEN 1 ELSE 0 END) AS leads_30d
       FROM site_events WHERE created_at >= datetime('now', '-30 days')`),
@@ -197,7 +221,8 @@ export async function onRequestGet({ request, env }) {
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COUNT(*) AS blocked, SUM(CASE WHEN event_type = 'lead_spam_blocked' THEN 1 ELSE 0 END) AS lead_blocks, SUM(CASE WHEN event_type = 'newsletter_spam_blocked' THEN 1 ELSE 0 END) AS newsletter_blocks, MAX(created_at) AS last_seen FROM site_events WHERE event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked') AND created_at >= datetime('now', '-30 days') GROUP BY path ORDER BY blocked DESC, last_seen DESC LIMIT 20`),
     safeAll(env, `SELECT ip_address, COUNT(*) AS blocked, COUNT(DISTINCT session_id) AS sessions, COUNT(DISTINCT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/')) AS paths, COALESCE(MAX(CAST(NULLIF(json_extract(payload, '$.spam_score'), '') AS REAL)), 0) AS max_score, MAX(user_agent) AS user_agent, MAX(created_at) AS last_seen FROM site_events WHERE event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked') AND created_at >= datetime('now', '-30 days') AND COALESCE(NULLIF(ip_address, ''), '') <> '' GROUP BY ip_address ORDER BY blocked DESC, sessions DESC, paths DESC LIMIT 20`),
     safeAll(env, `SELECT event_type, COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, target, COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'anti-spam') AS reason, COALESCE(CAST(NULLIF(json_extract(payload, '$.spam_score'), '') AS REAL), 0) AS spam_score, ip_address, user_agent, created_at FROM site_events WHERE event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked') AND created_at >= datetime('now', '-30 days') ORDER BY created_at DESC LIMIT 30`),
-    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.missing'), ''), COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'validation')) AS missing, COUNT(*) AS errors, MAX(created_at) AS last_seen FROM site_events WHERE event_type = 'lead_submit_error' AND created_at >= datetime('now', '-30 days') GROUP BY path, missing ORDER BY errors DESC LIMIT 20`)
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.missing'), ''), COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'validation')) AS missing, COUNT(*) AS errors, MAX(created_at) AS last_seen FROM site_events WHERE event_type = 'lead_submit_error' AND created_at >= datetime('now', '-30 days') GROUP BY path, missing ORDER BY errors DESC LIMIT 20`),
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.duplicate_reason'), ''), COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'doublon-contact')) AS reason, COUNT(*) AS duplicates, COUNT(DISTINCT NULLIF(lead_reference, '')) AS existing_leads, MAX(created_at) AS last_seen FROM site_events WHERE event_type = 'lead_duplicate_filtered' AND created_at >= datetime('now', '-30 days') GROUP BY path, reason ORDER BY duplicates DESC, last_seen DESC LIMIT 20`)
   ]);
 
   const cleanEventCounts = rowsOrEmpty(eventCounts);
@@ -205,6 +230,9 @@ export async function onRequestGet({ request, env }) {
     spam_blocks_24h: numberOf(periods?.spam_blocks_24h),
     spam_blocks_7d: numberOf(periods?.spam_blocks_7d),
     spam_blocks_30d: numberOf(periods?.spam_blocks_30d),
+    duplicate_leads_24h: numberOf(periods?.duplicate_leads_24h),
+    duplicate_leads_7d: numberOf(periods?.duplicate_leads_7d),
+    duplicate_leads_30d: numberOf(periods?.duplicate_leads_30d),
     lead_spam_blocks_30d: countFrom(cleanEventCounts, "lead_spam_blocked"),
     newsletter_spam_blocks_30d: countFrom(cleanEventCounts, "newsletter_spam_blocked"),
     validation_errors_30d: countFrom(cleanEventCounts, "lead_submit_error"),
@@ -212,10 +240,12 @@ export async function onRequestGet({ request, env }) {
     leads_30d: numberOf(periods?.leads_30d)
   };
   summary.block_rate = pct(summary.spam_blocks_30d, summary.spam_blocks_30d + summary.submit_attempts_30d);
+  summary.duplicate_filter_rate = pct(summary.duplicate_leads_30d, summary.duplicate_leads_30d + summary.leads_30d);
 
   const cleanTopReasons = rowsOrEmpty(topReasons);
   const cleanTopPaths = rowsOrEmpty(topPaths);
   const cleanRepeatSources = sanitizeSources(rowsOrEmpty(repeatSources));
+  const cleanDuplicates = rowsOrEmpty(duplicates);
 
   return json({
     success: true,
@@ -227,7 +257,8 @@ export async function onRequestGet({ request, env }) {
     repeat_sources: cleanRepeatSources,
     recent_blocks: sanitizeRecent(rowsOrEmpty(recentBlocks)),
     validation_errors: rowsOrEmpty(validationErrors),
-    actions: buildActions({ summary, topReasons: cleanTopReasons, topPaths: cleanTopPaths, repeatSources: cleanRepeatSources }),
+    duplicates: cleanDuplicates,
+    actions: buildActions({ summary, topReasons: cleanTopReasons, topPaths: cleanTopPaths, repeatSources: cleanRepeatSources, duplicates: cleanDuplicates }),
     privacy: "Les IP sont masquees dans cette reponse admin; les valeurs brutes restent limitees a SQLite local.",
     warnings: [
       errorOf(eventCounts),
@@ -236,7 +267,8 @@ export async function onRequestGet({ request, env }) {
       errorOf(topPaths),
       errorOf(repeatSources),
       errorOf(recentBlocks),
-      errorOf(validationErrors)
+      errorOf(validationErrors),
+      errorOf(duplicates)
     ].filter(Boolean)
   });
 }

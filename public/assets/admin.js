@@ -819,6 +819,7 @@ async function loadIntegrations() {
   const publicReports = { editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport };
   const googleHealth = seoReport.google_api_health || {};
   const spamBlocks = Number(reports.lead_spam_blocks_30d || 0) + Number(reports.newsletter_spam_blocks_30d || 0);
+  const duplicateLeads = Number(reports.lead_duplicates_30d || 0);
 
   if (integrationsSummary) {
     integrationsSummary.replaceChildren(
@@ -834,6 +835,7 @@ async function loadIntegrations() {
       metricCard("Newsletter", String(subscriberCount(reports.newsletter_subscribers, "active")), reports.latest_newsletter_issue?.status || "rapport public"),
       metricCard("Turnstile", turnstileReport.configured ? "Actif" : "Fallback", turnstileReport.configured ? `${turnstileReport.forms_instrumented || 0}/${turnstileReport.forms_detected || 0} formulaire(s)` : "filtre local"),
       metricCard("Anti-spam", String(spamBlocks || eventCount(reports.site_events_30d, "lead_spam_blocked")), antifraudReport.configured ? "filtre local actif" : "filtre local pret"),
+      metricCard("Dedupe leads", String(duplicateLeads || eventCount(reports.site_events_30d, "lead_duplicate_filtered")), "doublons filtres"),
       metricCard("Runtime", runtimeHealth ? `${runtimeHealth.runtime?.platform || "local"} / ${runtimeHealth.database?.driver || "db"}` : "Token requis", runtimeHealth?.database?.size_bytes ? `${runtimeHealth.database.table_count || 0} tables, ${formatBytes(runtimeHealth.database.size_bytes)}` : "diagnostic protege"),
       metricCard("Production", monitorStatusLabel(runtimeHealth?.monitor), monitorDetail(runtimeHealth?.monitor)),
       metricCard("SLA leads", leadSlaStatusLabel(runtimeHealth?.lead_sla), leadSlaDetail(runtimeHealth?.lead_sla)),
@@ -1377,6 +1379,15 @@ function spamRows(result = {}) {
       action: `${item.sessions || 0} session(s), ${item.paths || 0} page(s). Surveiller sans exposer l'IP brute.`
     });
   }
+  for (const item of Array.isArray(result.duplicates) ? result.duplicates : []) {
+    rows.push({
+      type: "doublon-filtre",
+      volume: `${item.duplicates || 0} doublon(s)`,
+      signal: `${item.path || "/"} - ${item.reason || "doublon-contact"}`,
+      last: reportDate(item.last_seen),
+      action: `${item.existing_leads || 0} lead(s) existant(s) retrouve(s). Relancer le dossier initial sans recreer un lead.`
+    });
+  }
   for (const item of Array.isArray(result.validation_errors) ? result.validation_errors : []) {
     rows.push({
       type: "friction-validation",
@@ -1431,6 +1442,7 @@ async function loadSpam() {
   const repeatSources = Array.isArray(result.repeat_sources) ? result.repeat_sources : [];
   const topReasons = Array.isArray(result.top_reasons) ? result.top_reasons : [];
   const topPaths = Array.isArray(result.top_paths) ? result.top_paths : [];
+  const duplicates = Array.isArray(result.duplicates) ? result.duplicates : [];
   const warnings = Array.isArray(result.warnings) ? result.warnings : [];
 
   if (spamSummary) {
@@ -1440,11 +1452,14 @@ async function loadSpam() {
       metricCard("Blocages 30j", String(summary.spam_blocks_30d || 0), `${summary.block_rate || 0}% des tentatives`),
       metricCard("Leads filtres", String(summary.lead_spam_blocks_30d || 0), "robots devis"),
       metricCard("Newsletter filtres", String(summary.newsletter_spam_blocks_30d || 0), "robots inscription"),
+      metricCard("Doublons 24h", String(summary.duplicate_leads_24h || 0), "demandes deja connues"),
+      metricCard("Doublons filtres", String(summary.duplicate_leads_30d || 0), `${summary.duplicate_filter_rate || 0}% des leads traites`),
       metricCard("Tentatives", String(summary.submit_attempts_30d || 0), `${summary.leads_30d || 0} lead(s) crees`),
       metricCard("Erreurs formulaire", String(summary.validation_errors_30d || 0), "friction a surveiller"),
       metricCard("Sources masquees", String(repeatSources.length), "IP non exposees"),
       metricCard("Raisons", String(topReasons.length), topReasons[0]?.reason || "aucune dominante"),
       metricCard("Pages ciblees", String(topPaths.length), topPaths[0]?.path || "aucune"),
+      metricCard("Pages doublons", String(duplicates.length), duplicates[0]?.path || "aucune"),
       metricCard("Actions", String((result.actions || []).length), warnings.length ? `${warnings.length} alerte(s)` : "priorisees")
     );
   }
@@ -1496,6 +1511,7 @@ async function loadSeo() {
       metricCard("Leads chauds", String(leadStats.hot_leads_30d || 0), "score 80+"),
       metricCard("CTA -> formulaire", `${funnel.cta_to_form_rate || 0}%`, `${funnel.cta_clicks || 0} clics`),
       metricCard("Formulaire -> lead", `${funnel.form_to_lead_rate || 0}%`, `${funnel.form_starts || 0} starts`),
+      metricCard("Leads traites", `${funnel.attempt_to_handled_lead_rate || 0}%`, `${funnel.duplicate_filtered || 0} doublon(s)`),
       metricCard("Abandons", `${funnel.abandon_rate || 0}%`, `${funnel.abandoned_forms || 0} signaux`),
       metricCard("Erreurs formulaire", String(funnel.validation_errors || 0), "champs bloquants"),
       metricCard("Spam bloques", String(funnel.spam_blocked || 0), "robots filtres"),
@@ -1510,12 +1526,13 @@ async function loadSeo() {
     ...(publicReport.conversion_intelligence?.actions || []).map((item) => ({ score: item.score || 0, opportunity_type: "conversion-intelligence", url: item.url || item.cluster || "money-page", query: item.priority || item.cluster || "lead", recommendation: item.action || "Renforcer le passage vers devis qualifie." })),
     ...(apiResult?.lead_actions || []),
     ...(ctaExperiments || []).slice(0, 6).map((item) => ({ score: item.leads_created || item.form_starts || item.cta_clicks || 0, opportunity_type: "test-cta", url: item.variant || "cta", query: `${item.views || 0} vues / ${item.cta_clicks || 0} clics / ${item.form_starts || 0} starts / ${Math.round(item.lead_value_max_total || 0)} EUR potentiel CTA`, recommendation: "Comparer les variantes avec les leads crees et leur valeur estimee avant de figer le message." })),
-    ...(apiResult?.conversion_gaps || []).slice(0, 8).map((item) => ({ score: Number(item.form_starts || 0) - Number(item.leads_created || 0), opportunity_type: "conversion-gap", url: item.path, query: `${item.form_starts || 0} starts / ${item.leads_created || 0} leads`, recommendation: "Verifier intention, reassurance et friction formulaire sur cette page." })),
+    ...(apiResult?.conversion_gaps || []).slice(0, 8).map((item) => ({ score: Number(item.form_starts || 0) - Number(item.leads_created || 0) - Number(item.duplicate_filtered || 0), opportunity_type: "conversion-gap", url: item.path, query: `${item.form_starts || 0} starts / ${item.leads_created || 0} leads / ${item.duplicate_filtered || 0} doublons`, recommendation: "Verifier intention, reassurance et friction formulaire sur cette page." })),
     ...(apiResult?.diagnostic_paths || []).slice(0, 8).map((item) => ({ score: item.completions, opportunity_type: "diagnostic", url: item.path, query: `${item.completions || 0} completions ${item.target || ""}`.trim(), recommendation: "Renforcer le CTA et le contenu du parcours diagnostic qui capte cette intention." })),
     ...(apiResult?.readiness_paths || []).slice(0, 8).map((item) => ({ score: item.completions, opportunity_type: "dossier-pret", url: item.path, query: `${item.completions || 0} dossiers, score ${Math.round(item.avg_score || 0)}%`, recommendation: "Renforcer les elements de preuve et le CTA formulaire sur les pages qui preparent le mieux le dossier." })),
     ...(apiResult?.value_hint_paths || []).slice(0, 8).map((item) => ({ score: item.completions, opportunity_type: "estimation-prime", url: item.path, query: `${item.completions || 0} affichages, potentiel ${Math.round(item.avg_value_max || 0)} EUR`, recommendation: "Renforcer le bloc prix, les preuves et le CTA devis sur les pages qui declenchent les meilleures estimations." })),
     ...(apiResult?.validation_errors || []).slice(0, 8).map((item) => ({ score: item.errors, opportunity_type: "validation-friction", url: item.path, query: `${item.errors || 0} blocages: ${item.missing || "validation"}`, recommendation: "Rendre les champs concernes plus explicites et reduire la friction avant envoi du formulaire." })),
     ...(apiResult?.spam_blocks || []).slice(0, 8).map((item) => ({ score: item.blocked, opportunity_type: "spam-bloque", url: item.path, query: `${item.blocked || 0} blocages: ${item.reason || "anti-spam"}`, recommendation: "Verifier les signaux robots et surveiller les attaques de formulaire sans les transformer en leads." })),
+    ...(apiResult?.duplicate_leads || []).slice(0, 8).map((item) => ({ score: item.duplicates, opportunity_type: "doublon-filtre", url: item.path, query: `${item.duplicates || 0} doublons: ${item.reason || "doublon-contact"}`, recommendation: "Ne pas les compter en nouveaux leads; utiliser le signal pour prioriser la relance du dossier existant." })),
     ...(apiResult?.top_landing_pages || []).slice(0, 10).map((item) => ({ score: item.count, opportunity_type: "landing", url: item.landing_page, query: "trafic 30j", recommendation: "Surveiller le passage vers formulaire et lead." })),
     ...(apiResult?.leads_by_need || []).slice(0, 5).map((item) => ({ score: item.count, opportunity_type: "besoin", url: item.need, query: `score moyen ${Math.round(item.avg_score || 0)}`, recommendation: "Prioriser les contenus et CTA de ce besoin." })),
     ...(apiResult?.leads_by_city || []).slice(0, 5).map((item) => ({ score: item.count, opportunity_type: "ville", url: item.city, query: `score moyen ${Math.round(item.avg_score || 0)}`, recommendation: "Renforcer maillage local si la demande progresse." }))

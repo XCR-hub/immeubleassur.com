@@ -214,7 +214,8 @@ async function reportStatus(env) {
     latestNewsletterIssue,
     newsletterEvents,
     siteEventCounts,
-    recentSpamBlocks
+    recentSpamBlocks,
+    recentDuplicateLeads
   ] = await Promise.all([
     safeFirst(env, `SELECT id, source, status, pages_checked, opportunities_count, created_at FROM seo_runs ORDER BY created_at DESC LIMIT 1`),
     safeFirst(env, `SELECT id, provider, model, task, status, created_at FROM ai_generation_runs ORDER BY created_at DESC LIMIT 1`),
@@ -226,7 +227,8 @@ async function reportStatus(env) {
     safeFirst(env, `SELECT id, slug, title, status, created_at, published_at, sent_at FROM newsletter_issues ORDER BY created_at DESC LIMIT 1`),
     safeAll(env, `SELECT event_type, COUNT(*) AS count FROM newsletter_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type ORDER BY count DESC`),
     safeAll(env, `SELECT event_type, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type ORDER BY count DESC`),
-    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'anti-spam') AS reason, COUNT(*) AS blocked FROM site_events WHERE event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked') AND created_at >= datetime('now', '-30 days') GROUP BY path, reason ORDER BY blocked DESC LIMIT 10`)
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'anti-spam') AS reason, COUNT(*) AS blocked FROM site_events WHERE event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked') AND created_at >= datetime('now', '-30 days') GROUP BY path, reason ORDER BY blocked DESC LIMIT 10`),
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.duplicate_reason'), ''), COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'doublon-contact')) AS reason, COUNT(*) AS duplicates, COUNT(DISTINCT NULLIF(lead_reference, '')) AS existing_leads FROM site_events WHERE event_type = 'lead_duplicate_filtered' AND created_at >= datetime('now', '-30 days') GROUP BY path, reason ORDER BY duplicates DESC LIMIT 10`)
   ]);
 
   return {
@@ -241,7 +243,8 @@ async function reportStatus(env) {
       errorOf(latestNewsletterIssue),
       errorOf(newsletterEvents),
       errorOf(siteEventCounts),
-      errorOf(recentSpamBlocks)
+      errorOf(recentSpamBlocks),
+      errorOf(recentDuplicateLeads)
     ].filter(Boolean),
     reports: {
       latest_seo_run: latestSeoRun && !latestSeoRun.error ? latestSeoRun : null,
@@ -256,7 +259,9 @@ async function reportStatus(env) {
       site_events_30d: rowsOrEmpty(siteEventCounts),
       lead_spam_blocks_30d: countEvent(siteEventCounts, "lead_spam_blocked"),
       newsletter_spam_blocks_30d: countEvent(siteEventCounts, "newsletter_spam_blocked"),
-      recent_spam_blocks: rowsOrEmpty(recentSpamBlocks)
+      lead_duplicates_30d: countEvent(siteEventCounts, "lead_duplicate_filtered"),
+      recent_spam_blocks: rowsOrEmpty(recentSpamBlocks),
+      recent_duplicate_leads: rowsOrEmpty(recentDuplicateLeads)
     }
   };
 }
@@ -308,6 +313,16 @@ function buildActions(connectors, reports) {
       connector: "Anti-spam",
       type: "robots-detectes",
       recommendation: `Surveiller ${spamBlocks} blocage(s) formulaire sur 30 jours et renforcer les seuils du filtre local si le volume augmente.`
+    });
+  }
+
+  const duplicateLeads = Number(reports.lead_duplicates_30d || 0);
+  if (duplicateLeads > 0) {
+    actions.push({
+      priority: 88,
+      connector: "Dedupe leads",
+      type: "doublons-filtres",
+      recommendation: `Suivre ${duplicateLeads} doublon(s) sur 30 jours comme opportunites de relance, pas comme nouveaux leads.`
     });
   }
 

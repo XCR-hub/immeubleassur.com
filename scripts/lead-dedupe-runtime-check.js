@@ -3,6 +3,9 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { openLocalSqlite } from "./local-sqlite-db.js";
 import { onRequestPost } from "../functions/api/leads.js";
+import { onRequestGet as getAdminIntegrations } from "../functions/api/admin/integrations.js";
+import { onRequestGet as getAdminSeo } from "../functions/api/admin/seo.js";
+import { onRequestGet as getAdminSpam } from "../functions/api/admin/spam.js";
 
 const REPORT_PATH = join("reports", "lead-dedupe-runtime-report.json");
 const dbPath = join(tmpdir(), `immeubleassur-dedupe-${process.pid}-${Date.now()}.sqlite`);
@@ -33,6 +36,15 @@ async function submitLead(DB, payload) {
     body: JSON.stringify(payload)
   });
   const response = await onRequestPost({ request, env: { DB }, waitUntil: () => {} });
+  return { status: response.status, body: await response.json() };
+}
+
+async function adminGet(handler, DB, path) {
+  const token = "dedupe-admin-token";
+  const request = new Request(`https://immeubleassur.com${path}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const response = await handler({ request, env: { DB, ADMIN_API_TOKEN: token } });
   return { status: response.status, body: await response.json() };
 }
 
@@ -74,9 +86,17 @@ async function run() {
     const leadCount = await DB.prepare("SELECT COUNT(*) AS count FROM leads").first("count");
     const duplicateEvents = await DB.prepare("SELECT COUNT(*) AS count FROM site_events WHERE event_type = ?").bind("lead_duplicate_filtered").first("count");
     const duplicateLeadEvents = await DB.prepare("SELECT COUNT(*) AS count FROM lead_events WHERE event_type = ?").bind("lead_duplicate_filtered").first("count");
+    const [adminSpam, adminSeo, adminIntegrations] = await Promise.all([
+      adminGet(getAdminSpam, DB, "/api/admin/spam"),
+      adminGet(getAdminSeo, DB, "/api/admin/seo"),
+      adminGet(getAdminIntegrations, DB, "/api/admin/integrations")
+    ]);
+    const adminSpamDuplicates = Number(adminSpam.body?.summary?.duplicate_leads_30d || 0);
+    const adminSeoDuplicates = Number(adminSeo.body?.conversion_funnel?.duplicate_filtered || 0);
+    const adminIntegrationsDuplicates = Number(adminIntegrations.body?.reports?.lead_duplicates_30d || 0);
 
     const report = {
-      success: first.status === 200 && first.body?.success === true && !first.body?.duplicate && second.status === 200 && second.body?.duplicate === true && leadCount === 1 && duplicateEvents === 1 && duplicateLeadEvents === 1,
+      success: first.status === 200 && first.body?.success === true && !first.body?.duplicate && second.status === 200 && second.body?.duplicate === true && leadCount === 1 && duplicateEvents === 1 && duplicateLeadEvents === 1 && adminSpam.status === 200 && adminSeo.status === 200 && adminIntegrations.status === 200 && adminSpamDuplicates === 1 && adminSeoDuplicates === 1 && adminIntegrationsDuplicates === 1,
       scenario: "repeated-lead-dedupe",
       first: {
         status: first.status,
@@ -97,7 +117,25 @@ async function run() {
         duplicate_site_events: duplicateEvents,
         duplicate_lead_events: duplicateLeadEvents
       },
-      safeguards: ["sqlite-temp-db", "no-smtp-config", "no-real-lead-persisted", "duplicate-does-not-create-new-lead"]
+      admin: {
+        spam: {
+          status: adminSpam.status,
+          duplicate_leads_30d: adminSpamDuplicates,
+          duplicate_filter_rate: Number(adminSpam.body?.summary?.duplicate_filter_rate || 0),
+          duplicate_rows: Array.isArray(adminSpam.body?.duplicates) ? adminSpam.body.duplicates.length : 0
+        },
+        seo: {
+          status: adminSeo.status,
+          duplicate_filtered: adminSeoDuplicates,
+          attempt_to_handled_lead_rate: Number(adminSeo.body?.conversion_funnel?.attempt_to_handled_lead_rate || 0)
+        },
+        integrations: {
+          status: adminIntegrations.status,
+          lead_duplicates_30d: adminIntegrationsDuplicates,
+          duplicate_rows: Array.isArray(adminIntegrations.body?.reports?.recent_duplicate_leads) ? adminIntegrations.body.reports.recent_duplicate_leads.length : 0
+        }
+      },
+      safeguards: ["sqlite-temp-db", "no-smtp-config", "no-real-lead-persisted", "duplicate-does-not-create-new-lead", "admin-duplicate-metrics-verified"]
     };
 
     mkdirSync(dirname(REPORT_PATH), { recursive: true });

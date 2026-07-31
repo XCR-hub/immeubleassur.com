@@ -20,10 +20,29 @@
     "duplicate_site_events": 1,
     "duplicate_lead_events": 1
   },
+  "admin": {
+    "spam": {
+      "status": 200,
+      "duplicate_leads_30d": 1,
+      "duplicate_filter_rate": 100,
+      "duplicate_rows": 1
+    },
+    "seo": {
+      "status": 200,
+      "duplicate_filtered": 1,
+      "attempt_to_handled_lead_rate": 0
+    },
+    "integrations": {
+      "status": 200,
+      "lead_duplicates_30d": 1,
+      "duplicate_rows": 1
+    }
+  },
   "safeguards": [
     "sqlite-temp-db",
     "no-smtp-config",
     "no-real-lead-persisted",
-    "duplicate-does-not-create-new-lead"
+    "duplicate-does-not-create-new-lead",
+    "admin-duplicate-metrics-verified"
   ]
 }

@@ -1,10 +1,11 @@
 {
-  "generated_at": "2026-07-31T14:46:43.536Z",
+  "generated_at": "2026-07-31T15:08:45.091Z",
   "checked_files": [
     "functions/api/leads.js",
     "public/assets/app.js",
     "functions/api/admin/seo.js",
     "functions/api/admin/spam.js",
+    "functions/api/admin/integrations.js",
     "public/assets/admin.js",
     "functions/api/events.js",
     "functions/api/newsletter.js",
@@ -14,7 +15,7 @@
     "package.json",
     "scripts/generate-site.js"
   ],
-  "required_markers": 116,
+  "required_markers": 134,
   "forbidden_markers": 2,
   "missing": [],
   "forbidden_hits": [],
