@@ -2,6 +2,7 @@ import { closeSync, existsSync, mkdirSync, openSync, writeFileSync } from "node:
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync, spawn } from "node:child_process";
+import { request as httpRequest } from "node:http";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 
 function argValue(name, fallback = "") {
@@ -56,28 +57,33 @@ function writeReport(status, details = {}) {
   return report;
 }
 
-async function healthCheck() {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 6000);
-  try {
-    const response = await fetch(`http://127.0.0.1:${port}/health`, { signal: controller.signal });
-    const body = await response.json().catch(() => null);
-    return {
-      ok: response.status === 200 && body?.success === true && body?.status === "ok",
-      status_code: response.status,
-      body,
-      error: ""
-    };
-  } catch (error) {
-    return {
-      ok: false,
-      status_code: 0,
-      body: null,
-      error: error.message || "health unavailable"
-    };
-  } finally {
-    clearTimeout(timeout);
-  }
+function healthCheck() {
+  return new Promise((resolveHealth) => {
+    const request = httpRequest(
+      { hostname: "127.0.0.1", port, path: "/health", method: "GET", timeout: 6000 },
+      (response) => {
+        const chunks = [];
+        response.on("data", (chunk) => chunks.push(chunk));
+        response.on("end", () => {
+          let body = null;
+          try {
+            body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+          } catch {}
+          resolveHealth({
+            ok: response.statusCode === 200 && body?.success === true && body?.status === "ok",
+            status_code: response.statusCode || 0,
+            body,
+            error: ""
+          });
+        });
+      }
+    );
+    request.on("timeout", () => request.destroy(new Error("health timeout")));
+    request.on("error", (error) => {
+      resolveHealth({ ok: false, status_code: 0, body: null, error: error.message || "health unavailable" });
+    });
+    request.end();
+  });
 }
 
 function parseWmicProcesses(output) {
