@@ -1,15 +1,17 @@
 import { gaLeadParams, sendGa4Event } from "../_shared/ga4.js";
 import { sendPortableSmtpMail } from "../_shared/smtp.js";
 
+const DEFAULT_CORS_ORIGIN = "https://immeubleassur.com";
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": DEFAULT_CORS_ORIGIN,
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
-  "Content-Type": "application/json; charset=utf-8"
+  "Content-Type": "application/json; charset=utf-8",
+  "Vary": "Origin"
 };
 
-function json(body, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: corsHeaders });
+function json(body, status = 200, request = null, env = null) {
+  return new Response(JSON.stringify(body), { status, headers: corsHeadersFor(request, env) });
 }
 
 function clean(value, max = 500) {
@@ -143,6 +145,24 @@ function requestOriginStatus(request, env) {
     }
   }
   return { ok: true, status: origin || referer ? "origin-ok" : "origin-absente" };
+}
+
+function corsOriginAllowed(origin, env) {
+  const header = clean(origin, 500);
+  if (!header) return false;
+  try {
+    const parsed = new URL(header);
+    return parsed.protocol === "https:" && turnstileHostnameValid(env, parsed.hostname.toLowerCase());
+  } catch {
+    return false;
+  }
+}
+
+function corsHeadersFor(request, env) {
+  const next = { ...corsHeaders };
+  const origin = clean(request?.headers?.get?.("Origin"), 500);
+  if (corsOriginAllowed(origin, env)) next["Access-Control-Allow-Origin"] = origin;
+  return next;
 }
 
 async function verifyTurnstile(env, payload, ip, expectedAction = "lead_form") {
@@ -734,17 +754,18 @@ async function logLeadEvent(env, leadId, eventType, payload, createdAt) {
     .run();
 }
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function onRequestOptions({ request, env }) {
+  return new Response(null, { status: 204, headers: corsHeadersFor(request, env) });
 }
 
 export async function onRequestPost({ request, env, waitUntil }) {
+  const reply = (body, status = 200) => json(body, status, request, env);
   let payload;
 
   try {
     payload = await request.json();
   } catch {
-    return json({ success: false, error: "JSON invalide" }, 400);
+    return reply({ success: false, error: "JSON invalide" }, 400);
   }
 
   const now = new Date().toISOString();
@@ -755,8 +776,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const userAgent = request.headers.get("User-Agent") || "";
 
   if (!env.DB) {
-    if (clean(payload.company_website)) return json({ success: true, reference: "IGNORED" });
-    return json({ success: false, error: "Base SQLite indisponible" }, 503);
+    if (clean(payload.company_website)) return reply({ success: true, reference: "IGNORED" });
+    return reply({ success: false, error: "Base SQLite indisponible" }, 503);
   }
 
   const originStatus = requestOriginStatus(request, env);
@@ -771,7 +792,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       origin_hostname: originStatus.hostname || ""
     };
     await logSpamAttempt(env, request, payload, assessment, now, ip, userAgent);
-    return json({ success: false, error: "Origine de formulaire non autorisee.", challenge: "origin-failed", origin: originStatus.status }, 403);
+    return reply({ success: false, error: "Origine de formulaire non autorisee.", challenge: "origin-failed", origin: originStatus.status }, 403);
   }
 
   const challenge = localChallengeStatus(payload);
@@ -783,7 +804,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       action: "block"
     };
     await logSpamAttempt(env, request, payload, assessment, now, ip, userAgent);
-    return json({ success: false, error: "Verification anti-robot invalide. Rechargez la page puis recommencez.", challenge: "local-failed" }, 403);
+    return reply({ success: false, error: "Verification anti-robot invalide. Rechargez la page puis recommencez.", challenge: "local-failed" }, 403);
   }
 
   const turnstile = await verifyTurnstile(env, payload, ip, "lead_form");
@@ -799,20 +820,20 @@ export async function onRequestPost({ request, env, waitUntil }) {
       turnstile_errors: turnstile.errorCodes || []
     };
     await logSpamAttempt(env, request, payload, assessment, now, ip, userAgent);
-    return json({ success: false, error: "Verification anti-robot Cloudflare invalide. Rechargez la page puis recommencez.", challenge: "turnstile-failed", turnstile: turnstile.status }, 403);
+    return reply({ success: false, error: "Verification anti-robot Cloudflare invalide. Rechargez la page puis recommencez.", challenge: "turnstile-failed", turnstile: turnstile.status }, 403);
   }
 
   const spamHistory = await loadSpamHistory(env, payload, clean(ip, 120));
   const spamAssessment = assessSpamSubmission(payload, { ip, userAgent, history: spamHistory });
   if (spamAssessment.blocked) {
     await logSpamAttempt(env, request, payload, spamAssessment, now, ip, userAgent);
-    if (spamAssessment.action === "silent_drop") return json({ success: true, reference: "FILTERED", spam_blocked: true });
-    return json({ success: false, error: "Demande bloquee par le filtre anti-spam. Contactez-nous par telephone si besoin." }, 429);
+    if (spamAssessment.action === "silent_drop") return reply({ success: true, reference: "FILTERED", spam_blocked: true });
+    return reply({ success: false, error: "Demande bloquee par le filtre anti-spam. Contactez-nous par telephone si besoin." }, 429);
   }
 
   const validationError = validate(payload);
   if (validationError) {
-    return json({ success: false, error: validationError }, 422);
+    return reply({ success: false, error: validationError }, 422);
   }
 
   const id = crypto.randomUUID();
@@ -927,9 +948,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
       await logLeadEvent(env, id, "email_notification_failed", { reference, error: error.message || "Erreur SMTP" }, now);
     }
 
-    return json({ success: true, id, reference, score, priority: qualification.priority, reasons: qualification.reasons, value_estimate: qualification.value_estimate, sla_hours: qualification.sla_hours, lead_urgency: record.lead_urgency, lead_urgency_reason: record.lead_urgency_reason, next_action: qualification.next_action, notification: notification.status });
+    return reply({ success: true, id, reference, score, priority: qualification.priority, reasons: qualification.reasons, value_estimate: qualification.value_estimate, sla_hours: qualification.sla_hours, lead_urgency: record.lead_urgency, lead_urgency_reason: record.lead_urgency_reason, next_action: qualification.next_action, notification: notification.status });
   } catch (error) {
-    return json({ success: false, error: error.message || "Erreur base de donnees" }, 500);
+    return reply({ success: false, error: error.message || "Erreur base de donnees" }, 500);
   }
 }
 

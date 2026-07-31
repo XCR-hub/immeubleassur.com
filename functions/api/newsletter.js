@@ -1,13 +1,15 @@
+﻿const DEFAULT_CORS_ORIGIN = "https://immeubleassur.com";
 const headers = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": DEFAULT_CORS_ORIGIN,
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
   "Content-Type": "application/json; charset=utf-8",
-  "Cache-Control": "no-store"
+  "Cache-Control": "no-store",
+  "Vary": "Origin"
 };
 
-function json(body, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers });
+function json(body, status = 200, request = null, env = null) {
+  return new Response(JSON.stringify(body), { status, headers: corsHeadersFor(request, env) });
 }
 
 function clean(value, max = 500) {
@@ -151,6 +153,24 @@ function requestOriginStatus(request, env) {
     }
   }
   return { ok: true, status: origin || referer ? "origin-ok" : "origin-absente" };
+}
+
+function corsOriginAllowed(origin, env) {
+  const header = clean(origin, 500);
+  if (!header) return false;
+  try {
+    const parsed = new URL(header);
+    return parsed.protocol === "https:" && turnstileHostnameValid(env, parsed.hostname.toLowerCase());
+  } catch {
+    return false;
+  }
+}
+
+function corsHeadersFor(request, env) {
+  const next = { ...headers };
+  const origin = clean(request?.headers?.get?.("Origin"), 500);
+  if (corsOriginAllowed(origin, env)) next["Access-Control-Allow-Origin"] = origin;
+  return next;
 }
 
 async function verifyNewsletterTurnstile(env, payload, ip, expectedAction = "newsletter_subscribe") {
@@ -361,12 +381,12 @@ async function logSiteEvent(env, request, payload, eventType, now) {
 
 async function blockNewsletterSpam(env, request, payload, assessment, now, status = 429, message = "Trop de tentatives. Reessayez plus tard.") {
   await logSiteEvent(env, request, { ...payload, spam_assessment: assessment }, "newsletter_spam_blocked", now);
-  if (assessment.action === "silent_drop") return json({ success: true, status: "filtered" });
-  return json({ success: false, error: message, challenge: assessment.challenge || "newsletter-spam", turnstile: clean(assessment.turnstile_status || "", 120) }, status);
+  if (assessment.action === "silent_drop") return json({ success: true, status: "filtered" }, 200, request, env);
+  return json({ success: false, error: message, challenge: assessment.challenge || "newsletter-spam", turnstile: clean(assessment.turnstile_status || "", 120) }, status, request, env);
 }
 
-export async function onRequestOptions() {
-  return new Response(null, { status: 204, headers });
+export async function onRequestOptions({ request, env }) {
+  return new Response(null, { status: 204, headers: corsHeadersFor(request, env) });
 }
 
 export async function onRequestGet({ request, env }) {
@@ -387,13 +407,14 @@ export async function onRequestGet({ request, env }) {
 }
 
 export async function onRequestPost({ request, env }) {
-  if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
+  const reply = (body, status = 200) => json(body, status, request, env);
+  if (!env.DB) return reply({ success: false, error: "Base SQLite indisponible" }, 503);
 
   let payload;
   try {
     payload = await request.json();
   } catch {
-    return json({ success: false, error: "JSON invalide" }, 400);
+    return reply({ success: false, error: "JSON invalide" }, 400);
   }
 
   const now = new Date().toISOString();
@@ -461,8 +482,8 @@ export async function onRequestPost({ request, env }) {
       "Verification anti-robot Cloudflare invalide. Rechargez la page puis recommencez."
     );
   }
-  if (!emailValid(payload.email)) return json({ success: false, error: "Email invalide" }, 422);
-  if (payload.consent !== true) return json({ success: false, error: "Consentement requis" }, 422);
+  if (!emailValid(payload.email)) return reply({ success: false, error: "Email invalide" }, 422);
+  if (payload.consent !== true) return reply({ success: false, error: "Consentement requis" }, 422);
 
   const history = await loadNewsletterSpamHistory(env, payload, ip);
   const assessment = assessNewsletterSpam(payload, { ip, userAgent, history });
@@ -508,5 +529,5 @@ export async function onRequestPost({ request, env }) {
   await logNewsletterEvent(env, subscriber?.id || id, "subscribed", { source: clean(payload.source || "website", 120), audience: clean(payload.audience, 120) }, now);
   await logSiteEvent(env, request, { ...payload, email }, "newsletter_subscribed", now);
 
-  return json({ success: true, status: "active" });
+  return reply({ success: true, status: "active" });
 }
