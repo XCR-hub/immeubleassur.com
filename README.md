@@ -32,9 +32,12 @@ npm run db:sqlite:backup
 npm run db:sqlite:restore
 npm run db:sqlite:import-reports
 npm run production:monitor
+npm run production:watchdog
 npm run local:autarky:check
 npm run check
 ```
+
+Le watchdog Windows `scripts/windows-local-site-watchdog.ps1` sert au maintien en ligne: il teste `http://127.0.0.1:8790/health`, arrete les processus Node applicatifs bloques si necessaire, relance `scripts/local-production-server.js` en processus detache via WMI et ecrit un rapport JSON local. En production, il est prevu en tache planifiee au demarrage et toutes les 5 minutes.
 
 ## Base de donnees
 

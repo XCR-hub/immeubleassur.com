@@ -51,6 +51,7 @@
                     "db:sqlite:restore":  "node scripts/local-sqlite-restore.js --replace",
                     "db:sqlite:backup":  "node scripts/local-sqlite-backup.js",
                     "production:monitor":  "node scripts/local-production-monitor.js",
+                    "production:watchdog":  "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows-local-site-watchdog.ps1",
                     "leads:sla:monitor":  "node scripts/local-lead-sla-monitor.js",
                     "leads:quality:monitor":  "node scripts/local-lead-quality-monitor.js",
                     "conversion:funnel:monitor":  "node scripts/local-conversion-funnel-monitor.js",
