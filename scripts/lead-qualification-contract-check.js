@@ -48,6 +48,8 @@ const expectations = [
       "source_path",
       "content_bridge_count",
       "top_source_paths",
+      "top_source_quality",
+      "source_quality_score",
       "onRequestPatch"
     ]
   },
@@ -97,7 +99,7 @@ const expectations = [
   {
     file: "public/assets/admin.js",
     role: "admin-dashboard",
-    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "Valeur affichee", "Erreurs formulaire", "validation-friction", "Spam bloques", "spam-bloque", "lead-value-cell", "leadOriginCell", "Origine", "Pont leads", "Source dominante", "source_path", "content_kind", "annual_premium_min", "lead_urgency", "urgencyLabel", "loadSales", "/api/admin/sales", "Scripts de rappel", "sales-body", "Relances dues"]
+    snippets: ["Dossier pret", "readiness_paths", "dossier-pret", "lead-status-save", "lead-followup-save", "lead-status-filter", "updateLeadStatus", "updateLeadFollowUp", "method: \"PATCH\"", "Pipeline estime", "Valeur relance", "Valeur affichee", "Erreurs formulaire", "validation-friction", "Spam bloques", "spam-bloque", "lead-value-cell", "leadOriginCell", "Origine", "Pont leads", "Source dominante", "Source qualifiee", "topQualityLabel", "source_path", "content_kind", "annual_premium_min", "lead_urgency", "urgencyLabel", "loadSales", "/api/admin/sales", "Scripts de rappel", "sales-body", "Relances dues"]
   }
 ];
 

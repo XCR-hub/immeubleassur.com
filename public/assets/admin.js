@@ -524,6 +524,11 @@ function topLabel(items = []) {
   return first ? `${first.label} (${first.count})` : "-";
 }
 
+function topQualityLabel(items = []) {
+  const first = items[0];
+  return first ? `${first.label} (${first.hot || 0} chaud/${first.count || 0}, ${first.value_label || "0 EUR/an"})` : "-";
+}
+
 function renderLeadSummary(summary = latestLeadSummary, visibleRows = filteredLeads()) {
   if (!leadSummary) return;
   const loaded = allLeads.length;
@@ -545,7 +550,8 @@ function renderLeadSummary(summary = latestLeadSummary, visibleRows = filteredLe
     metricCard("Besoin dominant", topLabel(summary?.top_needs)),
     metricCard("Ville dominante", topLabel(summary?.top_cities)),
     metricCard("Pont leads", String(summary?.content_bridge_count || 0), "issus du pont contenu"),
-    metricCard("Source dominante", topLabel(summary?.top_source_paths), "origine SEO")
+    metricCard("Source dominante", topLabel(summary?.top_source_paths), "origine SEO"),
+    metricCard("Source qualifiee", topQualityLabel(summary?.top_source_quality), "score qualite")
   );
 }
 
@@ -1295,6 +1301,7 @@ function attributionRows(result = {}) {
 
   const attribution = result.attribution || {};
   const groups = [
+    ["source qualifiee", attribution.source_quality || []],
     ["source", attribution.sources || []],
     ["landing", attribution.landing_pages || []],
     ["campagne", attribution.campaigns || []],
@@ -1356,6 +1363,7 @@ async function loadAttribution() {
   const summary = result.summary || {};
   const attribution = result.attribution || {};
   const sources = Array.isArray(attribution.sources) ? attribution.sources : [];
+  const qualitySources = Array.isArray(attribution.source_quality) ? attribution.source_quality : [];
   const landings = Array.isArray(attribution.landing_pages) ? attribution.landing_pages : [];
   const campaigns = Array.isArray(attribution.campaigns) ? attribution.campaigns : [];
   const needs = Array.isArray(attribution.needs) ? attribution.needs : [];
@@ -1370,9 +1378,10 @@ async function loadAttribution() {
       metricCard("Leads 30j", String(summary.leads_30d || 0), `${summary.hot_leads_30d || 0} chaud(s)`),
       metricCard("Visiteur -> lead", `${summary.visitor_to_lead_rate || 0}%`, "global"),
       metricCard("Top source", summary.top_source || "-", summary.top_source_value || "0 EUR/an"),
+      metricCard("Source qualifiee", summary.top_quality_source || "-", summary.top_quality_source_signal || "score qualite"),
       metricCard("Top landing", summary.top_landing_page || "-", "valeur estimee"),
       metricCard("Top besoin", summary.top_need || "-", "intention"),
-      metricCard("Sources", String(sources.length), "canaux"),
+      metricCard("Sources", String(sources.length), `${qualitySources.length} qualifiee(s)`),
       metricCard("Landings", String(landings.length), "pages"),
       metricCard("Campagnes", String(campaigns.length), "UTM"),
       metricCard("Besoins", String(needs.length), "segments"),

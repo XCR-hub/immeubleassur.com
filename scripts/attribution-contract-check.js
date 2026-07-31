@@ -17,6 +17,10 @@ const expectations = [
       "lead_form_abandoned",
       "form_abandons",
       "form_abandon_rate",
+      "source_quality",
+      "quality_score",
+      "top_quality_source",
+      "source-qualifiee",
       "abandon-formulaire",
       "actions",
       "Donnees agregees"
@@ -32,6 +36,7 @@ const expectations = [
       "attribution-summary",
       "attribution-body",
       "Top source",
+      "Source qualifiee",
       "Visiteur -> lead",
       "Abandons",
       "abandon_rate",

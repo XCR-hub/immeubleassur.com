@@ -247,11 +247,50 @@ function topFromMap(map) {
     .slice(0, 6);
 }
 
+function leadSourceKey(lead) {
+  return clean(lead.source_path || lead.landing_path || lead.page_url || lead.source || "non precise", 500) || "non precise";
+}
+
+function addSourceQuality(map, lead, q, valueEstimate) {
+  const label = leadSourceKey(lead);
+  const priority = q.priority || "standard";
+  const current = map.get(label) || { label, count: 0, hot: 0, warm: 0, bridge: 0, score_total: 0, value_min: 0, value_max: 0 };
+  current.count += 1;
+  if (priority === "hot") current.hot += 1;
+  if (priority === "warm") current.warm += 1;
+  if (clean(lead.content_bridge, 20) === "1") current.bridge += 1;
+  current.score_total += Number(q.score || 0);
+  current.value_min += Number(valueEstimate.annual_premium_min || 0);
+  current.value_max += Number(valueEstimate.annual_premium_max || 0);
+  map.set(label, current);
+}
+
+function topSourceQuality(map) {
+  return [...map.values()]
+    .map((row) => {
+      const average_score = row.count ? Math.round((row.score_total / row.count) * 10) / 10 : 0;
+      const source_quality_score = Math.round(row.hot * 35 + row.warm * 16 + row.count * 5 + average_score + Math.min(row.value_max / 100, 120));
+      return {
+        label: row.label,
+        count: row.count,
+        hot: row.hot,
+        warm: row.warm,
+        bridge: row.bridge,
+        average_score,
+        source_quality_score,
+        value_label: valueLabel(row.value_min, row.value_max)
+      };
+    })
+    .sort((a, b) => b.source_quality_score - a.source_quality_score || b.hot - a.hot || b.count - a.count || a.label.localeCompare(b.label))
+    .slice(0, 6);
+}
+
 function summarizeLeads(leads) {
   const priority_counts = { hot: 0, warm: 0, standard: 0, low: 0 };
   const needs = new Map();
   const cities = new Map();
   const sourcePaths = new Map();
+  const sourceQuality = new Map();
   let contentBridgeCount = 0;
   let scoreTotal = 0;
   let oldestHot = "";
@@ -281,6 +320,7 @@ function summarizeLeads(leads) {
     increment(needs, lead.need);
     increment(cities, lead.city);
     if (clean(lead.source_path, 500)) increment(sourcePaths, lead.source_path);
+    addSourceQuality(sourceQuality, lead, q, valueEstimate);
     if (clean(lead.content_bridge, 20) === "1") contentBridgeCount += 1;
     if (priority === "hot" && lead.status === "new") {
       if (!oldestHot || String(lead.created_at || "") < oldestHot) oldestHot = lead.created_at || "";
@@ -301,6 +341,7 @@ function summarizeLeads(leads) {
     top_needs: topFromMap(needs),
     top_cities: topFromMap(cities),
     top_source_paths: topFromMap(sourcePaths),
+    top_source_quality: topSourceQuality(sourceQuality),
     content_bridge_count: contentBridgeCount,
     oldest_hot_created_at: oldestHot,
     pipeline_value: { annual_premium_min: pipelineValueMin, annual_premium_max: pipelineValueMax, label: valueLabel(pipelineValueMin, pipelineValueMax) },
@@ -333,7 +374,13 @@ export async function onRequestGet({ request, env }) {
             COALESCE(NULLIF(json_extract(le.payload, '$.lead_urgency_reason'), ''), '') AS lead_urgency_reason,
             COALESCE(NULLIF(json_extract(le.payload, '$.experiment_variant'), ''), '') AS experiment_variant
        FROM leads l
-       LEFT JOIN lead_events le ON le.lead_id = l.id AND le.event_type = 'lead_created'
+       LEFT JOIN lead_events le ON le.id = (
+         SELECT le2.id
+           FROM lead_events le2
+          WHERE le2.lead_id = l.id AND le2.event_type = 'lead_created'
+          ORDER BY le2.created_at DESC, le2.id DESC
+          LIMIT 1
+       )
       ORDER BY l.created_at DESC
       LIMIT 100`
   ).all();

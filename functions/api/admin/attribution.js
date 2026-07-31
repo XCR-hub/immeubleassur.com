@@ -114,18 +114,38 @@ function addMetric(map, key, mutator) {
   map.set(cleanKey, current);
 }
 
+function sourceQualityScore(row) {
+  return Math.round(
+    Number(row.hot_leads || 0) * 35 +
+    Number(row.leads || 0) * 12 +
+    Number(row.lead_rate || 0) * 2 +
+    Number(row.start_rate || 0) +
+    Math.min(Number(row.value_max || 0) / 100, 120)
+  );
+}
+
 function rowsFromMap(map, limit = 20) {
   return [...map.values()]
-    .map((row) => ({
-      ...row,
-      avg_score: row.leads ? Math.round((row.avg_score_total / row.leads) * 10) / 10 : 0,
-      cta_rate: pct(row.cta_clicks, row.page_views),
-      start_rate: pct(row.form_starts, row.page_views),
-      abandon_rate: pct(row.form_abandons, row.form_starts),
-      lead_rate: pct(row.leads, row.form_starts),
-      value_label: row.value_max ? `${Math.round(row.value_min)}-${Math.round(row.value_max)} EUR/an` : "0 EUR/an"
-    }))
+    .map((row) => {
+      const enriched = {
+        ...row,
+        avg_score: row.leads ? Math.round((row.avg_score_total / row.leads) * 10) / 10 : 0,
+        cta_rate: pct(row.cta_clicks, row.page_views),
+        start_rate: pct(row.form_starts, row.page_views),
+        abandon_rate: pct(row.form_abandons, row.form_starts),
+        lead_rate: pct(row.leads, row.form_starts),
+        value_label: row.value_max ? `${Math.round(row.value_min)}-${Math.round(row.value_max)} EUR/an` : "0 EUR/an"
+      };
+      return { ...enriched, quality_score: sourceQualityScore(enriched) };
+    })
     .sort((a, b) => Number(b.value_max || 0) - Number(a.value_max || 0) || Number(b.leads || 0) - Number(a.leads || 0) || Number(b.form_starts || 0) - Number(a.form_starts || 0))
+    .slice(0, limit);
+}
+
+function sourceQualityRows(map, limit = 10) {
+  return rowsFromMap(map, 80)
+    .filter((row) => Number(row.leads || 0) > 0 || Number(row.form_starts || 0) > 0)
+    .sort((a, b) => Number(b.quality_score || 0) - Number(a.quality_score || 0) || Number(b.hot_leads || 0) - Number(a.hot_leads || 0) || Number(b.leads || 0) - Number(a.leads || 0))
     .slice(0, limit);
 }
 
@@ -160,8 +180,8 @@ function buildAttribution({ events, leads }) {
 
   for (const lead of leads) {
     const source = sourceKey(lead);
-    const landing = pathFromUrl(lead.landing_page || lead.page_url);
-    const path = pathFromUrl(lead.page_url);
+    const landing = pathFromUrl(lead.landing_path || lead.landing_page || lead.page_url);
+    const path = pathFromUrl(lead.source_path || lead.page_url);
     const campaign = clean(lead.utm_campaign || "sans campagne", 180) || "sans campagne";
     const need = clean(lead.need || "non precise", 120) || "non precise";
     const value = valueEstimate(lead);
@@ -182,6 +202,7 @@ function buildAttribution({ events, leads }) {
 
   return {
     sources: rowsFromMap(sources, 20),
+    source_quality: sourceQualityRows(sources, 10),
     landing_pages: rowsFromMap(landingPages, 25),
     campaigns: rowsFromMap(campaigns, 20),
     paths: rowsFromMap(paths, 25),
@@ -191,6 +212,7 @@ function buildAttribution({ events, leads }) {
 
 function buildSummary(attribution, totals) {
   const topSource = attribution.sources[0] || null;
+  const topQualitySource = attribution.source_quality?.[0] || null;
   const topLanding = attribution.landing_pages[0] || null;
   const topNeed = attribution.needs[0] || null;
   return {
@@ -204,6 +226,8 @@ function buildSummary(attribution, totals) {
     form_to_lead_rate: pct(totals?.leads, totals?.form_starts),
     top_source: topSource?.key || "-",
     top_source_value: topSource?.value_label || "0 EUR/an",
+    top_quality_source: topQualitySource?.key || "-",
+    top_quality_source_signal: topQualitySource ? `${topQualitySource.quality_score} pts, ${topQualitySource.hot_leads || 0} chaud(s), ${topQualitySource.value_label}` : "-",
     top_landing_page: topLanding?.key || "-",
     top_need: topNeed?.key || "-"
   };
@@ -212,6 +236,7 @@ function buildSummary(attribution, totals) {
 function buildActions(attribution, summary) {
   const actions = [];
   const topSource = attribution.sources[0];
+  const qualitySource = attribution.source_quality?.[0];
   const topLanding = attribution.landing_pages[0];
   const weakLanding = attribution.landing_pages.find((row) => Number(row.form_starts || 0) >= 3 && Number(row.leads || 0) === 0);
   const abandonLanding = attribution.landing_pages.find((row) => Number(row.form_abandons || 0) >= 3 && Number(row.abandon_rate || 0) >= 40);
@@ -227,6 +252,15 @@ function buildActions(attribution, summary) {
       target: topSource.key,
       signal: `${topSource.leads} lead(s), ${topSource.value_label}`,
       recommendation: "Renforcer le contenu, les liens internes et les CTA proches de cette source car elle porte deja de la valeur."
+    });
+  }
+  if (qualitySource && qualitySource.key !== topSource?.key && Number(qualitySource.leads || 0) > 0) {
+    actions.push({
+      priority: 92,
+      type: "source-qualifiee",
+      target: qualitySource.key,
+      signal: `${qualitySource.quality_score} pts, ${qualitySource.hot_leads || 0} chaud(s), ${qualitySource.value_label}`,
+      recommendation: "Prioriser cette source dans les relances SEO et les contenus satellites car elle combine qualite lead, valeur et taux de transformation."
     });
   }
   if (topLanding && Number(topLanding.value_max || 0) > 0) {
@@ -321,7 +355,7 @@ export async function onRequestGet({ request, env }) {
 
   const [eventRows, leadRows, totals] = await Promise.all([
     safeAll(env, `SELECT event_type, page_url, target, COALESCE(NULLIF(json_extract(payload, '$.path'), ''), '') AS path, COALESCE(NULLIF(json_extract(payload, '$.landing_page'), ''), '') AS landing_page, COALESCE(NULLIF(json_extract(payload, '$.first_referrer'), ''), '') AS first_referrer, COALESCE(NULLIF(json_extract(payload, '$.utm_source'), ''), '') AS utm_source, COALESCE(NULLIF(json_extract(payload, '$.utm_medium'), ''), '') AS utm_medium, COALESCE(NULLIF(json_extract(payload, '$.utm_campaign'), ''), '') AS utm_campaign, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type, page_url, target, path, landing_page, first_referrer, utm_source, utm_medium, utm_campaign ORDER BY count DESC LIMIT 600`),
-    safeAll(env, `SELECT l.reference, l.source, l.page_url, l.referrer, l.need, l.profile, l.property_type, l.units_count, l.lead_score, l.created_at, COALESCE(NULLIF(json_extract(le.payload, '$.utm.utm_source'), ''), '') AS utm_source, COALESCE(NULLIF(json_extract(le.payload, '$.utm.utm_medium'), ''), '') AS utm_medium, COALESCE(NULLIF(json_extract(le.payload, '$.utm.utm_campaign'), ''), '') AS utm_campaign, COALESCE(NULLIF(json_extract(le.payload, '$.utm.landing_page'), ''), '') AS landing_page, COALESCE(NULLIF(json_extract(le.payload, '$.utm.first_referrer'), ''), '') AS first_referrer FROM leads l LEFT JOIN lead_events le ON le.lead_id = l.id AND le.event_type = 'lead_created' WHERE l.created_at >= datetime('now', '-30 days') ORDER BY l.created_at DESC LIMIT 250`),
+    safeAll(env, `SELECT l.reference, l.source, l.page_url, l.referrer, l.need, l.profile, l.property_type, l.units_count, l.lead_score, l.created_at, COALESCE(NULLIF(json_extract(le.payload, '$.utm.utm_source'), ''), '') AS utm_source, COALESCE(NULLIF(json_extract(le.payload, '$.utm.utm_medium'), ''), '') AS utm_medium, COALESCE(NULLIF(json_extract(le.payload, '$.utm.utm_campaign'), ''), '') AS utm_campaign, COALESCE(NULLIF(json_extract(le.payload, '$.utm.landing_page'), ''), '') AS landing_page, COALESCE(NULLIF(json_extract(le.payload, '$.landing_path'), ''), '') AS landing_path, COALESCE(NULLIF(json_extract(le.payload, '$.source_path'), ''), '') AS source_path, COALESCE(NULLIF(json_extract(le.payload, '$.utm.first_referrer'), ''), '') AS first_referrer FROM leads l LEFT JOIN lead_events le ON le.id = (SELECT le2.id FROM lead_events le2 WHERE le2.lead_id = l.id AND le2.event_type = 'lead_created' ORDER BY le2.created_at DESC, le2.id DESC LIMIT 1) WHERE l.created_at >= datetime('now', '-30 days') ORDER BY l.created_at DESC LIMIT 250`),
     safeFirst(env, `SELECT (SELECT COUNT(*) FROM site_events WHERE event_type = 'page_view' AND created_at >= datetime('now', '-30 days')) AS page_views, (SELECT COUNT(*) FROM site_events WHERE event_type = 'form_start' AND created_at >= datetime('now', '-30 days')) AS form_starts, (SELECT COUNT(*) FROM site_events WHERE event_type = 'lead_form_abandoned' AND created_at >= datetime('now', '-30 days')) AS form_abandons, (SELECT COUNT(*) FROM leads WHERE created_at >= datetime('now', '-30 days')) AS leads, (SELECT COUNT(*) FROM leads WHERE lead_score >= 80 AND created_at >= datetime('now', '-30 days')) AS hot_leads`)
   ]);
 
