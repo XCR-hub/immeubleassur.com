@@ -49,6 +49,21 @@ const expectations = [
     snippets: ["attributionBlock", "attribution-admin", "load-attribution", "Attribution acquisition"]
   },
   {
+    file: "public/assets/app.js",
+    role: "content-bridge-attribution",
+    snippets: ["querySourcePath", "routeWithAttribution", "source_path: sourcePath", "content_bridge: \"1\"", "content_kind: kind"]
+  },
+  {
+    file: "functions/api/admin/seo.js",
+    role: "content-bridge-admin-api",
+    snippets: ["content_bridge_paths", "content_lead_bridge_quote_click", "content_lead_bridge_phone_click", "click_rate", "pont-contenu-gagnant"]
+  },
+  {
+    file: "public/assets/admin.js",
+    role: "content-bridge-admin-ui",
+    snippets: ["Pont contenu", "Top pont", "page-pont-contenu", "contentBridgePaths"]
+  },
+  {
     file: "package.json",
     role: "package-checks",
     snippets: ["functions/api/admin/attribution.js", "scripts/attribution-contract-check.js", "attribution:check"]

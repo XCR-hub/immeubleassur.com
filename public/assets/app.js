@@ -128,6 +128,31 @@ function currentPathWithQuery() {
   return `${window.location.pathname}${window.location.search}`.slice(0, 500);
 }
 
+function sameSitePath(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  try {
+    const url = new URL(raw, window.location.origin);
+    if (url.hostname !== window.location.hostname) return "";
+    return `${url.pathname}${url.search}`.slice(0, 500);
+  } catch {
+    return raw.startsWith("/") ? raw.slice(0, 500) : "";
+  }
+}
+
+function querySourcePath() {
+  const params = new URLSearchParams(window.location.search);
+  return sameSitePath(params.get("source_path") || params.get("origin_path") || "");
+}
+
+function routeWithAttribution(route, data = {}) {
+  const url = new URL(route, window.location.origin);
+  for (const [key, value] of Object.entries(data)) {
+    if (value) url.searchParams.set(key, String(value).slice(0, 500));
+  }
+  return `${url.pathname}${url.search}`;
+}
+
 function normalizeLeadIntent(value) {
   const key = String(value || "").trim().toLowerCase().replace(/_/g, "-").replace(/\s+/g, "-");
   const aliases = {
@@ -179,11 +204,12 @@ function captureAttribution() {
   const existing = parseStoredAttribution();
   const hasCurrent = Object.keys(current).length > 0;
   const intent = queryLeadIntent();
+  const sourcePath = querySourcePath();
   const next = {
     ...existing,
     utm: hasCurrent ? { ...(existing.utm || {}), ...current } : (existing.utm || {}),
     intent: intent || existing.intent || "",
-    source_path: intent ? currentPathWithQuery() : (existing.source_path || currentPathWithQuery()),
+    source_path: sourcePath || (intent ? currentPathWithQuery() : (existing.source_path || currentPathWithQuery())),
     landing_path: existing.landing_path || window.location.pathname,
     landing_page: existing.landing_page || window.location.href,
     first_referrer: existing.first_referrer || document.referrer || "",
@@ -197,11 +223,12 @@ function readUtm() {
   const current = Object.fromEntries(attributionKeys().map((key) => [key, params.get(key) || ""]).filter(([, value]) => value));
   const stored = parseStoredAttribution();
   const intent = queryLeadIntent();
+  const sourcePath = querySourcePath();
   return {
     ...(stored.utm || {}),
     ...current,
     intent: intent || stored.intent || "",
-    source_path: intent ? currentPathWithQuery() : (stored.source_path || currentPathWithQuery()),
+    source_path: sourcePath || (stored.source_path || (intent ? currentPathWithQuery() : currentPathWithQuery())),
     landing_path: stored.landing_path || window.location.pathname,
     landing_page: stored.landing_page || window.location.href,
     first_referrer: stored.first_referrer || document.referrer || ""
@@ -1370,12 +1397,17 @@ function contentLeadBridgeCopy(intent, kind) {
 
 function contentLeadBridgePayload(reason, action = "") {
   const intent = currentLeadIntent();
-  const route = leadConversionRoutes()[intent] || leadConversionRoutes().website;
+  const kind = contentLeadBridgeKind();
+  const route = routeWithAttribution(leadConversionRoutes()[intent] || leadConversionRoutes().website, {
+    source_path: currentPathWithQuery(),
+    content_bridge: "1",
+    content_kind: kind
+  });
   return {
     target: intent || "immeuble",
     label: reason,
     route,
-    level: contentLeadBridgeKind(),
+    level: kind,
     step: action,
     source_path: currentPathWithQuery()
   };
@@ -1385,7 +1417,11 @@ function showContentLeadBridge(reason = "lecture") {
   if (!contentLeadBridgeEligible()) return;
   const intent = currentLeadIntent();
   const kind = contentLeadBridgeKind();
-  const route = leadConversionRoutes()[intent] || leadConversionRoutes().website;
+  const route = routeWithAttribution(leadConversionRoutes()[intent] || leadConversionRoutes().website, {
+    source_path: currentPathWithQuery(),
+    content_bridge: "1",
+    content_kind: kind
+  });
   const copy = contentLeadBridgeCopy(intent, kind);
   const panel = document.createElement("aside");
   panel.className = "content-lead-bridge";

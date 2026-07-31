@@ -1492,6 +1492,8 @@ async function loadSeo() {
   const expansion = publicReport.opportunity_expansion || {};
   const leadPriorities = apiResult?.lead_priorities || [];
   const ctaExperiments = apiResult?.cta_experiments || [];
+  const contentBridgePaths = apiResult?.content_bridge_paths || [];
+  const topContentBridge = contentBridgePaths[0];
   if (seoSummary) {
     seoSummary.replaceChildren(
       metricCard("Pages controlees", String(publicReport.pages_checked || 0)),
@@ -1519,6 +1521,7 @@ async function loadSeo() {
       metricCard("Abandons", `${funnel.abandon_rate || 0}%`, `${funnel.abandoned_forms || 0} signaux`),
       metricCard("Rattrapage", String(funnel.form_rescue_shown || 0), `${funnel.form_rescue_phone_rate || 0}% appel`),
       metricCard("Pont contenu", String(funnel.content_bridge_shown || 0), `${funnel.content_bridge_click_rate || 0}% clic`),
+      metricCard("Top pont", topContentBridge?.path || "-", topContentBridge ? `${topContentBridge.clicks || 0}/${topContentBridge.shown || 0} clic(s)` : "contenu"),
       metricCard("Erreurs formulaire", String(funnel.validation_errors || 0), "champs bloquants"),
       metricCard("Spam bloques", String(funnel.spam_blocked || 0), "robots filtres"),
       metricCard("Turnstile", turnstileReport.configured ? "Actif" : "Fallback", turnstileReport.configured ? `${turnstileReport.forms_instrumented || 0}/${turnstileReport.forms_detected || 0} formulaire(s)` : "anti-fraude local"),
@@ -1535,6 +1538,7 @@ async function loadSeo() {
     ...(apiResult?.conversion_gaps || []).slice(0, 8).map((item) => ({ score: Number(item.form_starts || 0) - Number(item.leads_created || 0) - Number(item.duplicate_filtered || 0), opportunity_type: "conversion-gap", url: item.path, query: `${item.form_starts || 0} starts / ${item.leads_created || 0} leads / ${item.duplicate_filtered || 0} doublons`, recommendation: "Verifier intention, reassurance et friction formulaire sur cette page." })),
     ...(Number(funnel.form_rescue_shown || 0) ? [{ score: Number(funnel.form_rescue_shown || 0), opportunity_type: "rattrapage-formulaire", url: "formulaire", query: `${funnel.form_rescue_phone_clicks || 0}/${funnel.form_rescue_shown || 0} appel(s)`, recommendation: "Comparer les pages ou le panneau de rattrapage transforme l'hesitation en appel." }] : []),
     ...(Number(funnel.content_bridge_shown || 0) ? [{ score: Number(funnel.content_bridge_clicks || 0), opportunity_type: "pont-contenu", url: "contenu-seo", query: `${funnel.content_bridge_clicks || 0}/${funnel.content_bridge_shown || 0} clic(s)`, recommendation: "Comparer articles, FAQ et villes qui transforment le mieux la lecture en demande de devis." }] : []),
+    ...contentBridgePaths.slice(0, 8).map((item) => ({ score: item.clicks || item.shown || 0, opportunity_type: "page-pont-contenu", url: item.path, query: `${item.clicks || 0}/${item.shown || 0} clic(s), ${item.content_kind || "contenu"}`, recommendation: item.clicks > 0 ? "Renforcer le maillage interne et le CTA de cette page car elle transforme la lecture en action." : "Tester le texte du pont contenu sur cette page avant de l'etendre." })),
     ...(apiResult?.diagnostic_paths || []).slice(0, 8).map((item) => ({ score: item.completions, opportunity_type: "diagnostic", url: item.path, query: `${item.completions || 0} completions ${item.target || ""}`.trim(), recommendation: "Renforcer le CTA et le contenu du parcours diagnostic qui capte cette intention." })),
     ...(apiResult?.readiness_paths || []).slice(0, 8).map((item) => ({ score: item.completions, opportunity_type: "dossier-pret", url: item.path, query: `${item.completions || 0} dossiers, score ${Math.round(item.avg_score || 0)}%`, recommendation: "Renforcer les elements de preuve et le CTA formulaire sur les pages qui preparent le mieux le dossier." })),
     ...(apiResult?.value_hint_paths || []).slice(0, 8).map((item) => ({ score: item.completions, opportunity_type: "estimation-prime", url: item.path, query: `${item.completions || 0} affichages, potentiel ${Math.round(item.avg_value_max || 0)} EUR`, recommendation: "Renforcer le bloc prix, les preuves et le CTA devis sur les pages qui declenchent les meilleures estimations." })),
