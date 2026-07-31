@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-07-30T23:28:01.652Z",
+  "generated_at": "2026-07-31T01:53:52.326Z",
   "status": "passed",
-  "pages_checked": 176,
-  "pages_targeted": 50,
-  "pages_changed": 17,
-  "links_added": 67,
-  "pages_with_active_blocks": 50,
-  "active_internal_links": 197,
+  "pages_checked": 177,
+  "pages_targeted": 51,
+  "pages_changed": 18,
+  "links_added": 71,
+  "pages_with_active_blocks": 51,
+  "active_internal_links": 201,
   "noindex_skipped": 3,
   "lead_pages_skipped": 6,
   "cluster_targets": [
@@ -35,12 +35,12 @@
       "count": 4
     },
     {
-      "cluster": "prix-tarif",
+      "cluster": "newsletter-veille",
       "count": 3
     },
     {
-      "cluster": "newsletter-veille",
-      "count": 2
+      "cluster": "prix-tarif",
+      "count": 3
     },
     {
       "cluster": "travaux",
@@ -172,7 +172,14 @@
       "slug": "news/veille-assurance-immeuble-2026-07-30",
       "type": "news",
       "cluster": "newsletter-veille",
-      "previous_internal_links": 27,
+      "previous_internal_links": 23,
+      "links_added": 4
+    },
+    {
+      "slug": "news/veille-assurance-immeuble-2026-07-31",
+      "type": "news",
+      "cluster": "newsletter-veille",
+      "previous_internal_links": 28,
       "links_added": 4
     }
   ]

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-30T23:28:03.483Z",
-  "pages_checked": 172,
+  "generated_at": "2026-07-31T01:53:54.555Z",
+  "pages_checked": 173,
   "money_pages_checked": 114,
   "cluster_count": 10,
   "cluster_detection": {
@@ -344,7 +344,7 @@
     },
     {
       "cluster": "newsletter-veille",
-      "pages": 5,
+      "pages": 6,
       "money_pages": 0,
       "average_score": 59,
       "top_pages": [
@@ -356,6 +356,11 @@
         {
           "slug": "news/veille-assurance-immeuble-2026-07-30",
           "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-30",
+          "score": 62
+        },
+        {
+          "slug": "news/veille-assurance-immeuble-2026-07-31",
+          "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-31",
           "score": 62
         },
         {

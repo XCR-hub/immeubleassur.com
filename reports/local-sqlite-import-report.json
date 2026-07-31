@@ -1,98 +1,103 @@
 {
   "success": true,
-  "imported_at": "2026-07-30T23:29:16.878Z",
+  "imported_at": "2026-07-31T01:53:55.308Z",
   "imported_at_source": "latest-report-generated-at",
   "mode": "local-json-report-check",
   "reports": [
     {
       "file": "reports/seo-autopilot-report.json",
       "status": "present",
-      "generated_at": "2026-07-30T23:29:16.878Z"
+      "generated_at": "2026-07-31T01:52:32.399Z"
     },
     {
       "file": "reports/search-intelligence-report.json",
       "status": "skipped-no-serp-key",
-      "generated_at": "2026-07-30T23:27:28.198Z"
+      "generated_at": "2026-07-31T01:52:18.624Z"
     },
     {
       "file": "reports/search-gap-booster-report.json",
       "status": "local-estimate",
-      "generated_at": "2026-07-30T23:27:29.738Z"
+      "generated_at": "2026-07-31T01:52:20.964Z"
     },
     {
       "file": "reports/editorial-autopilot-report.json",
       "status": "skipped",
-      "generated_at": "2026-07-30T23:27:27.870Z"
+      "generated_at": "2026-07-31T01:52:18.244Z"
     },
     {
       "file": "reports/media-autopilot-report.json",
       "status": "skipped-no-pexels-key",
-      "generated_at": "2026-07-30T23:27:28.025Z"
+      "generated_at": "2026-07-31T01:52:18.421Z"
     },
     {
       "file": "reports/conversion-intelligence-report.json",
       "status": "present",
-      "generated_at": "2026-07-30T23:28:03.483Z"
+      "generated_at": "2026-07-31T01:53:54.555Z"
     },
     {
       "file": "reports/cro-experiment-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T23:28:04.101Z"
+      "generated_at": "2026-07-31T01:53:54.859Z"
     },
     {
       "file": "reports/lead-friction-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T23:28:04.839Z"
+      "generated_at": "2026-07-31T01:53:55.308Z"
     },
     {
       "file": "reports/lead-intent-routing-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T23:28:18.616Z"
+      "generated_at": "2026-07-31T01:53:47.702Z"
     },
     {
       "file": "reports/lead-urgency-feedback-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T23:28:23.638Z"
+      "generated_at": "2026-07-31T01:53:48.366Z"
+    },
+    {
+      "file": "reports/local-intent-conversion-report.json",
+      "status": "no-data",
+      "generated_at": "2026-07-31T01:53:48.735Z"
     },
     {
       "file": "reports/local-antifraud-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T23:27:30.878Z"
+      "generated_at": "2026-07-31T01:52:23.984Z"
     },
     {
       "file": "reports/content-diversity-report.json",
       "status": "present",
-      "generated_at": "2026-07-30T23:27:30.188Z"
+      "generated_at": "2026-07-31T01:52:21.606Z"
     },
     {
       "file": "reports/seo-cannibalization-report.json",
       "status": "watch",
-      "generated_at": "2026-07-30T23:28:03.048Z"
+      "generated_at": "2026-07-31T01:53:54.060Z"
     },
     {
       "file": "reports/seo-intent-differentiation-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T23:28:00.862Z"
+      "generated_at": "2026-07-31T01:53:51.356Z"
     },
     {
       "file": "reports/seo-angle-differentiation-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T23:28:01.163Z"
+      "generated_at": "2026-07-31T01:53:51.711Z"
     },
     {
       "file": "reports/internal-link-equity-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T23:28:01.652Z"
+      "generated_at": "2026-07-31T01:53:52.326Z"
     },
     {
       "file": "reports/cluster-conversion-bridge-report.json",
       "status": "passed",
-      "generated_at": "2026-07-30T23:28:02.091Z"
+      "generated_at": "2026-07-31T01:53:52.858Z"
     },
     {
       "file": "reports/live-api-readiness-report.json",
       "status": "partial",
-      "generated_at": "2026-07-30T23:27:31.277Z"
+      "generated_at": "2026-07-31T01:52:24.598Z"
     }
   ],
   "database": {

@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-07-30T23:28:00.862Z",
+  "generated_at": "2026-07-31T01:53:51.356Z",
   "status": "passed",
-  "target_pages": 11,
-  "pages_changed": 17,
-  "pages_changed_this_run": 17,
-  "pages_with_active_blocks": 11,
-  "conflicts_addressed": 12,
+  "target_pages": 12,
+  "pages_changed": 8,
+  "pages_changed_this_run": 8,
+  "pages_with_active_blocks": 12,
+  "conflicts_addressed": 14,
   "safeguards": [
     "visible-content-only",
     "no-hidden-keyword-blocks",
@@ -17,7 +17,7 @@
     {
       "slug": "assurance-cno",
       "url": "https://immeubleassur.com/assurance-cno",
-      "changed": true,
+      "changed": false,
       "differentiated": true,
       "conflicts_addressed": 1,
       "primary_slug": "pno-cno"
@@ -33,7 +33,7 @@
     {
       "slug": "assurance-pno-cno",
       "url": "https://immeubleassur.com/assurance-pno-cno",
-      "changed": true,
+      "changed": false,
       "differentiated": true,
       "conflicts_addressed": 1,
       "primary_slug": "pno-cno"
@@ -100,6 +100,14 @@
       "changed": true,
       "differentiated": true,
       "conflicts_addressed": 1,
+      "primary_slug": "veille-assurance-immeuble"
+    },
+    {
+      "slug": "news/veille-assurance-immeuble-2026-07-31",
+      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-31",
+      "changed": true,
+      "differentiated": true,
+      "conflicts_addressed": 2,
       "primary_slug": "veille-assurance-immeuble"
     }
   ]

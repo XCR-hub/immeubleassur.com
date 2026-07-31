@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-30T23:28:03.048Z",
+  "generated_at": "2026-07-31T01:53:54.060Z",
   "status": "watch",
-  "pages_checked": 170,
+  "pages_checked": 171,
   "clusters_checked": 11,
-  "high_risk_count": 1,
+  "high_risk_count": 3,
   "medium_risk_count": 51,
   "watch_count": 80,
   "cluster_summary": [
@@ -247,6 +247,35 @@
       ]
     },
     {
+      "cluster": "newsletter-veille",
+      "pages": 5,
+      "primary_slug": "veille-assurance-immeuble",
+      "type_mix": [
+        {
+          "type": "news",
+          "count": 3
+        },
+        {
+          "type": "service",
+          "count": 2
+        }
+      ],
+      "representative_terms": [
+        "newsletter",
+        "recevoir",
+        "transformer",
+        "veille",
+        "actualite",
+        "demander",
+        "juridique",
+        "regulateur",
+        "signaux",
+        "appel",
+        "contenu",
+        "devient"
+      ]
+    },
+    {
       "cluster": "prix-tarif",
       "pages": 5,
       "primary_slug": "prix-assurance-immeuble",
@@ -309,35 +338,6 @@
       ]
     },
     {
-      "cluster": "newsletter-veille",
-      "pages": 4,
-      "primary_slug": "veille-assurance-immeuble",
-      "type_mix": [
-        {
-          "type": "news",
-          "count": 2
-        },
-        {
-          "type": "service",
-          "count": 2
-        }
-      ],
-      "representative_terms": [
-        "newsletter",
-        "recevoir",
-        "transformer",
-        "veille",
-        "actualite",
-        "appel",
-        "contenu",
-        "demander",
-        "juridique",
-        "regulateur",
-        "signaux",
-        "devient"
-      ]
-    },
-    {
       "cluster": "travaux",
       "pages": 2,
       "primary_slug": "faq/travaux",
@@ -371,7 +371,32 @@
     {
       "cluster": "newsletter-veille",
       "risk": "high",
-      "score": 66.32,
+      "score": 96.77,
+      "primary_slug": "veille-assurance-immeuble",
+      "pages": [
+        "news/veille-assurance-immeuble-2026-07-30",
+        "news/veille-assurance-immeuble-2026-07-31"
+      ],
+      "page_types": [
+        "news",
+        "news"
+      ],
+      "shared_terms": [
+        "veille",
+        "signaux",
+        "actualite",
+        "verifier",
+        "demander",
+        "actions",
+        "newsletter",
+        "recevoir"
+      ],
+      "recommendation": "Renforcer l'angle unique de news/veille-assurance-immeuble-2026-07-31 et ajouter un lien contextuel vers veille-assurance-immeuble."
+    },
+    {
+      "cluster": "newsletter-veille",
+      "risk": "high",
+      "score": 73.13,
       "primary_slug": "veille-assurance-immeuble",
       "pages": [
         "news/veille-assurance-immeuble-2026-07-29",
@@ -392,6 +417,31 @@
         "regulateur"
       ],
       "recommendation": "Renforcer l'angle unique de news/veille-assurance-immeuble-2026-07-30 et ajouter un lien contextuel vers veille-assurance-immeuble."
+    },
+    {
+      "cluster": "newsletter-veille",
+      "risk": "high",
+      "score": 66.32,
+      "primary_slug": "veille-assurance-immeuble",
+      "pages": [
+        "news/veille-assurance-immeuble-2026-07-29",
+        "news/veille-assurance-immeuble-2026-07-31"
+      ],
+      "page_types": [
+        "news",
+        "news"
+      ],
+      "shared_terms": [
+        "veille",
+        "signaux",
+        "actualite",
+        "verifier",
+        "demander",
+        "newsletter",
+        "recevoir",
+        "regulateur"
+      ],
+      "recommendation": "Renforcer l'angle unique de news/veille-assurance-immeuble-2026-07-31 et ajouter un lien contextuel vers veille-assurance-immeuble."
     },
     {
       "cluster": "local-commercial",
@@ -1646,7 +1696,7 @@
       "score": 45.71,
       "primary_slug": "veille-assurance-immeuble",
       "pages": [
-        "news/veille-assurance-immeuble-2026-07-30",
+        "news/veille-assurance-immeuble-2026-07-31",
         "veille-assurance-immeuble"
       ],
       "page_types": [
@@ -1663,7 +1713,7 @@
         "transformer",
         "appel"
       ],
-      "recommendation": "Renforcer l'angle unique de news/veille-assurance-immeuble-2026-07-30 et ajouter un lien contextuel vers veille-assurance-immeuble."
+      "recommendation": "Renforcer l'angle unique de news/veille-assurance-immeuble-2026-07-31 et ajouter un lien contextuel vers veille-assurance-immeuble."
     },
     {
       "cluster": "sci-bailleur",
@@ -2256,56 +2306,6 @@
         "contenu"
       ],
       "recommendation": "Renforcer l'angle unique de assurance-parties-communes et ajouter un lien contextuel vers assurance-copropriete."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "watch",
-      "score": 39.92,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "blog/preparer-renouvellement-assurance-immeuble",
-        "checklist-documents-assurance-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "service"
-      ],
-      "shared_terms": [
-        "surface",
-        "nombre",
-        "plafonds",
-        "accelerent",
-        "batiment",
-        "conseil",
-        "contenu",
-        "derniers"
-      ],
-      "recommendation": "Clarifier blog/preparer-renouvellement-assurance-immeuble comme support informationnel et renforcer le lien vers multirisque-immeuble."
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "risk": "watch",
-      "score": 39.52,
-      "primary_slug": "multirisque-immeuble",
-      "pages": [
-        "audit-contrat-assurance-immeuble",
-        "checklist-documents-assurance-immeuble"
-      ],
-      "page_types": [
-        "lead",
-        "service"
-      ],
-      "shared_terms": [
-        "plafonds",
-        "conseil",
-        "surface",
-        "accelerent",
-        "assurer",
-        "batiment",
-        "contenu",
-        "derniers"
-      ],
-      "recommendation": "Renforcer l'angle unique de checklist-documents-assurance-immeuble et ajouter un lien contextuel vers multirisque-immeuble."
     }
   ],
   "safeguards": [

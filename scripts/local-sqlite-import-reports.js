@@ -16,6 +16,7 @@ const reportFiles = [
   "reports/lead-friction-report.json",
   "reports/lead-intent-routing-report.json",
   "reports/lead-urgency-feedback-report.json",
+  "reports/local-intent-conversion-report.json",
   "reports/local-antifraud-report.json",
   "reports/content-diversity-report.json",
   "reports/seo-cannibalization-report.json",

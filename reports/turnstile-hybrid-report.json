@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T23:27:31.138Z",
+  "generated_at": "2026-07-31T01:52:24.329Z",
   "provider": "cloudflare-turnstile",
   "mode": "fallback-local-antifraud",
   "configured": false,
@@ -7,7 +7,7 @@
   "secret_variable": "TURNSTILE_SECRET_KEY",
   "fail_open_variable": "TURNSTILE_FAIL_OPEN",
   "fallback": "local-antifraud",
-  "pages_checked": 175,
+  "pages_checked": 176,
   "forms_detected": 162,
   "forms_instrumented": 0,
   "pages_updated": 0,

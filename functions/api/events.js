@@ -209,6 +209,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
     experiment_variant: clean(payload.experiment_variant, 80),
     experiment_label: clean(payload.experiment_label, 120),
     path: clean(payload.path, 500),
+    intent: clean(payload.intent, 80),
+    source_path: clean(payload.source_path, 500),
     referrer: clean(payload.referrer, 500),
     lead_reference: clean(payload.lead_reference, 80),
     score: clean(payload.score, 20),

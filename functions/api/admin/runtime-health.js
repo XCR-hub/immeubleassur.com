@@ -232,6 +232,86 @@ function sanitizeConversionFunnelReport(report) {
   };
 }
 
+function sanitizeIntentConversionReport(report) {
+  if (!report || typeof report !== "object") return { available: false };
+  const generatedAt = report.generated_at || "";
+  const ageMinutes = generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null;
+  const numericSummary = (summary = {}) => ({
+    lookback_days: Number(summary.lookback_days || 0),
+    tracked_events: Number(summary.tracked_events || 0),
+    tracked_sessions: Number(summary.tracked_sessions || 0),
+    leads_db: Number(summary.leads_db || 0),
+    hot_leads_db: Number(summary.hot_leads_db || 0),
+    page_views: Number(summary.page_views || 0),
+    form_starts: Number(summary.form_starts || 0),
+    submit_attempts: Number(summary.submit_attempts || 0),
+    submit_errors: Number(summary.submit_errors || 0),
+    lead_urgency_events: Number(summary.lead_urgency_events || 0),
+    spam_blocks: Number(summary.spam_blocks || 0),
+    intent_count: Number(summary.intent_count || 0),
+    urgency_count: Number(summary.urgency_count || 0),
+    intents_with_leads: Number(summary.intents_with_leads || 0),
+    intents_with_traffic_no_leads: Number(summary.intents_with_traffic_no_leads || 0),
+    urgent_starts_without_leads: Number(summary.urgent_starts_without_leads || 0),
+    attention_count: Number(summary.attention_count || 0),
+    page_to_start_rate: Number(summary.page_to_start_rate || 0),
+    start_to_submit_rate: Number(summary.start_to_submit_rate || 0),
+    submit_to_lead_rate: Number(summary.submit_to_lead_rate || 0),
+    start_to_lead_rate: Number(summary.start_to_lead_rate || 0)
+  });
+  const sanitizeFunnel = (item) => ({
+    key: item.key || "",
+    label: item.label || item.key || "",
+    sessions: Number(item.sessions || 0),
+    page_views: Number(item.page_views || 0),
+    cta_clicks: Number(item.cta_clicks || 0),
+    lead_intent_prefills: Number(item.lead_intent_prefills || 0),
+    lead_urgency_events: Number(item.lead_urgency_events || 0),
+    form_starts: Number(item.form_starts || 0),
+    submit_attempts: Number(item.submit_attempts || 0),
+    submit_errors: Number(item.submit_errors || 0),
+    leads_db: Number(item.leads_db || 0),
+    hot_leads_db: Number(item.hot_leads_db || 0),
+    average_lead_score: Number(item.average_lead_score || 0),
+    start_to_lead_rate: Number(item.start_to_lead_rate || 0),
+    submit_to_lead_rate: Number(item.submit_to_lead_rate || 0),
+    top_paths: Array.isArray(item.top_paths) ? item.top_paths.slice(0, 4) : []
+  });
+  return {
+    available: true,
+    success: report.success === true,
+    status: report.status || "unknown",
+    attention_required: report.attention_required === true,
+    generated_at: generatedAt,
+    age_minutes: ageMinutes,
+    summary: numericSummary(report.summary),
+    intent_funnels: Array.isArray(report.intent_funnels) ? report.intent_funnels.slice(0, 10).map(sanitizeFunnel) : [],
+    urgency_funnels: Array.isArray(report.urgency_funnels) ? report.urgency_funnels.slice(0, 6).map(sanitizeFunnel) : [],
+    lead_segments: Array.isArray(report.lead_segments)
+      ? report.lead_segments.slice(0, 8).map((item) => ({
+          intent: item.intent || "",
+          urgency: item.urgency || "",
+          need: item.need || "",
+          property_type: item.property_type || "",
+          leads: Number(item.leads || 0),
+          hot_leads: Number(item.hot_leads || 0),
+          average_score: Number(item.average_score || 0),
+          estimated_value_min: Number(item.estimated_value_min || 0),
+          estimated_value_max: Number(item.estimated_value_max || 0)
+        }))
+      : [],
+    recommendations: Array.isArray(report.recommendations)
+      ? report.recommendations.slice(0, 8).map((item) => ({
+          type: item.type || "",
+          severity: item.severity || "",
+          target: item.target || "",
+          signal: item.signal || "",
+          action: item.action || "",
+          score: Number(item.score || 0)
+        }))
+      : []
+  };
+}
 function sanitizeSeoBacklogReport(report) {
   if (!report || typeof report !== "object") return { available: false };
   const generatedAt = report.generated_at || "";
@@ -302,6 +382,8 @@ export async function onRequestGet({ request, env }) {
   const leadQualityReport = await readLocalJson(leadQualityPath);
   const conversionFunnelPath = env.LOCAL_CONVERSION_FUNNEL_REPORT || "reports/local-conversion-funnel-report.json";
   const conversionFunnelReport = await readLocalJson(conversionFunnelPath);
+  const intentConversionPath = env.LOCAL_INTENT_CONVERSION_REPORT || "reports/local-intent-conversion-report.json";
+  const intentConversionReport = await readLocalJson(intentConversionPath);
   const seoBacklogPath = env.LOCAL_SEO_BACKLOG_REPORT || "reports/local-seo-backlog-report.json";
   const seoBacklogReport = await readLocalJson(seoBacklogPath);
   return json({
@@ -325,6 +407,7 @@ export async function onRequestGet({ request, env }) {
     lead_sla: sanitizeLeadSlaReport(leadSlaReport),
     lead_quality: sanitizeLeadQualityReport(leadQualityReport),
     conversion_funnel: sanitizeConversionFunnelReport(conversionFunnelReport),
+    intent_conversion: sanitizeIntentConversionReport(intentConversionReport),
     seo_backlog: sanitizeSeoBacklogReport(seoBacklogReport)
   });
 }

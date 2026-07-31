@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-30T23:27:31.277Z",
+  "generated_at": "2026-07-31T01:52:24.598Z",
   "status": "partial",
   "connectors_checked": 8,
   "ready_count": 1,
@@ -35,13 +35,13 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-30T23:27:31.138Z",
+        "generated_at": "2026-07-31T01:52:24.329Z",
         "status": "fallback-local-antifraud",
         "summary": {
           "provider": "cloudflare-turnstile",
           "mode": "fallback-local-antifraud",
           "configured": false,
-          "pages_checked": 175,
+          "pages_checked": 176,
           "forms_detected": 162,
           "forms_instrumented": 0
         }
@@ -75,7 +75,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-30T23:27:28.198Z",
+        "generated_at": "2026-07-31T01:52:18.624Z",
         "status": "skipped-no-serp-key",
         "summary": {
           "provider": "local-estimate",
@@ -115,7 +115,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-30T23:27:28.025Z",
+        "generated_at": "2026-07-31T01:52:18.421Z",
         "status": "skipped-no-pexels-key",
         "summary": {
           "provider": "planned-pexels",
@@ -167,7 +167,7 @@
       ],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-30T23:27:27.870Z",
+        "generated_at": "2026-07-31T01:52:18.244Z",
         "status": "local-fallback",
         "summary": {
           "provider": "",
@@ -213,7 +213,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-30T23:27:17.182Z",
+        "generated_at": "2026-07-31T01:41:56.467Z",
         "status": "local-only",
         "summary": {
           "provider": "",
@@ -253,7 +253,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-30T23:27:17.182Z",
+        "generated_at": "2026-07-31T01:41:56.467Z",
         "status": "local-only",
         "summary": {
           "provider": "",
@@ -298,7 +298,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-30T23:27:30.627Z",
+        "generated_at": "2026-07-31T01:52:23.530Z",
         "status": "present",
         "summary": {
           "provider": "",

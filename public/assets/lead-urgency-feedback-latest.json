@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-30T23:28:23.638Z",
+  "generated_at": "2026-07-31T01:53:48.366Z",
   "status": "passed",
-  "pages_checked": 172,
-  "urgent_pages": 168,
+  "pages_checked": 173,
+  "urgent_pages": 169,
   "missing_cta_count": 0,
   "contract_missing_count": 0,
   "coverage_by_intent": [
@@ -45,9 +45,9 @@
     {
       "intent": "pno-cno",
       "urgency_level": "quote-ready",
-      "pages": 111,
-      "pages_with_intent_link": 72,
-      "pages_with_conversion_route": 111,
+      "pages": 112,
+      "pages_with_intent_link": 73,
+      "pages_with_conversion_route": 112,
       "missing_pages": [],
       "action": "Orienter vers le parcours PNO/CNO avec pre-remplissage."
     }
@@ -55,7 +55,7 @@
   "weakest_pages": [],
   "conversion_signals": {
     "lead_intent_routing": "passed",
-    "lead_intent_active_bridges": 44,
+    "lead_intent_active_bridges": 45,
     "money_score": 95,
     "funnel_leads_30d": 0,
     "funnel_form_starts_30d": 0

@@ -1,0 +1,46 @@
+{
+  "success": true,
+  "status": "no-data",
+  "attention_required": false,
+  "generated_at": "2026-07-31T01:53:48.735Z",
+  "database": {
+    "engine": "sqlite",
+    "file": "immeubleassur.sqlite",
+    "mode": "readonly"
+  },
+  "summary": {
+    "lookback_days": 30,
+    "tracked_events": 0,
+    "tracked_sessions": 0,
+    "leads_db": 0,
+    "hot_leads_db": 0,
+    "page_views": 0,
+    "form_starts": 0,
+    "submit_attempts": 0,
+    "submit_errors": 0,
+    "leads_event": 0,
+    "lead_urgency_events": 0,
+    "spam_blocks": 0,
+    "intent_count": 0,
+    "urgency_count": 0,
+    "intents_with_leads": 0,
+    "intents_with_traffic_no_leads": 0,
+    "urgent_starts_without_leads": 0,
+    "page_to_start_rate": 0,
+    "start_to_submit_rate": 0,
+    "submit_to_lead_rate": 0,
+    "start_to_lead_rate": 0,
+    "attention_count": 0
+  },
+  "intent_funnels": [],
+  "urgency_funnels": [],
+  "lead_segments": [],
+  "recommendations": [],
+  "safeguards": [
+    "no-pii-public-export",
+    "sqlite-readonly",
+    "first-party-events-only",
+    "no-google-scraping",
+    "intent-data-from-local-events-and-lead-events"
+  ]
+}
