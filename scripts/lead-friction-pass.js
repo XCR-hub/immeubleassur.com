@@ -42,6 +42,7 @@ const systemEvidence = {
   validation_telemetry: app.includes("validationDetails") && app.includes("validationTelemetry") && app.includes("lead_submit_error"),
   value_preview: app.includes("lead-value-preview") && app.includes("lead_value_hint_ready"),
   form_rescue: app.includes("form-rescue") && app.includes("lead_form_rescue_shown") && eventsApi.includes("lead_form_rescue_phone_click") && seoApi.includes("form_rescue_phone_rate") && admin.includes("Rattrapage"),
+  content_bridge: app.includes("content-lead-bridge") && app.includes("content_lead_bridge_shown") && eventsApi.includes("content_lead_bridge_quote_click") && seoApi.includes("content_bridge_click_rate") && admin.includes("Pont contenu"),
   admin_friction: admin.includes("Erreurs formulaire") && seoApi.includes("validation_errors"),
   event_contract: eventsApi.includes("missing: clean(payload.missing") && eventsApi.includes("step: clean(payload.step"),
   seo_quality: Number(seoReport.average_score || 0),
@@ -54,6 +55,7 @@ const dimensions = [
   ["cta-continuity", "CTA devis, telephone ou parcours diagnostic disponibles."],
   ["trust-proof", "Preuves courtier, ORIAS, rappel humain ou specialisation visibles."],
   ["abandon-rescue", "Rattrapage formulaire suivi pour transformer hesitation en appel ou reprise."],
+  ["content-bridge", "Pont lecture SEO vers devis mesure sur articles, FAQ et villes."],
   ["internal-linking", "Maillage vers devis, villes, guides ou FAQ verifie."],
   ["money-intent", "Intention assurance immeuble, PNO, CNO, SCI ou copropriete couverte."],
   ["schema-quality", "Balises structurees et meta de croissance surveillees."],
@@ -65,12 +67,14 @@ for (const file of pages) {
   const html = read(file);
   const url = pageUrl(file);
   const hasLeadPath = html.includes("lead-form") || html.includes("devis") || html.includes("tel:");
+  const contentIntentPage = /blog\/|faq|villes|assurance-immeuble-|guide|veille|news\//i.test(url) || html.includes("rich-article") || html.includes("content-expansion-band");
   const pageChecks = {
     "validation-friction": systemEvidence.validation_telemetry && hasLeadPath,
     "value-preview": systemEvidence.value_preview && hasLeadPath,
     "cta-continuity": /data-track|class="button|lead-action-bar|devis/i.test(html),
     "trust-proof": /ORIAS|Rappel humain|Courtier|specialiste/i.test(html),
     "abandon-rescue": systemEvidence.form_rescue && hasLeadPath,
+    "content-bridge": systemEvidence.content_bridge && (contentIntentPage || hasLeadPath),
     "internal-linking": (html.match(/<a\s+/g) || []).length >= 3,
     "money-intent": /assurance|immeuble|PNO|CNO|copropriete|SCI/i.test(html),
     "schema-quality": html.includes("application/ld+json") || html.includes("growth-meta:start"),
@@ -119,7 +123,7 @@ const report = {
     count: actions.filter((item) => item.dimension === dimension || item.dimension.endsWith(dimension)).length,
     verified: actions.filter((item) => (item.dimension === dimension || item.dimension.endsWith(dimension)) && item.status === "verified").length
   })),
-  status: actions.length === TARGET_ACTIONS && systemEvidence.validation_telemetry && systemEvidence.form_rescue && systemEvidence.admin_friction ? "passed" : "watch"
+  status: actions.length === TARGET_ACTIONS && systemEvidence.validation_telemetry && systemEvidence.form_rescue && systemEvidence.content_bridge && systemEvidence.admin_friction ? "passed" : "watch"
 };
 
 mkdirSync(REPORT_DIR, { recursive: true });

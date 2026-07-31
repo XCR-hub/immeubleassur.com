@@ -76,6 +76,8 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
   const topDuplicateLead = Array.isArray(duplicateLeads) ? duplicateLeads[0] : null;
   const rescueShown = Number(conversionFunnel.form_rescue_shown || 0);
   const rescuePhoneClicks = Number(conversionFunnel.form_rescue_phone_clicks || 0);
+  const contentBridgeShown = Number(conversionFunnel.content_bridge_shown || 0);
+  const contentBridgeClicks = Number(conversionFunnel.content_bridge_clicks || 0);
   const bestExperiment = Array.isArray(ctaExperiments) ? ctaExperiments.find((row) => Number(row.form_starts || 0) > 0 || Number(row.leads_created || 0) > 0 || Number(row.cta_clicks || 0) > 0) : null;
   const topGapHandled = topGap ? Number(topGap.leads_created || 0) + Number(topGap.duplicate_filtered || 0) : 0;
 
@@ -116,6 +118,26 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
       url: topAbandon?.path || "/devis-assurance-immeuble.html",
       query: `${rescuePhoneClicks}/${rescueShown || rescuePhoneClicks} appel(s) apres rattrapage`,
       recommendation: "Conserver le rattrapage et comparer les pages qui transforment le mieux l'hesitation en appel."
+    });
+  }
+
+  if (contentBridgeShown >= 10 && contentBridgeClicks === 0) {
+    actions.push({
+      score: 86,
+      opportunity_type: "pont-contenu-friction",
+      url: "/blog.html",
+      query: `${contentBridgeShown} pont(s) contenu, 0 clic`,
+      recommendation: "Tester un message de passage vers devis plus concret sur les articles, FAQ et villes a forte lecture."
+    });
+  }
+
+  if (contentBridgeClicks > 0) {
+    actions.push({
+      score: 75,
+      opportunity_type: "pont-contenu-gagnant",
+      url: "/blog.html",
+      query: `${contentBridgeClicks}/${contentBridgeShown || contentBridgeClicks} clic(s) depuis contenu`,
+      recommendation: "Identifier les pages de lecture qui declenchent le mieux le devis et renforcer leur maillage interne."
     });
   }
 
@@ -322,6 +344,11 @@ export async function onRequestGet({ request, env }) {
   const rescueShown = countFrom(eventCounts, "lead_form_rescue_shown");
   const rescuePhoneClicks = countFrom(eventCounts, "lead_form_rescue_phone_click");
   const rescueDismissed = countFrom(eventCounts, "lead_form_rescue_dismissed");
+  const contentBridgeShown = countFrom(eventCounts, "content_lead_bridge_shown");
+  const contentBridgeQuoteClicks = countFrom(eventCounts, "content_lead_bridge_quote_click");
+  const contentBridgePhoneClicks = countFrom(eventCounts, "content_lead_bridge_phone_click");
+  const contentBridgeDismissed = countFrom(eventCounts, "content_lead_bridge_dismissed");
+  const contentBridgeClicks = contentBridgeQuoteClicks + contentBridgePhoneClicks;
   const diagnosticSelects = countFrom(eventCounts, "diagnostic_select");
   const diagnosticCompletes = countFrom(eventCounts, "diagnostic_complete");
   const readinessStarts = countFrom(eventCounts, "readiness_start");
@@ -349,6 +376,11 @@ export async function onRequestGet({ request, env }) {
     form_rescue_shown: rescueShown,
     form_rescue_phone_clicks: rescuePhoneClicks,
     form_rescue_dismissed: rescueDismissed,
+    content_bridge_shown: contentBridgeShown,
+    content_bridge_clicks: contentBridgeClicks,
+    content_bridge_quote_clicks: contentBridgeQuoteClicks,
+    content_bridge_phone_clicks: contentBridgePhoneClicks,
+    content_bridge_dismissed: contentBridgeDismissed,
     visitor_to_cta_rate: pct(ctaClicks, pageViews),
     diagnostic_completion_rate: pct(diagnosticCompletes, diagnosticSelects),
     diagnostic_to_form_rate: pct(formStarts, diagnosticCompletes),
@@ -362,7 +394,11 @@ export async function onRequestGet({ request, env }) {
     value_hint_to_lead_rate: pct(leadCreated, valueHintReady),
     abandon_rate: pct(abandoned, formStarts),
     form_rescue_phone_rate: pct(rescuePhoneClicks, rescueShown),
-    form_rescue_dismiss_rate: pct(rescueDismissed, rescueShown)
+    form_rescue_dismiss_rate: pct(rescueDismissed, rescueShown),
+    content_bridge_click_rate: pct(contentBridgeClicks, contentBridgeShown),
+    content_bridge_quote_rate: pct(contentBridgeQuoteClicks, contentBridgeShown),
+    content_bridge_phone_rate: pct(contentBridgePhoneClicks, contentBridgeShown),
+    content_bridge_dismiss_rate: pct(contentBridgeDismissed, contentBridgeShown)
   };
 
   return json({

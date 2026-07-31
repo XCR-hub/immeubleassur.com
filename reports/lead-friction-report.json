@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T17:10:00.380Z",
+  "generated_at": "2026-07-31T17:52:36.131Z",
   "action_count": 1000,
   "verified_count": 1000,
   "watch_count": 0,
@@ -8,6 +8,7 @@
     "validation_telemetry": true,
     "value_preview": true,
     "form_rescue": true,
+    "content_bridge": true,
     "admin_friction": true,
     "event_contract": true,
     "seo_quality": 100,
@@ -16,48 +17,53 @@
   "top_dimensions": [
     {
       "dimension": "validation-friction",
-      "count": 112,
-      "verified": 112
+      "count": 100,
+      "verified": 100
     },
     {
       "dimension": "value-preview",
-      "count": 111,
-      "verified": 111
+      "count": 100,
+      "verified": 100
     },
     {
       "dimension": "cta-continuity",
-      "count": 111,
-      "verified": 111
+      "count": 100,
+      "verified": 100
     },
     {
       "dimension": "trust-proof",
-      "count": 111,
-      "verified": 111
+      "count": 100,
+      "verified": 100
     },
     {
       "dimension": "abandon-rescue",
-      "count": 111,
-      "verified": 111
+      "count": 100,
+      "verified": 100
+    },
+    {
+      "dimension": "content-bridge",
+      "count": 100,
+      "verified": 100
     },
     {
       "dimension": "internal-linking",
-      "count": 111,
-      "verified": 111
+      "count": 100,
+      "verified": 100
     },
     {
       "dimension": "money-intent",
-      "count": 111,
-      "verified": 111
+      "count": 100,
+      "verified": 100
     },
     {
       "dimension": "schema-quality",
-      "count": 111,
-      "verified": 111
+      "count": 100,
+      "verified": 100
     },
     {
       "dimension": "mobile-speed",
-      "count": 111,
-      "verified": 111
+      "count": 100,
+      "verified": 100
     }
   ],
   "status": "passed"

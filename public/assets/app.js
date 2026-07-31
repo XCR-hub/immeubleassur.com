@@ -18,6 +18,9 @@ let urgencyEventSent = false;
 let formRescueTimer = 0;
 let formRescueShown = false;
 let formRescueDismissed = false;
+const contentBridgeDismissKey = "immeubleassur_content_bridge_dismissed";
+let contentLeadBridgeShown = false;
+let contentLeadBridgeDismissed = sessionStorage.getItem(contentBridgeDismissKey) === "true";
 let botSignalFirstInteractionAt = 0;
 let botSignalInteractionCount = 0;
 let botSignalPointer = false;
@@ -413,12 +416,8 @@ function intentLabel(intent) {
   })[intent] || "Immeuble";
 }
 
-function mountLeadBar() {
-  if (document.querySelector(".lead-action-bar") || window.location.pathname.includes("/admin") || window.location.pathname.includes("/merci")) return;
-  document.body.dataset.intent = currentLeadIntent();
-  const intent = document.body.dataset.intent;
-  const label = intentLabel(intent);
-  const routes = {
+function leadConversionRoutes() {
+  return {
     cno: "/devis-pno-cno?intent=cno",
     pno: "/devis-pno-cno?intent=pno",
     "pno-cno": "/devis-pno-cno?intent=pno-cno",
@@ -434,6 +433,14 @@ function mountLeadBar() {
     immeuble: "/devis-assurance-immeuble?intent=immeuble",
     website: "/devis-assurance-immeuble"
   };
+}
+
+function mountLeadBar() {
+  if (document.querySelector(".lead-action-bar") || window.location.pathname.includes("/admin") || window.location.pathname.includes("/merci")) return;
+  document.body.dataset.intent = currentLeadIntent();
+  const intent = document.body.dataset.intent;
+  const label = intentLabel(intent);
+  const routes = leadConversionRoutes();
   const bar = document.createElement("div");
   bar.className = "lead-action-bar";
   bar.dataset.experimentId = ctaExperiment.id;
@@ -1306,6 +1313,7 @@ function bindScrollDepthTracking() {
       if (depth >= mark && !scrollDepthSent.has(mark)) {
         scrollDepthSent.add(mark);
         track("scroll_depth", { target: String(mark), label: window.location.pathname });
+        if (mark === 50) showContentLeadBridge("scroll-50");
       }
     }
   };
@@ -1315,6 +1323,94 @@ function bindScrollDepthTracking() {
     requestAnimationFrame(check);
   }, { passive: true });
   check();
+}
+
+function contentLeadBridgeKind() {
+  const path = window.location.pathname.toLowerCase();
+  if (path.includes("/blog/")) return "article";
+  if (path === "/faq.html" || path.startsWith("/faq/")) return "faq";
+  if (/^\/assurance-immeuble-[a-z0-9-]+\.html$/.test(path) && document.querySelector(".city-depth-band")) return "ville";
+  if (path.includes("veille") || path.includes("/news/")) return "veille";
+  if (path.includes("guide")) return "guide";
+  return "contenu";
+}
+
+function contentLeadBridgeEligible() {
+  const path = window.location.pathname.toLowerCase();
+  if (contentLeadBridgeDismissed || contentLeadBridgeShown || formStarted || formSubmitted) return false;
+  if (path.includes("/admin") || path.includes("/merci") || path.startsWith("/devis-") || path.includes("contact") || path.includes("confidentialite") || path.includes("mentions-legales")) return false;
+  if (document.querySelector(".content-lead-bridge")) return false;
+  return path.includes("/blog/") || path === "/faq.html" || path.startsWith("/faq/") || /^\/assurance-immeuble-[a-z0-9-]+\.html$/.test(path) || path.includes("guide") || path.includes("veille") || path.includes("/news/") || Boolean(document.querySelector(".rich-article, .article-layout, .faq-list, .city-depth-band, .content-expansion-band, .seo-opportunity-expansion"));
+}
+
+function contentLeadBridgeCopy(intent, kind) {
+  if (["cno", "pno", "pno-cno"].includes(intent)) {
+    return { title: "Transformer cette lecture PNO/CNO en devis", text: "Statut du lot, occupation, vacance et contrat immeuble peuvent etre cadres en une demande exploitable.", cta: "Preparer le devis PNO/CNO" };
+  }
+  if (intent === "sci") {
+    return { title: "Cadrer l'assurance de la SCI", text: "Un dossier clair separe patrimoine, occupants, sinistres et contrats deja en place avant consultation.", cta: "Demander le devis SCI" };
+  }
+  if (intent === "sinistre") {
+    return { title: "Verifier le contrat apres sinistre", text: "Chronologie, mesures correctives et historique 36 mois changent fortement la lecture assureur.", cta: "Lancer l'audit sinistre" };
+  }
+  if (intent === "prix") {
+    return { title: "Comparer prix et garanties", text: "La prime seule ne suffit pas: franchises, plafonds et exclusions doivent etre compares avec le risque reel.", cta: "Obtenir une comparaison" };
+  }
+  if (intent === "travaux") {
+    return { title: "Anticiper travaux et assurance", text: "Ravalement, toiture, dommages-ouvrage ou changement d'usage doivent etre presentes avant echeance.", cta: "Cadrer le devis travaux" };
+  }
+  if (intent === "local-commercial") {
+    return { title: "Qualifier l'immeuble mixte", text: "Activite du commerce, baux, protections et assurances locataires doivent etre decrits sans approximation.", cta: "Demander le devis adapte" };
+  }
+  if (intent === "copropriete") {
+    return { title: "Preparer le dossier copropriete", text: "PV, syndic, lots, parties communes et sinistres permettent une consultation plus rapide.", cta: "Demander le devis copro" };
+  }
+  return { title: kind === "ville" ? "Transformer cette recherche locale en devis" : "Transformer cette lecture en devis", text: "ImmeubleAssur structure les informations utiles pour limiter les allers-retours avec les assureurs.", cta: "Demander le devis" };
+}
+
+function contentLeadBridgePayload(reason, action = "") {
+  const intent = currentLeadIntent();
+  const route = leadConversionRoutes()[intent] || leadConversionRoutes().website;
+  return {
+    target: intent || "immeuble",
+    label: reason,
+    route,
+    level: contentLeadBridgeKind(),
+    step: action,
+    source_path: currentPathWithQuery()
+  };
+}
+
+function showContentLeadBridge(reason = "lecture") {
+  if (!contentLeadBridgeEligible()) return;
+  const intent = currentLeadIntent();
+  const kind = contentLeadBridgeKind();
+  const route = leadConversionRoutes()[intent] || leadConversionRoutes().website;
+  const copy = contentLeadBridgeCopy(intent, kind);
+  const panel = document.createElement("aside");
+  panel.className = "content-lead-bridge";
+  panel.setAttribute("aria-label", "Suite devis assurance immeuble");
+  panel.innerHTML = `<button class="content-lead-bridge-close" type="button" data-content-bridge-close aria-label="Fermer">&times;</button><p class="eyebrow dark">Suite utile</p><strong>${copy.title}</strong><span>${copy.text}</span><div class="content-lead-bridge-actions"><a class="button primary" data-content-bridge-quote data-track="content-bridge-devis" href="${route}">${copy.cta}</a><a class="button secondary" data-content-bridge-phone data-track="content-bridge-phone" href="tel:+33180855786">Appeler</a></div>`;
+  document.body.append(panel);
+  contentLeadBridgeShown = true;
+  track("content_lead_bridge_shown", contentLeadBridgePayload(reason, "shown"));
+  panel.querySelector("[data-content-bridge-quote]")?.addEventListener("click", () => {
+    track("content_lead_bridge_quote_click", contentLeadBridgePayload(reason, "quote"));
+  });
+  panel.querySelector("[data-content-bridge-phone]")?.addEventListener("click", () => {
+    track("content_lead_bridge_phone_click", contentLeadBridgePayload(reason, "phone"));
+  });
+  panel.querySelector("[data-content-bridge-close]")?.addEventListener("click", () => {
+    contentLeadBridgeDismissed = true;
+    sessionStorage.setItem(contentBridgeDismissKey, "true");
+    panel.remove();
+    track("content_lead_bridge_dismissed", contentLeadBridgePayload(reason, "dismissed"));
+  });
+}
+
+function bindContentLeadBridge() {
+  if (!contentLeadBridgeEligible()) return;
+  window.setTimeout(() => showContentLeadBridge("lecture-20s"), 20000);
 }
 
 function trackFormAbandonment(reason) {
@@ -1618,6 +1714,7 @@ mountQuoteFastTrack();
 bindNewsletterForms();
 enhanceHeader();
 bindScrollDepthTracking();
+bindContentLeadBridge();
 bindFormAbandonment();
 bindBotSignalTracking();
 bindGrowthTracking();

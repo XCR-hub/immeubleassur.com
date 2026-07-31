@@ -1,6 +1,10 @@
 {
-  "generated_at": "2026-07-31T17:09:40.716Z",
+  "generated_at": "2026-07-31T17:52:15.137Z",
   "tracked_events": [
+    "content_lead_bridge_dismissed",
+    "content_lead_bridge_phone_click",
+    "content_lead_bridge_quote_click",
+    "content_lead_bridge_shown",
     "cta_click",
     "diagnostic_complete",
     "diagnostic_select",
@@ -36,6 +40,10 @@
     "scroll_depth"
   ],
   "allowed_events": [
+    "content_lead_bridge_dismissed",
+    "content_lead_bridge_phone_click",
+    "content_lead_bridge_quote_click",
+    "content_lead_bridge_shown",
     "cta_click",
     "diagnostic_complete",
     "diagnostic_select",

@@ -79,6 +79,8 @@ function pathFunnels(database, sinceSql, maxRows) {
         SUM(CASE WHEN event_type = 'quote_router_continue' THEN 1 ELSE 0 END) AS quote_router_continues,
         SUM(CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click') THEN 1 ELSE 0 END) AS cta_clicks,
         SUM(CASE WHEN event_type = 'phone_click' THEN 1 ELSE 0 END) AS phone_clicks,
+        SUM(CASE WHEN event_type = 'content_lead_bridge_shown' THEN 1 ELSE 0 END) AS content_bridge_shown,
+        SUM(CASE WHEN event_type IN ('content_lead_bridge_quote_click', 'content_lead_bridge_phone_click') THEN 1 ELSE 0 END) AS content_bridge_clicks,
         SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts,
         SUM(CASE WHEN event_type = 'form_submit_attempt' THEN 1 ELSE 0 END) AS submit_attempts,
         SUM(CASE WHEN event_type = 'lead_submit_error' THEN 1 ELSE 0 END) AS submit_errors,
@@ -87,7 +89,7 @@ function pathFunnels(database, sinceSql, maxRows) {
       FROM site_events
       WHERE created_at >= datetime('now', ?)
       GROUP BY raw_path
-      HAVING page_views + quote_router_views + cta_clicks + form_starts + submit_attempts + leads_created > 0
+      HAVING page_views + quote_router_views + cta_clicks + content_bridge_shown + form_starts + submit_attempts + leads_created > 0
       ORDER BY page_views DESC, form_starts DESC, leads_created DESC
       LIMIT ?
     `)
@@ -111,6 +113,9 @@ function enrichPath(row) {
     quote_router_continues: quoteContinues,
     cta_clicks: Number(row.cta_clicks || 0),
     phone_clicks: Number(row.phone_clicks || 0),
+    content_bridge_shown: Number(row.content_bridge_shown || 0),
+    content_bridge_clicks: Number(row.content_bridge_clicks || 0),
+    content_bridge_click_rate: pct(row.content_bridge_clicks, row.content_bridge_shown),
     form_starts: formStarts,
     submit_attempts: submitAttempts,
     submit_errors: Number(row.submit_errors || 0),
@@ -170,6 +175,9 @@ function recommendations(summary, paths) {
     if (row.quote_router_views >= 10 && row.quote_router_continues === 0) {
       addRecommendation(items, "routeur-sans-suite", "high", row.path, `${row.quote_router_views} vues routeur, 0 continuation`, "Revoir le libelle du parcours recommande et rendre le bouton principal plus explicite.", 86);
     }
+    if (row.content_bridge_shown >= 5 && row.content_bridge_clicks === 0) {
+      addRecommendation(items, "pont-contenu-sans-clic", "medium", row.path, `${row.content_bridge_shown} affichage(s), 0 clic`, "Rendre le passage lecture vers devis plus concret sur cette page SEO.", 78);
+    }
     if (row.form_starts >= 3 && row.leads_created === 0) {
       addRecommendation(items, "formulaire-sans-lead", "high", row.path, `${row.form_starts} starts, 0 lead`, "Verifier les champs bloquants, le filtre local, les messages d'erreur et la preuve de rappel.", 84);
     }
@@ -197,6 +205,8 @@ function summaryFrom(events, leadStats, days) {
   const leadsDb = Number(leadStats?.leads || 0);
   const quoteViews = countFor(events, "quote_router_view");
   const quoteContinues = countFor(events, "quote_router_continue");
+  const contentBridgeShown = countFor(events, "content_lead_bridge_shown");
+  const contentBridgeClicks = countFor(events, "content_lead_bridge_quote_click") + countFor(events, "content_lead_bridge_phone_click");
   return {
     lookback_days: days,
     page_views: pageViews,
@@ -205,6 +215,8 @@ function summaryFrom(events, leadStats, days) {
     quote_router_continues: quoteContinues,
     cta_clicks: countFor(events, "cta_click") + countFor(events, "phone_click") + countFor(events, "email_click"),
     phone_clicks: countFor(events, "phone_click"),
+    content_bridge_shown: contentBridgeShown,
+    content_bridge_clicks: contentBridgeClicks,
     form_starts: formStarts,
     submit_attempts: submitAttempts,
     submit_errors: countFor(events, "lead_submit_error") + countFor(events, "lead_submit_rejected"),
@@ -215,6 +227,7 @@ function summaryFrom(events, leadStats, days) {
     average_lead_score_db: Math.round(Number(leadStats?.avg_score || 0)),
     page_to_form_rate: pct(formStarts, pageViews),
     quote_continue_rate: pct(quoteContinues, quoteViews),
+    content_bridge_click_rate: pct(contentBridgeClicks, contentBridgeShown),
     form_to_submit_rate: pct(submitAttempts, formStarts),
     submit_to_lead_rate: pct(Math.max(leadsEvent, leadsDb), submitAttempts),
     form_to_lead_rate: pct(Math.max(leadsEvent, leadsDb), formStarts)

@@ -1538,6 +1538,69 @@ details:hover {
   background: #ffffff;
 }
 
+.content-lead-bridge {
+  background: #f8fcfb;
+  border: 1px solid rgba(15, 118, 110, .22);
+  border-radius: 8px;
+  bottom: 6.8rem;
+  box-shadow: 0 18px 48px rgba(9, 30, 35, .16);
+  display: grid;
+  gap: 10px;
+  max-width: 370px;
+  padding: 18px;
+  position: fixed;
+  right: 1rem;
+  z-index: 46;
+}
+
+.content-lead-bridge .eyebrow {
+  margin: 0;
+  padding-right: 24px;
+}
+
+.content-lead-bridge strong,
+.content-lead-bridge span {
+  display: block;
+}
+
+.content-lead-bridge strong {
+  color: var(--navy);
+  font-size: 1rem;
+}
+
+.content-lead-bridge span {
+  color: var(--muted);
+  font-size: .86rem;
+  line-height: 1.45;
+}
+
+.content-lead-bridge-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.content-lead-bridge .button {
+  min-height: 40px;
+  padding: .62rem .82rem;
+}
+
+.content-lead-bridge-close {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  height: 28px;
+  justify-content: center;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 28px;
+}
+
 input,
 select,
 textarea {
@@ -1617,15 +1680,24 @@ textarea:focus {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .form-rescue {
+  .form-rescue,
+  .content-lead-bridge {
     grid-template-columns: 1fr;
+  }
+
+  .content-lead-bridge {
+    bottom: 7.4rem;
+    left: .75rem;
+    max-width: none;
+    right: .75rem;
   }
 
   .form-rescue-actions {
     justify-content: stretch;
   }
 
-  .form-rescue .button {
+  .form-rescue .button,
+  .content-lead-bridge .button {
     flex: 1 1 150px;
     justify-content: center;
     text-align: center;
@@ -1633,6 +1705,16 @@ textarea:focus {
 }
 
 @media (max-width: 640px) {
+  .content-lead-bridge {
+    bottom: 8.2rem;
+    padding: 15px;
+  }
+
+  .content-lead-bridge-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
   .hero-intent-grid,
   .conversion-strip-inner,
   .form-advisor {
