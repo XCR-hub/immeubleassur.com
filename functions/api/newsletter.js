@@ -125,6 +125,34 @@ function turnstileActionValid(action, expectedAction) {
   return Boolean(value && value === expectedAction);
 }
 
+function requestHeaderHostname(value) {
+  const header = clean(value, 500);
+  if (!header) return "";
+  try {
+    return new URL(header).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function requestOriginStatus(request, env) {
+  const origin = clean(request.headers.get("Origin"), 500);
+  const referer = clean(request.headers.get("Referer"), 500);
+  if (origin) {
+    const hostname = requestHeaderHostname(origin);
+    if (!turnstileHostnameValid(env, hostname)) {
+      return { ok: false, status: hostname ? "origin-invalide" : "origin-malforme", header: "origin", hostname };
+    }
+  }
+  if (referer) {
+    const hostname = requestHeaderHostname(referer);
+    if (!turnstileHostnameValid(env, hostname)) {
+      return { ok: false, status: hostname ? "referer-invalide" : "referer-malforme", header: "referer", hostname };
+    }
+  }
+  return { ok: true, status: origin || referer ? "origin-ok" : "origin-absente" };
+}
+
 async function verifyNewsletterTurnstile(env, payload, ip, expectedAction = "newsletter_subscribe") {
   const siteKey = clean(env?.TURNSTILE_SITE_KEY, 200);
   const secret = clean(env?.TURNSTILE_SECRET_KEY, 2048);
@@ -318,6 +346,9 @@ async function logSiteEvent(env, request, payload, eventType, now) {
         turnstile_action: clean(spam.turnstile_action || "", 120),
         turnstile_hostname: clean(spam.turnstile_hostname || "", 255),
         turnstile_errors: Array.isArray(spam.turnstile_errors) ? spam.turnstile_errors.slice(0, 5).join(", ") : "",
+        origin_status: clean(spam.origin_status || "", 120),
+        origin_header: clean(spam.origin_header || "", 40),
+        origin_hostname: clean(spam.origin_hostname || "", 255),
         has_name: clean(payload.name, 160) ? "true" : "false",
         form_elapsed_ms: payload.anti_bot ? String(safeNumber(payload.anti_bot.form_elapsed_ms)) : ""
       }),
@@ -371,6 +402,28 @@ export async function onRequestPost({ request, env }) {
 
   if (clean(payload.company_website)) {
     return blockNewsletterSpam(env, request, payload, { score: 120, reasons: ["honeypot-rempli"], blocked: true, action: "silent_drop", challenge: "honeypot" }, now);
+  }
+
+  const originStatus = requestOriginStatus(request, env);
+  if (!originStatus.ok) {
+    return blockNewsletterSpam(
+      env,
+      request,
+      payload,
+      {
+        score: 100,
+        reasons: [`request-${originStatus.status || "origine-invalide"}`],
+        blocked: true,
+        action: "block",
+        challenge: "origin-failed",
+        origin_status: originStatus.status || "",
+        origin_header: originStatus.header || "",
+        origin_hostname: originStatus.hostname || ""
+      },
+      now,
+      403,
+      "Origine de formulaire non autorisee."
+    );
   }
 
   const challenge = localNewsletterChallengeStatus(payload);

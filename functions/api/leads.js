@@ -117,6 +117,34 @@ function turnstileActionValid(action, expectedAction) {
   return Boolean(value && value === expectedAction);
 }
 
+function requestHeaderHostname(value) {
+  const header = clean(value, 500);
+  if (!header) return "";
+  try {
+    return new URL(header).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function requestOriginStatus(request, env) {
+  const origin = clean(request.headers.get("Origin"), 500);
+  const referer = clean(request.headers.get("Referer"), 500);
+  if (origin) {
+    const hostname = requestHeaderHostname(origin);
+    if (!turnstileHostnameValid(env, hostname)) {
+      return { ok: false, status: hostname ? "origin-invalide" : "origin-malforme", header: "origin", hostname };
+    }
+  }
+  if (referer) {
+    const hostname = requestHeaderHostname(referer);
+    if (!turnstileHostnameValid(env, hostname)) {
+      return { ok: false, status: hostname ? "referer-invalide" : "referer-malforme", header: "referer", hostname };
+    }
+  }
+  return { ok: true, status: origin || referer ? "origin-ok" : "origin-absente" };
+}
+
 async function verifyTurnstile(env, payload, ip, expectedAction = "lead_form") {
   const siteKey = clean(env?.TURNSTILE_SITE_KEY, 200);
   const secret = clean(env?.TURNSTILE_SECRET_KEY, 2048);
@@ -307,7 +335,10 @@ async function logSpamAttempt(env, request, payload, assessment, now, ip, userAg
     turnstile: clean(assessment.turnstile_status || "", 120),
     turnstile_action: clean(assessment.turnstile_action || "", 120),
     turnstile_hostname: clean(assessment.turnstile_hostname || "", 255),
-    turnstile_errors: Array.isArray(assessment.turnstile_errors) ? assessment.turnstile_errors.slice(0, 5).join(", ") : ""
+    turnstile_errors: Array.isArray(assessment.turnstile_errors) ? assessment.turnstile_errors.slice(0, 5).join(", ") : "",
+    origin_status: clean(assessment.origin_status || "", 120),
+    origin_header: clean(assessment.origin_header || "", 40),
+    origin_hostname: clean(assessment.origin_hostname || "", 255)
   };
   await env.DB.prepare(
     `INSERT INTO site_events (
@@ -726,6 +757,21 @@ export async function onRequestPost({ request, env, waitUntil }) {
   if (!env.DB) {
     if (clean(payload.company_website)) return json({ success: true, reference: "IGNORED" });
     return json({ success: false, error: "Base SQLite indisponible" }, 503);
+  }
+
+  const originStatus = requestOriginStatus(request, env);
+  if (!originStatus.ok) {
+    const assessment = {
+      score: 100,
+      reasons: [`request-${originStatus.status || "origine-invalide"}`],
+      blocked: true,
+      action: "block",
+      origin_status: originStatus.status || "",
+      origin_header: originStatus.header || "",
+      origin_hostname: originStatus.hostname || ""
+    };
+    await logSpamAttempt(env, request, payload, assessment, now, ip, userAgent);
+    return json({ success: false, error: "Origine de formulaire non autorisee.", challenge: "origin-failed", origin: originStatus.status }, 403);
   }
 
   const challenge = localChallengeStatus(payload);
