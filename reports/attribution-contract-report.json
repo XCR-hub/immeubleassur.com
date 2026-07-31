@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T18:03:27.213Z",
+  "generated_at": "2026-07-31T19:28:37.235Z",
   "checked_files": [
     "functions/api/admin/attribution.js",
     "public/assets/admin.js",
@@ -10,7 +10,7 @@
     "public/assets/admin.js",
     "package.json"
   ],
-  "required_contracts": 47,
+  "required_contracts": 52,
   "missing": [],
   "status": "passed"
 }

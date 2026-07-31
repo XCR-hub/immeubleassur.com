@@ -288,6 +288,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
     path: clean(payload.path, 500),
     intent: clean(payload.intent, 80),
     source_path: clean(payload.source_path, 500),
+    content_bridge: clean(payload.content_bridge, 20),
+    content_kind: clean(payload.content_kind, 80),
     referrer: clean(payload.referrer, 500),
     lead_reference: clean(payload.lead_reference, 80),
     score: clean(payload.score, 20),

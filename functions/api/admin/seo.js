@@ -78,6 +78,7 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
   const rescuePhoneClicks = Number(conversionFunnel.form_rescue_phone_clicks || 0);
   const contentBridgeShown = Number(conversionFunnel.content_bridge_shown || 0);
   const contentBridgeClicks = Number(conversionFunnel.content_bridge_clicks || 0);
+  const contentBridgeLeads = Array.isArray(contentBridgePaths) ? contentBridgePaths.reduce((sum, row) => sum + Number(row.leads_created || 0), 0) : 0;
   const topContentBridge = Array.isArray(contentBridgePaths) ? contentBridgePaths[0] : null;
   const bestExperiment = Array.isArray(ctaExperiments) ? ctaExperiments.find((row) => Number(row.form_starts || 0) > 0 || Number(row.leads_created || 0) > 0 || Number(row.cta_clicks || 0) > 0) : null;
   const topGapHandled = topGap ? Number(topGap.leads_created || 0) + Number(topGap.duplicate_filtered || 0) : 0;
@@ -129,6 +130,26 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
       url: topContentBridge?.path || "/blog.html",
       query: `${contentBridgeShown} pont(s) contenu, 0 clic`,
       recommendation: "Tester un message de passage vers devis plus concret sur les articles, FAQ et villes a forte lecture."
+    });
+  }
+
+  if (contentBridgeClicks >= 3 && contentBridgeLeads === 0) {
+    actions.push({
+      score: 84,
+      opportunity_type: "pont-contenu-lead-friction",
+      url: topContentBridge?.path || "/blog.html",
+      query: `${contentBridgeClicks} clic(s) contenu, 0 lead confirme`,
+      recommendation: "Controler la promesse du pont, le formulaire cible et le message de reassurance jusqu'a l'envoi du devis."
+    });
+  }
+
+  if (contentBridgeLeads > 0) {
+    actions.push({
+      score: 91,
+      opportunity_type: "pont-contenu-lead-gagnant",
+      url: topContentBridge?.path || "/blog.html",
+      query: `${contentBridgeLeads} lead(s) depuis contenu, ${contentBridgeClicks || 0} clic(s)`,
+      recommendation: "Renforcer cette page SEO, ajouter des liens internes proches et produire des contenus satellites sur la meme intention."
     });
   }
 
@@ -328,7 +349,7 @@ export async function onRequestGet({ request, env }) {
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'anti-spam') AS reason, COUNT(*) AS blocked, COALESCE(MAX(CAST(NULLIF(json_extract(payload, '$.spam_score'), '') AS REAL)), 0) AS max_score FROM site_events WHERE event_type = 'lead_spam_blocked' AND created_at >= datetime('now', '-30 days') GROUP BY path, reason ORDER BY blocked DESC, max_score DESC LIMIT 20`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.duplicate_reason'), ''), COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'doublon-contact')) AS reason, COUNT(*) AS duplicates, COUNT(DISTINCT NULLIF(lead_reference, '')) AS existing_leads FROM site_events WHERE event_type = 'lead_duplicate_filtered' AND created_at >= datetime('now', '-30 days') GROUP BY path, reason ORDER BY duplicates DESC LIMIT 20`),
     safeAll(env, `SELECT metric_type, metric_name, value, payload, created_at FROM seo_metrics WHERE run_id = (SELECT id FROM seo_runs ORDER BY created_at DESC LIMIT 1) ORDER BY metric_type, metric_name`),
-    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.source_path'), ''), COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/')) AS path, COALESCE(NULLIF(json_extract(payload, '$.level'), ''), 'contenu') AS content_kind, SUM(CASE WHEN event_type = 'content_lead_bridge_shown' THEN 1 ELSE 0 END) AS shown, SUM(CASE WHEN event_type = 'content_lead_bridge_quote_click' THEN 1 ELSE 0 END) AS quote_clicks, SUM(CASE WHEN event_type = 'content_lead_bridge_phone_click' THEN 1 ELSE 0 END) AS phone_clicks, SUM(CASE WHEN event_type = 'content_lead_bridge_dismissed' THEN 1 ELSE 0 END) AS dismissed, COUNT(DISTINCT COALESCE(NULLIF(session_id, ''), id)) AS sessions FROM site_events WHERE created_at >= datetime('now', '-30 days') AND event_type IN ('content_lead_bridge_shown', 'content_lead_bridge_quote_click', 'content_lead_bridge_phone_click', 'content_lead_bridge_dismissed') GROUP BY path, content_kind HAVING shown + quote_clicks + phone_clicks + dismissed > 0 ORDER BY (quote_clicks + phone_clicks) DESC, shown DESC LIMIT 20`),
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.source_path'), ''), COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/')) AS path, COALESCE(NULLIF(json_extract(payload, '$.content_kind'), ''), COALESCE(NULLIF(json_extract(payload, '$.level'), ''), 'contenu')) AS content_kind, SUM(CASE WHEN event_type = 'content_lead_bridge_shown' THEN 1 ELSE 0 END) AS shown, SUM(CASE WHEN event_type = 'content_lead_bridge_quote_click' THEN 1 ELSE 0 END) AS quote_clicks, SUM(CASE WHEN event_type = 'content_lead_bridge_phone_click' THEN 1 ELSE 0 END) AS phone_clicks, SUM(CASE WHEN event_type = 'content_lead_bridge_dismissed' THEN 1 ELSE 0 END) AS dismissed, SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created, SUM(CASE WHEN event_type = 'lead_created' THEN COALESCE(CAST(NULLIF(json_extract(payload, '$.lead_value_max'), '') AS REAL), 0) ELSE 0 END) AS lead_value_max_total, COUNT(DISTINCT COALESCE(NULLIF(session_id, ''), id)) AS sessions FROM site_events WHERE created_at >= datetime('now', '-30 days') AND (event_type IN ('content_lead_bridge_shown', 'content_lead_bridge_quote_click', 'content_lead_bridge_phone_click', 'content_lead_bridge_dismissed') OR (event_type = 'lead_created' AND COALESCE(NULLIF(json_extract(payload, '$.content_bridge'), ''), '') = '1')) GROUP BY path, content_kind HAVING shown + quote_clicks + phone_clicks + dismissed + leads_created > 0 ORDER BY leads_created DESC, (quote_clicks + phone_clicks) DESC, shown DESC LIMIT 20`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.experiment_variant'), ''), 'non mesure') AS variant, COALESCE(NULLIF(json_extract(payload, '$.experiment_label'), ''), '') AS label, COUNT(*) AS events, SUM(CASE WHEN event_type = 'experiment_view' THEN 1 ELSE 0 END) AS views, SUM(CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click') THEN 1 ELSE 0 END) AS cta_clicks, SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts, SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created, SUM(CASE WHEN event_type = 'lead_created' THEN COALESCE(CAST(NULLIF(json_extract(payload, '$.lead_value_max'), '') AS REAL), 0) ELSE 0 END) AS lead_value_max_total FROM site_events WHERE created_at >= datetime('now', '-30 days') AND COALESCE(NULLIF(json_extract(payload, '$.experiment_variant'), ''), '') <> '' GROUP BY variant, label ORDER BY leads_created DESC, form_starts DESC, cta_clicks DESC LIMIT 12`)
   ]);
 
@@ -352,6 +373,7 @@ export async function onRequestGet({ request, env }) {
   const contentBridgePhoneClicks = countFrom(eventCounts, "content_lead_bridge_phone_click");
   const contentBridgeDismissed = countFrom(eventCounts, "content_lead_bridge_dismissed");
   const contentBridgeClicks = contentBridgeQuoteClicks + contentBridgePhoneClicks;
+  const contentBridgeLeadCreated = Array.isArray(contentBridgePaths) ? contentBridgePaths.reduce((sum, row) => sum + Number(row.leads_created || 0), 0) : 0;
   const diagnosticSelects = countFrom(eventCounts, "diagnostic_select");
   const diagnosticCompletes = countFrom(eventCounts, "diagnostic_complete");
   const readinessStarts = countFrom(eventCounts, "readiness_start");
@@ -384,6 +406,7 @@ export async function onRequestGet({ request, env }) {
     content_bridge_quote_clicks: contentBridgeQuoteClicks,
     content_bridge_phone_clicks: contentBridgePhoneClicks,
     content_bridge_dismissed: contentBridgeDismissed,
+    content_bridge_leads: contentBridgeLeadCreated,
     visitor_to_cta_rate: pct(ctaClicks, pageViews),
     diagnostic_completion_rate: pct(diagnosticCompletes, diagnosticSelects),
     diagnostic_to_form_rate: pct(formStarts, diagnosticCompletes),
@@ -401,7 +424,9 @@ export async function onRequestGet({ request, env }) {
     content_bridge_click_rate: pct(contentBridgeClicks, contentBridgeShown),
     content_bridge_quote_rate: pct(contentBridgeQuoteClicks, contentBridgeShown),
     content_bridge_phone_rate: pct(contentBridgePhoneClicks, contentBridgeShown),
-    content_bridge_dismiss_rate: pct(contentBridgeDismissed, contentBridgeShown)
+    content_bridge_dismiss_rate: pct(contentBridgeDismissed, contentBridgeShown),
+    content_bridge_to_lead_rate: pct(contentBridgeLeadCreated, contentBridgeShown),
+    content_bridge_click_to_lead_rate: pct(contentBridgeLeadCreated, contentBridgeClicks)
   };
 
   return json({
@@ -423,7 +448,7 @@ export async function onRequestGet({ request, env }) {
     validation_errors: Array.isArray(validationErrors) ? validationErrors : [],
     spam_blocks: Array.isArray(spamBlocks) ? spamBlocks : [],
     duplicate_leads: Array.isArray(duplicateLeads) ? duplicateLeads : [],
-    content_bridge_paths: Array.isArray(contentBridgePaths) ? contentBridgePaths.map((row) => ({ ...row, clicks: Number(row.quote_clicks || 0) + Number(row.phone_clicks || 0), click_rate: pct(Number(row.quote_clicks || 0) + Number(row.phone_clicks || 0), row.shown), dismiss_rate: pct(row.dismissed, row.shown) })) : [],
+    content_bridge_paths: Array.isArray(contentBridgePaths) ? contentBridgePaths.map((row) => { const clicks = Number(row.quote_clicks || 0) + Number(row.phone_clicks || 0); const leads = Number(row.leads_created || 0); return { ...row, shown: Number(row.shown || 0), quote_clicks: Number(row.quote_clicks || 0), phone_clicks: Number(row.phone_clicks || 0), dismissed: Number(row.dismissed || 0), leads_created: leads, lead_value_max_total: Number(row.lead_value_max_total || 0), clicks, click_rate: pct(clicks, row.shown), dismiss_rate: pct(row.dismissed, row.shown), bridge_to_lead_rate: pct(leads, row.shown), click_to_lead_rate: pct(leads, clicks) }; }) : [],
     cta_experiments: Array.isArray(ctaExperiments) ? ctaExperiments : [],
     seo_metrics: metricsObject(seoMetrics),
     lead_actions: buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPending, conversionGaps, abandonPaths, diagnosticPaths, readinessPaths, valueHintPaths, validationErrors, spamBlocks, duplicateLeads, contentBridgePaths, ctaExperiments }),

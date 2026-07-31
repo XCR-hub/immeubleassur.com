@@ -145,6 +145,18 @@ function querySourcePath() {
   return sameSitePath(params.get("source_path") || params.get("origin_path") || "");
 }
 
+function queryContentBridge() {
+  const params = new URLSearchParams(window.location.search);
+  const flag = String(params.get("content_bridge") || "").trim().toLowerCase();
+  const contentBridge = ["1", "true", "yes", "pont"].includes(flag) ? "1" : "";
+  const contentKind = String(params.get("content_kind") || params.get("content_level") || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "")
+    .slice(0, 80);
+  return { content_bridge: contentBridge, content_kind: contentKind };
+}
+
 function routeWithAttribution(route, data = {}) {
   const url = new URL(route, window.location.origin);
   for (const [key, value] of Object.entries(data)) {
@@ -205,11 +217,14 @@ function captureAttribution() {
   const hasCurrent = Object.keys(current).length > 0;
   const intent = queryLeadIntent();
   const sourcePath = querySourcePath();
+  const bridge = queryContentBridge();
   const next = {
     ...existing,
     utm: hasCurrent ? { ...(existing.utm || {}), ...current } : (existing.utm || {}),
     intent: intent || existing.intent || "",
     source_path: sourcePath || (intent ? currentPathWithQuery() : (existing.source_path || currentPathWithQuery())),
+    content_bridge: bridge.content_bridge || existing.content_bridge || "",
+    content_kind: bridge.content_kind || existing.content_kind || "",
     landing_path: existing.landing_path || window.location.pathname,
     landing_page: existing.landing_page || window.location.href,
     first_referrer: existing.first_referrer || document.referrer || "",
@@ -224,11 +239,14 @@ function readUtm() {
   const stored = parseStoredAttribution();
   const intent = queryLeadIntent();
   const sourcePath = querySourcePath();
+  const bridge = queryContentBridge();
   return {
     ...(stored.utm || {}),
     ...current,
     intent: intent || stored.intent || "",
-    source_path: sourcePath || (stored.source_path || (intent ? currentPathWithQuery() : currentPathWithQuery())),
+    source_path: sourcePath || stored.source_path || currentPathWithQuery(),
+    content_bridge: bridge.content_bridge || stored.content_bridge || "",
+    content_kind: bridge.content_kind || stored.content_kind || "",
     landing_path: stored.landing_path || window.location.pathname,
     landing_page: stored.landing_page || window.location.href,
     first_referrer: stored.first_referrer || document.referrer || ""
@@ -242,6 +260,8 @@ function attributionPayload() {
     source: leadSourceFromAttribution(utm),
     intent,
     source_path: utm.source_path || currentPathWithQuery(),
+    content_bridge: utm.content_bridge || "",
+    content_kind: utm.content_kind || "",
     landing_path: utm.landing_path || window.location.pathname,
     utm_source: utm.utm_source || "",
     utm_medium: utm.utm_medium || "",
@@ -311,6 +331,8 @@ function readForm(formElement) {
     source: attribution.source,
     intent: attribution.intent,
     source_path: attribution.source_path,
+    content_bridge: attribution.content_bridge,
+    content_kind: attribution.content_kind,
     landing_path: attribution.landing_path,
     page_url: window.location.href,
     referrer: document.referrer || "",
@@ -320,7 +342,7 @@ function readForm(formElement) {
     anti_bot: botSignalPayload(),
     ...experimentPayload(),
     experiment: experimentPayload(),
-    utm: { ...utm, intent: attribution.intent, source_path: attribution.source_path, landing_path: attribution.landing_path }
+    utm: { ...utm, intent: attribution.intent, source_path: attribution.source_path, landing_path: attribution.landing_path, content_bridge: attribution.content_bridge, content_kind: attribution.content_kind }
   };
   const urgency = leadUrgency(payload);
   return {
@@ -1408,6 +1430,8 @@ function contentLeadBridgePayload(reason, action = "") {
     label: reason,
     route,
     level: kind,
+    content_bridge: "1",
+    content_kind: kind,
     step: action,
     source_path: currentPathWithQuery()
   };
@@ -1610,7 +1634,10 @@ form?.addEventListener("submit", async (event) => {
         lead_reference: result.reference,
         target: payload.need,
         label: result.duplicate_reason || "duplicate_recent",
-        score: String(result.score || "")
+        score: String(result.score || ""),
+        source_path: payload.source_path || "",
+        content_bridge: payload.content_bridge || "",
+        content_kind: payload.content_kind || ""
       });
       return;
     }
@@ -1627,6 +1654,9 @@ form?.addEventListener("submit", async (event) => {
       sla_hours: String(result.sla_hours || ""),
       lead_urgency: result.lead_urgency || payload.lead_urgency || "",
       lead_urgency_reason: result.lead_urgency_reason || payload.lead_urgency_reason || "",
+      source_path: payload.source_path || "",
+      content_bridge: payload.content_bridge || "",
+      content_kind: payload.content_kind || "",
       target: payload.need,
       label: payload.city
     });
