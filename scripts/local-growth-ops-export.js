@@ -262,6 +262,9 @@ function pushAction(actions, type, severity, signal, action, target = "", score 
 
 function buildPriorityActions(reports) {
   const actions = [];
+  if (!reports.production.available) {
+    pushAction(actions, "production-monitor-missing", "medium", "rapport production absent", "Planifier ou lancer production:monitor sur le serveur pour consolider health, sauvegarde SQLite et telemetry.", "production:monitor", 74);
+  }
   if (reports.production.available && reports.production.success === false) {
     const failed = reports.production.failed_checks?.map((item) => item.name).filter(Boolean).join(", ") || "monitoring";
     pushAction(actions, "production-monitor", "critical", failed, "Corriger le check production en erreur avant de lancer de nouvelles acquisitions.", "runtime-health", 100);
