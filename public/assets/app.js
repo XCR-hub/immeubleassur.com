@@ -1567,6 +1567,82 @@ function isHomepage() {
   return window.location.pathname === "/" || window.location.pathname === "/index.html";
 }
 
+
+function heroIntentAcceleratorRows() {
+  const rows = quoteFastTrackRows();
+  return {
+    immeuble: rows.immeuble,
+    copropriete: rows.copropriete,
+    "pno-cno": {
+      ...rows.cno,
+      label: "PNO/CNO",
+      title: "PNO ou CNO a cadrer",
+      text: "Lot loue, vacant ou non occupe: qualifier occupation, contrat immeuble et assurance occupant.",
+      proof: "Pieces cles: occupation du lot, contrat immeuble, bail ou attestation occupant.",
+      href: "/devis-pno-cno?intent=pno-cno",
+      need: "pno-cno",
+      profile: "bailleur",
+      property_type: "lot-copropriete"
+    },
+    sci: rows.sci
+  };
+}
+
+function heroIntentKeyFromCard(card) {
+  const raw = `${card.dataset.heroIntent || ""} ${card.dataset.track || ""} ${card.getAttribute("href") || ""} ${card.textContent || ""}`.toLowerCase();
+  if (raw.includes("pno") || raw.includes("cno")) return "pno-cno";
+  if (raw.includes("copro")) return "copropriete";
+  if (raw.includes("sci")) return "sci";
+  if (raw.includes("immeuble")) return "immeuble";
+  return "immeuble";
+}
+
+function bindHeroIntentAccelerator() {
+  if (!isHomepage() || !form) return;
+  const grid = document.querySelector(".hero-intent-grid");
+  if (!grid || grid.dataset.heroAccelerator === "1") return;
+  const cards = [...grid.querySelectorAll(".intent-card")];
+  if (!cards.length) return;
+  const rows = heroIntentAcceleratorRows();
+  const status = document.createElement("p");
+  status.id = "hero-intent-status";
+  status.className = "hero-intent-status";
+  status.setAttribute("role", "status");
+  status.setAttribute("aria-live", "polite");
+  grid.dataset.heroAccelerator = "1";
+  grid.insertAdjacentElement("afterend", status);
+
+  cards.forEach((card) => {
+    const key = heroIntentKeyFromCard(card);
+    const row = rows[key];
+    if (!row) return;
+    card.dataset.heroIntent = key;
+    card.setAttribute("aria-describedby", status.id);
+    card.addEventListener("click", (event) => {
+      event.preventDefault();
+      trafficNoClickInteracted = true;
+      if (trafficNoClickTimer) window.clearTimeout(trafficNoClickTimer);
+      cards.forEach((item) => item.classList.toggle("is-active", item === card));
+      document.body.dataset.intent = key;
+      quoteFastTrackApply(row);
+      const fastTrack = document.querySelector(".quote-fast-track");
+      const fastKey = key === "pno-cno" ? "cno" : key;
+      const fastRows = quoteFastTrackRows();
+      if (fastTrack && fastRows[fastKey]) renderQuoteFastTrack(fastTrack, fastKey, false);
+      status.innerHTML = `<strong>${row.title}</strong><span>${row.proof} Formulaire pre-rempli: ajoutez nom, telephone et echeance.</span>`;
+      status.classList.add("is-visible");
+      track("quote_router_select", { target: key, label: row.title, route: row.href, source: "hero-intent-grid" });
+      track("quote_router_continue", { target: key, label: row.title, route: row.href, mode: "hero-prefill", source: "hero-intent-grid" });
+      if (!formStarted) {
+        formStarted = true;
+        track("form_start", { target: "hero-intent-card", label: key });
+      }
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+      const focusTarget = form.querySelector("input[name='name'], input[name='phone'], input[name='email']");
+      window.setTimeout(() => focusTarget?.focus({ preventScroll: true }), 260);
+    });
+  });
+}
 function trafficNoClickPayload(action) {
   return {
     target: action,
@@ -1858,6 +1934,7 @@ bindScrollDepthTracking();
 bindContentLeadBridge();
 bindFormAbandonment();
 bindBotSignalTracking();
+bindHeroIntentAccelerator();
 bindTrafficNoClickRescue();
 bindGrowthTracking();
 bindFormRescue();

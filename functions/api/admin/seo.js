@@ -76,6 +76,8 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
   const topDuplicateLead = Array.isArray(duplicateLeads) ? duplicateLeads[0] : null;
   const rescueShown = Number(conversionFunnel.form_rescue_shown || 0);
   const rescuePhoneClicks = Number(conversionFunnel.form_rescue_phone_clicks || 0);
+  const trafficRescueShown = Number(conversionFunnel.traffic_rescue_shown || 0);
+  const trafficRescueClicks = Number(conversionFunnel.traffic_rescue_clicks || 0);
   const contentBridgeShown = Number(conversionFunnel.content_bridge_shown || 0);
   const contentBridgeClicks = Number(conversionFunnel.content_bridge_clicks || 0);
   const contentBridgeLeads = Array.isArray(contentBridgePaths) ? contentBridgePaths.reduce((sum, row) => sum + Number(row.leads_created || 0), 0) : 0;
@@ -120,6 +122,26 @@ function buildLeadActions({ conversionFunnel, leadStats, leadPriorities, hotPend
       url: topAbandon?.path || "/devis-assurance-immeuble.html",
       query: `${rescuePhoneClicks}/${rescueShown || rescuePhoneClicks} appel(s) apres rattrapage`,
       recommendation: "Conserver le rattrapage et comparer les pages qui transforment le mieux l'hesitation en appel."
+    });
+  }
+
+  if (trafficRescueShown >= 5 && trafficRescueClicks === 0) {
+    actions.push({
+      score: 90,
+      opportunity_type: "relance-accueil-friction",
+      url: "/",
+      query: `${trafficRescueShown} relance(s) accueil, 0 clic`,
+      recommendation: "Tester le texte, le delai et la preuve metier de la relance accueil pour transformer le trafic sans clic."
+    });
+  }
+
+  if (trafficRescueClicks > 0) {
+    actions.push({
+      score: 77,
+      opportunity_type: "relance-accueil-active",
+      url: "/",
+      query: `${trafficRescueClicks}/${trafficRescueShown || trafficRescueClicks} clic(s) relance accueil`,
+      recommendation: "Comparer les clics devis/appel issus de la relance accueil avec les starts formulaire et renforcer le parcours gagnant."
     });
   }
 
@@ -368,6 +390,11 @@ export async function onRequestGet({ request, env }) {
   const rescueShown = countFrom(eventCounts, "lead_form_rescue_shown");
   const rescuePhoneClicks = countFrom(eventCounts, "lead_form_rescue_phone_click");
   const rescueDismissed = countFrom(eventCounts, "lead_form_rescue_dismissed");
+  const trafficRescueShown = countFrom(eventCounts, "traffic_without_click_shown");
+  const trafficRescueQuoteClicks = countFrom(eventCounts, "traffic_without_click_quote_click");
+  const trafficRescuePhoneClicks = countFrom(eventCounts, "traffic_without_click_phone_click");
+  const trafficRescueDismissed = countFrom(eventCounts, "traffic_without_click_dismissed");
+  const trafficRescueClicks = trafficRescueQuoteClicks + trafficRescuePhoneClicks;
   const contentBridgeShown = countFrom(eventCounts, "content_lead_bridge_shown");
   const contentBridgeQuoteClicks = countFrom(eventCounts, "content_lead_bridge_quote_click");
   const contentBridgePhoneClicks = countFrom(eventCounts, "content_lead_bridge_phone_click");
@@ -401,6 +428,11 @@ export async function onRequestGet({ request, env }) {
     form_rescue_shown: rescueShown,
     form_rescue_phone_clicks: rescuePhoneClicks,
     form_rescue_dismissed: rescueDismissed,
+    traffic_rescue_shown: trafficRescueShown,
+    traffic_rescue_clicks: trafficRescueClicks,
+    traffic_rescue_quote_clicks: trafficRescueQuoteClicks,
+    traffic_rescue_phone_clicks: trafficRescuePhoneClicks,
+    traffic_rescue_dismissed: trafficRescueDismissed,
     content_bridge_shown: contentBridgeShown,
     content_bridge_clicks: contentBridgeClicks,
     content_bridge_quote_clicks: contentBridgeQuoteClicks,
@@ -421,6 +453,10 @@ export async function onRequestGet({ request, env }) {
     abandon_rate: pct(abandoned, formStarts),
     form_rescue_phone_rate: pct(rescuePhoneClicks, rescueShown),
     form_rescue_dismiss_rate: pct(rescueDismissed, rescueShown),
+    traffic_rescue_click_rate: pct(trafficRescueClicks, trafficRescueShown),
+    traffic_rescue_quote_rate: pct(trafficRescueQuoteClicks, trafficRescueShown),
+    traffic_rescue_phone_rate: pct(trafficRescuePhoneClicks, trafficRescueShown),
+    traffic_rescue_dismiss_rate: pct(trafficRescueDismissed, trafficRescueShown),
     content_bridge_click_rate: pct(contentBridgeClicks, contentBridgeShown),
     content_bridge_quote_rate: pct(contentBridgeQuoteClicks, contentBridgeShown),
     content_bridge_phone_rate: pct(contentBridgePhoneClicks, contentBridgeShown),

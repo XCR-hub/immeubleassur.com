@@ -1330,6 +1330,49 @@ details:hover {
   border-color: rgba(244, 199, 106, .7);
   background: rgba(255, 255, 255, .16);
 }
+.hero-intent-grid[data-hero-accelerator="1"] .intent-card {
+  cursor: pointer;
+}
+
+.intent-card.is-active {
+  transform: translateY(-2px);
+  border-color: rgba(244, 199, 106, .9);
+  background: rgba(15, 118, 110, .42);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .18);
+}
+
+.hero-intent-status {
+  display: none;
+  max-width: 760px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(244, 199, 106, .42);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .12);
+  color: #ffffff;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .14);
+}
+
+.hero-intent-status.is-visible {
+  display: grid;
+  gap: 4px;
+}
+
+.hero-intent-status strong,
+.hero-intent-status span {
+  display: block;
+}
+
+.hero-intent-status strong {
+  color: #f8d184;
+  font-size: .95rem;
+}
+
+.hero-intent-status span {
+  color: #e7f1ef;
+  font-size: .86rem;
+  line-height: 1.45;
+}
 
 .conversion-strip {
   position: relative;

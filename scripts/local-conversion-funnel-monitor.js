@@ -79,6 +79,9 @@ function pathFunnels(database, sinceSql, maxRows) {
         SUM(CASE WHEN event_type = 'quote_router_continue' THEN 1 ELSE 0 END) AS quote_router_continues,
         SUM(CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click', 'traffic_without_click_quote_click', 'traffic_without_click_phone_click') THEN 1 ELSE 0 END) AS cta_clicks,
         SUM(CASE WHEN event_type IN ('phone_click', 'traffic_without_click_phone_click') THEN 1 ELSE 0 END) AS phone_clicks,
+        SUM(CASE WHEN event_type = 'traffic_without_click_shown' THEN 1 ELSE 0 END) AS traffic_rescue_shown,
+        SUM(CASE WHEN event_type IN ('traffic_without_click_quote_click', 'traffic_without_click_phone_click') THEN 1 ELSE 0 END) AS traffic_rescue_clicks,
+        SUM(CASE WHEN event_type = 'traffic_without_click_dismissed' THEN 1 ELSE 0 END) AS traffic_rescue_dismissed,
         SUM(CASE WHEN event_type = 'content_lead_bridge_shown' THEN 1 ELSE 0 END) AS content_bridge_shown,
         SUM(CASE WHEN event_type IN ('content_lead_bridge_quote_click', 'content_lead_bridge_phone_click') THEN 1 ELSE 0 END) AS content_bridge_clicks,
         SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts,
@@ -89,7 +92,7 @@ function pathFunnels(database, sinceSql, maxRows) {
       FROM site_events
       WHERE created_at >= datetime('now', ?)
       GROUP BY raw_path
-      HAVING page_views + quote_router_views + cta_clicks + content_bridge_shown + form_starts + submit_attempts + leads_created > 0
+      HAVING page_views + quote_router_views + cta_clicks + traffic_rescue_shown + content_bridge_shown + form_starts + submit_attempts + leads_created > 0
       ORDER BY page_views DESC, form_starts DESC, leads_created DESC
       LIMIT ?
     `)
@@ -104,6 +107,9 @@ function enrichPath(row) {
   const leadsCreated = Number(row.leads_created || 0);
   const quoteViews = Number(row.quote_router_views || 0);
   const quoteContinues = Number(row.quote_router_continues || 0);
+  const trafficRescueShown = Number(row.traffic_rescue_shown || 0);
+  const trafficRescueClicks = Number(row.traffic_rescue_clicks || 0);
+  const trafficRescueDismissed = Number(row.traffic_rescue_dismissed || 0);
   return {
     path: pathOf(row.raw_path),
     sessions: Number(row.sessions || 0),
@@ -113,6 +119,11 @@ function enrichPath(row) {
     quote_router_continues: quoteContinues,
     cta_clicks: Number(row.cta_clicks || 0),
     phone_clicks: Number(row.phone_clicks || 0),
+    traffic_rescue_shown: trafficRescueShown,
+    traffic_rescue_clicks: trafficRescueClicks,
+    traffic_rescue_dismissed: trafficRescueDismissed,
+    traffic_rescue_click_rate: pct(trafficRescueClicks, trafficRescueShown),
+    traffic_rescue_dismiss_rate: pct(trafficRescueDismissed, trafficRescueShown),
     content_bridge_shown: Number(row.content_bridge_shown || 0),
     content_bridge_clicks: Number(row.content_bridge_clicks || 0),
     content_bridge_click_rate: pct(row.content_bridge_clicks, row.content_bridge_shown),
@@ -175,6 +186,12 @@ function recommendations(summary, paths) {
     if (row.quote_router_views >= 10 && row.quote_router_continues === 0) {
       addRecommendation(items, "routeur-sans-suite", "high", row.path, `${row.quote_router_views} vues routeur, 0 continuation`, "Revoir le libelle du parcours recommande et rendre le bouton principal plus explicite.", 86);
     }
+    if (row.traffic_rescue_shown >= 5 && row.traffic_rescue_clicks === 0) {
+      addRecommendation(items, "relance-accueil-sans-clic", "high", row.path, `${row.traffic_rescue_shown} relance(s), 0 clic`, "Tester le texte, le delai et la position du panneau trafic sans clic sur la page accueil.", 88);
+    }
+    if (row.traffic_rescue_clicks > 0 && row.form_starts === 0) {
+      addRecommendation(items, "relance-accueil-sans-start", "medium", row.path, `${row.traffic_rescue_clicks} clic(s) relance, 0 start`, "Verifier le scroll vers formulaire, le pre-remplissage et affichage mobile de la relance accueil.", 76);
+    }
     if (row.content_bridge_shown >= 5 && row.content_bridge_clicks === 0) {
       addRecommendation(items, "pont-contenu-sans-clic", "medium", row.path, `${row.content_bridge_shown} affichage(s), 0 clic`, "Rendre le passage lecture vers devis plus concret sur cette page SEO.", 78);
     }
@@ -207,6 +224,9 @@ function summaryFrom(events, leadStats, days) {
   const quoteContinues = countFor(events, "quote_router_continue");
   const contentBridgeShown = countFor(events, "content_lead_bridge_shown");
   const contentBridgeClicks = countFor(events, "content_lead_bridge_quote_click") + countFor(events, "content_lead_bridge_phone_click");
+  const trafficRescueShown = countFor(events, "traffic_without_click_shown");
+  const trafficRescueClicks = countFor(events, "traffic_without_click_quote_click") + countFor(events, "traffic_without_click_phone_click");
+  const trafficRescueDismissed = countFor(events, "traffic_without_click_dismissed");
   return {
     lookback_days: days,
     page_views: pageViews,
@@ -215,6 +235,11 @@ function summaryFrom(events, leadStats, days) {
     quote_router_continues: quoteContinues,
     cta_clicks: countFor(events, "cta_click") + countFor(events, "phone_click") + countFor(events, "email_click") + countFor(events, "traffic_without_click_quote_click") + countFor(events, "traffic_without_click_phone_click"),
     phone_clicks: countFor(events, "phone_click") + countFor(events, "traffic_without_click_phone_click"),
+    traffic_rescue_shown: trafficRescueShown,
+    traffic_rescue_clicks: trafficRescueClicks,
+    traffic_rescue_dismissed: trafficRescueDismissed,
+    traffic_rescue_click_rate: pct(trafficRescueClicks, trafficRescueShown),
+    traffic_rescue_dismiss_rate: pct(trafficRescueDismissed, trafficRescueShown),
     content_bridge_shown: contentBridgeShown,
     content_bridge_clicks: contentBridgeClicks,
     form_starts: formStarts,
