@@ -1,10 +1,20 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join, relative } from "node:path";
 
 const SITE = "https://immeubleassur.com";
 const PUBLIC_DIR = "public";
+const REPORT_DIR = "reports";
+const REPORT_PATH = join(REPORT_DIR, "schema-quality-report.json");
+const ASSET_PATH = join(PUBLIC_DIR, "assets", "schema-quality-latest.json");
 const privateSlugs = new Set(["admin"]);
 const nonServiceSlugs = new Set(["index", "blog", "villes", "guides", "faq", "contact", "mentions-legales", "confidentialite", "merci"]);
+
+function ensureDir(path) { mkdirSync(path, { recursive: true }); }
+
+function writeJson(path, value) {
+  ensureDir(join(path, ".."));
+  writeFileSync(path, JSON.stringify(value, null, 2), "utf8");
+}
 
 function walk(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -134,7 +144,25 @@ function validateSitemap(publicUrls) {
 const publicFiles = walk(PUBLIC_DIR).filter((file) => !privateSlugs.has(slugFromFile(file)));
 const indexablePublicFiles = publicFiles.filter((file) => !isNoIndex(readFileSync(file, "utf8")));
 const publicUrls = new Set(indexablePublicFiles.map((file) => pageUrl(slugFromFile(file))));
-const issues = publicFiles.flatMap(validatePage).concat(validateSitemap(publicUrls));
+const sitemap = sitemapUrls();
+const pageIssues = publicFiles.flatMap(validatePage);
+const sitemapIssues = validateSitemap(publicUrls);
+const issues = pageIssues.concat(sitemapIssues);
+const report = {
+  generated_at: new Date().toISOString(),
+  status: issues.length ? "failed" : "passed",
+  pages_checked: publicFiles.length,
+  indexable_pages: indexablePublicFiles.length,
+  sitemap_urls: sitemap.urls.length,
+  warning_count: issues.length,
+  severe_issue_count: issues.length,
+  page_issue_count: pageIssues.length,
+  sitemap_issue_count: sitemapIssues.length,
+  issues: issues.slice(0, 200),
+  safeguards: ["json-ld-valid", "canonical-clean-url", "sitemap-clean-url", "sitemap-lastmod", "noindex-excluded-from-sitemap", "public-report"]
+};
+writeJson(REPORT_PATH, report);
+writeJson(ASSET_PATH, report);
 
 if (issues.length) {
   console.error(`Schema quality check failed: ${issues.length} probleme(s).`);
@@ -143,4 +171,4 @@ if (issues.length) {
   process.exit(1);
 }
 
-console.log(`Schema quality check passed for ${publicFiles.length} pages.`);
+console.log(`Schema quality check passed for ${publicFiles.length} pages, ${sitemap.urls.length} sitemap URL(s).`);

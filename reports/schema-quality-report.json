@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-08-01T11:03:09.529Z",
+  "status": "passed",
+  "pages_checked": 185,
+  "indexable_pages": 180,
+  "sitemap_urls": 180,
+  "warning_count": 0,
+  "severe_issue_count": 0,
+  "page_issue_count": 0,
+  "sitemap_issue_count": 0,
+  "issues": [],
+  "safeguards": [
+    "json-ld-valid",
+    "canonical-clean-url",
+    "sitemap-clean-url",
+    "sitemap-lastmod",
+    "noindex-excluded-from-sitemap",
+    "public-report"
+  ]
+}
