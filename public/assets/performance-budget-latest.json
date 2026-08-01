@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T12:53:34.785Z",
+  "generated_at": "2026-08-01T13:03:16.736Z",
   "status": "passed",
   "pages_checked": 186,
   "indexable_pages": 180,
@@ -7,7 +7,7 @@
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 31.7,
+      "kb": 31.9,
       "issue_count": 0
     },
     {
@@ -69,16 +69,16 @@
   "assets": [
     {
       "path": "assets/styles.css",
-      "bytes": 57584,
-      "kb": 56.2,
+      "bytes": 57981,
+      "kb": 56.6,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
     },
     {
       "path": "assets/app.js",
-      "bytes": 114319,
-      "kb": 111.6,
+      "bytes": 115634,
+      "kb": 112.9,
       "budget_bytes": 143360,
       "budget_kb": 140,
       "ok": true
@@ -157,13 +157,13 @@
     },
     {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5107,
+      "bytes": 5097,
       "kb": 5,
       "ok": true
     },
     {
       "path": "assets/performance-budget-latest.json",
-      "bytes": 4086,
+      "bytes": 4088,
       "kb": 4,
       "ok": true
     },

@@ -1923,6 +1923,31 @@ function bindHomepageDevisAccelerator() {
     startHeroPrefill(key, row, "homepage-devis-accelerator", link.dataset.track || "homepage-devis");
   });
 }
+
+function leadMagnetChecklistMessage(row) {
+  return `${row.title}. Je souhaite recevoir la checklist des pieces utiles pour un devis assurance immeuble: contrat actuel, appel de prime, sinistres, nombre de lots, travaux, franchises et echeance. Merci de me rappeler pour completer le dossier.`;
+}
+
+function bindLeadMagnetAccelerator() {
+  if (!isHomepage() || !form) return;
+  const magnet = document.querySelector("[data-lead-magnet]");
+  if (!magnet || magnet.dataset.leadMagnetBound === "1") return;
+  magnet.dataset.leadMagnetBound = "1";
+  magnet.addEventListener("click", () => {
+    const rows = homepageDevisRows();
+    const requested = currentLeadIntent();
+    const key = rows[requested] ? requested : "audit";
+    const row = rows[key] || rows.audit || rows.immeuble;
+    if (!row) return;
+    magnet.classList.add("is-active");
+    track("lead_magnet_checklist_click", { target: key, label: "checklist-documents", route: row.href, source: "growth-lead-magnet" });
+    startHeroPrefill(key, row, "growth-lead-magnet", "lead-magnet-checklist", {
+      message: leadMagnetChecklistMessage(row),
+      payload: { lead_magnet: "checklist-documents", source: "growth-lead-magnet" },
+      formPayload: { lead_magnet: "checklist-documents" }
+    });
+  });
+}
 function trafficNoClickPayload(action, extra = {}) {
   return {
     target: action,
@@ -2265,7 +2290,7 @@ function showTrafficNoClickRescue(reason = "shown", options = {}) {
 
 function trafficNoClickConversionInteraction(event) {
   const target = event?.target;
-  const control = target?.closest?.("#lead-form, .quote-fast-track, .hero-hot-quote, .hero-intent-grid, .hero-actions, .lead-action-bar, .traffic-no-click-rescue");
+  const control = target?.closest?.("#lead-form, .quote-fast-track, .hero-hot-quote, .hero-intent-grid, .hero-actions, .lead-action-bar, .growth-lead-magnet, .traffic-no-click-rescue");
   if (control) return true;
   const link = target?.closest?.("a[href]");
   const href = link?.getAttribute("href") || "";
@@ -2514,6 +2539,7 @@ bindHeroIntentAccelerator();
 bindHeroActionAccelerator();
 bindLeadBarAccelerator();
 bindHomepageDevisAccelerator();
+bindLeadMagnetAccelerator();
 bindTrafficNoClickRescue();
 bindGrowthTracking();
 bindFormRescue();

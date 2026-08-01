@@ -1170,6 +1170,19 @@ address a {
   border-radius: 8px;
   background: #fff7e8;
   color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  width: 100%;
+}
+
+.growth-lead-magnet:hover,
+.growth-lead-magnet:focus-visible,
+.growth-lead-magnet.is-active {
+  background: #fff1d6;
+  border-color: rgba(184, 123, 33, .62);
+  box-shadow: 0 0 0 4px rgba(217, 164, 65, .16);
+  outline: none;
 }
 
 .growth-lead-magnet strong {
@@ -1182,6 +1195,12 @@ address a {
 .growth-lead-magnet span {
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.growth-lead-magnet small {
+  color: var(--teal-dark);
+  font-size: .82rem;
+  font-weight: 900;
 }
 .content-expansion-band {
   background: #f8fafc;
