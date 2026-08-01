@@ -96,26 +96,47 @@ function normalizeOpportunity(item, report, runId, now) {
 function normalizeSourceQualityOpportunity(item, report, runId, now) {
   const source = clean(item.source || "non precise", 700) || "non precise";
   const topNeed = clean(item.top_need || "immeuble", 140) || "immeuble";
+  const leads = Number(item.leads || 0);
+  const sessions = Number(item.sessions || 0);
+  const ctaClicks = Number(item.cta_clicks || 0);
+  const formStarts = Number(item.form_starts || 0);
+  const submitAttempts = Number(item.submit_attempts || 0);
   const score = Math.min(100, Math.max(78, Math.round(Number(item.quality_score || 0))));
+  const query = leads > 0
+    ? `${leads} lead(s), ${item.hot_leads || 0} chaud(s), besoin ${topNeed}`
+    : `${sessions} session(s), ${formStarts} start(s), ${ctaClicks} clic(s), besoin ${topNeed}`;
+  const recommendation = leads > 0
+    ? `Renforcer la source ${source}: maillage interne, contenus satellites, preuve locale et CTA devis sur le besoin ${topNeed}.`
+    : `Transformer la source prometteuse ${source}: clarifier l'offre, remonter le CTA devis, creer un contenu satellite et suivre les starts formulaire sur le besoin ${topNeed}.`;
   return {
     id: `qualified-source-${stableHash(source)}`,
     run_id: runId,
     url: sourceUrl(source),
-    query: clean(`${item.leads || 0} lead(s), ${item.hot_leads || 0} chaud(s), besoin ${topNeed}`, 240),
+    query: clean(query, 240),
     opportunity_type: "qualified-source-growth",
     score,
     status: "open",
-    recommendation: clean(`Renforcer la source ${source}: maillage interne, contenus satellites, preuve locale et CTA devis sur le besoin ${topNeed}.`, 900),
+    recommendation: clean(recommendation, 900),
     payload: JSON.stringify({
       source: "local-seo-backlog-monitor",
       source_path: source,
       report_generated_at: report.generated_at || "",
-      leads: Number(item.leads || 0),
+      quality_basis: item.quality_basis || "",
+      leads,
       hot_leads: Number(item.hot_leads || 0),
       warm_leads: Number(item.warm_leads || 0),
       bridge_leads: Number(item.bridge_leads || 0),
       average_score: Number(item.average_score || 0),
       quality_score: Number(item.quality_score || 0),
+      signal_score: Number(item.signal_score || 0),
+      sessions,
+      page_views: Number(item.page_views || 0),
+      cta_clicks: ctaClicks,
+      quote_router_continues: Number(item.quote_router_continues || 0),
+      form_starts: formStarts,
+      submit_attempts: submitAttempts,
+      leads_created: Number(item.leads_created || 0),
+      bridge_clicks: Number(item.bridge_clicks || 0),
       top_need: topNeed,
       value_label: item.value_label || "0 EUR/an"
     }),
@@ -127,7 +148,7 @@ function normalizeSourceQualityOpportunity(item, report, runId, now) {
 function sourceQualityOpportunities(report, runId, now) {
   if (!report || !Array.isArray(report.source_quality)) return [];
   return report.source_quality
-    .filter((item) => Number(item.leads || 0) > 0)
+    .filter((item) => Number(item.leads || 0) > 0 || Number(item.form_starts || 0) > 0 || Number(item.submit_attempts || 0) > 0 || Number(item.cta_clicks || 0) > 0 || Number(item.signal_score || 0) >= 30)
     .slice(0, 20)
     .map((item) => normalizeSourceQualityOpportunity(item, report, runId, now));
 }

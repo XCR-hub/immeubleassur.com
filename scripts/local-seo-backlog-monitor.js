@@ -51,14 +51,63 @@ function valueLabel(min, max) {
   return `${Math.round(min)}-${Math.round(max)} EUR/an`;
 }
 
+function sourceSignalScore(row) {
+  const score =
+    Number(row.sessions || 0) * 2 +
+    Number(row.page_views || 0) * 0.5 +
+    Number(row.cta_clicks || 0) * 10 +
+    Number(row.quote_router_continues || 0) * 12 +
+    Number(row.bridge_clicks || 0) * 14 +
+    Number(row.form_starts || 0) * 24 +
+    Number(row.submit_attempts || 0) * 30 +
+    Number(row.leads_created || 0) * 42 -
+    Number(row.submit_errors || 0) * 10 -
+    Number(row.abandoned_forms || 0) * 4;
+  return Math.max(0, Math.round(score));
+}
+
 function sourceQualityScore(row) {
   return Math.round(
     Number(row.hot_leads || 0) * 38 +
     Number(row.warm_leads || 0) * 18 +
     Number(row.leads || 0) * 8 +
     Number(row.average_score || 0) +
-    Math.min(Number(row.value_max || 0) / 100, 120)
+    Math.min(Number(row.value_max || 0) / 100, 120) +
+    Number(row.signal_score || 0)
   );
+}
+
+function sourcePath(value) {
+  const raw = clean(value, 700);
+  if (!raw) return "/";
+  if (/^(mailto:|tel:|javascript:)/i.test(raw)) return "/";
+  try {
+    const parsed = new URL(raw, "https://immeubleassur.com");
+    if (parsed.hostname && !parsed.hostname.endsWith("immeubleassur.com")) return raw;
+    return `${parsed.pathname || "/"}${parsed.search || ""}`;
+  } catch {
+    return raw.startsWith("/") ? raw : `/${raw}`;
+  }
+}
+
+function actionableSource(source) {
+  const value = clean(source, 700).toLowerCase();
+  if (!value) return false;
+  return !value.includes("/admin") && !value.includes("/api/") && !value.includes("/health") && !value.includes("/merci");
+}
+
+function intentFromSource(source) {
+  const value = clean(source, 700).toLowerCase();
+  if (value.includes("cno")) return "cno";
+  if (value.includes("pno")) return "pno";
+  if (value.includes("copro")) return "copropriete";
+  if (value.includes("sci")) return "sci";
+  if (value.includes("sinistre")) return "sinistre";
+  if (value.includes("travaux") || value.includes("renovation")) return "travaux";
+  if (value.includes("local-commercial") || value.includes("commerce")) return "local-commercial";
+  if (value.includes("prix") || value.includes("tarif") || value.includes("comparateur")) return "prix";
+  if (value.includes("devis")) return "devis";
+  return "immeuble";
 }
 
 function rowsByStatus(database) {
@@ -144,7 +193,7 @@ function conversionOpen(database, limit) {
     }));
 }
 
-function sourceQualityRows(database, limit) {
+function leadSourceQualityRows(database, limit) {
   if (!tableExists(database, "leads") || !tableExists(database, "lead_events")) return [];
   const rows = database
     .prepare(`
@@ -204,7 +253,19 @@ function sourceQualityRows(database, limit) {
         top_need: topNeed ? topNeed[0] : "non precise",
         value_min: row.value_min,
         value_max: row.value_max,
-        value_label: valueLabel(row.value_min, row.value_max)
+        value_label: valueLabel(row.value_min, row.value_max),
+        sessions: 0,
+        page_views: 0,
+        cta_clicks: 0,
+        quote_router_continues: 0,
+        form_starts: 0,
+        submit_attempts: 0,
+        submit_errors: 0,
+        abandoned_forms: 0,
+        leads_created: 0,
+        bridge_clicks: 0,
+        signal_score: 0,
+        quality_basis: "leads"
       };
       return { ...normalized, quality_score: sourceQualityScore(normalized) };
     })
@@ -212,6 +273,203 @@ function sourceQualityRows(database, limit) {
     .slice(0, limit);
 }
 
+function eventSourceQualityRows(database, limit) {
+  if (!tableExists(database, "site_events")) return [];
+  const rows = database
+    .prepare(`
+      SELECT
+        COALESCE(
+          NULLIF(CASE WHEN json_valid(payload) THEN json_extract(payload, '$.source_path') ELSE NULL END, ''),
+          NULLIF(CASE WHEN json_valid(payload) THEN json_extract(payload, '$.landing_path') ELSE NULL END, ''),
+          NULLIF(CASE WHEN json_valid(payload) THEN json_extract(payload, '$.path') ELSE NULL END, ''),
+          page_url,
+          '/'
+        ) AS source,
+        COALESCE(
+          NULLIF(CASE WHEN json_valid(payload) THEN json_extract(payload, '$.intent') ELSE NULL END, ''),
+          NULLIF(CASE WHEN json_valid(payload) THEN json_extract(payload, '$.target') ELSE NULL END, ''),
+          target,
+          ''
+        ) AS intent,
+        COUNT(DISTINCT COALESCE(NULLIF(session_id, ''), id)) AS sessions,
+        SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END) AS page_views,
+        SUM(CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click') THEN 1 ELSE 0 END) AS cta_clicks,
+        SUM(CASE WHEN event_type = 'quote_router_continue' THEN 1 ELSE 0 END) AS quote_router_continues,
+        SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts,
+        SUM(CASE WHEN event_type = 'form_submit_attempt' THEN 1 ELSE 0 END) AS submit_attempts,
+        SUM(CASE WHEN event_type = 'lead_submit_error' THEN 1 ELSE 0 END) AS submit_errors,
+        SUM(CASE WHEN event_type = 'lead_form_abandoned' THEN 1 ELSE 0 END) AS abandoned_forms,
+        SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created,
+        SUM(CASE WHEN event_type = 'content_lead_bridge_shown' THEN 1 ELSE 0 END) AS bridge_shown,
+        SUM(CASE WHEN event_type IN ('content_lead_bridge_quote_click', 'content_lead_bridge_phone_click') THEN 1 ELSE 0 END) AS bridge_clicks
+      FROM site_events
+      WHERE created_at >= datetime('now', '-30 days')
+        AND event_type IN ('page_view', 'cta_click', 'phone_click', 'email_click', 'quote_router_continue', 'form_start', 'form_submit_attempt', 'lead_submit_error', 'lead_form_abandoned', 'lead_created', 'content_lead_bridge_shown', 'content_lead_bridge_quote_click', 'content_lead_bridge_phone_click')
+      GROUP BY source, intent
+      ORDER BY leads_created DESC, submit_attempts DESC, form_starts DESC, cta_clicks DESC, sessions DESC
+      LIMIT 1200
+    `)
+    .all();
+  const map = new Map();
+  for (const row of rows) {
+    const source = sourcePath(row.source);
+    if (!actionableSource(source)) continue;
+    const current = map.get(source) || {
+      source,
+      sessions: 0,
+      page_views: 0,
+      cta_clicks: 0,
+      quote_router_continues: 0,
+      form_starts: 0,
+      submit_attempts: 0,
+      submit_errors: 0,
+      abandoned_forms: 0,
+      leads_created: 0,
+      bridge_clicks: 0,
+      needs: new Map()
+    };
+    const intent = clean(row.intent || intentFromSource(source), 120) || intentFromSource(source);
+    current.sessions += Number(row.sessions || 0);
+    current.page_views += Number(row.page_views || 0);
+    current.cta_clicks += Number(row.cta_clicks || 0);
+    current.quote_router_continues += Number(row.quote_router_continues || 0);
+    current.form_starts += Number(row.form_starts || 0);
+    current.submit_attempts += Number(row.submit_attempts || 0);
+    current.submit_errors += Number(row.submit_errors || 0);
+    current.abandoned_forms += Number(row.abandoned_forms || 0);
+    current.leads_created += Number(row.leads_created || 0);
+    current.bridge_clicks += Number(row.bridge_clicks || 0);
+    const intentWeight = Number(row.form_starts || 0) * 3 + Number(row.submit_attempts || 0) * 4 + Number(row.cta_clicks || 0) + Number(row.sessions || 0);
+    current.needs.set(intent, (current.needs.get(intent) || 0) + Math.max(1, intentWeight));
+    map.set(source, current);
+  }
+  return [...map.values()]
+    .map((row) => {
+      const topNeed = [...row.needs.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];
+      const normalized = {
+        source: row.source,
+        leads: 0,
+        hot_leads: 0,
+        warm_leads: 0,
+        bridge_leads: 0,
+        average_score: 0,
+        top_need: topNeed ? topNeed[0] : intentFromSource(row.source),
+        value_min: 0,
+        value_max: 0,
+        value_label: "0 EUR/an",
+        sessions: row.sessions,
+        page_views: row.page_views,
+        cta_clicks: row.cta_clicks,
+        quote_router_continues: row.quote_router_continues,
+        form_starts: row.form_starts,
+        submit_attempts: row.submit_attempts,
+        submit_errors: row.submit_errors,
+        abandoned_forms: row.abandoned_forms,
+        leads_created: row.leads_created,
+        bridge_clicks: row.bridge_clicks,
+        quality_basis: "event-signals"
+      };
+      normalized.signal_score = sourceSignalScore(normalized);
+      return { ...normalized, quality_score: sourceQualityScore(normalized) };
+    })
+    .filter((row) => row.signal_score >= 20 || row.form_starts > 0 || row.cta_clicks > 0 || row.submit_attempts > 0)
+    .sort((a, b) => b.quality_score - a.quality_score || b.form_starts - a.form_starts || b.cta_clicks - a.cta_clicks || a.source.localeCompare(b.source))
+    .slice(0, limit);
+}
+
+function mergeSourceQualityRows(leadRows, eventRows, limit) {
+  const map = new Map();
+  for (const row of [...leadRows, ...eventRows]) {
+    const source = sourcePath(row.source);
+    if (!actionableSource(source)) continue;
+    const current = map.get(source) || {
+      source,
+      leads: 0,
+      hot_leads: 0,
+      warm_leads: 0,
+      bridge_leads: 0,
+      score_total: 0,
+      value_min: 0,
+      value_max: 0,
+      sessions: 0,
+      page_views: 0,
+      cta_clicks: 0,
+      quote_router_continues: 0,
+      form_starts: 0,
+      submit_attempts: 0,
+      submit_errors: 0,
+      abandoned_forms: 0,
+      leads_created: 0,
+      bridge_clicks: 0,
+      signal_score: 0,
+      needs: new Map(),
+      bases: new Set()
+    };
+    const leads = Number(row.leads || 0);
+    current.leads += leads;
+    current.hot_leads += Number(row.hot_leads || 0);
+    current.warm_leads += Number(row.warm_leads || 0);
+    current.bridge_leads += Number(row.bridge_leads || 0);
+    current.score_total += Number(row.average_score || 0) * leads;
+    current.value_min += Number(row.value_min || 0);
+    current.value_max += Number(row.value_max || 0);
+    current.sessions += Number(row.sessions || 0);
+    current.page_views += Number(row.page_views || 0);
+    current.cta_clicks += Number(row.cta_clicks || 0);
+    current.quote_router_continues += Number(row.quote_router_continues || 0);
+    current.form_starts += Number(row.form_starts || 0);
+    current.submit_attempts += Number(row.submit_attempts || 0);
+    current.submit_errors += Number(row.submit_errors || 0);
+    current.abandoned_forms += Number(row.abandoned_forms || 0);
+    current.leads_created += Number(row.leads_created || 0);
+    current.bridge_clicks += Number(row.bridge_clicks || 0);
+    current.signal_score += Number(row.signal_score || 0);
+    const basis = clean(row.quality_basis || (leads ? "leads" : "event-signals"), 40);
+    if (basis) current.bases.add(basis);
+    const need = clean(row.top_need || intentFromSource(source), 120) || intentFromSource(source);
+    const needWeight = leads * 5 + Number(row.form_starts || 0) * 3 + Number(row.submit_attempts || 0) * 4 + Number(row.cta_clicks || 0) + Number(row.sessions || 0);
+    current.needs.set(need, (current.needs.get(need) || 0) + Math.max(1, needWeight));
+    map.set(source, current);
+  }
+  return [...map.values()]
+    .map((row) => {
+      const topNeed = [...row.needs.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];
+      const normalized = {
+        source: row.source,
+        leads: row.leads,
+        hot_leads: row.hot_leads,
+        warm_leads: row.warm_leads,
+        bridge_leads: row.bridge_leads,
+        average_score: row.leads ? Math.round((row.score_total / row.leads) * 10) / 10 : 0,
+        top_need: topNeed ? topNeed[0] : intentFromSource(row.source),
+        value_min: row.value_min,
+        value_max: row.value_max,
+        value_label: valueLabel(row.value_min, row.value_max),
+        sessions: row.sessions,
+        page_views: row.page_views,
+        cta_clicks: row.cta_clicks,
+        quote_router_continues: row.quote_router_continues,
+        form_starts: row.form_starts,
+        submit_attempts: row.submit_attempts,
+        submit_errors: row.submit_errors,
+        abandoned_forms: row.abandoned_forms,
+        leads_created: row.leads_created,
+        bridge_clicks: row.bridge_clicks,
+        signal_score: row.signal_score,
+        quality_basis: row.bases.has("leads") && row.bases.has("event-signals") ? "leads+event-signals" : [...row.bases][0] || "event-signals"
+      };
+      return { ...normalized, quality_score: sourceQualityScore(normalized) };
+    })
+    .filter((row) => row.leads > 0 || row.signal_score >= 20 || row.form_starts > 0 || row.cta_clicks > 0 || row.submit_attempts > 0)
+    .sort((a, b) => b.quality_score - a.quality_score || b.hot_leads - a.hot_leads || b.form_starts - a.form_starts || b.leads - a.leads || a.source.localeCompare(b.source))
+    .slice(0, limit);
+}
+
+function sourceQualityRows(database, limit) {
+  const leadRows = leadSourceQualityRows(database, Math.max(limit * 2, 20));
+  const eventRows = eventSourceQualityRows(database, Math.max(limit * 3, 60));
+  return mergeSourceQualityRows(leadRows, eventRows, limit);
+}
 function staleRows(database, days, limit) {
   return database
     .prepare(`
@@ -258,6 +516,8 @@ function summaryFrom(statusRows, topRows, conversionRows, stale, sourceQuality) 
     top_qualified_source: sourceQuality[0]?.source || "",
     top_qualified_source_score: Number(sourceQuality[0]?.quality_score || 0),
     top_qualified_source_leads: Number(sourceQuality[0]?.leads || 0),
+    top_qualified_source_sessions: Number(sourceQuality[0]?.sessions || 0),
+    top_qualified_source_basis: sourceQuality[0]?.quality_basis || "",
     oldest_open_days: topRows.length ? Math.max(...topRows.map((row) => Number(row.age_days || 0))) : 0,
     average_open_score: topRows.length ? Math.round(topRows.reduce((sum, row) => sum + Number(row.score || 0), 0) / topRows.length) : 0
   };
@@ -289,11 +549,18 @@ function recommendations(summary, topRows, staleRowsList, conversionRows, source
   }
   if (summary.qualified_source_count > 0) {
     const top = sourceQuality[0];
+    const leads = Number(top?.leads || 0);
+    const signal = leads > 0
+      ? `${leads} lead(s), ${top?.hot_leads || 0} chaud(s), score ${top?.quality_score || 0}`
+      : `${top?.sessions || 0} session(s), ${top?.form_starts || 0} start(s), ${top?.cta_clicks || 0} clic(s), score ${top?.quality_score || 0}`;
+    const action = leads > 0
+      ? `Renforcer la source ${top?.source || "non precise"}: maillage interne, contenus satellites, preuve locale et CTA devis sur le besoin ${top?.top_need || "immeuble"}.`
+      : `Transformer la source prometteuse ${top?.source || "non precise"}: clarifier l'offre, remonter le CTA devis et creer un contenu satellite sur le besoin ${top?.top_need || "immeuble"}.`;
     actions.push({
       type: "qualified-source-growth",
       severity: Number(top?.quality_score || 0) >= 120 ? "high" : "medium",
-      signal: `${top?.leads || 0} lead(s), ${top?.hot_leads || 0} chaud(s), score ${top?.quality_score || 0}`,
-      action: `Renforcer la source ${top?.source || "non precise"}: maillage interne, contenus satellites, preuve locale et CTA devis sur le besoin ${top?.top_need || "immeuble"}.`,
+      signal,
+      action,
       url: top?.source || "admin/attribution",
       score: Math.min(96, Math.max(78, Number(top?.quality_score || 0)))
     });

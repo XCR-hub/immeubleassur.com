@@ -277,7 +277,7 @@ function seoBacklogSignal(report) {
   if (!report?.available) return "rapport local non trouve";
   const recommendation = (report.recommendations || [])[0];
   if (recommendation) return `${recommendation.severity || "signal"}: ${recommendation.signal || recommendation.type}`;
-  if (report.summary?.top_qualified_source) return `${report.summary.top_qualified_source}: ${report.summary.top_qualified_source_leads || 0} lead(s), score ${report.summary.top_qualified_source_score || 0}`;
+  if (report.summary?.top_qualified_source) return Number(report.summary.top_qualified_source_leads || 0) > 0 ? `${report.summary.top_qualified_source}: ${report.summary.top_qualified_source_leads || 0} lead(s), score ${report.summary.top_qualified_source_score || 0}` : `${report.summary.top_qualified_source}: ${report.summary.top_qualified_source_sessions || 0} session(s), score ${report.summary.top_qualified_source_score || 0}`;
   return `score moyen ${report.summary?.average_open_score || 0}, plus ancienne ${report.summary?.oldest_open_days || 0}j`;
 }
 function valueEstimateFor(lead, q = qualificationFor(lead)) {
