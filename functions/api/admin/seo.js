@@ -329,6 +329,7 @@ export async function onRequestGet({ request, env }) {
 
   const [
     eventCounts,
+    homepageDevisEvents,
     leadStats,
     latestRun,
     opportunities,
@@ -352,6 +353,7 @@ export async function onRequestGet({ request, env }) {
     ctaExperiments
   ] = await Promise.all([
     safeAll(env, `SELECT event_type, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type ORDER BY count DESC`),
+    safeFirst(env, `SELECT SUM(CASE WHEN event_type = 'quote_router_select' THEN 1 ELSE 0 END) AS selects, SUM(CASE WHEN event_type = 'quote_router_continue' THEN 1 ELSE 0 END) AS continues FROM site_events WHERE created_at >= datetime('now', '-30 days') AND COALESCE(NULLIF(CASE WHEN json_valid(payload) THEN json_extract(payload, '$.source') ELSE '' END, ''), '') = 'homepage-devis-accelerator'`),
     safeFirst(env, `SELECT COUNT(*) AS leads_30d, COALESCE(AVG(lead_score), 0) AS avg_score, SUM(CASE WHEN lead_score >= 80 THEN 1 ELSE 0 END) AS hot_leads_30d FROM leads WHERE created_at >= datetime('now', '-30 days')`),
     safeFirst(env, `SELECT id, source, status, pages_checked, opportunities_count, created_at FROM seo_runs ORDER BY created_at DESC LIMIT 1`),
     safeAll(env, `SELECT url, query, opportunity_type, score, status, recommendation, created_at FROM seo_opportunities ORDER BY score DESC, created_at DESC LIMIT 50`),
@@ -377,6 +379,8 @@ export async function onRequestGet({ request, env }) {
 
   const pageViews = countFrom(eventCounts, "page_view");
   const experimentViews = countFrom(eventCounts, "experiment_view");
+  const homepageDevisSelects = Number(homepageDevisEvents?.selects || 0);
+  const homepageDevisContinues = Number(homepageDevisEvents?.continues || 0);
   const ctaClicks = countFrom(eventCounts, "cta_click") + countFrom(eventCounts, "phone_click") + countFrom(eventCounts, "email_click") + countFrom(eventCounts, "traffic_without_click_quote_click") + countFrom(eventCounts, "traffic_without_click_phone_click");
   const formStarts = countFrom(eventCounts, "form_start");
   const qualityReady = countFrom(eventCounts, "form_quality_ready");
@@ -410,6 +414,9 @@ export async function onRequestGet({ request, env }) {
     page_views: pageViews,
     experiment_views: experimentViews,
     cta_clicks: ctaClicks,
+    homepage_devis_selects: homepageDevisSelects,
+    homepage_devis_continues: homepageDevisContinues,
+    homepage_devis_start_rate: pct(formStarts, homepageDevisContinues),
     diagnostic_selects: diagnosticSelects,
     diagnostic_completes: diagnosticCompletes,
     readiness_starts: readinessStarts,

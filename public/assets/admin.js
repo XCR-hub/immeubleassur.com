@@ -1567,6 +1567,7 @@ async function loadSeo() {
       metricCard("Leads 30j", String(leadStats.leads_30d || 0), `score ${Math.round(leadStats.avg_score || 0)}`),
       metricCard("Leads chauds", String(leadStats.hot_leads_30d || 0), "score 80+"),
       metricCard("CTA -> formulaire", `${funnel.cta_to_form_rate || 0}%`, `${funnel.cta_clicks || 0} clics`),
+      metricCard("Accelerateur accueil", String(funnel.homepage_devis_continues || 0), `${funnel.homepage_devis_start_rate || 0}% start`),
       metricCard("Formulaire -> lead", `${funnel.form_to_lead_rate || 0}%`, `${funnel.form_starts || 0} starts`),
       metricCard("Leads traites", `${funnel.attempt_to_handled_lead_rate || 0}%`, `${funnel.duplicate_filtered || 0} doublon(s)`),
       metricCard("Abandons", `${funnel.abandon_rate || 0}%`, `${funnel.abandoned_forms || 0} signaux`),

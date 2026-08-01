@@ -77,6 +77,8 @@ function pathFunnels(database, sinceSql, maxRows) {
         SUM(CASE WHEN event_type = 'quote_router_view' THEN 1 ELSE 0 END) AS quote_router_views,
         SUM(CASE WHEN event_type = 'quote_router_select' THEN 1 ELSE 0 END) AS quote_router_selects,
         SUM(CASE WHEN event_type = 'quote_router_continue' THEN 1 ELSE 0 END) AS quote_router_continues,
+        SUM(CASE WHEN event_type = 'quote_router_select' AND CASE WHEN json_valid(payload) THEN json_extract(payload, '$.source') ELSE '' END = 'homepage-devis-accelerator' THEN 1 ELSE 0 END) AS homepage_devis_selects,
+        SUM(CASE WHEN event_type = 'quote_router_continue' AND CASE WHEN json_valid(payload) THEN json_extract(payload, '$.source') ELSE '' END = 'homepage-devis-accelerator' THEN 1 ELSE 0 END) AS homepage_devis_continues,
         SUM(CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click', 'traffic_without_click_quote_click', 'traffic_without_click_phone_click') THEN 1 ELSE 0 END) AS cta_clicks,
         SUM(CASE WHEN event_type IN ('phone_click', 'traffic_without_click_phone_click') THEN 1 ELSE 0 END) AS phone_clicks,
         SUM(CASE WHEN event_type = 'traffic_without_click_shown' THEN 1 ELSE 0 END) AS traffic_rescue_shown,
@@ -117,6 +119,9 @@ function enrichPath(row) {
     quote_router_views: quoteViews,
     quote_router_selects: Number(row.quote_router_selects || 0),
     quote_router_continues: quoteContinues,
+    homepage_devis_selects: Number(row.homepage_devis_selects || 0),
+    homepage_devis_continues: Number(row.homepage_devis_continues || 0),
+    homepage_devis_start_rate: pct(formStarts, row.homepage_devis_continues),
     cta_clicks: Number(row.cta_clicks || 0),
     phone_clicks: Number(row.phone_clicks || 0),
     traffic_rescue_shown: trafficRescueShown,
@@ -214,7 +219,7 @@ function recommendations(summary, paths) {
   return items.sort((a, b) => b.score - a.score || a.path.localeCompare(b.path)).slice(0, 16);
 }
 
-function summaryFrom(events, leadStats, days) {
+function summaryFrom(events, leadStats, days, paths = []) {
   const pageViews = countFor(events, "page_view");
   const formStarts = countFor(events, "form_start");
   const submitAttempts = countFor(events, "form_submit_attempt");
@@ -222,6 +227,8 @@ function summaryFrom(events, leadStats, days) {
   const leadsDb = Number(leadStats?.leads || 0);
   const quoteViews = countFor(events, "quote_router_view");
   const quoteContinues = countFor(events, "quote_router_continue");
+  const homepageDevis = paths.reduce((sum, row) => sum + Number(row.homepage_devis_continues || 0), 0);
+  const homepageDevisSelects = paths.reduce((sum, row) => sum + Number(row.homepage_devis_selects || 0), 0);
   const contentBridgeShown = countFor(events, "content_lead_bridge_shown");
   const contentBridgeClicks = countFor(events, "content_lead_bridge_quote_click") + countFor(events, "content_lead_bridge_phone_click");
   const trafficRescueShown = countFor(events, "traffic_without_click_shown");
@@ -233,6 +240,9 @@ function summaryFrom(events, leadStats, days) {
     quote_router_views: quoteViews,
     quote_router_selects: countFor(events, "quote_router_select"),
     quote_router_continues: quoteContinues,
+    homepage_devis_selects: homepageDevisSelects,
+    homepage_devis_continues: homepageDevis,
+    homepage_devis_start_rate: pct(formStarts, homepageDevis),
     cta_clicks: countFor(events, "cta_click") + countFor(events, "phone_click") + countFor(events, "email_click") + countFor(events, "traffic_without_click_quote_click") + countFor(events, "traffic_without_click_phone_click"),
     phone_clicks: countFor(events, "phone_click") + countFor(events, "traffic_without_click_phone_click"),
     traffic_rescue_shown: trafficRescueShown,
@@ -272,7 +282,7 @@ function run() {
     const events = eventCounts(database, sinceSql);
     const leads = leadTotals(database, sinceSql);
     const paths = pathFunnels(database, sinceSql, maxPaths);
-    const summary = summaryFrom(events, leads, days);
+    const summary = summaryFrom(events, leads, days, paths);
     const report = {
       success: true,
       attention_required: summary.form_starts > 0 && summary.leads_db === 0,
