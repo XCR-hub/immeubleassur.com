@@ -1,9 +1,9 @@
 {
-  "run_id": "serp-20260731-60752744",
-  "generated_at": "2026-07-31T01:52:18.624Z",
-  "provider": "local-estimate",
-  "status": "skipped-no-serp-key",
-  "serp_enabled": false,
+  "run_id": "serp-20260801-262a64c8",
+  "generated_at": "2026-08-01T09:57:41.741Z",
+  "provider": "serpapi",
+  "status": "completed-with-errors",
+  "serp_enabled": true,
   "keywords_checked": 10,
   "average_position": 3.5,
   "first_page_count": 4,
@@ -14,7 +14,7 @@
       "query": "assurance immeuble",
       "target_url": "/assurance-immeuble",
       "intent": "money",
-      "status": "local-estimate",
+      "status": "serp-error",
       "position": 2,
       "found_url": "https://immeubleassur.com/assurance-immeuble",
       "top_domains": [
@@ -22,14 +22,14 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-31T01:52:18.620Z",
+      "checked_at": "2026-08-01T09:57:40.524Z",
       "recommendation": "Maintenir /assurance-immeuble: surveiller CTR, fraicheur et conversion sur assurance immeuble."
     },
     {
       "query": "devis assurance immeuble",
       "target_url": "/devis-assurance-immeuble",
       "intent": "lead",
-      "status": "local-estimate",
+      "status": "serp-error",
       "position": 3,
       "found_url": "https://immeubleassur.com/devis-assurance-immeuble",
       "top_domains": [
@@ -38,14 +38,14 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-31T01:52:18.622Z",
+      "checked_at": "2026-08-01T09:57:40.694Z",
       "recommendation": "Maintenir /devis-assurance-immeuble: surveiller CTR, fraicheur et conversion sur devis assurance immeuble."
     },
     {
       "query": "assurance copropriete",
       "target_url": "/assurance-copropriete",
       "intent": "money",
-      "status": "local-estimate",
+      "status": "serp-error",
       "position": 4,
       "found_url": "https://immeubleassur.com/assurance-copropriete",
       "top_domains": [
@@ -55,14 +55,14 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-31T01:52:18.622Z",
+      "checked_at": "2026-08-01T09:57:40.811Z",
       "recommendation": "Optimiser /assurance-copropriete: viser top 3 sur assurance copropriete avec preuve, schema FAQ et intention devis."
     },
     {
       "query": "assurance PNO CNO",
       "target_url": "/assurance-pno-cno",
       "intent": "money",
-      "status": "local-estimate",
+      "status": "serp-error",
       "position": 5,
       "found_url": "https://immeubleassur.com/assurance-pno-cno",
       "top_domains": [
@@ -70,14 +70,14 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-31T01:52:18.622Z",
+      "checked_at": "2026-08-01T09:57:40.942Z",
       "recommendation": "Optimiser /assurance-pno-cno: viser top 3 sur assurance PNO CNO avec preuve, schema FAQ et intention devis."
     },
     {
       "query": "assurance coproprietaire non occupant",
       "target_url": "/assurance-coproprietaire-non-occupant",
       "intent": "lead",
-      "status": "local-estimate",
+      "status": "serp-error",
       "position": null,
       "found_url": "",
       "top_domains": [
@@ -86,14 +86,14 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-31T01:52:18.622Z",
+      "checked_at": "2026-08-01T09:57:41.069Z",
       "recommendation": "Renforcer /assurance-coproprietaire-non-occupant: contenu expert, FAQ visible, liens internes et CTA devis pour assurance coproprietaire non occupant."
     },
     {
       "query": "assurance SCI immeuble",
       "target_url": "/assurance-sci",
       "intent": "lead",
-      "status": "local-estimate",
+      "status": "serp-error",
       "position": null,
       "found_url": "",
       "top_domains": [
@@ -103,14 +103,14 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-31T01:52:18.622Z",
+      "checked_at": "2026-08-01T09:57:41.211Z",
       "recommendation": "Renforcer /assurance-sci: contenu expert, FAQ visible, liens internes et CTA devis pour assurance SCI immeuble."
     },
     {
       "query": "courtier assurance immeuble",
       "target_url": "/courtier-assurance-immeuble",
       "intent": "lead",
-      "status": "local-estimate",
+      "status": "serp-error",
       "position": null,
       "found_url": "",
       "top_domains": [
@@ -118,14 +118,14 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-31T01:52:18.622Z",
+      "checked_at": "2026-08-01T09:57:41.369Z",
       "recommendation": "Renforcer /courtier-assurance-immeuble: contenu expert, FAQ visible, liens internes et CTA devis pour courtier assurance immeuble."
     },
     {
       "query": "prix assurance immeuble",
       "target_url": "/prix-assurance-immeuble",
       "intent": "comparison",
-      "status": "local-estimate",
+      "status": "serp-error",
       "position": null,
       "found_url": "",
       "top_domains": [
@@ -134,14 +134,14 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-31T01:52:18.622Z",
+      "checked_at": "2026-08-01T09:57:41.479Z",
       "recommendation": "Renforcer /prix-assurance-immeuble: contenu expert, FAQ visible, liens internes et CTA devis pour prix assurance immeuble."
     },
     {
       "query": "multirisque immeuble",
       "target_url": "/multirisque-immeuble",
       "intent": "money",
-      "status": "local-estimate",
+      "status": "serp-error",
       "position": null,
       "found_url": "",
       "top_domains": [
@@ -151,14 +151,14 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-31T01:52:18.622Z",
+      "checked_at": "2026-08-01T09:57:41.601Z",
       "recommendation": "Renforcer /multirisque-immeuble: contenu expert, FAQ visible, liens internes et CTA devis pour multirisque immeuble."
     },
     {
       "query": "assurance immeuble syndic benevole",
       "target_url": "/assurance-immeuble-syndic-benevole",
       "intent": "niche",
-      "status": "local-estimate",
+      "status": "serp-error",
       "position": null,
       "found_url": "",
       "top_domains": [
@@ -166,7 +166,7 @@
       ],
       "organic_count": 0,
       "serpapi_id": "",
-      "checked_at": "2026-07-31T01:52:18.622Z",
+      "checked_at": "2026-08-01T09:57:41.739Z",
       "recommendation": "Renforcer /assurance-immeuble-syndic-benevole: contenu expert, FAQ visible, liens internes et CTA devis pour assurance immeuble syndic benevole."
     }
   ],
@@ -202,5 +202,46 @@
     "people-first-content-prioritization",
     "ranking-data-used-for-roadmap-not-spam"
   ],
-  "errors": []
+  "errors": [
+    {
+      "query": "assurance immeuble",
+      "error": "HTTP 429"
+    },
+    {
+      "query": "devis assurance immeuble",
+      "error": "HTTP 429"
+    },
+    {
+      "query": "assurance copropriete",
+      "error": "HTTP 429"
+    },
+    {
+      "query": "assurance PNO CNO",
+      "error": "HTTP 429"
+    },
+    {
+      "query": "assurance coproprietaire non occupant",
+      "error": "HTTP 429"
+    },
+    {
+      "query": "assurance SCI immeuble",
+      "error": "HTTP 429"
+    },
+    {
+      "query": "courtier assurance immeuble",
+      "error": "HTTP 429"
+    },
+    {
+      "query": "prix assurance immeuble",
+      "error": "HTTP 429"
+    },
+    {
+      "query": "multirisque immeuble",
+      "error": "HTTP 429"
+    },
+    {
+      "query": "assurance immeuble syndic benevole",
+      "error": "HTTP 429"
+    }
+  ]
 }

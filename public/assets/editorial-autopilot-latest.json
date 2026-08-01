@@ -1,21 +1,46 @@
 {
-  "generated_at": "2026-07-31T01:52:18.244Z",
-  "mode": "local-fallback",
-  "fetch_enabled": false,
-  "ai_enabled": false,
-  "ai_provider": "deterministic",
-  "ai_model": "local-template",
-  "ai_status": "skipped",
+  "generated_at": "2026-08-01T10:01:00.110Z",
+  "mode": "fetched",
+  "fetch_enabled": true,
+  "ai_enabled": true,
+  "ai_provider": "openrouter",
+  "ai_model": "~openai/gpt-latest",
+  "ai_status": "completed",
+  "ai_attempts": [
+    {
+      "provider": "openai",
+      "model": "gpt-4.1-mini",
+      "status": "failed",
+      "error": "OpenAI HTTP 401"
+    },
+    {
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-latest",
+      "status": "failed",
+      "error": "Anthropic HTTP 400"
+    },
+    {
+      "provider": "gemini",
+      "model": "gemini-1.5-pro",
+      "status": "failed",
+      "error": "Gemini HTTP 404"
+    },
+    {
+      "provider": "openrouter",
+      "model": "~openai/gpt-latest",
+      "status": "completed"
+    }
+  ],
   "quality_score": 90,
   "source_count": 5,
-  "watch_items": 3,
+  "watch_items": 10,
   "issue": {
-    "id": "issue-9dfd155ba77d",
-    "slug": "news/veille-assurance-immeuble-2026-07-31",
-    "title": "Veille assurance immeuble: copropriete, contrats et devis",
-    "html_url": "/news/veille-assurance-immeuble-2026-07-31"
+    "id": "issue-08fe0e859072",
+    "slug": "news/veille-assurance-immeuble-2026-08-01",
+    "title": "Veille assurance immeuble: assurance, contrats et devis",
+    "html_url": "/news/veille-assurance-immeuble-2026-08-01"
   },
-  "issue_backfills": 4,
+  "issue_backfills": 5,
   "automation_plan": {
     "blog_briefs": [
       {
@@ -156,9 +181,9 @@
       }
     ],
     "source_topics": [
-      "copropriete",
-      "regulateur",
-      "droit"
+      "assurance",
+      "veille",
+      "sinistres"
     ]
   },
   "compliance": [
@@ -169,5 +194,10 @@
     "people-first-content-before-seo-volume",
     "ai-output-reviewed-by-quality-guards"
   ],
-  "errors": []
+  "errors": [
+    {
+      "source": "service-public-professionnels",
+      "error": "HTTP 404"
+    }
+  ]
 }

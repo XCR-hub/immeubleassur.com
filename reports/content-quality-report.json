@@ -1,12 +1,82 @@
 {
-  "generated_at": "2026-08-01T09:48:46.436Z",
-  "pages_checked": 177,
+  "generated_at": "2026-08-01T10:12:06.379Z",
+  "pages_checked": 178,
   "status": "passed",
   "severe_issue_count": 0,
   "warning_count": 0,
   "duplicate_titles": [],
   "duplicate_descriptions": [],
   "repeated_paragraph_clusters": [
+    {
+      "fingerprint": "ce renforcement transforme le signal de classement en contenu utile intention preuves de specialisation questions de decision et passage direct vers un dossier de devis exploitable",
+      "pages": [
+        "assurance-coproprietaire-non-occupant",
+        "assurance-copropriete",
+        "assurance-immeuble-syndic-benevole",
+        "assurance-pno-cno",
+        "assurance-sci",
+        "courtier-assurance-immeuble",
+        "multirisque-immeuble",
+        "prix-assurance-immeuble"
+      ],
+      "count": 8
+    },
+    {
+      "fingerprint": "parce que la recherche exprime un besoin proche du devis comprendre le risque preparer les pieces et choisir les garanties avant consultation assureur",
+      "pages": [
+        "assurance-coproprietaire-non-occupant",
+        "assurance-copropriete",
+        "assurance-immeuble-syndic-benevole",
+        "assurance-pno-cno",
+        "assurance-sci",
+        "courtier-assurance-immeuble",
+        "multirisque-immeuble",
+        "prix-assurance-immeuble"
+      ],
+      "count": 8
+    },
+    {
+      "fingerprint": "un formulaire contextualise des documents attendus explicites et une lecture claire des responsabilites entre immeuble lot occupant et proprietaire",
+      "pages": [
+        "assurance-coproprietaire-non-occupant",
+        "assurance-copropriete",
+        "assurance-immeuble-syndic-benevole",
+        "assurance-pno-cno",
+        "assurance-sci",
+        "courtier-assurance-immeuble",
+        "multirisque-immeuble",
+        "prix-assurance-immeuble"
+      ],
+      "count": 8
+    },
+    {
+      "fingerprint": "le bloc ajoute des decisions concretes et des liens utiles il n ajoute ni texte cache ni duplication massive ni contenu copie depuis les resultats de recherche",
+      "pages": [
+        "assurance-coproprietaire-non-occupant",
+        "assurance-copropriete",
+        "assurance-immeuble-syndic-benevole",
+        "assurance-pno-cno",
+        "assurance-sci",
+        "courtier-assurance-immeuble",
+        "multirisque-immeuble",
+        "prix-assurance-immeuble"
+      ],
+      "count": 8
+    },
+    {
+      "fingerprint": "cette consolidation evite les pages trop courtes et les demandes mal qualifiees elle aide le visiteur a comprendre ce qui influence le devis usage du batiment responsabilites garanties et reste a charge mais aussi les fr",
+      "pages": [
+        "audit-contrat-assurance-immeuble",
+        "blog/checklist-documents-devis-immeuble",
+        "blog/preparer-renouvellement-assurance-immeuble",
+        "checklist-documents-assurance-immeuble",
+        "contact",
+        "guides",
+        "multirisque-immeuble",
+        "newsletter-assurance-immeuble"
+      ],
+      "count": 8
+    },
     {
       "fingerprint": "preparez contrat actuel echeance sinistres lots surface et travaux ajoutez les baux les photos les travaux prevus ou les pv d assemblee lorsqu ils expliquent le risque",
       "pages": [
@@ -17,9 +87,10 @@
         "checklist-documents-assurance-immeuble",
         "contact",
         "guides",
+        "newsletter-assurance-immeuble",
         "villes"
       ],
-      "count": 8
+      "count": 9
     },
     {
       "fingerprint": "parce que usage du batiment responsabilites garanties et reste a charge peuvent modifier la reponse assureur une demande generale oublie souvent ces points",
@@ -31,9 +102,10 @@
         "checklist-documents-assurance-immeuble",
         "contact",
         "guides",
+        "newsletter-assurance-immeuble",
         "villes"
       ],
-      "count": 8
+      "count": 9
     },
     {
       "fingerprint": "il faut agir avant echeance apres une resiliation en cas de refus assureur apres un sinistre important ou lorsqu un usage du batiment change",
@@ -51,10 +123,12 @@
         "guide-assurance-copropriete-2026",
         "guides",
         "index",
+        "newsletter-assurance-immeuble",
         "prix-assurance-immeuble",
+        "veille-assurance-immeuble",
         "villes"
       ],
-      "count": 15
+      "count": 17
     },
     {
       "fingerprint": "cette lecture protege la decision elle evite de choisir une offre uniquement parce qu elle semble moins chere ou plus simple a premiere vue",

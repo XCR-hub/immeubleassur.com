@@ -22,7 +22,7 @@ const generatedSeoBlockPatterns = generatedSeoBlockNames.map((name) => new RegEx
 
 const ignoredSlugs = new Set(["admin", "mentions-legales", "confidentialite", "merci"]);
 const stopwords = new Set("assurance assurances immeuble immeubles immeubleassur pour avec dans depuis cette votre vous nous notre nos vos des les une aux sur par qui que quoi dont plus moins prix devis contrat contrats garantie garanties syndic copropriete proprietaire proprietaires bailleur bailleurs courtier comparateur guide article faq formulaire demande audit page besoin risque risques faire etre sont vers entre sans aussi comme avant apres chaque peut doivent doivent actuel actuelle actuels dossier dossiers assureur assureurs travaux pieces piece franchises franchise prime primes exclusions exclusion echeance usage usages utiles utile information informations analyse analyses occupation responsabilite responsabilites parcours garanties garantie sinistre sinistres obtenir proposition propositions reponse reponses couvrir couvert couvertes declaration declarations clair claire comparable recherche approfondir construire point points fiche fiches methode priorite adresse documents choisir comparer".split(" "));
-const auditGenericTerms = "plafond plafonds appel appels concerne concernent concernant consultation consultations manquante manquantes obligation obligations prevu prevus protegee protege proteger questions conseils conseil clarifier clarification lire lecture pieces piece justificatifs justificatif attendu attendus disponible disponibles utile utiles demander pourquoi quelles quel quels entretien locaux local syndics syndicaux syndicat protection juridique vacance accelerera action angle annuelle contenu simple sujet marche mission calendrier relances".split(" ");
+const auditGenericTerms = "plafond plafonds appel appels concerne concernent concernant consultation consultations manquante manquantes obligation obligations prevu prevus protegee protege proteger questions conseils conseil clarifier clarification lire lecture pieces piece justificatifs justificatif attendu attendus disponible disponibles utile utiles demander pourquoi quelles quel quels entretien locaux local syndics syndicaux syndicat protection juridique vacance accelerera action angle annuelle contenu simple sujet marche mission calendrier relances veille actualite actualites public publics service services particuliers professionnel professionnels heure heures jour jours ferie feries entrepreneur entrepreneurs annuel annuelle annee absence source sources rss signal signaux livret livrets date dates hiver octobre passage passages plusieurs regle regles verifier securite toussaint vacances acces assures autorisation autorisations cadre".split(" ");
 for (const term of auditGenericTerms) stopwords.add(term);
 
 
@@ -289,7 +289,8 @@ const report = {
     "supports-canonical-intent-planning",
     "generated-conversion-blocks-excluded-from-similarity",
     "generic-insurance-terms-excluded-from-similarity",
-    "generic-form-and-template-terms-excluded-from-similarity"
+    "generic-form-and-template-terms-excluded-from-similarity",
+    "rss-source-boilerplate-excluded-from-similarity"
   ]
 };
 

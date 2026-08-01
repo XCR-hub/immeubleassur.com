@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-01T09:48:45.322Z",
+  "generated_at": "2026-08-01T10:12:06.551Z",
   "status": "passed",
   "pages_checked": 169,
   "clusters_checked": 11,
   "high_risk_count": 0,
   "medium_risk_count": 0,
-  "watch_count": 2,
+  "watch_count": 3,
   "generated_block_families_ignored": 12,
   "generated_block_families": [
     "seo-intent-differentiation",
@@ -73,15 +73,15 @@
         "aller",
         "batiment",
         "multirisque",
+        "changement",
         "checklist",
         "civile",
+        "coproprietaires",
         "obligatoire",
         "rapport",
         "assure",
-        "cadre",
         "comment",
-        "communes",
-        "comprendre"
+        "communes"
       ]
     },
     {
@@ -106,15 +106,15 @@
         "aller",
         "coproprietaires",
         "communes",
+        "quand",
         "benevole",
         "civile",
         "multirisque",
         "parties",
-        "quand",
-        "comprendre",
         "dommages",
-        "archives",
-        "assemblee"
+        "principal",
+        "arbitrage",
+        "archives"
       ]
     },
     {
@@ -146,16 +146,16 @@
       "representative_terms": [
         "occupant",
         "aller",
+        "civile",
         "coproprietaire",
         "vacant",
-        "civile",
         "quand",
         "statut",
-        "verifier",
         "biens",
-        "absence",
         "attestation",
-        "comprendre"
+        "comprendre",
+        "logement",
+        "multirisque"
       ]
     },
     {
@@ -179,9 +179,9 @@
       "representative_terms": [
         "locatif",
         "multirisque",
+        "aller",
         "locative",
         "occupants",
-        "aller",
         "biens",
         "patrimoine",
         "principal",
@@ -215,13 +215,13 @@
         "comment",
         "fuite",
         "mesures",
+        "causes",
         "correctives",
         "degat",
+        "quand",
         "cause",
-        "causes",
         "correctifs",
-        "devient",
-        "incendie"
+        "devient"
       ]
     },
     {
@@ -308,11 +308,11 @@
         "commerciale",
         "batiment",
         "cache",
-        "cadre",
         "changement",
         "changer",
         "chere",
-        "clauses"
+        "clauses",
+        "comment"
       ]
     },
     {
@@ -330,18 +330,18 @@
         }
       ],
       "representative_terms": [
-        "veille",
-        "actualite",
-        "communications",
-        "coproprietaires",
-        "droit",
-        "regulateur",
-        "signaux",
-        "verifier",
+        "communes",
+        "compter",
+        "dernier",
+        "difference",
+        "entreprendre",
+        "evolution",
+        "existe",
+        "explique",
         "actionnable",
-        "actualites",
         "alertes",
-        "aller"
+        "aller",
+        "anticiper"
       ]
     },
     {
@@ -367,18 +367,43 @@
         "basse",
         "batiment",
         "cache",
-        "cadre",
         "changement",
         "changer",
-        "chere"
+        "chere",
+        "clauses"
       ]
     }
   ],
   "watchlist": [
     {
+      "cluster": "newsletter-veille",
+      "risk": "watch",
+      "score": 45.69,
+      "primary_slug": "veille-assurance-immeuble",
+      "pages": [
+        "news/veille-assurance-immeuble-2026-08-01",
+        "veille-assurance-immeuble"
+      ],
+      "page_types": [
+        "news",
+        "service"
+      ],
+      "shared_terms": [
+        "dernier",
+        "difference",
+        "communes",
+        "compter",
+        "entreprendre",
+        "evolution",
+        "existe",
+        "explique"
+      ],
+      "recommendation": "Renforcer l'angle unique de news/veille-assurance-immeuble-2026-08-01 et ajouter un lien contextuel vers veille-assurance-immeuble."
+    },
+    {
       "cluster": "local-commercial",
       "risk": "watch",
-      "score": 44.67,
+      "score": 44.52,
       "primary_slug": "blog/local-commercial-vacant",
       "pages": [
         "blog/immeuble-mixte-restaurant",
@@ -392,18 +417,18 @@
         "aller",
         "batiment",
         "cache",
-        "cadre",
         "changement",
         "changer",
         "chere",
-        "clauses"
+        "clauses",
+        "comment"
       ],
       "recommendation": "Clarifier blog/immeuble-mixte-restaurant comme support informationnel et renforcer le lien vers blog/local-commercial-vacant."
     },
     {
       "cluster": "sci-bailleur",
       "risk": "watch",
-      "score": 40.43,
+      "score": 40.36,
       "primary_slug": "assurance-sci",
       "pages": [
         "assurance-immeuble-locatif",
@@ -432,6 +457,7 @@
     "supports-canonical-intent-planning",
     "generated-conversion-blocks-excluded-from-similarity",
     "generic-insurance-terms-excluded-from-similarity",
-    "generic-form-and-template-terms-excluded-from-similarity"
+    "generic-form-and-template-terms-excluded-from-similarity",
+    "rss-source-boilerplate-excluded-from-similarity"
   ]
 }

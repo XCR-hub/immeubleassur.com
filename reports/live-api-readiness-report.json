@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-01T09:48:18.791Z",
+  "generated_at": "2026-08-01T10:12:53.714Z",
   "status": "partial",
   "connectors_checked": 8,
-  "ready_count": 2,
-  "fallback_count": 6,
+  "ready_count": 5,
+  "fallback_count": 3,
   "rows": [
     {
       "id": "turnstile",
@@ -32,15 +32,15 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-01T09:48:12.825Z",
+        "generated_at": "2026-08-01T10:12:32.024Z",
         "status": "passed",
         "summary": {
           "provider": "cloudflare-turnstile",
           "mode": "hybrid-turnstile-local-antifraud",
           "configured": true,
-          "pages_checked": 176,
-          "forms_detected": 168,
-          "forms_instrumented": 168
+          "pages_checked": 177,
+          "forms_detected": 174,
+          "forms_instrumented": 174
         }
       },
       "recommendation": "Executer npm run turnstile:hybrid pour rafraichir le signal live."
@@ -55,10 +55,10 @@
       "command": "npm run search:live",
       "report": "reports/search-intelligence-report.json",
       "objective": "Mesurer les vraies positions Google par API sans scraping direct.",
-      "ready": false,
-      "status": "fallback",
+      "ready": true,
+      "status": "ready",
       "required_count": 1,
-      "configured_required": 0,
+      "configured_required": 1,
       "optional_count": 0,
       "configured_optional": 0,
       "required_names": [
@@ -66,24 +66,22 @@
       ],
       "required_any_names": [],
       "optional_names": [],
-      "missing_required_names": [
-        "SERP_API_KEY"
-      ],
+      "missing_required_names": [],
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-31T01:52:18.624Z",
-        "status": "skipped-no-serp-key",
+        "generated_at": "2026-08-01T09:57:41.741Z",
+        "status": "completed-with-errors",
         "summary": {
-          "provider": "local-estimate",
+          "provider": "serpapi",
           "mode": "",
-          "configured": false,
+          "configured": true,
           "pages_checked": 10,
           "forms_detected": 0,
           "forms_instrumented": 0
         }
       },
-      "recommendation": "Configurer SERP_API_KEY puis executer npm run search:live."
+      "recommendation": "Executer npm run search:live pour rafraichir le signal live."
     },
     {
       "id": "pexels",
@@ -95,10 +93,10 @@
       "command": "npm run media:live",
       "report": "reports/media-autopilot-report.json",
       "objective": "Injecter des visuels immobiliers attribues sur les pages prioritaires.",
-      "ready": false,
-      "status": "fallback",
+      "ready": true,
+      "status": "ready",
       "required_count": 1,
-      "configured_required": 0,
+      "configured_required": 1,
       "optional_count": 0,
       "configured_optional": 0,
       "required_names": [
@@ -106,24 +104,22 @@
       ],
       "required_any_names": [],
       "optional_names": [],
-      "missing_required_names": [
-        "PEXELS_API_KEY"
-      ],
+      "missing_required_names": [],
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-31T01:52:18.421Z",
-        "status": "skipped-no-pexels-key",
+        "generated_at": "2026-08-01T09:58:18.122Z",
+        "status": "completed",
         "summary": {
-          "provider": "planned-pexels",
-          "mode": "planned-no-pexels-key",
-          "configured": false,
+          "provider": "pexels",
+          "mode": "pexels-fetched",
+          "configured": true,
           "pages_checked": 0,
           "forms_detected": 0,
           "forms_instrumented": 0
         }
       },
-      "recommendation": "Configurer PEXELS_API_KEY puis executer npm run media:live."
+      "recommendation": "Executer npm run media:live pour rafraichir le signal live."
     },
     {
       "id": "editorial-ai",
@@ -139,10 +135,10 @@
       "command": "npm run editorial:live",
       "report": "reports/editorial-autopilot-report.json",
       "objective": "Synthese de veille assistee par IA avec fallback local.",
-      "ready": false,
-      "status": "fallback",
+      "ready": true,
+      "status": "ready",
       "required_count": 1,
-      "configured_required": 0,
+      "configured_required": 1,
       "optional_count": 0,
       "configured_optional": 0,
       "required_names": [],
@@ -155,27 +151,21 @@
       ],
       "optional_names": [],
       "missing_required_names": [],
-      "missing_any_names": [
-        "OPENAI_API_KEY",
-        "ANTHROPIC_API_KEY",
-        "GEMINI_API_KEY",
-        "OPENROUTER_API_KEY",
-        "HUGGINGFACE_API_KEY"
-      ],
+      "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-31T01:52:18.244Z",
-        "status": "local-fallback",
+        "generated_at": "2026-08-01T10:01:00.110Z",
+        "status": "fetched",
         "summary": {
           "provider": "",
-          "mode": "local-fallback",
+          "mode": "fetched",
           "configured": false,
           "pages_checked": 0,
           "forms_detected": 0,
           "forms_instrumented": 0
         }
       },
-      "recommendation": "Configurer une cle IA puis executer npm run editorial:live."
+      "recommendation": "Executer npm run editorial:live pour rafraichir le signal live."
     },
     {
       "id": "google-search-console",
@@ -192,7 +182,7 @@
       "ready": false,
       "status": "fallback",
       "required_count": 3,
-      "configured_required": 0,
+      "configured_required": 1,
       "optional_count": 0,
       "configured_optional": 0,
       "required_names": [
@@ -204,8 +194,7 @@
       "optional_names": [],
       "missing_required_names": [
         "GOOGLE_SERVICE_ACCOUNT_EMAIL",
-        "GOOGLE_SERVICE_ACCOUNT_KEY",
-        "GOOGLE_SEARCH_CONSOLE_SITE_URL"
+        "GOOGLE_SERVICE_ACCOUNT_KEY"
       ],
       "missing_any_names": [],
       "last_report": {
@@ -221,7 +210,7 @@
           "forms_instrumented": 0
         }
       },
-      "recommendation": "Configurer GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY, GOOGLE_SEARCH_CONSOLE_SITE_URL puis executer npm run seo:apis."
+      "recommendation": "Configurer GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY puis executer npm run seo:apis."
     },
     {
       "id": "pagespeed",
@@ -295,7 +284,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-01T09:47:37.600Z",
+        "generated_at": "2026-08-01T10:01:36.412Z",
         "status": "present",
         "summary": {
           "provider": "",

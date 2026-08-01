@@ -1,23 +1,10 @@
 {
-  "generated_at": "2026-08-01T09:47:23.576Z",
-  "pages_checked": 176,
-  "pages_changed": 28,
-  "paragraphs_contextualized": 27,
-  "quality_support_pages": 21,
-  "replacement_families": [
-    {
-      "id": "money-intent-errors",
-      "count": 9
-    },
-    {
-      "id": "money-intent-risk-scope",
-      "count": 9
-    },
-    {
-      "id": "money-intent-lead-method",
-      "count": 9
-    }
-  ],
+  "generated_at": "2026-08-01T10:01:27.530Z",
+  "pages_checked": 177,
+  "pages_changed": 14,
+  "paragraphs_contextualized": 0,
+  "quality_support_pages": 23,
+  "replacement_families": [],
   "safeguards": [
     "visible-content-only",
     "no-hidden-keywords",
@@ -26,216 +13,6 @@
     "people-first-context"
   ],
   "sample": [
-    {
-      "slug": "assurance-batiment-proprietaire",
-      "url": "https://immeubleassur.com/assurance-batiment-proprietaire",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "money-intent-errors",
-          "count": 1
-        },
-        {
-          "id": "money-intent-risk-scope",
-          "count": 1
-        },
-        {
-          "id": "money-intent-lead-method",
-          "count": 1
-        }
-      ],
-      "replacements_count": 3,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 663,
-        "detailsCount": 5,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-de-rapport",
-      "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "money-intent-errors",
-          "count": 1
-        },
-        {
-          "id": "money-intent-risk-scope",
-          "count": 1
-        },
-        {
-          "id": "money-intent-lead-method",
-          "count": 1
-        }
-      ],
-      "replacements_count": 3,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 617,
-        "detailsCount": 5,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-meuble-colocation",
-      "url": "https://immeubleassur.com/assurance-immeuble-meuble-colocation",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "money-intent-errors",
-          "count": 1
-        },
-        {
-          "id": "money-intent-risk-scope",
-          "count": 1
-        },
-        {
-          "id": "money-intent-lead-method",
-          "count": 1
-        }
-      ],
-      "replacements_count": 3,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 599,
-        "detailsCount": 5,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-monopropriete",
-      "url": "https://immeubleassur.com/assurance-immeuble-monopropriete",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "money-intent-errors",
-          "count": 1
-        },
-        {
-          "id": "money-intent-risk-scope",
-          "count": 1
-        },
-        {
-          "id": "money-intent-lead-method",
-          "count": 1
-        }
-      ],
-      "replacements_count": 3,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 613,
-        "detailsCount": 5,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-obligatoire",
-      "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "money-intent-errors",
-          "count": 1
-        },
-        {
-          "id": "money-intent-risk-scope",
-          "count": 1
-        },
-        {
-          "id": "money-intent-lead-method",
-          "count": 1
-        }
-      ],
-      "replacements_count": 3,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 573,
-        "detailsCount": 5,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-resilie",
-      "url": "https://immeubleassur.com/assurance-immeuble-resilie",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "money-intent-errors",
-          "count": 1
-        },
-        {
-          "id": "money-intent-risk-scope",
-          "count": 1
-        },
-        {
-          "id": "money-intent-lead-method",
-          "count": 1
-        }
-      ],
-      "replacements_count": 3,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 587,
-        "detailsCount": 5,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-sinistre",
-      "url": "https://immeubleassur.com/assurance-immeuble-sinistre",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "money-intent-errors",
-          "count": 1
-        },
-        {
-          "id": "money-intent-risk-scope",
-          "count": 1
-        },
-        {
-          "id": "money-intent-lead-method",
-          "count": 1
-        }
-      ],
-      "replacements_count": 3,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 588,
-        "detailsCount": 5,
-        "form": true,
-        "primaryCta": true
-      }
-    },
     {
       "slug": "blog/assurance-copropriete-obligatoire",
       "url": "https://immeubleassur.com/blog/assurance-copropriete-obligatoire",
@@ -266,23 +43,6 @@
         "cta": false,
         "words": 342,
         "detailsCount": 0,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "blog/assurance-lot-vacant-copropriete",
-      "url": "https://immeubleassur.com/blog/assurance-lot-vacant-copropriete",
-      "changed": true,
-      "replacements": [],
-      "replacements_count": 0,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 513,
-        "detailsCount": 3,
         "form": true,
         "primaryCta": true
       }
@@ -356,23 +116,6 @@
       }
     },
     {
-      "slug": "blog/pno-cno-differences-garanties",
-      "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
-      "changed": true,
-      "replacements": [],
-      "replacements_count": 0,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 537,
-        "detailsCount": 3,
-        "form": true,
-        "primaryCta": false
-      }
-    },
-    {
       "slug": "blog/preparer-renouvellement-assurance-immeuble",
       "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
       "changed": true,
@@ -416,108 +159,10 @@
       "quality_needs": {
         "depth": false,
         "faq": true,
-        "cta": true,
-        "words": 1126,
+        "cta": false,
+        "words": 1198,
         "detailsCount": 0,
         "form": false,
-        "primaryCta": false
-      }
-    },
-    {
-      "slug": "devis-assurance-immeuble-en-ligne",
-      "url": "https://immeubleassur.com/devis-assurance-immeuble-en-ligne",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "money-intent-errors",
-          "count": 1
-        },
-        {
-          "id": "money-intent-risk-scope",
-          "count": 1
-        },
-        {
-          "id": "money-intent-lead-method",
-          "count": 1
-        }
-      ],
-      "replacements_count": 3,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 656,
-        "detailsCount": 5,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "faq/copropriete",
-      "url": "https://immeubleassur.com/faq/copropriete",
-      "changed": true,
-      "replacements": [],
-      "replacements_count": 0,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 543,
-        "detailsCount": 8,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "faq/pno",
-      "url": "https://immeubleassur.com/faq/pno",
-      "changed": true,
-      "replacements": [],
-      "replacements_count": 0,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 546,
-        "detailsCount": 8,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "faq/sci",
-      "url": "https://immeubleassur.com/faq/sci",
-      "changed": true,
-      "replacements": [],
-      "replacements_count": 0,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 538,
-        "detailsCount": 8,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "faq/sinistres",
-      "url": "https://immeubleassur.com/faq/sinistres",
-      "changed": true,
-      "replacements": [],
-      "replacements_count": 0,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 521,
-        "detailsCount": 8,
-        "form": true,
         "primaryCta": true
       }
     },
@@ -549,15 +194,32 @@
         "depth": false,
         "faq": true,
         "cta": false,
-        "words": 1034,
+        "words": 1136,
         "detailsCount": 0,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "prix-assurance-immeuble",
-      "url": "https://immeubleassur.com/prix-assurance-immeuble",
+      "slug": "newsletter-assurance-immeuble",
+      "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
+      "changed": true,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
+      "quality_needs": {
+        "depth": true,
+        "faq": true,
+        "cta": false,
+        "words": 318,
+        "detailsCount": 0,
+        "form": false,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "veille-assurance-immeuble",
+      "url": "https://immeubleassur.com/veille-assurance-immeuble",
       "changed": true,
       "replacements": [],
       "replacements_count": 0,
@@ -566,39 +228,9 @@
         "depth": false,
         "faq": true,
         "cta": false,
-        "words": 710,
+        "words": 1168,
         "detailsCount": 0,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "tarif-assurance-immeuble",
-      "url": "https://immeubleassur.com/tarif-assurance-immeuble",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "money-intent-errors",
-          "count": 1
-        },
-        {
-          "id": "money-intent-risk-scope",
-          "count": 1
-        },
-        {
-          "id": "money-intent-lead-method",
-          "count": 1
-        }
-      ],
-      "replacements_count": 3,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 665,
-        "detailsCount": 5,
-        "form": true,
+        "form": false,
         "primaryCta": true
       }
     },
@@ -612,11 +244,11 @@
       "quality_needs": {
         "depth": false,
         "faq": true,
-        "cta": true,
-        "words": 437,
+        "cta": false,
+        "words": 509,
         "detailsCount": 0,
         "form": false,
-        "primaryCta": false
+        "primaryCta": true
       }
     }
   ]

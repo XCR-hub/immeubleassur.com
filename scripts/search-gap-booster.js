@@ -3,9 +3,12 @@ import { dirname, extname, join, relative } from "node:path";
 
 const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
+const SITE = "https://immeubleassur.com";
 const SEARCH_REPORT = join(REPORT_DIR, "search-intelligence-report.json");
 const START = "<!-- search-gap-booster:start -->";
 const END = "<!-- search-gap-booster:end -->";
+const FAQ_SCHEMA_START = "<!-- search-gap-faq-schema:start -->";
+const FAQ_SCHEMA_END = "<!-- search-gap-faq-schema:end -->";
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
 function read(path, fallback = "") { return existsSync(path) ? readFileSync(path, "utf8") : fallback; }
@@ -86,6 +89,42 @@ function intentText(intent) {
   return "intention business assurance immeuble";
 }
 
+function faqRows(row, query) {
+  return [
+    [`Pourquoi cette page cible ${query} ?`, "Parce que la recherche exprime un besoin proche du devis: comprendre le risque, preparer les pieces et choisir les garanties avant consultation assureur."],
+    ["Quel element fait gagner un lead qualifie ?", "Un formulaire contextualise, des documents attendus explicites et une lecture claire des responsabilites entre immeuble, lot, occupant et proprietaire."],
+    ["Comment eviter une page SEO artificielle ?", "Le bloc ajoute des decisions concretes et des liens utiles. Il n'ajoute ni texte cache, ni duplication massive, ni contenu copie depuis les resultats de recherche."]
+  ];
+}
+
+function faqDetails(row, query) {
+  return faqRows(row, query).map(([question, answer]) => `<details><summary>${esc(question)}</summary><p>${esc(answer)}</p></details>`).join("\n        ");
+}
+
+function removeSearchGapFaqSchema(html) {
+  return html.replace(new RegExp(`${FAQ_SCHEMA_START}[\\s\\S]*?${FAQ_SCHEMA_END}\\s*`, "g"), "");
+}
+
+function hasFaqSchema(html) {
+  return /"@type"\s*:\s*"FAQPage"/i.test(html) || /"@type"\s*:\s*\[[^\]]*"FAQPage"/i.test(html);
+}
+
+function ensureSearchGapFaqSchema(html, row, query) {
+  const cleaned = removeSearchGapFaqSchema(html);
+  if (hasFaqSchema(cleaned)) return cleaned;
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqRows(row, query).map(([question, answer]) => ({
+      "@type": "Question",
+      name: stripHtml(question),
+      acceptedAnswer: { "@type": "Answer", text: stripHtml(answer) }
+    }))
+  };
+  const script = `${FAQ_SCHEMA_START}\n<script type="application/ld+json">${JSON.stringify(schema)}</script>\n${FAQ_SCHEMA_END}\n`;
+  return cleaned.includes("</head>") ? cleaned.replace(/\s*<\/head>/i, `\n${script}</head>`) : `${script}${cleaned}`;
+}
+
 function block(row, pageTitle) {
   const competitors = (row.top_domains || []).filter(Boolean).slice(0, 3).join(", ") || "concurrents generalistes";
   const rankLabel = row.position ? `position estimee ${row.position}` : "presence non detectee";
@@ -111,9 +150,7 @@ function block(row, pageTitle) {
         ${links.map(([href, label]) => `<a href="${esc(href)}">${esc(label)}</a>`).join("")}
       </div>
       <div class="faq-list compact-faq">
-        <details><summary>Pourquoi cette page cible ${esc(query)} ?</summary><p>Parce que la recherche exprime un besoin proche du devis: comprendre le risque, preparer les pieces et choisir les garanties avant consultation assureur.</p></details>
-        <details><summary>Quel element fait gagner un lead qualifie ?</summary><p>Un formulaire contextualise, des documents attendus explicites et une lecture claire des responsabilites entre immeuble, lot, occupant et proprietaire.</p></details>
-        <details><summary>Comment eviter une page SEO artificielle ?</summary><p>Le bloc ajoute des decisions concretes et des liens utiles. Il n'ajoute ni texte cache, ni duplication massive, ni contenu copie depuis les resultats de recherche.</p></details>
+        ${faqDetails(row, query)}
       </div>
     </div>
   </div>
@@ -122,8 +159,8 @@ function block(row, pageTitle) {
 ${END}`;
 }
 
-function insertBlock(html, nextBlock) {
-  const cleaned = removeBlock(html);
+function insertBlock(html, nextBlock, row, query) {
+  const cleaned = ensureSearchGapFaqSchema(removeBlock(html), row, query);
   if (cleaned.includes("<!-- seo-opportunity-expansion:end -->")) {
     return cleaned.replace("<!-- seo-opportunity-expansion:end -->", `<!-- seo-opportunity-expansion:end -->\n${nextBlock}`);
   }
@@ -158,7 +195,8 @@ function run() {
     }
     const html = read(file);
     const pageTitle = titleOf(html);
-    const next = insertBlock(html, block(row, pageTitle));
+    const query = row.query || pageTitle;
+    const next = insertBlock(html, block(row, pageTitle), row, query);
     if (next !== html) write(file, next);
     actions.push({
       query: row.query,
@@ -180,7 +218,7 @@ function run() {
     pages_boosted: boosted.length,
     missing_files: actions.filter((item) => item.status === "missing-file").length,
     actions,
-    safeguards: ["idempotent-marker", "no-hidden-text", "no-google-scraping", "people-first-search-gap-content", "lead-paths-contextualized"]
+    safeguards: ["idempotent-marker", "no-hidden-text", "no-google-scraping", "people-first-search-gap-content", "lead-paths-contextualized", "faq-schema-for-visible-search-gap-questions"]
   };
   write(join(REPORT_DIR, "search-gap-booster-report.json"), JSON.stringify(report, null, 2));
   write(join(PUBLIC_DIR, "assets", "search-gap-booster-latest.json"), JSON.stringify(report, null, 2));

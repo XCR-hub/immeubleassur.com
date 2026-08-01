@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-01T09:47:53.533Z",
+  "generated_at": "2026-08-01T10:01:52.851Z",
   "status": "passed",
-  "pages_checked": 177,
+  "pages_checked": 178,
   "pages_targeted": 49,
-  "pages_changed": 24,
-  "links_added": 96,
-  "pages_with_active_blocks": 51,
-  "active_internal_links": 201,
-  "noindex_skipped": 5,
+  "pages_changed": 23,
+  "links_added": 92,
+  "pages_with_active_blocks": 52,
+  "active_internal_links": 205,
+  "noindex_skipped": 6,
   "lead_pages_skipped": 6,
   "cluster_targets": [
     {
@@ -207,21 +207,14 @@
       "slug": "faq",
       "type": "faq",
       "cluster": "default",
-      "previous_internal_links": 39,
+      "previous_internal_links": 42,
       "links_added": 4
     },
     {
-      "slug": "faq/assurance-immeuble",
-      "type": "faq",
-      "cluster": "default",
-      "previous_internal_links": 27,
-      "links_added": 4
-    },
-    {
-      "slug": "news/veille-assurance-immeuble-2026-07-31",
+      "slug": "news/veille-assurance-immeuble-2026-08-01",
       "type": "news",
       "cluster": "newsletter-veille",
-      "previous_internal_links": 26,
+      "previous_internal_links": 16,
       "links_added": 4
     }
   ]

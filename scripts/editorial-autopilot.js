@@ -159,15 +159,28 @@ async function collectWatchItems() {
   return { items: items.sort((a, b) => b.relevance_score - a.relevance_score).slice(0, 18), errors, mode: fetched.length ? "fetched" : "fallback-after-fetch" };
 }
 
-function aiProvider() {
-  if (process.env.OPENAI_API_KEY) return { provider: "openai", model: process.env.OPENAI_MODEL || "gpt-4.1-mini" };
-  if (process.env.ANTHROPIC_API_KEY) return { provider: "anthropic", model: process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-latest" };
-  if (process.env.GEMINI_API_KEY) return { provider: "gemini", model: process.env.GEMINI_MODEL || "gemini-1.5-pro" };
-  if (process.env.OPENROUTER_API_KEY) return { provider: "openrouter", model: process.env.OPENROUTER_MODEL || "~openai/gpt-latest" };
-  if (process.env.HUGGINGFACE_API_KEY) return { provider: "huggingface", model: process.env.HUGGINGFACE_MODEL || "mistralai/Mistral-7B-Instruct-v0.3" };
+function aiProviders() {
+  const providers = [];
+  if (process.env.OPENAI_API_KEY) providers.push({ provider: "openai", model: process.env.OPENAI_MODEL || "gpt-4.1-mini" });
+  if (process.env.ANTHROPIC_API_KEY) providers.push({ provider: "anthropic", model: process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-latest" });
+  if (process.env.GEMINI_API_KEY) providers.push({ provider: "gemini", model: process.env.GEMINI_MODEL || "gemini-1.5-pro" });
+  if (process.env.OPENROUTER_API_KEY) providers.push({ provider: "openrouter", model: process.env.OPENROUTER_MODEL || "~openai/gpt-latest" });
+  if (process.env.HUGGINGFACE_API_KEY) providers.push({ provider: "huggingface", model: process.env.HUGGINGFACE_MODEL || "mistralai/Mistral-7B-Instruct-v0.3" });
+  return providers;
+}
+
+function deterministicProvider() {
   return { provider: "deterministic", model: "local-template" };
 }
 
+async function callAiProvider(provider, text) {
+  if (provider.provider === "openai") return callOpenAi(text, provider.model);
+  if (provider.provider === "anthropic") return callAnthropic(text, provider.model);
+  if (provider.provider === "gemini") return callGemini(text, provider.model);
+  if (provider.provider === "openrouter") return callOpenRouter(text, provider.model);
+  if (provider.provider === "huggingface") return callHuggingFace(text, provider.model);
+  return "";
+}
 function prompt(items) {
   return `Tu es redacteur expert assurance immeuble en France. Produis une synthese originale, sans copier les sources, avec 5 points utiles pour syndics, bailleurs, SCI, PNO/CNO. Reste factuel et prudent. Donnees: ${JSON.stringify(items.slice(0, 8).map((item) => ({ title: item.title, summary: item.summary, source: item.source_name, url: item.url })))}`;
 }
@@ -222,17 +235,26 @@ function fallbackSynthesis(items) {
 }
 
 async function synthesize(items) {
-  const selected = aiProvider();
-  if (!ENABLE_AI || selected.provider === "deterministic") return { ...selected, status: "skipped", text: fallbackSynthesis(items), error: "ai-disabled-or-missing-key" };
-  try {
-    const input = prompt(items);
-    const text = selected.provider === "openai" ? await callOpenAi(input, selected.model) : selected.provider === "anthropic" ? await callAnthropic(input, selected.model) : selected.provider === "gemini" ? await callGemini(input, selected.model) : selected.provider === "openrouter" ? await callOpenRouter(input, selected.model) : await callHuggingFace(input, selected.model);
-    return { ...selected, status: "completed", text: String(text || "").trim().slice(0, 5000) || fallbackSynthesis(items) };
-  } catch (error) {
-    return { ...selected, status: "failed", text: fallbackSynthesis(items), error: error.message || "ai failed" };
+  const attempts = [];
+  const providers = ENABLE_AI ? aiProviders() : [];
+  if (!providers.length) return { ...deterministicProvider(), status: "skipped", text: fallbackSynthesis(items), error: "ai-disabled-or-missing-key", attempts };
+  const input = prompt(items);
+  for (const provider of providers) {
+    try {
+      const raw = await callAiProvider(provider, input);
+      const text = String(raw || "").trim().slice(0, 5000);
+      if (text) {
+        attempts.push({ provider: provider.provider, model: provider.model, status: "completed" });
+        return { ...provider, status: "completed", text, attempts };
+      }
+      attempts.push({ provider: provider.provider, model: provider.model, status: "empty" });
+    } catch (error) {
+      attempts.push({ provider: provider.provider, model: provider.model, status: "failed", error: error.message || "ai failed" });
+    }
   }
+  const fallback = deterministicProvider();
+  return { ...fallback, status: "fallback-after-ai-errors", text: fallbackSynthesis(items), error: "all-ai-providers-failed", attempts };
 }
-
 function watchCard(item) {
   return `<article class="watch-card"><p class="eyebrow dark">${esc(item.source_name)} - ${esc(item.topic || "veille")}</p><h3><a href="${attr(item.url)}" rel="nofollow noopener">${esc(item.title)}</a></h3><p>${esc(item.summary || "Signal public a transformer en question d'audit assurance immeuble.")}</p><span>Score pertinence ${Number(item.relevance_score || 0)}/100</span></article>`;
 }
@@ -359,6 +381,7 @@ async function run() {
     ai_provider: synthesis.provider,
     ai_model: synthesis.model,
     ai_status: synthesis.status,
+    ai_attempts: synthesis.attempts || [],
     quality_score: qualityScore(items, synthesis),
     source_count: SOURCES.length,
     watch_items: items.length,

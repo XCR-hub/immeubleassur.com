@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-07-31T01:52:20.964Z",
-  "source_run_id": "serp-20260731-60752744",
-  "provider": "local-estimate",
+  "generated_at": "2026-08-01T10:09:32.778Z",
+  "source_run_id": "serp-20260801-262a64c8",
+  "provider": "serpapi",
   "candidates": 8,
   "pages_boosted": 8,
   "missing_files": 0,
@@ -10,7 +10,7 @@
       "query": "assurance copropriete",
       "target_url": "/assurance-copropriete",
       "slug": "assurance-copropriete",
-      "status": "boosted",
+      "status": "already-current",
       "position": 4,
       "intent": "money",
       "competitors": [
@@ -23,7 +23,7 @@
       "query": "assurance PNO CNO",
       "target_url": "/assurance-pno-cno",
       "slug": "assurance-pno-cno",
-      "status": "boosted",
+      "status": "already-current",
       "position": 5,
       "intent": "money",
       "competitors": [
@@ -34,7 +34,7 @@
       "query": "assurance coproprietaire non occupant",
       "target_url": "/assurance-coproprietaire-non-occupant",
       "slug": "assurance-coproprietaire-non-occupant",
-      "status": "boosted",
+      "status": "already-current",
       "position": null,
       "intent": "lead",
       "competitors": [
@@ -46,7 +46,7 @@
       "query": "assurance SCI immeuble",
       "target_url": "/assurance-sci",
       "slug": "assurance-sci",
-      "status": "boosted",
+      "status": "already-current",
       "position": null,
       "intent": "lead",
       "competitors": [
@@ -59,7 +59,7 @@
       "query": "courtier assurance immeuble",
       "target_url": "/courtier-assurance-immeuble",
       "slug": "courtier-assurance-immeuble",
-      "status": "boosted",
+      "status": "already-current",
       "position": null,
       "intent": "lead",
       "competitors": [
@@ -70,7 +70,7 @@
       "query": "prix assurance immeuble",
       "target_url": "/prix-assurance-immeuble",
       "slug": "prix-assurance-immeuble",
-      "status": "boosted",
+      "status": "already-current",
       "position": null,
       "intent": "comparison",
       "competitors": [
@@ -95,7 +95,7 @@
       "query": "assurance immeuble syndic benevole",
       "target_url": "/assurance-immeuble-syndic-benevole",
       "slug": "assurance-immeuble-syndic-benevole",
-      "status": "boosted",
+      "status": "already-current",
       "position": null,
       "intent": "niche",
       "competitors": [
@@ -108,6 +108,7 @@
     "no-hidden-text",
     "no-google-scraping",
     "people-first-search-gap-content",
-    "lead-paths-contextualized"
+    "lead-paths-contextualized",
+    "faq-schema-for-visible-search-gap-questions"
   ]
 }

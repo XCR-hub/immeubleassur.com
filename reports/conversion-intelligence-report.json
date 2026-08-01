@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-01T09:48:46.503Z",
-  "pages_checked": 173,
+  "generated_at": "2026-08-01T10:12:05.950Z",
+  "pages_checked": 174,
   "money_pages_checked": 114,
   "cluster_count": 11,
   "cluster_detection": {
@@ -57,7 +57,7 @@
       "cluster": "pno-cno",
       "pages": 13,
       "money_pages": 11,
-      "average_score": 82,
+      "average_score": 83,
       "top_pages": [
         {
           "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
@@ -95,7 +95,7 @@
       "cluster": "sinistre-resilie",
       "pages": 14,
       "money_pages": 7,
-      "average_score": 75,
+      "average_score": 76,
       "top_pages": [
         {
           "slug": "blog/assurance-immeuble-sans-sinistre",
@@ -133,7 +133,7 @@
       "cluster": "devis-courtier",
       "pages": 14,
       "money_pages": 6,
-      "average_score": 68,
+      "average_score": 69,
       "top_pages": [
         {
           "slug": "assurance-immeuble",
@@ -146,6 +146,11 @@
           "score": 90
         },
         {
+          "slug": "courtier-assurance-immeuble",
+          "url": "https://immeubleassur.com/courtier-assurance-immeuble",
+          "score": 87
+        },
+        {
           "slug": "devis-assurance-immeuble",
           "url": "https://immeubleassur.com/devis-assurance-immeuble",
           "score": 87
@@ -154,11 +159,6 @@
           "slug": "devis-assurance-immeuble-en-ligne",
           "url": "https://immeubleassur.com/devis-assurance-immeuble-en-ligne",
           "score": 84
-        },
-        {
-          "slug": "courtier-assurance-immeuble",
-          "url": "https://immeubleassur.com/courtier-assurance-immeuble",
-          "score": 80
         },
         {
           "slug": "index",
@@ -209,7 +209,7 @@
       "cluster": "sci-bailleur",
       "pages": 11,
       "money_pages": 4,
-      "average_score": 71,
+      "average_score": 72,
       "top_pages": [
         {
           "slug": "assurance-immeuble-locatif",
@@ -232,13 +232,13 @@
           "score": 80
         },
         {
-          "slug": "blog/assurance-immeuble-protection-du-patrimoine",
-          "url": "https://immeubleassur.com/blog/assurance-immeuble-protection-du-patrimoine",
-          "score": 71
+          "slug": "assurance-sci",
+          "url": "https://immeubleassur.com/assurance-sci",
+          "score": 76
         },
         {
-          "slug": "blog/sci-familiale-immeuble",
-          "url": "https://immeubleassur.com/blog/sci-familiale-immeuble",
+          "slug": "blog/assurance-immeuble-protection-du-patrimoine",
+          "url": "https://immeubleassur.com/blog/assurance-immeuble-protection-du-patrimoine",
           "score": 71
         }
       ]
@@ -247,12 +247,12 @@
       "cluster": "copropriete-syndic",
       "pages": 14,
       "money_pages": 1,
-      "average_score": 72,
+      "average_score": 74,
       "top_pages": [
         {
           "slug": "assurance-copropriete",
           "url": "https://immeubleassur.com/assurance-copropriete",
-          "score": 84
+          "score": 91
         },
         {
           "slug": "blog/assurance-copropriete-avant-ag",
@@ -344,9 +344,9 @@
     },
     {
       "cluster": "newsletter-veille",
-      "pages": 6,
+      "pages": 7,
       "money_pages": 0,
-      "average_score": 59,
+      "average_score": 60,
       "top_pages": [
         {
           "slug": "news/veille-assurance-immeuble-2026-07-29",
@@ -364,6 +364,11 @@
           "score": 62
         },
         {
+          "slug": "news/veille-assurance-immeuble-2026-08-01",
+          "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-01",
+          "score": 62
+        },
+        {
           "slug": "veille-assurance-immeuble",
           "url": "https://immeubleassur.com/veille-assurance-immeuble",
           "score": 62
@@ -372,11 +377,6 @@
           "slug": "newsletter-assurance-immeuble",
           "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
           "score": 55
-        },
-        {
-          "slug": "news/veille-assurance-immeuble-2026-07-28",
-          "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
-          "score": 52
         }
       ]
     },
@@ -659,30 +659,6 @@
         "Ajouter un bloc priorite business PNO/CNO/immeuble.",
         "Renforcer la profondeur utile sans duplication."
       ]
-    },
-    {
-      "slug": "assurance-immeuble-syndic-benevole",
-      "url": "https://immeubleassur.com/assurance-immeuble-syndic-benevole",
-      "cluster": "local",
-      "score": 80,
-      "actions": [
-        "Ajouter le diagnostic express pour qualifier l'intention.",
-        "Ajouter le module dossier pret assureur.",
-        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-        "Renforcer la profondeur utile sans duplication."
-      ]
-    },
-    {
-      "slug": "courtier-assurance-immeuble",
-      "url": "https://immeubleassur.com/courtier-assurance-immeuble",
-      "cluster": "devis-courtier",
-      "score": 80,
-      "actions": [
-        "Ajouter le diagnostic express pour qualifier l'intention.",
-        "Ajouter le module dossier pret assureur.",
-        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-        "Renforcer la profondeur utile sans duplication."
-      ]
     }
   ],
   "actions": [
@@ -755,22 +731,6 @@
       "source": "conversion-intelligence",
       "url": "https://immeubleassur.com/assurance-immeuble-paris",
       "cluster": "local",
-      "score": 80,
-      "action": "Ajouter le diagnostic express pour qualifier l'intention."
-    },
-    {
-      "priority": "medium",
-      "source": "conversion-intelligence",
-      "url": "https://immeubleassur.com/assurance-immeuble-syndic-benevole",
-      "cluster": "local",
-      "score": 80,
-      "action": "Ajouter le diagnostic express pour qualifier l'intention."
-    },
-    {
-      "priority": "medium",
-      "source": "conversion-intelligence",
-      "url": "https://immeubleassur.com/courtier-assurance-immeuble",
-      "cluster": "devis-courtier",
       "score": 80,
       "action": "Ajouter le diagnostic express pour qualifier l'intention."
     }
