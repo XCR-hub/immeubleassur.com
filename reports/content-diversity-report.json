@@ -1,10 +1,27 @@
 {
-  "generated_at": "2026-08-01T10:01:27.530Z",
-  "pages_checked": 177,
-  "pages_changed": 14,
-  "paragraphs_contextualized": 0,
-  "quality_support_pages": 23,
-  "replacement_families": [],
+  "generated_at": "2026-08-01T10:26:36.924Z",
+  "pages_checked": 185,
+  "pages_changed": 19,
+  "paragraphs_contextualized": 32,
+  "quality_support_pages": 21,
+  "replacement_families": [
+    {
+      "id": "search-gap-method",
+      "count": 8
+    },
+    {
+      "id": "search-gap-safeguard",
+      "count": 8
+    },
+    {
+      "id": "search-gap-near-quote",
+      "count": 8
+    },
+    {
+      "id": "search-gap-form-context",
+      "count": 8
+    }
+  ],
   "safeguards": [
     "visible-content-only",
     "no-hidden-keywords",
@@ -13,6 +30,176 @@
     "people-first-context"
   ],
   "sample": [
+    {
+      "slug": "assurance-coproprietaire-non-occupant",
+      "url": "https://immeubleassur.com/assurance-coproprietaire-non-occupant",
+      "changed": true,
+      "replacements": [
+        {
+          "id": "search-gap-method",
+          "count": 1
+        },
+        {
+          "id": "search-gap-safeguard",
+          "count": 1
+        },
+        {
+          "id": "search-gap-near-quote",
+          "count": 1
+        },
+        {
+          "id": "search-gap-form-context",
+          "count": 1
+        }
+      ],
+      "replacements_count": 4,
+      "quality_support_added": false,
+      "quality_needs": {
+        "depth": false,
+        "faq": false,
+        "cta": false,
+        "words": 800,
+        "detailsCount": 7,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "assurance-copropriete",
+      "url": "https://immeubleassur.com/assurance-copropriete",
+      "changed": true,
+      "replacements": [
+        {
+          "id": "search-gap-method",
+          "count": 1
+        },
+        {
+          "id": "search-gap-safeguard",
+          "count": 1
+        },
+        {
+          "id": "search-gap-near-quote",
+          "count": 1
+        },
+        {
+          "id": "search-gap-form-context",
+          "count": 1
+        }
+      ],
+      "replacements_count": 4,
+      "quality_support_added": false,
+      "quality_needs": {
+        "depth": false,
+        "faq": false,
+        "cta": false,
+        "words": 786,
+        "detailsCount": 6,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "assurance-immeuble-syndic-benevole",
+      "url": "https://immeubleassur.com/assurance-immeuble-syndic-benevole",
+      "changed": true,
+      "replacements": [
+        {
+          "id": "search-gap-method",
+          "count": 1
+        },
+        {
+          "id": "search-gap-safeguard",
+          "count": 1
+        },
+        {
+          "id": "search-gap-near-quote",
+          "count": 1
+        },
+        {
+          "id": "search-gap-form-context",
+          "count": 1
+        }
+      ],
+      "replacements_count": 4,
+      "quality_support_added": false,
+      "quality_needs": {
+        "depth": false,
+        "faq": false,
+        "cta": false,
+        "words": 784,
+        "detailsCount": 8,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "assurance-pno-cno",
+      "url": "https://immeubleassur.com/assurance-pno-cno",
+      "changed": true,
+      "replacements": [
+        {
+          "id": "search-gap-method",
+          "count": 1
+        },
+        {
+          "id": "search-gap-safeguard",
+          "count": 1
+        },
+        {
+          "id": "search-gap-near-quote",
+          "count": 1
+        },
+        {
+          "id": "search-gap-form-context",
+          "count": 1
+        }
+      ],
+      "replacements_count": 4,
+      "quality_support_added": false,
+      "quality_needs": {
+        "depth": false,
+        "faq": false,
+        "cta": false,
+        "words": 715,
+        "detailsCount": 7,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "assurance-sci",
+      "url": "https://immeubleassur.com/assurance-sci",
+      "changed": true,
+      "replacements": [
+        {
+          "id": "search-gap-method",
+          "count": 1
+        },
+        {
+          "id": "search-gap-safeguard",
+          "count": 1
+        },
+        {
+          "id": "search-gap-near-quote",
+          "count": 1
+        },
+        {
+          "id": "search-gap-form-context",
+          "count": 1
+        }
+      ],
+      "replacements_count": 4,
+      "quality_support_added": false,
+      "quality_needs": {
+        "depth": false,
+        "faq": false,
+        "cta": false,
+        "words": 836,
+        "detailsCount": 6,
+        "form": true,
+        "primaryCta": true
+      }
+    },
     {
       "slug": "blog/assurance-copropriete-obligatoire",
       "url": "https://immeubleassur.com/blog/assurance-copropriete-obligatoire",
@@ -150,19 +337,36 @@
       }
     },
     {
-      "slug": "blog",
-      "url": "https://immeubleassur.com/blog",
+      "slug": "courtier-assurance-immeuble",
+      "url": "https://immeubleassur.com/courtier-assurance-immeuble",
       "changed": true,
-      "replacements": [],
-      "replacements_count": 0,
-      "quality_support_added": true,
+      "replacements": [
+        {
+          "id": "search-gap-method",
+          "count": 1
+        },
+        {
+          "id": "search-gap-safeguard",
+          "count": 1
+        },
+        {
+          "id": "search-gap-near-quote",
+          "count": 1
+        },
+        {
+          "id": "search-gap-form-context",
+          "count": 1
+        }
+      ],
+      "replacements_count": 4,
+      "quality_support_added": false,
       "quality_needs": {
         "depth": false,
-        "faq": true,
+        "faq": false,
         "cta": false,
-        "words": 1198,
-        "detailsCount": 0,
-        "form": false,
+        "words": 844,
+        "detailsCount": 8,
+        "form": true,
         "primaryCta": true
       }
     },
@@ -184,18 +388,35 @@
       }
     },
     {
-      "slug": "index",
-      "url": "https://immeubleassur.com/",
+      "slug": "multirisque-immeuble",
+      "url": "https://immeubleassur.com/multirisque-immeuble",
       "changed": true,
-      "replacements": [],
-      "replacements_count": 0,
-      "quality_support_added": true,
+      "replacements": [
+        {
+          "id": "search-gap-method",
+          "count": 1
+        },
+        {
+          "id": "search-gap-safeguard",
+          "count": 1
+        },
+        {
+          "id": "search-gap-near-quote",
+          "count": 1
+        },
+        {
+          "id": "search-gap-form-context",
+          "count": 1
+        }
+      ],
+      "replacements_count": 4,
+      "quality_support_added": false,
       "quality_needs": {
         "depth": false,
-        "faq": true,
+        "faq": false,
         "cta": false,
-        "words": 1136,
-        "detailsCount": 0,
+        "words": 575,
+        "detailsCount": 3,
         "form": true,
         "primaryCta": true
       }
@@ -211,9 +432,43 @@
         "depth": true,
         "faq": true,
         "cta": false,
-        "words": 318,
+        "words": 378,
         "detailsCount": 0,
         "form": false,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "prix-assurance-immeuble",
+      "url": "https://immeubleassur.com/prix-assurance-immeuble",
+      "changed": true,
+      "replacements": [
+        {
+          "id": "search-gap-method",
+          "count": 1
+        },
+        {
+          "id": "search-gap-safeguard",
+          "count": 1
+        },
+        {
+          "id": "search-gap-near-quote",
+          "count": 1
+        },
+        {
+          "id": "search-gap-form-context",
+          "count": 1
+        }
+      ],
+      "replacements_count": 4,
+      "quality_support_added": false,
+      "quality_needs": {
+        "depth": false,
+        "faq": false,
+        "cta": false,
+        "words": 940,
+        "detailsCount": 3,
+        "form": true,
         "primaryCta": true
       }
     },
@@ -228,24 +483,7 @@
         "depth": false,
         "faq": true,
         "cta": false,
-        "words": 1168,
-        "detailsCount": 0,
-        "form": false,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "villes",
-      "url": "https://immeubleassur.com/villes",
-      "changed": true,
-      "replacements": [],
-      "replacements_count": 0,
-      "quality_support_added": true,
-      "quality_needs": {
-        "depth": false,
-        "faq": true,
-        "cta": false,
-        "words": 509,
+        "words": 1228,
         "detailsCount": 0,
         "form": false,
         "primaryCta": true

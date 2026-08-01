@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-01T10:12:05.950Z",
-  "pages_checked": 174,
-  "money_pages_checked": 114,
+  "generated_at": "2026-08-01T10:39:48.314Z",
+  "pages_checked": 182,
+  "money_pages_checked": 118,
   "cluster_count": 11,
   "cluster_detection": {
     "strategy": "slug-title-description-h1",
@@ -55,9 +55,9 @@
     },
     {
       "cluster": "pno-cno",
-      "pages": 13,
-      "money_pages": 11,
-      "average_score": 83,
+      "pages": 15,
+      "money_pages": 13,
+      "average_score": 84,
       "top_pages": [
         {
           "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
@@ -68,6 +68,11 @@
           "slug": "blog/pno-obligatoire-copropriete",
           "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
           "score": 94
+        },
+        {
+          "slug": "blog/coproprietaire-non-occupant-documents-devis",
+          "url": "https://immeubleassur.com/blog/coproprietaire-non-occupant-documents-devis",
+          "score": 90
         },
         {
           "slug": "blog/pno-bailleur-copropriete",
@@ -82,11 +87,6 @@
         {
           "slug": "assurance-cno",
           "url": "https://immeubleassur.com/assurance-cno",
-          "score": 84
-        },
-        {
-          "slug": "assurance-pno-cno",
-          "url": "https://immeubleassur.com/assurance-pno-cno",
           "score": 84
         }
       ]
@@ -131,9 +131,9 @@
     },
     {
       "cluster": "devis-courtier",
-      "pages": 14,
-      "money_pages": 6,
-      "average_score": 69,
+      "pages": 16,
+      "money_pages": 7,
+      "average_score": 70,
       "top_pages": [
         {
           "slug": "assurance-immeuble",
@@ -143,6 +143,11 @@
         {
           "slug": "blog/checklist-documents-devis-immeuble",
           "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
+          "score": 90
+        },
+        {
+          "slug": "blog/mandat-courtier-assurance-immeuble-consultation",
+          "url": "https://immeubleassur.com/blog/mandat-courtier-assurance-immeuble-consultation",
           "score": 90
         },
         {
@@ -159,19 +164,14 @@
           "slug": "devis-assurance-immeuble-en-ligne",
           "url": "https://immeubleassur.com/devis-assurance-immeuble-en-ligne",
           "score": 84
-        },
-        {
-          "slug": "index",
-          "url": "https://immeubleassur.com/",
-          "score": 76
         }
       ]
     },
     {
       "cluster": "prix-tarif",
-      "pages": 8,
-      "money_pages": 4,
-      "average_score": 74,
+      "pages": 9,
+      "money_pages": 5,
+      "average_score": 76,
       "top_pages": [
         {
           "slug": "prix-assurance-immeuble",
@@ -181,6 +181,11 @@
         {
           "slug": "blog/prix-assurance-immeuble-au-m2",
           "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-au-m2",
+          "score": 90
+        },
+        {
+          "slug": "blog/prix-assurance-immeuble-franchises-reste-a-charge",
+          "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-franchises-reste-a-charge",
           "score": 90
         },
         {
@@ -197,17 +202,12 @@
           "slug": "blog/audit-franchises-assurance-immeuble",
           "url": "https://immeubleassur.com/blog/audit-franchises-assurance-immeuble",
           "score": 75
-        },
-        {
-          "slug": "blog/franchise-degat-des-eaux-immeuble",
-          "url": "https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble",
-          "score": 63
         }
       ]
     },
     {
       "cluster": "sci-bailleur",
-      "pages": 11,
+      "pages": 12,
       "money_pages": 4,
       "average_score": 72,
       "top_pages": [
@@ -237,15 +237,15 @@
           "score": 76
         },
         {
-          "slug": "blog/assurance-immeuble-protection-du-patrimoine",
-          "url": "https://immeubleassur.com/blog/assurance-immeuble-protection-du-patrimoine",
-          "score": 71
+          "slug": "blog/assurance-sci-immeuble-cartographie-patrimoine",
+          "url": "https://immeubleassur.com/blog/assurance-sci-immeuble-cartographie-patrimoine",
+          "score": 75
         }
       ]
     },
     {
       "cluster": "copropriete-syndic",
-      "pages": 14,
+      "pages": 16,
       "money_pages": 1,
       "average_score": 74,
       "top_pages": [
@@ -275,9 +275,9 @@
           "score": 79
         },
         {
-          "slug": "blog/assurance-copropriete-obligatoire",
-          "url": "https://immeubleassur.com/blog/assurance-copropriete-obligatoire",
-          "score": 75
+          "slug": "blog/syndic-benevole-assurance-immeuble-archives-ag",
+          "url": "https://immeubleassur.com/blog/syndic-benevole-assurance-immeuble-archives-ag",
+          "score": 79
         }
       ]
     },

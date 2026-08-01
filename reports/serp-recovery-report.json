@@ -1,0 +1,92 @@
+{
+  "generated_at": "2026-08-01T10:37:46.889Z",
+  "source_run_id": "serp-20260801-262a64c8",
+  "provider": "serpapi",
+  "candidates": 8,
+  "pages_written": 8,
+  "search_index_entries": 8,
+  "sitemap_updated": true,
+  "pages": [
+    {
+      "slug": "blog/dossier-preuve-assurance-copropriete",
+      "url": "https://immeubleassur.com/blog/dossier-preuve-assurance-copropriete",
+      "query": "assurance copropriete",
+      "target_url": "/assurance-copropriete",
+      "position": 4,
+      "status": "near-top3",
+      "word_count": 632
+    },
+    {
+      "slug": "blog/pno-cno-preuves-lot-non-occupant",
+      "url": "https://immeubleassur.com/blog/pno-cno-preuves-lot-non-occupant",
+      "query": "assurance PNO CNO",
+      "target_url": "/assurance-pno-cno",
+      "position": 5,
+      "status": "near-top3",
+      "word_count": 615
+    },
+    {
+      "slug": "blog/coproprietaire-non-occupant-documents-devis",
+      "url": "https://immeubleassur.com/blog/coproprietaire-non-occupant-documents-devis",
+      "query": "assurance coproprietaire non occupant",
+      "target_url": "/assurance-coproprietaire-non-occupant",
+      "position": null,
+      "status": "missing",
+      "word_count": 576
+    },
+    {
+      "slug": "blog/assurance-sci-immeuble-cartographie-patrimoine",
+      "url": "https://immeubleassur.com/blog/assurance-sci-immeuble-cartographie-patrimoine",
+      "query": "assurance SCI immeuble",
+      "target_url": "/assurance-sci",
+      "position": null,
+      "status": "missing",
+      "word_count": 570
+    },
+    {
+      "slug": "blog/mandat-courtier-assurance-immeuble-consultation",
+      "url": "https://immeubleassur.com/blog/mandat-courtier-assurance-immeuble-consultation",
+      "query": "courtier assurance immeuble",
+      "target_url": "/courtier-assurance-immeuble",
+      "position": null,
+      "status": "missing",
+      "word_count": 571
+    },
+    {
+      "slug": "blog/prix-assurance-immeuble-franchises-reste-a-charge",
+      "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-franchises-reste-a-charge",
+      "query": "prix assurance immeuble",
+      "target_url": "/prix-assurance-immeuble",
+      "position": null,
+      "status": "missing",
+      "word_count": 570
+    },
+    {
+      "slug": "blog/multirisque-immeuble-garanties-batiment-preuves",
+      "url": "https://immeubleassur.com/blog/multirisque-immeuble-garanties-batiment-preuves",
+      "query": "multirisque immeuble",
+      "target_url": "/multirisque-immeuble",
+      "position": null,
+      "status": "missing",
+      "word_count": 537
+    },
+    {
+      "slug": "blog/syndic-benevole-assurance-immeuble-archives-ag",
+      "url": "https://immeubleassur.com/blog/syndic-benevole-assurance-immeuble-archives-ag",
+      "query": "assurance immeuble syndic benevole",
+      "target_url": "/assurance-immeuble-syndic-benevole",
+      "position": null,
+      "status": "missing",
+      "word_count": 576
+    }
+  ],
+  "safeguards": [
+    "serpapi-signal-only",
+    "no-google-scraping",
+    "support-pages-not-doorways",
+    "visible-cta",
+    "faq-schema",
+    "canonical-self",
+    "sitemap-lastmod"
+  ]
+}

@@ -1,10 +1,27 @@
 {
-  "generated_at": "2026-08-01T10:01:27.530Z",
-  "pages_checked": 177,
-  "pages_changed": 14,
-  "paragraphs_contextualized": 0,
-  "quality_support_pages": 23,
-  "replacement_families": [],
+  "generated_at": "2026-08-01T10:26:36.924Z",
+  "pages_checked": 185,
+  "pages_changed": 19,
+  "paragraphs_contextualized": 32,
+  "quality_support_pages": 21,
+  "replacement_families": [
+    {
+      "id": "search-gap-method",
+      "count": 8
+    },
+    {
+      "id": "search-gap-safeguard",
+      "count": 8
+    },
+    {
+      "id": "search-gap-near-quote",
+      "count": 8
+    },
+    {
+      "id": "search-gap-form-context",
+      "count": 8
+    }
+  ],
   "safeguards": [
     "visible-content-only",
     "no-hidden-keywords",

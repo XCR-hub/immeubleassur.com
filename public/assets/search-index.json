@@ -1,5 +1,10 @@
 [
   {
+    "title": "Assurance Immeuble et Copropriete - Devis Gratuit",
+    "description": "ImmeubleAssur, courtier specialiste assurance immeuble, copropriete, PNO, multirisque immeuble, SCI et RC syndic.",
+    "url": "/"
+  },
+  {
     "title": "Assurance batiment proprietaire: murs et locaux",
     "description": "Assurance batiment proprietaire pour murs, locaux, dependances, SCI ou bailleur: garanties batiment, RC et audit contrat.",
     "url": "/assurance-batiment-proprietaire"
@@ -18,6 +23,11 @@
     "title": "Assurance copropriete",
     "description": "Assurance copropriete: RC syndicat, multirisque immeuble, protection juridique et audit de contrat pour conseils syndicaux.",
     "url": "/assurance-copropriete"
+  },
+  {
+    "title": "Assurance immeuble multirisque pour bailleurs",
+    "description": "Courtier specialiste assurance immeuble: multirisque, responsabilite civile, PNO, sinistres et audit de garanties.",
+    "url": "/assurance-immeuble"
   },
   {
     "title": "Assurance immeuble Agen",
@@ -455,11 +465,6 @@
     "url": "/assurance-immeuble-villeurbanne"
   },
   {
-    "title": "Assurance immeuble multirisque pour bailleurs",
-    "description": "Courtier specialiste assurance immeuble: multirisque, responsabilite civile, PNO, sinistres et audit de garanties.",
-    "url": "/assurance-immeuble"
-  },
-  {
     "title": "Assurance local commercial bailleur",
     "description": "Assurance local commercial et immeuble mixte: bailleur, copropriete, commerce en rez-de-chaussee, responsabilite et dommages.",
     "url": "/assurance-local-commercial"
@@ -470,14 +475,14 @@
     "url": "/assurance-parties-communes"
   },
   {
-    "title": "Assurance PNO CNO pour bailleurs et SCI",
-    "description": "Comparer assurance PNO et CNO: proprietaire non occupant, coproprietaire non occupant, SCI, lots vacants et portefeuille locatif.",
-    "url": "/assurance-pno-cno"
-  },
-  {
     "title": "Assurance PNO proprietaire non occupant",
     "description": "Assurance PNO bailleur et SCI: garanties essentielles, vacance locative, copropriete, recours locataire et protection du patrimoine.",
     "url": "/assurance-pno"
+  },
+  {
+    "title": "Assurance PNO CNO pour bailleurs et SCI",
+    "description": "Comparer assurance PNO et CNO: proprietaire non occupant, coproprietaire non occupant, SCI, lots vacants et portefeuille locatif.",
+    "url": "/assurance-pno-cno"
   },
   {
     "title": "Assurance SCI patrimoine immobilier",
@@ -488,6 +493,11 @@
     "title": "Audit contrat assurance immeuble",
     "description": "Audit assurance immeuble: franchises, exclusions, plafonds, sinistres, adequation au risque et preparation de consultation assureurs.",
     "url": "/audit-contrat-assurance-immeuble"
+  },
+  {
+    "title": "Blog assurance immeuble",
+    "description": "Articles assurance immeuble, copropriete, PNO, SCI, syndic et sinistres.",
+    "url": "/blog"
   },
   {
     "title": "Immeuble en colocation: questions assurance a poser",
@@ -560,6 +570,11 @@
     "url": "/blog/assurance-parking-garages-copropriete"
   },
   {
+    "title": "Assurance SCI immeuble: cartographier le patrimoine avant devis",
+    "description": "Assurance SCI immeuble: gerance, associes, biens, contrats, echeances, PNO et coherence portefeuille avant consultation.",
+    "url": "/blog/assurance-sci-immeuble-cartographie-patrimoine"
+  },
+  {
     "title": "SCI et patrimoine locatif: eviter les trous de garantie",
     "description": "Regrouper, auditer et comparer les contrats d'une SCI detenant plusieurs biens.",
     "url": "/blog/assurance-sci-patrimoine-locatif"
@@ -585,6 +600,11 @@
     "url": "/blog/cno-coproprietaire-non-occupant-obligatoire"
   },
   {
+    "title": "Coproprietaire non occupant: documents a fournir avant devis",
+    "description": "Coproprietaire non occupant: checklist documents, statut du lot, assurance occupant, vacance et contrat copropriete.",
+    "url": "/blog/coproprietaire-non-occupant-documents-devis"
+  },
+  {
     "title": "Petite copropriete: assurance du syndic benevole",
     "description": "Petite copropriete et syndic benevole: responsabilite, declarations, registre, sinistres, contrat immeuble et documents a conserver.",
     "url": "/blog/copropriete-petite-syndic-benevole"
@@ -593,6 +613,11 @@
     "title": "Dommages ouvrage copropriete: travaux votes",
     "description": "Guide dommages ouvrage copropriete: travaux votes, syndic, entreprises, reception, garanties et documents a reunir.",
     "url": "/blog/dommages-ouvrage-copropriete-travaux"
+  },
+  {
+    "title": "Assurance copropriete: dossier preuve avant consultation assureur",
+    "description": "Guide dossier preuve assurance copropriete: PV, sinistres, lots, travaux, franchises et note conseil syndical avant devis.",
+    "url": "/blog/dossier-preuve-assurance-copropriete"
   },
   {
     "title": "Degat des eaux immeuble: franchises et recherche de fuite",
@@ -615,6 +640,16 @@
     "url": "/blog/local-commercial-vacant"
   },
   {
+    "title": "Courtier assurance immeuble: mandat et consultation du marche",
+    "description": "Courtier assurance immeuble: mandat, cahier des charges, relances assureurs, refus, exclusions et arbitrage d'offres.",
+    "url": "/blog/mandat-courtier-assurance-immeuble-consultation"
+  },
+  {
+    "title": "Multirisque immeuble: preuves garanties batiment avant devis",
+    "description": "Multirisque immeuble: garanties batiment, RC, degat des eaux, incendie, dependances et pieces utiles avant devis.",
+    "url": "/blog/multirisque-immeuble-garanties-batiment-preuves"
+  },
+  {
     "title": "Multirisque immeuble vs PNO: qui couvre quoi",
     "description": "Comparatif multirisque immeuble vs PNO: batiment, parties communes, lot privatif, occupant, bailleur et zones de doublon.",
     "url": "/blog/multirisque-immeuble-vs-pno"
@@ -635,6 +670,11 @@
     "url": "/blog/pno-cno-differences-garanties"
   },
   {
+    "title": "PNO CNO: preuves utiles pour un lot non occupant",
+    "description": "PNO CNO: documents, statut d'occupation, attestation immeuble, occupant, vacance et responsabilite avant devis.",
+    "url": "/blog/pno-cno-preuves-lot-non-occupant"
+  },
+  {
     "title": "PNO obligatoire en copropriete: cas reels",
     "description": "PNO obligatoire en copropriete: responsabilite civile, lot vacant ou loue, syndic, assurance occupant et verification du contrat immeuble.",
     "url": "/blog/pno-obligatoire-copropriete"
@@ -648,6 +688,11 @@
     "title": "Prix assurance immeuble au m2: pourquoi le tarif seul ne suffit pas",
     "description": "Comprendre les facteurs qui font varier une prime d'assurance immeuble au m2 sans perdre de vue les garanties.",
     "url": "/blog/prix-assurance-immeuble-au-m2"
+  },
+  {
+    "title": "Prix assurance immeuble: lire franchises et reste a charge",
+    "description": "Prix assurance immeuble: comprendre prime, franchises, exclusions, sinistres, travaux et reste a charge avant comparaison.",
+    "url": "/blog/prix-assurance-immeuble-franchises-reste-a-charge"
   },
   {
     "title": "Protection juridique copropriete: utile ou accessoire ?",
@@ -685,9 +730,9 @@
     "url": "/blog/syndic-benevole-assurance"
   },
   {
-    "title": "Blog assurance immeuble",
-    "description": "Articles assurance immeuble, copropriete, PNO, SCI, syndic et sinistres.",
-    "url": "/blog"
+    "title": "Syndic benevole: archives assurance immeuble avant AG",
+    "description": "Syndic benevole: archives, mandat, PV, sinistres, echeance et note de vote assurance immeuble avant assemblee generale.",
+    "url": "/blog/syndic-benevole-assurance-immeuble-archives-ag"
   },
   {
     "title": "Checklist documents assurance immeuble",
@@ -715,14 +760,14 @@
     "url": "/courtier-assurance-immeuble"
   },
   {
-    "title": "Devis assurance immeuble en ligne avec analyse",
-    "description": "Devis assurance immeuble en ligne: formulaire qualifiant, garanties, sinistres, franchises et rappel specialise.",
-    "url": "/devis-assurance-immeuble-en-ligne"
-  },
-  {
     "title": "Devis assurance immeuble",
     "description": "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec un dossier qualifie par ImmeubleAssur.",
     "url": "/devis-assurance-immeuble"
+  },
+  {
+    "title": "Devis assurance immeuble en ligne avec analyse",
+    "description": "Devis assurance immeuble en ligne: formulaire qualifiant, garanties, sinistres, franchises et rappel specialise.",
+    "url": "/devis-assurance-immeuble-en-ligne"
   },
   {
     "title": "Devis PNO CNO: qualifier un lot avant rappel",
@@ -733,6 +778,11 @@
     "title": "Dommages ouvrage immeuble",
     "description": "Dommages ouvrage immeuble: ravalement, toiture, renovation lourde, extension, structure et travaux de copropriete.",
     "url": "/dommages-ouvrage-immeuble"
+  },
+  {
+    "title": "FAQ generale assurance immeuble",
+    "description": "Questions frequentes generales sur assurance immeuble, copropriete, PNO, SCI, syndic et multirisque immeuble.",
+    "url": "/faq"
   },
   {
     "title": "FAQ assurance immeuble",
@@ -775,11 +825,6 @@
     "url": "/faq/travaux"
   },
   {
-    "title": "FAQ generale assurance immeuble",
-    "description": "Questions frequentes generales sur assurance immeuble, copropriete, PNO, SCI, syndic et multirisque immeuble.",
-    "url": "/faq"
-  },
-  {
     "title": "Gestion sinistres immeuble",
     "description": "Accompagnement sinistres immeuble: degat des eaux, incendie, tempete, vandalisme, recherche de fuite et recours.",
     "url": "/gestion-sinistres-immeuble"
@@ -793,11 +838,6 @@
     "title": "Guides assurance immeuble",
     "description": "Guides pratiques assurance immeuble, copropriete, documents, comparateur et renouvellement.",
     "url": "/guides"
-  },
-  {
-    "title": "Assurance Immeuble et Copropriete - Devis Gratuit",
-    "description": "ImmeubleAssur, courtier specialiste assurance immeuble, copropriete, PNO, multirisque immeuble, SCI et RC syndic.",
-    "url": "/"
   },
   {
     "title": "Mentions legales",
@@ -830,13 +870,13 @@
     "url": "/news/veille-assurance-immeuble-2026-07-30"
   },
   {
-    "title": "Veille immeuble 31 juillet 2026: dernier signal",
-    "description": "Dernier point de veille assurance immeuble du 31 juillet 2026: signaux utiles pour syndic, PNO CNO, SCI, sinistres et renouvellement.",
+    "title": "Archive veille immeuble 31 juillet 2026",
+    "description": "Archive courte de veille assurance immeuble du 31 juillet 2026: signaux contrats, syndic, PNO CNO et sinistres a relier a la veille permanente.",
     "url": "/news/veille-assurance-immeuble-2026-07-31"
   },
   {
-    "title": "Veille assurance immeuble: assurance, contrats et devis",
-    "description": "Veille assurance immeuble du 2026-08-01: signaux assurance, points contrats et actions devis pour syndics, bailleurs, SCI et PNO/CNO, avec sources Service-Public.fr particuliers.",
+    "title": "Veille immeuble 1 aout 2026: dernier signal",
+    "description": "Dernier point de veille assurance immeuble du 1 aout 2026: signaux utiles pour syndic, PNO CNO, SCI, sinistres et renouvellement.",
     "url": "/news/veille-assurance-immeuble-2026-08-01"
   },
   {

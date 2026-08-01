@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-01T10:01:44.703Z",
+  "generated_at": "2026-08-01T10:39:11.020Z",
   "status": "passed",
   "pages_targeted": 25,
-  "pages_changed": 18,
+  "pages_changed": 14,
   "noindex_pages": 5,
   "news_watch_pages": 5,
   "news_watch_latest_slug": "news/veille-assurance-immeuble-2026-08-01",
   "news_archive_noindex_count": 4,
-  "sitemap_entries_removed": 5,
+  "sitemap_entries_removed": 0,
   "safeguards": [
     "visible-content-only",
     "title-h1-meta-differentiation",
@@ -20,7 +20,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-28",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
-      "changed": true,
+      "changed": false,
       "indexable": false,
       "title": "Archive veille immeuble 28 juillet 2026",
       "h1": "Archive du 28 juillet 2026: signaux assurance immeuble a relire."
@@ -28,7 +28,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-29",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-29",
-      "changed": true,
+      "changed": false,
       "indexable": false,
       "title": "Archive veille immeuble 29 juillet 2026",
       "h1": "Archive du 29 juillet 2026: signaux assurance immeuble a relire."
@@ -196,7 +196,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-30",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-30",
-      "changed": true,
+      "changed": false,
       "indexable": false,
       "title": "Archive veille immeuble 30 juillet 2026",
       "h1": "Archive du 30 juillet 2026: signaux assurance immeuble a relire."
@@ -204,7 +204,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-31",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-31",
-      "changed": true,
+      "changed": false,
       "indexable": false,
       "title": "Archive veille immeuble 31 juillet 2026",
       "h1": "Archive du 31 juillet 2026: signaux assurance immeuble a relire."

@@ -1,82 +1,12 @@
 {
-  "generated_at": "2026-08-01T10:12:06.379Z",
-  "pages_checked": 178,
+  "generated_at": "2026-08-01T10:39:47.994Z",
+  "pages_checked": 186,
   "status": "passed",
   "severe_issue_count": 0,
   "warning_count": 0,
   "duplicate_titles": [],
   "duplicate_descriptions": [],
   "repeated_paragraph_clusters": [
-    {
-      "fingerprint": "ce renforcement transforme le signal de classement en contenu utile intention preuves de specialisation questions de decision et passage direct vers un dossier de devis exploitable",
-      "pages": [
-        "assurance-coproprietaire-non-occupant",
-        "assurance-copropriete",
-        "assurance-immeuble-syndic-benevole",
-        "assurance-pno-cno",
-        "assurance-sci",
-        "courtier-assurance-immeuble",
-        "multirisque-immeuble",
-        "prix-assurance-immeuble"
-      ],
-      "count": 8
-    },
-    {
-      "fingerprint": "parce que la recherche exprime un besoin proche du devis comprendre le risque preparer les pieces et choisir les garanties avant consultation assureur",
-      "pages": [
-        "assurance-coproprietaire-non-occupant",
-        "assurance-copropriete",
-        "assurance-immeuble-syndic-benevole",
-        "assurance-pno-cno",
-        "assurance-sci",
-        "courtier-assurance-immeuble",
-        "multirisque-immeuble",
-        "prix-assurance-immeuble"
-      ],
-      "count": 8
-    },
-    {
-      "fingerprint": "un formulaire contextualise des documents attendus explicites et une lecture claire des responsabilites entre immeuble lot occupant et proprietaire",
-      "pages": [
-        "assurance-coproprietaire-non-occupant",
-        "assurance-copropriete",
-        "assurance-immeuble-syndic-benevole",
-        "assurance-pno-cno",
-        "assurance-sci",
-        "courtier-assurance-immeuble",
-        "multirisque-immeuble",
-        "prix-assurance-immeuble"
-      ],
-      "count": 8
-    },
-    {
-      "fingerprint": "le bloc ajoute des decisions concretes et des liens utiles il n ajoute ni texte cache ni duplication massive ni contenu copie depuis les resultats de recherche",
-      "pages": [
-        "assurance-coproprietaire-non-occupant",
-        "assurance-copropriete",
-        "assurance-immeuble-syndic-benevole",
-        "assurance-pno-cno",
-        "assurance-sci",
-        "courtier-assurance-immeuble",
-        "multirisque-immeuble",
-        "prix-assurance-immeuble"
-      ],
-      "count": 8
-    },
-    {
-      "fingerprint": "cette consolidation evite les pages trop courtes et les demandes mal qualifiees elle aide le visiteur a comprendre ce qui influence le devis usage du batiment responsabilites garanties et reste a charge mais aussi les fr",
-      "pages": [
-        "audit-contrat-assurance-immeuble",
-        "blog/checklist-documents-devis-immeuble",
-        "blog/preparer-renouvellement-assurance-immeuble",
-        "checklist-documents-assurance-immeuble",
-        "contact",
-        "guides",
-        "multirisque-immeuble",
-        "newsletter-assurance-immeuble"
-      ],
-      "count": 8
-    },
     {
       "fingerprint": "preparez contrat actuel echeance sinistres lots surface et travaux ajoutez les baux les photos les travaux prevus ou les pv d assemblee lorsqu ils expliquent le risque",
       "pages": [
@@ -124,11 +54,10 @@
         "guides",
         "index",
         "newsletter-assurance-immeuble",
-        "prix-assurance-immeuble",
         "veille-assurance-immeuble",
         "villes"
       ],
-      "count": 17
+      "count": 16
     },
     {
       "fingerprint": "cette lecture protege la decision elle evite de choisir une offre uniquement parce qu elle semble moins chere ou plus simple a premiere vue",
@@ -164,16 +93,19 @@
         "blog/assurance-lot-vacant-copropriete",
         "blog/assurance-parking-garages-copropriete",
         "blog/cno-coproprietaire-non-occupant-obligatoire",
+        "blog/coproprietaire-non-occupant-documents-devis",
         "blog/copropriete-petite-syndic-benevole",
         "blog/dommages-ouvrage-copropriete-travaux",
+        "blog/dossier-preuve-assurance-copropriete",
         "blog/pno-bailleur-copropriete",
         "blog/pno-obligatoire-copropriete",
         "blog/protection-juridique-copropriete",
         "blog/renovation-energetique-copropriete-assurance",
+        "blog/syndic-benevole-assurance-immeuble-archives-ag",
         "blog/syndic-benevole-assurance",
         "faq/copropriete"
       ],
-      "count": 13
+      "count": 16
     },
     {
       "fingerprint": "une page copropriete doit permettre de passer d 39 une question juridique ou pratique a un contrat lisible pour l 39 immeuble et les parties communes",
@@ -183,10 +115,41 @@
         "blog/assurance-parking-garages-copropriete",
         "blog/copropriete-petite-syndic-benevole",
         "blog/dommages-ouvrage-copropriete-travaux",
+        "blog/dossier-preuve-assurance-copropriete",
         "blog/protection-juridique-copropriete",
         "blog/renovation-energetique-copropriete-assurance",
+        "blog/syndic-benevole-assurance-immeuble-archives-ag",
         "blog/syndic-benevole-assurance",
         "faq/copropriete"
+      ],
+      "count": 11
+    },
+    {
+      "fingerprint": "sci bailleur et immeuble de rapport doivent presenter lots occupations contrats existants vacance et sinistres pour eviter les doublons",
+      "pages": [
+        "blog/assurance-immeuble-etudiant",
+        "blog/assurance-immeuble-local-professionnel",
+        "blog/assurance-immeuble-protection-du-patrimoine",
+        "blog/assurance-sci-immeuble-cartographie-patrimoine",
+        "blog/assurance-sci-patrimoine-locatif",
+        "blog/sci-familiale-immeuble",
+        "faq/pno",
+        "faq/sci"
+      ],
+      "count": 8
+    },
+    {
+      "fingerprint": "quand la recherche porte sur un lot une vacance ou un coproprietaire non occupant le maillage doit envoyer vers la page qui qualifie vraiment le dossier",
+      "pages": [
+        "blog/assurance-lot-vacant-copropriete",
+        "blog/cno-coproprietaire-non-occupant-obligatoire",
+        "blog/coproprietaire-non-occupant-documents-devis",
+        "blog/multirisque-immeuble-vs-pno",
+        "blog/pno-bailleur-copropriete",
+        "blog/pno-cno-differences-garanties",
+        "blog/pno-cno-preuves-lot-non-occupant",
+        "blog/pno-obligatoire-copropriete",
+        "faq/pno"
       ],
       "count": 9
     }

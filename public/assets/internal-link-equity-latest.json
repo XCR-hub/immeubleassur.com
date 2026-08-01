@@ -1,25 +1,29 @@
 {
-  "generated_at": "2026-08-01T10:01:52.851Z",
+  "generated_at": "2026-08-01T10:39:11.788Z",
   "status": "passed",
-  "pages_checked": 178,
-  "pages_targeted": 49,
-  "pages_changed": 23,
-  "links_added": 92,
-  "pages_with_active_blocks": 52,
-  "active_internal_links": 205,
+  "pages_checked": 186,
+  "pages_targeted": 57,
+  "pages_changed": 22,
+  "links_added": 88,
+  "pages_with_active_blocks": 60,
+  "active_internal_links": 237,
   "noindex_skipped": 6,
   "lead_pages_skipped": 6,
   "cluster_targets": [
     {
       "cluster": "default",
-      "count": 10
+      "count": 12
     },
     {
       "cluster": "copropriete-syndic",
-      "count": 9
+      "count": 11
     },
     {
       "cluster": "pno-cno",
+      "count": 9
+    },
+    {
+      "cluster": "sci-bailleur",
       "count": 7
     },
     {
@@ -27,16 +31,12 @@
       "count": 7
     },
     {
-      "cluster": "sci-bailleur",
-      "count": 6
-    },
-    {
       "cluster": "local-commercial",
       "count": 4
     },
     {
       "cluster": "prix-tarif",
-      "count": 3
+      "count": 4
     },
     {
       "cluster": "travaux",
@@ -64,24 +64,10 @@
       "links_added": 4
     },
     {
-      "slug": "blog/assurance-copropriete-obligatoire",
-      "type": "blog",
-      "cluster": "copropriete-syndic",
-      "previous_internal_links": 16,
-      "links_added": 4
-    },
-    {
       "slug": "blog/assurance-immeuble-apres-refus-assureur",
       "type": "blog",
       "cluster": "sinistre-resilie",
       "previous_internal_links": 17,
-      "links_added": 4
-    },
-    {
-      "slug": "blog/assurance-immeuble-mixte-commerce",
-      "type": "blog",
-      "cluster": "local-commercial",
-      "previous_internal_links": 16,
       "links_added": 4
     },
     {
@@ -92,17 +78,10 @@
       "links_added": 4
     },
     {
-      "slug": "blog/assurance-sci-patrimoine-locatif",
+      "slug": "blog/assurance-sci-immeuble-cartographie-patrimoine",
       "type": "blog",
       "cluster": "sci-bailleur",
-      "previous_internal_links": 16,
-      "links_added": 4
-    },
-    {
-      "slug": "blog/checklist-documents-devis-immeuble",
-      "type": "blog",
-      "cluster": "default",
-      "previous_internal_links": 16,
+      "previous_internal_links": 13,
       "links_added": 4
     },
     {
@@ -120,6 +99,13 @@
       "links_added": 4
     },
     {
+      "slug": "blog/coproprietaire-non-occupant-documents-devis",
+      "type": "blog",
+      "cluster": "pno-cno",
+      "previous_internal_links": 13,
+      "links_added": 4
+    },
+    {
       "slug": "blog/copropriete-petite-syndic-benevole",
       "type": "blog",
       "cluster": "copropriete-syndic",
@@ -134,10 +120,24 @@
       "links_added": 4
     },
     {
-      "slug": "blog/franchise-degat-des-eaux-immeuble",
+      "slug": "blog/dossier-preuve-assurance-copropriete",
       "type": "blog",
-      "cluster": "sinistre-resilie",
-      "previous_internal_links": 16,
+      "cluster": "copropriete-syndic",
+      "previous_internal_links": 13,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/mandat-courtier-assurance-immeuble-consultation",
+      "type": "blog",
+      "cluster": "default",
+      "previous_internal_links": 13,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/multirisque-immeuble-garanties-batiment-preuves",
+      "type": "blog",
+      "cluster": "default",
+      "previous_internal_links": 13,
       "links_added": 4
     },
     {
@@ -148,17 +148,17 @@
       "links_added": 4
     },
     {
-      "slug": "blog/pno-bailleur-copropriete",
-      "type": "blog",
-      "cluster": "pno-cno",
-      "previous_internal_links": 16,
-      "links_added": 4
-    },
-    {
       "slug": "blog/pno-cno-differences-garanties",
       "type": "blog",
       "cluster": "pno-cno",
       "previous_internal_links": 14,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/pno-cno-preuves-lot-non-occupant",
+      "type": "blog",
+      "cluster": "pno-cno",
+      "previous_internal_links": 13,
       "links_added": 4
     },
     {
@@ -169,10 +169,10 @@
       "links_added": 4
     },
     {
-      "slug": "blog/preparer-renouvellement-assurance-immeuble",
+      "slug": "blog/prix-assurance-immeuble-franchises-reste-a-charge",
       "type": "blog",
-      "cluster": "default",
-      "previous_internal_links": 14,
+      "cluster": "prix-tarif",
+      "previous_internal_links": 13,
       "links_added": 4
     },
     {
@@ -197,24 +197,17 @@
       "links_added": 4
     },
     {
-      "slug": "blog/syndic-benevole-assurance",
+      "slug": "blog/syndic-benevole-assurance-immeuble-archives-ag",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 16,
-      "links_added": 4
-    },
-    {
-      "slug": "faq",
-      "type": "faq",
-      "cluster": "default",
-      "previous_internal_links": 42,
+      "previous_internal_links": 13,
       "links_added": 4
     },
     {
       "slug": "news/veille-assurance-immeuble-2026-08-01",
       "type": "news",
       "cluster": "newsletter-veille",
-      "previous_internal_links": 16,
+      "previous_internal_links": 22,
       "links_added": 4
     }
   ]

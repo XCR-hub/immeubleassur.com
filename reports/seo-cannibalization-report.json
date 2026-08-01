@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-01T10:12:06.551Z",
+  "generated_at": "2026-08-01T10:39:47.744Z",
   "status": "passed",
-  "pages_checked": 169,
+  "pages_checked": 177,
   "clusters_checked": 11,
   "high_risk_count": 0,
   "medium_risk_count": 0,
@@ -86,12 +86,12 @@
     },
     {
       "cluster": "copropriete-syndic",
-      "pages": 16,
+      "pages": 18,
       "primary_slug": "assurance-copropriete",
       "type_mix": [
         {
           "type": "blog",
-          "count": 8
+          "count": 10
         },
         {
           "type": "service",
@@ -104,27 +104,27 @@
       ],
       "representative_terms": [
         "aller",
-        "coproprietaires",
-        "communes",
         "quand",
+        "coproprietaires",
         "benevole",
+        "communes",
+        "assemblee",
         "civile",
         "multirisque",
         "parties",
-        "dommages",
-        "principal",
-        "arbitrage",
-        "archives"
+        "archives",
+        "comment",
+        "dommages"
       ]
     },
     {
       "cluster": "pno-cno",
-      "pages": 13,
+      "pages": 15,
       "primary_slug": "pno-cno",
       "type_mix": [
         {
           "type": "blog",
-          "count": 6
+          "count": 8
         },
         {
           "type": "service",
@@ -146,29 +146,29 @@
       "representative_terms": [
         "occupant",
         "aller",
-        "civile",
         "coproprietaire",
-        "vacant",
-        "quand",
         "statut",
-        "biens",
+        "vacant",
+        "civile",
+        "quand",
         "attestation",
-        "comprendre",
+        "biens",
         "logement",
-        "multirisque"
+        "comprendre",
+        "locataire"
       ]
     },
     {
       "cluster": "sci-bailleur",
-      "pages": 11,
+      "pages": 12,
       "primary_slug": "assurance-sci",
       "type_mix": [
         {
-          "type": "service",
-          "count": 5
+          "type": "blog",
+          "count": 6
         },
         {
-          "type": "blog",
+          "type": "service",
           "count": 5
         },
         {
@@ -180,15 +180,15 @@
         "locatif",
         "multirisque",
         "aller",
+        "biens",
         "locative",
         "occupants",
-        "biens",
         "patrimoine",
-        "principal",
         "quand",
-        "commerce",
-        "dependances",
-        "eviter"
+        "gerant",
+        "principal",
+        "coherence",
+        "commerce"
       ]
     },
     {
@@ -226,41 +226,41 @@
     },
     {
       "cluster": "devis-courtier",
-      "pages": 6,
+      "pages": 8,
       "primary_slug": "devis-assurance-immeuble",
       "type_mix": [
         {
-          "type": "lead",
+          "type": "blog",
           "count": 4
         },
         {
-          "type": "blog",
-          "count": 2
+          "type": "lead",
+          "count": 4
         }
       ],
       "representative_terms": [
         "batiment",
         "aller",
+        "comment",
         "complet",
         "ligne",
+        "mandat",
+        "offres",
         "acceder",
+        "arbitrage",
         "assure",
         "assurer",
-        "checklist",
-        "comment",
-        "decision",
-        "demandes",
-        "exploitable"
+        "cahier"
       ]
     },
     {
       "cluster": "prix-tarif",
-      "pages": 5,
+      "pages": 6,
       "primary_slug": "prix-assurance-immeuble",
       "type_mix": [
         {
           "type": "blog",
-          "count": 2
+          "count": 3
         },
         {
           "type": "service",
@@ -273,17 +273,17 @@
       ],
       "representative_terms": [
         "comprendre",
-        "budget",
-        "aller",
         "arbitrage",
-        "changent",
+        "budget",
         "charge",
         "comparaison",
         "historique",
-        "ligne",
-        "probable",
         "quand",
-        "reste"
+        "reste",
+        "tarif",
+        "aller",
+        "changent",
+        "comment"
       ]
     },
     {

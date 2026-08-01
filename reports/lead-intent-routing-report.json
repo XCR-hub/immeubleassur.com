@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T10:12:05.411Z",
+  "generated_at": "2026-08-01T10:39:06.171Z",
   "status": "passed",
   "checked_files": [
     "public/assets/app.js",
@@ -41,7 +41,7 @@
   "missing_required_intent_links": [],
   "missing_money_intent_links": [],
   "bridge_status": "passed",
-  "active_bridges": 44,
+  "active_bridges": 51,
   "missing": [],
   "safeguards": [
     "query intent prefills form",
