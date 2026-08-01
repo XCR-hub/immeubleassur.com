@@ -34,13 +34,27 @@ function normalizedSeverity(value) {
   return "";
 }
 
+function severityFromSourceStage(value) {
+  const stage = clean(value, 80).toLowerCase();
+  if (stage === "submit-without-lead") return "critical";
+  if (["lead-growth", "start-without-submit", "urgency-without-start"].includes(stage)) return "high";
+  if (["click-without-start", "traffic-without-click"].includes(stage)) return "medium";
+  if (stage === "signal-watch") return "low";
+  return "";
+}
+
 function severityFromOpportunity(row) {
   const payload = parseJson(row.payload);
-  const explicit = normalizedSeverity(payload.severity) || normalizedSeverity(payload.source_stage_severity);
+  const explicit = normalizedSeverity(payload.severity) || normalizedSeverity(payload.source_stage_severity) || severityFromSourceStage(payload.source_stage);
   if (explicit) return explicit;
   const type = clean(row.opportunity_type, 120).toLowerCase();
   if (type.includes("submit-without-lead") || type.includes("aucun-lead-global")) return "critical";
   if (type.includes("start-without-submit") || type.includes("aucun-submit-global")) return "high";
+  if (type === "qualified-source-growth") {
+    if (Number(payload.submit_attempts || 0) > 0) return "critical";
+    if (Number(payload.form_starts || 0) > 0 || Number(payload.urgency_selects || 0) > 0) return "high";
+    return Number(payload.quality_score || 0) >= 120 ? "high" : "medium";
+  }
   const score = Number(row.score || 0);
   if (score >= 90) return "critical";
   if (score >= 80) return "high";

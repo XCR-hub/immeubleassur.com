@@ -105,6 +105,7 @@ function normalizeSourceQualityOpportunity(item, report, runId, now) {
   const submitAttempts = Number(item.submit_attempts || 0);
   const sourceStage = clean(item.source_stage || "", 80);
   const sourceStageLabel = clean(item.source_stage_label || "", 120);
+  const sourceStageSeverity = clean(item.source_stage_severity || "", 40);
   const sourceStageAction = clean(item.source_stage_action || "", 900);
   const score = Math.min(100, Math.max(78, Math.round(Number(item.quality_score || 0))));
   const queryPrefix = sourceStageLabel ? `${sourceStageLabel}: ` : "";
@@ -130,6 +131,7 @@ function normalizeSourceQualityOpportunity(item, report, runId, now) {
       quality_basis: item.quality_basis || "",
       source_stage: sourceStage,
       source_stage_label: sourceStageLabel,
+      source_stage_severity: sourceStageSeverity,
       leads,
       hot_leads: Number(item.hot_leads || 0),
       warm_leads: Number(item.warm_leads || 0),
