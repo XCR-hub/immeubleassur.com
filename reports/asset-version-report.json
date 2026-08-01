@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-08-01T01:56:47.413Z",
+  "generated_at": "2026-08-01T02:06:19.891Z",
   "files_checked": 177,
   "files_changed": 177,
-  "replacements": 354,
+  "replacements": 353,
   "assets": {
-    "styles": "/assets/styles.css?v=2fc09f5780",
-    "app": "/assets/app.js?v=e768c1ac68",
+    "styles": "/assets/styles.css?v=e24baf32f2",
+    "app": "/assets/app.js?v=65aa861825",
     "admin": "/assets/admin.js?v=ab4079b94e"
   },
   "changed": [
     {
       "file": "admin.html",
-      "updates": 2
+      "updates": 1
     },
     {
       "file": "assurance-batiment-proprietaire.html",

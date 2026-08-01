@@ -202,6 +202,16 @@ h1 {
   margin: 28px 0;
 }
 
+.hero-actions[data-hero-action-accelerator="1"] .button {
+  cursor: pointer;
+}
+
+.hero-actions .button.is-active {
+  outline: 2px solid rgba(244, 199, 106, .88);
+  outline-offset: 3px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .18);
+}
+
 .button {
   min-height: 46px;
   display: inline-flex;

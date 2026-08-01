@@ -42,6 +42,8 @@ const required = [
   ["public/assets/app.js", "traffic_without_click_shown"],
   ["public/assets/app.js", "traffic-no-click-rescue"],
   ["public/assets/app.js", "bindHeroIntentAccelerator"],
+  ["public/assets/app.js", "bindHeroActionAccelerator"],
+  ["public/assets/styles.css", "hero-action-accelerator"],
   ["public/assets/styles.css", "hero-intent-status"],
   ["scripts/local-conversion-funnel-monitor.js", "traffic_rescue_shown"],
   ["functions/api/admin/seo.js", "traffic_rescue_click_rate"],

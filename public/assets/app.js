@@ -1597,6 +1597,42 @@ function heroIntentKeyFromCard(card) {
   return "immeuble";
 }
 
+function heroActionIntentFromLink(link) {
+  const raw = `${link.dataset.heroIntent || ""} ${link.dataset.track || ""} ${link.getAttribute("href") || ""} ${link.textContent || ""}`.toLowerCase();
+  if (raw.includes("pno") || raw.includes("cno")) return "pno-cno";
+  if (raw.includes("copro")) return "copropriete";
+  if (raw.includes("sci")) return "sci";
+  return "immeuble";
+}
+
+function syncHeroFastTrack(key, row) {
+  const fastTrack = document.querySelector(".quote-fast-track");
+  const fastKey = key === "pno-cno" ? "cno" : key;
+  const fastRows = quoteFastTrackRows();
+  if (fastTrack && fastRows[fastKey]) renderQuoteFastTrack(fastTrack, fastKey, false);
+  const status = document.querySelector("#hero-intent-status");
+  if (status) {
+    status.innerHTML = `<strong>${row.title}</strong><span>${row.proof} Formulaire pre-rempli: ajoutez nom, telephone et echeance.</span>`;
+    status.classList.add("is-visible");
+  }
+}
+
+function startHeroPrefill(key, row, source, targetLabel) {
+  trafficNoClickInteracted = true;
+  if (trafficNoClickTimer) window.clearTimeout(trafficNoClickTimer);
+  document.body.dataset.intent = key;
+  quoteFastTrackApply(row);
+  syncHeroFastTrack(key, row);
+  track("quote_router_continue", { target: key, label: row.title, route: row.href, mode: "hero-prefill", source });
+  if (!formStarted) {
+    formStarted = true;
+    track("form_start", { target: targetLabel, label: key });
+  }
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+  const focusTarget = form.querySelector("input[name='name'], input[name='phone'], input[name='email']");
+  window.setTimeout(() => focusTarget?.focus({ preventScroll: true }), 260);
+}
+
 function bindHeroIntentAccelerator() {
   if (!isHomepage() || !form) return;
   const grid = document.querySelector(".hero-intent-grid");
@@ -1623,23 +1659,30 @@ function bindHeroIntentAccelerator() {
       trafficNoClickInteracted = true;
       if (trafficNoClickTimer) window.clearTimeout(trafficNoClickTimer);
       cards.forEach((item) => item.classList.toggle("is-active", item === card));
-      document.body.dataset.intent = key;
-      quoteFastTrackApply(row);
-      const fastTrack = document.querySelector(".quote-fast-track");
-      const fastKey = key === "pno-cno" ? "cno" : key;
-      const fastRows = quoteFastTrackRows();
-      if (fastTrack && fastRows[fastKey]) renderQuoteFastTrack(fastTrack, fastKey, false);
-      status.innerHTML = `<strong>${row.title}</strong><span>${row.proof} Formulaire pre-rempli: ajoutez nom, telephone et echeance.</span>`;
-      status.classList.add("is-visible");
       track("quote_router_select", { target: key, label: row.title, route: row.href, source: "hero-intent-grid" });
-      track("quote_router_continue", { target: key, label: row.title, route: row.href, mode: "hero-prefill", source: "hero-intent-grid" });
-      if (!formStarted) {
-        formStarted = true;
-        track("form_start", { target: "hero-intent-card", label: key });
-      }
-      form.scrollIntoView({ behavior: "smooth", block: "start" });
-      const focusTarget = form.querySelector("input[name='name'], input[name='phone'], input[name='email']");
-      window.setTimeout(() => focusTarget?.focus({ preventScroll: true }), 260);
+      startHeroPrefill(key, row, "hero-intent-grid", "hero-intent-card");
+    });
+  });
+}
+
+function bindHeroActionAccelerator() {
+  if (!isHomepage() || !form) return;
+  const actions = document.querySelector(".hero-actions");
+  if (!actions || actions.dataset.heroActionAccelerator === "1") return;
+  const links = [...actions.querySelectorAll("a[data-track]")];
+  if (!links.length) return;
+  const rows = heroIntentAcceleratorRows();
+  actions.dataset.heroActionAccelerator = "1";
+  links.forEach((link) => {
+    const key = heroActionIntentFromLink(link);
+    const row = rows[key];
+    if (!row) return;
+    link.dataset.heroIntent = key;
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      links.forEach((item) => item.classList.toggle("is-active", item === link));
+      track("quote_router_select", { target: key, label: row.title, route: row.href, source: "hero-actions" });
+      startHeroPrefill(key, row, "hero-actions", "hero-action");
     });
   });
 }
@@ -1935,6 +1978,7 @@ bindContentLeadBridge();
 bindFormAbandonment();
 bindBotSignalTracking();
 bindHeroIntentAccelerator();
+bindHeroActionAccelerator();
 bindTrafficNoClickRescue();
 bindGrowthTracking();
 bindFormRescue();
