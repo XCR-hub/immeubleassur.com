@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T14:13:23.444Z",
+  "generated_at": "2026-08-01T14:17:31.289Z",
   "status": "passed",
   "checked_files": [
     "public/assets/app.js",
@@ -32,11 +32,11 @@
     "local-commercial": 8,
     "prix": 13,
     "sinistre": 37,
-    "copropriete": 31,
+    "copropriete": 32,
     "sci": 18,
-    "immeuble": 98,
+    "immeuble": 164,
     "pno": 9,
-    "cno": 58
+    "cno": 91
   },
   "missing_required_intent_links": [],
   "missing_money_intent_links": [],

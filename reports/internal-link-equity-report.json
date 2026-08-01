@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-01T14:13:28.842Z",
+  "generated_at": "2026-08-01T14:17:39.424Z",
   "status": "passed",
   "pages_checked": 186,
   "pages_targeted": 57,
-  "pages_changed": 14,
-  "links_added": 56,
+  "pages_changed": 17,
+  "links_added": 68,
   "pages_with_active_blocks": 60,
   "active_internal_links": 237,
   "noindex_skipped": 6,
@@ -74,21 +74,28 @@
       "slug": "blog/assurance-immeuble-sans-sinistre",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 17,
+      "previous_internal_links": 22,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/checklist-documents-devis-immeuble",
+      "type": "blog",
+      "cluster": "default",
+      "previous_internal_links": 21,
       "links_added": 4
     },
     {
       "slug": "blog/checklist-sinistre-degat-des-eaux",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 17,
+      "previous_internal_links": 22,
       "links_added": 4
     },
     {
       "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 16,
+      "previous_internal_links": 21,
       "links_added": 4
     },
     {
@@ -109,21 +116,35 @@
       "slug": "blog/multirisque-immeuble-vs-pno",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 15,
+      "previous_internal_links": 20,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/pno-bailleur-copropriete",
+      "type": "blog",
+      "cluster": "pno-cno",
+      "previous_internal_links": 21,
       "links_added": 4
     },
     {
       "slug": "blog/pno-cno-differences-garanties",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 14,
+      "previous_internal_links": 19,
       "links_added": 4
     },
     {
       "slug": "blog/pno-obligatoire-copropriete",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 17,
+      "previous_internal_links": 22,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/prix-assurance-immeuble-au-m2",
+      "type": "blog",
+      "cluster": "prix-tarif",
+      "previous_internal_links": 20,
       "links_added": 4
     },
     {
@@ -144,7 +165,7 @@
       "slug": "blog/sinistres-recurrents-immeuble",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 17,
+      "previous_internal_links": 22,
       "links_added": 4
     },
     {

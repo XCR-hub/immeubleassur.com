@@ -1,13 +1,33 @@
 {
-  "generated_at": "2026-08-01T14:13:21.377Z",
+  "generated_at": "2026-08-01T14:17:28.605Z",
   "status": "passed",
   "pages_checked": 186,
   "indexable_pages": 180,
-  "average_html_kb": 18.5,
+  "average_html_kb": 19.7,
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 33.2,
+      "kb": 42.8,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-immeuble.html",
+      "kb": 31.1,
+      "issue_count": 0
+    },
+    {
+      "source": "prix-assurance-immeuble.html",
+      "kb": 27.5,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-copropriete.html",
+      "kb": 26.8,
+      "issue_count": 0
+    },
+    {
+      "source": "devis-assurance-immeuble.html",
+      "kb": 26.7,
       "issue_count": 0
     },
     {
@@ -16,53 +36,33 @@
       "issue_count": 0
     },
     {
+      "source": "assurance-sci.html",
+      "kb": 25.8,
+      "issue_count": 0
+    },
+    {
       "source": "blog.html",
       "kb": 25.6,
       "issue_count": 0
     },
     {
-      "source": "assurance-immeuble.html",
-      "kb": 24.2,
+      "source": "comparateur-assurance-immeuble.html",
+      "kb": 25.5,
       "issue_count": 0
     },
     {
-      "source": "veille-assurance-immeuble.html",
-      "kb": 24,
+      "source": "blog/sinistres-recurrents-immeuble.html",
+      "kb": 24.8,
       "issue_count": 0
     },
     {
-      "source": "assurance-immeuble-chalon-sur-saone.html",
-      "kb": 24,
+      "source": "blog/assurance-immeuble-sans-sinistre.html",
+      "kb": 24.8,
       "issue_count": 0
     },
     {
-      "source": "news/veille-assurance-immeuble-2026-07-31.html",
-      "kb": 23.9,
-      "issue_count": 0
-    },
-    {
-      "source": "assurance-immeuble-la-roche-sur-yon.html",
-      "kb": 23.9,
-      "issue_count": 0
-    },
-    {
-      "source": "assurance-immeuble-saint-nazaire.html",
-      "kb": 23.9,
-      "issue_count": 0
-    },
-    {
-      "source": "assurance-immeuble-la-rochelle.html",
-      "kb": 23.8,
-      "issue_count": 0
-    },
-    {
-      "source": "assurance-immeuble-valenciennes.html",
-      "kb": 23.8,
-      "issue_count": 0
-    },
-    {
-      "source": "assurance-immeuble-carcassonne.html",
-      "kb": 23.7,
+      "source": "blog/checklist-sinistre-degat-des-eaux.html",
+      "kb": 24.7,
       "issue_count": 0
     }
   ],
@@ -157,7 +157,7 @@
     },
     {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5112,
+      "bytes": 5109,
       "kb": 5,
       "ok": true
     },

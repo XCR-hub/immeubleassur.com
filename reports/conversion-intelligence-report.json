@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T14:13:31.172Z",
+  "generated_at": "2026-08-01T14:17:42.856Z",
   "pages_checked": 182,
   "money_pages_checked": 118,
   "cluster_count": 11,
@@ -12,14 +12,14 @@
       "no-google-scraping"
     ]
   },
-  "average_conversion_score": 82,
-  "average_money_score": 91,
+  "average_conversion_score": 85,
+  "average_money_score": 95,
   "cluster_coverage": [
     {
       "cluster": "local",
       "pages": 82,
       "money_pages": 81,
-      "average_score": 93,
+      "average_score": 94,
       "top_pages": [
         {
           "slug": "assurance-immeuble-agen",
@@ -57,37 +57,37 @@
       "cluster": "pno-cno",
       "pages": 15,
       "money_pages": 13,
-      "average_score": 84,
+      "average_score": 95,
       "top_pages": [
+        {
+          "slug": "assurance-cno",
+          "url": "https://immeubleassur.com/assurance-cno",
+          "score": 100
+        },
+        {
+          "slug": "assurance-pno-cno",
+          "url": "https://immeubleassur.com/assurance-pno-cno",
+          "score": 100
+        },
+        {
+          "slug": "assurance-pno",
+          "url": "https://immeubleassur.com/assurance-pno",
+          "score": 100
+        },
         {
           "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
           "url": "https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire",
-          "score": 94
+          "score": 100
         },
         {
-          "slug": "blog/pno-obligatoire-copropriete",
-          "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
-          "score": 94
-        },
-        {
-          "slug": "blog/coproprietaire-non-occupant-documents-devis",
-          "url": "https://immeubleassur.com/blog/coproprietaire-non-occupant-documents-devis",
-          "score": 90
+          "slug": "blog/multirisque-immeuble-vs-pno",
+          "url": "https://immeubleassur.com/blog/multirisque-immeuble-vs-pno",
+          "score": 100
         },
         {
           "slug": "blog/pno-bailleur-copropriete",
           "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
-          "score": 90
-        },
-        {
-          "slug": "faq/pno",
-          "url": "https://immeubleassur.com/faq/pno",
-          "score": 86
-        },
-        {
-          "slug": "assurance-cno",
-          "url": "https://immeubleassur.com/assurance-cno",
-          "score": 84
+          "score": 100
         }
       ]
     },
@@ -95,37 +95,37 @@
       "cluster": "sinistre-resilie",
       "pages": 14,
       "money_pages": 7,
-      "average_score": 76,
+      "average_score": 81,
       "top_pages": [
         {
           "slug": "blog/assurance-immeuble-sans-sinistre",
           "url": "https://immeubleassur.com/blog/assurance-immeuble-sans-sinistre",
-          "score": 94
+          "score": 100
         },
         {
           "slug": "blog/checklist-sinistre-degat-des-eaux",
           "url": "https://immeubleassur.com/blog/checklist-sinistre-degat-des-eaux",
-          "score": 94
+          "score": 100
         },
         {
           "slug": "blog/sinistres-recurrents-immeuble",
           "url": "https://immeubleassur.com/blog/sinistres-recurrents-immeuble",
-          "score": 94
+          "score": 100
         },
         {
           "slug": "faq/sinistres",
           "url": "https://immeubleassur.com/faq/sinistres",
-          "score": 90
+          "score": 100
+        },
+        {
+          "slug": "gestion-sinistres-immeuble",
+          "url": "https://immeubleassur.com/gestion-sinistres-immeuble",
+          "score": 100
         },
         {
           "slug": "assurance-immeuble-resilie",
           "url": "https://immeubleassur.com/assurance-immeuble-resilie",
-          "score": 84
-        },
-        {
-          "slug": "assurance-immeuble-sinistre",
-          "url": "https://immeubleassur.com/assurance-immeuble-sinistre",
-          "score": 84
+          "score": 94
         }
       ]
     },
@@ -133,37 +133,37 @@
       "cluster": "devis-courtier",
       "pages": 16,
       "money_pages": 7,
-      "average_score": 70,
+      "average_score": 77,
       "top_pages": [
         {
           "slug": "assurance-immeuble",
           "url": "https://immeubleassur.com/assurance-immeuble",
-          "score": 91
+          "score": 100
         },
         {
           "slug": "blog/checklist-documents-devis-immeuble",
           "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
-          "score": 90
+          "score": 100
         },
         {
-          "slug": "blog/mandat-courtier-assurance-immeuble-consultation",
-          "url": "https://immeubleassur.com/blog/mandat-courtier-assurance-immeuble-consultation",
-          "score": 90
-        },
-        {
-          "slug": "courtier-assurance-immeuble",
-          "url": "https://immeubleassur.com/courtier-assurance-immeuble",
-          "score": 87
+          "slug": "comparateur-assurance-immeuble",
+          "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
+          "score": 100
         },
         {
           "slug": "devis-assurance-immeuble",
           "url": "https://immeubleassur.com/devis-assurance-immeuble",
-          "score": 87
+          "score": 100
         },
         {
-          "slug": "devis-assurance-immeuble-en-ligne",
-          "url": "https://immeubleassur.com/devis-assurance-immeuble-en-ligne",
-          "score": 84
+          "slug": "index",
+          "url": "https://immeubleassur.com/",
+          "score": 100
+        },
+        {
+          "slug": "courtier-assurance-immeuble",
+          "url": "https://immeubleassur.com/courtier-assurance-immeuble",
+          "score": 97
         }
       ]
     },
@@ -171,32 +171,32 @@
       "cluster": "prix-tarif",
       "pages": 9,
       "money_pages": 5,
-      "average_score": 76,
+      "average_score": 80,
       "top_pages": [
-        {
-          "slug": "prix-assurance-immeuble",
-          "url": "https://immeubleassur.com/prix-assurance-immeuble",
-          "score": 91
-        },
         {
           "slug": "blog/prix-assurance-immeuble-au-m2",
           "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-au-m2",
-          "score": 90
+          "score": 100
+        },
+        {
+          "slug": "faq/prix",
+          "url": "https://immeubleassur.com/faq/prix",
+          "score": 100
+        },
+        {
+          "slug": "prix-assurance-immeuble",
+          "url": "https://immeubleassur.com/prix-assurance-immeuble",
+          "score": 100
+        },
+        {
+          "slug": "tarif-assurance-immeuble",
+          "url": "https://immeubleassur.com/tarif-assurance-immeuble",
+          "score": 94
         },
         {
           "slug": "blog/prix-assurance-immeuble-franchises-reste-a-charge",
           "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-franchises-reste-a-charge",
           "score": 90
-        },
-        {
-          "slug": "faq/prix",
-          "url": "https://immeubleassur.com/faq/prix",
-          "score": 90
-        },
-        {
-          "slug": "tarif-assurance-immeuble",
-          "url": "https://immeubleassur.com/tarif-assurance-immeuble",
-          "score": 84
         },
         {
           "slug": "blog/audit-franchises-assurance-immeuble",
@@ -209,8 +209,18 @@
       "cluster": "sci-bailleur",
       "pages": 12,
       "money_pages": 4,
-      "average_score": 72,
+      "average_score": 76,
       "top_pages": [
+        {
+          "slug": "assurance-immeuble-de-rapport",
+          "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
+          "score": 100
+        },
+        {
+          "slug": "assurance-sci",
+          "url": "https://immeubleassur.com/assurance-sci",
+          "score": 100
+        },
         {
           "slug": "assurance-immeuble-locatif",
           "url": "https://immeubleassur.com/assurance-immeuble-locatif",
@@ -227,16 +237,6 @@
           "score": 84
         },
         {
-          "slug": "assurance-immeuble-de-rapport",
-          "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
-          "score": 80
-        },
-        {
-          "slug": "assurance-sci",
-          "url": "https://immeubleassur.com/assurance-sci",
-          "score": 76
-        },
-        {
           "slug": "blog/assurance-sci-immeuble-cartographie-patrimoine",
           "url": "https://immeubleassur.com/blog/assurance-sci-immeuble-cartographie-patrimoine",
           "score": 75
@@ -247,12 +247,12 @@
       "cluster": "copropriete-syndic",
       "pages": 16,
       "money_pages": 1,
-      "average_score": 74,
+      "average_score": 75,
       "top_pages": [
         {
           "slug": "assurance-copropriete",
           "url": "https://immeubleassur.com/assurance-copropriete",
-          "score": 91
+          "score": 100
         },
         {
           "slug": "blog/assurance-copropriete-avant-ag",
@@ -285,8 +285,13 @@
       "cluster": "local-commercial",
       "pages": 6,
       "money_pages": 0,
-      "average_score": 72,
+      "average_score": 76,
       "top_pages": [
+        {
+          "slug": "assurance-local-commercial",
+          "url": "https://immeubleassur.com/assurance-local-commercial",
+          "score": 93
+        },
         {
           "slug": "blog/assurance-immeuble-local-professionnel",
           "url": "https://immeubleassur.com/blog/assurance-immeuble-local-professionnel",
@@ -311,11 +316,6 @@
           "slug": "blog/local-commercial-vacant",
           "url": "https://immeubleassur.com/blog/local-commercial-vacant",
           "score": 71
-        },
-        {
-          "slug": "assurance-local-commercial",
-          "url": "https://immeubleassur.com/assurance-local-commercial",
-          "score": 69
         }
       ]
     },
@@ -401,6 +401,18 @@
   ],
   "top_money_pages": [
     {
+      "slug": "assurance-cno",
+      "url": "https://immeubleassur.com/assurance-cno",
+      "cluster": "pno-cno",
+      "score": 100
+    },
+    {
+      "slug": "assurance-copropriete",
+      "url": "https://immeubleassur.com/assurance-copropriete",
+      "cluster": "copropriete-syndic",
+      "score": 100
+    },
+    {
       "slug": "assurance-immeuble-agen",
       "url": "https://immeubleassur.com/assurance-immeuble-agen",
       "cluster": "local",
@@ -473,6 +485,12 @@
       "score": 100
     },
     {
+      "slug": "assurance-immeuble-bordeaux",
+      "url": "https://immeubleassur.com/assurance-immeuble-bordeaux",
+      "cluster": "local",
+      "score": 100
+    },
+    {
       "slug": "assurance-immeuble-bourges",
       "url": "https://immeubleassur.com/assurance-immeuble-bourges",
       "cluster": "local",
@@ -531,210 +549,10 @@
       "url": "https://immeubleassur.com/assurance-immeuble-colmar",
       "cluster": "local",
       "score": 100
-    },
-    {
-      "slug": "assurance-immeuble-douai",
-      "url": "https://immeubleassur.com/assurance-immeuble-douai",
-      "cluster": "local",
-      "score": 100
-    },
-    {
-      "slug": "assurance-immeuble-dunkerque",
-      "url": "https://immeubleassur.com/assurance-immeuble-dunkerque",
-      "cluster": "local",
-      "score": 100
-    },
-    {
-      "slug": "assurance-immeuble-evreux",
-      "url": "https://immeubleassur.com/assurance-immeuble-evreux",
-      "cluster": "local",
-      "score": 100
     }
   ],
-  "weak_money_pages": [
-    {
-      "slug": "comparateur-assurance-immeuble",
-      "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-      "cluster": "devis-courtier",
-      "score": 68,
-      "actions": [
-        "Ajouter un deuxieme CTA contextuel avant la fin de page.",
-        "Ajouter le diagnostic express pour qualifier l'intention.",
-        "Ajouter le module dossier pret assureur.",
-        "Ajouter un bloc priorite business PNO/CNO/immeuble."
-      ]
-    },
-    {
-      "slug": "blog/multirisque-immeuble-vs-pno",
-      "url": "https://immeubleassur.com/blog/multirisque-immeuble-vs-pno",
-      "cluster": "pno-cno",
-      "score": 72,
-      "actions": [
-        "Ajouter un deuxieme CTA contextuel avant la fin de page.",
-        "Ajouter le diagnostic express pour qualifier l'intention.",
-        "Ajouter le module dossier pret assureur.",
-        "Ajouter un bloc priorite business PNO/CNO/immeuble."
-      ]
-    },
-    {
-      "slug": "blog/pno-cno-differences-garanties",
-      "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
-      "cluster": "pno-cno",
-      "score": 72,
-      "actions": [
-        "Ajouter un deuxieme CTA contextuel avant la fin de page.",
-        "Ajouter le diagnostic express pour qualifier l'intention.",
-        "Ajouter le module dossier pret assureur.",
-        "Ajouter un bloc priorite business PNO/CNO/immeuble."
-      ]
-    },
-    {
-      "slug": "gestion-sinistres-immeuble",
-      "url": "https://immeubleassur.com/gestion-sinistres-immeuble",
-      "cluster": "sinistre-resilie",
-      "score": 76,
-      "actions": [
-        "Ajouter le diagnostic express pour qualifier l'intention.",
-        "Ajouter le module dossier pret assureur.",
-        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-        "Renforcer la FAQ visible avec questions de decision."
-      ]
-    },
-    {
-      "slug": "assurance-immeuble-bordeaux",
-      "url": "https://immeubleassur.com/assurance-immeuble-bordeaux",
-      "cluster": "local",
-      "score": 80,
-      "actions": [
-        "Ajouter le diagnostic express pour qualifier l'intention.",
-        "Ajouter le module dossier pret assureur.",
-        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-        "Renforcer la profondeur utile sans duplication."
-      ]
-    },
-    {
-      "slug": "assurance-immeuble-de-rapport",
-      "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
-      "cluster": "sci-bailleur",
-      "score": 80,
-      "actions": [
-        "Ajouter le diagnostic express pour qualifier l'intention.",
-        "Ajouter le module dossier pret assureur.",
-        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-        "Renforcer la profondeur utile sans duplication."
-      ]
-    },
-    {
-      "slug": "assurance-immeuble-grenoble",
-      "url": "https://immeubleassur.com/assurance-immeuble-grenoble",
-      "cluster": "local",
-      "score": 80,
-      "actions": [
-        "Ajouter le diagnostic express pour qualifier l'intention.",
-        "Ajouter le module dossier pret assureur.",
-        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-        "Renforcer la profondeur utile sans duplication."
-      ]
-    },
-    {
-      "slug": "assurance-immeuble-obligatoire",
-      "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
-      "cluster": "local",
-      "score": 80,
-      "actions": [
-        "Ajouter le diagnostic express pour qualifier l'intention.",
-        "Ajouter le module dossier pret assureur.",
-        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-        "Renforcer la profondeur utile sans duplication."
-      ]
-    },
-    {
-      "slug": "assurance-immeuble-paris",
-      "url": "https://immeubleassur.com/assurance-immeuble-paris",
-      "cluster": "local",
-      "score": 80,
-      "actions": [
-        "Ajouter le diagnostic express pour qualifier l'intention.",
-        "Ajouter le module dossier pret assureur.",
-        "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-        "Renforcer la profondeur utile sans duplication."
-      ]
-    }
-  ],
-  "actions": [
-    {
-      "priority": "medium",
-      "source": "conversion-intelligence",
-      "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-      "cluster": "devis-courtier",
-      "score": 68,
-      "action": "Ajouter un deuxieme CTA contextuel avant la fin de page."
-    },
-    {
-      "priority": "medium",
-      "source": "conversion-intelligence",
-      "url": "https://immeubleassur.com/blog/multirisque-immeuble-vs-pno",
-      "cluster": "pno-cno",
-      "score": 72,
-      "action": "Ajouter un deuxieme CTA contextuel avant la fin de page."
-    },
-    {
-      "priority": "medium",
-      "source": "conversion-intelligence",
-      "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
-      "cluster": "pno-cno",
-      "score": 72,
-      "action": "Ajouter un deuxieme CTA contextuel avant la fin de page."
-    },
-    {
-      "priority": "medium",
-      "source": "conversion-intelligence",
-      "url": "https://immeubleassur.com/gestion-sinistres-immeuble",
-      "cluster": "sinistre-resilie",
-      "score": 76,
-      "action": "Ajouter le diagnostic express pour qualifier l'intention."
-    },
-    {
-      "priority": "medium",
-      "source": "conversion-intelligence",
-      "url": "https://immeubleassur.com/assurance-immeuble-bordeaux",
-      "cluster": "local",
-      "score": 80,
-      "action": "Ajouter le diagnostic express pour qualifier l'intention."
-    },
-    {
-      "priority": "medium",
-      "source": "conversion-intelligence",
-      "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
-      "cluster": "sci-bailleur",
-      "score": 80,
-      "action": "Ajouter le diagnostic express pour qualifier l'intention."
-    },
-    {
-      "priority": "medium",
-      "source": "conversion-intelligence",
-      "url": "https://immeubleassur.com/assurance-immeuble-grenoble",
-      "cluster": "local",
-      "score": 80,
-      "action": "Ajouter le diagnostic express pour qualifier l'intention."
-    },
-    {
-      "priority": "medium",
-      "source": "conversion-intelligence",
-      "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
-      "cluster": "local",
-      "score": 80,
-      "action": "Ajouter le diagnostic express pour qualifier l'intention."
-    },
-    {
-      "priority": "medium",
-      "source": "conversion-intelligence",
-      "url": "https://immeubleassur.com/assurance-immeuble-paris",
-      "cluster": "local",
-      "score": 80,
-      "action": "Ajouter le diagnostic express pour qualifier l'intention."
-    }
-  ],
+  "weak_money_pages": [],
+  "actions": [],
   "safeguards": [
     "conversion-score-does-not-replace-lead-quality",
     "money-pages-need-clear-user-intent",

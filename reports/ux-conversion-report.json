@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-01T04:18:53.452Z",
+  "generated_at": "2026-08-01T14:17:00.566Z",
   "home_router": true,
   "home_hot_quote": true,
   "home_hot_quote_changed": true,
   "router_changed": true,
-  "report_driven_pages": 62,
+  "report_driven_pages": 69,
   "report_driven_files": [
     "blog/checklist-documents-devis-immeuble.html",
     "blog/pno-bailleur-copropriete.html",
@@ -67,12 +67,19 @@
     "blog/pno-cno-differences-garanties.html",
     "blog/pno-obligatoire-copropriete.html",
     "blog/prix-assurance-immeuble-au-m2.html",
-    "blog/sinistres-recurrents-immeuble.html"
+    "blog/sinistres-recurrents-immeuble.html",
+    "comparateur-assurance-immeuble.html",
+    "gestion-sinistres-immeuble.html",
+    "assurance-immeuble-bordeaux.html",
+    "assurance-immeuble-de-rapport.html",
+    "assurance-immeuble-grenoble.html",
+    "assurance-immeuble-obligatoire.html",
+    "assurance-immeuble-paris.html"
   ],
-  "diagnostic_pages_checked": 74,
-  "diagnostic_pages_changed": 74,
-  "readiness_pages_checked": 74,
-  "readiness_pages_changed": 74,
+  "diagnostic_pages_checked": 81,
+  "diagnostic_pages_changed": 81,
+  "readiness_pages_checked": 81,
+  "readiness_pages_changed": 81,
   "improvements": [
     "intent-router",
     "risk-specific-cta",

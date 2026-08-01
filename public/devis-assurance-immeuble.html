@@ -61,7 +61,106 @@
       <a class="header-phone" href="tel:+33180855786">01 80 85 57 86</a>
     </header>
     <main id="main-content">
-      <section class="page-hero compact-hero"><div class="container"><p class="eyebrow">Demande qualifiee</p><h1>Devis assurance immeuble: envoyer un dossier exploitable.</h1><p>Un parcours direct pour bailleurs, SCI, syndics et administrateurs de biens qui veulent une reponse assureur fondee sur les bonnes informations.</p><div class="hero-actions"><a class="button primary" data-track="cta-primary" href="#devis">Completer ma demande</a><a class="button secondary" data-track="cta-secondary" href="/comparateur-assurance-immeuble">Comparer les garanties</a></div></div></section><section class="band page-band" id="devis"><div class="split"><div><p class="eyebrow dark">Formulaire de devis</p><h2>Ce parcours sert a consulter le marche, pas seulement a lire un prix.</h2><p class="large-copy">La demande doit decrire le risque: statut, adresse, lots, surface, occupation, contrat actuel, echeance, sinistres, travaux et usages particuliers. Plus le dossier est net, plus la reponse est rapide et comparable.</p><ul class="check-list"><li>Parcours adapte immeuble, copropriete, PNO/CNO, SCI et local commercial.</li><li>Qualification des dossiers urgents: resiliation, refus, sinistre ou echeance proche.</li><li>Message libre pour preciser assureur actuel, franchises, travaux, vacance ou activite commerciale.</li><li>Anti-spam et controle humain pour proteger les formulaires sans bloquer les vrais prospects.</li></ul></div>
+      <section class="page-hero compact-hero"><div class="container"><p class="eyebrow">Demande qualifiee</p><h1>Devis assurance immeuble: envoyer un dossier exploitable.</h1><p>Un parcours direct pour bailleurs, SCI, syndics et administrateurs de biens qui veulent une reponse assureur fondee sur les bonnes informations.</p><div class="hero-actions"><a class="button primary" data-track="cta-primary" href="#devis">Completer ma demande</a><a class="button secondary" data-track="cta-secondary" href="/comparateur-assurance-immeuble">Comparer les garanties</a></div></div></section>
+<!-- ux-diagnostic:start -->
+<section class="band diagnostic-band" aria-labelledby="diagnostic-title">
+  <div class="diagnostic-shell" data-diagnostic>
+    <div class="diagnostic-copy">
+      <p class="eyebrow dark">Diagnostic express</p>
+      <h2 id="diagnostic-title">Transformer une demande en parcours assureur qualifie.</h2>
+      <p class="large-copy">Les meilleurs leads arrivent avec un statut, un type de bien et une urgence clairs. Le diagnostic ajuste le devis, le message de rappel et les signaux de conversion.</p>
+      <div class="diagnostic-proof" aria-label="Elements qualifies"><span>Statut</span><span>Bien</span><span>Priorite</span><span>Pieces</span></div>
+    </div>
+    <div class="diagnostic-panel">
+      <fieldset class="diagnostic-step">
+        <legend>Profil</legend>
+        <button class="diagnostic-choice is-active" type="button" data-diagnostic-option data-step="profile" data-value="bailleur">Bailleur</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="profile" data-value="sci">SCI</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="profile" data-value="syndic-professionnel">Syndic</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="profile" data-value="administrateur-biens">Admin. biens</button>
+      </fieldset>
+      <fieldset class="diagnostic-step">
+        <legend>Bien</legend>
+        <button class="diagnostic-choice is-active" type="button" data-diagnostic-option data-step="property" data-value="lot-copropriete">Lot copro</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="immeuble-locatif">Immeuble</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="logement-vacant">Vacant</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="local-commercial">Commerce</button>
+      </fieldset>
+      <fieldset class="diagnostic-step">
+        <legend>Priorite</legend>
+        <button class="diagnostic-choice is-active" type="button" data-diagnostic-option data-step="urgency" data-value="echeance">Echeance</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="urgency" data-value="sinistre">Sinistre</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="urgency" data-value="prix">Prix</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="urgency" data-value="creation">Nouveau bien</button>
+      </fieldset>
+      <div class="diagnostic-result" aria-live="polite">
+        <p class="diagnostic-route">Parcours CNO</p>
+        <h3 class="diagnostic-result-title">Lot en copropriete non occupe.</h3>
+        <p class="diagnostic-result-text">Prioriser la responsabilite civile du coproprietaire, la vacance, le bail et la coherence avec le contrat immeuble.</p>
+        <ul class="diagnostic-next"><li>Contrat actuel</li><li>Statut d'occupation</li><li>Sinistres recents</li></ul>
+        <a class="button primary diagnostic-cta" data-track="diagnostic-devis" href="/devis-pno-cno?intent=cno">Continuer vers le devis qualifie</a>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ux-diagnostic:end -->
+<!-- ux-readiness:start -->
+<section class="band readiness-band" aria-labelledby="readiness-title">
+  <div class="readiness-shell" data-readiness>
+    <div class="readiness-copy">
+      <p class="eyebrow dark">Dossier pret assureur</p>
+      <h2 id="readiness-title">Voir en 30 secondes ce qui manque avant l'envoi aux assureurs.</h2>
+      <p class="large-copy">Chaque piece cochee rend la demande plus exploitable: echeance, contrat actuel, sinistres, lots et travaux. Le formulaire reprend ensuite les elements disponibles.</p>
+    </div>
+    <div class="readiness-panel">
+      <div class="readiness-meter" aria-live="polite">
+        <span class="readiness-label">Dossier a cadrer</span>
+        <strong class="readiness-score">20%</strong>
+        <span class="readiness-bar"><span></span></span>
+      </div>
+      <div class="readiness-checks" aria-label="Pieces disponibles">
+        <label><input type="checkbox" data-readiness-item data-points="22" data-label="contrat actuel" value="contrat-actuel">Contrat actuel</label>
+        <label><input type="checkbox" data-readiness-item data-points="20" data-label="appel de prime" value="appel-prime">Appel de prime</label>
+        <label><input type="checkbox" data-readiness-item data-points="18" data-label="sinistres 36 mois" value="sinistres-36-mois">Sinistres 36 mois</label>
+        <label><input type="checkbox" data-readiness-item data-points="16" data-label="nombre de lots" value="nombre-lots">Nombre de lots</label>
+        <label><input type="checkbox" data-readiness-item data-points="14" data-label="echeance" value="echeance">Echeance</label>
+        <label><input type="checkbox" data-readiness-item data-points="10" data-label="travaux prevus" value="travaux-prevus">Travaux prevus</label>
+      </div>
+      <p class="readiness-next">Cochez les pieces deja disponibles pour prioriser le rappel.</p>
+      <a class="button primary readiness-cta" data-track="readiness-devis" href="/devis-assurance-immeuble?intent=immeuble">Preparer ma demande</a>
+    </div>
+  </div>
+</section>
+<!-- ux-readiness:end -->
+<!-- ux-conversion-momentum:start -->
+<section class="band conversion-momentum-band" aria-labelledby="conversion-momentum-title">
+  <div class="conversion-momentum">
+    <div class="conversion-momentum-copy">
+      <p class="eyebrow dark">Priorite business</p>
+      <h2 id="conversion-momentum-title">Diriger chaque visiteur vers le devis qui convertit.</h2>
+      <p class="large-copy">Les recherches assurance immeuble ne valent pas toutes le meme parcours. ImmeubleAssur oriente vite vers CNO/PNO, multirisque immeuble ou audit contrat pour augmenter les leads exploitables.</p>
+    </div>
+    <div class="momentum-grid" aria-label="Parcours prioritaires">
+      <article>
+        <strong>CNO / PNO</strong>
+        <span>Lot loue, vacant ou coproprietaire non occupant.</span>
+        <a class="button primary" data-track="momentum-pno-cno" href="/devis-pno-cno?intent=pno-cno">Devis PNO/CNO</a>
+      </article>
+      <article>
+        <strong>Immeuble</strong>
+        <span>SCI, bailleur, syndic, immeuble de rapport ou monopropriete.</span>
+        <a class="button primary" data-track="momentum-immeuble" href="/devis-assurance-immeuble?intent=immeuble">Devis immeuble</a>
+      </article>
+      <article>
+        <strong>Dossier difficile</strong>
+        <span>Sinistre, resiliation, refus assureur ou franchise a auditer.</span>
+        <a class="button primary" data-track="momentum-audit" href="/audit-contrat-assurance-immeuble">Audit contrat</a>
+      </article>
+    </div>
+  </div>
+</section>
+<!-- ux-conversion-momentum:end -->
+    <section class="band page-band" id="devis"><div class="split"><div><p class="eyebrow dark">Formulaire de devis</p><h2>Ce parcours sert a consulter le marche, pas seulement a lire un prix.</h2><p class="large-copy">La demande doit decrire le risque: statut, adresse, lots, surface, occupation, contrat actuel, echeance, sinistres, travaux et usages particuliers. Plus le dossier est net, plus la reponse est rapide et comparable.</p><ul class="check-list"><li>Parcours adapte immeuble, copropriete, PNO/CNO, SCI et local commercial.</li><li>Qualification des dossiers urgents: resiliation, refus, sinistre ou echeance proche.</li><li>Message libre pour preciser assureur actuel, franchises, travaux, vacance ou activite commerciale.</li><li>Anti-spam et controle humain pour proteger les formulaires sans bloquer les vrais prospects.</li></ul></div>
     <div class="growth-lead-magnet"><strong>Checklist offerte</strong><span>Recevez la liste des pieces utiles: contrat actuel, sinistres, lots, travaux, franchises et donnees assureur.</span></div>
     <form class="quote-panel" id="lead-form" data-track="lead-form" novalidate>
       <div class="form-heading">

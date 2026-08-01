@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-01T14:13:29.374Z",
+  "generated_at": "2026-08-01T14:17:40.152Z",
   "status": "passed",
   "pages_checked": 186,
   "pages_targeted": 48,
-  "pages_changed": 11,
+  "pages_changed": 14,
   "active_bridges": 51,
   "cluster_targets": [
     {
@@ -63,6 +63,11 @@
       "cluster": "sinistre-resilie"
     },
     {
+      "slug": "blog/checklist-documents-devis-immeuble",
+      "type": "blog",
+      "cluster": "devis-courtier"
+    },
+    {
       "slug": "blog/checklist-sinistre-degat-des-eaux",
       "type": "blog",
       "cluster": "sinistre-resilie"
@@ -83,9 +88,19 @@
       "cluster": "copropriete-syndic"
     },
     {
+      "slug": "blog/pno-bailleur-copropriete",
+      "type": "blog",
+      "cluster": "copropriete-syndic"
+    },
+    {
       "slug": "blog/pno-obligatoire-copropriete",
       "type": "blog",
       "cluster": "copropriete-syndic"
+    },
+    {
+      "slug": "blog/prix-assurance-immeuble-au-m2",
+      "type": "blog",
+      "cluster": "prix-tarif"
     },
     {
       "slug": "blog/renovation-energetique-copropriete-assurance",

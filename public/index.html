@@ -69,6 +69,21 @@
           <p class="eyebrow">Specialiste assurance immeuble</p>
           <h1>Assurance immeuble, copropriete et PNO sans angle mort.</h1>
           <p class="hero-lead">ImmeubleAssur compare les garanties multirisque immeuble, responsabilite civile, PNO, protection juridique et contrats pour syndics, SCI, bailleurs et conseils syndicaux.</p>
+<!-- ux-homepage-hot-quote:start -->
+          <div class="hero-hot-quote" aria-label="Devis assurance immeuble immediat">
+            <div class="hero-hot-copy">
+              <span>Devis immediat</span>
+              <strong>Pre-remplir le formulaire sans quitter la page.</strong>
+              <small>Choisissez le dossier: syndic, PNO/CNO, SCI ou audit. Le rappel part avec le bon besoin.</small>
+            </div>
+            <div class="hero-hot-actions">
+              <a class="button primary" data-track="homepage-hot-copropriete" href="/devis-assurance-immeuble?intent=copropriete">Copropriete</a>
+              <a class="button primary" data-track="homepage-hot-pno-cno" href="/devis-pno-cno?intent=pno-cno">PNO/CNO</a>
+              <a class="button secondary" data-track="homepage-hot-audit" href="/devis-assurance-immeuble?intent=audit-contrat">Audit echeance</a>
+              <a class="button secondary" data-track="homepage-hot-phone" href="tel:+33180855786">Appeler</a>
+            </div>
+          </div>
+<!-- ux-homepage-hot-quote:end -->
           <div class="hero-decision-accelerator" aria-label="Demarrage rapide devis immeuble">
             <span>Votre situation</span>
             <div class="hero-decision-options">
@@ -177,6 +192,131 @@
         <article><strong>France</strong><span>Pages locales, syndics, SCI et coproprietes.</span></article>
       </div>
     </section>
+<!-- ux-conversion-router:start -->
+<section class="band risk-router-band" aria-labelledby="risk-router-title">
+  <div class="risk-router" data-active-risk="cno">
+    <div class="risk-router-copy">
+      <p class="eyebrow dark">Orientation rapide</p>
+      <h2 id="risk-router-title">Identifier le bon parcours assurance immeuble.</h2>
+      <p class="large-copy">Un proprietaire non occupant, une SCI, un syndic ou un bailleur n'a pas le meme dossier assureur. Le parcours adapte reduit les allers-retours et augmente la qualite du lead.</p>
+    </div>
+    <div class="risk-router-panel">
+      <div class="risk-options" aria-label="Situations assurance immeuble">
+        <button class="risk-option is-active" type="button" data-risk="cno">CNO</button>
+        <button class="risk-option" type="button" data-risk="pno">PNO</button>
+        <button class="risk-option" type="button" data-risk="copropriete">Copropriete</button>
+        <button class="risk-option" type="button" data-risk="sci">SCI</button>
+        <button class="risk-option" type="button" data-risk="mixte">Immeuble mixte</button>
+      </div>
+      <div class="risk-result" aria-live="polite">
+        <p class="risk-result-label">Parcours prioritaire</p>
+        <h3>Coproprietaire non occupant</h3>
+        <p>Verifier le lot, la vacance, le bail, le contrat immeuble et la responsabilite civile du coproprietaire.</p>
+        <ul><li>Adresse et usage du lot</li><li>Contrat occupant ou vacance</li><li>Echeance et sinistres recents</li></ul>
+        <a class="button primary" data-track="risk-router-devis" href="/devis-pno-cno?intent=cno">Demander le bon devis</a>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ux-conversion-router:end -->
+<!-- ux-diagnostic:start -->
+<section class="band diagnostic-band" aria-labelledby="diagnostic-title">
+  <div class="diagnostic-shell" data-diagnostic>
+    <div class="diagnostic-copy">
+      <p class="eyebrow dark">Diagnostic express</p>
+      <h2 id="diagnostic-title">Transformer une demande en parcours assureur qualifie.</h2>
+      <p class="large-copy">Les meilleurs leads arrivent avec un statut, un type de bien et une urgence clairs. Le diagnostic ajuste le devis, le message de rappel et les signaux de conversion.</p>
+      <div class="diagnostic-proof" aria-label="Elements qualifies"><span>Statut</span><span>Bien</span><span>Priorite</span><span>Pieces</span></div>
+    </div>
+    <div class="diagnostic-panel">
+      <fieldset class="diagnostic-step">
+        <legend>Profil</legend>
+        <button class="diagnostic-choice is-active" type="button" data-diagnostic-option data-step="profile" data-value="bailleur">Bailleur</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="profile" data-value="sci">SCI</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="profile" data-value="syndic-professionnel">Syndic</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="profile" data-value="administrateur-biens">Admin. biens</button>
+      </fieldset>
+      <fieldset class="diagnostic-step">
+        <legend>Bien</legend>
+        <button class="diagnostic-choice is-active" type="button" data-diagnostic-option data-step="property" data-value="lot-copropriete">Lot copro</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="immeuble-locatif">Immeuble</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="logement-vacant">Vacant</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="local-commercial">Commerce</button>
+      </fieldset>
+      <fieldset class="diagnostic-step">
+        <legend>Priorite</legend>
+        <button class="diagnostic-choice is-active" type="button" data-diagnostic-option data-step="urgency" data-value="echeance">Echeance</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="urgency" data-value="sinistre">Sinistre</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="urgency" data-value="prix">Prix</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="urgency" data-value="creation">Nouveau bien</button>
+      </fieldset>
+      <div class="diagnostic-result" aria-live="polite">
+        <p class="diagnostic-route">Parcours CNO</p>
+        <h3 class="diagnostic-result-title">Lot en copropriete non occupe.</h3>
+        <p class="diagnostic-result-text">Prioriser la responsabilite civile du coproprietaire, la vacance, le bail et la coherence avec le contrat immeuble.</p>
+        <ul class="diagnostic-next"><li>Contrat actuel</li><li>Statut d'occupation</li><li>Sinistres recents</li></ul>
+        <a class="button primary diagnostic-cta" data-track="diagnostic-devis" href="/devis-pno-cno?intent=cno">Continuer vers le devis qualifie</a>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ux-diagnostic:end -->
+<!-- ux-readiness:start -->
+<section class="band readiness-band" aria-labelledby="readiness-title">
+  <div class="readiness-shell" data-readiness>
+    <div class="readiness-copy">
+      <p class="eyebrow dark">Dossier pret assureur</p>
+      <h2 id="readiness-title">Voir en 30 secondes ce qui manque avant l'envoi aux assureurs.</h2>
+      <p class="large-copy">Chaque piece cochee rend la demande plus exploitable: echeance, contrat actuel, sinistres, lots et travaux. Le formulaire reprend ensuite les elements disponibles.</p>
+    </div>
+    <div class="readiness-panel">
+      <div class="readiness-meter" aria-live="polite">
+        <span class="readiness-label">Dossier a cadrer</span>
+        <strong class="readiness-score">20%</strong>
+        <span class="readiness-bar"><span></span></span>
+      </div>
+      <div class="readiness-checks" aria-label="Pieces disponibles">
+        <label><input type="checkbox" data-readiness-item data-points="22" data-label="contrat actuel" value="contrat-actuel">Contrat actuel</label>
+        <label><input type="checkbox" data-readiness-item data-points="20" data-label="appel de prime" value="appel-prime">Appel de prime</label>
+        <label><input type="checkbox" data-readiness-item data-points="18" data-label="sinistres 36 mois" value="sinistres-36-mois">Sinistres 36 mois</label>
+        <label><input type="checkbox" data-readiness-item data-points="16" data-label="nombre de lots" value="nombre-lots">Nombre de lots</label>
+        <label><input type="checkbox" data-readiness-item data-points="14" data-label="echeance" value="echeance">Echeance</label>
+        <label><input type="checkbox" data-readiness-item data-points="10" data-label="travaux prevus" value="travaux-prevus">Travaux prevus</label>
+      </div>
+      <p class="readiness-next">Cochez les pieces deja disponibles pour prioriser le rappel.</p>
+      <a class="button primary readiness-cta" data-track="readiness-devis" href="/devis-assurance-immeuble?intent=immeuble">Preparer ma demande</a>
+    </div>
+  </div>
+</section>
+<!-- ux-readiness:end -->
+<!-- ux-conversion-momentum:start -->
+<section class="band conversion-momentum-band" aria-labelledby="conversion-momentum-title">
+  <div class="conversion-momentum">
+    <div class="conversion-momentum-copy">
+      <p class="eyebrow dark">Priorite business</p>
+      <h2 id="conversion-momentum-title">Diriger chaque visiteur vers le devis qui convertit.</h2>
+      <p class="large-copy">Les recherches assurance immeuble ne valent pas toutes le meme parcours. ImmeubleAssur oriente vite vers CNO/PNO, multirisque immeuble ou audit contrat pour augmenter les leads exploitables.</p>
+    </div>
+    <div class="momentum-grid" aria-label="Parcours prioritaires">
+      <article>
+        <strong>CNO / PNO</strong>
+        <span>Lot loue, vacant ou coproprietaire non occupant.</span>
+        <a class="button primary" data-track="momentum-pno-cno" href="/devis-pno-cno?intent=pno-cno">Devis PNO/CNO</a>
+      </article>
+      <article>
+        <strong>Immeuble</strong>
+        <span>SCI, bailleur, syndic, immeuble de rapport ou monopropriete.</span>
+        <a class="button primary" data-track="momentum-immeuble" href="/devis-assurance-immeuble?intent=immeuble">Devis immeuble</a>
+      </article>
+      <article>
+        <strong>Dossier difficile</strong>
+        <span>Sinistre, resiliation, refus assureur ou franchise a auditer.</span>
+        <a class="button primary" data-track="momentum-audit" href="/audit-contrat-assurance-immeuble">Audit contrat</a>
+      </article>
+    </div>
+  </div>
+</section>
+<!-- ux-conversion-momentum:end -->
     <section class="band intro-band">
       <div class="section-head">
         <p class="eyebrow dark">Solutions immeuble</p>

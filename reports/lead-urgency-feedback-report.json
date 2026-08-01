@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T14:13:23.870Z",
+  "generated_at": "2026-08-01T14:17:31.778Z",
   "status": "passed",
   "pages_checked": 182,
   "urgent_pages": 166,
@@ -46,7 +46,7 @@
       "intent": "pno-cno",
       "urgency_level": "quote-ready",
       "pages": 116,
-      "pages_with_intent_link": 68,
+      "pages_with_intent_link": 81,
       "pages_with_conversion_route": 116,
       "missing_pages": [],
       "action": "Orienter vers le parcours PNO/CNO avec pre-remplissage."
