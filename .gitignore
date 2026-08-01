@@ -15,5 +15,6 @@ reports/local-conversion-action-sync-report.json
 reports/local-conversion-funnel-report.json
 reports/local-lead-quality-report.json
 reports/local-lead-sla-report.json
+reports/local-production-monitor-report.json
 reports/local-seo-backlog-report.json
 reports/local-sqlite-restore-report.json
