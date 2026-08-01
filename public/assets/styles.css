@@ -1696,7 +1696,9 @@ details:hover {
   display: grid;
   gap: 10px;
   left: 1rem;
+  max-height: calc(100vh - 9rem);
   max-width: 390px;
+  overflow: auto;
   padding: 18px;
   position: fixed;
   z-index: 47;
@@ -1764,6 +1766,57 @@ details:hover {
   color: #475569;
   font-size: .76rem;
   line-height: 1.28;
+}
+
+.traffic-no-click-urgency {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.traffic-no-click-urgency button {
+  min-width: 0;
+  min-height: 48px;
+  padding: 8px;
+  border: 1px solid rgba(15, 23, 42, .12);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--navy);
+  cursor: pointer;
+  text-align: left;
+}
+
+.traffic-no-click-urgency button:hover,
+.traffic-no-click-urgency button:focus-visible,
+.traffic-no-click-urgency button.is-active {
+  border-color: rgba(37, 99, 235, .38);
+  background: #eff6ff;
+  outline: none;
+}
+
+.traffic-no-click-urgency strong,
+.traffic-no-click-urgency span,
+.traffic-no-click-detail {
+  display: block;
+}
+
+.traffic-no-click-urgency strong {
+  color: #1d4ed8;
+  font-size: .76rem;
+  font-weight: 900;
+}
+
+.traffic-no-click-urgency span {
+  margin-top: 2px;
+  color: #475569;
+  font-size: .69rem;
+  line-height: 1.22;
+}
+
+.traffic-no-click-detail {
+  color: #334155;
+  font-size: .78rem;
+  line-height: 1.35;
 }
 
 .traffic-no-click-actions {
@@ -1973,6 +2026,7 @@ textarea:focus {
   }
 
   .traffic-no-click-intents,
+  .traffic-no-click-urgency,
   .traffic-no-click-actions,
   .content-lead-bridge-actions {
     display: grid;

@@ -400,6 +400,7 @@ export async function onRequestGet({ request, env }) {
   const rescueExpressClicks = countFrom(eventCounts, "lead_form_rescue_express_click");
   const rescueDismissed = countFrom(eventCounts, "lead_form_rescue_dismissed");
   const trafficRescueShown = countFrom(eventCounts, "traffic_without_click_shown");
+  const trafficRescueUrgencySelects = countFrom(eventCounts, "traffic_without_click_urgency_select");
   const trafficRescueQuoteClicks = countFrom(eventCounts, "traffic_without_click_quote_click");
   const trafficRescuePhoneClicks = countFrom(eventCounts, "traffic_without_click_phone_click");
   const trafficRescueDismissed = countFrom(eventCounts, "traffic_without_click_dismissed");
@@ -445,6 +446,7 @@ export async function onRequestGet({ request, env }) {
     form_rescue_express_clicks: rescueExpressClicks,
     form_rescue_dismissed: rescueDismissed,
     traffic_rescue_shown: trafficRescueShown,
+    traffic_rescue_urgency_selects: trafficRescueUrgencySelects,
     traffic_rescue_clicks: trafficRescueClicks,
     traffic_rescue_quote_clicks: trafficRescueQuoteClicks,
     traffic_rescue_phone_clicks: trafficRescuePhoneClicks,
@@ -471,6 +473,7 @@ export async function onRequestGet({ request, env }) {
     form_rescue_express_rate: pct(rescueExpressClicks, rescueShown),
     form_rescue_dismiss_rate: pct(rescueDismissed, rescueShown),
     traffic_rescue_click_rate: pct(trafficRescueClicks, trafficRescueShown),
+    traffic_rescue_urgency_select_rate: pct(trafficRescueUrgencySelects, trafficRescueShown),
     traffic_rescue_quote_rate: pct(trafficRescueQuoteClicks, trafficRescueShown),
     traffic_rescue_phone_rate: pct(trafficRescuePhoneClicks, trafficRescueShown),
     traffic_rescue_dismiss_rate: pct(trafficRescueDismissed, trafficRescueShown),

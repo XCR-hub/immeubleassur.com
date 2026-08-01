@@ -25,6 +25,7 @@ const trafficNoClickDismissKey = "immeubleassur_traffic_no_click_dismissed";
 let trafficNoClickInteracted = false;
 let trafficNoClickShown = false;
 let trafficNoClickTimer = 0;
+let trafficNoClickSelectedUrgency = "standard";
 let botSignalFirstInteractionAt = 0;
 let botSignalInteractionCount = 0;
 let botSignalPointer = false;
@@ -1350,9 +1351,9 @@ function renderQuoteFastTrack(shell, key, shouldTrack = false) {
   if (shouldTrack) track("quote_router_select", { target: key, label: row.title, route: row.href, source: "quote-fast-track" });
 }
 
-function quoteFastTrackApply(row) {
+function quoteFastTrackApply(row, messageOverride = "") {
   if (!form) return false;
-  applyFormValues({ ...row, message: quoteFastTrackMessage(row) });
+  applyFormValues({ ...row, message: messageOverride || quoteFastTrackMessage(row) });
   return true;
 }
 
@@ -1696,16 +1697,17 @@ function syncHeroFastTrack(key, row) {
   }
 }
 
-function startHeroPrefill(key, row, source, targetLabel) {
+function startHeroPrefill(key, row, source, targetLabel, options = {}) {
   trafficNoClickInteracted = true;
   if (trafficNoClickTimer) window.clearTimeout(trafficNoClickTimer);
   document.body.dataset.intent = key;
-  quoteFastTrackApply(row);
+  quoteFastTrackApply(row, options.message || "");
   syncHeroFastTrack(key, row);
-  track("quote_router_continue", { target: key, label: row.title, route: row.href, mode: "hero-prefill", source });
+  const extraPayload = options.payload || {};
+  track("quote_router_continue", { target: key, label: row.title, route: row.href, mode: "hero-prefill", source, ...extraPayload });
   if (!formStarted) {
     formStarted = true;
-    track("form_start", { target: targetLabel, label: key });
+    track("form_start", { target: targetLabel, label: key, ...(options.formPayload || extraPayload) });
   }
   form.scrollIntoView({ behavior: "smooth", block: "start" });
   const focusTarget = form.querySelector("input[name='name'], input[name='phone'], input[name='email']");
@@ -1857,14 +1859,16 @@ function bindHomepageDevisAccelerator() {
     startHeroPrefill(key, row, "homepage-devis-accelerator", link.dataset.track || "homepage-devis");
   });
 }
-function trafficNoClickPayload(action) {
+function trafficNoClickPayload(action, extra = {}) {
   return {
     target: action,
     label: currentLeadIntent(),
+    urgency: extra.urgency || trafficNoClickSelectedUrgency,
     source_path: currentPathWithQuery(),
     content_kind: "homepage",
     step: "traffic-without-click",
-    level: "homepage-rescue"
+    level: "homepage-rescue",
+    ...extra
   };
 }
 
@@ -1896,15 +1900,52 @@ function trafficNoClickIntentKey() {
   return "immeuble";
 }
 
+function trafficNoClickUrgencyRows() {
+  return {
+    standard: { label: "Comparer", text: "Prix, garanties, franchises", message: "Priorite: obtenir un comparatif clair entre prime, franchises et garanties." },
+    echeance: { label: "Echeance", text: "Contrat a revoir", message: "Priorite: comparer le contrat actuel avant echeance avec les exclusions et plafonds." },
+    urgent: { label: "Urgent", text: "Sinistre, refus, sans assurance", message: "Priorite: rappel rapide car sinistre, resiliation, refus assureur ou echeance proche." }
+  };
+}
+
+function trafficNoClickUrgencyMessage(key) {
+  const rows = trafficNoClickUrgencyRows();
+  return (rows[key] || rows.standard).message;
+}
+
+function trafficNoClickMessage(row, urgencyKey = trafficNoClickSelectedUrgency) {
+  return `${quoteFastTrackMessage(row)} ${trafficNoClickUrgencyMessage(urgencyKey)}`;
+}
+
+function setTrafficNoClickUrgency(panel, key, shouldTrack = true) {
+  const rows = trafficNoClickUrgencyRows();
+  const selected = rows[key] ? key : "standard";
+  const row = rows[selected];
+  trafficNoClickSelectedUrgency = selected;
+  panel.dataset.urgency = selected;
+  panel.querySelectorAll("[data-traffic-no-click-urgency]").forEach((button) => {
+    const active = button.dataset.trafficNoClickUrgency === selected;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+  const detail = panel.querySelector("[data-traffic-no-click-urgency-detail]");
+  if (detail) detail.textContent = row.message;
+  if (shouldTrack) track("traffic_without_click_urgency_select", trafficNoClickPayload("urgency", { urgency: selected, label: row.label, detail: row.text }));
+}
+
 function startTrafficNoClickPrefill(key) {
   const rows = trafficNoClickIntentRows();
   const selected = rows[key] ? key : trafficNoClickIntentKey();
   const row = rows[selected] || rows.immeuble;
+  const urgencyRows = trafficNoClickUrgencyRows();
+  const urgency = trafficNoClickSelectedUrgency;
+  const urgencyRow = urgencyRows[urgency] || urgencyRows.standard;
+  const rescuePayload = { urgency, urgency_label: urgencyRow.label, urgency_detail: urgencyRow.text, source: "traffic-no-click-rescue" };
   trafficNoClickInteracted = true;
-  track("traffic_without_click_quote_click", { ...trafficNoClickPayload("quote"), target: selected, label: row.title, route: row.href });
-  track("quote_router_select", { target: selected, label: row.title, route: row.href, source: "traffic-no-click-rescue" });
+  track("traffic_without_click_quote_click", { ...trafficNoClickPayload("quote", rescuePayload), target: selected, label: row.title, route: row.href });
+  track("quote_router_select", { target: selected, label: row.title, route: row.href, ...rescuePayload });
   dismissTrafficNoClickRescue("");
-  startHeroPrefill(selected, row, "traffic-no-click-rescue", "traffic-no-click-rescue");
+  startHeroPrefill(selected, row, "traffic-no-click-rescue", "traffic-no-click-rescue", { message: trafficNoClickMessage(row, urgency), payload: rescuePayload });
 }
 
 function focusHomepageQuoteForm() {
@@ -1925,14 +1966,19 @@ function showTrafficNoClickRescue() {
   if (document.querySelector(".traffic-no-click-rescue")) return;
   const rows = trafficNoClickIntentRows();
   const intentButtons = Object.entries(rows).map(([key, row]) => `<button type="button" data-traffic-no-click-intent="${key}"><strong>${row.label}</strong><span>${row.title}</span></button>`).join("");
+  const urgencyButtons = Object.entries(trafficNoClickUrgencyRows()).map(([key, row]) => `<button type="button" data-traffic-no-click-urgency="${key}" aria-pressed="false"><strong>${row.label}</strong><span>${row.text}</span></button>`).join("");
   const panel = document.createElement("aside");
   panel.className = "traffic-no-click-rescue";
   panel.setAttribute("aria-label", "Acces rapide devis immeuble");
-  panel.innerHTML = `<button class="traffic-no-click-close" type="button" data-traffic-no-click-close aria-label="Fermer">&times;</button><p class="eyebrow dark">Devis immeuble</p><strong>Choisissez le parcours le plus proche.</strong><span>Le formulaire se pre-remplit avec les informations utiles assureur: lots, usage, sinistres et echeance.</span><div class="traffic-no-click-intents" role="group" aria-label="Choisir le parcours devis">${intentButtons}</div><div class="traffic-no-click-actions"><a class="button primary" data-track="traffic-no-click-devis" data-traffic-no-click-quote href="#lead-form">Demarrer par defaut</a><a class="button secondary" data-track="traffic-no-click-phone" data-traffic-no-click-phone href="tel:+33180855786">Appeler</a></div>`;
+  panel.innerHTML = `<button class="traffic-no-click-close" type="button" data-traffic-no-click-close aria-label="Fermer">&times;</button><p class="eyebrow dark">Devis immeuble</p><strong>Choisissez le parcours le plus proche.</strong><span>Le formulaire se pre-remplit avec les informations utiles assureur: lots, usage, sinistres et echeance.</span><div class="traffic-no-click-intents" role="group" aria-label="Choisir le parcours devis">${intentButtons}</div><div class="traffic-no-click-urgency" role="group" aria-label="Priorite de rappel">${urgencyButtons}</div><small class="traffic-no-click-detail" data-traffic-no-click-urgency-detail></small><div class="traffic-no-click-actions"><a class="button primary" data-track="traffic-no-click-devis" data-traffic-no-click-quote href="#lead-form">Demarrer par defaut</a><a class="button secondary" data-track="traffic-no-click-phone" data-traffic-no-click-phone href="tel:+33180855786">Appeler</a></div>`;
   document.body.append(panel);
   trafficNoClickShown = true;
+  setTrafficNoClickUrgency(panel, trafficNoClickSelectedUrgency, false);
   track("traffic_without_click_shown", trafficNoClickPayload("shown"));
   panel.querySelector("[data-traffic-no-click-close]")?.addEventListener("click", () => dismissTrafficNoClickRescue("closed"));
+  panel.querySelectorAll("[data-traffic-no-click-urgency]").forEach((button) => {
+    button.addEventListener("click", () => setTrafficNoClickUrgency(panel, button.dataset.trafficNoClickUrgency || "standard"));
+  });
   panel.querySelectorAll("[data-traffic-no-click-intent]").forEach((button) => {
     button.addEventListener("click", () => startTrafficNoClickPrefill(button.dataset.trafficNoClickIntent || "immeuble"));
   });
