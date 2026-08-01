@@ -1686,6 +1686,33 @@ function bindHeroActionAccelerator() {
     });
   });
 }
+
+function leadBarIntentKey(link) {
+  const href = link?.getAttribute("href") || "";
+  const requested = currentLeadIntent();
+  if (href.includes("pno-cno") || requested === "pno" || requested === "cno") return requested === "pno" ? "pno" : "cno";
+  if (["copropriete", "sci", "immeuble", "travaux", "local-commercial", "sinistre", "prix", "veille"].includes(requested)) return requested;
+  if (["audit", "audit-contrat"].includes(requested)) return "audit";
+  return "immeuble";
+}
+
+function bindLeadBarAccelerator() {
+  if (!form) return;
+  const bar = document.querySelector(".lead-action-bar");
+  if (!bar || bar.dataset.leadBarAccelerator === "1") return;
+  const quote = bar.querySelector("[data-track='sticky-devis']");
+  if (!quote) return;
+  const rows = quoteFastTrackRows();
+  bar.dataset.leadBarAccelerator = "1";
+  quote.addEventListener("click", (event) => {
+    const key = leadBarIntentKey(quote);
+    const row = rows[key] || rows.immeuble;
+    event.preventDefault();
+    quote.classList.add("is-active");
+    track("quote_router_select", { target: key, label: row.title, route: row.href, source: "lead-action-bar" });
+    startHeroPrefill(key, row, "lead-action-bar", "sticky-devis");
+  });
+}
 function trafficNoClickPayload(action) {
   return {
     target: action,
@@ -1979,6 +2006,7 @@ bindFormAbandonment();
 bindBotSignalTracking();
 bindHeroIntentAccelerator();
 bindHeroActionAccelerator();
+bindLeadBarAccelerator();
 bindTrafficNoClickRescue();
 bindGrowthTracking();
 bindFormRescue();

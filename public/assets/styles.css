@@ -1204,6 +1204,15 @@ address a {
   padding: .65rem .85rem;
 }
 
+.lead-action-bar[data-lead-bar-accelerator="1"] .button.primary {
+  cursor: pointer;
+}
+
+.lead-action-bar .button.is-active {
+  outline: 2px solid rgba(244, 199, 106, .88);
+  outline-offset: 2px;
+}
+
 body:has(.lead-action-bar) {
   padding-bottom: 5.5rem;
 }
