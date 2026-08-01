@@ -91,12 +91,16 @@ function pathFunnels(database, sinceSql, maxRows) {
         SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts,
         SUM(CASE WHEN event_type = 'form_submit_attempt' THEN 1 ELSE 0 END) AS submit_attempts,
         SUM(CASE WHEN event_type = 'lead_submit_error' THEN 1 ELSE 0 END) AS submit_errors,
+        SUM(CASE WHEN event_type = 'lead_form_rescue_shown' THEN 1 ELSE 0 END) AS form_rescue_shown,
+        SUM(CASE WHEN event_type = 'lead_form_rescue_phone_click' THEN 1 ELSE 0 END) AS form_rescue_phone_clicks,
+        SUM(CASE WHEN event_type = 'lead_form_rescue_express_click' THEN 1 ELSE 0 END) AS form_rescue_express_clicks,
+        SUM(CASE WHEN event_type = 'lead_form_rescue_dismissed' THEN 1 ELSE 0 END) AS form_rescue_dismissed,
         SUM(CASE WHEN event_type = 'lead_form_abandoned' THEN 1 ELSE 0 END) AS abandoned_forms,
         SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created
       FROM site_events
       WHERE created_at >= datetime('now', ?)
       GROUP BY raw_path
-      HAVING page_views + quote_router_views + cta_clicks + traffic_rescue_shown + content_bridge_shown + form_starts + submit_attempts + leads_created > 0
+      HAVING page_views + quote_router_views + cta_clicks + traffic_rescue_shown + content_bridge_shown + form_rescue_shown + form_starts + submit_attempts + leads_created > 0
       ORDER BY page_views DESC, form_starts DESC, leads_created DESC
       LIMIT ?
     `)
@@ -140,6 +144,12 @@ function enrichPath(row) {
     form_starts: formStarts,
     submit_attempts: submitAttempts,
     submit_errors: Number(row.submit_errors || 0),
+    form_rescue_shown: Number(row.form_rescue_shown || 0),
+    form_rescue_phone_clicks: Number(row.form_rescue_phone_clicks || 0),
+    form_rescue_express_clicks: Number(row.form_rescue_express_clicks || 0),
+    form_rescue_dismissed: Number(row.form_rescue_dismissed || 0),
+    form_rescue_phone_rate: pct(row.form_rescue_phone_clicks, row.form_rescue_shown),
+    form_rescue_express_rate: pct(row.form_rescue_express_clicks, row.form_rescue_shown),
     abandoned_forms: Number(row.abandoned_forms || 0),
     leads_created: leadsCreated,
     start_rate: pct(formStarts, pageViews),
@@ -241,6 +251,8 @@ function summaryFrom(events, leadStats, days, paths = []) {
   const trafficRescueShown = countFor(events, "traffic_without_click_shown");
   const trafficRescueClicks = countFor(events, "traffic_without_click_quote_click") + countFor(events, "traffic_without_click_phone_click");
   const trafficRescueDismissed = countFor(events, "traffic_without_click_dismissed");
+  const formRescueShown = countFor(events, "lead_form_rescue_shown");
+  const formRescueExpressClicks = countFor(events, "lead_form_rescue_express_click");
   return {
     lookback_days: days,
     page_views: pageViews,
@@ -265,6 +277,12 @@ function summaryFrom(events, leadStats, days, paths = []) {
     form_starts: formStarts,
     submit_attempts: submitAttempts,
     submit_errors: countFor(events, "lead_submit_error") + countFor(events, "lead_submit_rejected"),
+    form_rescue_shown: formRescueShown,
+    form_rescue_phone_clicks: countFor(events, "lead_form_rescue_phone_click"),
+    form_rescue_express_clicks: formRescueExpressClicks,
+    form_rescue_dismissed: countFor(events, "lead_form_rescue_dismissed"),
+    form_rescue_phone_rate: pct(countFor(events, "lead_form_rescue_phone_click"), formRescueShown),
+    form_rescue_express_rate: pct(formRescueExpressClicks, formRescueShown),
     abandoned_forms: countFor(events, "lead_form_abandoned"),
     leads_event: leadsEvent,
     leads_db: leadsDb,

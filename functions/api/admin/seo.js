@@ -397,6 +397,7 @@ export async function onRequestGet({ request, env }) {
   const abandoned = countFrom(eventCounts, "lead_form_abandoned");
   const rescueShown = countFrom(eventCounts, "lead_form_rescue_shown");
   const rescuePhoneClicks = countFrom(eventCounts, "lead_form_rescue_phone_click");
+  const rescueExpressClicks = countFrom(eventCounts, "lead_form_rescue_express_click");
   const rescueDismissed = countFrom(eventCounts, "lead_form_rescue_dismissed");
   const trafficRescueShown = countFrom(eventCounts, "traffic_without_click_shown");
   const trafficRescueQuoteClicks = countFrom(eventCounts, "traffic_without_click_quote_click");
@@ -441,6 +442,7 @@ export async function onRequestGet({ request, env }) {
     abandoned_forms: abandoned,
     form_rescue_shown: rescueShown,
     form_rescue_phone_clicks: rescuePhoneClicks,
+    form_rescue_express_clicks: rescueExpressClicks,
     form_rescue_dismissed: rescueDismissed,
     traffic_rescue_shown: trafficRescueShown,
     traffic_rescue_clicks: trafficRescueClicks,
@@ -466,6 +468,7 @@ export async function onRequestGet({ request, env }) {
     value_hint_to_lead_rate: pct(leadCreated, valueHintReady),
     abandon_rate: pct(abandoned, formStarts),
     form_rescue_phone_rate: pct(rescuePhoneClicks, rescueShown),
+    form_rescue_express_rate: pct(rescueExpressClicks, rescueShown),
     form_rescue_dismiss_rate: pct(rescueDismissed, rescueShown),
     traffic_rescue_click_rate: pct(trafficRescueClicks, trafficRescueShown),
     traffic_rescue_quote_rate: pct(trafficRescueQuoteClicks, trafficRescueShown),

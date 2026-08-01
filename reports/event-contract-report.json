@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T03:11:09.384Z",
+  "generated_at": "2026-08-01T03:26:42.046Z",
   "tracked_events": [
     "content_lead_bridge_dismissed",
     "content_lead_bridge_phone_click",
@@ -17,6 +17,7 @@
     "lead_duplicate_returned",
     "lead_form_abandoned",
     "lead_form_rescue_dismissed",
+    "lead_form_rescue_express_click",
     "lead_form_rescue_phone_click",
     "lead_form_rescue_shown",
     "lead_intent_prefill",
@@ -60,6 +61,7 @@
     "lead_duplicate_returned",
     "lead_form_abandoned",
     "lead_form_rescue_dismissed",
+    "lead_form_rescue_express_click",
     "lead_form_rescue_phone_click",
     "lead_form_rescue_shown",
     "lead_intent_prefill",

@@ -328,6 +328,7 @@ function readForm(formElement) {
     units_count: String(data.units_count || "").trim(),
     need: String(data.need || "multirisque-immeuble").trim(),
     message: String(data.message || "").trim(),
+    submission_mode: String(formElement.dataset.submissionMode || data.submission_mode || "").trim(),
     consent: data.consent === "on",
     company_website: String(data.company_website || "").trim(),
     turnstile_token: turnstileResponse,
@@ -367,11 +368,46 @@ const fieldLabels = {
   consent: "accord de contact"
 };
 
+function emailLooksValid(value) {
+  const email = String(value || "").trim();
+  return email.includes("@") && email.length >= 6;
+}
+
+function phoneLooksValid(value) {
+  return String(value || "").replace(/\D/g, "").length >= 9;
+}
+
+function isExpressCallback(payload) {
+  return String(payload.submission_mode || "") === "express-callback";
+}
+
 function validationDetails(payload) {
+  if (isExpressCallback(payload)) {
+    const missing = [];
+    const invalid = [];
+    const phoneFilled = Boolean(payload.phone);
+    const emailFilled = Boolean(payload.email);
+    if (!phoneFilled && !emailFilled) missing.push("phone", "email");
+    if (phoneFilled && !phoneLooksValid(payload.phone)) invalid.push("phone");
+    if (emailFilled && !emailLooksValid(payload.email)) invalid.push("email");
+    if (!payload.consent) missing.push("consent");
+    const fields = [...missing, ...invalid];
+    if (!fields.length) return { message: "", missing, invalid, step: "express-callback", blocking_fields: [] };
+    const hasValidContact = phoneLooksValid(payload.phone) || emailLooksValid(payload.email);
+    const message = !hasValidContact
+      ? "Rappel express: telephone ou email valide requis."
+      : !payload.consent
+        ? "Cochez l'accord de contact."
+        : invalid.includes("email")
+          ? "Adresse email invalide."
+          : "Numero de telephone invalide.";
+    return { message, missing, invalid, step: "express-callback", blocking_fields: fields, labels: fields.map((field) => fieldLabels[field] || field) };
+  }
+
   const missing = requiredFields.filter((field) => !payload[field]);
   const invalid = [];
-  if (!missing.includes("email") && (!payload.email.includes("@") || payload.email.length < 6)) invalid.push("email");
-  if (!missing.includes("phone") && payload.phone.replace(/\D/g, "").length < 9) invalid.push("phone");
+  if (!missing.includes("email") && !emailLooksValid(payload.email)) invalid.push("email");
+  if (!missing.includes("phone") && !phoneLooksValid(payload.phone)) invalid.push("phone");
   if (!payload.consent) missing.push("consent");
 
   const fields = [...missing, ...invalid];
@@ -1563,7 +1599,7 @@ function showFormRescue(reason = "hesitation") {
 
   const panel = document.createElement("div");
   panel.className = "form-rescue";
-  panel.innerHTML = `<div><strong>Un conseiller peut finaliser avec vous.</strong><span>Rappel direct pour cadrer l'immeuble, les garanties et l'echeance.</span></div><div class="form-rescue-actions"><a class="button secondary" href="tel:+33180855786" data-form-rescue-phone>01 80 85 57 86</a><button class="button secondary form-rescue-close" type="button" data-form-rescue-close>Continuer</button></div>`;
+  panel.innerHTML = `<div><strong>Un conseiller peut finaliser avec vous.</strong><span>Rappel direct pour cadrer l'immeuble, les garanties et l'echeance.</span></div><div class="form-rescue-actions"><button class="button primary" type="submit" data-form-rescue-express="1">Rappel express</button><a class="button secondary" href="tel:+33180855786" data-form-rescue-phone>01 80 85 57 86</a><button class="button secondary form-rescue-close" type="button" data-form-rescue-close>Continuer</button></div>`;
 
   const anchor = form.querySelector(".form-status") || form.querySelector("button[type='submit']");
   if (anchor) anchor.insertAdjacentElement("beforebegin", panel);
@@ -1572,6 +1608,10 @@ function showFormRescue(reason = "hesitation") {
   formRescueShown = true;
   track("lead_form_rescue_shown", formRescueTelemetry(payload, reason));
 
+  panel.querySelector("[data-form-rescue-express]")?.addEventListener("click", () => {
+    form.dataset.submissionMode = "express-callback";
+    track("lead_form_rescue_express_click", { ...formRescueTelemetry(readForm(form), "express-callback"), source: "express-callback" });
+  });
   panel.querySelector("[data-form-rescue-phone]")?.addEventListener("click", () => {
     track("lead_form_rescue_phone_click", formRescueTelemetry(readForm(form), "phone"));
   });
@@ -1944,6 +1984,8 @@ function bindGrowthTracking() {
 
 form?.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (event.submitter?.matches?.("[data-form-rescue-express]")) form.dataset.submissionMode = "express-callback";
+  else delete form.dataset.submissionMode;
   const payload = readForm(form);
 
   if (payload.company_website) {
@@ -1966,7 +2008,7 @@ form?.addEventListener("submit", async (event) => {
   submitButton.disabled = true;
   setStatus("Transmission du dossier en cours...");
   const qualification = leadQualification(payload);
-  track("form_submit_attempt", { target: payload.need, label: payload.profile, ...leadValueEventPayload(payload, qualification) });
+  track("form_submit_attempt", { target: payload.need, label: payload.profile, source: payload.submission_mode || "full-lead", ...leadValueEventPayload(payload, qualification) });
 
   try {
     const response = await fetch("/api/leads", {
@@ -1999,7 +2041,7 @@ form?.addEventListener("submit", async (event) => {
       });
       return;
     }
-    setStatus(`Demande recue. Reference ${result.reference}. Un conseiller vous rappelle rapidement.`, "ok");
+    setStatus(payload.submission_mode === "express-callback" ? `Rappel express recu. Reference ${result.reference}. Un conseiller vous rappelle pour completer le dossier.` : `Demande recue. Reference ${result.reference}. Un conseiller vous rappelle rapidement.`, "ok");
     track("lead_created", {
       lead_reference: result.reference,
       score: String(result.score || ""),
@@ -2015,6 +2057,7 @@ form?.addEventListener("submit", async (event) => {
       source_path: payload.source_path || "",
       content_bridge: payload.content_bridge || "",
       content_kind: payload.content_kind || "",
+      source: payload.submission_mode || "full-lead",
       target: payload.need,
       label: payload.city
     });

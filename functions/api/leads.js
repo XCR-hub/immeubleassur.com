@@ -514,6 +514,7 @@ function priorityFromScore(score) {
 }
 
 function nextActionFor(payload, score) {
+  if (clean(payload.submission_mode, 80) === "express-callback") return "Rappeler en priorite pour completer profil, ville, type de bien et pieces assureur.";
   const need = clean(payload.need, 80);
   const profile = clean(payload.profile, 80);
   const propertyType = clean(payload.property_type, 80);
@@ -592,6 +593,10 @@ function qualifyLead(payload) {
     score += 8;
     addReason(reasons, "pieces assureur disponibles");
   }
+  if (clean(payload.submission_mode, 80) === "express-callback") {
+    score += 6;
+    addReason(reasons, "rappel express");
+  }
   if (payload.message && payload.message.length > 40) {
     score += 10;
     addReason(reasons, "message detaille");
@@ -610,12 +615,24 @@ function qualifyLead(payload) {
 }
 
 function validate(payload) {
+  const express = clean(payload.submission_mode, 80) === "express-callback";
+  const email = clean(payload.email, 180);
+  const phone = clean(payload.phone, 80);
+  const validEmail = email.includes("@") && email.length >= 6;
+  const validPhone = phone.replace(/\D/g, "").length >= 9;
+  if (express) {
+    if (payload.consent !== true) return "Consentement requis";
+    if (email && !validEmail) return "Email invalide";
+    if (phone && !validPhone) return "Telephone invalide";
+    if (!validEmail && !validPhone) return "Telephone ou email requis";
+    return "";
+  }
   const required = ["name", "phone", "email", "profile", "property_type", "city"];
   for (const field of required) {
     if (!clean(payload[field])) return `Champ manquant: ${field}`;
   }
-  if (!clean(payload.email).includes("@")) return "Email invalide";
-  if (clean(payload.phone).replace(/\D/g, "").length < 9) return "Telephone invalide";
+  if (!validEmail) return "Email invalide";
+  if (!validPhone) return "Telephone invalide";
   if (payload.consent !== true) return "Consentement requis";
   return "";
 }
@@ -761,6 +778,7 @@ function buildLeadEmail({ id, reference, score, qualification, record, now }) {
   const subject = `Nouveau lead ImmeubleAssur ${reference}`;
   const text = [
     `Reference: ${reference}`,
+    `Mode: ${record.submission_mode || "complet"}`,
     `Score: ${score}`,
     `Priorite: ${qualification.priority}`,
     `Valeur estimee: ${qualification.value_estimate?.label || "non estimee"}`,
@@ -841,7 +859,7 @@ async function notifyLeadByEmail({ id, reference, score, qualification, record, 
   const headers = [
     `From: ImmeubleAssur <${config.from}>`,
     `To: ${config.to.join(", ")}`,
-    `Reply-To: ${headerSafe(record.email)}`,
+    ...(record.email ? [`Reply-To: ${headerSafe(record.email)}`] : []),
     `Subject: ${headerSafe(subject)}`,
     `Date: ${new Date(now).toUTCString()}`,
     `Message-ID: <${reference}.${id}@immeubleassur.com>`,
@@ -864,7 +882,7 @@ async function notifyDuplicateLeadByEmail({ duplicate, record, now }, env) {
   const headers = [
     `From: ImmeubleAssur <${config.from}>`,
     `To: ${config.to.join(", ")}`,
-    `Reply-To: ${headerSafe(record.email)}`,
+    ...(record.email ? [`Reply-To: ${headerSafe(record.email)}`] : []),
     `Subject: ${headerSafe(subject)}`,
     `Date: ${new Date(now).toUTCString()}`,
     `Message-ID: <duplicate.${duplicate.reference}.${messageIdTime}@immeubleassur.com>`,
@@ -971,17 +989,22 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const qualification = qualifyLead(payload);
   const score = qualification.score;
   const experiment = payload.experiment || {};
+  const submissionMode = clean(payload.submission_mode, 80);
+  const isExpress = submissionMode === "express-callback";
+  const expressNote = isExpress ? "Mode rappel express: le prospect accepte un rappel avec informations minimales; completer profil, type de bien, ville et pieces au telephone." : "";
+  const message = clean([clean(payload.message, 1800), expressNote].filter(Boolean).join("\n\n"), 2000);
 
   const record = {
-    name: clean(payload.name, 160),
+    name: clean(payload.name, 160) || (isExpress ? "A preciser" : ""),
     phone: clean(payload.phone, 80),
     email: clean(payload.email, 180).toLowerCase(),
-    profile: clean(payload.profile, 80),
-    property_type: clean(payload.property_type, 80),
-    city: clean(payload.city, 120),
+    profile: clean(payload.profile, 80) || (isExpress ? "a-preciser" : ""),
+    property_type: clean(payload.property_type, 80) || (isExpress ? "a-preciser" : ""),
+    city: clean(payload.city, 120) || (isExpress ? "a-preciser" : ""),
     units_count: clean(payload.units_count, 20),
     need: clean(payload.need, 80),
-    message: clean(payload.message, 2000),
+    message,
+    submission_mode: submissionMode,
     source: clean(payload.source || "website", 80),
     intent: clean(payload.intent || payload.utm?.intent, 80),
     source_path: clean(payload.source_path || payload.utm?.source_path, 500),
@@ -1086,6 +1109,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
       experiment_variant: record.experiment_variant,
       experiment_label: record.experiment_label,
       experiment: { id: record.experiment_id, variant: record.experiment_variant, label: record.experiment_label },
+      submission_mode: record.submission_mode,
+      contact_mode: [record.email && "email", phoneDigits(record.phone).length >= 8 && "telephone"].filter(Boolean).join("+"),
       utm: record.utm
     }, now);
 
@@ -1110,7 +1135,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       await logLeadEvent(env, id, "email_notification_failed", { reference, error: error.message || "Erreur SMTP" }, now);
     }
 
-    return reply({ success: true, id, reference, score, priority: qualification.priority, reasons: qualification.reasons, value_estimate: qualification.value_estimate, sla_hours: qualification.sla_hours, lead_urgency: record.lead_urgency, lead_urgency_reason: record.lead_urgency_reason, next_action: qualification.next_action, notification: notification.status });
+    return reply({ success: true, id, reference, score, priority: qualification.priority, reasons: qualification.reasons, value_estimate: qualification.value_estimate, sla_hours: qualification.sla_hours, lead_urgency: record.lead_urgency, lead_urgency_reason: record.lead_urgency_reason, next_action: qualification.next_action, submission_mode: record.submission_mode, notification: notification.status });
   } catch (error) {
     return reply({ success: false, error: error.message || "Erreur base de donnees" }, 500);
   }

@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-01T03:11:47.312Z",
+  "generated_at": "2026-08-01T03:27:51.766Z",
   "files_checked": 177,
   "files_changed": 0,
   "replacements": 0,
   "assets": {
     "styles": "/assets/styles.css?v=013238a4a1",
-    "app": "/assets/app.js?v=a59db64c3a",
-    "admin": "/assets/admin.js?v=2fbf2f15a8"
+    "app": "/assets/app.js?v=b2c1455f85",
+    "admin": "/assets/admin.js?v=e6d80410bd"
   },
   "changed": [],
   "status": "passed"
