@@ -20,6 +20,50 @@ function clean(value, max = 600) {
   return String(value || "").trim().slice(0, max);
 }
 
+function parseJson(value) {
+  try {
+    return JSON.parse(String(value || "{}"));
+  } catch {
+    return {};
+  }
+}
+
+function normalizedSeverity(value) {
+  const severity = clean(value, 40).toLowerCase();
+  if (["critical", "high", "medium", "warn", "low"].includes(severity)) return severity;
+  return "";
+}
+
+function severityFromOpportunity(row) {
+  const payload = parseJson(row.payload);
+  const explicit = normalizedSeverity(payload.severity) || normalizedSeverity(payload.source_stage_severity);
+  if (explicit) return explicit;
+  const type = clean(row.opportunity_type, 120).toLowerCase();
+  if (type.includes("submit-without-lead") || type.includes("aucun-lead-global")) return "critical";
+  if (type.includes("start-without-submit") || type.includes("aucun-submit-global")) return "high";
+  const score = Number(row.score || 0);
+  if (score >= 90) return "critical";
+  if (score >= 80) return "high";
+  if (score >= 65) return "medium";
+  return "low";
+}
+
+function mapOpportunityRow(row) {
+  return {
+    id: clean(row.id, 120),
+    url: clean(row.url, 700),
+    query: clean(row.query, 240),
+    opportunity_type: clean(row.opportunity_type, 120),
+    score: Number(row.score || 0),
+    severity: severityFromOpportunity(row),
+    status: clean(row.status, 40),
+    recommendation: clean(row.recommendation, 900),
+    created_at: row.created_at || "",
+    updated_at: row.updated_at || "",
+    age_days: ageDays(row.created_at)
+  };
+}
+
 function tableExists(database, name) {
   const row = database.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?").get(name);
   return Boolean(row?.name);
@@ -159,8 +203,8 @@ function rowsByStatus(database) {
       SELECT
         status,
         COUNT(*) AS count,
-        SUM(CASE WHEN score >= 90 THEN 1 ELSE 0 END) AS critical_count,
-        SUM(CASE WHEN score >= 80 AND score < 90 THEN 1 ELSE 0 END) AS high_count,
+        SUM(CASE WHEN COALESCE(NULLIF(CASE WHEN json_valid(payload) THEN json_extract(payload, '$.severity') ELSE NULL END, ''), NULLIF(CASE WHEN json_valid(payload) THEN json_extract(payload, '$.source_stage_severity') ELSE NULL END, ''), CASE WHEN score >= 90 THEN 'critical' ELSE '' END) = 'critical' THEN 1 ELSE 0 END) AS critical_count,
+        SUM(CASE WHEN COALESCE(NULLIF(CASE WHEN json_valid(payload) THEN json_extract(payload, '$.severity') ELSE NULL END, ''), NULLIF(CASE WHEN json_valid(payload) THEN json_extract(payload, '$.source_stage_severity') ELSE NULL END, ''), CASE WHEN score >= 80 AND score < 90 THEN 'high' ELSE '' END) = 'high' THEN 1 ELSE 0 END) AS high_count,
         COALESCE(AVG(score), 0) AS average_score,
         MIN(created_at) AS oldest_created_at,
         MAX(updated_at) AS latest_updated_at
@@ -191,49 +235,27 @@ function rowsByType(database) {
 function topOpen(database, limit) {
   return database
     .prepare(`
-      SELECT id, url, query, opportunity_type, score, status, recommendation, created_at, updated_at
+      SELECT id, url, query, opportunity_type, score, status, recommendation, payload, created_at, updated_at
       FROM seo_opportunities
       WHERE status = 'open'
       ORDER BY score DESC, updated_at ASC
       LIMIT ?
     `)
     .all(limit)
-    .map((row) => ({
-      id: clean(row.id, 120),
-      url: clean(row.url, 700),
-      query: clean(row.query, 240),
-      opportunity_type: clean(row.opportunity_type, 120),
-      score: Number(row.score || 0),
-      status: clean(row.status, 40),
-      recommendation: clean(row.recommendation, 900),
-      created_at: row.created_at || "",
-      updated_at: row.updated_at || "",
-      age_days: ageDays(row.created_at)
-    }));
+    .map((row) => mapOpportunityRow(row));
 }
 
 function conversionOpen(database, limit) {
   return database
     .prepare(`
-      SELECT id, url, query, opportunity_type, score, status, recommendation, created_at, updated_at
+      SELECT id, url, query, opportunity_type, score, status, recommendation, payload, created_at, updated_at
       FROM seo_opportunities
       WHERE status = 'open' AND opportunity_type LIKE 'conversion-funnel-%'
       ORDER BY score DESC, updated_at ASC
       LIMIT ?
     `)
     .all(limit)
-    .map((row) => ({
-      id: clean(row.id, 120),
-      url: clean(row.url, 700),
-      query: clean(row.query, 240),
-      opportunity_type: clean(row.opportunity_type, 120),
-      score: Number(row.score || 0),
-      status: clean(row.status, 40),
-      recommendation: clean(row.recommendation, 900),
-      created_at: row.created_at || "",
-      updated_at: row.updated_at || "",
-      age_days: ageDays(row.created_at)
-    }));
+    .map((row) => mapOpportunityRow(row));
 }
 
 function leadSourceQualityRows(database, limit) {
@@ -524,25 +546,14 @@ function sourceQualityRows(database, limit) {
 function staleRows(database, days, limit) {
   return database
     .prepare(`
-      SELECT id, url, query, opportunity_type, score, status, recommendation, created_at, updated_at
+      SELECT id, url, query, opportunity_type, score, status, recommendation, payload, created_at, updated_at
       FROM seo_opportunities
       WHERE status = 'open' AND created_at <= datetime('now', ?)
       ORDER BY score DESC, created_at ASC
       LIMIT ?
     `)
     .all(`-${days} days`, limit)
-    .map((row) => ({
-      id: clean(row.id, 120),
-      url: clean(row.url, 700),
-      query: clean(row.query, 240),
-      opportunity_type: clean(row.opportunity_type, 120),
-      score: Number(row.score || 0),
-      status: clean(row.status, 40),
-      recommendation: clean(row.recommendation, 900),
-      created_at: row.created_at || "",
-      updated_at: row.updated_at || "",
-      age_days: ageDays(row.created_at)
-    }));
+    .map((row) => mapOpportunityRow(row));
 }
 
 function ageDays(value) {
@@ -559,8 +570,9 @@ function summaryFrom(statusRows, topRows, conversionRows, stale, sourceQuality) 
     total_opportunities: total,
     open_opportunities: Number(open?.count || 0),
     stale_opportunities: Number(staleStatus?.count || 0),
-    critical_open: topRows.filter((row) => row.score >= 90).length,
-    high_open: topRows.filter((row) => row.score >= 80 && row.score < 90).length,
+    critical_open: topRows.filter((row) => row.severity === "critical").length,
+    high_open: topRows.filter((row) => row.severity === "high").length,
+    score_90_open: topRows.filter((row) => row.score >= 90).length,
     conversion_open: conversionRows.length,
     old_open: stale.length,
     qualified_source_count: sourceQuality.length,
@@ -580,11 +592,11 @@ function summaryFrom(statusRows, topRows, conversionRows, stale, sourceQuality) 
 function recommendations(summary, topRows, staleRowsList, conversionRows, sourceQuality) {
   const actions = [];
   if (summary.critical_open > 0) {
-    const top = topRows.find((row) => row.score >= 90);
+    const top = topRows.find((row) => row.severity === "critical");
     actions.push({
       type: "critical-backlog",
       severity: "critical",
-      signal: `${summary.critical_open} opportunite(s) score 90+`,
+      signal: `${summary.critical_open} opportunite(s) critique(s)`,
       action: top?.recommendation || "Traiter les opportunites critiques du backlog SEO/CRO.",
       url: top?.url || "admin/seo",
       score: 100

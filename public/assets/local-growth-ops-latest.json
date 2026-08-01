@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T13:53:10.614Z",
+  "generated_at": "2026-08-01T14:00:26.407Z",
   "status": "passed",
   "success": true,
   "attention_required": false,
@@ -14,7 +14,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T12:11:38.540Z",
-      "age_minutes": 101.5,
+      "age_minutes": 108.8,
       "summary": {
         "ok": 5,
         "failed": 0,
@@ -28,7 +28,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T12:11:38.761Z",
-      "age_minutes": 101.5,
+      "age_minutes": 108.8,
       "summary": {
         "open_leads": 0,
         "due_now": 0,
@@ -61,7 +61,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T12:11:38.913Z",
-      "age_minutes": 101.5,
+      "age_minutes": 108.8,
       "summary": {
         "lookback_days": 30,
         "leads_24h": 0,
@@ -85,7 +85,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T13:51:35.288Z",
-      "age_minutes": 1.6,
+      "age_minutes": 8.9,
       "summary": {
         "lookback_days": 30,
         "page_views": 0,
@@ -113,7 +113,7 @@
       "status": "no-data",
       "success": true,
       "attention_required": false,
-      "generated_at": "2026-08-01T13:53:10.111Z",
+      "generated_at": "2026-08-01T14:00:26.100Z",
       "age_minutes": 0,
       "summary": {
         "lookback_days": 30,
@@ -141,8 +141,8 @@
       "status": "passed",
       "success": true,
       "attention_required": false,
-      "generated_at": "2026-08-01T13:52:01.836Z",
-      "age_minutes": 1.1,
+      "generated_at": "2026-08-01T13:59:14.189Z",
+      "age_minutes": 1.2,
       "summary": {
         "total_opportunities": 0,
         "open_opportunities": 0,
