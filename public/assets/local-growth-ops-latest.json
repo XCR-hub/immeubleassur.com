@@ -1,21 +1,26 @@
 {
-  "generated_at": "2026-08-01T11:42:19.935Z",
+  "generated_at": "2026-08-01T11:52:51.112Z",
   "status": "passed",
   "success": true,
   "attention_required": false,
-  "reports_available": 5,
+  "reports_available": 6,
   "reports_expected": 6,
   "attention_count": 0,
-  "missing_reports": [
-    "production"
-  ],
+  "missing_reports": [],
   "reports": {
     "production": {
-      "available": false,
-      "status": "missing",
+      "available": true,
+      "status": "passed",
+      "success": true,
       "attention_required": false,
-      "generated_at": "",
-      "age_minutes": null
+      "generated_at": "2026-08-01T11:47:38.079Z",
+      "age_minutes": 5.2,
+      "summary": {
+        "ok": 5,
+        "failed": 0,
+        "warnings": 0
+      },
+      "failed_checks": []
     },
     "lead_sla": {
       "available": true,
@@ -23,7 +28,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T11:31:42.161Z",
-      "age_minutes": 10.6,
+      "age_minutes": 21.1,
       "summary": {
         "open_leads": 0,
         "due_now": 0,
@@ -56,7 +61,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T11:32:18.096Z",
-      "age_minutes": 10,
+      "age_minutes": 20.6,
       "summary": {
         "lookback_days": 30,
         "leads_24h": 0,
@@ -80,7 +85,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T11:31:42.250Z",
-      "age_minutes": 10.6,
+      "age_minutes": 21.1,
       "summary": {
         "lookback_days": 30,
         "page_views": 0,
@@ -109,7 +114,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T11:42:19.358Z",
-      "age_minutes": 0,
+      "age_minutes": 10.5,
       "summary": {
         "lookback_days": 30,
         "tracked_events": 0,
@@ -137,7 +142,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T11:31:42.154Z",
-      "age_minutes": 10.6,
+      "age_minutes": 21.1,
       "summary": {
         "total_opportunities": 0,
         "open_opportunities": 0,
@@ -168,14 +173,6 @@
     }
   },
   "priority_actions": [
-    {
-      "type": "production-monitor-missing",
-      "severity": "medium",
-      "signal": "rapport production absent",
-      "action": "Planifier ou lancer production:monitor sur le serveur pour consolider health, sauvegarde SQLite et telemetry.",
-      "target": "production:monitor",
-      "score": 74
-    },
     {
       "type": "seo-backlog-ok",
       "severity": "low",
