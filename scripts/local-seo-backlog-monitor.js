@@ -110,6 +110,13 @@ function intentFromSource(source) {
   return "immeuble";
 }
 
+function normalizedNeed(value, source) {
+  const raw = clean(value, 120);
+  const lower = raw.toLowerCase();
+  if (!raw) return intentFromSource(source);
+  if (raw.length > 42 || lower.includes("|") || lower.includes("immeubleassur") || lower.includes("devis gratuit")) return intentFromSource(source);
+  return raw;
+}
 function sourceStage(row) {
   const leads = Number(row.leads || 0) + Number(row.leads_created || 0);
   const submitAttempts = Number(row.submit_attempts || 0);
@@ -127,7 +134,7 @@ function sourceStage(row) {
 
 function sourceStageAction(row) {
   const source = clean(row.source || "source", 700) || "source";
-  const need = clean(row.top_need || intentFromSource(source), 120) || "immeuble";
+  const need = normalizedNeed(row.top_need, source) || "immeuble";
   const stage = row.source_stage || sourceStage(row).key;
   if (stage === "lead-growth") return `Amplifier ${source}: creer des liens internes depuis les pages proches, renforcer la preuve locale et pousser un CTA devis sur ${need}.`;
   if (stage === "submit-without-lead") return `Corriger ${source}: tester l'envoi complet, verifier Turnstile/validation/API et simplifier le bloc formulaire pour ${need}.`;
@@ -360,7 +367,7 @@ function eventSourceQualityRows(database, limit) {
       bridge_clicks: 0,
       needs: new Map()
     };
-    const intent = clean(row.intent || intentFromSource(source), 120) || intentFromSource(source);
+    const intent = normalizedNeed(row.intent, source);
     current.sessions += Number(row.sessions || 0);
     current.page_views += Number(row.page_views || 0);
     current.cta_clicks += Number(row.cta_clicks || 0);
@@ -458,7 +465,7 @@ function mergeSourceQualityRows(leadRows, eventRows, limit) {
     current.signal_score += Number(row.signal_score || 0);
     const basis = clean(row.quality_basis || (leads ? "leads" : "event-signals"), 40);
     if (basis) current.bases.add(basis);
-    const need = clean(row.top_need || intentFromSource(source), 120) || intentFromSource(source);
+    const need = normalizedNeed(row.top_need, source);
     const needWeight = leads * 5 + Number(row.form_starts || 0) * 3 + Number(row.submit_attempts || 0) * 4 + Number(row.cta_clicks || 0) + Number(row.sessions || 0);
     current.needs.set(need, (current.needs.get(need) || 0) + Math.max(1, needWeight));
     map.set(source, current);
