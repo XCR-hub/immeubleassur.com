@@ -112,6 +112,28 @@ const articles = [
     ]
   }
 ];
+const pnoArticleAngles = {
+  "cno-coproprietaire-non-occupant-obligatoire": {
+    summary: ["Cadrer l'obligation du coproprietaire non occupant.", "Verifier le lot, l'attestation immeuble et l'occupant.", "Separer CNO, PNO generale et contrat du syndicat."],
+    intentTitle: "Comprendre l'obligation CNO sans la confondre avec une PNO generale.",
+    intentCopy: "Cette page part du statut de coproprietaire non occupant. Elle relie lot privatif, responsabilite civile, assurance du syndicat, occupant eventuel et obligation minimale.",
+    guaranteeTitle: "Les garanties propres au coproprietaire.",
+    guaranteeCopy: "La priorite est de verifier ce qui reste a la charge du coproprietaire: responsabilite civile, degat des eaux parti du lot, recours, dependances et absence d'occupant.",
+    responseTitle: "Preparer une demande CNO utile.",
+    responseCopy: "Le dossier doit mentionner numero ou nature du lot, statut d'occupation, attestation immeuble, contrat occupant et echeance de la CNO actuelle.",
+    faq: [["La CNO est-elle toujours une PNO ?", "Elle est proche, mais l'angle CNO vise le coproprietaire non occupant en copropriete avec le contrat du syndicat a verifier."], ["Quel document prouve le contexte copropriete ?", "L'attestation ou les informations du contrat immeuble du syndicat aident a eviter les doublons."], ["Quand agir ?", "Des que le lot est loue, vacant, prete ou detenu en SCI sans occupation par le proprietaire."]]
+  },
+  "assurance-lot-vacant-copropriete": {
+    summary: ["Traiter la vacance comme un etat temporaire a declarer.", "Documenter surveillance, securisation et absence d'occupant.", "Verifier les exclusions avant un sinistre tardif."],
+    intentTitle: "Comprendre le risque propre au lot vacant.",
+    intentCopy: "Cette page traite une situation operationnelle: le lot n'est pas occupe, l'assurance occupant peut manquer et un sinistre peut etre decouvert plus tard.",
+    guaranteeTitle: "Les garanties sensibles pendant la vacance.",
+    guaranteeCopy: "Il faut relire degat des eaux, vandalisme, responsabilite civile, chauffage, visites de surveillance, coupure des fluides et conditions d'inoccupation.",
+    responseTitle: "Preparer une demande pour lot vide.",
+    responseCopy: "Le devis doit indiquer date de debut de vacance, duree probable, mesures de securisation, travaux prevus, ancien occupant et sinistres deja connus.",
+    faq: [["Faut-il declarer une vacance courte ?", "Oui si le contrat pose des conditions d'inoccupation ou de surveillance."], ["Le contrat du syndicat suffit-il ?", "Non, il peut couvrir certaines parties communes sans proteger toute la responsabilite du coproprietaire."], ["Quel signal rend le dossier meilleur ?", "Des visites, une securisation et des travaux suivis reduisent le risque percu."]]
+  }
+};
 
 function esc(value) {
   return String(value || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
@@ -163,7 +185,17 @@ function landingPage(page) {
 }
 
 function articlePage(article) {
-  const body = `<article class="article-layout rich-article"><header class="article-head"><p class="eyebrow dark">${esc(article.category)} - PNO/CNO</p><h1>${esc(article.title)}</h1><p>${esc(article.description)}</p></header><div class="article-body"><div class="article-summary"><strong>A retenir</strong><ul><li>La CNO concerne le coproprietaire non occupant.</li><li>La PNO/CNO complete l'assurance occupant et le contrat immeuble.</li><li>Le devis doit partir du bien, pas seulement du prix mensuel.</li></ul></div><section><h2>Comprendre l'intention de recherche.</h2><p>Une requete comme <strong>${esc(article.keyword)}</strong> exprime souvent un besoin immediat: savoir si le proprietaire est oblige de s'assurer, ce qui est couvert, combien coute le contrat et comment obtenir un devis fiable.</p><p>${esc(article.body[0])}</p></section><section><h2>Les garanties a verifier.</h2><p>${esc(article.body[1])}</p><p>Les points les plus sensibles sont la responsabilite civile, le degat des eaux, la recherche de fuite, l'incendie, le vandalisme, la vacance locative, les dependances, les parkings et les exclusions liees a l'absence d'occupant.</p></section><section><h2>Comment obtenir une reponse rapide.</h2><p>${esc(article.body[2])}</p><p>ImmeubleAssur transforme ces informations en fiche risque pour comparer les contrats sans multiplier les allers-retours.</p></section><section class="faq-list"><h2>Questions frequentes</h2><details><summary>Pourquoi le prix seul ne suffit pas ?</summary><p>Parce que deux contrats au meme prix peuvent avoir des franchises, plafonds et exclusions tres differents.</p></details><details><summary>Faut-il declarer un lot vacant ?</summary><p>Oui, la vacance peut modifier l'appetence assureur et les conditions de garantie.</p></details><details><summary>Qui doit remplir le formulaire ?</summary><p>Le proprietaire, le gerant de SCI, l'administrateur de biens ou le syndic qui centralise une demande PNO/CNO.</p></details></section><div class="source-box"><strong>Sources utiles</strong><a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/" rel="nofollow">Legifrance - assurance en copropriete</a><a href="https://www.service-public.fr/particuliers/vosdroits/F2028" rel="nofollow">Service-Public.fr - logement et location</a></div></div><aside class="article-cta">${form({ need: "pno-cno", profile: "bailleur" })}</aside></article>`;
+  const angle = pnoArticleAngles[article.slug] || {
+    summary: ["Comparer le statut PNO/CNO avant de choisir.", "Verifier occupant, lot, copropriete et contrat immeuble.", "Transformer la lecture en demande de devis exploitable."],
+    intentTitle: "Comprendre l'intention de recherche.",
+    intentCopy: `Une requete comme ${article.keyword} exprime souvent un besoin immediat: savoir quel contrat choisir, ce qui est couvert et comment obtenir un devis fiable.`,
+    guaranteeTitle: "Les garanties a verifier.",
+    guaranteeCopy: "Les points sensibles sont responsabilite civile, degat des eaux, recherche de fuite, incendie, vandalisme, dependances, parkings et conditions d'absence d'occupant.",
+    responseTitle: "Comment obtenir une reponse rapide.",
+    responseCopy: "ImmeubleAssur transforme ces informations en fiche risque pour comparer les contrats sans multiplier les allers-retours.",
+    faq: [["Pourquoi le prix seul ne suffit pas ?", "Deux contrats au meme prix peuvent avoir des franchises et exclusions tres differentes."], ["Qui doit remplir le formulaire ?", "Le proprietaire, le gerant de SCI, l'administrateur de biens ou le syndic qui centralise la demande."], ["Quel document aide le plus ?", "Le contrat actuel, l'attestation immeuble et le statut d'occupation accelerent la reponse."]]
+  };
+  const body = `<article class="article-layout rich-article"><header class="article-head"><p class="eyebrow dark">${esc(article.category)} - PNO/CNO</p><h1>${esc(article.title)}</h1><p>${esc(article.description)}</p></header><div class="article-body"><div class="article-summary"><strong>A retenir</strong><ul>${angle.summary.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></div><section><h2>${esc(angle.intentTitle)}</h2><p>${esc(angle.intentCopy)}</p><p>${esc(article.body[0])}</p></section><section><h2>${esc(angle.guaranteeTitle)}</h2><p>${esc(article.body[1])}</p><p>${esc(angle.guaranteeCopy)}</p></section><section><h2>${esc(angle.responseTitle)}</h2><p>${esc(article.body[2])}</p><p>${esc(angle.responseCopy)}</p></section><section class="faq-list"><h2>Questions frequentes</h2>${angle.faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</section><div class="source-box"><strong>Sources utiles</strong><a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/" rel="nofollow">Legifrance - assurance en copropriete</a><a href="https://www.service-public.fr/particuliers/vosdroits/F2028" rel="nofollow">Service-Public.fr - logement et location</a></div></div><aside class="article-cta">${form({ need: "pno-cno", profile: "bailleur" })}</aside></article>`;
   return layout({ slug: `blog/${article.slug}`, title: article.title, description: article.description, body });
 }
 

@@ -231,7 +231,7 @@
   },
   {
     "title": "Assurance immeuble locatif bailleur",
-    "description": "Assurance immeuble locatif: multirisque, responsabilite civile, vacance, degats des eaux, parties communes et lots loues.",
+    "description": "Assurance immeuble locatif: exploitation bailleur, loyers, occupation, rotation, vacance, sinistres et garanties batiment.",
     "url": "/assurance-immeuble-locatif"
   },
   {
@@ -405,8 +405,8 @@
     "url": "/assurance-immeuble-strasbourg"
   },
   {
-    "title": "Assurance immeuble pour syndic benevole",
-    "description": "Assurance immeuble syndic benevole: RC syndicat, multirisque copropriete, documents AG, sinistres et audit contrat.",
+    "title": "Assurance immeuble syndic benevole: mandat, archives et AG",
+    "description": "Assurance immeuble syndic benevole: mandat, PV, archives, echeance, sinistres et note de vote pour petite copropriete.",
     "url": "/assurance-immeuble-syndic-benevole"
   },
   {
@@ -465,8 +465,8 @@
     "url": "/assurance-local-commercial"
   },
   {
-    "title": "Assurance parties communes d'immeuble",
-    "description": "Assurance parties communes: RC immeuble, degats des eaux, toiture, hall, escaliers, syndic et garanties copropriete.",
+    "title": "Assurance parties communes: toiture, hall, reseaux et equipements",
+    "description": "Assurance parties communes: hall, escaliers, toiture, cour, reseaux, compteurs, ascenseur et dommages collectifs.",
     "url": "/assurance-parties-communes"
   },
   {
@@ -481,7 +481,7 @@
   },
   {
     "title": "Assurance SCI patrimoine immobilier",
-    "description": "Assurance SCI: immeuble locatif, PNO, multirisque, locaux mixtes et gestion du risque immobilier patrimonial.",
+    "description": "Assurance SCI: gouvernance du gerant, portefeuille immobilier, PNO par lot, multirisque et coherence patrimoniale.",
     "url": "/assurance-sci"
   },
   {
@@ -710,8 +710,8 @@
     "url": "/contact"
   },
   {
-    "title": "Courtier assurance immeuble pour bailleurs et syndics",
-    "description": "Courtier assurance immeuble: audit contrat, consultation assureur, lecture franchises et accompagnement SCI ou syndic.",
+    "title": "Courtier assurance immeuble: consultation assureur pilotee",
+    "description": "Courtier assurance immeuble: cahier des charges, presentation du risque, relances compagnie et arbitrage d'offres.",
     "url": "/courtier-assurance-immeuble"
   },
   {

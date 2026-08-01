@@ -174,6 +174,228 @@ const articleAngles = {
     ctaNeed: "multirisque-immeuble"
   }
 };
+const mediumRiskArticleAngles = {
+  "assurance-copropriete-avant-ag": {
+    summary: ["Preparer une note de vote lisible avant assemblee generale.", "Separer budget, sinistres, franchise et decision des coproprietaires.", "Arriver en AG avec options et consequences pratiques."],
+    contextTitle: "Quand l'assurance devient un sujet d'assemblee generale.",
+    context: "Cette page sert aux conseils syndicaux qui doivent transformer un contrat technique en decision collective: budget previsionnel, sinistres declares, garanties sensibles et marge de negociation avant l'AG.",
+    documentsTitle: "Les pieces a mettre dans le dossier AG.",
+    documents: "Le dossier AG doit reunir ordre du jour, contrat en cours, appel de prime, sinistres commentes, travaux votes et options proposees. Le sujet central est la decision collective, pas la simple lecture d'une garantie.",
+    contractTitle: "Lire le contrat comme une resolution a voter.",
+    contract: "La presentation doit montrer ce que le syndicat accepte: reste a charge, exclusions, protection juridique, gestion des prestataires et calendrier de renouvellement.",
+    methodTitle: "La methode ImmeubleAssur avant AG.",
+    method: "Nous transformons les clauses en synthese de vote: conserver, ajuster, consulter ou reporter avec pieces manquantes identifiees.",
+    ctaNeed: "copropriete",
+    faq: [["Quand preparer le sujet assurance avant AG ?", "Deux a trois mois avant l'assemblee laisse le temps de completer les pieces et d'obtenir des options comparables."], ["Que doit comprendre la note au conseil syndical ?", "Budget, sinistres, garanties sensibles, franchise principale, echeance et recommandation d'action."], ["Faut-il voter seulement sur la prime ?", "Non. Le vote doit aussi comprendre reste a charge, exclusions et qualite de gestion sinistre."]]
+  },
+  "renovation-energetique-copropriete-assurance": {
+    summary: ["Relier isolation, toiture, facade et ventilation au contrat immeuble.", "Verifier declarations assureur avant chantier et reception.", "Anticiper l'effet des entreprises et garanties decennales."],
+    contextTitle: "Quand la renovation energetique change le risque de copropriete.",
+    context: "Cette page traite les chantiers d'isolation, facade, toiture, ventilation ou chauffage collectif. L'enjeu est de declarer le changement technique et de coordonner contrat immeuble, entreprises et garanties de chantier.",
+    documentsTitle: "Les documents travaux a joindre.",
+    documents: "Descriptif des lots de travaux, devis, planning, entreprises, attestations decennales, vote d'AG et date de reception permettent de presenter le chantier sans approximation.",
+    contractTitle: "Lire le contrat pendant la phase travaux.",
+    contract: "Le contrat doit etre confronte aux exclusions chantier, obligations de declaration, dommages aux existants, incendie, infiltration et responsabilites des entreprises.",
+    methodTitle: "La methode ImmeubleAssur renovation.",
+    method: "Nous separons ce qui releve du contrat immeuble, de la dommage ouvrage eventuelle, de la decennale et des declarations a faire avant ouverture du chantier.",
+    ctaNeed: "dommages-ouvrage"
+  },
+  "copropriete-petite-syndic-benevole": {
+    summary: ["Cadrer le mandat du syndic benevole et les archives disponibles.", "Verifier RC du syndicat, parties communes et lots non occupants.", "Transformer une petite copropriete en dossier assureur lisible."],
+    contextTitle: "Quand une petite copropriete repose sur un syndic benevole.",
+    context: "Cette page traite la gouvernance pratique: mandat, archives, declarations, interlocuteur assureur, sinistres et decisions d'AG dans une copropriete avec peu de lots.",
+    documentsTitle: "Les pieces specifiques au syndic benevole.",
+    documents: "PV de designation, liste des lots, contrat actuel, appel de prime, sinistres, travaux votes et coordonnees du representant evitent les zones floues au moment du devis.",
+    contractTitle: "Lire les responsabilites avant les options.",
+    contract: "La priorite est de distinguer RC du syndicat, responsabilite du syndic benevole, dommages aux parties communes et assurances PNO des coproprietaires bailleurs.",
+    methodTitle: "La methode ImmeubleAssur petite copropriete.",
+    method: "Nous remettons de l'ordre dans les acteurs, les documents et les garanties pour que le dossier ne soit pas penalise par une gestion benevole.",
+    ctaNeed: "copropriete"
+  },
+  "dommages-ouvrage-copropriete-travaux": {
+    summary: ["Identifier si la dommage ouvrage est necessaire avant signature.", "Relier decennale, reception, financement et vote d'AG.", "Eviter de chercher une solution une fois le chantier lance."],
+    contextTitle: "Quand la dommage ouvrage doit etre anticipee en copropriete.",
+    context: "Cette page est centree sur le calendrier chantier: nature des travaux, vote, entreprises, maitre d'oeuvre, financement et reception. Elle ne remplace pas la page renovation energetique, plus large.",
+    documentsTitle: "Les pieces DO avant consultation.",
+    documents: "Descriptif technique, devis signes ou projetes, attestations decennales, planning, mission de maitrise d'oeuvre et PV d'AG structurent la demande.",
+    contractTitle: "Lire les garanties avec la date de reception.",
+    contract: "La reception, les reserves, les existants et la nature structurelle des travaux changent la lecture de la garantie. Le calendrier est donc le point cle.",
+    methodTitle: "La methode ImmeubleAssur dommage ouvrage.",
+    method: "Nous classons les travaux selon leur impact assurantiel avant de lancer la consultation, pour eviter refus tardifs et pieces incompletes.",
+    ctaNeed: "dommages-ouvrage"
+  },
+  "protection-juridique-copropriete": {
+    summary: ["Evaluer litiges prestataires, voisins, impayes et travaux.", "Lire seuils d'intervention et exclusions de procedure.", "Decider si l'option protege vraiment le syndicat."],
+    contextTitle: "Quand la protection juridique devient utile en copropriete.",
+    context: "Cette page ne traite pas les dommages au batiment. Elle regarde les conflits: prestataires, recouvrement, voisinage, travaux, assemblee generale et defense des interets du syndicat.",
+    documentsTitle: "Les litiges a cartographier.",
+    documents: "Historique des procedures, impayes, contrats prestataires, travaux contestes et courriers importants permettent de juger si l'option est pertinente.",
+    contractTitle: "Lire les seuils de procedure.",
+    contract: "La garantie se juge sur plafonds par litige, seuil d'intervention, delais de carence, choix de l'avocat et exclusions de conflits deja connus.",
+    methodTitle: "La methode ImmeubleAssur protection juridique.",
+    method: "Nous comparons l'option a la realite contentieuse de la copropriete avant de l'integrer ou non dans l'arbitrage.",
+    ctaNeed: "copropriete"
+  },
+  "assurance-parking-garages-copropriete": {
+    summary: ["Decrire box, parkings ouverts, sous-sols et acces.", "Relier infiltration, incendie, vandalisme et responsabilite.", "Verifier si les stationnements sont bien inclus au contrat."],
+    contextTitle: "Quand les stationnements changent le dossier copropriete.",
+    context: "Cette page cible les parkings, garages, boxes et sous-sols. Le sujet principal est la declaration des surfaces et des acces, avec les sinistres typiques: infiltration, choc, vandalisme ou incendie.",
+    documentsTitle: "Les informations stationnement a reunir.",
+    documents: "Nombre de places, boxes fermes, surfaces, sous-sol, acces, portail, ventilation, historiques d'infiltration et repartition parties communes/privatives structurent l'analyse.",
+    contractTitle: "Lire les garanties des annexes.",
+    contract: "Le contrat doit dire si les stationnements, caves et dependances sont couverts comme parties communes, lots privatifs ou annexes declarees.",
+    methodTitle: "La methode ImmeubleAssur parkings.",
+    method: "Nous isolons le risque stationnement pour eviter qu'il soit dilue dans une page copropriete generale.",
+    ctaNeed: "copropriete"
+  },
+  "assurance-immeuble-avec-ascenseur": {
+    summary: ["Separer maintenance, controle technique et assurance immeuble.", "Verifier bris, RC, recours et equipement collectif.", "Documenter contrats d'entretien et incidents."],
+    contextTitle: "Quand l'ascenseur impose une lecture technique du contrat.",
+    context: "Cette page porte sur un equipement collectif precis: ascenseur, contrat de maintenance, controles, pannes, responsabilites et sinistres associes aux usagers ou au batiment.",
+    documentsTitle: "Les pieces ascenseur utiles.",
+    documents: "Contrat de maintenance, controles periodiques, incidents, devis de modernisation, rapports techniques et historique de pannes donnent une vision defendable.",
+    contractTitle: "Lire les garanties equipements.",
+    contract: "Il faut verifier bris de machine eventuel, responsabilite civile, dommages electriques, exclusions de maintenance et recours contre prestataire.",
+    methodTitle: "La methode ImmeubleAssur ascenseur.",
+    method: "Nous isolons l'ascenseur comme facteur technique afin de ne pas le confondre avec une page multirisque immeuble generale.",
+    ctaNeed: "audit-contrat"
+  },
+  "resiliation-assurance-immeuble": {
+    summary: ["Construire un calendrier d'echeance et de preavis.", "Decider entre resiliation, renegociation et consultation marche.", "Eviter les demandes tardives sans pieces."],
+    contextTitle: "Quand la resiliation est surtout une question de calendrier.",
+    context: "Cette page traite l'echeance: date anniversaire, preavis, marge de consultation, dossier a preparer et decision entre renegocier ou changer de contrat.",
+    documentsTitle: "Les preuves de calendrier a reunir.",
+    documents: "Conditions particulieres, avis d'echeance, dernier appel, courrier assureur, sinistres et delai restant permettent de savoir si l'action est encore possible.",
+    contractTitle: "Lire les clauses de sortie.",
+    contract: "La sortie se juge avec delais, forme de notification, consequences sur garanties en cours et risque d'interruption de couverture.",
+    methodTitle: "La methode ImmeubleAssur echeance.",
+    method: "Nous transformons la recherche resiliation en planning de decision: renegocier, consulter ou maintenir provisoirement selon la date limite.",
+    ctaNeed: "audit-contrat"
+  },
+  "assurance-colocation-immeuble": {
+    summary: ["Qualifier rotation, baux et attestations occupants.", "Verifier parties communes sollicitees par la colocation.", "Aligner multirisque immeuble, PNO et assurance locataire."],
+    contextTitle: "Quand la colocation modifie l'occupation de l'immeuble.",
+    context: "Cette page traite les immeubles avec forte rotation, chambres louees, baux multiples, meubles et usage intensif des parties communes.",
+    documentsTitle: "Les informations colocation a preparer.",
+    documents: "Nombre d'occupants, type de bail, rotation annuelle, meubles, attestations, vacance entre occupants et sinistres repetes cadrent le dossier.",
+    contractTitle: "Lire les contrats avec les occupants.",
+    contract: "Il faut articuler assurance des colocataires, responsabilite du bailleur, PNO et contrat immeuble, notamment en cas de degat des eaux ou vandalisme.",
+    methodTitle: "La methode ImmeubleAssur colocation.",
+    method: "Nous presentons l'exploitation locative reelle pour eviter une lecture trop proche d'un immeuble locatif classique.",
+    ctaNeed: "pno-cno"
+  },
+  "assurance-immeuble-apres-refus-assureur": {
+    summary: ["Identifier la cause exacte du refus ou de la surprime.", "Construire un dossier correctif avant nouvelle consultation.", "Separer refus assureur et simple renegociation."],
+    contextTitle: "Quand un refus assureur doit etre reconstruit point par point.",
+    context: "Cette page part d'une reponse negative: refus, surprime, exclusion ou demande de pieces. L'objectif est d'identifier le blocage et d'apporter des correctifs verifiables.",
+    documentsTitle: "Les preuves a reunir apres refus.",
+    documents: "Courrier assureur, motif, historique sinistre, photos, factures, travaux correctifs, mesures de prevention et contrat precedent permettent de reouvrir la discussion.",
+    contractTitle: "Lire ce qui a fait bloquer le dossier.",
+    contract: "Le refus peut venir de sinistralite, vacance, commerce, travaux, non-paiement ou information incomplete. Chaque cause appelle une piece differente.",
+    methodTitle: "La methode ImmeubleAssur apres refus.",
+    method: "Nous reconstruisons le dossier comme une defense du risque, distincte d'un article general sur les sinistres.",
+    ctaNeed: "audit-contrat"
+  },
+  "assurance-immeuble-sans-sinistre": {
+    summary: ["Valoriser une absence de sinistre sans promettre une baisse automatique.", "Montrer entretien, surveillance et occupation stable.", "Transformer un bon historique en argument de consultation."],
+    contextTitle: "Quand l'absence de sinistre devient un signal assureur.",
+    context: "Cette page traite le cas favorable: immeuble entretenu, pas de sinistre declare, occupation stable et documents propres. Le sujet n'est pas la gestion d'un dossier difficile.",
+    documentsTitle: "Les preuves positives a montrer.",
+    documents: "Historique vierge, entretien, travaux preventifs, contrats de maintenance, photos et occupation stable renforcent la lecture du risque.",
+    contractTitle: "Lire l'offre sans surestimer le bonus.",
+    contract: "Un bon historique aide la consultation, mais il doit rester confronte aux franchises, exclusions et garanties attendues par le proprietaire.",
+    methodTitle: "La methode ImmeubleAssur dossier propre.",
+    method: "Nous transformons les bons signaux en fiche courte et defendable pour obtenir une comparaison plus nette.",
+    ctaNeed: "multirisque-immeuble"
+  },
+  "pertes-de-loyers-immeuble": {
+    summary: ["Verifier le fait generateur avant d'attendre une indemnisation.", "Lire delai, duree, plafond et sinistre couvert.", "Separer loyers impayes et pertes apres dommage garanti."],
+    contextTitle: "Quand les pertes de loyers dependent du sinistre couvert.",
+    context: "Cette page ne parle pas de garantie loyers impayes. Elle traite les pertes de revenus apres dommage garanti: incendie, degat des eaux ou evenement qui rend le bien impropre a la location.",
+    documentsTitle: "Les donnees locatives a preparer.",
+    documents: "Montant des loyers, baux, duree d'indisponibilite, nature du sinistre, devis de remise en etat et clauses du contrat permettent d'estimer le perimetre.",
+    contractTitle: "Lire delai et plafond d'indemnisation.",
+    contract: "La garantie se juge sur delai de carence, duree maximale, plafond, franchise et condition que le dommage initial soit lui-meme couvert.",
+    methodTitle: "La methode ImmeubleAssur pertes de loyers.",
+    method: "Nous separons revenu locatif, dommage materiel et conditions d'indemnisation pour eviter une attente impossible.",
+    ctaNeed: "audit-contrat"
+  },
+  "sinistres-recurrents-immeuble": {
+    summary: ["Distinguer incident isole et repetition structurelle.", "Identifier cause, recurrence, montant et correction.", "Presenter un plan de prevention avant renouvellement."],
+    contextTitle: "Quand la recurrence pese plus que le montant du sinistre.",
+    context: "Cette page vise les immeubles avec plusieurs declarations: fuites, infiltrations, vandalisme ou incidents repetes. Le sujet central est la cause racine et la preuve de correction.",
+    documentsTitle: "Les donnees de recurrence a reunir.",
+    documents: "Tableau chronologique, causes, montants, franchises, rapports, factures et travaux correctifs permettent de montrer l'evolution du risque.",
+    contractTitle: "Lire l'historique comme un assureur.",
+    contract: "Un sinistre repete sans correction pese plus lourd qu'un incident ponctuel. La prevention documentee devient donc aussi importante que la garantie.",
+    methodTitle: "La methode ImmeubleAssur recurrence.",
+    method: "Nous transformons l'historique en plan d'explication et d'action pour eviter une lecture punitive du dossier.",
+    ctaNeed: "audit-contrat"
+  },
+  "checklist-sinistre-degat-des-eaux": {
+    summary: ["Organiser les preuves dans les premieres heures.", "Separer origine, declaration, recherche de fuite et remise en etat.", "Reduire les allers-retours avec assureur, syndic et occupant."],
+    contextTitle: "Quand le degat des eaux demande une checklist d'urgence.",
+    context: "Cette page est operationnelle: photos, coupure, recherche de fuite, voisin, syndic, occupant, declaration et devis. Elle ne traite pas la recurrence longue comme un historique annuel.",
+    documentsTitle: "Les preuves a collecter tout de suite.",
+    documents: "Photos datees, origine probable, coordonnees des parties, constat, facture de recherche de fuite, devis et mesures conservatoires facilitent l'instruction.",
+    contractTitle: "Lire qui declare et qui paie quoi.",
+    contract: "Selon origine et parties touchees, le contrat occupant, PNO, copropriete ou immeuble peut intervenir. La checklist evite de perdre cette distinction.",
+    methodTitle: "La methode ImmeubleAssur degat des eaux.",
+    method: "Nous classons les pieces par ordre d'urgence pour accelerer le dossier sinistre et preparer le renouvellement si l'historique devient sensible.",
+    ctaNeed: "audit-contrat"
+  },
+  "multirisque-immeuble-vs-pno": {
+    summary: ["Attribuer chaque risque au batiment, au lot ou au proprietaire.", "Eviter les doublons entre contrat immeuble et PNO.", "Orienter vers PNO/CNO quand le besoin concerne le lot."],
+    contextTitle: "Quand deux contrats proches n'ont pas le meme role.",
+    context: "Cette page compare la multirisque immeuble et la PNO: l'une porte le batiment ou les parties communes, l'autre protege le proprietaire non occupant sur son lot ou son bien.",
+    documentsTitle: "Les contrats a mettre cote a cote.",
+    documents: "Contrat immeuble, PNO, assurance occupant, statut de copropriete, bail et sinistres permettent de voir les doublons et les manques.",
+    contractTitle: "Lire par responsabilite, pas par intitule.",
+    contract: "Le bon arbitrage consiste a rattacher chaque situation: degat des eaux, RC, vacance, parties communes, dependances et recours au contrat pertinent.",
+    methodTitle: "La methode ImmeubleAssur PNO vs MRI.",
+    method: "Nous cartographions les responsabilites pour orienter le visiteur vers devis PNO/CNO ou audit multirisque selon le besoin reel.",
+    ctaNeed: "pno-cno"
+  },
+  "pno-obligatoire-copropriete": {
+    summary: ["Clarifier l'obligation du coproprietaire non occupant.", "Lire le contrat de copropriete avant la PNO.", "Verifier vacance, location et responsabilite civile."],
+    contextTitle: "Quand la PNO obligatoire depend du statut en copropriete.",
+    context: "Cette page traite le bailleur coproprietaire: obligation, responsabilite civile, contrat du syndicat et assurance occupant. Elle ne compare pas toute la multirisque immeuble.",
+    documentsTitle: "Les justificatifs PNO a preparer.",
+    documents: "Attestation immeuble, statut d'occupation, bail, assurance locataire, sinistres et echeance du contrat PNO permettent de trancher le besoin.",
+    contractTitle: "Lire le chevauchement PNO et copropriete.",
+    contract: "La PNO doit completer le contrat du syndicat et l'assurance occupant sans doubler inutilement des garanties deja portees ailleurs.",
+    methodTitle: "La methode ImmeubleAssur PNO obligatoire.",
+    method: "Nous ramenons la question obligatoire a une situation concrete: lot loue, vacant, occupe gratuitement ou detenu par une SCI.",
+    ctaNeed: "pno-cno"
+  }
+};
+Object.assign(articleAngles, mediumRiskArticleAngles);
+Object.assign(articleAngles, {
+  "assurance-immeuble-local-professionnel": {
+    summary: ["Declarer l'activite professionnelle exacte dans l'immeuble.", "Separer bureau, profession liberale, commerce leger et local vacant.", "Aligner bail, garanties locataire et contrat proprietaire."],
+    contextTitle: "Quand un local professionnel change le dossier bailleur.",
+    context: "Cette page cible les immeubles avec bureau, profession liberale, commerce leger ou local professionnel vacant. L'angle principal est l'activite declaree au bail et son effet sur l'appetence assureur.",
+    documentsTitle: "Les informations activite a reunir.",
+    documents: "Bail, activite exacte, surface du local, installations techniques, accueil du public, attestation du locataire et periode de vacance permettent d'eviter une declaration approximative.",
+    contractTitle: "Lire les garanties du bailleur avec le local.",
+    contract: "Le contrat proprietaire doit etre coherent avec ce qui releve du locataire professionnel: responsabilite, dommages, stock, enseigne, amenagements et recours.",
+    methodTitle: "La methode ImmeubleAssur local professionnel.",
+    method: "Nous isolons l'activite du local pour ne pas confondre cette page avec une approche patrimoine ou SCI globale.",
+    ctaNeed: "audit-contrat"
+  },
+  "assurance-immeuble-protection-du-patrimoine": {
+    summary: ["Piloter l'immeuble comme un actif patrimonial.", "Relier prevention, valeur, responsabilites et strategie de conservation.", "Arbitrer cout du risque et protection long terme."],
+    contextTitle: "Quand l'assurance sert la protection patrimoniale.",
+    context: "Cette page s'adresse aux SCI et foncieres familiales qui veulent proteger une valeur patrimoniale sur plusieurs annees. Le sujet n'est pas l'activite d'un local professionnel mais la preservation de l'actif.",
+    documentsTitle: "Les donnees patrimoniales utiles.",
+    documents: "Valeur du bati, revenus, travaux planifies, detention, succession, endettement, contrats en place et historique de prevention donnent une lecture globale.",
+    contractTitle: "Lire les garanties comme un outil de conservation.",
+    contract: "La protection patrimoniale se juge sur la capacite du contrat a absorber un sinistre majeur, financer la remise en etat et preserver la responsabilite du proprietaire.",
+    methodTitle: "La methode ImmeubleAssur patrimoine.",
+    method: "Nous rapprochons assurance, prevention et strategie de detention pour aider le proprietaire a proteger l'actif au-dela du seul renouvellement annuel.",
+    ctaNeed: "audit-contrat"
+  }
+});
 function esc(value) {
   return String(value || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
@@ -215,7 +437,6 @@ function articleFaq(article) {
 }
 
 function articlePage(article) {
-  const faqs = articleFaq(article);
   const angle = articleAngles[article.slug] || {
     summary: [article.action, "La prime doit etre lue avec les franchises, plafonds et exclusions.", "Un dossier complet obtient des reponses assureur plus rapides et plus comparables."],
     contextTitle: `Pourquoi ce sujet compte pour ${article.audience}.`,
@@ -228,6 +449,7 @@ function articlePage(article) {
     method: `Notre methode consiste a transformer une demande de devis en fiche risque lisible. ${article.action} Cette action cree un dossier plus defendable, mesurable et comparable.`,
     ctaNeed: "audit-contrat"
   };
+  const faqs = angle.faq || articleFaq(article);
   const summaryItems = (angle.summary || []).map((item) => `<li>${esc(item)}</li>`).join("");
   const body = `<article class="article-layout rich-article"><header class="article-head"><p class="eyebrow dark">${esc(article.category)} - guide expert</p><h1>${esc(article.title)}</h1><p>${esc(article.description)}</p></header><div class="article-body"><div class="article-summary"><strong>A retenir</strong><ul>${summaryItems}</ul></div><nav class="toc-list" aria-label="Sommaire"><a href="#contexte">Contexte</a><a href="#documents">Documents</a><a href="#contrat">Contrat</a><a href="#methode">Methode</a><a href="#faq">FAQ</a></nav><section id="contexte"><h2>${esc(angle.contextTitle)}</h2><p>${esc(angle.context)}</p><p>Le role de cette page est de traiter <strong>${esc(article.keyword)}</strong> avec un angle distinct, puis de renvoyer vers le devis lorsque le besoin devient operationnel.</p></section><section id="documents"><h2>${esc(angle.documentsTitle)}</h2><p>${esc(angle.documents)}</p><p>Les pieces manquantes sont listees avant consultation afin d'eviter les devis incomparables et les reponses assureur trop prudentes.</p></section><section id="contrat"><h2>${esc(angle.contractTitle)}</h2><p>${esc(angle.contract)}</p><p>Cette lecture protege la decision: elle evite de choisir une offre uniquement parce qu'elle semble moins chere ou plus simple a premiere vue.</p></section><section id="methode"><h2>${esc(angle.methodTitle)}</h2><p>${esc(angle.method)}</p><p>${esc(article.action)} Le formulaire transmet ensuite le bon contexte pour obtenir une reponse exploitable.</p></section><section id="faq" class="faq-list"><h2>Questions frequentes</h2>${faqs.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</section><div class="source-box"><strong>Sources utiles</strong><a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/" rel="nofollow">Legifrance - copropriete et assurance</a><a href="https://www.service-public.fr/particuliers/vosdroits/F2608" rel="nofollow">Service-Public.fr - syndic de copropriete</a></div></div><aside class="article-cta">${leadForm({ need: angle.ctaNeed || "audit-contrat" })}</aside></article>`;
   return layout({ slug: `blog/${article.slug}`, title: article.title, description: article.description, body });

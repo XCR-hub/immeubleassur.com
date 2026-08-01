@@ -1,77 +1,21 @@
 {
-  "generated_at": "2026-08-01T09:15:45.257Z",
+  "generated_at": "2026-08-01T09:47:23.576Z",
   "pages_checked": 176,
-  "pages_changed": 148,
-  "paragraphs_contextualized": 621,
+  "pages_changed": 28,
+  "paragraphs_contextualized": 27,
   "quality_support_pages": 21,
   "replacement_families": [
     {
-      "id": "city-documents",
-      "count": 79
-    },
-    {
-      "id": "city-guarantees",
-      "count": 79
-    },
-    {
-      "id": "commercial-faq",
-      "count": 79
-    },
-    {
-      "id": "claims-faq",
-      "count": 79
-    },
-    {
-      "id": "diagnostic-intro",
-      "count": 49
-    },
-    {
-      "id": "readiness-intro",
-      "count": 49
-    },
-    {
-      "id": "momentum-intro",
-      "count": 49
-    },
-    {
-      "id": "legacy-city-positioning",
-      "count": 30
-    },
-    {
-      "id": "blog-fast-document",
-      "count": 28
-    },
-    {
-      "id": "faq-status",
-      "count": 16
-    },
-    {
-      "id": "faq-reflex",
-      "count": 16
-    },
-    {
-      "id": "faq-documents",
-      "count": 16
-    },
-    {
       "id": "money-intent-errors",
-      "count": 12
+      "count": 9
     },
     {
       "id": "money-intent-risk-scope",
-      "count": 12
+      "count": 9
     },
     {
       "id": "money-intent-lead-method",
-      "count": 12
-    },
-    {
-      "id": "faq-incomplete",
-      "count": 8
-    },
-    {
-      "id": "faq-contract-scope",
-      "count": 8
+      "count": 9
     }
   ],
   "safeguards": [
@@ -106,1288 +50,573 @@
         "depth": false,
         "faq": false,
         "cta": false,
-        "words": 711,
+        "words": 663,
         "detailsCount": 5,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-agen",
-      "url": "https://immeubleassur.com/assurance-immeuble-agen",
+      "slug": "assurance-immeuble-de-rapport",
+      "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
       "changed": true,
       "replacements": [
         {
-          "id": "diagnostic-intro",
+          "id": "money-intent-errors",
           "count": 1
         },
         {
-          "id": "readiness-intro",
+          "id": "money-intent-risk-scope",
           "count": 1
         },
         {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
+          "id": "money-intent-lead-method",
           "count": 1
         }
       ],
-      "replacements_count": 7,
+      "replacements_count": 3,
       "quality_support_added": false,
       "quality_needs": {
         "depth": false,
         "faq": false,
         "cta": false,
-        "words": 899,
-        "detailsCount": 6,
+        "words": 617,
+        "detailsCount": 5,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-aix-en-provence",
-      "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence",
+      "slug": "assurance-immeuble-meuble-colocation",
+      "url": "https://immeubleassur.com/assurance-immeuble-meuble-colocation",
       "changed": true,
       "replacements": [
         {
-          "id": "legacy-city-positioning",
+          "id": "money-intent-errors",
           "count": 1
         },
         {
-          "id": "city-documents",
+          "id": "money-intent-risk-scope",
           "count": 1
         },
         {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
+          "id": "money-intent-lead-method",
           "count": 1
         }
       ],
-      "replacements_count": 5,
+      "replacements_count": 3,
       "quality_support_added": false,
       "quality_needs": {
         "depth": false,
         "faq": false,
         "cta": false,
-        "words": 496,
+        "words": 599,
+        "detailsCount": 5,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "assurance-immeuble-monopropriete",
+      "url": "https://immeubleassur.com/assurance-immeuble-monopropriete",
+      "changed": true,
+      "replacements": [
+        {
+          "id": "money-intent-errors",
+          "count": 1
+        },
+        {
+          "id": "money-intent-risk-scope",
+          "count": 1
+        },
+        {
+          "id": "money-intent-lead-method",
+          "count": 1
+        }
+      ],
+      "replacements_count": 3,
+      "quality_support_added": false,
+      "quality_needs": {
+        "depth": false,
+        "faq": false,
+        "cta": false,
+        "words": 613,
+        "detailsCount": 5,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "assurance-immeuble-obligatoire",
+      "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
+      "changed": true,
+      "replacements": [
+        {
+          "id": "money-intent-errors",
+          "count": 1
+        },
+        {
+          "id": "money-intent-risk-scope",
+          "count": 1
+        },
+        {
+          "id": "money-intent-lead-method",
+          "count": 1
+        }
+      ],
+      "replacements_count": 3,
+      "quality_support_added": false,
+      "quality_needs": {
+        "depth": false,
+        "faq": false,
+        "cta": false,
+        "words": 573,
+        "detailsCount": 5,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "assurance-immeuble-resilie",
+      "url": "https://immeubleassur.com/assurance-immeuble-resilie",
+      "changed": true,
+      "replacements": [
+        {
+          "id": "money-intent-errors",
+          "count": 1
+        },
+        {
+          "id": "money-intent-risk-scope",
+          "count": 1
+        },
+        {
+          "id": "money-intent-lead-method",
+          "count": 1
+        }
+      ],
+      "replacements_count": 3,
+      "quality_support_added": false,
+      "quality_needs": {
+        "depth": false,
+        "faq": false,
+        "cta": false,
+        "words": 587,
+        "detailsCount": 5,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "assurance-immeuble-sinistre",
+      "url": "https://immeubleassur.com/assurance-immeuble-sinistre",
+      "changed": true,
+      "replacements": [
+        {
+          "id": "money-intent-errors",
+          "count": 1
+        },
+        {
+          "id": "money-intent-risk-scope",
+          "count": 1
+        },
+        {
+          "id": "money-intent-lead-method",
+          "count": 1
+        }
+      ],
+      "replacements_count": 3,
+      "quality_support_added": false,
+      "quality_needs": {
+        "depth": false,
+        "faq": false,
+        "cta": false,
+        "words": 588,
+        "detailsCount": 5,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "blog/assurance-copropriete-obligatoire",
+      "url": "https://immeubleassur.com/blog/assurance-copropriete-obligatoire",
+      "changed": true,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
+      "quality_needs": {
+        "depth": true,
+        "faq": true,
+        "cta": false,
+        "words": 386,
+        "detailsCount": 0,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "blog/assurance-immeuble-mixte-commerce",
+      "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
+      "changed": true,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
+      "quality_needs": {
+        "depth": true,
+        "faq": true,
+        "cta": false,
+        "words": 342,
+        "detailsCount": 0,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "blog/assurance-lot-vacant-copropriete",
+      "url": "https://immeubleassur.com/blog/assurance-lot-vacant-copropriete",
+      "changed": true,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": false,
+      "quality_needs": {
+        "depth": false,
+        "faq": false,
+        "cta": false,
+        "words": 513,
         "detailsCount": 3,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-albi",
-      "url": "https://immeubleassur.com/assurance-immeuble-albi",
+      "slug": "blog/assurance-sci-patrimoine-locatif",
+      "url": "https://immeubleassur.com/blog/assurance-sci-patrimoine-locatif",
       "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
       "quality_needs": {
-        "depth": false,
+        "depth": true,
         "faq": false,
         "cta": false,
-        "words": 899,
-        "detailsCount": 6,
+        "words": 360,
+        "detailsCount": 0,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-amiens",
-      "url": "https://immeubleassur.com/assurance-immeuble-amiens",
+      "slug": "blog/checklist-documents-devis-immeuble",
+      "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
       "changed": true,
-      "replacements": [
-        {
-          "id": "legacy-city-positioning",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 5,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
+      "quality_needs": {
+        "depth": true,
+        "faq": true,
+        "cta": false,
+        "words": 353,
+        "detailsCount": 0,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "blog/franchise-degat-des-eaux-immeuble",
+      "url": "https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble",
+      "changed": true,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
+      "quality_needs": {
+        "depth": true,
+        "faq": false,
+        "cta": false,
+        "words": 370,
+        "detailsCount": 0,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "blog/pno-bailleur-copropriete",
+      "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
+      "changed": true,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
+      "quality_needs": {
+        "depth": true,
+        "faq": true,
+        "cta": false,
+        "words": 381,
+        "detailsCount": 0,
+        "form": true,
+        "primaryCta": true
+      }
+    },
+    {
+      "slug": "blog/pno-cno-differences-garanties",
+      "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
+      "changed": true,
+      "replacements": [],
+      "replacements_count": 0,
       "quality_support_added": false,
       "quality_needs": {
         "depth": false,
         "faq": false,
         "cta": false,
-        "words": 494,
+        "words": 537,
         "detailsCount": 3,
         "form": true,
-        "primaryCta": true
+        "primaryCta": false
       }
     },
     {
-      "slug": "assurance-immeuble-angers",
-      "url": "https://immeubleassur.com/assurance-immeuble-angers",
+      "slug": "blog/preparer-renouvellement-assurance-immeuble",
+      "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
       "changed": true,
-      "replacements": [
-        {
-          "id": "legacy-city-positioning",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 5,
-      "quality_support_added": false,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
       "quality_needs": {
-        "depth": false,
-        "faq": false,
+        "depth": true,
+        "faq": true,
         "cta": false,
-        "words": 496,
-        "detailsCount": 3,
+        "words": 311,
+        "detailsCount": 0,
+        "form": true,
+        "primaryCta": false
+      }
+    },
+    {
+      "slug": "blog/syndic-benevole-assurance",
+      "url": "https://immeubleassur.com/blog/syndic-benevole-assurance",
+      "changed": true,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
+      "quality_needs": {
+        "depth": true,
+        "faq": true,
+        "cta": false,
+        "words": 349,
+        "detailsCount": 0,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-angouleme",
-      "url": "https://immeubleassur.com/assurance-immeuble-angouleme",
+      "slug": "blog",
+      "url": "https://immeubleassur.com/blog",
+      "changed": true,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
+      "quality_needs": {
+        "depth": false,
+        "faq": true,
+        "cta": true,
+        "words": 1126,
+        "detailsCount": 0,
+        "form": false,
+        "primaryCta": false
+      }
+    },
+    {
+      "slug": "devis-assurance-immeuble-en-ligne",
+      "url": "https://immeubleassur.com/devis-assurance-immeuble-en-ligne",
       "changed": true,
       "replacements": [
         {
-          "id": "diagnostic-intro",
+          "id": "money-intent-errors",
           "count": 1
         },
         {
-          "id": "readiness-intro",
+          "id": "money-intent-risk-scope",
           "count": 1
         },
         {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
+          "id": "money-intent-lead-method",
           "count": 1
         }
       ],
-      "replacements_count": 7,
+      "replacements_count": 3,
       "quality_support_added": false,
       "quality_needs": {
         "depth": false,
         "faq": false,
         "cta": false,
-        "words": 899,
-        "detailsCount": 6,
+        "words": 656,
+        "detailsCount": 5,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-annecy",
-      "url": "https://immeubleassur.com/assurance-immeuble-annecy",
+      "slug": "faq/copropriete",
+      "url": "https://immeubleassur.com/faq/copropriete",
       "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
+      "replacements": [],
+      "replacements_count": 0,
       "quality_support_added": false,
       "quality_needs": {
         "depth": false,
         "faq": false,
         "cta": false,
-        "words": 900,
-        "detailsCount": 6,
+        "words": 543,
+        "detailsCount": 8,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-antibes",
-      "url": "https://immeubleassur.com/assurance-immeuble-antibes",
+      "slug": "faq/pno",
+      "url": "https://immeubleassur.com/faq/pno",
       "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
+      "replacements": [],
+      "replacements_count": 0,
       "quality_support_added": false,
       "quality_needs": {
         "depth": false,
         "faq": false,
         "cta": false,
-        "words": 900,
-        "detailsCount": 6,
+        "words": 546,
+        "detailsCount": 8,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-arras",
-      "url": "https://immeubleassur.com/assurance-immeuble-arras",
+      "slug": "faq/sci",
+      "url": "https://immeubleassur.com/faq/sci",
       "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
+      "replacements": [],
+      "replacements_count": 0,
       "quality_support_added": false,
       "quality_needs": {
         "depth": false,
         "faq": false,
         "cta": false,
-        "words": 899,
-        "detailsCount": 6,
+        "words": 538,
+        "detailsCount": 8,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-avignon",
-      "url": "https://immeubleassur.com/assurance-immeuble-avignon",
+      "slug": "faq/sinistres",
+      "url": "https://immeubleassur.com/faq/sinistres",
       "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
+      "replacements": [],
+      "replacements_count": 0,
       "quality_support_added": false,
       "quality_needs": {
         "depth": false,
         "faq": false,
         "cta": false,
-        "words": 902,
-        "detailsCount": 6,
+        "words": 521,
+        "detailsCount": 8,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-bayonne",
-      "url": "https://immeubleassur.com/assurance-immeuble-bayonne",
+      "slug": "guides",
+      "url": "https://immeubleassur.com/guides",
       "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
+      "quality_needs": {
+        "depth": true,
+        "faq": true,
+        "cta": true,
+        "words": 181,
+        "detailsCount": 0,
+        "form": false,
+        "primaryCta": false
+      }
+    },
+    {
+      "slug": "index",
+      "url": "https://immeubleassur.com/",
+      "changed": true,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
       "quality_needs": {
         "depth": false,
-        "faq": false,
+        "faq": true,
         "cta": false,
-        "words": 900,
-        "detailsCount": 6,
+        "words": 1034,
+        "detailsCount": 0,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-beauvais",
-      "url": "https://immeubleassur.com/assurance-immeuble-beauvais",
+      "slug": "prix-assurance-immeuble",
+      "url": "https://immeubleassur.com/prix-assurance-immeuble",
       "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
       "quality_needs": {
         "depth": false,
-        "faq": false,
+        "faq": true,
         "cta": false,
-        "words": 899,
-        "detailsCount": 6,
+        "words": 710,
+        "detailsCount": 0,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-besancon",
-      "url": "https://immeubleassur.com/assurance-immeuble-besancon",
+      "slug": "tarif-assurance-immeuble",
+      "url": "https://immeubleassur.com/tarif-assurance-immeuble",
       "changed": true,
       "replacements": [
         {
-          "id": "legacy-city-positioning",
+          "id": "money-intent-errors",
           "count": 1
         },
         {
-          "id": "city-documents",
+          "id": "money-intent-risk-scope",
           "count": 1
         },
         {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
+          "id": "money-intent-lead-method",
           "count": 1
         }
       ],
-      "replacements_count": 5,
+      "replacements_count": 3,
       "quality_support_added": false,
       "quality_needs": {
         "depth": false,
         "faq": false,
         "cta": false,
-        "words": 495,
-        "detailsCount": 3,
+        "words": 665,
+        "detailsCount": 5,
         "form": true,
         "primaryCta": true
       }
     },
     {
-      "slug": "assurance-immeuble-beziers",
-      "url": "https://immeubleassur.com/assurance-immeuble-beziers",
+      "slug": "villes",
+      "url": "https://immeubleassur.com/villes",
       "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
+      "replacements": [],
+      "replacements_count": 0,
+      "quality_support_added": true,
       "quality_needs": {
         "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 899,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-biarritz",
-      "url": "https://immeubleassur.com/assurance-immeuble-biarritz",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 900,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-blois",
-      "url": "https://immeubleassur.com/assurance-immeuble-blois",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 903,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-bordeaux",
-      "url": "https://immeubleassur.com/assurance-immeuble-bordeaux",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "legacy-city-positioning",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 5,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 496,
-        "detailsCount": 3,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-bourges",
-      "url": "https://immeubleassur.com/assurance-immeuble-bourges",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 901,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-brest",
-      "url": "https://immeubleassur.com/assurance-immeuble-brest",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "legacy-city-positioning",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 5,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 496,
-        "detailsCount": 3,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-caen",
-      "url": "https://immeubleassur.com/assurance-immeuble-caen",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 900,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-calais",
-      "url": "https://immeubleassur.com/assurance-immeuble-calais",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 899,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-cannes",
-      "url": "https://immeubleassur.com/assurance-immeuble-cannes",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 901,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-carcassonne",
-      "url": "https://immeubleassur.com/assurance-immeuble-carcassonne",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 899,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-chalon-sur-saone",
-      "url": "https://immeubleassur.com/assurance-immeuble-chalon-sur-saone",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 899,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-chambery",
-      "url": "https://immeubleassur.com/assurance-immeuble-chambery",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 900,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-chartres",
-      "url": "https://immeubleassur.com/assurance-immeuble-chartres",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 901,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-cholet",
-      "url": "https://immeubleassur.com/assurance-immeuble-cholet",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 902,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-clermont-ferrand",
-      "url": "https://immeubleassur.com/assurance-immeuble-clermont-ferrand",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "legacy-city-positioning",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 5,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 496,
-        "detailsCount": 3,
-        "form": true,
-        "primaryCta": true
-      }
-    },
-    {
-      "slug": "assurance-immeuble-colmar",
-      "url": "https://immeubleassur.com/assurance-immeuble-colmar",
-      "changed": true,
-      "replacements": [
-        {
-          "id": "diagnostic-intro",
-          "count": 1
-        },
-        {
-          "id": "readiness-intro",
-          "count": 1
-        },
-        {
-          "id": "momentum-intro",
-          "count": 1
-        },
-        {
-          "id": "city-documents",
-          "count": 1
-        },
-        {
-          "id": "city-guarantees",
-          "count": 1
-        },
-        {
-          "id": "commercial-faq",
-          "count": 1
-        },
-        {
-          "id": "claims-faq",
-          "count": 1
-        }
-      ],
-      "replacements_count": 7,
-      "quality_support_added": false,
-      "quality_needs": {
-        "depth": false,
-        "faq": false,
-        "cta": false,
-        "words": 901,
-        "detailsCount": 6,
-        "form": true,
-        "primaryCta": true
+        "faq": true,
+        "cta": true,
+        "words": 437,
+        "detailsCount": 0,
+        "form": false,
+        "primaryCta": false
       }
     }
   ]

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T09:11:07.150Z",
+  "generated_at": "2026-08-01T09:47:15.398Z",
   "pages_written": 13,
   "existing_pages_enhanced": 8,
   "min_quality_score": 50,
@@ -27,7 +27,7 @@
     },
     {
       "slug": "courtier-assurance-immeuble",
-      "title": "Courtier assurance immeuble pour bailleurs et syndics",
+      "title": "Courtier assurance immeuble: consultation assureur pilotee",
       "primary_query": "courtier assurance immeuble",
       "quality_score": 70
     },
@@ -51,7 +51,7 @@
     },
     {
       "slug": "assurance-parties-communes",
-      "title": "Assurance parties communes d'immeuble",
+      "title": "Assurance parties communes: toiture, hall, reseaux et equipements",
       "primary_query": "assurance parties communes immeuble",
       "quality_score": 70
     },
@@ -81,7 +81,7 @@
     },
     {
       "slug": "assurance-immeuble-syndic-benevole",
-      "title": "Assurance immeuble pour syndic benevole",
+      "title": "Assurance immeuble syndic benevole: mandat, archives et AG",
       "primary_query": "assurance immeuble syndic benevole",
       "quality_score": 70
     },

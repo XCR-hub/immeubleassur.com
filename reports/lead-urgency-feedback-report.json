@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-08-01T09:19:05.729Z",
+  "generated_at": "2026-08-01T09:48:46.521Z",
   "status": "passed",
   "pages_checked": 173,
-  "urgent_pages": 159,
+  "urgent_pages": 158,
   "missing_cta_count": 0,
   "contract_missing_count": 0,
   "coverage_by_intent": [
     {
       "intent": "sinistre",
       "urgency_level": "immediate",
-      "pages": 41,
+      "pages": 40,
       "pages_with_intent_link": 15,
-      "pages_with_conversion_route": 41,
+      "pages_with_conversion_route": 40,
       "missing_pages": [],
       "action": "Orienter vers un audit sinistre/resiliation avec rappel prioritaire."
     },
@@ -36,9 +36,9 @@
     {
       "intent": "prix",
       "urgency_level": "quote-ready",
-      "pages": 18,
+      "pages": 17,
       "pages_with_intent_link": 6,
-      "pages_with_conversion_route": 18,
+      "pages_with_conversion_route": 17,
       "missing_pages": [],
       "action": "Orienter vers un devis comparatif prix, franchises et garanties."
     },

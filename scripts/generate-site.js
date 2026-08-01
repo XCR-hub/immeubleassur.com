@@ -125,19 +125,20 @@ const servicePages = [
     title: "Assurance SCI patrimoine immobilier",
     h1: "Assurance SCI pour patrimoine immobilier locatif.",
     description:
-      "Assurance SCI: immeuble locatif, PNO, multirisque, locaux mixtes et gestion du risque immobilier patrimonial.",
+      "Assurance SCI: gouvernance du gerant, portefeuille immobilier, PNO par lot, multirisque et coherence patrimoniale.",
     keyword: "assurance SCI",
     need: "multirisque-immeuble",
     profile: "sci",
     bullets: [
-      "SCI familiale ou patrimoniale, immeuble entier ou lots disperses.",
-      "Contrats PNO, multirisque immeuble, protection juridique et pertes financieres selon profil.",
-      "Vision portefeuille pour regrouper les lots et eviter les doublons de garanties.",
-      "Points sensibles: vacance, locaux commerciaux, dependances, travaux et sinistres."
+      "Identification du souscripteur: gerant, associes, SCI familiale, indivision ou fonciere patrimoniale.",
+      "Cartographie des biens detenus: immeuble entier, lots disperses, locaux mixtes, parkings et dependances.",
+      "Vision portefeuille pour reperer doublons, trous de garantie, echeances et contrats PNO par adresse.",
+      "Organisation documentaire: statuts utiles, baux, occupants, sinistres, travaux et responsabilites du gerant."
     ],
     sections: [
-      ["SCI et bailleurs", "Une SCI a souvent plusieurs contrats. Notre audit repere les trous de garantie, doublons et incoherences entre immeuble, lots et occupants."],
-      ["Approche portefeuille", "Nous preparons les donnees assureur pour obtenir une reponse plus rapide et plus defendable."]
+      ["Gouvernance SCI", "La page SCI traite d'abord la personne morale: qui decide, qui signe, quels biens sont portes par la societe et quelles responsabilites restent au gerant."],
+      ["Approche portefeuille", "Nous preparons une cartographie patrimoniale par adresse afin d'arbitrer regroupement, contrats separes, PNO et garanties transversales."],
+      ["Difference avec immeuble locatif", "Un immeuble locatif part de l'exploitation d'un batiment. Une SCI part de la structure de detention, des associes, des contrats existants et de la coherence globale du patrimoine."]
     ]
   },
   {
@@ -165,19 +166,20 @@ const servicePages = [
     title: "Assurance immeuble locatif bailleur",
     h1: "Assurance immeuble locatif pour bailleurs et administrateurs de biens.",
     description:
-      "Assurance immeuble locatif: multirisque, responsabilite civile, vacance, degats des eaux, parties communes et lots loues.",
+      "Assurance immeuble locatif: exploitation bailleur, loyers, occupation, rotation, vacance, sinistres et garanties batiment.",
     keyword: "assurance immeuble locatif",
     need: "multirisque-immeuble",
     profile: "administrateur-biens",
     bullets: [
-      "Immeubles de rapport, monopropriete, petites surfaces et biens mixtes.",
-      "Gestion des sinistres recurrents et recherche de fuite.",
-      "Protection du bailleur et informations utiles pour l'assureur.",
-      "Contrats adaptes aux immeubles avec rotation locative."
+      "Exploitation du batiment: loyers, baux, rotation, vacance partielle, logements meubles ou nus.",
+      "Gestion des sinistres lies aux occupants: degats des eaux, recours, vandalisme, recherche de fuite et retards de declaration.",
+      "Protection du bailleur sur le revenu locatif, les parties communes internes et les dependances utilisees par les locataires.",
+      "Contrats adaptes aux immeubles avec flux d'occupation, changement de locataires et surveillance a organiser."
     ],
     sections: [
-      ["Monopropriete", "Un immeuble locatif en monopropriete n'a pas les memes enjeux qu'une copropriete: l'assureur regarde l'occupation, l'entretien et l'historique."],
-      ["Risque locatif", "Nous distinguons les garanties batiment, les garanties occupants et la responsabilite du proprietaire."]
+      ["Exploitation locative", "Un immeuble locatif se lit comme une activite de bailleur: occupation reelle, vacance, rotation des occupants, baux, loyers et surveillance du batiment."],
+      ["Risque occupant", "Nous distinguons les garanties batiment, les assurances occupants, les recours possibles et les exclusions qui apparaissent quand le lot est vide ou mal declare."],
+      ["Difference avec SCI", "La page immeuble locatif part de l'usage et des revenus d'un batiment. La page SCI part de la structure de detention et de la coherence entre plusieurs biens ou contrats."]
     ]
   },
   {

@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-01T09:16:08.897Z",
+  "generated_at": "2026-08-01T09:47:46.435Z",
   "status": "passed",
   "pages_targeted": 24,
-  "pages_changed": 9,
+  "pages_changed": 0,
   "noindex_pages": 4,
   "sitemap_entries_removed": 4,
   "news_watch_pages": 4,
@@ -68,7 +68,7 @@
     {
       "slug": "blog/sinistres-recurrents-immeuble",
       "url": "https://immeubleassur.com/blog/sinistres-recurrents-immeuble",
-      "changed": true,
+      "changed": false,
       "indexable": true,
       "title": "Sinistres recurrents immeuble: redresser le dossier",
       "h1": "Sinistres recurrents dans un immeuble: reconstruire un dossier credible."
@@ -92,7 +92,7 @@
     {
       "slug": "blog/multirisque-immeuble-vs-pno",
       "url": "https://immeubleassur.com/blog/multirisque-immeuble-vs-pno",
-      "changed": true,
+      "changed": false,
       "indexable": true,
       "title": "Multirisque immeuble vs PNO: qui couvre quoi",
       "h1": "Multirisque immeuble ou PNO: separer batiment, lot et occupant."
@@ -124,7 +124,7 @@
     {
       "slug": "blog/assurance-copropriete-avant-ag",
       "url": "https://immeubleassur.com/blog/assurance-copropriete-avant-ag",
-      "changed": true,
+      "changed": false,
       "indexable": true,
       "title": "Assurance copropriete avant AG: points a voter",
       "h1": "Avant l'AG de copropriete: verifier les sujets assurance a voter."
@@ -132,7 +132,7 @@
     {
       "slug": "blog/copropriete-petite-syndic-benevole",
       "url": "https://immeubleassur.com/blog/copropriete-petite-syndic-benevole",
-      "changed": true,
+      "changed": false,
       "indexable": true,
       "title": "Petite copropriete: assurance du syndic benevole",
       "h1": "Petite copropriete avec syndic benevole: tenir le contrat au quotidien."
@@ -156,7 +156,7 @@
     {
       "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
       "url": "https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire",
-      "changed": true,
+      "changed": false,
       "indexable": true,
       "title": "CNO coproprietaire non occupant: obligation RC",
       "h1": "CNO obligatoire: verifier la responsabilite civile du coproprietaire."
@@ -164,7 +164,7 @@
     {
       "slug": "blog/pno-cno-differences-garanties",
       "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
-      "changed": true,
+      "changed": false,
       "indexable": true,
       "title": "PNO ou CNO: differences de garanties",
       "h1": "PNO ou CNO: comprendre les differences de garanties."
@@ -172,7 +172,7 @@
     {
       "slug": "blog/assurance-immeuble-apres-refus-assureur",
       "url": "https://immeubleassur.com/blog/assurance-immeuble-apres-refus-assureur",
-      "changed": true,
+      "changed": false,
       "indexable": true,
       "title": "Refus assureur immeuble: preparer une relance",
       "h1": "Apres un refus assureur: retravailler le dossier immeuble."
@@ -188,7 +188,7 @@
     {
       "slug": "blog/checklist-sinistre-degat-des-eaux",
       "url": "https://immeubleassur.com/blog/checklist-sinistre-degat-des-eaux",
-      "changed": true,
+      "changed": false,
       "indexable": true,
       "title": "Checklist degat des eaux immeuble: preuves utiles",
       "h1": "Degat des eaux immeuble: checklist des preuves a reunir."
@@ -204,7 +204,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-31",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-31",
-      "changed": true,
+      "changed": false,
       "indexable": true,
       "title": "Veille immeuble 31 juillet 2026: dernier signal",
       "h1": "Veille assurance immeuble du 31 juillet 2026."

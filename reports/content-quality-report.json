@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T09:21:10.284Z",
+  "generated_at": "2026-08-01T09:48:46.436Z",
   "pages_checked": 177,
   "status": "passed",
   "severe_issue_count": 0,
@@ -55,58 +55,6 @@
         "villes"
       ],
       "count": 15
-    },
-    {
-      "fingerprint": "preparez le contrat actuel le dernier appel de prime l adresse complete le nombre de lots les surfaces les usages du batiment les sinistres sur 36 mois et les travaux votes ou prevus",
-      "pages": [
-        "blog/assurance-colocation-immeuble",
-        "blog/assurance-copropriete-avant-ag",
-        "blog/assurance-immeuble-ancien",
-        "blog/assurance-immeuble-apres-refus-assureur",
-        "blog/assurance-immeuble-avec-ascenseur",
-        "blog/assurance-immeuble-local-professionnel",
-        "blog/assurance-immeuble-protection-du-patrimoine",
-        "blog/assurance-immeuble-sans-sinistre",
-        "blog/assurance-immeuble-vacant",
-        "blog/assurance-parking-garages-copropriete",
-        "blog/checklist-sinistre-degat-des-eaux",
-        "blog/copropriete-petite-syndic-benevole",
-        "blog/dommages-ouvrage-copropriete-travaux",
-        "blog/immeuble-mixte-restaurant",
-        "blog/infiltration-toiture-terrasse",
-        "blog/local-commercial-vacant",
-        "blog/multirisque-immeuble-vs-pno",
-        "blog/pertes-de-loyers-immeuble",
-        "blog/pno-obligatoire-copropriete",
-        "blog/protection-juridique-copropriete"
-      ],
-      "count": 24
-    },
-    {
-      "fingerprint": "la prime annuelle n est qu une ligne du contrat les franchises plafonds exclusions obligations d entretien et delais de declaration peuvent changer fortement le cout final",
-      "pages": [
-        "blog/assurance-colocation-immeuble",
-        "blog/assurance-copropriete-avant-ag",
-        "blog/assurance-immeuble-ancien",
-        "blog/assurance-immeuble-apres-refus-assureur",
-        "blog/assurance-immeuble-avec-ascenseur",
-        "blog/assurance-immeuble-local-professionnel",
-        "blog/assurance-immeuble-protection-du-patrimoine",
-        "blog/assurance-immeuble-sans-sinistre",
-        "blog/assurance-immeuble-vacant",
-        "blog/assurance-parking-garages-copropriete",
-        "blog/checklist-sinistre-degat-des-eaux",
-        "blog/copropriete-petite-syndic-benevole",
-        "blog/dommages-ouvrage-copropriete-travaux",
-        "blog/immeuble-mixte-restaurant",
-        "blog/infiltration-toiture-terrasse",
-        "blog/local-commercial-vacant",
-        "blog/multirisque-immeuble-vs-pno",
-        "blog/pertes-de-loyers-immeuble",
-        "blog/pno-obligatoire-copropriete",
-        "blog/protection-juridique-copropriete"
-      ],
-      "count": 24
     },
     {
       "fingerprint": "cette lecture protege la decision elle evite de choisir une offre uniquement parce qu elle semble moins chere ou plus simple a premiere vue",
