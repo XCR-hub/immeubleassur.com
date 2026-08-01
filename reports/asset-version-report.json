@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-01T13:04:15.049Z",
+  "generated_at": "2026-08-01T13:16:49.065Z",
   "files_checked": 186,
   "files_changed": 0,
   "replacements": 0,
   "assets": {
-    "styles": "/assets/styles.css?v=a5b422e0b2",
-    "app": "/assets/app.js?v=9973237ca7",
+    "styles": "/assets/styles.css?v=fc1be72ff6",
+    "app": "/assets/app.js?v=8c5080aeed",
     "admin": "/assets/admin.js?v=15c736c4be"
   },
   "changed": [],

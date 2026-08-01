@@ -1202,6 +1202,42 @@ address a {
   font-size: .82rem;
   font-weight: 900;
 }
+
+.hero-inline-callback {
+  background: rgba(255, 255, 255, .94);
+  border: 1px solid rgba(15, 118, 110, .22);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 14px 16px;
+}
+
+.hero-inline-callback > div {
+  display: grid;
+  gap: 3px;
+}
+
+.hero-inline-callback > div strong {
+  color: var(--navy);
+  font-size: .98rem;
+}
+
+.hero-inline-callback > div span {
+  color: var(--muted);
+  font-size: .9rem;
+  line-height: 1.35;
+}
+
+.hero-inline-callback-form {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.hero-inline-callback-form .submit-button {
+  width: 100%;
+}
 .content-expansion-band {
   background: #f8fafc;
 }

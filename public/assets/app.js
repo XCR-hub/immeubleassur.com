@@ -2038,15 +2038,21 @@ function markInstantCallbackInvalid(formElement, details) {
   }
 }
 
-function instantCallbackPayload(formElement, panel) {
+function instantCallbackContext(formElement) {
+  return formElement?.closest?.(".traffic-no-click-rescue, [data-instant-callback-context]") || formElement;
+}
+
+function instantCallbackPayload(formElement, panel = instantCallbackContext(formElement)) {
   const data = Object.fromEntries(new FormData(formElement).entries());
   const rows = trafficNoClickIntentRows();
-  const selected = panel?.dataset.activeIntent || trafficNoClickIntentKey();
+  const selected = formElement.dataset.instantCallbackIntent || panel?.dataset.activeIntent || trafficNoClickIntentKey();
   const row = rows[selected] || rows.immeuble;
   const contact = instantCallbackContact(data.contact);
   const attribution = attributionPayload();
   const urgencyRows = trafficNoClickUrgencyRows();
   const urgencyRow = urgencyRows[trafficNoClickSelectedUrgency] || urgencyRows.standard;
+  const source = formElement.dataset.instantCallbackSource || panel?.dataset.instantCallbackSource || "instant-callback";
+  const contentKind = formElement.dataset.instantCallbackContentKind || panel?.dataset.instantCallbackContentKind || "homepage-rescue";
   const message = `${trafficNoClickMessage(row)} Rappel express depuis l'accueil, priorite ${urgencyRow.label}.`;
   return {
     name: "Rappel express",
@@ -2063,11 +2069,11 @@ function instantCallbackPayload(formElement, panel) {
     company_website: String(data.company_website || "").trim(),
     turnstile_token: turnstileResponseFromScope(formElement),
     "cf-turnstile-response": turnstileResponseFromScope(formElement),
-    source: "instant-callback",
+    source,
     intent: selected,
     source_path: attribution.source_path,
     content_bridge: attribution.content_bridge,
-    content_kind: "homepage-rescue",
+    content_kind: contentKind,
     landing_path: attribution.landing_path,
     page_url: window.location.href,
     referrer: document.referrer || "",
@@ -2077,14 +2083,14 @@ function instantCallbackPayload(formElement, panel) {
     anti_bot: botSignalPayload(),
     ...experimentPayload(),
     experiment: experimentPayload(),
-    utm: { ...readUtm(), intent: selected, source_path: attribution.source_path, landing_path: attribution.landing_path, content_bridge: attribution.content_bridge, content_kind: "homepage-rescue" }
+    utm: { ...readUtm(), intent: selected, source_path: attribution.source_path, landing_path: attribution.landing_path, content_bridge: attribution.content_bridge, content_kind: contentKind }
   };
 }
 
 async function submitInstantCallback(event) {
   event.preventDefault();
   const formElement = event.currentTarget;
-  const panel = formElement.closest(".traffic-no-click-rescue");
+  const panel = instantCallbackContext(formElement);
   const payload = instantCallbackPayload(formElement, panel);
   if (payload.company_website) {
     window.location.assign("/merci");
@@ -2171,15 +2177,16 @@ async function submitInstantCallback(event) {
   }
 }
 
-function bindInstantCallbackForm(panel) {
-  const miniForm = panel.querySelector("[data-instant-callback-form]");
+function bindInstantCallbackForm(scope) {
+  const miniForm = scope?.matches?.("[data-instant-callback-form]") ? scope : scope?.querySelector?.("[data-instant-callback-form]");
   if (!miniForm || miniForm.dataset.bound === "1") return;
+  const context = instantCallbackContext(miniForm);
   miniForm.dataset.bound = "1";
   miniForm.addEventListener("focusin", () => {
     if (!instantCallbackStarted) {
       instantCallbackStarted = true;
       formStarted = true;
-      track("form_start", { target: "instant-callback", label: panel.dataset.activeIntent || trafficNoClickIntentKey() });
+      track("form_start", { target: miniForm.dataset.instantCallbackSource || "instant-callback", label: miniForm.dataset.instantCallbackIntent || context?.dataset.activeIntent || trafficNoClickIntentKey() });
     }
   });
   miniForm.addEventListener("input", () => noteBotInteraction("input"), { passive: true });
@@ -2188,6 +2195,10 @@ function bindInstantCallbackForm(panel) {
   miniForm.addEventListener("keydown", () => noteBotInteraction("keyboard"), { passive: true });
   miniForm.addEventListener("submit", submitInstantCallback);
   renderDynamicTurnstile(miniForm);
+}
+
+function bindInstantCallbackForms(scope = document) {
+  scope.querySelectorAll?.("[data-instant-callback-form]").forEach((miniForm) => bindInstantCallbackForm(miniForm));
 }
 
 function setTrafficNoClickUrgency(panel, key, shouldTrack = true) {
@@ -2540,6 +2551,7 @@ bindHeroActionAccelerator();
 bindLeadBarAccelerator();
 bindHomepageDevisAccelerator();
 bindLeadMagnetAccelerator();
+bindInstantCallbackForms();
 bindTrafficNoClickRescue();
 bindGrowthTracking();
 bindFormRescue();
