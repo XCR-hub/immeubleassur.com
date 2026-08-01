@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T11:52:51.112Z",
+  "generated_at": "2026-08-01T12:12:13.122Z",
   "status": "passed",
   "success": true,
   "attention_required": false,
@@ -13,8 +13,8 @@
       "status": "passed",
       "success": true,
       "attention_required": false,
-      "generated_at": "2026-08-01T11:47:38.079Z",
-      "age_minutes": 5.2,
+      "generated_at": "2026-08-01T12:11:38.540Z",
+      "age_minutes": 0.6,
       "summary": {
         "ok": 5,
         "failed": 0,
@@ -27,8 +27,8 @@
       "status": "passed",
       "success": true,
       "attention_required": false,
-      "generated_at": "2026-08-01T11:31:42.161Z",
-      "age_minutes": 21.1,
+      "generated_at": "2026-08-01T12:11:38.761Z",
+      "age_minutes": 0.6,
       "summary": {
         "open_leads": 0,
         "due_now": 0,
@@ -60,8 +60,8 @@
       "status": "passed",
       "success": true,
       "attention_required": false,
-      "generated_at": "2026-08-01T11:32:18.096Z",
-      "age_minutes": 20.6,
+      "generated_at": "2026-08-01T12:11:38.913Z",
+      "age_minutes": 0.6,
       "summary": {
         "lookback_days": 30,
         "leads_24h": 0,
@@ -84,8 +84,8 @@
       "status": "passed",
       "success": true,
       "attention_required": false,
-      "generated_at": "2026-08-01T11:31:42.250Z",
-      "age_minutes": 21.1,
+      "generated_at": "2026-08-01T12:11:39.091Z",
+      "age_minutes": 0.6,
       "summary": {
         "lookback_days": 30,
         "page_views": 0,
@@ -113,8 +113,8 @@
       "status": "no-data",
       "success": true,
       "attention_required": false,
-      "generated_at": "2026-08-01T11:42:19.358Z",
-      "age_minutes": 10.5,
+      "generated_at": "2026-08-01T12:12:12.811Z",
+      "age_minutes": 0,
       "summary": {
         "lookback_days": 30,
         "tracked_events": 0,
@@ -141,8 +141,8 @@
       "status": "passed",
       "success": true,
       "attention_required": false,
-      "generated_at": "2026-08-01T11:31:42.154Z",
-      "age_minutes": 21.1,
+      "generated_at": "2026-08-01T12:11:39.444Z",
+      "age_minutes": 0.6,
       "summary": {
         "total_opportunities": 0,
         "open_opportunities": 0,

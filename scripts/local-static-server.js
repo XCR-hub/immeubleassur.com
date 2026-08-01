@@ -1,8 +1,9 @@
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer } from "node:http";
-import { extname, join, normalize, resolve } from "node:path";
+import { extname, join, normalize, resolve, sep } from "node:path";
 
 const root = resolve("public");
+const runtimeAssetsRoot = resolve(process.env.LOCAL_RUNTIME_ASSETS_ROOT || join("data", "runtime-assets"));
 const port = Number.parseInt(process.env.PORT || "8787", 10);
 const host = process.env.HOST || "127.0.0.1";
 const types = {
@@ -22,21 +23,35 @@ const types = {
   ".webmanifest": "application/manifest+json; charset=utf-8"
 };
 
+function isInside(base, file) {
+  const normalizedBase = base.endsWith(sep) ? base : `${base}${sep}`;
+  return file === base || file.startsWith(normalizedBase);
+}
+
+function resolveRuntimePath(requestUrl) {
+  const cleanUrl = decodeURIComponent((requestUrl || "/").split("?")[0]);
+  if (!cleanUrl.startsWith("/assets/")) return "";
+  const direct = normalize(join(runtimeAssetsRoot, cleanUrl.replace(/^\/+/, "")));
+  if (!isInside(runtimeAssetsRoot, direct)) return "";
+  return existsSync(direct) ? direct : "";
+}
+
 function resolvePath(requestUrl) {
   const cleanUrl = decodeURIComponent((requestUrl || "/").split("?")[0]);
   const pathname = cleanUrl === "/" ? "/index.html" : cleanUrl;
   const direct = normalize(join(root, pathname));
-  if (!direct.startsWith(root)) return "";
+  if (!isInside(root, direct)) return "";
   if (existsSync(direct)) return direct;
   if (!extname(direct)) {
     const html = `${direct}.html`;
-    if (html.startsWith(root) && existsSync(html)) return html;
+    if (isInside(root, html) && existsSync(html)) return html;
   }
   return direct;
 }
 
 const server = createServer((request, response) => {
-  const file = resolvePath(request.url);
+  const runtimeFile = resolveRuntimePath(request.url);
+  const file = runtimeFile || resolvePath(request.url);
   if (!file) {
     response.writeHead(403);
     response.end("Forbidden");
@@ -50,7 +65,7 @@ const server = createServer((request, response) => {
     response.writeHead(200, {
       "Content-Type": types[extension] || "application/octet-stream",
       "Content-Length": stat.size,
-      "Cache-Control": file.includes(`${join("public", "assets")}`) ? "public, max-age=31536000, immutable" : "public, max-age=300",
+      "Cache-Control": runtimeFile ? "no-store" : (file.includes(`${join("public", "assets")}`) ? "public, max-age=31536000, immutable" : "public, max-age=300"),
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "strict-origin-when-cross-origin"
     });

@@ -1,6 +1,6 @@
 import { createReadStream, existsSync, mkdirSync, statSync } from "node:fs";
 import { createServer } from "node:http";
-import { extname, join, normalize, resolve } from "node:path";
+import { extname, join, normalize, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { openLocalSqlite } from "./local-sqlite-db.js";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
@@ -9,6 +9,7 @@ import { sendNodeSmtpMail } from "./local-smtp.js";
 loadDefaultEnvFiles();
 
 const root = resolve(env("LOCAL_SITE_ROOT", "public"));
+const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));
 const host = env("LOCAL_SITE_HOST", env("HOST", "0.0.0.0"));
 const port = Number.parseInt(env("LOCAL_SITE_PORT", env("PORT", "8790")), 10) || 8790;
 const dbPath = env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite"));
@@ -146,15 +147,28 @@ async function handleApi(request, response, pathname) {
   return null;
 }
 
+function isInside(base, file) {
+  const normalizedBase = base.endsWith(sep) ? base : `${base}${sep}`;
+  return file === base || file.startsWith(normalizedBase);
+}
+
+function resolveRuntimeStaticPath(requestUrlValue) {
+  const cleanUrl = decodeURIComponent((requestUrlValue || "/").split("?")[0]);
+  if (!cleanUrl.startsWith("/assets/")) return "";
+  const direct = normalize(join(runtimeAssetsRoot, cleanUrl.replace(/^\/+/, "")));
+  if (!isInside(runtimeAssetsRoot, direct)) return "";
+  return existsSync(direct) ? direct : "";
+}
+
 function resolveStaticPath(requestUrlValue) {
   const cleanUrl = decodeURIComponent((requestUrlValue || "/").split("?")[0]);
   const pathname = cleanUrl === "/" ? "/index.html" : cleanUrl;
   const direct = normalize(join(root, pathname));
-  if (!direct.startsWith(root)) return "";
+  if (!isInside(root, direct)) return "";
   if (existsSync(direct)) return direct;
   if (!extname(direct)) {
     const html = `${direct}.html`;
-    if (html.startsWith(root) && existsSync(html)) return html;
+    if (isInside(root, html) && existsSync(html)) return html;
   }
   return direct;
 }
@@ -166,7 +180,8 @@ function handleStatic(request, response) {
     return;
   }
 
-  const file = resolveStaticPath(request.url);
+  const runtimeFile = resolveRuntimeStaticPath(request.url);
+  const file = runtimeFile || resolveStaticPath(request.url);
   if (!file) {
     response.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
     response.end("Forbidden");
@@ -180,7 +195,7 @@ function handleStatic(request, response) {
     response.writeHead(200, {
       "Content-Type": contentTypes[extension] || "application/octet-stream",
       "Content-Length": stat.size,
-      "Cache-Control": file.includes(`${join("public", "assets")}`) ? "public, max-age=31536000, immutable" : "public, max-age=300",
+      "Cache-Control": runtimeFile ? "no-store" : (file.includes(`${join("public", "assets")}`) ? "public, max-age=31536000, immutable" : "public, max-age=300"),
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "strict-origin-when-cross-origin"
     });

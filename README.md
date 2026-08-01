@@ -32,6 +32,7 @@ npm run db:sqlite:backup
 npm run db:sqlite:restore
 npm run db:sqlite:import-reports
 npm run production:monitor
+npm run production:runtime-reports
 npm run production:watchdog
 npm run production:watchdog:node
 npm run local:autarky:check
@@ -39,6 +40,8 @@ npm run check
 ```
 
 Le watchdog Node `scripts/local-site-watchdog.js` est utilise par la tache planifiee Windows. Le watchdog PowerShell `scripts/windows-local-site-watchdog.ps1` reste disponible en secours manuel. Il sert au maintien en ligne: il teste `http://127.0.0.1:8790/health`, arrete les processus Node applicatifs bloques si necessaire, relance `scripts/local-production-server.js` en processus detache et ecrit un rapport JSON local. En production, il est prevu en tache planifiee au demarrage et toutes les 5 minutes.
+
+Le cycle `npm run production:runtime-reports` met a jour les rapports operationnels sans modifier Git: les sorties dynamiques publiques sont ecrites dans `data/runtime-assets/` et servies en priorite par `scripts/local-production-server.js` pour `/assets/*.json`. Le fichier suivi `public/assets/local-growth-ops-latest.json` reste un fallback de build; le serveur publie l'overlay runtime quand il existe.
 
 ## Base de donnees
 
@@ -79,6 +82,7 @@ npm run leads:quality:monitor
 npm run antifraud:local
 npm run turnstile:hybrid
 npm run live:api:readiness
+npm run growth:ops:runtime
 ```
 
 Le rapport `conversion:intelligence` classe les pages par intention visible (`slug`, titre, description, H1) pour separer villes, PNO/CNO, devis, prix, syndic/copropriete, sinistres, SCI/bailleurs, travaux et veille sans lire les blocs CTA globaux. Le controle `lead:intent` verifie que les liens SEO `?intent=...` pre-remplissent le formulaire et restent transmis a l API, aux emails et a GA4.
@@ -94,6 +98,8 @@ Variables critiques:
 ```text
 ADMIN_API_TOKEN=
 LOCAL_SQLITE_DB=F:\immeubleassur-data\immeubleassur.sqlite
+LOCAL_RUNTIME_ASSETS_ROOT=F:\immeubleassur-runtime
+LOCAL_RUNTIME_REPORTS_ROOT=F:\immeubleassur-runtime\reports
 SMTP_HOST=mail.xcr.fr
 SMTP_PORT=587
 SMTP_USER=team@immeubleassur.com

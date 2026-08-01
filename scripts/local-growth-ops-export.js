@@ -1,5 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { loadDefaultEnvFiles, env } from "./local-env.js";
+
+loadDefaultEnvFiles();
 
 const REPORT_DIR = "reports";
 const PUBLIC_DIR = "public";
@@ -7,12 +10,12 @@ const REPORT_PATH = join(REPORT_DIR, "local-growth-ops-report.json");
 const ASSET_PATH = join(PUBLIC_DIR, "assets", "local-growth-ops-latest.json");
 
 const inputs = {
-  production: join(REPORT_DIR, "local-production-monitor-report.json"),
-  lead_sla: join(REPORT_DIR, "local-lead-sla-report.json"),
-  lead_quality: join(REPORT_DIR, "local-lead-quality-report.json"),
-  conversion_funnel: join(REPORT_DIR, "local-conversion-funnel-report.json"),
-  intent_conversion: join(REPORT_DIR, "local-intent-conversion-report.json"),
-  seo_backlog: join(REPORT_DIR, "local-seo-backlog-report.json")
+  production: env("LOCAL_PRODUCTION_MONITOR_REPORT", join(REPORT_DIR, "local-production-monitor-report.json")),
+  lead_sla: env("LOCAL_LEAD_SLA_REPORT", join(REPORT_DIR, "local-lead-sla-report.json")),
+  lead_quality: env("LOCAL_LEAD_QUALITY_REPORT", join(REPORT_DIR, "local-lead-quality-report.json")),
+  conversion_funnel: env("LOCAL_CONVERSION_FUNNEL_REPORT", join(REPORT_DIR, "local-conversion-funnel-report.json")),
+  intent_conversion: env("LOCAL_INTENT_CONVERSION_REPORT", join(REPORT_DIR, "local-intent-conversion-report.json")),
+  seo_backlog: env("LOCAL_SEO_BACKLOG_REPORT", join(REPORT_DIR, "local-seo-backlog-report.json"))
 };
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
@@ -20,6 +23,16 @@ function writeJson(path, value) { ensureDir(dirname(path)); writeFileSync(path, 
 function number(value) { return Number(value || 0); }
 function bool(value) { return value === true; }
 function clean(value, max = 300) { return String(value || "").trim().slice(0, max); }
+
+function argValue(name, fallback = "") {
+  const index = process.argv.indexOf(name);
+  if (index === -1) return fallback;
+  return process.argv[index + 1] || fallback;
+}
+
+function hasArg(name) {
+  return process.argv.includes(name);
+}
 
 function ageMinutes(value) {
   const timestamp = Date.parse(value || "");
@@ -324,9 +337,17 @@ function build() {
       "public-aggregate-observability"
     ]
   };
-  writeJson(REPORT_PATH, report);
-  writeJson(ASSET_PATH, report);
-  console.log(`Local growth ops export: ${status}, ${availableCount}/${Object.keys(inputs).length} report(s), ${priorityActions.length} action(s).`);
+  const runtimeOnly = hasArg("--runtime-only") || env("LOCAL_GROWTH_OPS_RUNTIME_ONLY", "0") === "1";
+  const defaultRuntimeOut = join(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")), "assets", "local-growth-ops-latest.json");
+  const runtimeOut = argValue("--runtime-out", env("LOCAL_GROWTH_OPS_RUNTIME_ASSET", runtimeOnly ? defaultRuntimeOut : ""));
+  if (runtimeOnly && !runtimeOut) throw new Error("--runtime-only requires --runtime-out, LOCAL_GROWTH_OPS_RUNTIME_ASSET or LOCAL_RUNTIME_ASSETS_ROOT");
+  if (!runtimeOnly) {
+    writeJson(REPORT_PATH, report);
+    writeJson(ASSET_PATH, report);
+  }
+  if (runtimeOut) writeJson(runtimeOut, report);
+  const target = runtimeOnly ? `runtime ${runtimeOut}` : (runtimeOut ? `tracked + runtime ${runtimeOut}` : "tracked");
+  console.log(`Local growth ops export: ${status}, ${availableCount}/${Object.keys(inputs).length} report(s), ${priorityActions.length} action(s), target ${target}.`);
 }
 
 build();
