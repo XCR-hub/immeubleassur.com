@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-08-01T16:13:47.991Z",
+  "status": "passed",
+  "success": true,
+  "attention_required": false,
+  "lookback_days": 30,
+  "summary": {
+    "sources": 0,
+    "sessions": 0,
+    "page_views": 0,
+    "form_starts": 0,
+    "submit_attempts": 0,
+    "leads_db": 0,
+    "hot_leads_db": 0,
+    "spam_blocks": 0,
+    "session_to_lead_rate": 0,
+    "start_to_lead_rate": 0
+  },
+  "sources": [],
+  "recommendations": [],
+  "safeguards": [
+    "no-pii-public-export",
+    "aggregate-source-metrics-only",
+    "no-email-phone-name-fields",
+    "sqlite-read-only",
+    "seo-cro-actions-derived-from-first-party-events"
+  ]
+}

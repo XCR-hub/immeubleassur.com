@@ -1,4 +1,4 @@
-const form = document.querySelector("#admin-form");
+﻿const form = document.querySelector("#admin-form");
 const tokenInput = document.querySelector("#admin-token");
 const statusBox = document.querySelector(".form-status");
 const body = document.querySelector("#leads-body");
@@ -257,6 +257,29 @@ function intentConversionSignal(report) {
   const top = (report.intent_funnels || [])[0];
   if (top) return `${top.label || top.key}: ${top.leads_db || 0} lead(s), score ${top.average_lead_score || 0}`;
   return `intentions mesurees: ${report.summary?.intent_count || 0}`;
+}
+function sourceQualityStatusLabel(report) {
+  if (!report?.available) return "Indispo";
+  const high = (report.recommendations || []).some((item) => item.severity === "high" || item.severity === "critical");
+  if (high) return "A traiter";
+  if (Number(report.summary?.leads_db || 0) > 0) return "Mesuree";
+  if (Number(report.summary?.sessions || 0) > 0) return "Trafic";
+  return report.success ? "OK" : "Alerte";
+}
+
+function sourceQualityDetail(report) {
+  if (!report?.available) return "rapport absent";
+  const summary = report.summary || {};
+  return `${summary.sources || 0} source(s), ${summary.leads_db || 0} lead(s), ${summary.session_to_lead_rate || 0}% session->lead`;
+}
+
+function sourceQualitySignal(report) {
+  if (!report?.available) return "rapport local non trouve";
+  const recommendation = (report.recommendations || [])[0];
+  if (recommendation) return `${recommendation.source || "source"}: ${recommendation.signal || recommendation.type}`;
+  const top = (report.sources || [])[0];
+  if (top) return `${top.source || "source"}: ${top.leads_db || 0} lead(s), ${top.start_to_lead_rate || 0}% start->lead`;
+  return `sources mesurees: ${report.summary?.sources || 0}`;
 }
 function seoBacklogStatusLabel(report) {
   if (!report?.available) return "Indispo";
@@ -915,6 +938,7 @@ async function loadIntegrations() {
       metricCard("Qualite leads", leadQualityStatusLabel(runtimeHealth?.lead_quality), leadQualityDetail(runtimeHealth?.lead_quality)),
       metricCard("Funnel leads", conversionFunnelStatusLabel(runtimeHealth?.conversion_funnel), conversionFunnelDetail(runtimeHealth?.conversion_funnel)),
       metricCard("Intentions leads", intentConversionStatusLabel(runtimeHealth?.intent_conversion), intentConversionDetail(runtimeHealth?.intent_conversion)),
+      metricCard("Sources leads", sourceQualityStatusLabel(runtimeHealth?.source_quality), sourceQualityDetail(runtimeHealth?.source_quality)),
       metricCard("Backlog SEO", seoBacklogStatusLabel(runtimeHealth?.seo_backlog), seoBacklogDetail(runtimeHealth?.seo_backlog))
     );
   }
@@ -990,6 +1014,16 @@ async function loadIntegrations() {
       scope: `Intentions: ${runtimeHealth.intent_conversion.summary?.intents_with_leads || 0}/${runtimeHealth.intent_conversion.summary?.intent_count || 0}\nUrgences: ${runtimeHealth.intent_conversion.summary?.lead_urgency_events || 0}`,
       signal: intentConversionSignal(runtimeHealth.intent_conversion),
       action: recommendation?.action || "Continuer le pilotage par intention SEO et renforcer les parcours qui generent des starts sans lead."
+    });
+  }
+  if (runtimeHealth?.source_quality?.available) {
+    const recommendation = runtimeHealth.source_quality.recommendations?.[0];
+    rows.unshift({
+      label: "Sources leads",
+      status: sourceQualityStatusLabel(runtimeHealth.source_quality),
+      scope: `Sources: ${runtimeHealth.source_quality.summary?.sources || 0}\nSession->lead: ${runtimeHealth.source_quality.summary?.session_to_lead_rate || 0}%`,
+      signal: sourceQualitySignal(runtimeHealth.source_quality),
+      action: recommendation?.action || "Conserver le suivi par source pour reinvestir sur les canaux qui generent des leads qualifies."
     });
   }
   if (runtimeHealth?.lead_quality?.available) {

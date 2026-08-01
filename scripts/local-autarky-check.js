@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+﻿import { existsSync, readFileSync } from "node:fs";
 
 const required = [
   ["package.json", "serve:local"],
@@ -24,6 +24,7 @@ const required = [
   ["scripts/local-runtime-report-cycle.js", "runtime-assets"],
   ["scripts/local-runtime-report-cycle.js", "local-sqlite-backup.js"],
   ["scripts/local-runtime-report-cycle.js", "LOCAL_INTENT_CONVERSION_PUBLIC_REPORT"],
+  ["scripts/local-runtime-report-cycle.js", "LOCAL_SOURCE_QUALITY_PUBLIC_REPORT"],
   ["scripts/local-production-monitor.js", "telemetry_filter"],
   ["scripts/local-lead-sla-monitor.js", "Lead SLA monitor"],
   ["scripts/local-lead-sla-monitor.js", "LOCAL_LEAD_SLA_ALERTS"],

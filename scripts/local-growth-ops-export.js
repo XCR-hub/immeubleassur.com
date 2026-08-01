@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+﻿import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 
@@ -15,6 +15,7 @@ const inputs = {
   lead_quality: env("LOCAL_LEAD_QUALITY_REPORT", join(REPORT_DIR, "local-lead-quality-report.json")),
   conversion_funnel: env("LOCAL_CONVERSION_FUNNEL_REPORT", join(REPORT_DIR, "local-conversion-funnel-report.json")),
   intent_conversion: env("LOCAL_INTENT_CONVERSION_REPORT", join(REPORT_DIR, "local-intent-conversion-report.json")),
+  source_quality: env("LOCAL_SOURCE_QUALITY_REPORT", join(REPORT_DIR, "local-source-quality-report.json")),
   seo_backlog: env("LOCAL_SEO_BACKLOG_REPORT", join(REPORT_DIR, "local-seo-backlog-report.json"))
 };
 
@@ -218,6 +219,43 @@ function sanitizeIntentConversion(report) {
   };
 }
 
+function sanitizeSourceQuality(report) {
+  const state = reportState(report);
+  if (!state.available) return state;
+  const summary = report.summary || {};
+  return {
+    ...state,
+    summary: {
+      lookback_days: number(summary.lookback_days),
+      sources: number(summary.sources),
+      sessions: number(summary.sessions),
+      page_views: number(summary.page_views),
+      form_starts: number(summary.form_starts),
+      submit_attempts: number(summary.submit_attempts),
+      leads_db: number(summary.leads_db),
+      hot_leads_db: number(summary.hot_leads_db),
+      spam_blocks: number(summary.spam_blocks),
+      session_to_lead_rate: number(summary.session_to_lead_rate),
+      start_to_lead_rate: number(summary.start_to_lead_rate)
+    },
+    sources: Array.isArray(report.sources)
+      ? report.sources.slice(0, 10).map((item) => ({
+          source: clean(item.source, 160),
+          sessions: number(item.sessions),
+          form_starts: number(item.form_starts),
+          submit_attempts: number(item.submit_attempts),
+          leads_db: number(item.leads_db),
+          hot_leads_db: number(item.hot_leads_db),
+          average_lead_score: number(item.average_lead_score),
+          session_to_lead_rate: number(item.session_to_lead_rate),
+          start_to_lead_rate: number(item.start_to_lead_rate),
+          spam_pressure_rate: number(item.spam_pressure_rate)
+        }))
+      : [],
+    recommendations: sanitizeRecommendations(report.recommendations, "source")
+  };
+}
+
 function sanitizeSeoBacklog(report) {
   const state = reportState(report);
   if (!state.available) return state;
@@ -295,6 +333,9 @@ function buildPriorityActions(reports) {
   for (const item of reports.intent_conversion.recommendations || []) {
     pushAction(actions, `intent-${item.type || "action"}`, item.severity || "medium", item.signal || "intention a optimiser", item.action || "Renforcer le parcours d'intention.", item.target || "intentions", Math.max(68, number(item.score)));
   }
+  for (const item of reports.source_quality.recommendations || []) {
+    pushAction(actions, `source-${item.type || "action"}`, item.severity || "medium", item.signal || "source a optimiser", item.action || "Optimiser la source d'acquisition.", item.target || "sources", Math.max(68, number(item.score)));
+  }
   for (const item of reports.seo_backlog.recommendations || []) {
     pushAction(actions, `seo-${item.type || "action"}`, item.severity || "medium", item.signal || "backlog SEO/CRO", item.action || "Traiter le backlog SEO/CRO prioritaire.", item.target || "seo", Math.max(66, number(item.score)));
   }
@@ -312,6 +353,7 @@ function build() {
     lead_quality: sanitizeLeadQuality(raw.lead_quality),
     conversion_funnel: sanitizeConversionFunnel(raw.conversion_funnel),
     intent_conversion: sanitizeIntentConversion(raw.intent_conversion),
+    source_quality: sanitizeSourceQuality(raw.source_quality),
     seo_backlog: sanitizeSeoBacklog(raw.seo_backlog)
   };
   const priorityActions = buildPriorityActions(reports);
@@ -334,6 +376,7 @@ function build() {
       "no-raw-lead-records",
       "no-email-phone-name-fields",
       "sqlite-reports-only",
+      "aggregate-source-quality",
       "public-aggregate-observability"
     ]
   };

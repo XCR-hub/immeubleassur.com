@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+﻿import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
@@ -13,6 +13,8 @@ const runtimeReportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", join("data"
 const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));
 const runtimeIntentReport = join(runtimeReportsRoot, "local-intent-conversion-report.json");
 const runtimeIntentAsset = join(runtimeAssetsRoot, "assets", "local-intent-conversion-latest.json");
+const runtimeSourceReport = join(runtimeReportsRoot, "local-source-quality-report.json");
+const runtimeSourceAsset = join(runtimeAssetsRoot, "assets", "local-source-quality-latest.json");
 const runtimeGrowthAsset = join(runtimeAssetsRoot, "assets", "local-growth-ops-latest.json");
 const cycleReportPath = resolve(env("LOCAL_RUNTIME_REPORT_CYCLE_REPORT", join(runtimeReportsRoot, "local-runtime-report-cycle.json")));
 
@@ -48,7 +50,9 @@ function run() {
   ensureDir(join(runtimeAssetsRoot, "assets"));
   const commonRuntimeEnv = {
     LOCAL_INTENT_CONVERSION_REPORT: runtimeIntentReport,
-    LOCAL_INTENT_CONVERSION_PUBLIC_REPORT: runtimeIntentAsset
+    LOCAL_INTENT_CONVERSION_PUBLIC_REPORT: runtimeIntentAsset,
+    LOCAL_SOURCE_QUALITY_REPORT: runtimeSourceReport,
+    LOCAL_SOURCE_QUALITY_PUBLIC_REPORT: runtimeSourceAsset
   };
   const steps = [
     runStep("sqlite_backup", ["scripts/local-sqlite-backup.js"]),
@@ -57,6 +61,7 @@ function run() {
     runStep("lead_quality_monitor", ["scripts/local-lead-quality-monitor.js"]),
     runStep("conversion_funnel_monitor", ["scripts/local-conversion-funnel-monitor.js"]),
     runStep("intent_conversion_runtime", ["scripts/local-intent-conversion-monitor.js"], commonRuntimeEnv),
+    runStep("source_quality_monitor", ["scripts/local-source-quality-monitor.js"], commonRuntimeEnv),
     runStep("seo_backlog_monitor", ["scripts/local-seo-backlog-monitor.js"]),
     runStep("conversion_action_sync", ["scripts/local-conversion-action-sync.js"]),
     runStep("seo_backlog_monitor_after_sync", ["scripts/local-seo-backlog-monitor.js"]),
@@ -78,7 +83,8 @@ function run() {
     runtime_assets_root: runtimeAssetsRoot,
     public_runtime_assets: {
       growth_ops: runtimeGrowthAsset,
-      intent_conversion: runtimeIntentAsset
+      intent_conversion: runtimeIntentAsset,
+      source_quality: runtimeSourceAsset
     },
     summary: {
       ok: steps.filter((step) => step.ok).length,

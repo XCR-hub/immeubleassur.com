@@ -1,4 +1,4 @@
-function json(body, status = 200) {
+﻿function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
@@ -312,6 +312,59 @@ function sanitizeIntentConversionReport(report) {
       : []
   };
 }
+function sanitizeSourceQualityReport(report) {
+  if (!report || typeof report !== "object") return { available: false };
+  const generatedAt = report.generated_at || "";
+  const ageMinutes = generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null;
+  return {
+    available: true,
+    success: report.success === true,
+    status: report.status || "unknown",
+    attention_required: report.attention_required === true,
+    generated_at: generatedAt,
+    age_minutes: ageMinutes,
+    summary: {
+      lookback_days: Number(report.summary?.lookback_days || 0),
+      sources: Number(report.summary?.sources || 0),
+      sessions: Number(report.summary?.sessions || 0),
+      page_views: Number(report.summary?.page_views || 0),
+      form_starts: Number(report.summary?.form_starts || 0),
+      submit_attempts: Number(report.summary?.submit_attempts || 0),
+      leads_db: Number(report.summary?.leads_db || 0),
+      hot_leads_db: Number(report.summary?.hot_leads_db || 0),
+      spam_blocks: Number(report.summary?.spam_blocks || 0),
+      session_to_lead_rate: Number(report.summary?.session_to_lead_rate || 0),
+      start_to_lead_rate: Number(report.summary?.start_to_lead_rate || 0)
+    },
+    sources: Array.isArray(report.sources)
+      ? report.sources.slice(0, 10).map((item) => ({
+          source: item.source || "",
+          sessions: Number(item.sessions || 0),
+          form_starts: Number(item.form_starts || 0),
+          submit_attempts: Number(item.submit_attempts || 0),
+          leads_db: Number(item.leads_db || 0),
+          hot_leads_db: Number(item.hot_leads_db || 0),
+          average_lead_score: Number(item.average_lead_score || 0),
+          session_to_lead_rate: Number(item.session_to_lead_rate || 0),
+          start_to_lead_rate: Number(item.start_to_lead_rate || 0),
+          submit_error_rate: Number(item.submit_error_rate || 0),
+          abandon_rate: Number(item.abandon_rate || 0),
+          spam_pressure_rate: Number(item.spam_pressure_rate || 0),
+          top_paths: Array.isArray(item.top_paths) ? item.top_paths.slice(0, 4) : []
+        }))
+      : [],
+    recommendations: Array.isArray(report.recommendations)
+      ? report.recommendations.slice(0, 8).map((item) => ({
+          type: item.type || "",
+          severity: item.severity || "",
+          source: item.source || "",
+          signal: item.signal || "",
+          action: item.action || "",
+          score: Number(item.score || 0)
+        }))
+      : []
+  };
+}
 function sanitizeSeoBacklogReport(report) {
   if (!report || typeof report !== "object") return { available: false };
   const generatedAt = report.generated_at || "";
@@ -419,6 +472,8 @@ export async function onRequestGet({ request, env }) {
   const conversionFunnelReport = await readLocalJson(conversionFunnelPath);
   const intentConversionPath = env.LOCAL_INTENT_CONVERSION_REPORT || "reports/local-intent-conversion-report.json";
   const intentConversionReport = await readLocalJson(intentConversionPath);
+  const sourceQualityPath = env.LOCAL_SOURCE_QUALITY_REPORT || "reports/local-source-quality-report.json";
+  const sourceQualityReport = await readLocalJson(sourceQualityPath);
   const seoBacklogPath = env.LOCAL_SEO_BACKLOG_REPORT || "reports/local-seo-backlog-report.json";
   const seoBacklogReport = await readLocalJson(seoBacklogPath);
   return json({
@@ -443,6 +498,7 @@ export async function onRequestGet({ request, env }) {
     lead_quality: sanitizeLeadQualityReport(leadQualityReport),
     conversion_funnel: sanitizeConversionFunnelReport(conversionFunnelReport),
     intent_conversion: sanitizeIntentConversionReport(intentConversionReport),
+    source_quality: sanitizeSourceQualityReport(sourceQualityReport),
     seo_backlog: sanitizeSeoBacklogReport(seoBacklogReport)
   });
 }
