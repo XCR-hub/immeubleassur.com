@@ -29,6 +29,8 @@ const required = [
   ["scripts/local-conversion-action-sync.js", "Conversion action sync"],
   ["scripts/local-conversion-action-sync.js", "seo_opportunities"],
   ["scripts/local-conversion-action-sync.js", "LOCAL_CONVERSION_ACTION_SYNC_REPORT"],
+  ["scripts/local-conversion-action-sync.js", "qualified-source-growth"],
+  ["scripts/local-conversion-action-sync.js", "sourceQualityOpportunities"],
   ["scripts/local-seo-backlog-monitor.js", "SEO backlog monitor"],
   ["scripts/local-seo-backlog-monitor.js", "LOCAL_SEO_BACKLOG_REPORT"],
   ["scripts/local-seo-backlog-monitor.js", "seo_opportunities"],

@@ -21,6 +21,11 @@ function readJson(file) {
   return JSON.parse(readFileSync(file, "utf8"));
 }
 
+function readOptionalJson(file) {
+  if (!file || !existsSync(file)) return null;
+  return JSON.parse(readFileSync(file, "utf8"));
+}
+
 function stableHash(value, length = 24) {
   return createHash("sha256").update(String(value)).digest("hex").slice(0, length);
 }
@@ -39,6 +44,12 @@ function siteUrl(path) {
   } catch {
     return raw.startsWith("/") ? `${origin}${raw}` : `${origin}/`;
   }
+}
+
+function sourceUrl(source) {
+  const raw = clean(source, 700);
+  if (raw.startsWith("/") || raw.startsWith("http://") || raw.startsWith("https://")) return siteUrl(raw);
+  return siteUrl("/admin.html");
 }
 
 function scoreFor(item) {
@@ -80,6 +91,45 @@ function normalizeOpportunity(item, report, runId, now) {
     created_at: now,
     updated_at: now
   };
+}
+
+function normalizeSourceQualityOpportunity(item, report, runId, now) {
+  const source = clean(item.source || "non precise", 700) || "non precise";
+  const topNeed = clean(item.top_need || "immeuble", 140) || "immeuble";
+  const score = Math.min(100, Math.max(78, Math.round(Number(item.quality_score || 0))));
+  return {
+    id: `qualified-source-${stableHash(source)}`,
+    run_id: runId,
+    url: sourceUrl(source),
+    query: clean(`${item.leads || 0} lead(s), ${item.hot_leads || 0} chaud(s), besoin ${topNeed}`, 240),
+    opportunity_type: "qualified-source-growth",
+    score,
+    status: "open",
+    recommendation: clean(`Renforcer la source ${source}: maillage interne, contenus satellites, preuve locale et CTA devis sur le besoin ${topNeed}.`, 900),
+    payload: JSON.stringify({
+      source: "local-seo-backlog-monitor",
+      source_path: source,
+      report_generated_at: report.generated_at || "",
+      leads: Number(item.leads || 0),
+      hot_leads: Number(item.hot_leads || 0),
+      warm_leads: Number(item.warm_leads || 0),
+      bridge_leads: Number(item.bridge_leads || 0),
+      average_score: Number(item.average_score || 0),
+      quality_score: Number(item.quality_score || 0),
+      top_need: topNeed,
+      value_label: item.value_label || "0 EUR/an"
+    }),
+    created_at: now,
+    updated_at: now
+  };
+}
+
+function sourceQualityOpportunities(report, runId, now) {
+  if (!report || !Array.isArray(report.source_quality)) return [];
+  return report.source_quality
+    .filter((item) => Number(item.leads || 0) > 0)
+    .slice(0, 20)
+    .map((item) => normalizeSourceQualityOpportunity(item, report, runId, now));
 }
 
 function metricRows(report, runId, now) {
@@ -178,46 +228,57 @@ function upsertOpportunity(db, opportunity) {
     .run();
 }
 
-function markStale(db, activeIds, now) {
+function markStaleByType(db, typePattern, activeIds, now) {
   if (!activeIds.length) {
-    return db.prepare(`UPDATE seo_opportunities SET status = 'stale', updated_at = ? WHERE opportunity_type LIKE 'conversion-funnel-%'`).bind(now).run().meta.changes;
+    return db.prepare("UPDATE seo_opportunities SET status = 'stale', updated_at = ? WHERE opportunity_type LIKE ?").bind(now, typePattern).run().meta.changes;
   }
   const placeholders = activeIds.map(() => "?").join(", ");
   return db
-    .prepare(`UPDATE seo_opportunities SET status = 'stale', updated_at = ? WHERE opportunity_type LIKE 'conversion-funnel-%' AND id NOT IN (${placeholders})`)
-    .bind(now, ...activeIds)
+    .prepare(`UPDATE seo_opportunities SET status = 'stale', updated_at = ? WHERE opportunity_type LIKE ? AND id NOT IN (${placeholders})`)
+    .bind(now, typePattern, ...activeIds)
     .run().meta.changes;
 }
 
 function run() {
   const dbPath = argValue("--db", env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite")));
   const reportPath = resolve(argValue("--report", env("LOCAL_CONVERSION_FUNNEL_REPORT", join("reports", "local-conversion-funnel-report.json"))));
+  const backlogReportPath = resolve(argValue("--backlog-report", env("LOCAL_SEO_BACKLOG_REPORT", join("reports", "local-seo-backlog-report.json"))));
   const out = resolve(argValue("--out", env("LOCAL_CONVERSION_ACTION_SYNC_REPORT", join("reports", "local-conversion-action-sync-report.json"))));
   const report = readJson(reportPath);
+  const backlogReport = readOptionalJson(backlogReportPath);
   const recommendations = Array.isArray(report.recommendations) ? report.recommendations : [];
   const now = new Date().toISOString();
   const runId = runIdFor(report);
-  const opportunities = recommendations.map((item) => normalizeOpportunity(item, report, runId, now));
+  const funnelOpportunities = recommendations.map((item) => normalizeOpportunity(item, report, runId, now));
+  const qualifiedSourceOpportunities = sourceQualityOpportunities(backlogReport, runId, now);
+  const opportunities = [...funnelOpportunities, ...qualifiedSourceOpportunities];
   const db = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
   try {
     upsertRun(db, runId, report, opportunities.length, now);
     for (const metric of metricRows(report, runId, now)) upsertMetric(db, metric);
     for (const opportunity of opportunities) upsertOpportunity(db, opportunity);
-    const staleMarked = markStale(db, opportunities.map((item) => item.id), now);
+    const staleConversionMarked = markStaleByType(db, "conversion-funnel-%", funnelOpportunities.map((item) => item.id), now);
+    const staleQualifiedSourceMarked = markStaleByType(db, "qualified-source-growth", qualifiedSourceOpportunities.map((item) => item.id), now);
     const result = {
       success: true,
       generated_at: now,
       source_report: reportPath,
+      backlog_report: backlogReportPath,
+      backlog_report_loaded: Boolean(backlogReport),
       database: db.path,
       run_id: runId,
       opportunities_opened: opportunities.length,
-      opportunities_stale_marked: staleMarked,
+      conversion_opportunities_opened: funnelOpportunities.length,
+      qualified_source_opportunities_opened: qualifiedSourceOpportunities.length,
+      opportunities_stale_marked: staleConversionMarked + staleQualifiedSourceMarked,
+      conversion_opportunities_stale_marked: staleConversionMarked,
+      qualified_source_opportunities_stale_marked: staleQualifiedSourceMarked,
       metrics_written: metricRows(report, runId, now).length,
       top_opportunity: opportunities[0] || null
     };
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, `${JSON.stringify(result, null, 2)}\n`, "utf8");
-    console.log(`Conversion action sync: ${opportunities.length} opportunity(s), ${staleMarked} stale, run ${runId}`);
+    console.log(`Conversion action sync: ${opportunities.length} opportunity(s), ${staleConversionMarked + staleQualifiedSourceMarked} stale, ${qualifiedSourceOpportunities.length} qualified source(s), run ${runId}`);
     console.log(`Report: ${out}`);
   } finally {
     db.close();
