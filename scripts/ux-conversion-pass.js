@@ -67,6 +67,103 @@ function existingHtmlFile(fileName) {
   return existsSync(join("public", normalized)) ? normalized : "";
 }
 
+function titleCase(value) {
+  return String(value || "")
+    .split(/[-\s]+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function humanizeFile(fileName) {
+  const slug = String(fileName || "index.html").replace(/\\/g, "/").replace(/\.html$/, "");
+  const cleanSlug = slug.replace(/^blog\//, "article ").replace(/^faq\//, "faq ").replace(/-/g, " ");
+  return titleCase(cleanSlug || "accueil");
+}
+
+function cityFromFile(fileName) {
+  const slug = String(fileName || "").replace(/\\/g, "/").replace(/\.html$/, "");
+  const match = slug.match(/^assurance-immeuble-(.+)$/);
+  if (!match) return "";
+  const value = match[1];
+  if (["de-rapport", "obligatoire", "resilie", "sinistre"].includes(value)) return "";
+  return titleCase(value);
+}
+
+function pageContext(fileName = "index.html") {
+  const slug = String(fileName || "index.html").replace(/\\/g, "/").replace(/\.html$/, "");
+  const label = humanizeFile(fileName);
+  const city = cityFromFile(fileName);
+  if (city) {
+    return {
+      diagnosticLead: `A ${city}, la demande doit relier adresse, usage, lots, sinistres et echeance pour obtenir un devis immeuble exploitable rapidement.`,
+      readinessLead: `Pour un immeuble situe a ${city}, chaque piece cochee rend la demande plus lisible: contrat actuel, appel de prime, lots, sinistres et travaux.`,
+      momentumLead: `Les recherches locales sur ${city} doivent basculer vite vers un dossier qualifie: PNO/CNO, copropriete, SCI ou multirisque immeuble selon le batiment.`
+    };
+  }
+  if (/pno|cno/.test(slug)) {
+    return {
+      diagnosticLead: `Sur ${label}, le visiteur doit preciser occupation, statut du lot, contrat immeuble et responsabilite du coproprietaire pour eviter les allers-retours.`,
+      readinessLead: `Sur ${label}, les pieces utiles sont le bail, la vacance, l'attestation occupant, le contrat immeuble et l'echeance.`,
+      momentumLead: `Sur ${label}, les recherches PNO/CNO convertissent mieux quand le parcours distingue lot loue, vacant, coproprietaire non occupant et audit du contrat immeuble.`
+    };
+  }
+  if (/copro|syndic/.test(slug)) {
+    return {
+      diagnosticLead: `Sur ${label}, le diagnostic doit separer syndic, conseil syndical, lots, parties communes, travaux votes et responsabilite civile du syndicat.`,
+      readinessLead: `Sur ${label}, les pieces qui accelerent le devis sont PV d'AG, nombre de lots, contrat actuel, sinistres 36 mois et travaux prevus.`,
+      momentumLead: `Sur ${label}, les recherches copropriete doivent conduire vers un dossier assureur clair: RC syndicat, multirisque immeuble, PNO des lots et franchises.`
+    };
+  }
+  if (/sci|patrimoine/.test(slug)) {
+    return {
+      diagnosticLead: `Sur ${label}, la qualification doit cartographier biens, occupants, contrats existants et priorite patrimoniale avant consultation assureur.`,
+      readinessLead: `Sur ${label}, chaque document coche relie patrimoine, lots, baux, contrats et echeances pour construire une demande SCI coherente.`,
+      momentumLead: `Sur ${label}, les recherches SCI transforment mieux quand elles orientent vers un audit de portefeuille, une multirisque immeuble ou une PNO par lot.`
+    };
+  }
+  if (/sinistre|resilie|refus|degat|infiltration/.test(slug)) {
+    return {
+      diagnosticLead: `Sur ${label}, il faut qualifier cause, historique, mesures correctives et urgence avant de presenter le risque a un assureur.`,
+      readinessLead: `Sur ${label}, releve sinistres, courriers assureur, photos, travaux correctifs et contrat actuel sont prioritaires.`,
+      momentumLead: `Sur ${label}, les recherches difficiles doivent proposer rappel rapide, audit contrat et parcours devis adapte aux refus, sinistres ou echeances proches.`
+    };
+  }
+  if (/prix|tarif|comparateur|franchise|prime/.test(slug)) {
+    return {
+      diagnosticLead: `Sur ${label}, le parcours doit relier prix, garanties, franchises, plafonds et qualite de gestion pour eviter une comparaison incomplete.`,
+      readinessLead: `Sur ${label}, l'appel de prime, le contrat, les lots, la surface et les franchises rendent le tarif immeuble vraiment comparable.`,
+      momentumLead: `Sur ${label}, les recherches prix doivent envoyer vers un devis qualifie, pas seulement vers une prime: garanties, exclusions et franchise changent la decision.`
+    };
+  }
+  if (/local-commercial|commerce|mixte|restaurant/.test(slug)) {
+    return {
+      diagnosticLead: `Sur ${label}, il faut cadrer activite commerciale, bail, extraction, vacance et assurance occupant avant la multirisque immeuble.`,
+      readinessLead: `Sur ${label}, bail, activite, surface, contrat occupant, travaux et sinistres reduisent les blocages assureur.`,
+      momentumLead: `Sur ${label}, les recherches local commercial doivent orienter vers un devis qui traite l'activite, les responsabilites du bailleur et le contrat immeuble.`
+    };
+  }
+  if (/devis|contact/.test(slug)) {
+    return {
+      diagnosticLead: `Sur ${label}, le formulaire doit capter le bon besoin en moins d'une minute puis laisser le conseiller completer les donnees techniques.`,
+      readinessLead: `Sur ${label}, les pieces cochees indiquent au conseiller quoi demander en priorite lors du rappel.`,
+      momentumLead: `Sur ${label}, la page devis doit reduire la friction: choix PNO/CNO, immeuble, SCI ou audit, puis rappel expert sans imposer tout le dossier.`
+    };
+  }
+  if (/^blog\//.test(slug)) {
+    return {
+      diagnosticLead: `Depuis ${label}, le lecteur doit passer de la question lue a un parcours devis qui reprend le risque, l'urgence et les pieces utiles.`,
+      readinessLead: `Depuis ${label}, le visiteur coche les documents disponibles puis complete le dossier avec un conseiller.`,
+      momentumLead: `Depuis ${label}, l'article transforme l'intention de recherche en action: audit contrat, devis immeuble, PNO/CNO ou rappel selon le sujet consulte.`
+    };
+  }
+  return {
+    diagnosticLead: `Sur ${label}, le parcours qualifie statut, type de bien, urgence et pieces disponibles pour creer un lead assurance immeuble exploitable.`,
+    readinessLead: `Chaque piece cochee rend la demande ${label.toLowerCase()} plus exploitable: echeance, contrat actuel, sinistres, lots et travaux.`,
+    momentumLead: `Les recherches assurance immeuble doivent aller vite vers le bon parcours: CNO/PNO, multirisque, SCI, copropriete ou audit contrat.`
+  };
+}
+
 function previousReportFiles() {
   if (!existsSync(UX_REPORT)) return [];
   try {
@@ -123,14 +220,14 @@ function routerBlock() {
 ${ROUTER_END}`;
 }
 
-function diagnosticBlock() {
+function diagnosticBlock(context = pageContext()) {
   return `${DIAGNOSTIC_START}
 <section class="band diagnostic-band" aria-labelledby="diagnostic-title">
   <div class="diagnostic-shell" data-diagnostic>
     <div class="diagnostic-copy">
       <p class="eyebrow dark">Diagnostic express</p>
       <h2 id="diagnostic-title">Transformer une demande en parcours assureur qualifie.</h2>
-      <p class="large-copy">Les meilleurs leads arrivent avec un statut, un type de bien et une urgence clairs. Le diagnostic ajuste le devis, le message de rappel et les signaux de conversion.</p>
+      <p class="large-copy">${context.diagnosticLead}</p>
       <div class="diagnostic-proof" aria-label="Elements qualifies"><span>Statut</span><span>Bien</span><span>Priorite</span><span>Pieces</span></div>
     </div>
     <div class="diagnostic-panel">
@@ -168,14 +265,14 @@ function diagnosticBlock() {
 ${DIAGNOSTIC_END}`;
 }
 
-function readinessBlock() {
+function readinessBlock(context = pageContext()) {
   return `${READINESS_START}
 <section class="band readiness-band" aria-labelledby="readiness-title">
   <div class="readiness-shell" data-readiness>
     <div class="readiness-copy">
       <p class="eyebrow dark">Dossier pret assureur</p>
       <h2 id="readiness-title">Voir en 30 secondes ce qui manque avant l'envoi aux assureurs.</h2>
-      <p class="large-copy">Chaque piece cochee rend la demande plus exploitable: echeance, contrat actuel, sinistres, lots et travaux. Le formulaire reprend ensuite les elements disponibles.</p>
+      <p class="large-copy">${context.readinessLead}</p>
     </div>
     <div class="readiness-panel">
       <div class="readiness-meter" aria-live="polite">
@@ -198,14 +295,14 @@ function readinessBlock() {
 </section>
 ${READINESS_END}`;
 }
-function momentumBlock() {
+function momentumBlock(context = pageContext()) {
   return `${MOMENTUM_START}
 <section class="band conversion-momentum-band" aria-labelledby="conversion-momentum-title">
   <div class="conversion-momentum">
     <div class="conversion-momentum-copy">
       <p class="eyebrow dark">Priorite business</p>
       <h2 id="conversion-momentum-title">Diriger chaque visiteur vers le devis qui convertit.</h2>
-      <p class="large-copy">Les recherches assurance immeuble ne valent pas toutes le meme parcours. ImmeubleAssur oriente vite vers CNO/PNO, multirisque immeuble ou audit contrat pour augmenter les leads exploitables.</p>
+      <p class="large-copy">${context.momentumLead}</p>
     </div>
     <div class="momentum-grid" aria-label="Parcours prioritaires">
       <article>
@@ -267,8 +364,8 @@ function insertRouter(html) {
   return html.replace(/\s*<\/main>/i, `\n${block}\n</main>`);
 }
 
-function insertDiagnostic(html) {
-  const block = diagnosticBlock();
+function insertDiagnostic(html, context = pageContext()) {
+  const block = diagnosticBlock(context);
   if (html.includes("<section class=\"band page-band\"")) {
     return html.replace(/\s*<section class="band page-band"/, `\n${block}\n    <section class="band page-band"`);
   }
@@ -278,8 +375,8 @@ function insertDiagnostic(html) {
   return html.replace(/\s*<\/main>/i, `\n${block}\n</main>`);
 }
 
-function insertReadiness(html) {
-  const block = readinessBlock();
+function insertReadiness(html, context = pageContext()) {
+  const block = readinessBlock(context);
   if (html.includes(DIAGNOSTIC_END)) {
     return html.replace(DIAGNOSTIC_END, `${DIAGNOSTIC_END}\n${block}`);
   }
@@ -289,8 +386,8 @@ function insertReadiness(html) {
   return html.replace(/\s*<\/main>/i, `\n${block}\n</main>`);
 }
 
-function insertMomentum(html) {
-  const block = momentumBlock();
+function insertMomentum(html, context = pageContext()) {
+  const block = momentumBlock(context);
   if (html.includes(READINESS_END)) {
     return html.replace(READINESS_END, `${READINESS_END}\n${block}`);
   }
@@ -319,10 +416,11 @@ let readinessChanged = 0;
 let readinessChecked = 0;
 for (const fileName of diagnosticTargets) {
   const file = join("public", fileName);
+  const context = pageContext(fileName);
   const existed = existsSync(file);
   const changed = updateFile(file, (html) => {
     const cleaned = removeMarked(removeMarked(html, DIAGNOSTIC_START, DIAGNOSTIC_END), READINESS_START, READINESS_END);
-    return insertReadiness(insertDiagnostic(cleaned));
+    return insertReadiness(insertDiagnostic(cleaned, context), context);
   });
   if (existed) {
     diagnosticChecked += 1;
@@ -338,8 +436,9 @@ let momentumChanged = 0;
 let momentumChecked = 0;
 for (const fileName of momentumTargets) {
   const file = join("public", fileName);
+  const context = pageContext(fileName);
   const existed = existsSync(file);
-  const changed = updateFile(file, (html) => insertMomentum(removeMarked(html, MOMENTUM_START, MOMENTUM_END)));
+  const changed = updateFile(file, (html) => insertMomentum(removeMarked(html, MOMENTUM_START, MOMENTUM_END), context));
   if (existed) momentumChecked += 1;
   if (changed) momentumChanged += 1;
 }

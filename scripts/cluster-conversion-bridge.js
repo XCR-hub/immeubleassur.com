@@ -114,6 +114,39 @@ function cityFromSlug(slug) {
   return slug.replace("assurance-immeuble-", "").replace(/-/g, " ");
 }
 
+function titleCase(value) {
+  return String(value || "")
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .map((part) => (part.length <= 2 ? part.toUpperCase() : `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`))
+    .join(" ");
+}
+
+function pageLabel(page) {
+  const title = String(page.title || "").replace(/\s+\|\s+ImmeubleAssur$/i, "").trim();
+  if (title) return title;
+  const city = cityFromSlug(page.slug);
+  if (city) return `Assurance immeuble ${titleCase(city)}`;
+  return titleCase(page.slug.split("/").pop() || page.slug).replace(/\s+/g, " ");
+}
+
+function contextualSummary(profile, page) {
+  const label = pageLabel(page);
+  if (page.cluster === "newsletter-veille") return `Sur ${label}, la veille devient utile lorsqu'elle declenche une verification concrete: contrat actuel, echeance, sinistres, travaux ou changement d'occupation.`;
+  if (page.cluster === "travaux") return `Sur ${label}, le parcours relie travaux, PV d'AG, entreprises, attestations, reception, contrat immeuble et dommages ouvrage avant consultation assureur.`;
+  if (page.cluster === "copropriete-syndic") return `Sur ${label}, syndic, conseil syndical ou coproprietaire relient parties communes, RC, sinistres, travaux et franchises avant de comparer.`;
+  if (page.cluster === "local-commercial") return `Sur ${label}, le dossier explique bail, activite, protections, vacance et contrats voisins pour rendre l'immeuble mixte lisible.`;
+  if (page.cluster === "prix-tarif") return `Sur ${label}, la comparaison relie prime, franchises, plafonds, exclusions, sinistres et documents disponibles avant arbitrage.`;
+  if (page.cluster === "sci-bailleur") return `Pour ${label}, SCI, bailleur ou immeuble de rapport presentent lots, occupations, contrats existants, vacance et sinistres pour eviter les doublons.`;
+  if (page.cluster === "devis-courtier") return `Sur ${label}, le pont rappelle les donnees qui rendent la demande comparable: adresse, usage, contrat actuel, echeance et urgence.`;
+  if (page.cluster === "sinistre-resilie") return `Sur ${label}, le dossier doit montrer chronologie, mesures correctives et exclusions sensibles avant sollicitation du marche.`;
+  return profile.summary;
+}
+
+function contextualProfile(profile, page) {
+  return { ...profile, summary: contextualSummary(profile, page) };
+}
+
 function clusterFor(slug, title, h1) {
   const source = `${slug} ${title} ${h1}`.toLowerCase();
   if (cityFromSlug(slug)) return "local";
@@ -186,6 +219,8 @@ function auditFile(file) {
   return {
     file,
     slug,
+    title,
+    h1,
     type: pageType(slug),
     cluster,
     noindex: isNoIndex(html),
@@ -209,7 +244,7 @@ const changedPages = [];
 for (const page of targets) {
   const original = readFileSync(page.file, "utf8");
   const cleaned = removeExisting(original);
-  const profile = profiles[page.cluster];
+  const profile = contextualProfile(profiles[page.cluster], page);
   const updated = insertBridge(cleaned, block(profile, page.cluster));
   if (updated !== original) {
     writeFileSync(page.file, updated, "utf8");

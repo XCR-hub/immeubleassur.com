@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T14:17:31.778Z",
+  "generated_at": "2026-08-01T14:42:30.714Z",
   "status": "passed",
   "pages_checked": 182,
   "urgent_pages": 166,
@@ -56,7 +56,7 @@
   "conversion_signals": {
     "lead_intent_routing": "passed",
     "lead_intent_active_bridges": 51,
-    "money_score": 91,
+    "money_score": 95,
     "funnel_leads_30d": 0,
     "funnel_form_starts_30d": 0
   },

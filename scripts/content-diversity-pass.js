@@ -266,6 +266,41 @@ const replacements = [
     build: (ctx) => `Un contrat utile pour ${ctx.page} doit permettre a ${ctx.audience} d'arbitrer entre cout, garanties et reste a charge probable sans ambiguite.`
   },
   {
+    id: "article-decision-protection",
+    text: "Cette lecture protege la decision: elle evite de choisir une offre uniquement parce qu'elle semble moins chere ou plus simple a premiere vue.",
+    build: (ctx) => `Pour ${ctx.page}, cette lecture protege la decision: elle relie ${ctx.proof} avant de retenir une offre simplement moins chere ou plus simple.`
+  },
+  {
+    id: "article-low-price-faq",
+    text: "Non. Il faut comparer la prime avec les franchises, plafonds, exclusions et obligations de declaration.",
+    build: (ctx) => `Non. Pour ${ctx.page}, il faut comparer la prime avec les franchises, plafonds, exclusions et obligations de declaration.`
+  },
+  {
+    id: "article-audit-timing-faq",
+    text: "L'audit est utile avant l'echeance, avant une AG, apres plusieurs sinistres ou lorsqu'un changement d'usage modifie le risque.",
+    build: (ctx) => `Pour ${ctx.page}, l'audit est utile avant echeance, avant une AG, apres plusieurs sinistres ou lorsqu'un changement d'usage modifie le risque.`
+  },
+  {
+    id: "copro-bridge-paragraph",
+    text: "Le syndic, le conseil syndical ou le coproprietaire doivent relier parties communes, RC, sinistres, travaux et franchises avant de comparer.",
+    build: (ctx) => `Sur ${ctx.page}, syndic, conseil syndical ou coproprietaire doivent relier ${ctx.proof} avant de comparer.`
+  },
+  {
+    id: "copro-page-purpose",
+    text: "Une page copropriete doit permettre de passer d'une question juridique ou pratique a un contrat lisible pour l'immeuble et les parties communes.",
+    build: (ctx) => `Sur ${ctx.page}, la question juridique ou pratique doit mener vers un contrat lisible pour l'immeuble, les lots et les parties communes.`
+  },
+  {
+    id: "sci-bailleur-scope",
+    text: "SCI, bailleur et immeuble de rapport doivent presenter lots, occupations, contrats existants, vacance et sinistres pour eviter les doublons.",
+    build: (ctx) => `Pour ${ctx.page}, la fiche doit presenter lots, occupations, contrats existants, vacance et sinistres afin d'eviter doublons et trous de garantie.`
+  },
+  {
+    id: "pno-cno-linking-purpose",
+    text: "Quand la recherche porte sur un lot, une vacance ou un coproprietaire non occupant, le maillage doit envoyer vers la page qui qualifie vraiment le dossier.",
+    build: (ctx) => `Sur ${ctx.page}, le maillage doit conduire vers la page qui qualifie vraiment le lot, la vacance, l'occupation et le contrat immeuble.`
+  },
+  {
     id: "blog-method",
     text: "Notre methode consiste a transformer une demande de devis en fiche risque lisible. Nous separons les informations certaines, les points a verifier, les clauses sensibles et les pieces manquantes. Cette approche facilite la consultation assureur et limite les allers-retours.",
     build: (ctx) => `Notre methode pour ${ctx.page} separe informations certaines, points a verifier, clauses sensibles et pieces manquantes afin de limiter les allers-retours assureur.`
@@ -327,9 +362,9 @@ function qualityNeeds(html, slug, ctx) {
 function qualityFaq(ctx) {
   const rows = [
     [`Quelle information change vraiment l'analyse ${ctx.page} ?`, `L'information cle est ${ctx.intent}. Elle doit etre reliee au statut du demandeur, au contrat actuel, aux sinistres et aux responsabilites reelles.`],
-    ["Quels documents preparer avant un devis ?", `Preparez ${ctx.documents}. Ajoutez les baux, les photos, les travaux prevus ou les PV d'assemblee lorsqu'ils expliquent le risque.`],
-    ["Pourquoi passer par un specialiste immeuble ?", `Parce que ${ctx.proof} peuvent modifier la reponse assureur. Une demande generale oublie souvent ces points.`],
-    ["Quand faut-il agir rapidement ?", "Il faut agir avant echeance, apres une resiliation, en cas de refus assureur, apres un sinistre important ou lorsqu'un usage du batiment change."]
+    ["Quels documents preparer avant un devis ?", `Pour ${ctx.page}, preparez ${ctx.documents}. Ajoutez les baux, les photos, les travaux prevus ou les PV d'assemblee lorsqu'ils expliquent le risque.`],
+    ["Pourquoi passer par un specialiste immeuble ?", `Sur ${ctx.page}, ${ctx.proof} peuvent modifier la reponse assureur. Une demande generale oublie souvent ces points.`],
+    ["Quand faut-il agir rapidement ?", `Sur ${ctx.page}, il faut agir avant echeance, apres une resiliation, en cas de refus assureur, apres un sinistre important ou lorsqu'un usage du batiment change.`]
   ];
   return `<div class="faq-list">${rows.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>`;
 }

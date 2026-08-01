@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T14:17:28.605Z",
+  "generated_at": "2026-08-01T14:42:28.295Z",
   "status": "passed",
   "pages_checked": 186,
   "indexable_pages": 180,
@@ -7,17 +7,17 @@
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 42.8,
+      "kb": 42.9,
       "issue_count": 0
     },
     {
       "source": "assurance-immeuble.html",
-      "kb": 31.1,
+      "kb": 31,
       "issue_count": 0
     },
     {
       "source": "prix-assurance-immeuble.html",
-      "kb": 27.5,
+      "kb": 27.4,
       "issue_count": 0
     },
     {
@@ -27,22 +27,22 @@
     },
     {
       "source": "devis-assurance-immeuble.html",
-      "kb": 26.7,
+      "kb": 26.6,
       "issue_count": 0
     },
     {
       "source": "news/veille-assurance-immeuble-2026-08-01.html",
-      "kb": 26.1,
+      "kb": 26.2,
       "issue_count": 0
     },
     {
       "source": "assurance-sci.html",
-      "kb": 25.8,
+      "kb": 25.7,
       "issue_count": 0
     },
     {
       "source": "blog.html",
-      "kb": 25.6,
+      "kb": 25.7,
       "issue_count": 0
     },
     {
@@ -52,17 +52,17 @@
     },
     {
       "source": "blog/sinistres-recurrents-immeuble.html",
-      "kb": 24.8,
+      "kb": 25,
       "issue_count": 0
     },
     {
       "source": "blog/assurance-immeuble-sans-sinistre.html",
-      "kb": 24.8,
+      "kb": 25,
       "issue_count": 0
     },
     {
       "source": "blog/checklist-sinistre-degat-des-eaux.html",
-      "kb": 24.7,
+      "kb": 25,
       "issue_count": 0
     }
   ],
@@ -108,15 +108,15 @@
       "ok": true
     },
     {
-      "path": "assets/conversion-intelligence-latest.json",
-      "bytes": 21209,
-      "kb": 20.7,
-      "ok": true
-    },
-    {
       "path": "assets/lead-friction-latest.json",
       "bytes": 18815,
       "kb": 18.4,
+      "ok": true
+    },
+    {
+      "path": "assets/conversion-intelligence-latest.json",
+      "bytes": 14459,
+      "kb": 14.1,
       "ok": true
     },
     {
@@ -139,7 +139,7 @@
     },
     {
       "path": "assets/seo-cannibalization-latest.json",
-      "bytes": 9626,
+      "bytes": 9632,
       "kb": 9.4,
       "ok": true
     },
@@ -156,21 +156,21 @@
       "ok": true
     },
     {
-      "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5109,
-      "kb": 5,
-      "ok": true
-    },
-    {
-      "path": "assets/performance-budget-latest.json",
-      "bytes": 4087,
-      "kb": 4,
+      "path": "assets/cluster-conversion-bridge-latest.json",
+      "bytes": 5945,
+      "kb": 5.8,
       "ok": true
     },
     {
       "path": "assets/internal-link-equity-latest.json",
-      "bytes": 3696,
-      "kb": 3.6,
+      "bytes": 5165,
+      "kb": 5,
+      "ok": true
+    },
+    {
+      "path": "assets/local-growth-ops-latest.json",
+      "bytes": 5110,
+      "kb": 5,
       "ok": true
     }
   ],

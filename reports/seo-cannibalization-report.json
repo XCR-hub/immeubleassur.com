@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T14:17:41.534Z",
+  "generated_at": "2026-08-01T14:42:35.651Z",
   "status": "passed",
   "pages_checked": 177,
   "clusters_checked": 11,
@@ -73,12 +73,12 @@
         "aller",
         "batiment",
         "multirisque",
-        "changement",
         "checklist",
         "civile",
         "coproprietaires",
         "obligatoire",
         "rapport",
+        "retenir",
         "assure",
         "comment",
         "communes"
@@ -106,15 +106,15 @@
         "aller",
         "quand",
         "coproprietaires",
+        "dommages",
         "benevole",
         "communes",
-        "assemblee",
         "civile",
         "multirisque",
         "parties",
+        "retenir",
         "archives",
-        "comment",
-        "dommages"
+        "assemblee"
       ]
     },
     {
@@ -179,16 +179,16 @@
       "representative_terms": [
         "locatif",
         "multirisque",
-        "aller",
         "biens",
         "locative",
         "occupants",
         "patrimoine",
         "quand",
+        "aller",
         "gerant",
         "principal",
-        "coherence",
-        "commerce"
+        "retenir",
+        "coherence"
       ]
     },
     {
@@ -212,16 +212,16 @@
       "representative_terms": [
         "historique",
         "aller",
+        "causes",
         "comment",
         "fuite",
         "mesures",
-        "causes",
         "correctives",
         "degat",
-        "quand",
+        "prevention",
+        "retenir",
         "cause",
-        "correctifs",
-        "devient"
+        "correctifs"
       ]
     },
     {
@@ -279,8 +279,8 @@
         "comparaison",
         "historique",
         "quand",
-        "reste",
         "tarif",
+        "affiche",
         "aller",
         "changent",
         "comment"
@@ -360,6 +360,8 @@
       ],
       "representative_terms": [
         "chantier",
+        "dommage",
+        "ouvrage",
         "ravalement",
         "toiture",
         "aller",
@@ -368,9 +370,7 @@
         "batiment",
         "cache",
         "changement",
-        "changer",
-        "chere",
-        "clauses"
+        "changer"
       ]
     }
   ],
@@ -403,7 +403,7 @@
     {
       "cluster": "local-commercial",
       "risk": "watch",
-      "score": 44.52,
+      "score": 41.42,
       "primary_slug": "blog/local-commercial-vacant",
       "pages": [
         "blog/immeuble-mixte-restaurant",
@@ -414,14 +414,14 @@
         "blog"
       ],
       "shared_terms": [
+        "activite",
+        "retenir",
         "aller",
         "batiment",
         "cache",
         "changement",
         "changer",
-        "chere",
-        "clauses",
-        "comment"
+        "chere"
       ],
       "recommendation": "Clarifier blog/immeuble-mixte-restaurant comme support informationnel et renforcer le lien vers blog/local-commercial-vacant."
     },

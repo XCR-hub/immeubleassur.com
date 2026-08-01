@@ -165,6 +165,38 @@ function cityFromSlug(slug) {
   return slug.replace("assurance-immeuble-", "").replace(/-/g, " ");
 }
 
+function titleCase(value) {
+  return String(value || "")
+    .split(/[\s-]+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function pageLabel(page) {
+  const city = cityFromSlug(page.slug);
+  if (city) return `assurance immeuble ${titleCase(city)}`;
+  return (page.h1 || page.title || page.slug.replace(/[/-]+/g, " ")).toLowerCase();
+}
+
+function contextualSummary(page, fallback) {
+  const label = pageLabel(page);
+  if (page.cluster === "pno-cno") return `Sur ${label}, le maillage doit conduire vers le parcours qui qualifie le lot, la vacance, l'occupation et le contrat immeuble.`;
+  if (page.cluster === "copropriete-syndic") return `Sur ${label}, la question juridique ou pratique doit mener vers un contrat lisible pour l'immeuble, les lots et les parties communes.`;
+  if (page.cluster === "sci-bailleur") return `Sur ${label}, le maillage fait remonter patrimoine, lots, contrats existants, vacance et sinistres vers une fiche risque exploitable.`;
+  if (page.cluster === "sinistre-resilie") return `Sur ${label}, le parcours relie causes, mesures correctives, historique assureur, garanties et calendrier de renouvellement.`;
+  if (page.cluster === "prix-tarif") return `Sur ${label}, le tarif doit etre relie aux franchises, plafonds, exclusions, sinistres et documents qui changent la prime.`;
+  if (page.cluster === "travaux") return `Sur ${label}, les liens aident a preparer pieces travaux, garanties chantier, dommages ouvrage eventuelle et calendrier assureur.`;
+  if (page.cluster === "local-commercial") return `Sur ${label}, le maillage clarifie bail, activite, contrat locataire, responsabilites du bailleur et contrat immeuble.`;
+  if (page.cluster === "newsletter-veille") return `Sur ${label}, la veille doit conduire vers une action: verifier un contrat, preparer une AG, comparer PNO/CNO ou demander un audit.`;
+  if (page.cluster === "local") return `Sur ${label}, les liens renvoient vers garanties centrales, devis et situations qui modifient vraiment l'appetence assureur locale.`;
+  return `Sur ${label}, le visiteur doit rejoindre le bon parcours: devis immeuble, PNO/CNO, copropriete, SCI, prix ou dossier difficile.` || fallback;
+}
+
+function contextualProfile(profile, page) {
+  return { ...profile, summary: contextualSummary(page, profile.summary) };
+}
+
 function pageType(slug) {
   if (slug === "index") return "home";
   if (slug.startsWith("blog/")) return "blog";
@@ -255,6 +287,8 @@ function auditFile(file) {
     slug,
     type,
     cluster,
+    title,
+    h1,
     noindex: isNoIndex(html),
     internal_links: internalLinks,
     has_quote_link: /href="\/devis-|href="\/devis\//i.test(html),
@@ -271,7 +305,7 @@ let linksAdded = 0;
 for (const page of targets) {
   const original = readFileSync(page.file, "utf8");
   const cleaned = removeExistingBlock(original);
-  const profile = profiles[page.cluster] || profiles.default;
+  const profile = contextualProfile(profiles[page.cluster] || profiles.default, page);
   const block = linkBlock(profile, page.slug);
   const updated = insertBeforeMainEnd(cleaned, block);
   if (updated !== original) {

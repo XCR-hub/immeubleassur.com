@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T14:17:42.856Z",
+  "generated_at": "2026-08-01T14:42:36.092Z",
   "pages_checked": 182,
   "money_pages_checked": 118,
   "cluster_count": 11,
@@ -255,13 +255,13 @@
           "score": 100
         },
         {
-          "slug": "blog/assurance-copropriete-avant-ag",
-          "url": "https://immeubleassur.com/blog/assurance-copropriete-avant-ag",
-          "score": 79
-        },
-        {
           "slug": "blog/copropriete-petite-syndic-benevole",
           "url": "https://immeubleassur.com/blog/copropriete-petite-syndic-benevole",
+          "score": 86
+        },
+        {
+          "slug": "blog/assurance-copropriete-avant-ag",
+          "url": "https://immeubleassur.com/blog/assurance-copropriete-avant-ag",
           "score": 79
         },
         {

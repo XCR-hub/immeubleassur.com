@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-01T14:17:00.566Z",
+  "generated_at": "2026-08-01T14:30:50.501Z",
   "home_router": true,
   "home_hot_quote": true,
-  "home_hot_quote_changed": true,
+  "home_hot_quote_changed": false,
   "router_changed": true,
   "report_driven_pages": 69,
   "report_driven_files": [
