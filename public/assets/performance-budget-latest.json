@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T14:42:28.295Z",
+  "generated_at": "2026-08-01T14:57:23.267Z",
   "status": "passed",
   "pages_checked": 186,
   "indexable_pages": 180,
@@ -69,16 +69,16 @@
   "assets": [
     {
       "path": "assets/styles.css",
-      "bytes": 58582,
-      "kb": 57.2,
+      "bytes": 58997,
+      "kb": 57.6,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
     },
     {
       "path": "assets/app.js",
-      "bytes": 118934,
-      "kb": 116.1,
+      "bytes": 120955,
+      "kb": 118.1,
       "budget_bytes": 143360,
       "budget_kb": 140,
       "ok": true
@@ -156,21 +156,21 @@
       "ok": true
     },
     {
-      "path": "assets/cluster-conversion-bridge-latest.json",
-      "bytes": 5945,
-      "kb": 5.8,
+      "path": "assets/local-growth-ops-latest.json",
+      "bytes": 5108,
+      "kb": 5,
+      "ok": true
+    },
+    {
+      "path": "assets/performance-budget-latest.json",
+      "bytes": 4044,
+      "kb": 3.9,
       "ok": true
     },
     {
       "path": "assets/internal-link-equity-latest.json",
-      "bytes": 5165,
-      "kb": 5,
-      "ok": true
-    },
-    {
-      "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5110,
-      "kb": 5,
+      "bytes": 3696,
+      "kb": 3.6,
       "ok": true
     }
   ],

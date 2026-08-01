@@ -1228,13 +1228,57 @@ function mountRiskRouter() {
       href: "/devis-assurance-immeuble?intent=mixte"
     }
   };
+  const prefillKey = (risk) => (risk === "mixte" ? "local-commercial" : risk);
+  const prefillRow = (risk) => {
+    const key = prefillKey(risk);
+    const devisRows = homepageDevisRows();
+    return { key, row: devisRows[key] || devisRows.immeuble };
+  };
+  const status = document.createElement("p");
+  status.className = "risk-router-status";
+  status.dataset.riskRouterStatus = "";
+  status.setAttribute("role", "status");
+  status.setAttribute("aria-live", "polite");
+  result.insertAdjacentElement("afterend", status);
+  const showStatus = (row, mode = "pret") => {
+    status.innerHTML = `<strong>${row.title}</strong><span>${mode === "option" ? "Formulaire deja pre-rempli" : "Parcours pret"}: ${row.proof || "besoin, profil et message cadres"}. Ajoutez nom, telephone et ville.</span>`;
+    status.classList.add("is-visible");
+  };
+  const prefillWithoutScroll = (risk, source) => {
+    if (!form) return;
+    const { key, row } = prefillRow(risk);
+    if (!row) return;
+    quoteRouterContinued = true;
+    clearQuoteRouterStallTimer();
+    applyFormValues({ ...row, message: quoteFastTrackMessage(row) });
+    showStatus(row, "option");
+    track("quote_router_continue", { target: key, label: row.title, route: row.href, mode: "router-option-prefill", source });
+    if (!formStarted) {
+      formStarted = true;
+      track("form_start", { target: source, label: key });
+    }
+  };
   const render = (risk, shouldTrack = false) => {
     const row = rows[risk] || rows.cno;
     router.dataset.activeRisk = risk;
     options.forEach((option) => option.classList.toggle("is-active", option.dataset.risk === risk));
-    result.innerHTML = `<p class="risk-result-label">Parcours prioritaire</p><h3>${row.title}</h3><p>${row.text}</p><ul>${row.items.map((item) => `<li>${item}</li>`).join("")}</ul><a class="button primary" data-track="risk-router-devis" href="${row.href}">Demander le bon devis</a>`;
-    if (shouldTrack) track("risk_router_select", { target: risk, label: row.title });
+    result.innerHTML = `<p class="risk-result-label">Parcours prioritaire</p><h3>${row.title}</h3><p>${row.text}</p><ul>${row.items.map((item) => `<li>${item}</li>`).join("")}</ul><a class="button primary" data-track="risk-router-devis" data-risk-router-prefill="${prefillKey(risk)}" href="${row.href}">Pre-remplir mon devis</a>`;
+    if (shouldTrack) {
+      track("risk_router_select", { target: risk, label: row.title });
+      prefillWithoutScroll(risk, "risk-router-option");
+    }
   };
+  result.addEventListener("click", (event) => {
+    const link = event.target.closest("[data-risk-router-prefill]");
+    if (!link) return;
+    const key = link.dataset.riskRouterPrefill || prefillKey(router.dataset.activeRisk || "cno");
+    const rows = homepageDevisRows();
+    const row = rows[key] || rows.immeuble;
+    if (!row) return;
+    event.preventDefault();
+    showStatus(row);
+    startHeroPrefill(key, row, "risk-router-cta", "risk-router-devis", { payload: { router: "risk-router" } });
+  });
   options.forEach((option) => option.addEventListener("click", () => render(option.dataset.risk, true)));
   render(router.dataset.activeRisk || "cno");
 }

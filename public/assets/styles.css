@@ -2375,6 +2375,33 @@ textarea:focus {
   margin-top: 4px;
 }
 
+.risk-router-status {
+  display: none;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  line-height: 1.35;
+}
+
+.risk-router-status.is-visible {
+  display: grid;
+  gap: 3px;
+}
+
+.risk-router-status strong {
+  color: #123574;
+  font-size: .95rem;
+}
+
+.risk-router-status span {
+  color: #31528a;
+  font-size: .86rem;
+  font-weight: 760;
+}
+
 .ux-form-proof {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
