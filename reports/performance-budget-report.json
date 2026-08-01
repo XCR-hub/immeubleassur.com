@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T15:32:22.324Z",
+  "generated_at": "2026-08-01T15:47:15.878Z",
   "status": "passed",
   "pages_checked": 186,
   "indexable_pages": 180,
@@ -85,8 +85,8 @@
     },
     {
       "path": "assets/admin.js",
-      "bytes": 91452,
-      "kb": 89.3,
+      "bytes": 92422,
+      "kb": 90.3,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true
@@ -157,20 +157,20 @@
     },
     {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5108,
+      "bytes": 5111,
       "kb": 5,
       "ok": true
     },
     {
-      "path": "assets/performance-budget-latest.json",
-      "bytes": 4046,
-      "kb": 4,
+      "path": "assets/google-readiness-unlock-latest.json",
+      "bytes": 4828,
+      "kb": 4.7,
       "ok": true
     },
     {
-      "path": "assets/internal-link-equity-latest.json",
-      "bytes": 3696,
-      "kb": 3.6,
+      "path": "assets/performance-budget-latest.json",
+      "bytes": 4044,
+      "kb": 3.9,
       "ok": true
     }
   ],

@@ -8,6 +8,10 @@ const expectations = [
     snippets: ["loadDefaultEnvFiles", "live-api-readiness-report.json", "no-secret-values-exported", "TURNSTILE_SITE_KEY", "SERP_API_KEY"]
   },
   {
+    file: "scripts/google-readiness-unlock.js",
+    snippets: ["google-readiness-unlock-report.json", "google-readiness-unlock-latest.json", "GOOGLE_SERVICE_ACCOUNT_EMAIL", "PAGESPEED_API_KEY", "GA4_API_SECRET", "secret-names-only"]
+  },
+  {
     file: "scripts/search-intelligence.js",
     snippets: ["loadDefaultEnvFiles", "SERP_API_KEY", "--serp", "measured_count", "fallback_count", "serpapi-unavailable-fallback"]
   },
@@ -42,11 +46,11 @@ const expectations = [
   },
   {
     file: "public/assets/admin.js",
-    snippets: ["Search Console", "URL Inspection", "Sitemap Google", "google_api_health", "search_intelligence"]
+    snippets: ["Search Console", "URL Inspection", "Sitemap Google", "google_api_health", "search_intelligence", "Google unlock", "google-readiness-unlock-latest.json"]
   },
   {
     file: "package.json",
-    snippets: ["--url-inspection", "--submit-sitemap", "google:apis", "seo:live", "search:live", "media:live", "editorial:live", "live:api:readiness", "live-api-readiness-check.js", "google-api-contract-check.js"]
+    snippets: ["--url-inspection", "--submit-sitemap", "google:apis", "google:unlock", "seo:live", "search:live", "media:live", "editorial:live", "live:api:readiness", "live-api-readiness-check.js", "google-readiness-unlock.js", "google-api-contract-check.js"]
   },
   {
     file: ".github/workflows/seo-autopilot.yml",

@@ -857,7 +857,7 @@ async function loadIntegrations() {
   if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
   if (integrationsSummary) integrationsSummary.replaceChildren(metricCard("Chargement", "API", "lecture des integrations"));
 
-  const [editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport, growthOpsReport] = await Promise.all([
+  const [editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport, googleUnlockReport, growthOpsReport] = await Promise.all([
     fetchOptionalAsset("/assets/editorial-autopilot-latest.json"),
     fetchOptionalAsset("/assets/media-autopilot-latest.json"),
     fetchOptionalAsset("/assets/search-intelligence-latest.json"),
@@ -866,6 +866,7 @@ async function loadIntegrations() {
     fetchOptionalAsset("/assets/local-antifraud-latest.json"),
     fetchOptionalAsset("/assets/turnstile-hybrid-latest.json"),
     fetchOptionalAsset("/assets/live-api-readiness-latest.json"),
+    fetchOptionalAsset("/assets/google-readiness-unlock-latest.json"),
     fetchOptionalAsset("/assets/local-growth-ops-latest.json")
   ]);
 
@@ -886,7 +887,7 @@ async function loadIntegrations() {
 
   const connectors = apiResult?.connectors || [];
   const reports = apiResult?.reports || {};
-  const publicReports = { editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport, growthOpsReport };
+  const publicReports = { editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport, googleUnlockReport, growthOpsReport };
   const googleHealth = seoReport.google_api_health || {};
   const spamBlocks = Number(reports.lead_spam_blocks_30d || 0) + Number(reports.newsletter_spam_blocks_30d || 0);
   const duplicateLeads = Number(reports.lead_duplicates_30d || 0);
@@ -895,6 +896,7 @@ async function loadIntegrations() {
     integrationsSummary.replaceChildren(
       metricCard("Connecteurs runtime", connectors.length ? `${countConfigured(connectors)}/${connectors.length}` : "Token requis", connectors.length ? "configuration locale verifiee" : "audit secrets protege"),
       metricCard("Live APIs", liveReadinessReport.connectors_checked ? `${liveReadinessReport.ready_count || 0}/${liveReadinessReport.connectors_checked}` : "Rapport", liveReadinessReport.status || "readiness"),
+      metricCard("Google unlock", googleUnlockReport.watched_connectors ? googleUnlockReport.status || "rapport" : "Rapport", `${googleUnlockReport.blocking_count || 0} blocage(s), ${googleUnlockReport.degraded_count || 0} degrade(s)`),
       metricCard("IA configurees", connectors.length ? `${countConfigured(connectors, "ia")}/${countFamily(connectors, "ia")}` : "-", `${editorialReport.ai_provider || "deterministic"} / ${editorialReport.ai_status || "public"}`),
       metricCard("Veille", editorialReport.mode || "-", `${editorialReport.watch_items || 0} signal(s), qualite ${editorialReport.quality_score || 0}`),
       metricCard("Pexels", mediaReport.pexels_enabled ? "Actif" : "Fallback", `${mediaReport.assets_count || 0} asset(s)`),
@@ -917,7 +919,7 @@ async function loadIntegrations() {
     );
   }
 
-  const rows = connectors.length
+  let rows = connectors.length
     ? connectors.map((connector) => ({
       label: connector.label,
       status: readinessFor(liveReadinessReport, connector) ? readinessLabel(readinessFor(liveReadinessReport, connector)) : (connector.configured ? "Configure" : "A configurer"),
@@ -933,6 +935,14 @@ async function loadIntegrations() {
       { label: "SerpApi", status: searchReport.status || "rapport public", scope: "Dernier suivi positions.", signal: `${searchReport.keywords_checked || 0} requete(s)`, action: "Configurer SERP_API_KEY pour remplacer l'estimation locale." },
       { label: "Gaps recherche", status: searchGapReport.pages_boosted ? "Renforce" : "A surveiller", scope: "Pages hors top 3 estime enrichies automatiquement.", signal: `${searchGapReport.pages_boosted || 0}/${searchGapReport.candidates || 0} page(s)`, action: "Regenerer apres chaque suivi SERP pour renforcer les requetes business absentes ou hors top 3." }
     ];
+  const unlockRows = (googleUnlockReport.actions || []).slice(0, 8).map((item) => ({
+    label: `Google unlock: ${item.label || item.id}`,
+    status: item.reason === "missing-secret" ? "A configurer" : "A verifier",
+    scope: `${item.objective || "Connecteur Google"}\nVariables: ${(item.secret_names_only || item.missing_required_names || []).join(", ")}`,
+    signal: item.signal || googleUnlockReport.status || "readiness",
+    action: `${item.command || "npm run seo:apis"} - ${item.next_action || "Completer le connecteur puis relancer le controle."}`
+  }));
+  if (unlockRows.length) rows = [...unlockRows, ...rows];
   if (growthOpsReport?.reports_expected) {
     const action = growthOpsReport.priority_actions?.[0];
     rows.unshift({

@@ -1,7 +1,8 @@
 {
-  "generated_at": "2026-08-01T15:32:34.596Z",
+  "generated_at": "2026-08-01T15:49:52.422Z",
   "checked_files": [
     "scripts/live-api-readiness-check.js",
+    "scripts/google-readiness-unlock.js",
     "scripts/search-intelligence.js",
     "scripts/media-autopilot.js",
     "scripts/editorial-autopilot.js",
@@ -13,7 +14,7 @@
     "README.md",
     ".env.example"
   ],
-  "required_markers": 56,
+  "required_markers": 66,
   "missing": [],
   "status": "passed"
 }

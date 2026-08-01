@@ -1,0 +1,134 @@
+{
+  "generated_at": "2026-08-01T15:47:33.142Z",
+  "status": "action-required",
+  "watched_connectors": [
+    "google-search-console",
+    "pagespeed",
+    "ga4",
+    "serpapi"
+  ],
+  "google_ready_count": 0,
+  "google_connector_count": 4,
+  "blocking_count": 3,
+  "degraded_count": 1,
+  "actions": [
+    {
+      "id": "google-search-console",
+      "label": "Google Search Console",
+      "family": "google",
+      "severity": "high",
+      "reason": "missing-secret",
+      "status": "fallback",
+      "ready": false,
+      "objective": "Importer requetes, pages, CTR, positions, URL Inspection et sitemap depuis Search Console.",
+      "missing_required_names": [
+        "GOOGLE_SERVICE_ACCOUNT_EMAIL",
+        "GOOGLE_SERVICE_ACCOUNT_KEY"
+      ],
+      "missing_optional_names": [],
+      "command": "npm run seo:apis",
+      "signal": "Manque: GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY",
+      "next_action": "Ajouter le service account dans la propriete Search Console du domaine.",
+      "steps": [
+        "Ajouter le service account dans la propriete Search Console du domaine.",
+        "Renseigner GOOGLE_SERVICE_ACCOUNT_EMAIL et GOOGLE_SERVICE_ACCOUNT_KEY dans .env.local sur le serveur.",
+        "Conserver GOOGLE_SEARCH_CONSOLE_SITE_URL=sc-domain:immeubleassur.com sauf choix contraire dans Search Console.",
+        "Relancer npm run seo:apis puis npm run live:api:readiness."
+      ],
+      "secret_names_only": [
+        "GOOGLE_SERVICE_ACCOUNT_EMAIL",
+        "GOOGLE_SERVICE_ACCOUNT_KEY",
+        "GOOGLE_SEARCH_CONSOLE_SITE_URL"
+      ]
+    },
+    {
+      "id": "pagespeed",
+      "label": "PageSpeed Insights",
+      "family": "google",
+      "severity": "medium",
+      "reason": "missing-secret",
+      "status": "fallback",
+      "ready": false,
+      "objective": "Mesurer les performances mobiles des pages money avec PageSpeed Insights.",
+      "missing_required_names": [
+        "PAGESPEED_API_KEY"
+      ],
+      "missing_optional_names": [],
+      "command": "npm run seo:apis",
+      "signal": "Manque: PAGESPEED_API_KEY",
+      "next_action": "Activer PageSpeed Insights API dans le projet Google Cloud choisi.",
+      "steps": [
+        "Activer PageSpeed Insights API dans le projet Google Cloud choisi.",
+        "Renseigner PAGESPEED_API_KEY dans .env.local sur le serveur.",
+        "Relancer npm run seo:apis pour produire pagespeed.checked et les pages lentes.",
+        "Surveiller le budget avec npm run performance:budget."
+      ],
+      "secret_names_only": [
+        "PAGESPEED_API_KEY"
+      ]
+    },
+    {
+      "id": "ga4",
+      "label": "GA4 Measurement Protocol",
+      "family": "analytics",
+      "severity": "medium",
+      "reason": "missing-secret",
+      "status": "fallback",
+      "ready": false,
+      "objective": "Relier les evenements formulaire, intentions et leads qualifies a GA4 sans donnees nominatives.",
+      "missing_required_names": [
+        "GA4_MEASUREMENT_ID"
+      ],
+      "missing_optional_names": [
+        "GA4_API_SECRET"
+      ],
+      "command": "npm run generate",
+      "signal": "Manque: GA4_MEASUREMENT_ID",
+      "next_action": "Creer ou choisir un flux Web GA4 pour immeubleassur.com.",
+      "steps": [
+        "Creer ou choisir un flux Web GA4 pour immeubleassur.com.",
+        "Renseigner GA4_MEASUREMENT_ID pour activer le tag client sans page_view automatique.",
+        "Renseigner GA4_API_SECRET pour envoyer generate_lead cote serveur via Measurement Protocol.",
+        "Relancer npm run generate puis npm run check."
+      ],
+      "secret_names_only": [
+        "GA4_MEASUREMENT_ID",
+        "GA4_API_SECRET"
+      ]
+    },
+    {
+      "id": "serpapi",
+      "label": "SerpApi",
+      "family": "seo",
+      "severity": "medium",
+      "reason": "degraded-run",
+      "status": "ready",
+      "ready": true,
+      "objective": "Remplacer les estimations locales par des positions Google mesurees via API autorisee.",
+      "missing_required_names": [],
+      "missing_optional_names": [],
+      "command": "npm run search:live",
+      "signal": "Dernier statut: serpapi-unavailable-fallback",
+      "next_action": "Verifier que SERP_API_KEY est presente et valide.",
+      "steps": [
+        "Verifier que SERP_API_KEY est presente et valide.",
+        "Controler le quota et la connectivite sortante du serveur.",
+        "Relancer npm run search:live.",
+        "Ne traiter les positions fallback que comme signaux faibles."
+      ],
+      "secret_names_only": [
+        "SERP_API_KEY"
+      ]
+    }
+  ],
+  "readiness_status": "partial",
+  "readiness_ready_count": 5,
+  "readiness_connector_count": 8,
+  "safeguards": [
+    "no-secret-values-exported",
+    "secret-names-only",
+    "google-apis-use-official-connectors",
+    "serp-signals-labelled-measured-or-fallback",
+    "ga4-events-without-pii"
+  ]
+}

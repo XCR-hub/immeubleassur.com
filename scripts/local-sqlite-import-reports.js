@@ -24,7 +24,8 @@ const reportFiles = [
   "reports/seo-angle-differentiation-report.json",
   "reports/internal-link-equity-report.json",
   "reports/cluster-conversion-bridge-report.json",
-  "reports/live-api-readiness-report.json"
+  "reports/live-api-readiness-report.json",
+  "reports/google-readiness-unlock-report.json"
 ];
 
 function readJsonReport(file) {

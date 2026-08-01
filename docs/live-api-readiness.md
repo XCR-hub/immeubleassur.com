@@ -15,6 +15,7 @@ Depuis la racine du projet:
 
 ```bash
 npm run live:api:readiness
+npm run google:unlock
 ```
 
 Le rapport attendu est ecrit dans:
@@ -22,6 +23,8 @@ Le rapport attendu est ecrit dans:
 ```text
 reports/live-api-readiness-report.json
 public/assets/live-api-readiness-latest.json
+reports/google-readiness-unlock-report.json
+public/assets/google-readiness-unlock-latest.json
 ```
 
 Un connecteur est `ready` uniquement si toutes ses variables obligatoires sont presentes. Sinon il reste en `fallback`.
@@ -99,6 +102,7 @@ Le panneau `/admin.html` lit `live-api-readiness-latest.json` et affiche:
 - le nombre de connecteurs prets;
 - les connecteurs encore en fallback;
 - les noms de variables manquantes;
+- les actions Google unlock pour Search Console, PageSpeed, GA4 et SerpApi;
 - la commande a lancer pour rafraichir chaque signal.
 
 Ce panneau ne doit jamais afficher les valeurs des secrets.

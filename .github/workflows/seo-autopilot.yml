@@ -69,3 +69,7 @@ jobs:
             public/assets/editorial-autopilot-latest.json
             reports/search-intelligence-report.json
             public/assets/search-intelligence-latest.json
+            reports/live-api-readiness-report.json
+            public/assets/live-api-readiness-latest.json
+            reports/google-readiness-unlock-report.json
+            public/assets/google-readiness-unlock-latest.json
