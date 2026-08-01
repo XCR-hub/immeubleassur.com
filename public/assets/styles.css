@@ -1783,6 +1783,60 @@ details:hover {
   line-height: 1.45;
 }
 
+.instant-callback-form {
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, .1);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+}
+
+.instant-callback-form label:not(.consent-row) {
+  color: var(--navy);
+  display: grid;
+  font-size: .78rem;
+  font-weight: 800;
+  gap: 5px;
+}
+
+.instant-callback-form input[name="contact"] {
+  background: #ffffff;
+  border: 1px solid rgba(15, 118, 110, .24);
+  border-radius: 8px;
+  color: var(--navy);
+  font: inherit;
+  min-height: 42px;
+  padding: .68rem .72rem;
+  width: 100%;
+}
+
+.instant-callback-form input[data-invalid="true"] {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, .12);
+}
+
+.instant-callback-form .consent-row {
+  align-items: flex-start;
+  color: #334155;
+  font-size: .74rem;
+  gap: 7px;
+}
+
+.instant-callback-form .submit-button {
+  min-height: 42px;
+  padding: .66rem .8rem;
+}
+
+.instant-callback-form .form-status {
+  min-height: 18px;
+}
+
+.instant-callback-turnstile {
+  margin: 0;
+  overflow: hidden;
+}
+
 .traffic-no-click-intents {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

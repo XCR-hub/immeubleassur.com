@@ -26,6 +26,7 @@ let trafficNoClickInteracted = false;
 let trafficNoClickShown = false;
 let trafficNoClickTimer = 0;
 let trafficNoClickSelectedUrgency = "standard";
+let instantCallbackStarted = false;
 let botSignalFirstInteractionAt = 0;
 let botSignalInteractionCount = 0;
 let botSignalPointer = false;
@@ -312,6 +313,42 @@ function resetTurnstileWidgets(scope = document) {
       try { window.turnstile.reset(); } catch {}
     }
   });
+}
+
+function turnstileSiteKey() {
+  return document.querySelector(".cf-turnstile[data-sitekey]")?.dataset.sitekey || "";
+}
+
+function renderDynamicTurnstile(scope, retries = 8) {
+  const root = scope || document;
+  const widget = root.querySelector?.(".cf-turnstile[data-sitekey]");
+  if (!widget || widget.dataset.dynamicRendered === "1") return;
+  if (!window.turnstile?.render) {
+    if (retries > 0) window.setTimeout(() => renderDynamicTurnstile(root, retries - 1), 500);
+    return;
+  }
+  try {
+    const widgetId = window.turnstile.render(widget, {
+      sitekey: widget.dataset.sitekey,
+      theme: widget.dataset.theme || "light",
+      action: widget.dataset.action || "lead_form"
+    });
+    widget.dataset.dynamicRendered = "1";
+    if (widgetId) widget.dataset.widgetId = widgetId;
+  } catch {}
+}
+
+function turnstileResponseFromScope(scope) {
+  const root = scope || document;
+  const fieldValue = root.querySelector?.("[name='cf-turnstile-response']")?.value || "";
+  if (fieldValue) return String(fieldValue).trim();
+  const widget = root.querySelector?.(".cf-turnstile[data-widget-id]");
+  if (!widget || !window.turnstile?.getResponse) return "";
+  try {
+    return String(window.turnstile.getResponse(widget.dataset.widgetId) || "").trim();
+  } catch {
+    return "";
+  }
 }
 
 function readForm(formElement) {
@@ -1917,6 +1954,190 @@ function trafficNoClickMessage(row, urgencyKey = trafficNoClickSelectedUrgency) 
   return `${quoteFastTrackMessage(row)} ${trafficNoClickUrgencyMessage(urgencyKey)}`;
 }
 
+function instantCallbackContact(value) {
+  const contact = String(value || "").trim();
+  if (contact.includes("@")) return { email: contact.toLowerCase(), phone: "" };
+  return { email: "", phone: contact };
+}
+
+function instantCallbackStatus(formElement, message, type = "") {
+  const box = formElement.querySelector("[data-instant-callback-status]");
+  if (!box) return;
+  box.textContent = message;
+  box.className = `form-status ${type}`.trim();
+}
+
+function markInstantCallbackInvalid(formElement, details) {
+  formElement.querySelectorAll("[data-invalid='true']").forEach((field) => {
+    field.removeAttribute("data-invalid");
+    field.removeAttribute("aria-invalid");
+  });
+  const blocking = details.blocking_fields || [];
+  if (blocking.includes("phone") || blocking.includes("email")) {
+    const contact = formElement.elements.contact;
+    contact?.setAttribute("data-invalid", "true");
+    contact?.setAttribute("aria-invalid", "true");
+    contact?.focus({ preventScroll: true });
+  }
+  if (blocking.includes("consent")) {
+    const consent = formElement.elements.consent;
+    consent?.setAttribute("data-invalid", "true");
+    consent?.setAttribute("aria-invalid", "true");
+  }
+}
+
+function instantCallbackPayload(formElement, panel) {
+  const data = Object.fromEntries(new FormData(formElement).entries());
+  const rows = trafficNoClickIntentRows();
+  const selected = panel?.dataset.activeIntent || trafficNoClickIntentKey();
+  const row = rows[selected] || rows.immeuble;
+  const contact = instantCallbackContact(data.contact);
+  const attribution = attributionPayload();
+  const urgencyRows = trafficNoClickUrgencyRows();
+  const urgencyRow = urgencyRows[trafficNoClickSelectedUrgency] || urgencyRows.standard;
+  const message = `${trafficNoClickMessage(row)} Rappel express depuis l'accueil, priorite ${urgencyRow.label}.`;
+  return {
+    name: "Rappel express",
+    phone: contact.phone,
+    email: contact.email,
+    profile: row.profile || "bailleur",
+    property_type: row.property_type || "immeuble-locatif",
+    city: "",
+    units_count: "",
+    need: row.need || "multirisque-immeuble",
+    message,
+    submission_mode: "express-callback",
+    consent: data.consent === "on",
+    company_website: String(data.company_website || "").trim(),
+    turnstile_token: turnstileResponseFromScope(formElement),
+    "cf-turnstile-response": turnstileResponseFromScope(formElement),
+    source: "instant-callback",
+    intent: selected,
+    source_path: attribution.source_path,
+    content_bridge: attribution.content_bridge,
+    content_kind: "homepage-rescue",
+    landing_path: attribution.landing_path,
+    page_url: window.location.href,
+    referrer: document.referrer || "",
+    session_id: sessionId,
+    ga_client_id: gaClientId(),
+    page_title: document.title,
+    anti_bot: botSignalPayload(),
+    ...experimentPayload(),
+    experiment: experimentPayload(),
+    utm: { ...readUtm(), intent: selected, source_path: attribution.source_path, landing_path: attribution.landing_path, content_bridge: attribution.content_bridge, content_kind: "homepage-rescue" }
+  };
+}
+
+async function submitInstantCallback(event) {
+  event.preventDefault();
+  const formElement = event.currentTarget;
+  const panel = formElement.closest(".traffic-no-click-rescue");
+  const payload = instantCallbackPayload(formElement, panel);
+  if (payload.company_website) {
+    window.location.assign("/merci");
+    return;
+  }
+
+  const validation = validationDetails(payload);
+  if (validation.message) {
+    instantCallbackStatus(formElement, validation.message, "error");
+    markInstantCallbackInvalid(formElement, validation);
+    track("lead_submit_error", { ...validationTelemetry(payload, validation), source: "instant-callback" });
+    return;
+  }
+
+  const submitButton = formElement.querySelector("button[type='submit']");
+  submitButton.disabled = true;
+  instantCallbackStatus(formElement, "Envoi du rappel express...");
+  const qualification = leadQualification(payload);
+  track("form_submit_attempt", { target: payload.need, label: payload.profile, source: "instant-callback", ...leadValueEventPayload(payload, qualification) });
+
+  try {
+    const response = await fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      const submitError = new Error(result.error || "Envoi impossible pour le moment.");
+      submitError.status = response.status;
+      submitError.result = result;
+      throw submitError;
+    }
+
+    formSubmitted = true;
+    localBackup(payload, result);
+    if (result.duplicate) {
+      instantCallbackStatus(formElement, `Demande deja recue. Reference ${result.reference}.`, "ok");
+      track("lead_duplicate_returned", {
+        lead_reference: result.reference,
+        target: payload.need,
+        label: result.duplicate_reason || "duplicate_recent",
+        score: String(result.score || ""),
+        source_path: payload.source_path || "",
+        content_bridge: payload.content_bridge || "",
+        content_kind: payload.content_kind || ""
+      });
+    } else {
+      instantCallbackStatus(formElement, `Rappel express recu. Reference ${result.reference}.`, "ok");
+      track("lead_created", {
+        lead_reference: result.reference,
+        score: String(result.score || ""),
+        notification: result.notification || "unknown",
+        priority: result.priority || "",
+        next_action: result.next_action || "",
+        revenue_band: result.value_estimate?.band || "",
+        lead_value_min: String(result.value_estimate?.annual_premium_min || ""),
+        lead_value_max: String(result.value_estimate?.annual_premium_max || ""),
+        sla_hours: String(result.sla_hours || ""),
+        lead_urgency: result.lead_urgency || payload.lead_urgency || "",
+        lead_urgency_reason: result.lead_urgency_reason || payload.lead_urgency_reason || "",
+        source_path: payload.source_path || "",
+        content_bridge: payload.content_bridge || "",
+        content_kind: payload.content_kind || "",
+        source: "instant-callback",
+        target: payload.need,
+        label: payload.intent
+      });
+    }
+    window.setTimeout(() => dismissTrafficNoClickRescue(""), 1800);
+  } catch (error) {
+    if (error.status && error.status < 500) {
+      track("lead_submit_rejected", { target: payload.need, label: error.message, status: String(error.status), challenge: error.result?.challenge || "", turnstile: error.result?.turnstile || "" });
+      instantCallbackStatus(formElement, error.message || "Demande rejetee. Verifiez puis recommencez.", "error");
+      return;
+    }
+    const fallbackReference = `LOCAL-${Date.now().toString(36).toUpperCase()}`;
+    localBackup(payload, { success: false, reference: fallbackReference, error: error.message });
+    track("lead_submit_local_backup", { lead_reference: fallbackReference, target: payload.need, label: error.message, source: "instant-callback" });
+    instantCallbackStatus(formElement, `Connexion API indisponible. Demande sauvegardee (${fallbackReference}).`, "error");
+  } finally {
+    resetTurnstileWidgets(formElement);
+    submitButton.disabled = false;
+  }
+}
+
+function bindInstantCallbackForm(panel) {
+  const miniForm = panel.querySelector("[data-instant-callback-form]");
+  if (!miniForm || miniForm.dataset.bound === "1") return;
+  miniForm.dataset.bound = "1";
+  miniForm.addEventListener("focusin", () => {
+    if (!instantCallbackStarted) {
+      instantCallbackStarted = true;
+      formStarted = true;
+      track("form_start", { target: "instant-callback", label: panel.dataset.activeIntent || trafficNoClickIntentKey() });
+    }
+  });
+  miniForm.addEventListener("input", () => noteBotInteraction("input"), { passive: true });
+  miniForm.addEventListener("change", () => noteBotInteraction("input"), { passive: true });
+  miniForm.addEventListener("pointerdown", () => noteBotInteraction("pointer"), { passive: true });
+  miniForm.addEventListener("keydown", () => noteBotInteraction("keyboard"), { passive: true });
+  miniForm.addEventListener("submit", submitInstantCallback);
+  renderDynamicTurnstile(miniForm);
+}
+
 function setTrafficNoClickUrgency(panel, key, shouldTrack = true) {
   const rows = trafficNoClickUrgencyRows();
   const selected = rows[key] ? key : "standard";
@@ -1965,16 +2186,21 @@ function showTrafficNoClickRescue() {
   if (!isHomepage() || sessionStorage.getItem(trafficNoClickDismissKey) === "true") return;
   if (document.querySelector(".traffic-no-click-rescue")) return;
   const rows = trafficNoClickIntentRows();
+  const defaultIntent = trafficNoClickIntentKey();
   const intentButtons = Object.entries(rows).map(([key, row]) => `<button type="button" data-traffic-no-click-intent="${key}"><strong>${row.label}</strong><span>${row.title}</span></button>`).join("");
   const urgencyButtons = Object.entries(trafficNoClickUrgencyRows()).map(([key, row]) => `<button type="button" data-traffic-no-click-urgency="${key}" aria-pressed="false"><strong>${row.label}</strong><span>${row.text}</span></button>`).join("");
+  const siteKey = turnstileSiteKey();
+  const turnstileHtml = siteKey ? `<div class="turnstile-field instant-callback-turnstile"><div class="cf-turnstile" data-sitekey="${siteKey}" data-theme="light" data-action="lead_form"></div></div>` : "";
   const panel = document.createElement("aside");
   panel.className = "traffic-no-click-rescue";
+  panel.dataset.activeIntent = defaultIntent;
   panel.setAttribute("aria-label", "Acces rapide devis immeuble");
-  panel.innerHTML = `<button class="traffic-no-click-close" type="button" data-traffic-no-click-close aria-label="Fermer">&times;</button><p class="eyebrow dark">Devis immeuble</p><strong>Choisissez le parcours le plus proche.</strong><span>Le formulaire se pre-remplit avec les informations utiles assureur: lots, usage, sinistres et echeance.</span><div class="traffic-no-click-intents" role="group" aria-label="Choisir le parcours devis">${intentButtons}</div><div class="traffic-no-click-urgency" role="group" aria-label="Priorite de rappel">${urgencyButtons}</div><small class="traffic-no-click-detail" data-traffic-no-click-urgency-detail></small><div class="traffic-no-click-actions"><a class="button primary" data-track="traffic-no-click-devis" data-traffic-no-click-quote href="#lead-form">Demarrer par defaut</a><a class="button secondary" data-track="traffic-no-click-phone" data-traffic-no-click-phone href="tel:+33180855786">Appeler</a></div>`;
+  panel.innerHTML = `<button class="traffic-no-click-close" type="button" data-traffic-no-click-close aria-label="Fermer">&times;</button><p class="eyebrow dark">Devis immeuble</p><strong>Recevoir un rappel sans remplir tout le dossier.</strong><span>Indiquez un telephone ou un email. Le conseiller completera profil, lots, garanties et echeance avec vous.</span><form class="instant-callback-form" data-instant-callback-form novalidate><input class="hp-field" type="text" name="company_website" tabindex="-1" autocomplete="off" /><label>Telephone ou email *<input name="contact" autocomplete="tel" inputmode="email" required placeholder="06 12 34 56 78" /></label><label class="consent-row"><input type="checkbox" name="consent" required /><span>J'accepte d'etre recontacte pour mon devis immeuble.</span></label>${turnstileHtml}<button class="submit-button" type="submit" data-track="instant-callback-submit">Rappel express</button><p class="form-status" data-instant-callback-status role="status" aria-live="polite"></p></form><div class="traffic-no-click-intents" role="group" aria-label="Choisir le parcours devis">${intentButtons}</div><div class="traffic-no-click-urgency" role="group" aria-label="Priorite de rappel">${urgencyButtons}</div><small class="traffic-no-click-detail" data-traffic-no-click-urgency-detail></small><div class="traffic-no-click-actions"><a class="button secondary" data-track="traffic-no-click-devis" data-traffic-no-click-quote href="#lead-form">Pre-remplir le formulaire complet</a><a class="button secondary" data-track="traffic-no-click-phone" data-traffic-no-click-phone href="tel:+33180855786">Appeler</a></div>`;
   document.body.append(panel);
   trafficNoClickShown = true;
+  bindInstantCallbackForm(panel);
   setTrafficNoClickUrgency(panel, trafficNoClickSelectedUrgency, false);
-  track("traffic_without_click_shown", trafficNoClickPayload("shown"));
+  track("traffic_without_click_shown", trafficNoClickPayload("shown", { source: "instant-callback" }));
   panel.querySelector("[data-traffic-no-click-close]")?.addEventListener("click", () => dismissTrafficNoClickRescue("closed"));
   panel.querySelectorAll("[data-traffic-no-click-urgency]").forEach((button) => {
     button.addEventListener("click", () => setTrafficNoClickUrgency(panel, button.dataset.trafficNoClickUrgency || "standard"));
