@@ -99,6 +99,7 @@ function normalizeSourceQualityOpportunity(item, report, runId, now) {
   const leads = Number(item.leads || 0);
   const sessions = Number(item.sessions || 0);
   const ctaClicks = Number(item.cta_clicks || 0);
+  const urgencySelects = Number(item.urgency_selects || 0);
   const formStarts = Number(item.form_starts || 0);
   const submitAttempts = Number(item.submit_attempts || 0);
   const sourceStage = clean(item.source_stage || "", 80);
@@ -108,7 +109,7 @@ function normalizeSourceQualityOpportunity(item, report, runId, now) {
   const queryPrefix = sourceStageLabel ? `${sourceStageLabel}: ` : "";
   const query = leads > 0
     ? `${queryPrefix}${leads} lead(s), ${item.hot_leads || 0} chaud(s), besoin ${topNeed}`
-    : `${queryPrefix}${sessions} session(s), ${formStarts} start(s), ${ctaClicks} clic(s), besoin ${topNeed}`;
+    : `${queryPrefix}${sessions} session(s), ${formStarts} start(s), ${ctaClicks} clic(s), ${urgencySelects} urgence(s), besoin ${topNeed}`;
   const recommendation = sourceStageAction || (leads > 0
     ? `Renforcer la source ${source}: maillage interne, contenus satellites, preuve locale et CTA devis sur le besoin ${topNeed}.`
     : `Transformer la source prometteuse ${source}: clarifier l'offre, remonter le CTA devis, creer un contenu satellite et suivre les starts formulaire sur le besoin ${topNeed}.`);
@@ -138,6 +139,7 @@ function normalizeSourceQualityOpportunity(item, report, runId, now) {
       sessions,
       page_views: Number(item.page_views || 0),
       cta_clicks: ctaClicks,
+      urgency_selects: urgencySelects,
       quote_router_continues: Number(item.quote_router_continues || 0),
       form_starts: formStarts,
       submit_attempts: submitAttempts,
@@ -154,7 +156,7 @@ function normalizeSourceQualityOpportunity(item, report, runId, now) {
 function sourceQualityOpportunities(report, runId, now) {
   if (!report || !Array.isArray(report.source_quality)) return [];
   return report.source_quality
-    .filter((item) => Number(item.leads || 0) > 0 || Number(item.form_starts || 0) > 0 || Number(item.submit_attempts || 0) > 0 || Number(item.cta_clicks || 0) > 0 || Number(item.signal_score || 0) >= 30)
+    .filter((item) => Number(item.leads || 0) > 0 || Number(item.form_starts || 0) > 0 || Number(item.submit_attempts || 0) > 0 || Number(item.cta_clicks || 0) > 0 || Number(item.urgency_selects || 0) > 0 || Number(item.signal_score || 0) >= 30)
     .slice(0, 20)
     .map((item) => normalizeSourceQualityOpportunity(item, report, runId, now));
 }

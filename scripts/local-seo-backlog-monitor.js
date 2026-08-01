@@ -58,6 +58,7 @@ function sourceSignalScore(row) {
     Number(row.cta_clicks || 0) * 10 +
     Number(row.quote_router_continues || 0) * 12 +
     Number(row.bridge_clicks || 0) * 14 +
+    Number(row.urgency_selects || 0) * 16 +
     Number(row.form_starts || 0) * 24 +
     Number(row.submit_attempts || 0) * 30 +
     Number(row.leads_created || 0) * 42 -
@@ -122,11 +123,13 @@ function sourceStage(row) {
   const submitAttempts = Number(row.submit_attempts || 0);
   const formStarts = Number(row.form_starts || 0);
   const ctaSignals = Number(row.cta_clicks || 0) + Number(row.quote_router_continues || 0) + Number(row.bridge_clicks || 0);
+  const urgencySelects = Number(row.urgency_selects || 0);
   const sessions = Number(row.sessions || 0);
   const pageViews = Number(row.page_views || 0);
   if (leads > 0) return { key: "lead-growth", label: "Leads a amplifier", severity: "high" };
   if (submitAttempts > 0) return { key: "submit-without-lead", label: "Envois sans lead", severity: "critical" };
   if (formStarts > 0) return { key: "start-without-submit", label: "Formulaire bloque", severity: "high" };
+  if (urgencySelects > 0) return { key: "urgency-without-start", label: "Urgence sans formulaire", severity: "high" };
   if (ctaSignals > 0) return { key: "click-without-start", label: "Clics sans formulaire", severity: "medium" };
   if (sessions >= 20 || pageViews >= 20) return { key: "traffic-without-click", label: "Trafic sans clic", severity: "medium" };
   return { key: "signal-watch", label: "Signal a surveiller", severity: "low" };
@@ -139,6 +142,7 @@ function sourceStageAction(row) {
   if (stage === "lead-growth") return `Amplifier ${source}: creer des liens internes depuis les pages proches, renforcer la preuve locale et pousser un CTA devis sur ${need}.`;
   if (stage === "submit-without-lead") return `Corriger ${source}: tester l'envoi complet, verifier Turnstile/validation/API et simplifier le bloc formulaire pour ${need}.`;
   if (stage === "start-without-submit") return `Debloquer ${source}: reduire la friction formulaire, afficher les champs obligatoires restants et proposer l'appel direct sur ${need}.`;
+  if (stage === "urgency-without-start") return `Transformer l'urgence de ${source}: rendre le bouton devis prioritaire apres choix urgence, conserver le pre-remplissage ${need} et proposer rappel express.`;
   if (stage === "click-without-start") return `Transformer les clics de ${source}: aligner le bouton avec le formulaire, pre-remplir le besoin ${need} et rapprocher le module devis.`;
   if (stage === "traffic-without-click") return `Transformer le trafic de ${source}: remonter un CTA devis au premier ecran, ajouter une preuve metier et clarifier l'offre ${need}.`;
   return `Surveiller ${source}: accumuler plus de signaux avant d'ouvrir une action lourde.`;
@@ -303,6 +307,7 @@ function leadSourceQualityRows(database, limit) {
         abandoned_forms: 0,
         leads_created: 0,
         bridge_clicks: 0,
+        urgency_selects: 0,
         signal_score: 0,
         quality_basis: "leads"
       };
@@ -340,12 +345,13 @@ function eventSourceQualityRows(database, limit) {
         SUM(CASE WHEN event_type = 'lead_form_abandoned' THEN 1 ELSE 0 END) AS abandoned_forms,
         SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created,
         SUM(CASE WHEN event_type = 'content_lead_bridge_shown' THEN 1 ELSE 0 END) AS bridge_shown,
-        SUM(CASE WHEN event_type IN ('content_lead_bridge_quote_click', 'content_lead_bridge_phone_click') THEN 1 ELSE 0 END) AS bridge_clicks
+        SUM(CASE WHEN event_type IN ('content_lead_bridge_quote_click', 'content_lead_bridge_phone_click') THEN 1 ELSE 0 END) AS bridge_clicks,
+        SUM(CASE WHEN event_type = 'traffic_without_click_urgency_select' THEN 1 ELSE 0 END) AS urgency_selects
       FROM site_events
       WHERE created_at >= datetime('now', '-30 days')
-        AND event_type IN ('page_view', 'cta_click', 'phone_click', 'email_click', 'traffic_without_click_shown', 'traffic_without_click_quote_click', 'traffic_without_click_phone_click', 'traffic_without_click_dismissed', 'quote_router_continue', 'form_start', 'form_submit_attempt', 'lead_submit_error', 'lead_form_abandoned', 'lead_created', 'content_lead_bridge_shown', 'content_lead_bridge_quote_click', 'content_lead_bridge_phone_click')
+        AND event_type IN ('page_view', 'cta_click', 'phone_click', 'email_click', 'traffic_without_click_shown', 'traffic_without_click_quote_click', 'traffic_without_click_phone_click', 'traffic_without_click_dismissed', 'traffic_without_click_urgency_select', 'quote_router_continue', 'form_start', 'form_submit_attempt', 'lead_submit_error', 'lead_form_abandoned', 'lead_created', 'content_lead_bridge_shown', 'content_lead_bridge_quote_click', 'content_lead_bridge_phone_click')
       GROUP BY source, intent
-      ORDER BY leads_created DESC, submit_attempts DESC, form_starts DESC, cta_clicks DESC, sessions DESC
+      ORDER BY leads_created DESC, submit_attempts DESC, form_starts DESC, urgency_selects DESC, cta_clicks DESC, sessions DESC
       LIMIT 1200
     `)
     .all();
@@ -365,6 +371,7 @@ function eventSourceQualityRows(database, limit) {
       abandoned_forms: 0,
       leads_created: 0,
       bridge_clicks: 0,
+      urgency_selects: 0,
       needs: new Map()
     };
     const intent = normalizedNeed(row.intent, source);
@@ -378,7 +385,8 @@ function eventSourceQualityRows(database, limit) {
     current.abandoned_forms += Number(row.abandoned_forms || 0);
     current.leads_created += Number(row.leads_created || 0);
     current.bridge_clicks += Number(row.bridge_clicks || 0);
-    const intentWeight = Number(row.form_starts || 0) * 3 + Number(row.submit_attempts || 0) * 4 + Number(row.cta_clicks || 0) + Number(row.sessions || 0);
+    current.urgency_selects += Number(row.urgency_selects || 0);
+    const intentWeight = Number(row.form_starts || 0) * 3 + Number(row.submit_attempts || 0) * 4 + Number(row.cta_clicks || 0) + Number(row.urgency_selects || 0) * 2 + Number(row.sessions || 0);
     current.needs.set(intent, (current.needs.get(intent) || 0) + Math.max(1, intentWeight));
     map.set(source, current);
   }
@@ -406,13 +414,14 @@ function eventSourceQualityRows(database, limit) {
         abandoned_forms: row.abandoned_forms,
         leads_created: row.leads_created,
         bridge_clicks: row.bridge_clicks,
+        urgency_selects: row.urgency_selects,
         quality_basis: "event-signals"
       };
       normalized.signal_score = sourceSignalScore(normalized);
       return applySourceStage({ ...normalized, quality_score: sourceQualityScore(normalized) });
     })
-    .filter((row) => row.signal_score >= 20 || row.form_starts > 0 || row.cta_clicks > 0 || row.submit_attempts > 0)
-    .sort((a, b) => b.quality_score - a.quality_score || b.form_starts - a.form_starts || b.cta_clicks - a.cta_clicks || a.source.localeCompare(b.source))
+    .filter((row) => row.signal_score >= 20 || row.form_starts > 0 || row.cta_clicks > 0 || row.urgency_selects > 0 || row.submit_attempts > 0)
+    .sort((a, b) => b.quality_score - a.quality_score || b.form_starts - a.form_starts || b.urgency_selects - a.urgency_selects || b.cta_clicks - a.cta_clicks || a.source.localeCompare(b.source))
     .slice(0, limit);
 }
 
@@ -440,6 +449,7 @@ function mergeSourceQualityRows(leadRows, eventRows, limit) {
       abandoned_forms: 0,
       leads_created: 0,
       bridge_clicks: 0,
+      urgency_selects: 0,
       signal_score: 0,
       needs: new Map(),
       bases: new Set()
@@ -462,11 +472,12 @@ function mergeSourceQualityRows(leadRows, eventRows, limit) {
     current.abandoned_forms += Number(row.abandoned_forms || 0);
     current.leads_created += Number(row.leads_created || 0);
     current.bridge_clicks += Number(row.bridge_clicks || 0);
+    current.urgency_selects += Number(row.urgency_selects || 0);
     current.signal_score += Number(row.signal_score || 0);
     const basis = clean(row.quality_basis || (leads ? "leads" : "event-signals"), 40);
     if (basis) current.bases.add(basis);
     const need = normalizedNeed(row.top_need, source);
-    const needWeight = leads * 5 + Number(row.form_starts || 0) * 3 + Number(row.submit_attempts || 0) * 4 + Number(row.cta_clicks || 0) + Number(row.sessions || 0);
+    const needWeight = leads * 5 + Number(row.form_starts || 0) * 3 + Number(row.submit_attempts || 0) * 4 + Number(row.cta_clicks || 0) + Number(row.urgency_selects || 0) * 2 + Number(row.sessions || 0);
     current.needs.set(need, (current.needs.get(need) || 0) + Math.max(1, needWeight));
     map.set(source, current);
   }
@@ -494,13 +505,14 @@ function mergeSourceQualityRows(leadRows, eventRows, limit) {
         abandoned_forms: row.abandoned_forms,
         leads_created: row.leads_created,
         bridge_clicks: row.bridge_clicks,
+        urgency_selects: row.urgency_selects,
         signal_score: row.signal_score,
         quality_basis: row.bases.has("leads") && row.bases.has("event-signals") ? "leads+event-signals" : [...row.bases][0] || "event-signals"
       };
       return applySourceStage({ ...normalized, quality_score: sourceQualityScore(normalized) });
     })
-    .filter((row) => row.leads > 0 || row.signal_score >= 20 || row.form_starts > 0 || row.cta_clicks > 0 || row.submit_attempts > 0)
-    .sort((a, b) => b.quality_score - a.quality_score || b.hot_leads - a.hot_leads || b.form_starts - a.form_starts || b.leads - a.leads || a.source.localeCompare(b.source))
+    .filter((row) => row.leads > 0 || row.signal_score >= 20 || row.form_starts > 0 || row.cta_clicks > 0 || row.urgency_selects > 0 || row.submit_attempts > 0)
+    .sort((a, b) => b.quality_score - a.quality_score || b.hot_leads - a.hot_leads || b.form_starts - a.form_starts || b.urgency_selects - a.urgency_selects || b.leads - a.leads || a.source.localeCompare(b.source))
     .slice(0, limit);
 }
 
@@ -556,6 +568,7 @@ function summaryFrom(statusRows, topRows, conversionRows, stale, sourceQuality) 
     top_qualified_source_score: Number(sourceQuality[0]?.quality_score || 0),
     top_qualified_source_leads: Number(sourceQuality[0]?.leads || 0),
     top_qualified_source_sessions: Number(sourceQuality[0]?.sessions || 0),
+    top_qualified_source_urgency_selects: Number(sourceQuality[0]?.urgency_selects || 0),
     top_qualified_source_basis: sourceQuality[0]?.quality_basis || "",
     top_qualified_source_stage: sourceQuality[0]?.source_stage || "",
     top_qualified_source_stage_label: sourceQuality[0]?.source_stage_label || "",
@@ -593,7 +606,7 @@ function recommendations(summary, topRows, staleRowsList, conversionRows, source
     const leads = Number(top?.leads || 0);
     const signal = leads > 0
       ? `${leads} lead(s), ${top?.hot_leads || 0} chaud(s), score ${top?.quality_score || 0}`
-      : `${top?.sessions || 0} session(s), ${top?.form_starts || 0} start(s), ${top?.cta_clicks || 0} clic(s), score ${top?.quality_score || 0}`;
+      : `${top?.sessions || 0} session(s), ${top?.form_starts || 0} start(s), ${top?.cta_clicks || 0} clic(s), ${top?.urgency_selects || 0} urgence(s), score ${top?.quality_score || 0}`;
     const action = top?.source_stage_action || (leads > 0
       ? `Renforcer la source ${top?.source || "non precise"}: maillage interne, contenus satellites, preuve locale et CTA devis sur le besoin ${top?.top_need || "immeuble"}.`
       : `Transformer la source prometteuse ${top?.source || "non precise"}: clarifier l'offre, remonter le CTA devis et creer un contenu satellite sur le besoin ${top?.top_need || "immeuble"}.`);
