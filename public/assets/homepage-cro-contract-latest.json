@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-08-01T15:15:07.419Z",
+  "status": "passed",
+  "checks_required": 18,
+  "missing_count": 0,
+  "evidence": {
+    "lead_form": true,
+    "homepage_router": true,
+    "router_prefill_runtime": true,
+    "callback_short_form": true,
+    "turnstile_visible": true,
+    "router_status_visible": true
+  },
+  "safeguards": [
+    "homepage-traffic-can-start-form-without-navigation",
+    "router-prefills-full-form",
+    "express-callback-remains-visible",
+    "turnstile-remains-on-homepage-forms",
+    "telemetry-events-are-api-allowlisted",
+    "no-secret-like-telemetry-labels"
+  ]
+}

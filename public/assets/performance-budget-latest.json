@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T14:57:23.267Z",
+  "generated_at": "2026-08-01T15:13:04.885Z",
   "status": "passed",
   "pages_checked": 186,
   "indexable_pages": 180,
@@ -157,7 +157,7 @@
     },
     {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5108,
+      "bytes": 5110,
       "kb": 5,
       "ok": true
     },
