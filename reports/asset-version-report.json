@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-01T03:59:12.242Z",
+  "generated_at": "2026-08-01T04:20:07.763Z",
   "files_checked": 177,
   "files_changed": 0,
   "replacements": 0,
   "assets": {
-    "styles": "/assets/styles.css?v=76f6eb1edd",
+    "styles": "/assets/styles.css?v=bca659e7d9",
     "app": "/assets/app.js?v=6e570c943e",
     "admin": "/assets/admin.js?v=a4f4018310"
   },

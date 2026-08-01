@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-01T04:10:18.329Z",
+  "generated_at": "2026-08-01T04:19:46.583Z",
   "status": "passed",
   "pages_checked": 177,
   "pages_targeted": 51,
-  "pages_changed": 18,
-  "links_added": 71,
+  "pages_changed": 21,
+  "links_added": 83,
   "pages_with_active_blocks": 51,
   "active_internal_links": 201,
   "noindex_skipped": 3,
@@ -78,6 +78,13 @@
       "links_added": 4
     },
     {
+      "slug": "blog/checklist-documents-devis-immeuble",
+      "type": "blog",
+      "cluster": "default",
+      "previous_internal_links": 25,
+      "links_added": 4
+    },
+    {
       "slug": "blog/checklist-sinistre-degat-des-eaux",
       "type": "blog",
       "cluster": "sinistre-resilie",
@@ -127,6 +134,13 @@
       "links_added": 4
     },
     {
+      "slug": "blog/pno-bailleur-copropriete",
+      "type": "blog",
+      "cluster": "pno-cno",
+      "previous_internal_links": 25,
+      "links_added": 4
+    },
+    {
       "slug": "blog/pno-cno-differences-garanties",
       "type": "blog",
       "cluster": "pno-cno",
@@ -138,6 +152,13 @@
       "type": "blog",
       "cluster": "pno-cno",
       "previous_internal_links": 25,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/prix-assurance-immeuble-au-m2",
+      "type": "blog",
+      "cluster": "prix-tarif",
+      "previous_internal_links": 20,
       "links_added": 4
     },
     {

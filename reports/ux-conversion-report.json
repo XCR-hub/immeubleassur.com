@@ -1,6 +1,8 @@
 {
-  "generated_at": "2026-07-31T01:52:19.530Z",
+  "generated_at": "2026-08-01T04:18:53.452Z",
   "home_router": true,
+  "home_hot_quote": true,
+  "home_hot_quote_changed": true,
   "router_changed": true,
   "report_driven_pages": 62,
   "report_driven_files": [
@@ -76,6 +78,7 @@
     "risk-specific-cta",
     "lead-prefill-links",
     "homepage-decision-support",
+    "homepage-hot-quote",
     "diagnostic-express",
     "diagnostic-prefill",
     "diagnostic-event-loop",

@@ -195,6 +195,63 @@ h1 {
   font-size: clamp(1rem, 1.7vw, 1.28rem);
 }
 
+.hero-hot-quote {
+  max-width: 760px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(244, 199, 106, .38);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .14);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .2);
+}
+
+.hero-hot-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.hero-hot-copy span {
+  color: #f8d184;
+  font-size: .76rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.hero-hot-copy strong {
+  color: #ffffff;
+  font-size: clamp(1rem, 1.6vw, 1.18rem);
+  line-height: 1.18;
+}
+
+.hero-hot-copy small {
+  color: #d9e8e6;
+  font-size: .86rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.hero-hot-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.hero-hot-actions .button {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  font-size: .86rem;
+}
+
+.hero-hot-actions .button.secondary {
+  border-color: rgba(255, 255, 255, .36);
+}
+
+.hero-hot-actions .button.is-active {
+  outline: 2px solid rgba(244, 199, 106, .88);
+  outline-offset: 2px;
+}
 .hero-decision-accelerator {
   max-width: 760px;
   display: grid;
@@ -1387,6 +1444,7 @@ details:hover {
 
 .hero-copy h1,
 .hero-copy .hero-lead,
+.hero-hot-quote,
 .hero-decision-accelerator,
 .hero-actions,
 .proof-strip {
@@ -1972,6 +2030,7 @@ textarea:focus {
 
   .hero-intent-grid,
   .hero-decision-options,
+  .hero-hot-actions,
   .conversion-strip-inner {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2035,6 +2094,7 @@ textarea:focus {
 
   .hero-intent-grid,
   .hero-decision-options,
+  .hero-hot-actions,
   .conversion-strip-inner,
   .form-advisor {
     grid-template-columns: 1fr;

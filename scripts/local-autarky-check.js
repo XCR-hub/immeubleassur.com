@@ -68,6 +68,8 @@ const required = [
   ["public/assets/admin.js", "Accelerateur accueil"],
   ["public/assets/styles.css", "hero-action-accelerator"],
   ["public/assets/styles.css", "hero-intent-status"],
+  ["public/assets/styles.css", "hero-hot-quote"],
+  ["scripts/ux-conversion-pass.js", "homepage-hot-quote"],
   ["scripts/local-conversion-funnel-monitor.js", "traffic_rescue_shown"],
   ["scripts/local-conversion-funnel-monitor.js", "traffic_rescue_urgency_selects"],
   ["functions/api/admin/seo.js", "traffic_rescue_click_rate"],

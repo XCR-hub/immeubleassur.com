@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T04:10:20.161Z",
+  "generated_at": "2026-08-01T04:19:49.054Z",
   "status": "watch",
   "pages_checked": 171,
   "clusters_checked": 11,
@@ -24,12 +24,12 @@
         "local",
         "multirisque",
         "biens",
+        "civile",
         "exploitable",
         "activites",
         "appel",
-        "coproprietaire",
-        "preparer",
-        "profil"
+        "disponibles",
+        "preparer"
       ]
     },
     {
@@ -135,15 +135,15 @@
       "representative_terms": [
         "coproprietaire",
         "occupant",
-        "occupe",
         "vacant",
         "vacance",
         "civile",
-        "logement",
-        "profil",
-        "qualifie",
-        "biens",
+        "occupe",
         "statut",
+        "qualifie",
+        "logement",
+        "biens",
+        "disponibles",
         "communes"
       ]
     },
@@ -171,13 +171,13 @@
         "rapport",
         "plafonds",
         "vacance",
+        "appel",
         "biens",
         "locaux",
         "multirisque",
-        "appel",
+        "arbitrage",
         "clauses",
-        "liste",
-        "occupants"
+        "liste"
       ]
     },
     {
@@ -205,12 +205,12 @@
         "historique",
         "gestion",
         "refus",
-        "biens",
         "causes",
         "difficile",
+        "disponibles",
         "fuite",
-        "administrateur",
-        "conseil"
+        "resiliation",
+        "biens"
       ]
     },
     {
@@ -234,16 +234,16 @@
       "representative_terms": [
         "plafonds",
         "accelerent",
+        "appel",
         "batiment",
         "exploitable",
         "locaux",
         "surface",
-        "appel",
-        "assurer",
+        "conseil",
         "ligne",
-        "qualifie",
         "rappel",
-        "rapport"
+        "rapport",
+        "vacance"
       ]
     },
     {
@@ -294,18 +294,18 @@
         }
       ],
       "representative_terms": [
-        "budget",
         "charge",
         "comparaison",
+        "comprendre",
         "plafonds",
-        "reste",
         "tarif",
         "appel",
-        "comprendre",
-        "probable",
-        "profil",
         "arbitrage",
-        "occupant"
+        "budget",
+        "reste",
+        "chiffre",
+        "clauses",
+        "concerne"
       ]
     },
     {
@@ -471,7 +471,7 @@
     {
       "cluster": "sinistre-resilie",
       "risk": "medium",
-      "score": 56.79,
+      "score": 56.78,
       "primary_slug": "gestion-sinistres-immeuble",
       "pages": [
         "blog/assurance-immeuble-sans-sinistre",
@@ -486,17 +486,42 @@
         "correctives",
         "mesures",
         "biens",
-        "administrateur",
         "difficile",
+        "disponibles",
         "plafonds",
-        "profil"
+        "rappel"
       ],
       "recommendation": "Clarifier blog/sinistres-recurrents-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
     },
     {
+      "cluster": "pno-cno",
+      "risk": "medium",
+      "score": 55.95,
+      "primary_slug": "pno-cno",
+      "pages": [
+        "blog/cno-coproprietaire-non-occupant-obligatoire",
+        "blog/pno-cno-differences-garanties"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "occupant",
+        "coproprietaire",
+        "civile",
+        "vacant",
+        "vacance",
+        "qualifie",
+        "statut",
+        "biens"
+      ],
+      "recommendation": "Clarifier blog/pno-cno-differences-garanties comme support informationnel et renforcer le lien vers pno-cno."
+    },
+    {
       "cluster": "sinistre-resilie",
       "risk": "medium",
-      "score": 55.71,
+      "score": 55.88,
       "primary_slug": "gestion-sinistres-immeuble",
       "pages": [
         "blog/checklist-sinistre-degat-des-eaux",
@@ -511,8 +536,8 @@
         "mesures",
         "historique",
         "biens",
-        "administrateur",
         "difficile",
+        "disponibles",
         "gestion",
         "plafonds"
       ],
@@ -521,7 +546,7 @@
     {
       "cluster": "pno-cno",
       "risk": "medium",
-      "score": 55.6,
+      "score": 55.74,
       "primary_slug": "pno-cno",
       "pages": [
         "assurance-cno",
@@ -535,11 +560,11 @@
         "occupant",
         "coproprietaire",
         "vacant",
-        "occupe",
         "civile",
         "logement",
-        "statut",
-        "vacance"
+        "occupe",
+        "disponibles",
+        "statut"
       ],
       "recommendation": "Renforcer l'angle unique de assurance-cno et ajouter un lien contextuel vers pno-cno."
     },
@@ -571,27 +596,27 @@
     {
       "cluster": "pno-cno",
       "risk": "medium",
-      "score": 55.32,
+      "score": 55.03,
       "primary_slug": "pno-cno",
       "pages": [
-        "blog/cno-coproprietaire-non-occupant-obligatoire",
-        "blog/pno-cno-differences-garanties"
+        "blog/multirisque-immeuble-vs-pno",
+        "blog/pno-obligatoire-copropriete"
       ],
       "page_types": [
         "blog",
         "blog"
       ],
       "shared_terms": [
+        "multirisque",
         "occupant",
-        "coproprietaire",
-        "civile",
-        "vacant",
-        "vacance",
-        "occupe",
         "qualifie",
-        "statut"
+        "coproprietaire",
+        "plafonds",
+        "quand",
+        "statut",
+        "vacant"
       ],
-      "recommendation": "Clarifier blog/pno-cno-differences-garanties comme support informationnel et renforcer le lien vers pno-cno."
+      "recommendation": "Clarifier blog/pno-obligatoire-copropriete comme support informationnel et renforcer le lien vers pno-cno."
     },
     {
       "cluster": "assurance-immeuble",
@@ -617,34 +642,9 @@
       "recommendation": "Renforcer l'angle unique de assurance-immeuble-obligatoire et ajouter un lien contextuel vers multirisque-immeuble."
     },
     {
-      "cluster": "pno-cno",
-      "risk": "medium",
-      "score": 54.55,
-      "primary_slug": "pno-cno",
-      "pages": [
-        "blog/multirisque-immeuble-vs-pno",
-        "blog/pno-obligatoire-copropriete"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "occupant",
-        "qualifie",
-        "vacant",
-        "coproprietaire",
-        "occupe",
-        "plafonds",
-        "profil",
-        "quand"
-      ],
-      "recommendation": "Clarifier blog/pno-obligatoire-copropriete comme support informationnel et renforcer le lien vers pno-cno."
-    },
-    {
       "cluster": "devis-courtier",
       "risk": "medium",
-      "score": 54.28,
+      "score": 54.59,
       "primary_slug": "devis-assurance-immeuble",
       "pages": [
         "comparateur-assurance-immeuble",
@@ -661,15 +661,15 @@
         "monopropriete",
         "ligne",
         "locaux",
-        "obligatoire",
-        "surface"
+        "multirisque",
+        "obligatoire"
       ],
       "recommendation": "Differencier l'intention formulaire de comparateur-assurance-immeuble et confirmer le renvoi vers devis-assurance-immeuble quand le besoin est plus large."
     },
     {
       "cluster": "pno-cno",
       "risk": "medium",
-      "score": 54.22,
+      "score": 54.58,
       "primary_slug": "pno-cno",
       "pages": [
         "assurance-cno",
@@ -683,18 +683,18 @@
         "occupant",
         "coproprietaire",
         "vacant",
-        "occupe",
         "civile",
         "logement",
-        "statut",
-        "vacance"
+        "occupe",
+        "disponibles",
+        "statut"
       ],
       "recommendation": "Renforcer l'angle unique de assurance-cno et ajouter un lien contextuel vers pno-cno."
     },
     {
       "cluster": "sinistre-resilie",
       "risk": "medium",
-      "score": 54.1,
+      "score": 54.39,
       "primary_slug": "gestion-sinistres-immeuble",
       "pages": [
         "blog/assurance-immeuble-sans-sinistre",
@@ -709,8 +709,8 @@
         "correctives",
         "mesures",
         "biens",
-        "administrateur",
         "difficile",
+        "disponibles",
         "plafonds"
       ],
       "recommendation": "Clarifier blog/checklist-sinistre-degat-des-eaux comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
@@ -792,7 +792,7 @@
     {
       "cluster": "sinistre-resilie",
       "risk": "medium",
-      "score": 53.92,
+      "score": 53.84,
       "primary_slug": "gestion-sinistres-immeuble",
       "pages": [
         "assurance-immeuble-resilie",

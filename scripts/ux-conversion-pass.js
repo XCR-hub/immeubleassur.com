@@ -11,6 +11,8 @@ const READINESS_START = "<!-- ux-readiness:start -->";
 const READINESS_END = "<!-- ux-readiness:end -->";
 const MOMENTUM_START = "<!-- ux-conversion-momentum:start -->";
 const MOMENTUM_END = "<!-- ux-conversion-momentum:end -->";
+const HERO_HOT_QUOTE_START = "<!-- ux-homepage-hot-quote:start -->";
+const HERO_HOT_QUOTE_END = "<!-- ux-homepage-hot-quote:end -->";
 const CONVERSION_REPORT = join(REPORT_DIR, "conversion-intelligence-report.json");
 const UX_REPORT = join(REPORT_DIR, "ux-conversion-report.json");
 const REPORT_DRIVEN_LIMIT = 40;
@@ -226,10 +228,37 @@ function momentumBlock() {
 </section>
 ${MOMENTUM_END}`;
 }
+function heroHotQuoteBlock() {
+  return `${HERO_HOT_QUOTE_START}
+          <div class="hero-hot-quote" aria-label="Devis assurance immeuble immediat">
+            <div class="hero-hot-copy">
+              <span>Devis immediat</span>
+              <strong>Pre-remplir le formulaire sans quitter la page.</strong>
+              <small>Choisissez le dossier: syndic, PNO/CNO, SCI ou audit. Le rappel part avec le bon besoin.</small>
+            </div>
+            <div class="hero-hot-actions">
+              <a class="button primary" data-track="homepage-hot-copropriete" href="/devis-assurance-immeuble?intent=copropriete">Copropriete</a>
+              <a class="button primary" data-track="homepage-hot-pno-cno" href="/devis-pno-cno?intent=pno-cno">PNO/CNO</a>
+              <a class="button secondary" data-track="homepage-hot-audit" href="/devis-assurance-immeuble?intent=audit-contrat">Audit echeance</a>
+              <a class="button secondary" data-track="homepage-hot-phone" href="tel:+33180855786">Appeler</a>
+            </div>
+          </div>
+${HERO_HOT_QUOTE_END}`;
+}
 function removeMarked(html, start, end) {
   return html.replace(new RegExp(`${start}[\\s\\S]*?${end}\\s*`, "g"), "");
 }
 
+function insertHeroHotQuote(html) {
+  const block = heroHotQuoteBlock();
+  if (html.includes("<div class=\"hero-decision-accelerator\"")) {
+    return html.replace(/\s*<div class="hero-decision-accelerator"/, `\n${block}\n          <div class="hero-decision-accelerator"`);
+  }
+  if (html.includes("<div class=\"hero-actions\"")) {
+    return html.replace(/\s*<div class="hero-actions"/, `\n${block}\n          <div class="hero-actions"`);
+  }
+  return html;
+}
 function insertRouter(html) {
   const block = routerBlock();
   if (html.includes("<section class=\"band intro-band\"")) {
@@ -279,6 +308,7 @@ function updateFile(file, transform) {
   return next !== original;
 }
 
+const heroHotQuoteChanged = updateFile(HOME_FILE, (html) => insertHeroHotQuote(removeMarked(html, HERO_HOT_QUOTE_START, HERO_HOT_QUOTE_END)));
 const routerChanged = updateFile(HOME_FILE, (html) => insertRouter(removeMarked(html, ROUTER_START, ROUTER_END)));
 const reportFiles = reportDrivenFiles();
 const diagnosticTargets = uniqueFiles([...DIAGNOSTIC_FILES, ...reportFiles]);
@@ -317,6 +347,8 @@ mkdirSync(REPORT_DIR, { recursive: true });
 writeFileSync(join(REPORT_DIR, "ux-conversion-report.json"), JSON.stringify({
   generated_at: new Date().toISOString(),
   home_router: existsSync(HOME_FILE) && readFileSync(HOME_FILE, "utf8").includes("risk-router"),
+  home_hot_quote: existsSync(HOME_FILE) && readFileSync(HOME_FILE, "utf8").includes("hero-hot-quote"),
+  home_hot_quote_changed: heroHotQuoteChanged,
   router_changed: routerChanged,
   report_driven_pages: reportFiles.length,
   report_driven_files: reportFiles,
@@ -324,7 +356,7 @@ writeFileSync(join(REPORT_DIR, "ux-conversion-report.json"), JSON.stringify({
   diagnostic_pages_changed: diagnosticChanged,
   readiness_pages_checked: readinessChecked,
   readiness_pages_changed: readinessChanged,
-  improvements: ["intent-router", "risk-specific-cta", "lead-prefill-links", "homepage-decision-support", "diagnostic-express", "diagnostic-prefill", "diagnostic-event-loop", "readiness-checklist", "readiness-prefill", "readiness-event-loop", "conversion-intelligence-feedback-loop"]
+  improvements: ["intent-router", "risk-specific-cta", "lead-prefill-links", "homepage-decision-support", "homepage-hot-quote", "diagnostic-express", "diagnostic-prefill", "diagnostic-event-loop", "readiness-checklist", "readiness-prefill", "readiness-event-loop", "conversion-intelligence-feedback-loop"]
 }, null, 2), "utf8");
 
-console.log(`UX conversion pass ${routerChanged ? "updated" : "checked"} homepage router, injected ${diagnosticChanged}/${diagnosticChecked} diagnostic blocks, ${readinessChanged}/${readinessChecked} readiness blocks and ${momentumChanged}/${momentumChecked} momentum blocks.`);
+console.log(`UX conversion pass ${routerChanged ? "updated" : "checked"} homepage router, ${heroHotQuoteChanged ? "updated" : "checked"} hot quote, injected ${diagnosticChanged}/${diagnosticChecked} diagnostic blocks, ${readinessChanged}/${readinessChecked} readiness blocks and ${momentumChanged}/${momentumChecked} momentum blocks.`);
