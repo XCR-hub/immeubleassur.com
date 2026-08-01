@@ -283,6 +283,28 @@ function seoBacklogSignal(report) {
   }
   return `score moyen ${report.summary?.average_open_score || 0}, plus ancienne ${report.summary?.oldest_open_days || 0}j`;
 }
+function growthOpsStatusLabel(report) {
+  if (!report?.reports_expected) return "Rapport";
+  if (report.status === "critical") return "Critique";
+  if (report.status === "action-required") return "A traiter";
+  if (report.status === "no-data") return "En attente";
+  return report.success === false ? "Alerte" : "OK";
+}
+
+function growthOpsDetail(report) {
+  if (!report?.reports_expected) return "rapport public absent";
+  return `${report.reports_available || 0}/${report.reports_expected || 0} rapport(s), ${report.attention_count || 0} attention`;
+}
+
+function growthOpsSignal(report) {
+  const action = (report?.priority_actions || [])[0];
+  if (action) return `${action.severity || "signal"}: ${action.signal || action.type}`;
+  if (!report?.reports_expected) return "rapport public absent";
+  const missing = report.missing_reports || [];
+  if (missing.length) return `a brancher: ${missing.slice(0, 3).join(", ")}`;
+  return `dernier OK ${reportDate(report.generated_at)}`;
+}
+
 function valueEstimateFor(lead, q = qualificationFor(lead)) {
   return q.value_estimate || leadValueEstimate(lead, q.score || 0);
 }
@@ -835,7 +857,7 @@ async function loadIntegrations() {
   if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
   if (integrationsSummary) integrationsSummary.replaceChildren(metricCard("Chargement", "API", "lecture des integrations"));
 
-  const [editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport] = await Promise.all([
+  const [editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport, growthOpsReport] = await Promise.all([
     fetchOptionalAsset("/assets/editorial-autopilot-latest.json"),
     fetchOptionalAsset("/assets/media-autopilot-latest.json"),
     fetchOptionalAsset("/assets/search-intelligence-latest.json"),
@@ -843,7 +865,8 @@ async function loadIntegrations() {
     fetchOptionalAsset("/assets/seo-autopilot-latest.json"),
     fetchOptionalAsset("/assets/local-antifraud-latest.json"),
     fetchOptionalAsset("/assets/turnstile-hybrid-latest.json"),
-    fetchOptionalAsset("/assets/live-api-readiness-latest.json")
+    fetchOptionalAsset("/assets/live-api-readiness-latest.json"),
+    fetchOptionalAsset("/assets/local-growth-ops-latest.json")
   ]);
 
   let apiResult = null;
@@ -863,7 +886,7 @@ async function loadIntegrations() {
 
   const connectors = apiResult?.connectors || [];
   const reports = apiResult?.reports || {};
-  const publicReports = { editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport };
+  const publicReports = { editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport, growthOpsReport };
   const googleHealth = seoReport.google_api_health || {};
   const spamBlocks = Number(reports.lead_spam_blocks_30d || 0) + Number(reports.newsletter_spam_blocks_30d || 0);
   const duplicateLeads = Number(reports.lead_duplicates_30d || 0);
@@ -883,6 +906,7 @@ async function loadIntegrations() {
       metricCard("Turnstile", turnstileReport.configured ? "Actif" : "Fallback", turnstileReport.configured ? `${turnstileReport.forms_instrumented || 0}/${turnstileReport.forms_detected || 0} formulaire(s)` : "filtre local"),
       metricCard("Anti-spam", String(spamBlocks || eventCount(reports.site_events_30d, "lead_spam_blocked")), antifraudReport.configured ? "filtre local actif" : "filtre local pret"),
       metricCard("Dedupe leads", String(duplicateLeads || eventCount(reports.site_events_30d, "lead_duplicate_filtered")), "doublons filtres"),
+      metricCard("Growth ops", growthOpsStatusLabel(growthOpsReport), growthOpsDetail(growthOpsReport)),
       metricCard("Runtime", runtimeHealth ? `${runtimeHealth.runtime?.platform || "local"} / ${runtimeHealth.database?.driver || "db"}` : "Token requis", runtimeHealth?.database?.size_bytes ? `${runtimeHealth.database.table_count || 0} tables, ${formatBytes(runtimeHealth.database.size_bytes)}` : "diagnostic protege"),
       metricCard("Production", monitorStatusLabel(runtimeHealth?.monitor), monitorDetail(runtimeHealth?.monitor)),
       metricCard("SLA leads", leadSlaStatusLabel(runtimeHealth?.lead_sla), leadSlaDetail(runtimeHealth?.lead_sla)),
@@ -909,6 +933,16 @@ async function loadIntegrations() {
       { label: "SerpApi", status: searchReport.status || "rapport public", scope: "Dernier suivi positions.", signal: `${searchReport.keywords_checked || 0} requete(s)`, action: "Configurer SERP_API_KEY pour remplacer l'estimation locale." },
       { label: "Gaps recherche", status: searchGapReport.pages_boosted ? "Renforce" : "A surveiller", scope: "Pages hors top 3 estime enrichies automatiquement.", signal: `${searchGapReport.pages_boosted || 0}/${searchGapReport.candidates || 0} page(s)`, action: "Regenerer apres chaque suivi SERP pour renforcer les requetes business absentes ou hors top 3." }
     ];
+  if (growthOpsReport?.reports_expected) {
+    const action = growthOpsReport.priority_actions?.[0];
+    rows.unshift({
+      label: "Growth ops public",
+      status: growthOpsStatusLabel(growthOpsReport),
+      scope: `Rapports: ${growthOpsReport.reports_available || 0}/${growthOpsReport.reports_expected || 0}\nProtections: no PII`,
+      signal: growthOpsSignal(growthOpsReport),
+      action: action?.action || "Continuer la surveillance locale des leads, du SLA, du funnel et du backlog SEO/CRO."
+    });
+  }
   if (runtimeHealth?.monitor?.available) {
     rows.unshift({
       label: "Monitoring production",

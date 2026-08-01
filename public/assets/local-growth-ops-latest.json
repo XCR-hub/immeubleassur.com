@@ -1,0 +1,187 @@
+{
+  "generated_at": "2026-08-01T11:35:22.315Z",
+  "status": "passed",
+  "success": true,
+  "attention_required": false,
+  "reports_available": 5,
+  "reports_expected": 6,
+  "attention_count": 0,
+  "missing_reports": [
+    "production"
+  ],
+  "reports": {
+    "production": {
+      "available": false,
+      "status": "missing",
+      "attention_required": false,
+      "generated_at": "",
+      "age_minutes": null
+    },
+    "lead_sla": {
+      "available": true,
+      "status": "passed",
+      "success": true,
+      "attention_required": false,
+      "generated_at": "2026-08-01T11:31:42.161Z",
+      "age_minutes": 3.7,
+      "summary": {
+        "open_leads": 0,
+        "due_now": 0,
+        "due_hot": 0,
+        "due_warm": 0,
+        "oldest_due_hours": 0,
+        "next_due_minutes": null,
+        "leads_24h": 0,
+        "leads_7d": 0,
+        "leads_30d": 0,
+        "pipeline_value": {
+          "annual_premium_min": 0,
+          "annual_premium_max": 0,
+          "label": "0 EUR - 0 EUR/an"
+        },
+        "due_value": {
+          "annual_premium_min": 0,
+          "annual_premium_max": 0,
+          "label": "0 EUR - 0 EUR/an"
+        }
+      },
+      "alert": {
+        "attempted": false,
+        "status": "skipped"
+      }
+    },
+    "lead_quality": {
+      "available": true,
+      "status": "passed",
+      "success": true,
+      "attention_required": false,
+      "generated_at": "2026-08-01T11:32:18.096Z",
+      "age_minutes": 3.1,
+      "summary": {
+        "lookback_days": 30,
+        "leads_24h": 0,
+        "leads_7d": 0,
+        "leads_period": 0,
+        "open_leads": 0,
+        "hot_leads": 0,
+        "warm_leads": 0,
+        "average_score": 0,
+        "quality_score": 100,
+        "core_completion_rate": 100,
+        "issue_count": 0,
+        "critical_issues": 0,
+        "high_issues": 0
+      },
+      "issues": []
+    },
+    "conversion_funnel": {
+      "available": true,
+      "status": "passed",
+      "success": true,
+      "attention_required": false,
+      "generated_at": "2026-08-01T11:31:42.250Z",
+      "age_minutes": 3.7,
+      "summary": {
+        "lookback_days": 30,
+        "page_views": 0,
+        "quote_router_views": 0,
+        "quote_router_continues": 0,
+        "quote_continue_rate": 0,
+        "cta_clicks": 0,
+        "phone_clicks": 0,
+        "form_starts": 0,
+        "submit_attempts": 0,
+        "submit_errors": 0,
+        "abandoned_forms": 0,
+        "leads_db": 0,
+        "hot_leads_db": 0,
+        "page_to_form_rate": 0,
+        "form_to_submit_rate": 0,
+        "submit_to_lead_rate": 0,
+        "form_to_lead_rate": 0
+      },
+      "top_paths": [],
+      "recommendations": []
+    },
+    "intent_conversion": {
+      "available": true,
+      "status": "no-data",
+      "success": true,
+      "attention_required": false,
+      "generated_at": "2026-08-01T11:34:14.392Z",
+      "age_minutes": 1.1,
+      "summary": {
+        "lookback_days": 30,
+        "tracked_events": 0,
+        "tracked_sessions": 0,
+        "leads_db": 0,
+        "hot_leads_db": 0,
+        "page_views": 0,
+        "form_starts": 0,
+        "submit_attempts": 0,
+        "submit_errors": 0,
+        "spam_blocks": 0,
+        "intent_count": 0,
+        "urgency_count": 0,
+        "intents_with_leads": 0,
+        "attention_count": 0,
+        "start_to_lead_rate": 0
+      },
+      "intent_funnels": [],
+      "urgency_funnels": [],
+      "recommendations": []
+    },
+    "seo_backlog": {
+      "available": true,
+      "status": "passed",
+      "success": true,
+      "attention_required": false,
+      "generated_at": "2026-08-01T11:31:42.154Z",
+      "age_minutes": 3.7,
+      "summary": {
+        "total_opportunities": 0,
+        "open_opportunities": 0,
+        "stale_opportunities": 0,
+        "critical_open": 0,
+        "high_open": 0,
+        "conversion_open": 0,
+        "old_open": 0,
+        "qualified_source_count": 0,
+        "top_qualified_source_score": 0,
+        "top_qualified_source_leads": 0,
+        "top_qualified_source_sessions": 0,
+        "top_qualified_source_stage_label": "",
+        "oldest_open_days": 0,
+        "average_open_score": 0
+      },
+      "type_breakdown": [],
+      "recommendations": [
+        {
+          "type": "backlog-ok",
+          "severity": "low",
+          "target": "admin/seo",
+          "signal": "aucun retard critique",
+          "action": "Continuer a importer les signaux SEO/CRO et traiter les actions selon le score.",
+          "score": 50
+        }
+      ]
+    }
+  },
+  "priority_actions": [
+    {
+      "type": "seo-backlog-ok",
+      "severity": "low",
+      "signal": "aucun retard critique",
+      "action": "Continuer a importer les signaux SEO/CRO et traiter les actions selon le score.",
+      "target": "admin/seo",
+      "score": 66
+    }
+  ],
+  "safeguards": [
+    "no-pii-public-export",
+    "no-raw-lead-records",
+    "no-email-phone-name-fields",
+    "sqlite-reports-only",
+    "public-aggregate-observability"
+  ]
+}
