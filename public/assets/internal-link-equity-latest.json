@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-01T04:19:46.583Z",
+  "generated_at": "2026-08-01T08:30:44.060Z",
   "status": "passed",
   "pages_checked": 177,
-  "pages_targeted": 51,
-  "pages_changed": 21,
-  "links_added": 83,
+  "pages_targeted": 49,
+  "pages_changed": 16,
+  "links_added": 63,
   "pages_with_active_blocks": 51,
   "active_internal_links": 201,
-  "noindex_skipped": 3,
+  "noindex_skipped": 5,
   "lead_pages_skipped": 6,
   "cluster_targets": [
     {
@@ -35,16 +35,16 @@
       "count": 4
     },
     {
-      "cluster": "newsletter-veille",
-      "count": 3
-    },
-    {
       "cluster": "prix-tarif",
       "count": 3
     },
     {
       "cluster": "travaux",
       "count": 2
+    },
+    {
+      "cluster": "newsletter-veille",
+      "count": 1
     }
   ],
   "safeguards": [
@@ -75,13 +75,6 @@
       "type": "blog",
       "cluster": "sinistre-resilie",
       "previous_internal_links": 22,
-      "links_added": 4
-    },
-    {
-      "slug": "blog/checklist-documents-devis-immeuble",
-      "type": "blog",
-      "cluster": "default",
-      "previous_internal_links": 25,
       "links_added": 4
     },
     {
@@ -134,13 +127,6 @@
       "links_added": 4
     },
     {
-      "slug": "blog/pno-bailleur-copropriete",
-      "type": "blog",
-      "cluster": "pno-cno",
-      "previous_internal_links": 25,
-      "links_added": 4
-    },
-    {
       "slug": "blog/pno-cno-differences-garanties",
       "type": "blog",
       "cluster": "pno-cno",
@@ -152,13 +138,6 @@
       "type": "blog",
       "cluster": "pno-cno",
       "previous_internal_links": 25,
-      "links_added": 4
-    },
-    {
-      "slug": "blog/prix-assurance-immeuble-au-m2",
-      "type": "blog",
-      "cluster": "prix-tarif",
-      "previous_internal_links": 20,
       "links_added": 4
     },
     {
@@ -183,24 +162,10 @@
       "links_added": 4
     },
     {
-      "slug": "news/veille-assurance-immeuble-2026-07-29",
-      "type": "news",
-      "cluster": "newsletter-veille",
-      "previous_internal_links": 22,
-      "links_added": 4
-    },
-    {
-      "slug": "news/veille-assurance-immeuble-2026-07-30",
-      "type": "news",
-      "cluster": "newsletter-veille",
-      "previous_internal_links": 23,
-      "links_added": 4
-    },
-    {
       "slug": "news/veille-assurance-immeuble-2026-07-31",
       "type": "news",
       "cluster": "newsletter-veille",
-      "previous_internal_links": 28,
+      "previous_internal_links": 26,
       "links_added": 4
     }
   ]

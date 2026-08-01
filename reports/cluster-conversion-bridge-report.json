@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-01T04:19:47.464Z",
+  "generated_at": "2026-08-01T08:30:45.251Z",
   "status": "passed",
   "pages_checked": 177,
-  "pages_targeted": 45,
-  "pages_changed": 17,
+  "pages_targeted": 43,
+  "pages_changed": 12,
   "active_bridges": 45,
   "cluster_targets": [
     {
@@ -19,15 +19,15 @@
       "count": 6
     },
     {
-      "cluster": "newsletter-veille",
-      "count": 5
-    },
-    {
       "cluster": "local-commercial",
       "count": 4
     },
     {
       "cluster": "devis-courtier",
+      "count": 3
+    },
+    {
+      "cluster": "newsletter-veille",
       "count": 3
     },
     {
@@ -63,11 +63,6 @@
       "cluster": "sinistre-resilie"
     },
     {
-      "slug": "blog/checklist-documents-devis-immeuble",
-      "type": "blog",
-      "cluster": "devis-courtier"
-    },
-    {
       "slug": "blog/checklist-sinistre-degat-des-eaux",
       "type": "blog",
       "cluster": "sinistre-resilie"
@@ -93,19 +88,9 @@
       "cluster": "local-commercial"
     },
     {
-      "slug": "blog/pno-bailleur-copropriete",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
-    },
-    {
       "slug": "blog/pno-obligatoire-copropriete",
       "type": "blog",
       "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/prix-assurance-immeuble-au-m2",
-      "type": "blog",
-      "cluster": "prix-tarif"
     },
     {
       "slug": "blog/renovation-energetique-copropriete-assurance",
@@ -116,16 +101,6 @@
       "slug": "blog/sinistres-recurrents-immeuble",
       "type": "blog",
       "cluster": "sinistre-resilie"
-    },
-    {
-      "slug": "news/veille-assurance-immeuble-2026-07-29",
-      "type": "news",
-      "cluster": "newsletter-veille"
-    },
-    {
-      "slug": "news/veille-assurance-immeuble-2026-07-30",
-      "type": "news",
-      "cluster": "newsletter-veille"
     },
     {
       "slug": "news/veille-assurance-immeuble-2026-07-31",

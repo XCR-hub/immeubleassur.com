@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-01T04:19:44.347Z",
+  "generated_at": "2026-08-01T08:30:42.459Z",
   "status": "passed",
-  "source_report_generated_at": "2026-08-01T04:19:43.602Z",
+  "source_report_generated_at": "2026-08-01T08:30:41.600Z",
   "pages_checked": 177,
-  "target_pages": 12,
-  "pages_changed": 11,
-  "pages_changed_this_run": 11,
-  "pages_with_active_blocks": 12,
-  "conflicts_addressed": 14,
+  "target_pages": 10,
+  "pages_changed": 8,
+  "pages_changed_this_run": 8,
+  "pages_with_active_blocks": 10,
+  "conflicts_addressed": 11,
   "safeguards": [
     "visible-content-only",
     "no-hidden-keyword-blocks",
@@ -19,7 +19,7 @@
     {
       "slug": "assurance-cno",
       "url": "https://immeubleassur.com/assurance-cno",
-      "changed": true,
+      "changed": false,
       "differentiated": true,
       "conflicts_addressed": 1,
       "primary_slug": "pno-cno"
@@ -35,7 +35,7 @@
     {
       "slug": "assurance-pno-cno",
       "url": "https://immeubleassur.com/assurance-pno-cno",
-      "changed": true,
+      "changed": false,
       "differentiated": true,
       "conflicts_addressed": 1,
       "primary_slug": "pno-cno"
@@ -91,26 +91,10 @@
     {
       "slug": "comparateur-assurance-immeuble",
       "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-      "changed": true,
+      "changed": false,
       "differentiated": true,
       "conflicts_addressed": 1,
       "primary_slug": "devis-assurance-immeuble"
-    },
-    {
-      "slug": "news/veille-assurance-immeuble-2026-07-30",
-      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-30",
-      "changed": true,
-      "differentiated": true,
-      "conflicts_addressed": 1,
-      "primary_slug": "veille-assurance-immeuble"
-    },
-    {
-      "slug": "news/veille-assurance-immeuble-2026-07-31",
-      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-31",
-      "changed": true,
-      "differentiated": true,
-      "conflicts_addressed": 2,
-      "primary_slug": "veille-assurance-immeuble"
     }
   ]
 }

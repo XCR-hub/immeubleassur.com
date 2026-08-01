@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const PUBLIC_DIR = "public";
@@ -230,6 +230,57 @@ const profiles = {
   }
 };
 
+const frenchMonths = ["janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"];
+
+function newsDateParts(slug) {
+  const match = String(slug).match(/^news\/veille-assurance-immeuble-(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  const [, year, month, day] = match;
+  return { year, month, day, human: `${Number(day)} ${frenchMonths[Number(month) - 1]} ${year}` };
+}
+
+function buildNewsWatchProfiles() {
+  const newsDir = join(PUBLIC_DIR, "news");
+  if (!existsSync(newsDir)) return {};
+  const slugs = readdirSync(newsDir)
+    .filter((name) => /^veille-assurance-immeuble-\d{4}-\d{2}-\d{2}\.html$/.test(name))
+    .map((name) => `news/${name.replace(/\.html$/, "")}`)
+    .sort();
+  const latest = slugs[slugs.length - 1];
+  return Object.fromEntries(slugs.map((slug) => {
+    const date = newsDateParts(slug);
+    if (!date) return [slug, null];
+    const isLatest = slug === latest;
+    const commonLinks = [["/veille-assurance-immeuble", "Veille permanente"], ["/newsletter-assurance-immeuble", "Recevoir la veille"]];
+    if (isLatest) {
+      return [slug, {
+        title: `Veille immeuble ${date.human}: dernier signal`,
+        h1: `Veille assurance immeuble du ${date.human}.`,
+        description: `Dernier point de veille assurance immeuble du ${date.human}: signaux utiles pour syndic, PNO CNO, SCI, sinistres et renouvellement.`,
+        eyebrow: "Dernier numero",
+        angle: "Distinguer le dernier numero de la veille permanente.",
+        body: "Cette page concentre le signal date le plus recent et renvoie vers la veille permanente quand le lecteur veut suivre les themes dans la duree.",
+        bullets: [`Date precise: ${date.human}.`, "Role: dernier numero indexable.", "Suite: abonnement ou audit si une echeance approche."],
+        links: commonLinks
+      }];
+    }
+    return [slug, {
+      indexable: false,
+      title: `Archive veille immeuble ${date.human}`,
+      h1: `Archive du ${date.human}: signaux assurance immeuble a relire.`,
+      description: `Archive courte de veille assurance immeuble du ${date.human}: signaux contrats, syndic, PNO CNO et sinistres a relier a la veille permanente.`,
+      eyebrow: "Archive de veille",
+      angle: "Conserver le contexte sans concurrencer la veille permanente.",
+      body: "Cette archive sert a retrouver un signal date. Elle ne vise pas la requete principale de veille assurance immeuble: cette intention reste portee par la page permanente et le dernier numero.",
+      bullets: [`Date precise: ${date.human}.`, "Role: historique consultable, non page money.", "Suite: page veille permanente ou newsletter."],
+      links: commonLinks
+    }];
+  }).filter(([, profile]) => profile));
+}
+
+const newsWatchProfiles = buildNewsWatchProfiles();
+Object.assign(profiles, newsWatchProfiles);
+
 function esc(value) {
   return String(value || "")
     .replace(/&/g, "&amp;")
@@ -271,6 +322,8 @@ function setHead(html, slug, profile) {
     } else {
       next = next.replace(/<meta name="description"/i, '<meta name="robots" content="noindex, follow" /><meta name="description"');
     }
+  } else {
+    next = next.replace(/<meta name="robots" content="noindex, follow" \/>/i, "");
   }
   if (/<link rel="canonical" href="[^"]*" \/>/i.test(next)) {
     next = next.replace(/<link rel="canonical" href="[^"]*" \/>/i, `<link rel="canonical" href="${canonicalUrl}" />`);
@@ -375,8 +428,11 @@ const output = {
   pages_targeted: pages.length,
   pages_changed: changedPages.length,
   noindex_pages: pages.filter((page) => page.indexable === false).length,
+  news_watch_pages: pages.filter((page) => page.slug.startsWith("news/veille-assurance-immeuble-")).length,
+  news_watch_latest_slug: pages.find((page) => page.slug.startsWith("news/veille-assurance-immeuble-") && page.indexable !== false)?.slug || "",
+  news_archive_noindex_count: pages.filter((page) => page.slug.startsWith("news/veille-assurance-immeuble-") && page.indexable === false).length,
   sitemap_entries_removed: sitemap.removed,
-  safeguards: ["visible-content-only", "title-h1-meta-differentiation", "no-hidden-keyword-blocks", "no-google-scraping", "noindex-only-for-duplicate-archive"],
+  safeguards: ["visible-content-only", "title-h1-meta-differentiation", "no-hidden-keyword-blocks", "no-google-scraping", "noindex-only-for-duplicate-archive", "dynamic-news-archive-consolidation"],
   pages
 };
 
@@ -388,6 +444,9 @@ writeFileSync(join(PUBLIC_DIR, "assets", "seo-angle-differentiation-latest.json"
   pages_changed: output.pages_changed,
   noindex_pages: output.noindex_pages,
   sitemap_entries_removed: output.sitemap_entries_removed,
+  news_watch_pages: output.news_watch_pages,
+  news_watch_latest_slug: output.news_watch_latest_slug,
+  news_archive_noindex_count: output.news_archive_noindex_count,
   safeguards: output.safeguards,
   pages: output.pages
 }, null, 2), "utf8");
