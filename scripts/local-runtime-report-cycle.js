@@ -58,6 +58,8 @@ function run() {
     runStep("conversion_funnel_monitor", ["scripts/local-conversion-funnel-monitor.js"]),
     runStep("intent_conversion_runtime", ["scripts/local-intent-conversion-monitor.js"], commonRuntimeEnv),
     runStep("seo_backlog_monitor", ["scripts/local-seo-backlog-monitor.js"]),
+    runStep("conversion_action_sync", ["scripts/local-conversion-action-sync.js"]),
+    runStep("seo_backlog_monitor_after_sync", ["scripts/local-seo-backlog-monitor.js"]),
     runStep(
       "growth_ops_runtime",
       ["scripts/local-growth-ops-export.js", "--runtime-only", "--runtime-out", runtimeGrowthAsset],

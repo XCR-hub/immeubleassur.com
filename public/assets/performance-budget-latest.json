@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T13:39:25.159Z",
+  "generated_at": "2026-08-01T13:53:02.461Z",
   "status": "passed",
   "pages_checked": 186,
   "indexable_pages": 180,
@@ -77,8 +77,8 @@
     },
     {
       "path": "assets/app.js",
-      "bytes": 116911,
-      "kb": 114.2,
+      "bytes": 118934,
+      "kb": 116.1,
       "budget_bytes": 143360,
       "budget_kb": 140,
       "ok": true
@@ -115,7 +115,7 @@
     },
     {
       "path": "assets/lead-friction-latest.json",
-      "bytes": 18816,
+      "bytes": 18815,
       "kb": 18.4,
       "ok": true
     },
@@ -157,13 +157,13 @@
     },
     {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5097,
+      "bytes": 5104,
       "kb": 5,
       "ok": true
     },
     {
       "path": "assets/performance-budget-latest.json",
-      "bytes": 4088,
+      "bytes": 4087,
       "kb": 4,
       "ok": true
     },

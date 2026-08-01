@@ -437,8 +437,11 @@ function recommendations(summary, intentFunnels, urgencyFunnels) {
     if (row.page_views >= 20 && row.form_starts === 0) {
       addRecommendation(items, "intent-sans-start", "high", row.key, `${row.page_views} vues, 0 demarrage`, "Renforcer le premier ecran, la preuve metier et le CTA devis sur cette intention.", 92);
     }
-    if (row.form_starts >= 2 && row.leads_db === 0) {
-      addRecommendation(items, "intent-sans-lead", "high", row.key, `${row.form_starts} starts, 0 lead SQLite`, "Tester le parcours jusqu au stockage local et simplifier les champs bloquants pour cette intention.", 90);
+    if (row.form_starts >= 2 && row.leads_db === 0 && row.submit_attempts > 0) {
+      addRecommendation(items, "intent-envoi-sans-lead", "high", row.key, `${row.submit_attempts} tentative(s), 0 lead SQLite`, "Tester le parcours jusqu au stockage local, Turnstile et les validations pour cette intention.", 90);
+    }
+    if (row.form_starts >= 2 && row.leads_db === 0 && row.submit_attempts === 0) {
+      addRecommendation(items, "intent-start-sans-submit", "medium", row.key, `${row.form_starts} starts, 0 tentative`, "Reduire la friction avant soumission et proposer le rappel express contextualise pour cette intention.", 76);
     }
     if (row.submit_errors > 0) {
       addRecommendation(items, "intent-erreurs-submit", "medium", row.key, `${row.submit_errors} erreur(s) submit`, "Identifier les rejets formulaire et ajouter une aide visible au champ le plus bloquant.", 72);
@@ -451,12 +454,18 @@ function recommendations(summary, intentFunnels, urgencyFunnels) {
     }
   }
   for (const row of urgencyFunnels) {
-    if (["immediate", "fast"].includes(row.key) && row.form_starts >= 1 && row.leads_db === 0) {
+    if (["immediate", "fast"].includes(row.key) && row.form_starts >= 1 && row.leads_db === 0 && row.submit_attempts > 0) {
       addRecommendation(items, "urgence-sans-lead", "high", row.key, `${row.form_starts} starts urgents, 0 lead`, "Controler le parcours mobile urgent et proposer appel + devis court.", 89);
     }
+    if (["immediate", "fast"].includes(row.key) && row.form_starts >= 1 && row.leads_db === 0 && row.submit_attempts === 0) {
+      addRecommendation(items, "urgence-sans-submit", "medium", row.key, `${row.form_starts} start(s) urgent(s), 0 tentative`, "Mettre l'appel et le rappel express au-dessus des champs longs pour transformer l'urgence sans attendre l'envoi complet.", 78);
+    }
   }
-  if (summary.tracked_events > 0 && summary.leads_db === 0 && summary.form_starts > 0) {
+  if (summary.tracked_events > 0 && summary.leads_db === 0 && summary.submit_attempts > 0) {
     addRecommendation(items, "aucun-lead-global", "critical", "global", `${summary.form_starts} starts, aucun lead local`, "Faire un test de demande reel, verifier l API leads et le journal lead_events.", 100);
+  }
+  if (summary.tracked_events > 0 && summary.leads_db === 0 && summary.form_starts > 0 && summary.submit_attempts === 0) {
+    addRecommendation(items, "aucun-submit-global", "high", "global", `${summary.form_starts} start(s), aucune tentative`, "Traiter comme friction avant soumission: rappel express plus visible, champs requis plus courts et preuve de rappel immediate.", 94);
   }
   return items.sort((a, b) => b.score - a.score || a.target.localeCompare(b.target)).slice(0, 18);
 }

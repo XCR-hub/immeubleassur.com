@@ -84,6 +84,7 @@ function normalizeOpportunity(item, report, runId, now) {
       lookback_days: Number(summary.lookback_days || 0),
       page_views: Number(summary.page_views || 0),
       form_starts: Number(summary.form_starts || 0),
+      submit_attempts: Number(summary.submit_attempts || 0),
       leads_db: Number(summary.leads_db || 0),
       form_to_lead_rate: Number(summary.form_to_lead_rate || 0),
       quote_continue_rate: Number(summary.quote_continue_rate || 0)
@@ -209,6 +210,7 @@ function upsertRun(db, runId, report, count, now) {
         lookback_days: Number(summary.lookback_days || 0),
         page_views: Number(summary.page_views || 0),
         form_starts: Number(summary.form_starts || 0),
+        submit_attempts: Number(summary.submit_attempts || 0),
         leads_db: Number(summary.leads_db || 0),
         attention_required: report.attention_required === true
       }),

@@ -222,8 +222,11 @@ function recommendations(summary, paths) {
     if (row.content_bridge_shown >= 5 && row.content_bridge_clicks === 0) {
       addRecommendation(items, "pont-contenu-sans-clic", "medium", row.path, `${row.content_bridge_shown} affichage(s), 0 clic`, "Rendre le passage lecture vers devis plus concret sur cette page SEO.", 78);
     }
-    if (row.form_starts >= 3 && row.leads_created === 0) {
-      addRecommendation(items, "formulaire-sans-lead", "high", row.path, `${row.form_starts} starts, 0 lead`, "Verifier les champs bloquants, le filtre local, les messages d'erreur et la preuve de rappel.", 84);
+    if (row.form_starts >= 3 && row.leads_created === 0 && row.submit_attempts > 0) {
+      addRecommendation(items, "submit-sans-lead", "high", row.path, `${row.submit_attempts} tentative(s), 0 lead`, "Tester l'envoi complet, verifier Turnstile, validation locale et journal lead_events.", 86);
+    }
+    if (row.form_starts >= 3 && row.leads_created === 0 && row.submit_attempts === 0) {
+      addRecommendation(items, "start-sans-submit", "medium", row.path, `${row.form_starts} starts, 0 tentative`, "Reduire la friction avant soumission: rappel express, champs obligatoires visibles et reassurance sur le delai de rappel.", 76);
     }
     if (row.submit_attempts > row.leads_created && row.submit_errors >= 1) {
       addRecommendation(items, "erreurs-submit", "medium", row.path, `${row.submit_errors} erreur(s) pour ${row.submit_attempts} tentative(s)`, "Identifier les champs rejetes et simplifier le texte d'aide avant soumission.", 72);
@@ -235,8 +238,11 @@ function recommendations(summary, paths) {
   if (summary.page_views > 0 && summary.form_starts === 0) {
     addRecommendation(items, "aucun-start-global", "critical", "/", `${summary.page_views} vues, aucun demarrage`, "Verifier immediatement le JS, les CTA et l'accessibilite du formulaire.", 100);
   }
-  if (summary.form_starts > 0 && summary.leads_db === 0) {
+  if (summary.submit_attempts > 0 && summary.leads_db === 0) {
     addRecommendation(items, "aucun-lead-global", "critical", "/", `${summary.form_starts} starts, aucun lead SQLite`, "Tester une demande de devis de bout en bout et verifier l'API leads.", 98);
+  }
+  if (summary.form_starts > 0 && summary.submit_attempts === 0 && summary.leads_db === 0) {
+    addRecommendation(items, "aucun-submit-global", "high", "/", `${summary.form_starts} start(s), aucune tentative`, "Traiter comme friction formulaire: raccourcir le premier contact, rendre le rappel express dominant et clarifier les champs obligatoires.", 94);
   }
   return items.sort((a, b) => b.score - a.score || a.path.localeCompare(b.path)).slice(0, 16);
 }
@@ -321,16 +327,17 @@ function run() {
     const leads = leadTotals(database, sinceSql);
     const paths = pathFunnels(database, sinceSql, maxPaths);
     const summary = summaryFrom(events, leads, days, paths);
+    const reportRecommendations = recommendations(summary, paths);
     const report = {
       success: true,
-      attention_required: summary.form_starts > 0 && summary.leads_db === 0,
+      attention_required: reportRecommendations.some((item) => ["critical", "high"].includes(item.severity)),
       generated_at: new Date().toISOString(),
       database: { path: dbPath, mode: "sqlite-readonly" },
       summary,
       events,
       top_paths: paths.slice(0, 30),
       cta_variants: variantFunnels(database, sinceSql),
-      recommendations: recommendations(summary, paths)
+      recommendations: reportRecommendations
     };
 
     mkdirSync(dirname(out), { recursive: true });

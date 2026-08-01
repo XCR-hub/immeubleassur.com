@@ -1747,16 +1747,20 @@ function heroActionIntentFromLink(link) {
   return "immeuble";
 }
 
+function updateHeroIntentStatuses(row, detail = "Formulaire pre-rempli: ajoutez nom, telephone et echeance.") {
+  const statuses = [...new Set([...document.querySelectorAll("#hero-intent-status, [data-hero-intent-status]")])];
+  statuses.forEach((status) => {
+    status.innerHTML = `<strong>${row.title}</strong><span>${row.proof} ${detail}</span>`;
+    status.classList.add("is-visible");
+  });
+}
+
 function syncHeroFastTrack(key, row) {
   const fastTrack = document.querySelector(".quote-fast-track");
   const fastKey = key === "pno-cno" ? "cno" : key;
   const fastRows = quoteFastTrackRows();
   if (fastTrack && fastRows[fastKey]) renderQuoteFastTrack(fastTrack, fastKey, false);
-  const status = document.querySelector("#hero-intent-status");
-  if (status) {
-    status.innerHTML = `<strong>${row.title}</strong><span>${row.proof} Formulaire pre-rempli: ajoutez nom, telephone et echeance.</span>`;
-    status.classList.add("is-visible");
-  }
+  updateHeroIntentStatuses(row);
 }
 
 function startHeroPrefill(key, row, source, targetLabel, options = {}) {
@@ -1788,6 +1792,7 @@ function bindHeroIntentAccelerator() {
   const status = document.createElement("p");
   status.id = "hero-intent-status";
   status.className = "hero-intent-status";
+  status.dataset.heroIntentStatus = "hero-intent-grid";
   status.setAttribute("role", "status");
   status.setAttribute("aria-live", "polite");
   grid.dataset.heroAccelerator = "1";
@@ -1905,6 +1910,39 @@ function isHomepageDevisAcceleratorLink(link) {
   }
 }
 
+function bindHomepageDecisionAccelerator() {
+  if (!isHomepage() || !form) return;
+  const shell = document.querySelector(".hero-decision-accelerator");
+  if (!shell || shell.dataset.heroDecisionAccelerator === "1") return;
+  const links = [...shell.querySelectorAll(".hero-decision-options a[href]")];
+  if (!links.length) return;
+  const rows = homepageDevisRows();
+  const initialKey = rows[currentLeadIntent()] ? currentLeadIntent() : "immeuble";
+  const initialRow = rows[initialKey] || rows.immeuble;
+  const status = document.createElement("p");
+  status.id = "hero-decision-status";
+  status.className = "hero-intent-status hero-decision-status";
+  status.dataset.heroIntentStatus = "hero-decision-accelerator";
+  status.setAttribute("role", "status");
+  status.setAttribute("aria-live", "polite");
+  shell.dataset.heroDecisionAccelerator = "1";
+  shell.append(status);
+  track("quote_router_view", { target: initialKey, label: initialRow.title, route: initialRow.href, source: "homepage-decision-accelerator" });
+  scheduleQuoteRouterStallRescue("homepage-decision-accelerator", initialKey, 9800);
+
+  links.forEach((link) => {
+    const key = homepageDevisIntentFromLink(link);
+    const row = rows[key] || rows.immeuble;
+    link.dataset.heroIntent = key;
+    link.setAttribute("aria-describedby", status.id);
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      links.forEach((item) => item.classList.toggle("is-active", item === link));
+      track("quote_router_select", { target: key, label: row.title, route: row.href, source: "homepage-decision-accelerator" });
+      startHeroPrefill(key, row, "homepage-decision-accelerator", link.dataset.track || "homepage-decision");
+    });
+  });
+}
 function bindHomepageDevisAccelerator() {
   if (!isHomepage() || !form || document.body.dataset.homepageDevisAccelerator === "1") return;
   document.body.dataset.homepageDevisAccelerator = "1";
@@ -2302,7 +2340,7 @@ function showTrafficNoClickRescue(reason = "shown", options = {}) {
 
 function trafficNoClickConversionInteraction(event) {
   const target = event?.target;
-  const control = target?.closest?.("#lead-form, .quote-fast-track, .hero-hot-quote, .hero-intent-grid, .hero-actions, .lead-action-bar, .growth-lead-magnet, .traffic-no-click-rescue");
+  const control = target?.closest?.("#lead-form, .quote-fast-track, .hero-hot-quote, .hero-decision-accelerator, .hero-intent-grid, .hero-actions, .lead-action-bar, .growth-lead-magnet, .traffic-no-click-rescue");
   if (control) return true;
   const link = target?.closest?.("a[href]");
   const href = link?.getAttribute("href") || "";
@@ -2551,6 +2589,7 @@ bindBotSignalTracking();
 bindHeroIntentAccelerator();
 bindHeroActionAccelerator();
 bindLeadBarAccelerator();
+bindHomepageDecisionAccelerator();
 bindHomepageDevisAccelerator();
 bindLeadMagnetAccelerator();
 bindInstantCallbackForms();
