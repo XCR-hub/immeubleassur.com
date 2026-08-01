@@ -1644,6 +1644,49 @@ details:hover {
   line-height: 1.45;
 }
 
+.traffic-no-click-intents {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.traffic-no-click-intents button {
+  min-width: 0;
+  min-height: 58px;
+  padding: 9px 10px;
+  border: 1px solid rgba(15, 118, 110, .22);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: var(--navy);
+  cursor: pointer;
+  text-align: left;
+}
+
+.traffic-no-click-intents button:hover,
+.traffic-no-click-intents button:focus-visible {
+  border-color: rgba(15, 118, 110, .55);
+  background: #ecfdf5;
+  outline: none;
+}
+
+.traffic-no-click-intents strong,
+.traffic-no-click-intents span {
+  display: block;
+}
+
+.traffic-no-click-intents strong {
+  color: var(--teal-dark);
+  font-size: .82rem;
+  font-weight: 900;
+}
+
+.traffic-no-click-intents span {
+  margin-top: 2px;
+  color: #475569;
+  font-size: .76rem;
+  line-height: 1.28;
+}
+
 .traffic-no-click-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1849,6 +1892,7 @@ textarea:focus {
     padding: 15px;
   }
 
+  .traffic-no-click-intents,
   .traffic-no-click-actions,
   .content-lead-bridge-actions {
     display: grid;

@@ -1733,6 +1733,36 @@ function dismissTrafficNoClickRescue(reason) {
   if (reason) track("traffic_without_click_dismissed", trafficNoClickPayload(reason));
 }
 
+function trafficNoClickIntentRows() {
+  const rows = quoteFastTrackRows();
+  const heroRows = heroIntentAcceleratorRows();
+  return {
+    immeuble: rows.immeuble,
+    copropriete: rows.copropriete,
+    "pno-cno": heroRows["pno-cno"],
+    audit: rows.audit
+  };
+}
+
+function trafficNoClickIntentKey() {
+  const requested = currentLeadIntent();
+  const rows = trafficNoClickIntentRows();
+  if (rows[requested]) return requested;
+  if (requested === "pno" || requested === "cno") return "pno-cno";
+  return "immeuble";
+}
+
+function startTrafficNoClickPrefill(key) {
+  const rows = trafficNoClickIntentRows();
+  const selected = rows[key] ? key : trafficNoClickIntentKey();
+  const row = rows[selected] || rows.immeuble;
+  trafficNoClickInteracted = true;
+  track("traffic_without_click_quote_click", { ...trafficNoClickPayload("quote"), target: selected, label: row.title, route: row.href });
+  track("quote_router_select", { target: selected, label: row.title, route: row.href, source: "traffic-no-click-rescue" });
+  dismissTrafficNoClickRescue("");
+  startHeroPrefill(selected, row, "traffic-no-click-rescue", "traffic-no-click-rescue");
+}
+
 function focusHomepageQuoteForm() {
   if (!form) return false;
   if (!formStarted) {
@@ -1749,19 +1779,22 @@ function showTrafficNoClickRescue() {
   if (trafficNoClickShown || trafficNoClickInteracted || formStarted || formSubmitted) return;
   if (!isHomepage() || sessionStorage.getItem(trafficNoClickDismissKey) === "true") return;
   if (document.querySelector(".traffic-no-click-rescue")) return;
+  const rows = trafficNoClickIntentRows();
+  const intentButtons = Object.entries(rows).map(([key, row]) => `<button type="button" data-traffic-no-click-intent="${key}"><strong>${row.label}</strong><span>${row.title}</span></button>`).join("");
   const panel = document.createElement("aside");
   panel.className = "traffic-no-click-rescue";
   panel.setAttribute("aria-label", "Acces rapide devis immeuble");
-  panel.innerHTML = `<button class="traffic-no-click-close" type="button" data-traffic-no-click-close aria-label="Fermer">&times;</button><p class="eyebrow dark">Devis immeuble</p><strong>Un dossier exploitable en 2 minutes.</strong><span>Lots, usage, sinistres et echeance suffisent pour lancer l'analyse.</span><div class="traffic-no-click-actions"><a class="button primary" data-track="traffic-no-click-devis" data-traffic-no-click-quote href="#lead-form">Demarrer le devis</a><a class="button secondary" data-track="traffic-no-click-phone" data-traffic-no-click-phone href="tel:+33180855786">Appeler</a></div>`;
+  panel.innerHTML = `<button class="traffic-no-click-close" type="button" data-traffic-no-click-close aria-label="Fermer">&times;</button><p class="eyebrow dark">Devis immeuble</p><strong>Choisissez le parcours le plus proche.</strong><span>Le formulaire se pre-remplit avec les informations utiles assureur: lots, usage, sinistres et echeance.</span><div class="traffic-no-click-intents" role="group" aria-label="Choisir le parcours devis">${intentButtons}</div><div class="traffic-no-click-actions"><a class="button primary" data-track="traffic-no-click-devis" data-traffic-no-click-quote href="#lead-form">Demarrer par defaut</a><a class="button secondary" data-track="traffic-no-click-phone" data-traffic-no-click-phone href="tel:+33180855786">Appeler</a></div>`;
   document.body.append(panel);
   trafficNoClickShown = true;
   track("traffic_without_click_shown", trafficNoClickPayload("shown"));
   panel.querySelector("[data-traffic-no-click-close]")?.addEventListener("click", () => dismissTrafficNoClickRescue("closed"));
+  panel.querySelectorAll("[data-traffic-no-click-intent]").forEach((button) => {
+    button.addEventListener("click", () => startTrafficNoClickPrefill(button.dataset.trafficNoClickIntent || "immeuble"));
+  });
   panel.querySelector("[data-traffic-no-click-quote]")?.addEventListener("click", (event) => {
-    trafficNoClickInteracted = true;
-    track("traffic_without_click_quote_click", trafficNoClickPayload("quote"));
-    dismissTrafficNoClickRescue("");
-    if (focusHomepageQuoteForm()) event.preventDefault();
+    event.preventDefault();
+    startTrafficNoClickPrefill(trafficNoClickIntentKey());
   });
   panel.querySelector("[data-traffic-no-click-phone]")?.addEventListener("click", () => {
     trafficNoClickInteracted = true;
