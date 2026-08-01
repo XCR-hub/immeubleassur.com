@@ -612,6 +612,16 @@ function homePage() {
           <p class="eyebrow">Specialiste assurance immeuble</p>
           <h1>Assurance immeuble, copropriete et PNO sans angle mort.</h1>
           <p class="hero-lead">ImmeubleAssur compare les garanties multirisque immeuble, responsabilite civile, PNO, protection juridique et contrats pour syndics, SCI, bailleurs et conseils syndicaux.</p>
+          <div class="hero-decision-accelerator" aria-label="Demarrage rapide devis immeuble">
+            <span>Votre situation</span>
+            <div class="hero-decision-options">
+              <a data-track="homepage-decision-copropriete" href="/devis-assurance-immeuble.html?intent=copropriete"><strong>Syndic</strong><small>Copropriete</small></a>
+              <a data-track="homepage-decision-pno-cno" href="/devis-pno-cno.html?intent=pno-cno"><strong>Bailleur</strong><small>PNO / CNO</small></a>
+              <a data-track="homepage-decision-sci" href="/devis-assurance-immeuble.html?intent=sci"><strong>SCI</strong><small>Immeuble locatif</small></a>
+              <a data-track="homepage-decision-audit" href="/devis-assurance-immeuble.html?intent=audit-contrat"><strong>Contrat</strong><small>Audit echeance</small></a>
+            </div>
+            <p>Choix rapide: besoin, profil et message sont cadres avant le rappel expert.</p>
+          </div>
           <div class="hero-actions">
             <a class="button primary" href="/devis-assurance-immeuble.html">Demander un devis</a>
             <a class="button secondary" href="/assurance-pno-cno.html">PNO / CNO</a>

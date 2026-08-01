@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T03:27:14.569Z",
+  "generated_at": "2026-08-01T03:38:50.819Z",
   "status": "watch",
   "pages_checked": 171,
   "clusters_checked": 11,
@@ -135,8 +135,8 @@
       "representative_terms": [
         "coproprietaire",
         "occupant",
-        "vacant",
         "occupe",
+        "vacant",
         "vacance",
         "civile",
         "logement",

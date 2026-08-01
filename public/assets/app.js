@@ -1833,7 +1833,7 @@ function isHomepageDevisAcceleratorLink(link) {
   try {
     const url = new URL(href, window.location.origin);
     if (url.origin !== window.location.origin) return false;
-    return ["/devis-assurance-immeuble", "/devis-pno-cno", "/audit-contrat-assurance-immeuble"].includes(url.pathname);
+    return ["/devis-assurance-immeuble", "/devis-assurance-immeuble.html", "/devis-pno-cno", "/devis-pno-cno.html", "/audit-contrat-assurance-immeuble", "/audit-contrat-assurance-immeuble.html"].includes(url.pathname);
   } catch (_) {
     return false;
   }
