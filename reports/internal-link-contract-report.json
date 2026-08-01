@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-08-01T10:55:07.699Z",
+  "status": "passed",
+  "pages_checked": 185,
+  "refs_checked": 5689,
+  "internal_refs_checked": 4527,
+  "broken_count": 0,
+  "broken": [],
+  "safeguards": [
+    "internal-hrefs",
+    "internal-src-assets",
+    "clean-url-to-html",
+    "same-page-anchors",
+    "public-report"
+  ]
+}

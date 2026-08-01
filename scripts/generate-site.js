@@ -720,7 +720,7 @@ function servicePage(page) {
         <div class="hero-actions"><a class="button primary" href="#devis">Demander un devis</a><a class="button secondary" href="/guides.html">Guides immeuble</a></div>
       </div>
     </section>
-    <section class="band page-band">
+    <section class="band page-band" id="devis">
       <div class="split">
         <div>
           <p class="eyebrow dark">Garanties et analyse</p>
@@ -752,7 +752,7 @@ function cityPage([slug, city, focus]) {
         <div class="hero-actions"><a class="button primary" href="#devis">Devis immeuble ${esc(city)}</a><a class="button secondary" href="/villes.html">Toutes les villes</a></div>
       </div>
     </section>
-    <section class="band page-band">
+    <section class="band page-band" id="devis">
       <div class="split">
         <div>
           <p class="eyebrow dark">Local</p>

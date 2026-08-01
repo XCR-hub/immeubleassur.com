@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T10:39:06.846Z",
+  "generated_at": "2026-08-01T10:52:47.205Z",
   "status": "passed",
   "pages_checked": 182,
   "urgent_pages": 166,
@@ -37,7 +37,7 @@
       "intent": "prix",
       "urgency_level": "quote-ready",
       "pages": 19,
-      "pages_with_intent_link": 6,
+      "pages_with_intent_link": 7,
       "pages_with_conversion_route": 19,
       "missing_pages": [],
       "action": "Orienter vers un devis comparatif prix, franchises et garanties."
@@ -46,7 +46,7 @@
       "intent": "pno-cno",
       "urgency_level": "quote-ready",
       "pages": 116,
-      "pages_with_intent_link": 66,
+      "pages_with_intent_link": 68,
       "pages_with_conversion_route": 116,
       "missing_pages": [],
       "action": "Orienter vers le parcours PNO/CNO avec pre-remplissage."

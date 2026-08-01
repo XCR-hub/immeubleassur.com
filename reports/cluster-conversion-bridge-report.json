@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-01T10:39:12.523Z",
+  "generated_at": "2026-08-01T10:52:53.227Z",
   "status": "passed",
   "pages_checked": 186,
   "pages_targeted": 48,
-  "pages_changed": 18,
+  "pages_changed": 11,
   "active_bridges": 51,
   "cluster_targets": [
     {
@@ -63,22 +63,12 @@
       "cluster": "sinistre-resilie"
     },
     {
-      "slug": "blog/assurance-sci-immeuble-cartographie-patrimoine",
-      "type": "blog",
-      "cluster": "sci-bailleur"
-    },
-    {
       "slug": "blog/checklist-sinistre-degat-des-eaux",
       "type": "blog",
       "cluster": "sinistre-resilie"
     },
     {
       "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/coproprietaire-non-occupant-documents-devis",
       "type": "blog",
       "cluster": "copropriete-syndic"
     },
@@ -93,29 +83,9 @@
       "cluster": "copropriete-syndic"
     },
     {
-      "slug": "blog/dossier-preuve-assurance-copropriete",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/mandat-courtier-assurance-immeuble-consultation",
-      "type": "blog",
-      "cluster": "devis-courtier"
-    },
-    {
-      "slug": "blog/multirisque-immeuble-garanties-batiment-preuves",
-      "type": "blog",
-      "cluster": "devis-courtier"
-    },
-    {
       "slug": "blog/pno-obligatoire-copropriete",
       "type": "blog",
       "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/prix-assurance-immeuble-franchises-reste-a-charge",
-      "type": "blog",
-      "cluster": "prix-tarif"
     },
     {
       "slug": "blog/renovation-energetique-copropriete-assurance",
@@ -126,11 +96,6 @@
       "slug": "blog/sinistres-recurrents-immeuble",
       "type": "blog",
       "cluster": "sinistre-resilie"
-    },
-    {
-      "slug": "blog/syndic-benevole-assurance-immeuble-archives-ag",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
     },
     {
       "slug": "news/veille-assurance-immeuble-2026-08-01",
