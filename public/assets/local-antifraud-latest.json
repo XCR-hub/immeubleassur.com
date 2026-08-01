@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-07-31T01:52:23.984Z",
+  "generated_at": "2026-08-01T09:16:18.360Z",
   "provider": "local-antifraud",
   "configured": true,
   "pages_checked": 176,
   "forms_detected": 162,
   "forms_instrumented": 162,
-  "legacy_widgets_removed": 0,
+  "legacy_widgets_removed": 168,
   "protections": [
     "honeypot",
     "js-signal",

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T03:26:33.505Z",
+  "generated_at": "2026-08-01T09:20:58.132Z",
   "status": "partial",
   "connectors_checked": 8,
   "ready_count": 2,
@@ -32,15 +32,15 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-31T03:25:37.751Z",
+        "generated_at": "2026-08-01T09:16:23.751Z",
         "status": "passed",
         "summary": {
           "provider": "cloudflare-turnstile",
           "mode": "hybrid-turnstile-local-antifraud",
           "configured": true,
           "pages_checked": 176,
-          "forms_detected": 162,
-          "forms_instrumented": 162
+          "forms_detected": 168,
+          "forms_instrumented": 168
         }
       },
       "recommendation": "Executer npm run turnstile:hybrid pour rafraichir le signal live."
@@ -295,7 +295,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-31T01:52:23.530Z",
+        "generated_at": "2026-08-01T09:16:02.849Z",
         "status": "present",
         "summary": {
           "provider": "",

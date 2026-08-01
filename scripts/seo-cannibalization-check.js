@@ -4,9 +4,21 @@ import { extname, join, relative } from "node:path";
 const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
 const SITE = "https://immeubleassur.com";
-const generatedSeoBlockPatterns = [
-  /<!-- seo-intent-differentiation:start -->[\s\S]*?<!-- seo-intent-differentiation:end -->/gi
+const generatedSeoBlockNames = [
+  "seo-intent-differentiation",
+  "seo-angle-differentiation",
+  "seo-opportunity-expansion",
+  "cluster-conversion-bridge",
+  "internal-link-equity",
+  "auto-seo-depth",
+  "search-gap-booster",
+  "editorial-intent-exits",
+  "ux-diagnostic",
+  "ux-readiness",
+  "ux-conversion-momentum",
+  "content-quality-support"
 ];
+const generatedSeoBlockPatterns = generatedSeoBlockNames.map((name) => new RegExp(`<!-- ${name}:start -->[\\s\\S]*?<!-- ${name}:end -->`, "gi"));
 
 const ignoredSlugs = new Set(["admin", "mentions-legales", "confidentialite", "merci"]);
 const stopwords = new Set("assurance assurances immeuble immeubles immeubleassur pour avec dans depuis cette votre vous nous notre nos vos des les une aux sur par qui que quoi dont plus moins prix devis contrat contrats garantie garanties syndic copropriete proprietaire proprietaires bailleur bailleurs courtier comparateur guide article faq formulaire demande audit page besoin risque risques faire etre sont vers entre sans aussi comme avant apres chaque peut doivent doivent actuel actuelle actuels dossier dossiers assureur assureurs travaux pieces piece franchises franchise prime primes exclusions exclusion echeance usage usages utiles utile information informations analyse analyses occupation responsabilite responsabilites parcours garanties garantie sinistre sinistres obtenir proposition propositions reponse reponses couvrir couvert couvertes declaration declarations clair claire comparable recherche approfondir construire point points fiche fiches methode priorite adresse documents choisir comparer".split(" "));
@@ -39,6 +51,11 @@ function stripHtml(value) {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<header[\s\S]*?<\/header>/gi, " ")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, " ")
+    .replace(/<form[\s\S]*?<\/form>/gi, " ")
+    .replace(/<aside[\s\S]*?<\/aside>/gi, " ")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, " ")
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -258,6 +275,8 @@ const report = {
   high_risk_count: highRisk.length,
   medium_risk_count: mediumRisk.length,
   watch_count: watchlist.length,
+  generated_block_families_ignored: generatedSeoBlockNames.length,
+  generated_block_families: generatedSeoBlockNames,
   cluster_summary: clusters,
   watchlist,
   safeguards: [
@@ -265,7 +284,8 @@ const report = {
     "no-google-scraping",
     "no-hidden-keyword-blocks",
     "local-city-pages-treated-as-distinct-intents",
-    "supports-canonical-intent-planning"
+    "supports-canonical-intent-planning",
+    "generated-conversion-blocks-excluded-from-similarity"
   ]
 };
 
@@ -278,6 +298,8 @@ writeFileSync(join(PUBLIC_DIR, "assets", "seo-cannibalization-latest.json"), JSO
   high_risk_count: report.high_risk_count,
   medium_risk_count: report.medium_risk_count,
   watch_count: report.watch_count,
+  generated_block_families_ignored: report.generated_block_families_ignored,
+  generated_block_families: report.generated_block_families,
   cluster_summary: report.cluster_summary.slice(0, 12),
   watchlist: report.watchlist.slice(0, 20),
   safeguards: report.safeguards

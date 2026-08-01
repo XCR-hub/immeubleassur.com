@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-08-01T08:30:37.250Z",
+  "generated_at": "2026-08-01T09:19:05.729Z",
   "status": "passed",
   "pages_checked": 173,
-  "urgent_pages": 169,
+  "urgent_pages": 159,
   "missing_cta_count": 0,
   "contract_missing_count": 0,
   "coverage_by_intent": [
     {
       "intent": "sinistre",
       "urgency_level": "immediate",
-      "pages": 75,
-      "pages_with_intent_link": 20,
-      "pages_with_conversion_route": 75,
+      "pages": 41,
+      "pages_with_intent_link": 15,
+      "pages_with_conversion_route": 41,
       "missing_pages": [],
       "action": "Orienter vers un audit sinistre/resiliation avec rappel prioritaire."
     },
@@ -36,9 +36,9 @@
     {
       "intent": "prix",
       "urgency_level": "quote-ready",
-      "pages": 62,
-      "pages_with_intent_link": 11,
-      "pages_with_conversion_route": 62,
+      "pages": 18,
+      "pages_with_intent_link": 6,
+      "pages_with_conversion_route": 18,
       "missing_pages": [],
       "action": "Orienter vers un devis comparatif prix, franchises et garanties."
     },
@@ -46,7 +46,7 @@
       "intent": "pno-cno",
       "urgency_level": "quote-ready",
       "pages": 112,
-      "pages_with_intent_link": 73,
+      "pages_with_intent_link": 64,
       "pages_with_conversion_route": 112,
       "missing_pages": [],
       "action": "Orienter vers le parcours PNO/CNO avec pre-remplissage."
@@ -55,8 +55,8 @@
   "weakest_pages": [],
   "conversion_signals": {
     "lead_intent_routing": "passed",
-    "lead_intent_active_bridges": 45,
-    "money_score": 95,
+    "lead_intent_active_bridges": 43,
+    "money_score": 91,
     "funnel_leads_30d": 0,
     "funnel_form_starts_30d": 0
   },

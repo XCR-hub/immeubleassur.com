@@ -1,8 +1,9 @@
 {
-  "generated_at": "2026-07-31T01:52:21.606Z",
+  "generated_at": "2026-08-01T09:15:45.257Z",
   "pages_checked": 176,
-  "pages_changed": 173,
-  "paragraphs_contextualized": 1082,
+  "pages_changed": 148,
+  "paragraphs_contextualized": 621,
+  "quality_support_pages": 21,
   "replacement_families": [
     {
       "id": "city-documents",
@@ -21,36 +22,36 @@
       "count": 79
     },
     {
-      "id": "momentum-intro",
-      "count": 77
-    },
-    {
-      "id": "opportunity-summary",
-      "count": 74
-    },
-    {
       "id": "diagnostic-intro",
-      "count": 74
+      "count": 49
     },
     {
       "id": "readiness-intro",
-      "count": 74
+      "count": 49
     },
     {
-      "id": "auto-depth-method",
-      "count": 62
-    },
-    {
-      "id": "opportunity-generic-intro",
-      "count": 47
+      "id": "momentum-intro",
+      "count": 49
     },
     {
       "id": "legacy-city-positioning",
       "count": 30
     },
     {
-      "id": "blog-starting-point",
+      "id": "blog-fast-document",
       "count": 28
+    },
+    {
+      "id": "faq-status",
+      "count": 16
+    },
+    {
+      "id": "faq-reflex",
+      "count": 16
+    },
+    {
+      "id": "faq-documents",
+      "count": 16
     }
   ],
   "safeguards": [

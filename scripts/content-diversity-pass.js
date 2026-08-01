@@ -302,6 +302,54 @@ const replacements = [
   }
 ];
 
+const QUALITY_START = "<!-- content-quality-support:start -->";
+const QUALITY_END = "<!-- content-quality-support:end -->";
+
+function qualityNeeds(html, slug, ctx) {
+  const text = stripHtml(html);
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const detailsCount = (html.match(/<details\b/gi) || []).length;
+  const form = html.includes('id="lead-form"');
+  const primaryCta = html.includes('class="button primary"');
+  const title = titleOf(html, slug);
+  const exempt = ["admin", "mentions-legales", "confidentialite", "merci"].includes(slug);
+  return {
+    depth: !exempt && words < 430,
+    faq: !exempt && detailsCount === 0 && /assurance|devis|prix|courtier|pno|cno/i.test(title),
+    cta: !exempt && !form && !primaryCta,
+    words,
+    detailsCount,
+    form,
+    primaryCta
+  };
+}
+
+function qualityFaq(ctx) {
+  const rows = [
+    [`Quelle information change vraiment l'analyse ${ctx.page} ?`, `L'information cle est ${ctx.intent}. Elle doit etre reliee au statut du demandeur, au contrat actuel, aux sinistres et aux responsabilites reelles.`],
+    ["Quels documents preparer avant un devis ?", `Preparez ${ctx.documents}. Ajoutez les baux, les photos, les travaux prevus ou les PV d'assemblee lorsqu'ils expliquent le risque.`],
+    ["Pourquoi passer par un specialiste immeuble ?", `Parce que ${ctx.proof} peuvent modifier la reponse assureur. Une demande generale oublie souvent ces points.`],
+    ["Quand faut-il agir rapidement ?", "Il faut agir avant echeance, apres une resiliation, en cas de refus assureur, apres un sinistre important ou lorsqu'un usage du batiment change."]
+  ];
+  return `<div class="faq-list">${rows.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>`;
+}
+
+function qualitySupportBlock(ctx, needs) {
+  const depth = needs.depth ? `<div class="container narrow"><p class="eyebrow dark">Qualite du dossier</p><h2>Clarifier ${esc(ctx.page)} avant comparaison.</h2><p class="large-copy">Pour ${esc(ctx.audience)}, cette page doit transformer une recherche en dossier exploitable. Le point de depart est ${esc(ctx.intent)}; le point d'arrivee est une demande claire, avec pieces disponibles, urgence, contrat actuel et questions encore ouvertes.</p><p>Cette consolidation evite les pages trop courtes et les demandes mal qualifiees. Elle aide le visiteur a comprendre ce qui influence le devis: ${esc(ctx.proof)}, mais aussi les franchises, exclusions, delais de declaration et obligations d'entretien.</p><ul class="check-list"><li>Verifier le statut du demandeur et le type de bien.</li><li>Rassembler ${esc(ctx.documents)}.</li><li>Identifier l'urgence: echeance, sinistre, refus, travaux ou changement d'usage.</li><li>Passer vers le parcours ${esc(ctx.route)} lorsque les informations de base sont pretes.</li></ul></div>` : "";
+  const faq = needs.faq ? `<div class="container narrow"><h2>Questions frequentes utiles</h2>${qualityFaq(ctx)}</div>` : "";
+  const cta = needs.cta ? `<div class="container narrow"><p><a class="button primary" href="/devis-assurance-immeuble?intent=quality-support">Demander un avis ImmeubleAssur</a></p></div>` : "";
+  return `<section class="band content-quality-support" data-content-quality-support="${esc(ctx.slug)}">${depth}${faq}${cta}</section>`;
+}
+
+function ensureQualitySupport(html, ctx) {
+  const pattern = new RegExp(`\\s*${escapeRegExp(QUALITY_START)}[\\s\\S]*?${escapeRegExp(QUALITY_END)}\\s*`, "g");
+  const cleaned = html.replace(pattern, "\n");
+  const needs = qualityNeeds(cleaned, ctx.slug, ctx);
+  if (!needs.depth && !needs.faq && !needs.cta) return { html: cleaned, added: false, needs };
+  const block = `\n${QUALITY_START}\n${qualitySupportBlock(ctx, needs)}\n${QUALITY_END}\n`;
+  const next = cleaned.includes("</main>") ? cleaned.replace("</main>", `${block}</main>`) : `${cleaned}${block}`;
+  return { html: next, added: true, needs };
+}
 function diversifyHtml(html, ctx) {
   const touched = [];
   let next = html;
@@ -321,14 +369,18 @@ function enhanceFile(file) {
   const slug = slugFromFile(file);
   if (slug === "admin") return null;
   const ctx = contextFor(slug, original);
-  const { html, touched } = diversifyHtml(original, ctx);
+  const diversified = diversifyHtml(original, ctx);
+  const quality = ensureQualitySupport(diversified.html, ctx);
+  const html = quality.html;
   if (html !== original) writeFileSync(file, html, "utf8");
   return {
     slug,
     url: `${SITE}${slug === "index" ? "/" : `/${slug}`}`,
     changed: html !== original,
-    replacements: touched,
-    replacements_count: touched.reduce((sum, item) => sum + item.count, 0)
+    replacements: diversified.touched,
+    replacements_count: diversified.touched.reduce((sum, item) => sum + item.count, 0),
+    quality_support_added: quality.added,
+    quality_needs: quality.needs
   };
 }
 
@@ -346,6 +398,7 @@ const report = {
   pages_checked: pages.length,
   pages_changed: changed.length,
   paragraphs_contextualized: changed.reduce((sum, page) => sum + page.replacements_count, 0),
+  quality_support_pages: pages.filter((page) => page.quality_support_added).length,
   replacement_families: [...familyCounts.entries()].sort((a, b) => b[1] - a[1]).map(([id, count]) => ({ id, count })),
   safeguards: ["visible-content-only", "no-hidden-keywords", "no-ai-evasion", "schema-refresh-by-seo-growth-pass", "people-first-context"],
   sample: changed.slice(0, 30)
@@ -357,6 +410,7 @@ writeFileSync(join(PUBLIC_DIR, "assets", "content-diversity-latest.json"), JSON.
   pages_checked: report.pages_checked,
   pages_changed: report.pages_changed,
   paragraphs_contextualized: report.paragraphs_contextualized,
+  quality_support_pages: report.quality_support_pages,
   replacement_families: report.replacement_families.slice(0, 12),
   safeguards: report.safeguards
 }, null, 2), "utf8");

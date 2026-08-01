@@ -430,6 +430,17 @@ const guides = [
       "Lire les exclusions: inoccupation, entretien, infiltration, activites commerciales.",
       "Controler les plafonds recherche de fuite, bris de glace et protection juridique.",
       "Evaluer le service sinistre et la clarte des obligations de declaration."
+    ],
+    comparisonRows: [
+      ["Prime", "Comparer le montant annuel avec les frais, taxes et evolution probable au renouvellement."],
+      ["Franchise", "Mesurer le reste a charge par garantie: eau, incendie, vandalisme, bris, tempete et recherche de fuite."],
+      ["Exclusion", "Lister les clauses qui peuvent bloquer un sinistre: inoccupation, defaut d'entretien, commerce non declare ou travaux."],
+      ["Service", "Evaluer declaration, expertise, delais, recours et clarte des obligations imposees au syndic ou bailleur."]
+    ],
+    faq: [
+      ["Un comparateur remplace-t-il un devis ?", "Non. Le comparateur aide a lire les criteres. Le devis sert a transmettre un dossier et obtenir une reponse assureur."],
+      ["Pourquoi ne pas choisir seulement le prix ?", "La prime basse peut etre absorbee par une franchise elevee, un plafond faible ou une exclusion importante."],
+      ["Quels contrats comparer en premier ?", "Le contrat actuel, une offre alternative comparable et les garanties liees aux sinistres frequents de l'immeuble."]
     ]
   }
 ];
@@ -545,7 +556,7 @@ function leadForm(defaults = {}) {
 }
 
 function layout({ slug, title, description, body, canonical, schema = "" }) {
-  const url = `${SITE}/${slug === "index" ? "" : pagePath(slug)}`;
+  const url = slug === "index" ? `${SITE}/` : `${SITE}/${slug}`;
   const schemaMarkup = schema ? `    ${schema}\n` : "";
   return `<!doctype html>
 <html lang="fr">
@@ -779,6 +790,15 @@ function articlePage(article) {
   return layout({ slug: `blog/${article.slug}`, title: article.title, description: article.description, body });
 }
 
+function guideDetailBlock(guide) {
+  const comparisonRows = guide.comparisonRows || [];
+  const faqRows = guide.faq || [];
+  if (!comparisonRows.length && !faqRows.length) return "";
+  const comparison = comparisonRows.length ? `<div class="local-proof-grid">${comparisonRows.map(([title, copy]) => `<article><h3>${esc(title)}</h3><p>${esc(copy)}</p></article>`).join("")}</div>` : "";
+  const faq = faqRows.length ? `<div class="faq-list">${faqRows.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>` : "";
+  return `<section class="band compare-band"><div class="section-head"><p class="eyebrow dark">Angle comparatif</p><h2>Comparer avant de deposer un dossier de devis.</h2></div>${comparison}${faq}</section>`;
+}
+
 function guidePage(guide) {
   const body = `
     <section class="page-hero compact-hero">
@@ -793,10 +813,9 @@ function guidePage(guide) {
         </div>
         ${leadForm({ need: "audit-contrat" })}
       </div>
-    </section>`;
+    </section>${guideDetailBlock(guide)}`;
   return layout({ slug: guide.slug, title: guide.title, description: guide.description, body });
 }
-
 function intentExitBlock() {
   return `<section class="band compare-band lead-urgency-exits" aria-label="Parcours devis prioritaires"><div class="section-head"><p class="eyebrow dark">Passer a l'action</p><h2>Transformer la lecture en demande qualifiee.</h2></div><div class="card-grid"><article class="content-card"><h3><a href="/devis-assurance-immeuble?intent=sinistre">Audit sinistre ou resiliation</a></h3><p>Prioriser les dossiers avec sinistre, refus assureur, echeance proche ou contrat difficile.</p></article><article class="content-card"><h3><a href="/devis-assurance-immeuble?intent=prix">Devis prix et garanties</a></h3><p>Comparer prime, franchises, plafonds et exclusions avec une fiche risque exploitable.</p></article><article class="content-card"><h3><a href="/devis-pno-cno?intent=pno-cno">Parcours PNO/CNO</a></h3><p>Qualifier un lot loue, vacant ou non occupant et verifier le contrat immeuble associe.</p></article><article class="content-card"><h3><a href="/devis-assurance-immeuble?intent=travaux">Travaux et immeuble mixte</a></h3><p>Anticiper ravalement, toiture, dommages-ouvrage, local commercial ou changement d'usage.</p></article></div></section>`;
 }
@@ -829,6 +848,22 @@ function contactPage() {
   return layout({ slug: "contact", title: "Contact assurance immeuble", description: "Contact ImmeubleAssur pour devis assurance immeuble, copropriete, PNO, SCI et audit contrat.", body });
 }
 
+function quotePage() {
+  const process = [
+    ["Dossier", "Vous transmettez profil, ville, lots, usage, echeance, contrat actuel et sinistres recents."],
+    ["Qualification", "ImmeubleAssur classe le besoin: copropriete, PNO/CNO, SCI, immeuble locatif, local commercial ou audit."],
+    ["Consultation", "Les informations exploitables evitent les allers-retours et rendent les offres comparables."],
+    ["Decision", "La reponse porte sur les garanties, franchises, exclusions, delais et pieces encore manquantes."]
+  ];
+  const faqRows = [
+    ["Quand demander un devis assurance immeuble ?", "Idealement deux a trois mois avant echeance, immediatement apres une resiliation, un refus, un sinistre important ou un changement d'usage."],
+    ["Quelles pieces accelerent le devis ?", "Contrat actuel, appel de prime, adresse, lots, surfaces, usage, sinistres sur 36 mois, travaux prevus et coordonnees du gestionnaire."],
+    ["Le devis est-il la meme chose que le comparateur ?", "Non. Le devis est le parcours de transmission du dossier; le comparateur sert a lire et arbitrer les offres obtenues."],
+    ["Puis-je demander un audit sans changer d'assureur ?", "Oui. L'audit peut servir a renegocier, completer des garanties ou preparer une consultation avant decision."]
+  ];
+  const body = `<section class="page-hero compact-hero"><div class="container"><p class="eyebrow">Demande qualifiee</p><h1>Devis assurance immeuble: envoyer un dossier exploitable.</h1><p>Un parcours direct pour bailleurs, SCI, syndics et administrateurs de biens qui veulent une reponse assureur fondee sur les bonnes informations.</p><div class="hero-actions"><a class="button primary" href="#devis">Completer ma demande</a><a class="button secondary" href="/comparateur-assurance-immeuble.html">Comparer les garanties</a></div></div></section><section class="band page-band" id="devis"><div class="split"><div><p class="eyebrow dark">Formulaire de devis</p><h2>Ce parcours sert a consulter le marche, pas seulement a lire un prix.</h2><p class="large-copy">La demande doit decrire le risque: statut, adresse, lots, surface, occupation, contrat actuel, echeance, sinistres, travaux et usages particuliers. Plus le dossier est net, plus la reponse est rapide et comparable.</p><ul class="check-list"><li>Parcours adapte immeuble, copropriete, PNO/CNO, SCI et local commercial.</li><li>Qualification des dossiers urgents: resiliation, refus, sinistre ou echeance proche.</li><li>Message libre pour preciser assureur actuel, franchises, travaux, vacance ou activite commerciale.</li><li>Anti-spam et controle humain pour proteger les formulaires sans bloquer les vrais prospects.</li></ul></div>${leadForm({ need: "multirisque-immeuble" })}</div></section><section class="band compare-band"><div class="section-head"><p class="eyebrow dark">Process devis</p><h2>Transformer la demande en fiche risque assureur.</h2></div><div class="local-proof-grid">${process.map(([title, copy]) => `<article><h3>${esc(title)}</h3><p>${esc(copy)}</p></article>`).join("")}</div></section><section class="band faq-band"><div class="container narrow"><h2>Questions frequentes devis assurance immeuble</h2><div class="faq-list">${faqRows.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div></div></section>`;
+  return layout({ slug: "devis-assurance-immeuble", title: "Devis assurance immeuble", description: "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec un dossier qualifie par ImmeubleAssur.", body });
+}
 function simplePage(slug, title, description, content) {
   const body = `<section class="plain-main"><div class="plain-panel"><p class="eyebrow dark">ImmeubleAssur</p><h1>${esc(title)}</h1>${content}</div></section>`;
   return layout({ slug, title, description, body });
@@ -928,7 +963,7 @@ function writeStatic() {
     intro: "Des supports simples pour preparer une consultation assureur et comprendre les garanties.",
     cards: guides.map((guide) => `<article class="content-card"><h3><a href="/${guide.slug}.html">${esc(guide.title)}</a></h3><p>${esc(guide.description)}</p></article>`)
   }));
-  write("devis-assurance-immeuble", simplePage("devis-assurance-immeuble", "Devis assurance immeuble", "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec ImmeubleAssur.", `<p>Remplissez le formulaire pour qualifier votre besoin. Nous revenons vers vous pour les pieces manquantes et la consultation assureur.</p>${leadForm({ need: "multirisque-immeuble" })}`));
+  write("devis-assurance-immeuble", quotePage());
   write("faq", faqPage());
   write("contact", contactPage());
   write("merci", simplePage("merci", "Votre demande est enregistree", "Confirmation demande ImmeubleAssur.", `<p>Un conseiller ImmeubleAssur vous rappelle rapidement pour qualifier le risque et preparer la suite.</p><p><a class="button primary" href="/">Retour accueil</a></p>`));
@@ -950,7 +985,7 @@ function writeStatic() {
     "confidentialite.html",
     "mentions-legales.html"
   ];
-  writeFileSync(join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((url) => `  <url><loc>${SITE}/${url}</loc><changefreq>weekly</changefreq><priority>${url === "" ? "1.0" : "0.8"}</priority></url>`).join("\n")}\n</urlset>\n`, "utf8");
+  writeFileSync(join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((url) => { const loc = url === "" ? `${SITE}/` : `${SITE}/${url.replace(/\.html$/, "")}`; return `  <url><loc>${loc}</loc><changefreq>weekly</changefreq><priority>${url === "" ? "1.0" : "0.8"}</priority></url>`; }).join("\n")}\n</urlset>\n`, "utf8");
   writeFileSync(join(OUT, "robots.txt"), `User-agent: *\nAllow: /\nDisallow: /admin.html\nDisallow: /api/\n\nSitemap: ${SITE}/sitemap.xml\n`, "utf8");
 }
 

@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-31T01:52:19.042Z",
+  "generated_at": "2026-08-01T09:11:07.150Z",
   "pages_written": 13,
   "existing_pages_enhanced": 8,
-  "min_quality_score": 35,
-  "average_quality_score": 67,
+  "min_quality_score": 50,
+  "average_quality_score": 68,
   "safeguards": [
     "people-first-pages",
     "no-serp-scraping",
@@ -89,7 +89,7 @@
       "slug": "recherches-assurance-immeuble",
       "title": "Recherches assurance immeuble par besoin",
       "primary_query": "recherches assurance immeuble",
-      "quality_score": 35
+      "quality_score": 50
     }
   ]
 }
