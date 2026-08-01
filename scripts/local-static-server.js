@@ -1,4 +1,4 @@
-﻿import { createReadStream, existsSync, statSync } from "node:fs";
+import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 
@@ -13,6 +13,12 @@ const types = {
   ".xml": "application/xml; charset=utf-8",
   ".txt": "text/plain; charset=utf-8",
   ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".avif": "image/avif",
+  ".ico": "image/x-icon",
   ".webmanifest": "application/manifest+json; charset=utf-8"
 };
 
@@ -40,9 +46,13 @@ const server = createServer((request, response) => {
   try {
     const stat = statSync(file);
     if (!stat.isFile()) throw new Error("Not a file");
+    const extension = extname(file);
     response.writeHead(200, {
-      "Content-Type": types[extname(file)] || "application/octet-stream",
-      "Content-Length": stat.size
+      "Content-Type": types[extension] || "application/octet-stream",
+      "Content-Length": stat.size,
+      "Cache-Control": file.includes(`${join("public", "assets")}`) ? "public, max-age=31536000, immutable" : "public, max-age=300",
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "strict-origin-when-cross-origin"
     });
     if (request.method === "HEAD") {
       response.end();

@@ -1,0 +1,198 @@
+{
+  "generated_at": "2026-08-01T11:14:20.725Z",
+  "status": "passed",
+  "pages_checked": 186,
+  "indexable_pages": 180,
+  "average_html_kb": 18.5,
+  "largest_pages": [
+    {
+      "source": "index.html",
+      "kb": 31.7,
+      "issue_count": 0
+    },
+    {
+      "source": "news/veille-assurance-immeuble-2026-08-01.html",
+      "kb": 26.1,
+      "issue_count": 0
+    },
+    {
+      "source": "blog.html",
+      "kb": 25.6,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-immeuble.html",
+      "kb": 24.2,
+      "issue_count": 0
+    },
+    {
+      "source": "veille-assurance-immeuble.html",
+      "kb": 24,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-immeuble-chalon-sur-saone.html",
+      "kb": 24,
+      "issue_count": 0
+    },
+    {
+      "source": "news/veille-assurance-immeuble-2026-07-31.html",
+      "kb": 23.9,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-immeuble-la-roche-sur-yon.html",
+      "kb": 23.9,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-immeuble-saint-nazaire.html",
+      "kb": 23.9,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-immeuble-la-rochelle.html",
+      "kb": 23.8,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-immeuble-valenciennes.html",
+      "kb": 23.8,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-immeuble-carcassonne.html",
+      "kb": 23.7,
+      "issue_count": 0
+    }
+  ],
+  "assets": [
+    {
+      "path": "assets/styles.css",
+      "bytes": 56416,
+      "kb": 55.1,
+      "budget_bytes": 92160,
+      "budget_kb": 90,
+      "ok": true
+    },
+    {
+      "path": "assets/app.js",
+      "bytes": 100930,
+      "kb": 98.6,
+      "budget_bytes": 143360,
+      "budget_kb": 140,
+      "ok": true
+    },
+    {
+      "path": "assets/admin.js",
+      "bytes": 89050,
+      "kb": 87,
+      "budget_bytes": 133120,
+      "budget_kb": 130,
+      "ok": true
+    },
+    {
+      "path": "assets/search-index.json",
+      "bytes": 47470,
+      "kb": 46.4,
+      "budget_bytes": 92160,
+      "budget_kb": 90,
+      "ok": true
+    }
+  ],
+  "public_report_assets": [
+    {
+      "path": "assets/seo-autopilot-latest.json",
+      "bytes": 79009,
+      "kb": 77.2,
+      "ok": true
+    },
+    {
+      "path": "assets/conversion-intelligence-latest.json",
+      "bytes": 21209,
+      "kb": 20.7,
+      "ok": true
+    },
+    {
+      "path": "assets/lead-friction-latest.json",
+      "bytes": 18816,
+      "kb": 18.4,
+      "ok": true
+    },
+    {
+      "path": "assets/live-api-readiness-latest.json",
+      "bytes": 10104,
+      "kb": 9.9,
+      "ok": true
+    },
+    {
+      "path": "assets/media-autopilot-latest.json",
+      "bytes": 9683,
+      "kb": 9.5,
+      "ok": true
+    },
+    {
+      "path": "assets/seo-cannibalization-latest.json",
+      "bytes": 9626,
+      "kb": 9.4,
+      "ok": true
+    },
+    {
+      "path": "assets/seo-angle-differentiation-latest.json",
+      "bytes": 8945,
+      "kb": 8.7,
+      "ok": true
+    },
+    {
+      "path": "assets/search-intelligence-latest.json",
+      "bytes": 8363,
+      "kb": 8.2,
+      "ok": true
+    },
+    {
+      "path": "assets/editorial-autopilot-latest.json",
+      "bytes": 6252,
+      "kb": 6.1,
+      "ok": true
+    },
+    {
+      "path": "assets/performance-budget-latest.json",
+      "bytes": 4084,
+      "kb": 4,
+      "ok": true
+    },
+    {
+      "path": "assets/internal-link-equity-latest.json",
+      "bytes": 3696,
+      "kb": 3.6,
+      "ok": true
+    },
+    {
+      "path": "assets/serp-recovery-latest.json",
+      "bytes": 3130,
+      "kb": 3.1,
+      "ok": true
+    }
+  ],
+  "warning_count": 0,
+  "severe_issue_count": 0,
+  "issues": [],
+  "budgets": {
+    "htmlBytes": 81920,
+    "averageHtmlBytes": 40960,
+    "stylesBytes": 92160,
+    "appBytes": 143360,
+    "adminBytes": 133120,
+    "searchIndexBytes": 92160,
+    "publicReportBytes": 163840,
+    "maxBlockingExternalScripts": 0
+  },
+  "safeguards": [
+    "html-size-budget",
+    "core-asset-budget",
+    "versioned-css-js",
+    "async-turnstile-only",
+    "lazy-images",
+    "public-report"
+  ]
+}
