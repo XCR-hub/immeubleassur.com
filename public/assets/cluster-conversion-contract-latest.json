@@ -1,0 +1,197 @@
+{
+  "generated_at": "2026-08-01T15:27:38.760Z",
+  "status": "passed",
+  "average_conversion_score": 85,
+  "average_money_score": 95,
+  "weak_money_pages": 0,
+  "cluster_requirements": [
+    {
+      "cluster": "local",
+      "score": 94,
+      "pages": 82,
+      "money_pages": 81,
+      "min_score": 94,
+      "min_pages": 80,
+      "min_money_pages": 80
+    },
+    {
+      "cluster": "pno-cno",
+      "score": 95,
+      "pages": 15,
+      "money_pages": 13,
+      "min_score": 95,
+      "min_pages": 15,
+      "min_money_pages": 13
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "score": 81,
+      "pages": 14,
+      "money_pages": 7,
+      "min_score": 81,
+      "min_pages": 14,
+      "min_money_pages": 7
+    },
+    {
+      "cluster": "devis-courtier",
+      "score": 77,
+      "pages": 16,
+      "money_pages": 7,
+      "min_score": 77,
+      "min_pages": 16,
+      "min_money_pages": 7
+    },
+    {
+      "cluster": "prix-tarif",
+      "score": 80,
+      "pages": 9,
+      "money_pages": 5,
+      "min_score": 80,
+      "min_pages": 9,
+      "min_money_pages": 5
+    },
+    {
+      "cluster": "sci-bailleur",
+      "score": 76,
+      "pages": 12,
+      "money_pages": 4,
+      "min_score": 76,
+      "min_pages": 12,
+      "min_money_pages": 4
+    },
+    {
+      "cluster": "copropriete-syndic",
+      "score": 75,
+      "pages": 16,
+      "money_pages": 1,
+      "min_score": 75,
+      "min_pages": 16,
+      "min_money_pages": 1
+    },
+    {
+      "cluster": "local-commercial",
+      "score": 76,
+      "pages": 6,
+      "money_pages": 0,
+      "min_score": 76,
+      "min_pages": 6,
+      "min_money_pages": 0
+    },
+    {
+      "cluster": "travaux",
+      "score": 69,
+      "pages": 3,
+      "money_pages": 0,
+      "min_score": 69,
+      "min_pages": 3,
+      "min_money_pages": 0
+    },
+    {
+      "cluster": "newsletter-veille",
+      "score": 60,
+      "pages": 7,
+      "money_pages": 0,
+      "min_score": 60,
+      "min_pages": 7,
+      "min_money_pages": 0
+    }
+  ],
+  "bridge_status": "passed",
+  "active_bridges": 51,
+  "bridge_clusters": [
+    {
+      "cluster": "copropriete-syndic",
+      "count": 16
+    },
+    {
+      "cluster": "sci-bailleur",
+      "count": 8
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "count": 7
+    },
+    {
+      "cluster": "devis-courtier",
+      "count": 4
+    },
+    {
+      "cluster": "local-commercial",
+      "count": 4
+    },
+    {
+      "cluster": "prix-tarif",
+      "count": 4
+    },
+    {
+      "cluster": "newsletter-veille",
+      "count": 3
+    },
+    {
+      "cluster": "travaux",
+      "count": 2
+    }
+  ],
+  "intent_minimums": [
+    {
+      "intent": "travaux",
+      "count": 13,
+      "minimum": 10
+    },
+    {
+      "intent": "veille",
+      "count": 6,
+      "minimum": 5
+    },
+    {
+      "intent": "local-commercial",
+      "count": 8,
+      "minimum": 8
+    },
+    {
+      "intent": "prix",
+      "count": 13,
+      "minimum": 10
+    },
+    {
+      "intent": "sinistre",
+      "count": 37,
+      "minimum": 30
+    },
+    {
+      "intent": "copropriete",
+      "count": 32,
+      "minimum": 30
+    },
+    {
+      "intent": "sci",
+      "count": 18,
+      "minimum": 15
+    },
+    {
+      "intent": "immeuble",
+      "count": 164,
+      "minimum": 150
+    },
+    {
+      "intent": "pno",
+      "count": 9,
+      "minimum": 8
+    },
+    {
+      "intent": "cno",
+      "count": 91,
+      "minimum": 80
+    }
+  ],
+  "issue_count": 0,
+  "issues": [],
+  "safeguards": [
+    "visible-conversion-paths",
+    "cluster-score-regression-gate",
+    "money-pages-no-weak-page",
+    "intent-link-minimums",
+    "bridge-clusters-covered",
+    "no-hidden-seo-text"
+  ]
+}
