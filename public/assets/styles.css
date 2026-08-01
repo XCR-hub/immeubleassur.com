@@ -2944,6 +2944,40 @@ textarea:focus {
   width: 100%;
 }
 
+.quote-fast-nudge {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(15, 118, 110, .24);
+  border-radius: 8px;
+  background: #ecfdf5;
+}
+
+.quote-fast-nudge span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.quote-fast-nudge strong {
+  color: var(--teal-dark);
+  font-size: .78rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.quote-fast-nudge small {
+  color: #31514d;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.quote-fast-nudge .button {
+  white-space: nowrap;
+}
+
 @media (max-width: 980px) {
   .quote-fast-track-inner {
     grid-template-columns: 1fr;
@@ -2957,6 +2991,14 @@ textarea:focus {
 
   .quote-fast-options {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .quote-fast-nudge {
+    grid-template-columns: 1fr;
+  }
+
+  .quote-fast-nudge .button {
+    width: 100%;
   }
 }
 /* quote-fast-track-2026-07:end */

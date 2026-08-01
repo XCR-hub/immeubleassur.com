@@ -79,6 +79,8 @@ function pathFunnels(database, sinceSql, maxRows) {
         SUM(CASE WHEN event_type = 'quote_router_continue' THEN 1 ELSE 0 END) AS quote_router_continues,
         SUM(CASE WHEN event_type = 'quote_router_select' AND CASE WHEN json_valid(payload) THEN json_extract(payload, '$.source') ELSE '' END = 'homepage-devis-accelerator' THEN 1 ELSE 0 END) AS homepage_devis_selects,
         SUM(CASE WHEN event_type = 'quote_router_continue' AND CASE WHEN json_valid(payload) THEN json_extract(payload, '$.source') ELSE '' END = 'homepage-devis-accelerator' THEN 1 ELSE 0 END) AS homepage_devis_continues,
+        SUM(CASE WHEN event_type = 'quote_router_view' AND CASE WHEN json_valid(payload) THEN json_extract(payload, '$.source') ELSE '' END = 'quote-fast-nudge' THEN 1 ELSE 0 END) AS quote_fast_nudge_views,
+        SUM(CASE WHEN event_type = 'quote_router_continue' AND CASE WHEN json_valid(payload) THEN json_extract(payload, '$.source') ELSE '' END = 'quote-fast-nudge' THEN 1 ELSE 0 END) AS quote_fast_nudge_continues,
         SUM(CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click', 'traffic_without_click_quote_click', 'traffic_without_click_phone_click') THEN 1 ELSE 0 END) AS cta_clicks,
         SUM(CASE WHEN event_type IN ('phone_click', 'traffic_without_click_phone_click') THEN 1 ELSE 0 END) AS phone_clicks,
         SUM(CASE WHEN event_type = 'traffic_without_click_shown' THEN 1 ELSE 0 END) AS traffic_rescue_shown,
@@ -122,6 +124,9 @@ function enrichPath(row) {
     homepage_devis_selects: Number(row.homepage_devis_selects || 0),
     homepage_devis_continues: Number(row.homepage_devis_continues || 0),
     homepage_devis_start_rate: pct(formStarts, row.homepage_devis_continues),
+    quote_fast_nudge_views: Number(row.quote_fast_nudge_views || 0),
+    quote_fast_nudge_continues: Number(row.quote_fast_nudge_continues || 0),
+    quote_fast_nudge_rate: pct(row.quote_fast_nudge_continues, row.quote_fast_nudge_views),
     cta_clicks: Number(row.cta_clicks || 0),
     phone_clicks: Number(row.phone_clicks || 0),
     traffic_rescue_shown: trafficRescueShown,
@@ -229,6 +234,8 @@ function summaryFrom(events, leadStats, days, paths = []) {
   const quoteContinues = countFor(events, "quote_router_continue");
   const homepageDevis = paths.reduce((sum, row) => sum + Number(row.homepage_devis_continues || 0), 0);
   const homepageDevisSelects = paths.reduce((sum, row) => sum + Number(row.homepage_devis_selects || 0), 0);
+  const quoteFastNudgeViews = paths.reduce((sum, row) => sum + Number(row.quote_fast_nudge_views || 0), 0);
+  const quoteFastNudgeContinues = paths.reduce((sum, row) => sum + Number(row.quote_fast_nudge_continues || 0), 0);
   const contentBridgeShown = countFor(events, "content_lead_bridge_shown");
   const contentBridgeClicks = countFor(events, "content_lead_bridge_quote_click") + countFor(events, "content_lead_bridge_phone_click");
   const trafficRescueShown = countFor(events, "traffic_without_click_shown");
@@ -243,6 +250,9 @@ function summaryFrom(events, leadStats, days, paths = []) {
     homepage_devis_selects: homepageDevisSelects,
     homepage_devis_continues: homepageDevis,
     homepage_devis_start_rate: pct(formStarts, homepageDevis),
+    quote_fast_nudge_views: quoteFastNudgeViews,
+    quote_fast_nudge_continues: quoteFastNudgeContinues,
+    quote_fast_nudge_rate: pct(quoteFastNudgeContinues, quoteFastNudgeViews),
     cta_clicks: countFor(events, "cta_click") + countFor(events, "phone_click") + countFor(events, "email_click") + countFor(events, "traffic_without_click_quote_click") + countFor(events, "traffic_without_click_phone_click"),
     phone_clicks: countFor(events, "phone_click") + countFor(events, "traffic_without_click_phone_click"),
     traffic_rescue_shown: trafficRescueShown,

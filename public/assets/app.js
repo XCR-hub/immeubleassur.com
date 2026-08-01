@@ -1304,13 +1304,59 @@ function renderQuoteFastTrack(shell, key, shouldTrack = false) {
   const cta = shell.querySelector("[data-quote-fast-continue]");
   cta.href = row.href;
   cta.dataset.intent = key;
-  if (shouldTrack) track("quote_router_select", { target: key, label: row.title, route: row.href });
+  const nudgeText = shell.querySelector("[data-quote-fast-nudge-text]");
+  if (nudgeText) nudgeText.textContent = `${row.proof} Besoin, profil et message deja cadres.`;
+  const nudgeCta = shell.querySelector("[data-quote-fast-nudge-continue]");
+  if (nudgeCta) {
+    nudgeCta.href = row.href;
+    nudgeCta.dataset.intent = key;
+  }
+  if (shouldTrack) track("quote_router_select", { target: key, label: row.title, route: row.href, source: "quote-fast-track" });
 }
 
 function quoteFastTrackApply(row) {
   if (!form) return false;
   applyFormValues({ ...row, message: quoteFastTrackMessage(row) });
   return true;
+}
+
+function continueQuoteFastTrack(shell, rows, initial, event, source = "quote-fast-track") {
+  const key = shell.dataset.activeIntent || initial;
+  const row = rows[key] || rows.immeuble;
+  track("quote_router_continue", { target: key, label: row.title, route: row.href, mode: form ? "prefill" : "navigate", source });
+  if (!quoteFastTrackApply(row)) return false;
+  event?.preventDefault();
+  if (!formStarted) {
+    formStarted = true;
+    track("form_start", { target: source, label: key });
+  }
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+  const focusTarget = form.querySelector("input[name='name'], input[name='phone'], input[name='email']");
+  focusTarget?.focus({ preventScroll: true });
+  return true;
+}
+
+function observeQuoteFastTrackNudge(shell, initial) {
+  if (!form || shell.dataset.quoteFastNudgeObserved === "1") return;
+  shell.dataset.quoteFastNudgeObserved = "1";
+  const markShown = () => {
+    if (formStarted || shell.dataset.quoteFastNudgeShown === "1") return;
+    shell.dataset.quoteFastNudgeShown = "1";
+    const rows = quoteFastTrackRows();
+    const key = shell.dataset.activeIntent || initial;
+    const row = rows[key] || rows.immeuble;
+    track("quote_router_view", { target: key, label: row.title, route: row.href, source: "quote-fast-nudge", mode: "nudge" });
+  };
+  if (!("IntersectionObserver" in window)) {
+    window.setTimeout(markShown, 2800);
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= 0.35)) return;
+    window.setTimeout(markShown, 900);
+    observer.disconnect();
+  }, { threshold: [0.35, 0.6] });
+  observer.observe(shell);
 }
 
 function mountQuoteFastTrack() {
@@ -1323,7 +1369,7 @@ function mountQuoteFastTrack() {
   const shell = document.createElement("section");
   shell.className = "quote-fast-track band";
   shell.setAttribute("aria-label", "Acces rapide devis assurance immeuble");
-  shell.innerHTML = `<div class="quote-fast-track-inner"><div class="quote-fast-copy"><p class="eyebrow dark">Devis immediat</p><h2>Aller directement au bon parcours assurance immeuble.</h2><p data-quote-fast-text></p><strong data-quote-fast-proof></strong></div><div class="quote-fast-panel"><div class="quote-fast-options" role="group" aria-label="Type de demande">${Object.entries(rows).map(([key, row]) => `<button type="button" data-quote-fast-option="${key}" aria-pressed="false">${row.label}</button>`).join("")}</div><div class="quote-fast-result"><span>Parcours recommande</span><h3 data-quote-fast-title></h3><a class="button primary" data-track="quote-fast-continue" data-quote-fast-continue href="/devis-assurance-immeuble">Continuer mon devis</a><a class="button secondary" data-track="quote-fast-phone" href="tel:+33180855786">Appeler maintenant</a></div></div></div>`;
+  shell.innerHTML = `<div class="quote-fast-track-inner"><div class="quote-fast-copy"><p class="eyebrow dark">Devis immediat</p><h2>Aller directement au bon parcours assurance immeuble.</h2><p data-quote-fast-text></p><strong data-quote-fast-proof></strong></div><div class="quote-fast-panel"><div class="quote-fast-options" role="group" aria-label="Type de demande">${Object.entries(rows).map(([key, row]) => `<button type="button" data-quote-fast-option="${key}" aria-pressed="false">${row.label}</button>`).join("")}</div><div class="quote-fast-result"><span>Parcours recommande</span><h3 data-quote-fast-title></h3><a class="button primary" data-track="quote-fast-continue" data-quote-fast-continue href="/devis-assurance-immeuble">Continuer mon devis</a><a class="button secondary" data-track="quote-fast-phone" href="tel:+33180855786">Appeler maintenant</a></div><div class="quote-fast-nudge" data-quote-fast-nudge><span><strong>Parcours pret</strong><small data-quote-fast-nudge-text></small></span><a class="button secondary" data-track="quote-fast-nudge" data-quote-fast-nudge-continue href="/devis-assurance-immeuble">Pre-remplir ici</a></div></div></div>`;
   anchor.insertAdjacentElement("afterend", shell);
   renderQuoteFastTrack(shell, initial);
   track("quote_router_view", { target: initial, label: window.location.pathname });
@@ -1331,19 +1377,12 @@ function mountQuoteFastTrack() {
     button.addEventListener("click", () => renderQuoteFastTrack(shell, button.dataset.quoteFastOption, true));
   });
   shell.querySelector("[data-quote-fast-continue]")?.addEventListener("click", (event) => {
-    const key = shell.dataset.activeIntent || initial;
-    const row = rows[key] || rows.immeuble;
-    track("quote_router_continue", { target: key, label: row.title, route: row.href, mode: form ? "prefill" : "navigate" });
-    if (!quoteFastTrackApply(row)) return;
-    event.preventDefault();
-    if (!formStarted) {
-      formStarted = true;
-      track("form_start", { target: "quote-fast-track", label: key });
-    }
-    form.scrollIntoView({ behavior: "smooth", block: "start" });
-    const focusTarget = form.querySelector("input[name='name'], input[name='phone'], input[name='email']");
-    focusTarget?.focus({ preventScroll: true });
+    continueQuoteFastTrack(shell, rows, initial, event, "quote-fast-track");
   });
+  shell.querySelector("[data-quote-fast-nudge-continue]")?.addEventListener("click", (event) => {
+    continueQuoteFastTrack(shell, rows, initial, event, "quote-fast-nudge");
+  });
+  observeQuoteFastTrackNudge(shell, initial);
 }
 // ux-conversion-runtime:end
 function enhanceHeader() {
