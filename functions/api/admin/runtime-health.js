@@ -343,6 +343,9 @@ function sanitizeSeoBacklogReport(report) {
     leads_created: Number(item.leads_created || 0),
     bridge_clicks: Number(item.bridge_clicks || 0),
     quality_basis: item.quality_basis || "",
+    source_stage: item.source_stage || "",
+    source_stage_label: item.source_stage_label || "",
+    source_stage_severity: item.source_stage_severity || "",
     top_need: item.top_need || "",
     value_label: item.value_label || ""
   });
@@ -370,6 +373,8 @@ function sanitizeSeoBacklogReport(report) {
       top_qualified_source_leads: Number(report.summary?.top_qualified_source_leads || 0),
       top_qualified_source_sessions: Number(report.summary?.top_qualified_source_sessions || 0),
       top_qualified_source_basis: report.summary?.top_qualified_source_basis || "",
+      top_qualified_source_stage: report.summary?.top_qualified_source_stage || "",
+      top_qualified_source_stage_label: report.summary?.top_qualified_source_stage_label || "",
       oldest_open_days: Number(report.summary?.oldest_open_days || 0),
       average_open_score: Number(report.summary?.average_open_score || 0)
     },

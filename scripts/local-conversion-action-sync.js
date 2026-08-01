@@ -101,13 +101,17 @@ function normalizeSourceQualityOpportunity(item, report, runId, now) {
   const ctaClicks = Number(item.cta_clicks || 0);
   const formStarts = Number(item.form_starts || 0);
   const submitAttempts = Number(item.submit_attempts || 0);
+  const sourceStage = clean(item.source_stage || "", 80);
+  const sourceStageLabel = clean(item.source_stage_label || "", 120);
+  const sourceStageAction = clean(item.source_stage_action || "", 900);
   const score = Math.min(100, Math.max(78, Math.round(Number(item.quality_score || 0))));
+  const queryPrefix = sourceStageLabel ? `${sourceStageLabel}: ` : "";
   const query = leads > 0
-    ? `${leads} lead(s), ${item.hot_leads || 0} chaud(s), besoin ${topNeed}`
-    : `${sessions} session(s), ${formStarts} start(s), ${ctaClicks} clic(s), besoin ${topNeed}`;
-  const recommendation = leads > 0
+    ? `${queryPrefix}${leads} lead(s), ${item.hot_leads || 0} chaud(s), besoin ${topNeed}`
+    : `${queryPrefix}${sessions} session(s), ${formStarts} start(s), ${ctaClicks} clic(s), besoin ${topNeed}`;
+  const recommendation = sourceStageAction || (leads > 0
     ? `Renforcer la source ${source}: maillage interne, contenus satellites, preuve locale et CTA devis sur le besoin ${topNeed}.`
-    : `Transformer la source prometteuse ${source}: clarifier l'offre, remonter le CTA devis, creer un contenu satellite et suivre les starts formulaire sur le besoin ${topNeed}.`;
+    : `Transformer la source prometteuse ${source}: clarifier l'offre, remonter le CTA devis, creer un contenu satellite et suivre les starts formulaire sur le besoin ${topNeed}.`);
   return {
     id: `qualified-source-${stableHash(source)}`,
     run_id: runId,
@@ -122,6 +126,8 @@ function normalizeSourceQualityOpportunity(item, report, runId, now) {
       source_path: source,
       report_generated_at: report.generated_at || "",
       quality_basis: item.quality_basis || "",
+      source_stage: sourceStage,
+      source_stage_label: sourceStageLabel,
       leads,
       hot_leads: Number(item.hot_leads || 0),
       warm_leads: Number(item.warm_leads || 0),

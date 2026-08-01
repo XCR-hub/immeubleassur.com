@@ -110,6 +110,38 @@ function intentFromSource(source) {
   return "immeuble";
 }
 
+function sourceStage(row) {
+  const leads = Number(row.leads || 0) + Number(row.leads_created || 0);
+  const submitAttempts = Number(row.submit_attempts || 0);
+  const formStarts = Number(row.form_starts || 0);
+  const ctaSignals = Number(row.cta_clicks || 0) + Number(row.quote_router_continues || 0) + Number(row.bridge_clicks || 0);
+  const sessions = Number(row.sessions || 0);
+  const pageViews = Number(row.page_views || 0);
+  if (leads > 0) return { key: "lead-growth", label: "Leads a amplifier", severity: "high" };
+  if (submitAttempts > 0) return { key: "submit-without-lead", label: "Envois sans lead", severity: "critical" };
+  if (formStarts > 0) return { key: "start-without-submit", label: "Formulaire bloque", severity: "high" };
+  if (ctaSignals > 0) return { key: "click-without-start", label: "Clics sans formulaire", severity: "medium" };
+  if (sessions >= 20 || pageViews >= 20) return { key: "traffic-without-click", label: "Trafic sans clic", severity: "medium" };
+  return { key: "signal-watch", label: "Signal a surveiller", severity: "low" };
+}
+
+function sourceStageAction(row) {
+  const source = clean(row.source || "source", 700) || "source";
+  const need = clean(row.top_need || intentFromSource(source), 120) || "immeuble";
+  const stage = row.source_stage || sourceStage(row).key;
+  if (stage === "lead-growth") return `Amplifier ${source}: creer des liens internes depuis les pages proches, renforcer la preuve locale et pousser un CTA devis sur ${need}.`;
+  if (stage === "submit-without-lead") return `Corriger ${source}: tester l'envoi complet, verifier Turnstile/validation/API et simplifier le bloc formulaire pour ${need}.`;
+  if (stage === "start-without-submit") return `Debloquer ${source}: reduire la friction formulaire, afficher les champs obligatoires restants et proposer l'appel direct sur ${need}.`;
+  if (stage === "click-without-start") return `Transformer les clics de ${source}: aligner le bouton avec le formulaire, pre-remplir le besoin ${need} et rapprocher le module devis.`;
+  if (stage === "traffic-without-click") return `Transformer le trafic de ${source}: remonter un CTA devis au premier ecran, ajouter une preuve metier et clarifier l'offre ${need}.`;
+  return `Surveiller ${source}: accumuler plus de signaux avant d'ouvrir une action lourde.`;
+}
+
+function applySourceStage(row) {
+  const stage = sourceStage(row);
+  const enriched = { ...row, source_stage: stage.key, source_stage_label: stage.label, source_stage_severity: stage.severity };
+  return { ...enriched, source_stage_action: sourceStageAction(enriched) };
+}
 function rowsByStatus(database) {
   return database
     .prepare(`
@@ -267,7 +299,7 @@ function leadSourceQualityRows(database, limit) {
         signal_score: 0,
         quality_basis: "leads"
       };
-      return { ...normalized, quality_score: sourceQualityScore(normalized) };
+      return applySourceStage({ ...normalized, quality_score: sourceQualityScore(normalized) });
     })
     .sort((a, b) => b.quality_score - a.quality_score || b.hot_leads - a.hot_leads || b.leads - a.leads || a.source.localeCompare(b.source))
     .slice(0, limit);
@@ -370,7 +402,7 @@ function eventSourceQualityRows(database, limit) {
         quality_basis: "event-signals"
       };
       normalized.signal_score = sourceSignalScore(normalized);
-      return { ...normalized, quality_score: sourceQualityScore(normalized) };
+      return applySourceStage({ ...normalized, quality_score: sourceQualityScore(normalized) });
     })
     .filter((row) => row.signal_score >= 20 || row.form_starts > 0 || row.cta_clicks > 0 || row.submit_attempts > 0)
     .sort((a, b) => b.quality_score - a.quality_score || b.form_starts - a.form_starts || b.cta_clicks - a.cta_clicks || a.source.localeCompare(b.source))
@@ -458,7 +490,7 @@ function mergeSourceQualityRows(leadRows, eventRows, limit) {
         signal_score: row.signal_score,
         quality_basis: row.bases.has("leads") && row.bases.has("event-signals") ? "leads+event-signals" : [...row.bases][0] || "event-signals"
       };
-      return { ...normalized, quality_score: sourceQualityScore(normalized) };
+      return applySourceStage({ ...normalized, quality_score: sourceQualityScore(normalized) });
     })
     .filter((row) => row.leads > 0 || row.signal_score >= 20 || row.form_starts > 0 || row.cta_clicks > 0 || row.submit_attempts > 0)
     .sort((a, b) => b.quality_score - a.quality_score || b.hot_leads - a.hot_leads || b.form_starts - a.form_starts || b.leads - a.leads || a.source.localeCompare(b.source))
@@ -518,6 +550,8 @@ function summaryFrom(statusRows, topRows, conversionRows, stale, sourceQuality) 
     top_qualified_source_leads: Number(sourceQuality[0]?.leads || 0),
     top_qualified_source_sessions: Number(sourceQuality[0]?.sessions || 0),
     top_qualified_source_basis: sourceQuality[0]?.quality_basis || "",
+    top_qualified_source_stage: sourceQuality[0]?.source_stage || "",
+    top_qualified_source_stage_label: sourceQuality[0]?.source_stage_label || "",
     oldest_open_days: topRows.length ? Math.max(...topRows.map((row) => Number(row.age_days || 0))) : 0,
     average_open_score: topRows.length ? Math.round(topRows.reduce((sum, row) => sum + Number(row.score || 0), 0) / topRows.length) : 0
   };
@@ -553,13 +587,13 @@ function recommendations(summary, topRows, staleRowsList, conversionRows, source
     const signal = leads > 0
       ? `${leads} lead(s), ${top?.hot_leads || 0} chaud(s), score ${top?.quality_score || 0}`
       : `${top?.sessions || 0} session(s), ${top?.form_starts || 0} start(s), ${top?.cta_clicks || 0} clic(s), score ${top?.quality_score || 0}`;
-    const action = leads > 0
+    const action = top?.source_stage_action || (leads > 0
       ? `Renforcer la source ${top?.source || "non precise"}: maillage interne, contenus satellites, preuve locale et CTA devis sur le besoin ${top?.top_need || "immeuble"}.`
-      : `Transformer la source prometteuse ${top?.source || "non precise"}: clarifier l'offre, remonter le CTA devis et creer un contenu satellite sur le besoin ${top?.top_need || "immeuble"}.`;
+      : `Transformer la source prometteuse ${top?.source || "non precise"}: clarifier l'offre, remonter le CTA devis et creer un contenu satellite sur le besoin ${top?.top_need || "immeuble"}.`);
     actions.push({
       type: "qualified-source-growth",
-      severity: Number(top?.quality_score || 0) >= 120 ? "high" : "medium",
-      signal,
+      severity: top?.source_stage_severity || (Number(top?.quality_score || 0) >= 120 ? "high" : "medium"),
+      signal: top?.source_stage_label ? `${top.source_stage_label}: ${signal}` : signal,
       action,
       url: top?.source || "admin/attribution",
       score: Math.min(96, Math.max(78, Number(top?.quality_score || 0)))
