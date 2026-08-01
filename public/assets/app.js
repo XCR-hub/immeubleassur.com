@@ -1713,6 +1713,71 @@ function bindLeadBarAccelerator() {
     startHeroPrefill(key, row, "lead-action-bar", "sticky-devis");
   });
 }
+
+function homepageDevisRows() {
+  const rows = quoteFastTrackRows();
+  const heroRows = heroIntentAcceleratorRows();
+  return {
+    ...rows,
+    "pno-cno": heroRows["pno-cno"],
+    mixte: rows["local-commercial"],
+    "audit-contrat": rows.audit
+  };
+}
+
+function homepageDevisIntentFromLink(link) {
+  const href = link?.getAttribute("href") || "";
+  const rows = homepageDevisRows();
+  try {
+    const url = new URL(href, window.location.origin);
+    const intent = normalizeLeadIntent(url.searchParams.get("intent") || "");
+    if (intent === "audit-contrat") return "audit";
+    if (rows[intent]) return intent;
+    if (intent === "pno" || intent === "cno") return intent;
+    if (url.pathname.includes("pno-cno")) return "pno-cno";
+    if (url.pathname.includes("audit")) return "audit";
+  } catch (_) {}
+  const raw = `${href} ${link?.dataset.track || ""} ${link?.textContent || ""}`.toLowerCase();
+  if (raw.includes("pno") || raw.includes("cno")) return "pno-cno";
+  if (raw.includes("copro")) return "copropriete";
+  if (raw.includes("sci")) return "sci";
+  if (raw.includes("audit")) return "audit";
+  if (raw.includes("sinistre")) return "sinistre";
+  if (raw.includes("mixte") || raw.includes("local")) return "local-commercial";
+  return "immeuble";
+}
+
+function isHomepageDevisAcceleratorLink(link) {
+  if (!link) return false;
+  const href = link.getAttribute("href") || "";
+  if (href.startsWith("tel:") || href.startsWith("mailto:") || href.startsWith("#")) return false;
+  try {
+    const url = new URL(href, window.location.origin);
+    if (url.origin !== window.location.origin) return false;
+    return ["/devis-assurance-immeuble", "/devis-pno-cno", "/audit-contrat-assurance-immeuble"].includes(url.pathname);
+  } catch (_) {
+    return false;
+  }
+}
+
+function bindHomepageDevisAccelerator() {
+  if (!isHomepage() || !form || document.body.dataset.homepageDevisAccelerator === "1") return;
+  document.body.dataset.homepageDevisAccelerator = "1";
+  document.addEventListener("click", (event) => {
+    if (event.defaultPrevented) return;
+    const link = event.target.closest("a[href]");
+    if (!isHomepageDevisAcceleratorLink(link)) return;
+    const rows = homepageDevisRows();
+    const key = homepageDevisIntentFromLink(link);
+    const row = rows[key] || rows.immeuble;
+    if (!row) return;
+    event.preventDefault();
+    link.dataset.homepageDevisAccelerator = "1";
+    link.classList.add("is-active");
+    track("quote_router_select", { target: key, label: row.title, route: row.href, source: "homepage-devis-accelerator" });
+    startHeroPrefill(key, row, "homepage-devis-accelerator", link.dataset.track || "homepage-devis");
+  });
+}
 function trafficNoClickPayload(action) {
   return {
     target: action,
@@ -2040,6 +2105,7 @@ bindBotSignalTracking();
 bindHeroIntentAccelerator();
 bindHeroActionAccelerator();
 bindLeadBarAccelerator();
+bindHomepageDevisAccelerator();
 bindTrafficNoClickRescue();
 bindGrowthTracking();
 bindFormRescue();

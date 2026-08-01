@@ -1213,6 +1213,11 @@ address a {
   outline-offset: 2px;
 }
 
+body[data-homepage-devis-accelerator="1"] .button[data-homepage-devis-accelerator="1"].is-active {
+  outline: 2px solid rgba(15, 118, 110, .55);
+  outline-offset: 2px;
+}
+
 body:has(.lead-action-bar) {
   padding-bottom: 5.5rem;
 }

@@ -47,6 +47,8 @@ const required = [
   ["public/assets/styles.css", "lead-bar-accelerator"],
   ["public/assets/app.js", "trafficNoClickIntentRows"],
   ["public/assets/styles.css", "traffic-no-click-intents"],
+  ["public/assets/app.js", "bindHomepageDevisAccelerator"],
+  ["public/assets/styles.css", "homepage-devis-accelerator"],
   ["public/assets/styles.css", "hero-action-accelerator"],
   ["public/assets/styles.css", "hero-intent-status"],
   ["scripts/local-conversion-funnel-monitor.js", "traffic_rescue_shown"],
