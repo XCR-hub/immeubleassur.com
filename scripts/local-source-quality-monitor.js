@@ -72,6 +72,8 @@ function normalizeSource(value) {
 }
 
 function sourceFromPayload(row, payload = {}) {
+  const originSource = normalizeSource(payload.source_origin);
+  if (originSource && String(row.event_type || "").startsWith("traffic_without_click")) return originSource.startsWith("intent:") ? "intent-prefill" : originSource;
   const utmSource = normalizeSource(payload.utm_source || payload.utm?.utm_source);
   const medium = normalizeSource(payload.utm_medium || payload.utm?.utm_medium);
   if (utmSource && medium) return `utm:${utmSource}/${medium}`;
@@ -99,6 +101,9 @@ function createBucket(source) {
     submit_errors: 0,
     abandoned_forms: 0,
     spam_blocks: 0,
+    traffic_rescue_shown: 0,
+    traffic_rescue_urgency_selects: 0,
+    traffic_rescue_clicks: 0,
     leads_event: 0,
     leads_db: 0,
     hot_leads_db: 0,
@@ -131,6 +136,9 @@ function countEvent(bucket, row, payload) {
   if (type === "lead_submit_error" || type === "lead_submit_rejected") bucket.submit_errors += 1;
   if (type === "lead_form_abandoned") bucket.abandoned_forms += 1;
   if (type === "lead_spam_blocked") bucket.spam_blocks += 1;
+  if (type === "traffic_without_click_shown") bucket.traffic_rescue_shown += 1;
+  if (type === "traffic_without_click_urgency_select") bucket.traffic_rescue_urgency_selects += 1;
+  if (["traffic_without_click_quote_click", "traffic_without_click_phone_click"].includes(type)) bucket.traffic_rescue_clicks += 1;
   if (type === "lead_created") bucket.leads_event += 1;
   const path = pathOf(payload.landing_page || payload.landing_path || payload.source_path || payload.path || row.page_url);
   addPath(bucket, path, row, type);
@@ -161,6 +169,10 @@ function finalize(bucket) {
     submit_errors: bucket.submit_errors,
     abandoned_forms: bucket.abandoned_forms,
     spam_blocks: bucket.spam_blocks,
+    traffic_rescue_shown: bucket.traffic_rescue_shown,
+    traffic_rescue_urgency_selects: bucket.traffic_rescue_urgency_selects,
+    traffic_rescue_clicks: bucket.traffic_rescue_clicks,
+    traffic_rescue_click_rate: pct(bucket.traffic_rescue_clicks, bucket.traffic_rescue_shown),
     leads_event: bucket.leads_event,
     leads_db: bucket.leads_db,
     hot_leads_db: bucket.hot_leads_db,
@@ -185,14 +197,24 @@ function finalize(bucket) {
 }
 
 function recommendationFor(row) {
-  if (row.sessions >= 20 && row.form_starts === 0) {
+  if (row.sessions >= 20 && row.form_starts === 0 && row.traffic_rescue_shown === 0) {
     return {
-      type: "source-sans-start",
+      type: "source-sans-rattrapage",
       severity: "high",
       source: row.source,
       signal: `${row.sessions} session(s), 0 demarrage formulaire`,
-      action: "Adapter le message d'atterrissage et renforcer le CTA devis pour cette source.",
+      action: "Declencher le rattrapage homepage plus tot et verifier que le rappel express reste visible pour cette source.",
       score: 90
+    };
+  }
+  if (row.traffic_rescue_shown >= 10 && row.traffic_rescue_clicks === 0) {
+    return {
+      type: "source-rattrapage-sans-clic",
+      severity: "high",
+      source: row.source,
+      signal: `${row.traffic_rescue_shown} rattrapage(s), 0 clic`,
+      action: "Tester le texte, le delai et le bouton rappel express du panneau de rattrapage pour cette source.",
+      score: 86
     };
   }
   if (row.form_starts >= 3 && row.leads_db === 0 && row.submit_attempts === 0) {
@@ -247,6 +269,7 @@ function readEvents(database, sinceSql) {
         'page_view', 'cta_click', 'phone_click', 'form_start',
         'form_submit_attempt', 'lead_submit_error', 'lead_submit_rejected',
         'lead_form_abandoned', 'lead_spam_blocked', 'lead_created',
+        'traffic_without_click_shown', 'traffic_without_click_urgency_select',
         'traffic_without_click_quote_click', 'traffic_without_click_phone_click',
         'content_lead_bridge_quote_click', 'content_lead_bridge_phone_click'
       )

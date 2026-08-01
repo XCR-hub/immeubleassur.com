@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-01T16:15:20.956Z",
+  "generated_at": "2026-08-01T16:35:11.600Z",
   "status": "passed",
-  "checks_required": 18,
+  "checks_required": 20,
   "checks_missing": [],
   "required_events": [
     "risk_router_select",
@@ -24,6 +24,7 @@
   },
   "safeguards": [
     "homepage-traffic-can-start-form-without-navigation",
+    "homepage-direct-traffic-rescue-adapts-to-source-quality",
     "router-prefills-full-form",
     "express-callback-remains-visible",
     "turnstile-remains-on-homepage-forms",

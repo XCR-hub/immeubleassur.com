@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+﻿import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const REPORT_DIR = "reports";
@@ -40,6 +40,8 @@ const checks = [
   ["app-homepage-decision-accelerator", "app", "function bindHomepageDecisionAccelerator()"],
   ["app-form-start-event", "app", 'track("form_start"'],
   ["app-stall-rescue", "app", 'showTrafficNoClickRescue("quote-router-stall"'],
+  ["app-source-quality-rescue", "app", "source-quality-homepage-gap"],
+  ["app-source-quality-origin", "app", "source_origin"],
   ["css-router-status", "css", ".risk-router-status"],
   ["css-router-status-visible", "css", ".risk-router-status.is-visible"],
   ["css-router-status-copy", "css", ".risk-router-status span"]
@@ -80,6 +82,7 @@ const report = {
   },
   safeguards: [
     "homepage-traffic-can-start-form-without-navigation",
+    "homepage-direct-traffic-rescue-adapts-to-source-quality",
     "router-prefills-full-form",
     "express-callback-remains-visible",
     "turnstile-remains-on-homepage-forms",

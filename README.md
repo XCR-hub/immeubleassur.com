@@ -82,6 +82,7 @@ npm run leads:quality:monitor
 npm run antifraud:local
 npm run turnstile:hybrid
 npm run live:api:readiness
+npm run source:quality
 npm run growth:ops:runtime
 ```
 

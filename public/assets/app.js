@@ -1,4 +1,4 @@
-const form = document.querySelector("#lead-form");
+﻿const form = document.querySelector("#lead-form");
 const statusBox = document.querySelector(".form-status");
 
 const requiredFields = ["name", "phone", "email", "profile", "property_type", "city"];
@@ -2031,9 +2031,11 @@ function bindLeadMagnetAccelerator() {
   });
 }
 function trafficNoClickPayload(action, extra = {}) {
+  const attribution = attributionPayload();
   return {
     target: action,
     label: currentLeadIntent(),
+    source_origin: attribution.source || "website",
     urgency: extra.urgency || trafficNoClickSelectedUrgency,
     source_path: currentPathWithQuery(),
     content_kind: "homepage",
@@ -2391,6 +2393,16 @@ function trafficNoClickConversionInteraction(event) {
   return href.startsWith("tel:") || href.includes("/devis-") || href.includes("/audit-contrat-assurance-immeuble");
 }
 
+function homepageSourceQualityRescueConfig() {
+  const attribution = attributionPayload();
+  const source = String(attribution.source || "website").toLowerCase();
+  const hasCampaign = Boolean(attribution.utm_source || attribution.gclid || attribution.gbraid || attribution.wbraid);
+  const directLike = !hasCampaign && (!attribution.first_referrer || source === "website" || source === "direct");
+  const intentLike = source.startsWith("intent:");
+  if (directLike || intentLike) return { delay: 5200, source: "source-quality-homepage-gap", defaultIntent: currentLeadIntent() || "immeuble" };
+  return { delay: 8500, source: "homepage-idle", defaultIntent: currentLeadIntent() || "immeuble" };
+}
+
 function bindTrafficNoClickRescue() {
   if (!isHomepage() || sessionStorage.getItem(trafficNoClickDismissKey) === "true") return;
   const markInteraction = (event) => {
@@ -2400,7 +2412,8 @@ function bindTrafficNoClickRescue() {
   };
   document.addEventListener("click", markInteraction, { capture: true });
   form?.addEventListener("focusin", markInteraction, { once: true });
-  trafficNoClickTimer = window.setTimeout(() => showTrafficNoClickRescue("no-click", { source: "homepage-idle" }), 8500);
+  const rescue = homepageSourceQualityRescueConfig();
+  trafficNoClickTimer = window.setTimeout(() => showTrafficNoClickRescue("no-click", rescue), rescue.delay);
 }
 function bindGrowthTracking() {
   track("page_view", { target: document.title, label: currentLeadIntent() });

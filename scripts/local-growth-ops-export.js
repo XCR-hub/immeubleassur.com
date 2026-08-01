@@ -249,6 +249,9 @@ function sanitizeSourceQuality(report) {
           average_lead_score: number(item.average_lead_score),
           session_to_lead_rate: number(item.session_to_lead_rate),
           start_to_lead_rate: number(item.start_to_lead_rate),
+          traffic_rescue_shown: number(item.traffic_rescue_shown),
+          traffic_rescue_clicks: number(item.traffic_rescue_clicks),
+          traffic_rescue_click_rate: number(item.traffic_rescue_click_rate),
           spam_pressure_rate: number(item.spam_pressure_rate)
         }))
       : [],
