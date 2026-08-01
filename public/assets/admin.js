@@ -1,4 +1,4 @@
-﻿const form = document.querySelector("#admin-form");
+const form = document.querySelector("#admin-form");
 const tokenInput = document.querySelector("#admin-token");
 const statusBox = document.querySelector(".form-status");
 const body = document.querySelector("#leads-body");
@@ -270,7 +270,9 @@ function sourceQualityStatusLabel(report) {
 function sourceQualityDetail(report) {
   if (!report?.available) return "rapport absent";
   const summary = report.summary || {};
-  return `${summary.sources || 0} source(s), ${summary.leads_db || 0} lead(s), ${summary.session_to_lead_rate || 0}% session->lead`;
+  const direct = Number(summary.traffic_rescue_direct_shown || 0);
+  const directDetail = direct ? `, direct ${direct}/${summary.traffic_rescue_direct_clicks || 0} clic(s)` : "";
+  return `${summary.sources || 0} source(s), ${summary.leads_db || 0} lead(s), ${summary.session_to_lead_rate || 0}% session->lead${directDetail}`;
 }
 
 function sourceQualitySignal(report) {

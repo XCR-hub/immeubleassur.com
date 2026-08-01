@@ -1,4 +1,4 @@
-﻿import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
@@ -104,6 +104,8 @@ function createBucket(source) {
     traffic_rescue_shown: 0,
     traffic_rescue_urgency_selects: 0,
     traffic_rescue_clicks: 0,
+    traffic_rescue_direct_shown: 0,
+    traffic_rescue_direct_clicks: 0,
     leads_event: 0,
     leads_db: 0,
     hot_leads_db: 0,
@@ -136,9 +138,13 @@ function countEvent(bucket, row, payload) {
   if (type === "lead_submit_error" || type === "lead_submit_rejected") bucket.submit_errors += 1;
   if (type === "lead_form_abandoned") bucket.abandoned_forms += 1;
   if (type === "lead_spam_blocked") bucket.spam_blocks += 1;
+  const rescueVariant = normalizeSource(payload.rescue_variant);
+  const directRescue = rescueVariant === "source-quality-direct";
   if (type === "traffic_without_click_shown") bucket.traffic_rescue_shown += 1;
+  if (type === "traffic_without_click_shown" && directRescue) bucket.traffic_rescue_direct_shown += 1;
   if (type === "traffic_without_click_urgency_select") bucket.traffic_rescue_urgency_selects += 1;
   if (["traffic_without_click_quote_click", "traffic_without_click_phone_click"].includes(type)) bucket.traffic_rescue_clicks += 1;
+  if (["traffic_without_click_quote_click", "traffic_without_click_phone_click"].includes(type) && directRescue) bucket.traffic_rescue_direct_clicks += 1;
   if (type === "lead_created") bucket.leads_event += 1;
   const path = pathOf(payload.landing_page || payload.landing_path || payload.source_path || payload.path || row.page_url);
   addPath(bucket, path, row, type);
@@ -173,6 +179,9 @@ function finalize(bucket) {
     traffic_rescue_urgency_selects: bucket.traffic_rescue_urgency_selects,
     traffic_rescue_clicks: bucket.traffic_rescue_clicks,
     traffic_rescue_click_rate: pct(bucket.traffic_rescue_clicks, bucket.traffic_rescue_shown),
+    traffic_rescue_direct_shown: bucket.traffic_rescue_direct_shown,
+    traffic_rescue_direct_clicks: bucket.traffic_rescue_direct_clicks,
+    traffic_rescue_direct_click_rate: pct(bucket.traffic_rescue_direct_clicks, bucket.traffic_rescue_direct_shown),
     leads_event: bucket.leads_event,
     leads_db: bucket.leads_db,
     hot_leads_db: bucket.hot_leads_db,
@@ -205,6 +214,16 @@ function recommendationFor(row) {
       signal: `${row.sessions} session(s), 0 demarrage formulaire`,
       action: "Declencher le rattrapage homepage plus tot et verifier que le rappel express reste visible pour cette source.",
       score: 90
+    };
+  }
+  if (row.traffic_rescue_direct_shown >= 10 && row.traffic_rescue_direct_clicks === 0) {
+    return {
+      type: "source-rattrapage-direct-sans-clic",
+      severity: "high",
+      source: row.source,
+      signal: `${row.traffic_rescue_direct_shown} rattrapage(s) direct, 0 clic`,
+      action: "Reviser le texte prioritaire et le bouton rappel immediat du variant direct pour cette source.",
+      score: 88
     };
   }
   if (row.traffic_rescue_shown >= 10 && row.traffic_rescue_clicks === 0) {
@@ -327,8 +346,10 @@ function run() {
     submit_attempts: sum.submit_attempts + row.submit_attempts,
     leads_db: sum.leads_db + row.leads_db,
     hot_leads_db: sum.hot_leads_db + row.hot_leads_db,
-    spam_blocks: sum.spam_blocks + row.spam_blocks
-  }), { sessions: 0, page_views: 0, form_starts: 0, submit_attempts: 0, leads_db: 0, hot_leads_db: 0, spam_blocks: 0 });
+    spam_blocks: sum.spam_blocks + row.spam_blocks,
+    traffic_rescue_direct_shown: sum.traffic_rescue_direct_shown + row.traffic_rescue_direct_shown,
+    traffic_rescue_direct_clicks: sum.traffic_rescue_direct_clicks + row.traffic_rescue_direct_clicks
+  }), { sessions: 0, page_views: 0, form_starts: 0, submit_attempts: 0, leads_db: 0, hot_leads_db: 0, spam_blocks: 0, traffic_rescue_direct_shown: 0, traffic_rescue_direct_clicks: 0 });
   const report = {
     generated_at: new Date().toISOString(),
     status: recommendations.some((item) => item.severity === "high") ? "action-required" : "passed",
@@ -344,6 +365,9 @@ function run() {
       leads_db: totals.leads_db,
       hot_leads_db: totals.hot_leads_db,
       spam_blocks: totals.spam_blocks,
+      traffic_rescue_direct_shown: totals.traffic_rescue_direct_shown,
+      traffic_rescue_direct_clicks: totals.traffic_rescue_direct_clicks,
+      traffic_rescue_direct_click_rate: pct(totals.traffic_rescue_direct_clicks, totals.traffic_rescue_direct_shown),
       session_to_lead_rate: pct(totals.leads_db, totals.sessions),
       start_to_lead_rate: pct(totals.leads_db, totals.form_starts)
     },

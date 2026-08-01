@@ -1,4 +1,4 @@
-﻿import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const REPORT_DIR = "reports";
@@ -42,6 +42,9 @@ const checks = [
   ["app-stall-rescue", "app", 'showTrafficNoClickRescue("quote-router-stall"'],
   ["app-source-quality-rescue", "app", "source-quality-homepage-gap"],
   ["app-source-quality-origin", "app", "source_origin"],
+  ["app-source-quality-direct-variant", "app", "source-quality-direct"],
+  ["app-source-quality-default-urgency", "app", "default_urgency"],
+  ["css-source-quality-direct-variant", "css", ".traffic-no-click-rescue[data-variant=\"source-quality-direct\"]"],
   ["css-router-status", "css", ".risk-router-status"],
   ["css-router-status-visible", "css", ".risk-router-status.is-visible"],
   ["css-router-status-copy", "css", ".risk-router-status span"]
@@ -78,11 +81,13 @@ const report = {
     router_prefill_runtime: has(files.app, "data-risk-router-prefill") && has(files.app, 'startHeroPrefill(key, row, "risk-router-cta"'),
     callback_short_form: has(files.home, "hero-inline-callback") && has(files.home, "data-instant-callback-form"),
     turnstile_visible: has(files.home, "cf-turnstile"),
-    router_status_visible: has(files.css, ".risk-router-status.is-visible")
+    router_status_visible: has(files.css, ".risk-router-status.is-visible"),
+    source_quality_direct_variant: has(files.app, "source-quality-direct") && has(files.css, ".traffic-no-click-rescue[data-variant=\"source-quality-direct\"]")
   },
   safeguards: [
     "homepage-traffic-can-start-form-without-navigation",
     "homepage-direct-traffic-rescue-adapts-to-source-quality",
+    "homepage-direct-rescue-has-measurable-variant",
     "router-prefills-full-form",
     "express-callback-remains-visible",
     "turnstile-remains-on-homepage-forms",

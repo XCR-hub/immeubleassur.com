@@ -1,4 +1,4 @@
-﻿const form = document.querySelector("#lead-form");
+const form = document.querySelector("#lead-form");
 const statusBox = document.querySelector(".form-status");
 
 const requiredFields = ["name", "phone", "email", "profile", "property_type", "city"];
@@ -2271,7 +2271,8 @@ function bindInstantCallbackForm(scope) {
     if (!instantCallbackStarted) {
       instantCallbackStarted = true;
       formStarted = true;
-      track("form_start", { target: miniForm.dataset.instantCallbackSource || "instant-callback", label: miniForm.dataset.instantCallbackIntent || context?.dataset.activeIntent || trafficNoClickIntentKey() });
+      const callbackSource = miniForm.dataset.instantCallbackSource || context?.dataset.instantCallbackSource || "instant-callback";
+      track("form_start", { target: callbackSource, label: miniForm.dataset.instantCallbackIntent || context?.dataset.activeIntent || trafficNoClickIntentKey(), source: callbackSource, rescue_variant: context?.dataset.rescueVariant || trafficNoClickActiveVariant || "standard" });
     }
   });
   miniForm.addEventListener("input", () => noteBotInteraction("input"), { passive: true });
@@ -2322,7 +2323,7 @@ function startTrafficNoClickPrefill(key) {
   const urgencyRows = trafficNoClickUrgencyRows();
   const urgency = trafficNoClickSelectedUrgency;
   const urgencyRow = urgencyRows[urgency] || urgencyRows.standard;
-  const rescuePayload = { urgency, urgency_label: urgencyRow.label, urgency_detail: urgencyRow.text, source: "traffic-no-click-rescue" };
+  const rescuePayload = { urgency, urgency_label: urgencyRow.label, urgency_detail: urgencyRow.text, source: "traffic-no-click-rescue", rescue_variant: trafficNoClickActiveVariant || "standard" };
   trafficNoClickInteracted = true;
   quoteRouterContinued = true;
   clearQuoteRouterStallTimer();
@@ -2344,28 +2345,62 @@ function focusHomepageQuoteForm() {
   return true;
 }
 
+function trafficNoClickRescueCopy(variant = "standard") {
+  if (variant === "source-quality-direct") {
+    return {
+      eyebrow: "Rappel prioritaire",
+      title: "Un conseiller qualifie votre immeuble avec vous.",
+      body: "Laissez un telephone ou un email. On traite lots, occupation, sinistres et echeance pendant le rappel.",
+      label: "Telephone ou email *",
+      placeholder: "06 12 34 56 78",
+      submit: "Me rappeler maintenant",
+      quote: "Pre-remplir le dossier",
+      phone: "Appeler le specialiste"
+    };
+  }
+  return {
+    eyebrow: "Devis immeuble",
+    title: "Recevoir un rappel sans remplir tout le dossier.",
+    body: "Indiquez un telephone ou un email. Le conseiller completera profil, lots, garanties et echeance avec vous.",
+    label: "Telephone ou email *",
+    placeholder: "06 12 34 56 78",
+    submit: "Rappel express",
+    quote: "Pre-remplir le formulaire complet",
+    phone: "Appeler"
+  };
+}
+
 function showTrafficNoClickRescue(reason = "shown", options = {}) {
   const ignoreInteraction = options.ignoreInteraction === true;
   if (trafficNoClickShown || (!ignoreInteraction && trafficNoClickInteracted) || formStarted || formSubmitted) return;
   if (!isHomepage() || sessionStorage.getItem(trafficNoClickDismissKey) === "true") return;
   if (document.querySelector(".traffic-no-click-rescue")) return;
   const rows = trafficNoClickIntentRows();
+  const urgencyRows = trafficNoClickUrgencyRows();
   const defaultIntent = options.defaultIntent && rows[options.defaultIntent] ? options.defaultIntent : trafficNoClickIntentKey();
+  const defaultUrgency = options.defaultUrgency && urgencyRows[options.defaultUrgency] ? options.defaultUrgency : trafficNoClickSelectedUrgency;
+  const variant = options.variant || "standard";
+  const copy = trafficNoClickRescueCopy(variant);
   const intentButtons = Object.entries(rows).map(([key, row]) => `<button type="button" data-traffic-no-click-intent="${key}" aria-pressed="false"><strong>${row.label}</strong><span>${row.title}</span></button>`).join("");
-  const urgencyButtons = Object.entries(trafficNoClickUrgencyRows()).map(([key, row]) => `<button type="button" data-traffic-no-click-urgency="${key}" aria-pressed="false"><strong>${row.label}</strong><span>${row.text}</span></button>`).join("");
+  const urgencyButtons = Object.entries(urgencyRows).map(([key, row]) => `<button type="button" data-traffic-no-click-urgency="${key}" aria-pressed="false"><strong>${row.label}</strong><span>${row.text}</span></button>`).join("");
   const siteKey = turnstileSiteKey();
   const turnstileHtml = siteKey ? `<div class="turnstile-field instant-callback-turnstile"><div class="cf-turnstile" data-sitekey="${siteKey}" data-theme="light" data-action="lead_form"></div></div>` : "";
   const panel = document.createElement("aside");
+  trafficNoClickActiveVariant = variant;
   panel.className = "traffic-no-click-rescue";
   panel.dataset.activeIntent = defaultIntent;
+  panel.dataset.rescueVariant = variant;
+  panel.dataset.instantCallbackSource = options.source || "instant-callback";
+  panel.dataset.instantCallbackContentKind = variant === "source-quality-direct" ? "homepage-source-quality-rescue" : "homepage-rescue";
+  if (variant !== "standard") panel.dataset.variant = variant;
   panel.setAttribute("aria-label", "Acces rapide devis immeuble");
-  panel.innerHTML = `<button class="traffic-no-click-close" type="button" data-traffic-no-click-close aria-label="Fermer">&times;</button><p class="eyebrow dark">Devis immeuble</p><strong>Recevoir un rappel sans remplir tout le dossier.</strong><span>Indiquez un telephone ou un email. Le conseiller completera profil, lots, garanties et echeance avec vous.</span><form class="instant-callback-form" data-instant-callback-form novalidate><input class="hp-field" type="text" name="company_website" tabindex="-1" autocomplete="off" /><label>Telephone ou email *<input name="contact" autocomplete="tel" inputmode="email" required placeholder="06 12 34 56 78" /></label><label class="consent-row"><input type="checkbox" name="consent" required /><span>J'accepte d'etre recontacte pour mon devis immeuble.</span></label>${turnstileHtml}<button class="submit-button" type="submit" data-track="instant-callback-submit">Rappel express</button><p class="form-status" data-instant-callback-status role="status" aria-live="polite"></p></form><div class="traffic-no-click-intents" role="group" aria-label="Choisir le parcours devis">${intentButtons}</div><div class="traffic-no-click-urgency" role="group" aria-label="Priorite de rappel">${urgencyButtons}</div><small class="traffic-no-click-detail" data-traffic-no-click-urgency-detail></small><div class="traffic-no-click-actions"><a class="button secondary" data-track="traffic-no-click-devis" data-traffic-no-click-quote href="#lead-form">Pre-remplir le formulaire complet</a><a class="button secondary" data-track="traffic-no-click-phone" data-traffic-no-click-phone href="tel:+33180855786">Appeler</a></div>`;
+  panel.innerHTML = `<button class="traffic-no-click-close" type="button" data-traffic-no-click-close aria-label="Fermer">&times;</button><p class="eyebrow dark">${copy.eyebrow}</p><strong>${copy.title}</strong><span>${copy.body}</span><form class="instant-callback-form" data-instant-callback-form novalidate><input class="hp-field" type="text" name="company_website" tabindex="-1" autocomplete="off" /><label>${copy.label}<input name="contact" autocomplete="tel" inputmode="email" required placeholder="${copy.placeholder}" /></label><label class="consent-row"><input type="checkbox" name="consent" required /><span>J'accepte d'etre recontacte pour mon devis immeuble.</span></label>${turnstileHtml}<button class="submit-button" type="submit" data-track="instant-callback-submit">${copy.submit}</button><p class="form-status" data-instant-callback-status role="status" aria-live="polite"></p></form><div class="traffic-no-click-intents" role="group" aria-label="Choisir le parcours devis">${intentButtons}</div><div class="traffic-no-click-urgency" role="group" aria-label="Priorite de rappel">${urgencyButtons}</div><small class="traffic-no-click-detail" data-traffic-no-click-urgency-detail></small><div class="traffic-no-click-actions"><a class="button secondary" data-track="traffic-no-click-devis" data-traffic-no-click-quote href="#lead-form">${copy.quote}</a><a class="button secondary" data-track="traffic-no-click-phone" data-traffic-no-click-phone href="tel:+33180855786">${copy.phone}</a></div>`;
   document.body.append(panel);
   trafficNoClickShown = true;
   bindInstantCallbackForm(panel);
   setTrafficNoClickIntent(panel, defaultIntent, false);
-  setTrafficNoClickUrgency(panel, trafficNoClickSelectedUrgency, false);
-  track("traffic_without_click_shown", trafficNoClickPayload(reason, { source: options.source || "instant-callback" }));
+  setTrafficNoClickUrgency(panel, defaultUrgency, false);
+  track("traffic_without_click_shown", trafficNoClickPayload(reason, { source: options.source || "instant-callback", rescue_variant: variant, default_intent: defaultIntent, default_urgency: defaultUrgency }));
   panel.querySelector("[data-traffic-no-click-close]")?.addEventListener("click", () => dismissTrafficNoClickRescue("closed"));
   panel.querySelectorAll("[data-traffic-no-click-urgency]").forEach((button) => {
     button.addEventListener("click", () => setTrafficNoClickUrgency(panel, button.dataset.trafficNoClickUrgency || "standard"));
@@ -2399,8 +2434,9 @@ function homepageSourceQualityRescueConfig() {
   const hasCampaign = Boolean(attribution.utm_source || attribution.gclid || attribution.gbraid || attribution.wbraid);
   const directLike = !hasCampaign && (!attribution.first_referrer || source === "website" || source === "direct");
   const intentLike = source.startsWith("intent:");
-  if (directLike || intentLike) return { delay: 5200, source: "source-quality-homepage-gap", defaultIntent: currentLeadIntent() || "immeuble" };
-  return { delay: 8500, source: "homepage-idle", defaultIntent: currentLeadIntent() || "immeuble" };
+  if (directLike) return { delay: 4200, source: "source-quality-homepage-gap", defaultIntent: currentLeadIntent() || "immeuble", defaultUrgency: "urgent", variant: "source-quality-direct" };
+  if (intentLike) return { delay: 5200, source: "source-quality-intent-gap", defaultIntent: currentLeadIntent() || "immeuble", defaultUrgency: "echeance", variant: "source-quality-intent" };
+  return { delay: 8500, source: "homepage-idle", defaultIntent: currentLeadIntent() || "immeuble", defaultUrgency: "standard", variant: "standard" };
 }
 
 function bindTrafficNoClickRescue() {

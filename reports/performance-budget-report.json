@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T16:34:58.491Z",
+  "generated_at": "2026-08-01T16:49:59.626Z",
   "status": "passed",
   "pages_checked": 186,
   "indexable_pages": 180,
@@ -69,24 +69,24 @@
   "assets": [
     {
       "path": "assets/styles.css",
-      "bytes": 58997,
-      "kb": 57.6,
+      "bytes": 59586,
+      "kb": 58.2,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
     },
     {
       "path": "assets/app.js",
-      "bytes": 121793,
-      "kb": 118.9,
+      "bytes": 123849,
+      "kb": 120.9,
       "budget_bytes": 143360,
       "budget_kb": 140,
       "ok": true
     },
     {
       "path": "assets/admin.js",
-      "bytes": 94383,
-      "kb": 92.2,
+      "bytes": 94574,
+      "kb": 92.4,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true

@@ -1,4 +1,4 @@
-﻿function json(body, status = 200) {
+function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
@@ -333,6 +333,9 @@ function sanitizeSourceQualityReport(report) {
       leads_db: Number(report.summary?.leads_db || 0),
       hot_leads_db: Number(report.summary?.hot_leads_db || 0),
       spam_blocks: Number(report.summary?.spam_blocks || 0),
+      traffic_rescue_direct_shown: Number(report.summary?.traffic_rescue_direct_shown || 0),
+      traffic_rescue_direct_clicks: Number(report.summary?.traffic_rescue_direct_clicks || 0),
+      traffic_rescue_direct_click_rate: Number(report.summary?.traffic_rescue_direct_click_rate || 0),
       session_to_lead_rate: Number(report.summary?.session_to_lead_rate || 0),
       start_to_lead_rate: Number(report.summary?.start_to_lead_rate || 0)
     },
@@ -350,6 +353,9 @@ function sanitizeSourceQualityReport(report) {
           traffic_rescue_shown: Number(item.traffic_rescue_shown || 0),
           traffic_rescue_clicks: Number(item.traffic_rescue_clicks || 0),
           traffic_rescue_click_rate: Number(item.traffic_rescue_click_rate || 0),
+          traffic_rescue_direct_shown: Number(item.traffic_rescue_direct_shown || 0),
+          traffic_rescue_direct_clicks: Number(item.traffic_rescue_direct_clicks || 0),
+          traffic_rescue_direct_click_rate: Number(item.traffic_rescue_direct_click_rate || 0),
           submit_error_rate: Number(item.submit_error_rate || 0),
           abandon_rate: Number(item.abandon_rate || 0),
           spam_pressure_rate: Number(item.spam_pressure_rate || 0),

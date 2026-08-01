@@ -1,11 +1,14 @@
 {
-  "generated_at": "2026-08-01T16:35:11.064Z",
+  "generated_at": "2026-08-01T16:50:20.620Z",
   "status": "passed",
-  "variant_count": 3,
+  "variant_count": 6,
   "variants": [
     "audit",
     "proof",
-    "speed"
+    "source-quality-direct",
+    "source-quality-intent",
+    "speed",
+    "standard"
   ],
   "missing": [],
   "safeguards": [

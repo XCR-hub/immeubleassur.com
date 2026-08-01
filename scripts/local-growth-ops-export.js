@@ -1,4 +1,4 @@
-﻿import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 
@@ -235,6 +235,9 @@ function sanitizeSourceQuality(report) {
       leads_db: number(summary.leads_db),
       hot_leads_db: number(summary.hot_leads_db),
       spam_blocks: number(summary.spam_blocks),
+      traffic_rescue_direct_shown: number(summary.traffic_rescue_direct_shown),
+      traffic_rescue_direct_clicks: number(summary.traffic_rescue_direct_clicks),
+      traffic_rescue_direct_click_rate: number(summary.traffic_rescue_direct_click_rate),
       session_to_lead_rate: number(summary.session_to_lead_rate),
       start_to_lead_rate: number(summary.start_to_lead_rate)
     },
@@ -252,6 +255,9 @@ function sanitizeSourceQuality(report) {
           traffic_rescue_shown: number(item.traffic_rescue_shown),
           traffic_rescue_clicks: number(item.traffic_rescue_clicks),
           traffic_rescue_click_rate: number(item.traffic_rescue_click_rate),
+          traffic_rescue_direct_shown: number(item.traffic_rescue_direct_shown),
+          traffic_rescue_direct_clicks: number(item.traffic_rescue_direct_clicks),
+          traffic_rescue_direct_click_rate: number(item.traffic_rescue_direct_click_rate),
           spam_pressure_rate: number(item.spam_pressure_rate)
         }))
       : [],

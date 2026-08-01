@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T16:35:03.586Z",
+  "generated_at": "2026-08-01T16:50:04.742Z",
   "status": "passed",
   "success": true,
   "attention_required": false,
@@ -14,7 +14,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T12:11:38.540Z",
-      "age_minutes": 263.4,
+      "age_minutes": 278.4,
       "summary": {
         "ok": 5,
         "failed": 0,
@@ -28,7 +28,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T12:11:38.761Z",
-      "age_minutes": 263.4,
+      "age_minutes": 278.4,
       "summary": {
         "open_leads": 0,
         "due_now": 0,
@@ -61,7 +61,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T12:11:38.913Z",
-      "age_minutes": 263.4,
+      "age_minutes": 278.4,
       "summary": {
         "lookback_days": 30,
         "leads_24h": 0,
@@ -85,7 +85,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T13:51:35.288Z",
-      "age_minutes": 163.5,
+      "age_minutes": 178.5,
       "summary": {
         "lookback_days": 30,
         "page_views": 0,
@@ -113,7 +113,7 @@
       "status": "no-data",
       "success": true,
       "attention_required": false,
-      "generated_at": "2026-08-01T16:35:03.223Z",
+      "generated_at": "2026-08-01T16:50:04.296Z",
       "age_minutes": 0,
       "summary": {
         "lookback_days": 30,
@@ -141,7 +141,7 @@
       "status": "passed",
       "success": true,
       "attention_required": false,
-      "generated_at": "2026-08-01T16:34:39.702Z",
+      "generated_at": "2026-08-01T16:49:38.284Z",
       "age_minutes": 0.4,
       "summary": {
         "lookback_days": 0,
@@ -153,6 +153,9 @@
         "leads_db": 0,
         "hot_leads_db": 0,
         "spam_blocks": 0,
+        "traffic_rescue_direct_shown": 0,
+        "traffic_rescue_direct_clicks": 0,
+        "traffic_rescue_direct_click_rate": 0,
         "session_to_lead_rate": 0,
         "start_to_lead_rate": 0
       },
@@ -165,7 +168,7 @@
       "success": true,
       "attention_required": false,
       "generated_at": "2026-08-01T14:12:14.858Z",
-      "age_minutes": 142.8,
+      "age_minutes": 157.8,
       "summary": {
         "total_opportunities": 0,
         "open_opportunities": 0,

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T16:34:39.702Z",
+  "generated_at": "2026-08-01T16:49:38.284Z",
   "status": "passed",
   "success": true,
   "attention_required": false,
@@ -13,6 +13,9 @@
     "leads_db": 0,
     "hot_leads_db": 0,
     "spam_blocks": 0,
+    "traffic_rescue_direct_shown": 0,
+    "traffic_rescue_direct_clicks": 0,
+    "traffic_rescue_direct_click_rate": 0,
     "session_to_lead_rate": 0,
     "start_to_lead_rate": 0
   },

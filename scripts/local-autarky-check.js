@@ -1,4 +1,4 @@
-﻿import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const required = [
   ["package.json", "serve:local"],
@@ -39,9 +39,11 @@ const required = [
   ["scripts/local-source-quality-monitor.js", "LOCAL_SOURCE_QUALITY_REPORT"],
   ["scripts/local-source-quality-monitor.js", "aggregate-source-metrics-only"],
   ["scripts/local-source-quality-monitor.js", "traffic_rescue_click_rate"],
+  ["scripts/local-source-quality-monitor.js", "traffic_rescue_direct_click_rate"],
   ["scripts/local-growth-ops-export.js", "LOCAL_GROWTH_OPS_RUNTIME_ASSET"],
   ["scripts/local-growth-ops-export.js", "LOCAL_RUNTIME_ASSETS_ROOT"],
   ["scripts/local-growth-ops-export.js", "--runtime-only"],
+  ["scripts/local-growth-ops-export.js", "traffic_rescue_direct_click_rate"],
   ["scripts/local-conversion-action-sync.js", "Conversion action sync"],
   ["scripts/local-conversion-action-sync.js", "seo_opportunities"],
   ["scripts/local-conversion-action-sync.js", "LOCAL_CONVERSION_ACTION_SYNC_REPORT"],
@@ -59,6 +61,10 @@ const required = [
   ["scripts/local-seo-backlog-monitor.js", "urgency_selects"],
   ["public/assets/app.js", "traffic_without_click_shown"],
   ["public/assets/app.js", "source-quality-homepage-gap"],
+  ["public/assets/app.js", "source-quality-direct"],
+  ["public/assets/app.js", "rescue_variant"],
+  ["public/assets/app.js", "defaultUrgency"],
+  ["public/assets/styles.css", ".traffic-no-click-rescue[data-variant=\"source-quality-direct\"]"],
   ["public/assets/app.js", "source_origin"],
   ["public/assets/app.js", "traffic-no-click-rescue"],
   ["public/assets/app.js", "bindHeroIntentAccelerator"],
@@ -120,6 +126,7 @@ const required = [
   ["functions/api/admin/runtime-health.js", "sanitizeIntentConversionReport"],
   ["functions/api/admin/runtime-health.js", "LOCAL_SOURCE_QUALITY_REPORT"],
   ["functions/api/admin/runtime-health.js", "sanitizeSourceQualityReport"],
+  ["functions/api/admin/runtime-health.js", "traffic_rescue_direct_click_rate"],
   ["functions/api/admin/runtime-health.js", "LOCAL_SEO_BACKLOG_REPORT"],
   ["functions/api/admin/runtime-health.js", "qualified_source_count"],
   ["functions/api/admin/runtime-health.js", "top_qualified_source_sessions"],

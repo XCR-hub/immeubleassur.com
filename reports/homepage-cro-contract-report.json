@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-01T16:35:11.600Z",
+  "generated_at": "2026-08-01T16:50:21.659Z",
   "status": "passed",
-  "checks_required": 20,
+  "checks_required": 23,
   "checks_missing": [],
   "required_events": [
     "risk_router_select",
@@ -20,11 +20,13 @@
     "router_prefill_runtime": true,
     "callback_short_form": true,
     "turnstile_visible": true,
-    "router_status_visible": true
+    "router_status_visible": true,
+    "source_quality_direct_variant": true
   },
   "safeguards": [
     "homepage-traffic-can-start-form-without-navigation",
     "homepage-direct-traffic-rescue-adapts-to-source-quality",
+    "homepage-direct-rescue-has-measurable-variant",
     "router-prefills-full-form",
     "express-callback-remains-visible",
     "turnstile-remains-on-homepage-forms",
