@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T13:16:03.418Z",
+  "generated_at": "2026-08-01T13:23:32.418Z",
   "status": "passed",
   "pages_checked": 186,
   "indexable_pages": 180,
@@ -77,8 +77,8 @@
     },
     {
       "path": "assets/app.js",
-      "bytes": 116493,
-      "kb": 113.8,
+      "bytes": 116911,
+      "kb": 114.2,
       "budget_bytes": 143360,
       "budget_kb": 140,
       "ok": true

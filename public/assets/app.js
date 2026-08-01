@@ -2101,7 +2101,7 @@ async function submitInstantCallback(event) {
   if (validation.message) {
     instantCallbackStatus(formElement, validation.message, "error");
     markInstantCallbackInvalid(formElement, validation);
-    track("lead_submit_error", { ...validationTelemetry(payload, validation), source: "instant-callback" });
+    track("lead_submit_error", { ...validationTelemetry(payload, validation), source: payload.source || "instant-callback" });
     return;
   }
 
@@ -2109,7 +2109,7 @@ async function submitInstantCallback(event) {
   submitButton.disabled = true;
   instantCallbackStatus(formElement, "Envoi du rappel express...");
   const qualification = leadQualification(payload);
-  track("form_submit_attempt", { target: payload.need, label: payload.profile, source: "instant-callback", ...leadValueEventPayload(payload, qualification) });
+  track("form_submit_attempt", { target: payload.need, label: payload.profile, source: payload.source || "instant-callback", ...leadValueEventPayload(payload, qualification) });
 
   try {
     const response = await fetch("/api/leads", {
@@ -2134,6 +2134,7 @@ async function submitInstantCallback(event) {
         target: payload.need,
         label: result.duplicate_reason || "duplicate_recent",
         score: String(result.score || ""),
+        source: payload.source || payload.submission_mode || "full-lead",
         source_path: payload.source_path || "",
         content_bridge: payload.content_bridge || "",
         content_kind: payload.content_kind || ""
@@ -2155,7 +2156,7 @@ async function submitInstantCallback(event) {
         source_path: payload.source_path || "",
         content_bridge: payload.content_bridge || "",
         content_kind: payload.content_kind || "",
-        source: "instant-callback",
+        source: payload.source || "instant-callback",
         target: payload.need,
         label: payload.intent
       });
@@ -2163,13 +2164,13 @@ async function submitInstantCallback(event) {
     window.setTimeout(() => dismissTrafficNoClickRescue(""), 1800);
   } catch (error) {
     if (error.status && error.status < 500) {
-      track("lead_submit_rejected", { target: payload.need, label: error.message, status: String(error.status), challenge: error.result?.challenge || "", turnstile: error.result?.turnstile || "" });
+      track("lead_submit_rejected", { target: payload.need, label: error.message, source: payload.source || payload.submission_mode || "full-lead", status: String(error.status), challenge: error.result?.challenge || "", turnstile: error.result?.turnstile || "" });
       instantCallbackStatus(formElement, error.message || "Demande rejetee. Verifiez puis recommencez.", "error");
       return;
     }
     const fallbackReference = `LOCAL-${Date.now().toString(36).toUpperCase()}`;
     localBackup(payload, { success: false, reference: fallbackReference, error: error.message });
-    track("lead_submit_local_backup", { lead_reference: fallbackReference, target: payload.need, label: error.message, source: "instant-callback" });
+    track("lead_submit_local_backup", { lead_reference: fallbackReference, target: payload.need, label: error.message, source: payload.source || "instant-callback" });
     instantCallbackStatus(formElement, `Connexion API indisponible. Demande sauvegardee (${fallbackReference}).`, "error");
   } finally {
     resetTurnstileWidgets(formElement);
@@ -2397,6 +2398,7 @@ form?.addEventListener("submit", async (event) => {
         target: payload.need,
         label: result.duplicate_reason || "duplicate_recent",
         score: String(result.score || ""),
+        source: payload.source || payload.submission_mode || "full-lead",
         source_path: payload.source_path || "",
         content_bridge: payload.content_bridge || "",
         content_kind: payload.content_kind || ""
@@ -2425,13 +2427,13 @@ form?.addEventListener("submit", async (event) => {
     });
   } catch (error) {
     if (error.status && error.status < 500) {
-      track("lead_submit_rejected", { target: payload.need, label: error.message, status: String(error.status), challenge: error.result?.challenge || "", turnstile: error.result?.turnstile || "" });
+      track("lead_submit_rejected", { target: payload.need, label: error.message, source: payload.source || payload.submission_mode || "full-lead", status: String(error.status), challenge: error.result?.challenge || "", turnstile: error.result?.turnstile || "" });
       setStatus(error.message || "Demande rejetee. Verifiez les champs puis recommencez.", "error");
       return;
     }
     const fallbackReference = `LOCAL-${Date.now().toString(36).toUpperCase()}`;
     localBackup(payload, { success: false, reference: fallbackReference, error: error.message });
-    track("lead_submit_local_backup", { lead_reference: fallbackReference, target: payload.need, label: error.message });
+    track("lead_submit_local_backup", { lead_reference: fallbackReference, target: payload.need, label: error.message, source: payload.source || payload.submission_mode || "full-lead" });
     setStatus(
       `Connexion API indisponible en local. Dossier sauvegarde dans ce navigateur (${fallbackReference}).`,
       "error"
