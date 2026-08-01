@@ -527,7 +527,33 @@ function readIntentConversionMonitorReport() {
     recommendations: (report.recommendations || []).slice(0, 10)
   };
 }
-function buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality, cannibalization, intentDifferentiation, angleDifferentiation, internalLinkEquity, conversionIntelligence, croExperiment, leadIntentRouting, leadUrgencyFeedback, intentConversionMonitor }) {
+function readSearchIntelligenceReport() {
+  const report = readJsonFile(join(REPORT_DIR, "search-intelligence-report.json"), null);
+  if (!report) return { status: "missing", available: false, rankings: [], errors: [], priority_queries: [] };
+  const rankings = Array.isArray(report.rankings) ? report.rankings : [];
+  return {
+    status: report.status || "unknown",
+    available: true,
+    provider: report.provider || "unknown",
+    serp_enabled: report.serp_enabled === true,
+    confidence: report.confidence || "unknown",
+    generated_at: report.generated_at || "",
+    keywords_checked: report.keywords_checked || rankings.length,
+    measured_count: report.measured_count || rankings.filter((row) => row.measured === true).length,
+    fallback_count: report.fallback_count || rankings.filter((row) => row.measured !== true).length,
+    serp_error_count: report.serp_error_count || (Array.isArray(report.errors) ? report.errors.length : 0),
+    average_position: report.average_position || null,
+    measured_average_position: report.measured_average_position || null,
+    top3_count: report.top3_count || 0,
+    missing_count: report.missing_count || rankings.filter((row) => !row.position).length,
+    first_page_count: report.first_page_count || 0,
+    priority_queries: report.summary?.priority_queries || [],
+    competitor_domains: report.summary?.competitor_domains || [],
+    rankings: rankings.slice(0, 20),
+    errors: (report.errors || []).slice(0, 10)
+  };
+}
+function buildGoogleFeedbackLoop({ gsc, pagespeed, searchIntelligence, contentQuality, cannibalization, intentDifferentiation, angleDifferentiation, internalLinkEquity, conversionIntelligence, croExperiment, leadIntentRouting, leadUrgencyFeedback, intentConversionMonitor }) {
   const actions = [];
   if (!gsc?.configured) {
     actions.push({ priority: "setup", source: "google-search-console", action: "Configurer GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY et GOOGLE_SEARCH_CONSOLE_SITE_URL pour recuperer requetes, pages, CTR et position moyenne." });
@@ -539,6 +565,30 @@ function buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality, cannibalizati
     }
   }
 
+  if (searchIntelligence?.available) {
+    const lowConfidence = searchIntelligence.confidence === "low" || String(searchIntelligence.status || "").includes("fallback");
+    for (const row of (searchIntelligence.rankings || []).filter((item) => !item.position || Number(item.position) > 3).slice(0, 6)) {
+      actions.push({
+        priority: !row.position ? "high" : "medium",
+        source: "search-intelligence",
+        url: row.target_url,
+        query: row.query,
+        action: `${row.query}: ${row.position ? `position ${row.position}` : "absent du top 10"} sur ${row.target_url}. ${row.recommendation || "Renforcer contenu, preuves, FAQ, maillage et CTA devis."} Source ${row.data_source || searchIntelligence.provider}, confiance ${row.confidence || searchIntelligence.confidence}.`
+      });
+    }
+    if (searchIntelligence.serp_error_count > 0) {
+      actions.push({
+        priority: searchIntelligence.serp_error_count >= searchIntelligence.keywords_checked ? "fix" : "medium",
+        source: "serpapi",
+        action: `Controle SerpApi a corriger: ${searchIntelligence.serp_error_count}/${searchIntelligence.keywords_checked} requetes en erreur, statut ${searchIntelligence.status}. Les positions fallback restent utiles mais ne doivent pas etre traitees comme mesures Google.`
+      });
+    } else if (!gsc?.configured && searchIntelligence.top3_count > 0) {
+      actions.push({ priority: "medium", source: "search-intelligence", action: `Maintenir les ${searchIntelligence.top3_count} requete(s) top 3 detectees et surveiller CTR/conversion avec GSC des que le compte service est configure.` });
+    }
+    if (lowConfidence && searchIntelligence.priority_queries?.length) {
+      actions.push({ priority: "medium", source: "search-intelligence", action: `Priorites provisoires a confirmer par GSC ou SerpApi stable: ${searchIntelligence.priority_queries.slice(0, 6).join(", ")}.` });
+    }
+  }
   const inspectionRows = Array.isArray(gsc?.url_inspections?.rows) ? gsc.url_inspections.rows : [];
   for (const row of inspectionRows.filter(inspectionNeedsAction).slice(0, 8)) {
     actions.push({
@@ -619,9 +669,10 @@ function buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality, cannibalizati
     principles: ["measure-with-gsc", "improve-by-query-cluster", "protect-page-experience", "people-first-content", "measure-lead-quality"]
   };
 }
-function buildGoogleApiHealth({ gsc, pagespeed }) {
+function buildGoogleApiHealth({ gsc, pagespeed, searchIntelligence }) {
   const inspections = Array.isArray(gsc?.url_inspections?.rows) ? gsc.url_inspections.rows : [];
   const slowPages = (pagespeed?.rows || []).filter((row) => row.ok && Number(row.performance || 0) < 90);
+  const searchErrors = Number(searchIntelligence?.serp_error_count || 0);
   return {
     search_console_configured: Boolean(gsc?.configured),
     search_console_rows: Number(gsc?.rows_imported || 0),
@@ -633,13 +684,21 @@ function buildGoogleApiHealth({ gsc, pagespeed }) {
     sitemap_status: Number(gsc?.sitemap_submission?.status || 0),
     pagespeed_checked: Number(pagespeed?.checked || 0),
     pagespeed_slow_pages: slowPages.length,
-    status: gsc?.error || slowPages.length || inspections.filter(inspectionNeedsAction).length ? "action-required" : "monitoring"
+    search_intelligence_status: searchIntelligence?.status || "missing",
+    search_intelligence_provider: searchIntelligence?.provider || "unknown",
+    search_intelligence_confidence: searchIntelligence?.confidence || "unknown",
+    serp_keywords_checked: Number(searchIntelligence?.keywords_checked || 0),
+    serp_measured_count: Number(searchIntelligence?.measured_count || 0),
+    serp_fallback_count: Number(searchIntelligence?.fallback_count || 0),
+    serp_missing_count: Number(searchIntelligence?.missing_count || 0),
+    serp_error_count: searchErrors,
+    status: gsc?.error || slowPages.length || inspections.filter(inspectionNeedsAction).length || (searchIntelligence?.serp_enabled && searchErrors) ? "action-required" : "monitoring"
   };
 }
 function buildMarkdown(report) {
   const topIssues = report.opportunities.slice(0, 12).map((item, index) => `${index + 1}. ${item.type} - ${item.url || item.page || "global"} - score ${item.score || item.page_score || 0}: ${item.recommendation}`).join("\n");
   return `# SEO Autopilot ImmeubleAssur\n\nGenerated: ${report.generated_at}\n\n- Pages checked: ${report.pages_checked}\n- Average score: ${report.average_score}\n- Opportunities: ${report.opportunities.length}\n- GSC configured: ${Boolean(report.gsc?.configured)}\n- PageSpeed checked: ${report.pagespeed?.checked || 0}\n- Auto-fixes applied: ${report.auto_fix?.fixes_applied || 0}\n- Pages expanded: ${report.opportunity_expansion?.pages_expanded || 0}\n- Content quality: ${report.content_quality?.status || "unknown"} (${report.content_quality?.warning_count || 0} warnings)\n- Intent differentiation: ${report.intent_differentiation?.conflicts_addressed || 0} conflicts addressed\n- Angle differentiation: ${report.angle_differentiation?.pages_targeted || 0} pages, ${report.angle_differentiation?.noindex_pages || 0} noindex\n- Internal link equity: ${report.internal_link_equity?.active_internal_links || report.internal_link_equity?.links_added || 0} links on ${report.internal_link_equity?.pages_with_active_blocks || report.internal_link_equity?.pages_targeted || 0} pages\n- Cluster conversion bridges: ${report.cluster_conversion_bridge?.active_bridges || 0} active on ${report.cluster_conversion_bridge?.pages_targeted || 0} targeted pages\n- Conversion intelligence: ${report.conversion_intelligence?.average_money_score || 0}/100 money score, ${report.conversion_intelligence?.cluster_count || 0} clusters\n- CRO experiment: ${report.cro_experiment?.status || "unknown"} (${report.cro_experiment?.variant_count || 0} variants)
-- Lead friction: ${report.lead_friction?.action_count || 0} actions (${report.lead_friction?.verified_count || 0} verified)\n- Lead intent routing: ${report.lead_intent_routing?.status || "unknown"} (${report.lead_intent_routing?.active_bridges || 0} bridges)\n- Lead urgency feedback: ${report.lead_urgency_feedback?.status || "unknown"} (${report.lead_urgency_feedback?.urgent_pages || 0} urgent pages, ${report.lead_urgency_feedback?.missing_cta_count || 0} missing CTA)\n- Intent conversion monitor: ${report.intent_conversion_monitor?.status || "unknown"} (${report.intent_conversion_monitor?.summary?.intents_with_leads || 0}/${report.intent_conversion_monitor?.summary?.intent_count || 0} intents with leads)\n- Google feedback actions: ${report.google_feedback_loop?.actions?.length || 0}\n- URL inspections: ${report.google_api_health?.url_inspection_checked || 0} checked, ${report.google_api_health?.url_inspection_needs_action || 0} to review\n- Sitemap API: ${report.google_api_health?.sitemap_submitted ? "submitted" : "not submitted"}\n\n## Top actions\n\n${topIssues || "No blocking issue detected."}\n`;
+- Lead friction: ${report.lead_friction?.action_count || 0} actions (${report.lead_friction?.verified_count || 0} verified)\n- Lead intent routing: ${report.lead_intent_routing?.status || "unknown"} (${report.lead_intent_routing?.active_bridges || 0} bridges)\n- Lead urgency feedback: ${report.lead_urgency_feedback?.status || "unknown"} (${report.lead_urgency_feedback?.urgent_pages || 0} urgent pages, ${report.lead_urgency_feedback?.missing_cta_count || 0} missing CTA)\n- Intent conversion monitor: ${report.intent_conversion_monitor?.status || "unknown"} (${report.intent_conversion_monitor?.summary?.intents_with_leads || 0}/${report.intent_conversion_monitor?.summary?.intent_count || 0} intents with leads)\n- Search intelligence: ${report.search_intelligence?.status || "unknown"} (${report.search_intelligence?.top3_count || 0} top 3, ${report.search_intelligence?.missing_count || 0} absentes, confiance ${report.search_intelligence?.confidence || "unknown"})\n- Google feedback actions: ${report.google_feedback_loop?.actions?.length || 0}\n- URL inspections: ${report.google_api_health?.url_inspection_checked || 0} checked, ${report.google_api_health?.url_inspection_needs_action || 0} to review\n- Sitemap API: ${report.google_api_health?.sitemap_submitted ? "submitted" : "not submitted"}\n\n## Top actions\n\n${topIssues || "No blocking issue detected."}\n`;
 }
 
 async function run() {
@@ -668,13 +727,15 @@ async function run() {
   const leadIntentRouting = readLeadIntentRoutingReport();
   const leadUrgencyFeedback = readLeadUrgencyFeedbackReport();
   const intentConversionMonitor = readIntentConversionMonitorReport();
-  const googleFeedbackLoop = buildGoogleFeedbackLoop({ gsc, pagespeed, contentQuality, cannibalization, intentDifferentiation, angleDifferentiation, internalLinkEquity, conversionIntelligence, croExperiment, leadIntentRouting, leadUrgencyFeedback, intentConversionMonitor });
-  const googleApiHealth = buildGoogleApiHealth({ gsc, pagespeed });
+  const searchIntelligence = readSearchIntelligenceReport();
+  const googleFeedbackLoop = buildGoogleFeedbackLoop({ gsc, pagespeed, searchIntelligence, contentQuality, cannibalization, intentDifferentiation, angleDifferentiation, internalLinkEquity, conversionIntelligence, croExperiment, leadIntentRouting, leadUrgencyFeedback, intentConversionMonitor });
+  const googleApiHealth = buildGoogleApiHealth({ gsc, pagespeed, searchIntelligence });
   const opportunities = [...issueOpportunities, ...contentGaps, ...gscOpps].sort((a, b) => (b.score || 0) - (a.score || 0));
-  const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, auto_fix: autoFix, opportunity_expansion: opportunityExpansion, content_quality: contentQuality, cannibalization, intent_differentiation: intentDifferentiation, angle_differentiation: angleDifferentiation, internal_link_equity: internalLinkEquity, cluster_conversion_bridge: clusterConversionBridge, conversion_intelligence: conversionIntelligence, cro_experiment: croExperiment, lead_friction: leadFriction, lead_intent_routing: leadIntentRouting, lead_urgency_feedback: leadUrgencyFeedback, intent_conversion_monitor: intentConversionMonitor, google_feedback_loop: googleFeedbackLoop, google_api_health: googleApiHealth, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", url_inspection: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --url-inspection", sitemaps_api: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --submit-sitemap", ga4_measurement_protocol: "GA4_MEASUREMENT_ID + GA4_API_SECRET cote serveur local; GA4_MEASUREMENT_ID au build pour le client gtag", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals", "no AI-detection evasion content", "GA4 server-side generate_lead event when configured", "cannibalization watchlist protects primary search intents", "visible intent differentiation avoids hidden keyword stuffing", "angle differentiation uses visible content and noindex consolidation for duplicates", "internal link equity uses visible contextual links only", "cluster conversion bridges use visible CTAs only", "lead intent routing keeps visible SEO CTAs measurable through form, API and GA4", "lead urgency feedback keeps urgent pages routed to visible quote paths", "intent conversion monitor uses first-party local SQLite events only"] };
+  const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, auto_fix: autoFix, opportunity_expansion: opportunityExpansion, content_quality: contentQuality, cannibalization, intent_differentiation: intentDifferentiation, angle_differentiation: angleDifferentiation, internal_link_equity: internalLinkEquity, cluster_conversion_bridge: clusterConversionBridge, conversion_intelligence: conversionIntelligence, cro_experiment: croExperiment, lead_friction: leadFriction, lead_intent_routing: leadIntentRouting, lead_urgency_feedback: leadUrgencyFeedback, intent_conversion_monitor: intentConversionMonitor, search_intelligence: searchIntelligence, google_feedback_loop: googleFeedbackLoop, google_api_health: googleApiHealth, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", serpapi_positions: "SERP_API_KEY via scripts/search-intelligence.js --serp", url_inspection: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --url-inspection", sitemaps_api: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --submit-sitemap", ga4_measurement_protocol: "GA4_MEASUREMENT_ID + GA4_API_SECRET cote serveur local; GA4_MEASUREMENT_ID au build pour le client gtag", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals",
+    "SerpApi ranking feedback is labelled measured, mixed or fallback before use", "no AI-detection evasion content", "GA4 server-side generate_lead event when configured", "cannibalization watchlist protects primary search intents", "visible intent differentiation avoids hidden keyword stuffing", "angle differentiation uses visible content and noindex consolidation for duplicates", "internal link equity uses visible contextual links only", "cluster conversion bridges use visible CTAs only", "lead intent routing keeps visible SEO CTAs measurable through form, API and GA4", "lead urgency feedback keeps urgent pages routed to visible quote paths", "intent conversion monitor uses first-party local SQLite events only"] };
   writeFileSync(join(REPORT_DIR, "seo-autopilot-report.json"), JSON.stringify(report, null, 2), "utf8");
   writeFileSync(join(REPORT_DIR, "seo-autopilot-report.md"), buildMarkdown(report), "utf8");
-  const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, opportunity_expansion: report.opportunity_expansion, content_quality: report.content_quality, cannibalization: report.cannibalization, intent_differentiation: report.intent_differentiation, angle_differentiation: report.angle_differentiation, internal_link_equity: report.internal_link_equity, cluster_conversion_bridge: report.cluster_conversion_bridge, conversion_intelligence: report.conversion_intelligence, cro_experiment: report.cro_experiment, lead_friction: report.lead_friction, lead_intent_routing: report.lead_intent_routing, lead_urgency_feedback: report.lead_urgency_feedback, intent_conversion_monitor: report.intent_conversion_monitor, google_feedback_loop: report.google_feedback_loop, google_api_health: report.google_api_health, connectors: report.api_connectors, compliance: report.compliance };
+  const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, opportunity_expansion: report.opportunity_expansion, content_quality: report.content_quality, cannibalization: report.cannibalization, intent_differentiation: report.intent_differentiation, angle_differentiation: report.angle_differentiation, internal_link_equity: report.internal_link_equity, cluster_conversion_bridge: report.cluster_conversion_bridge, conversion_intelligence: report.conversion_intelligence, cro_experiment: report.cro_experiment, lead_friction: report.lead_friction, lead_intent_routing: report.lead_intent_routing, lead_urgency_feedback: report.lead_urgency_feedback, intent_conversion_monitor: report.intent_conversion_monitor, search_intelligence: report.search_intelligence, google_feedback_loop: report.google_feedback_loop, google_api_health: report.google_api_health, connectors: report.api_connectors, compliance: report.compliance };
   writeFileSync(join(PUBLIC_DIR, "assets", "seo-autopilot-latest.json"), JSON.stringify(publicReport, null, 2), "utf8");
   console.log(`SEO autopilot checked ${report.pages_checked} pages, average score ${report.average_score}, opportunities ${report.opportunities.length}.`);
 }

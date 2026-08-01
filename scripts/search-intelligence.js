@@ -72,6 +72,9 @@ async function serpRanking(keyword) {
   return {
     ...keyword,
     status: data.search_metadata?.status || "unknown",
+    data_source: "serpapi",
+    confidence: "measured",
+    measured: true,
     position: found?.position || null,
     found_url: found?.link || "",
     top_domains: [...new Set(normalized.map((item) => item.domain).filter(Boolean).filter((domain) => domain !== DOMAIN))].slice(0, 5),
@@ -86,6 +89,9 @@ function fallbackRanking(keyword, index) {
   return {
     ...keyword,
     status: "local-estimate",
+    data_source: "local-estimate",
+    confidence: "low",
+    measured: false,
     position,
     found_url: position ? `${SITE}${keyword.target_url}` : "",
     top_domains: ["comparateur-assurance.fr", "assurland.com", "meilleurtaux.com"].slice(0, index % 3 + 1),
@@ -110,7 +116,7 @@ async function collectRankings() {
       continue;
     }
     try { rankings.push(await serpRanking(keyword)); }
-    catch (error) { errors.push({ query: keyword.query, error: error.message || "serp failed" }); rankings.push({ ...fallbackRanking(keyword, index), status: "serp-error" }); }
+    catch (error) { errors.push({ query: keyword.query, error: error.message || "serp failed" }); rankings.push({ ...fallbackRanking(keyword, index), status: "serp-error", data_source: "local-fallback", error: error.message || "serp failed" }); }
   }
   return { rankings, errors };
 }
@@ -125,22 +131,35 @@ async function run() {
   ensureDir(join(OUT, "assets"));
   const { rankings, errors } = await collectRankings();
   const found = rankings.filter((row) => Number.isFinite(row.position));
+  const measured = rankings.filter((row) => row.measured === true);
+  const measuredFound = measured.filter((row) => Number.isFinite(row.position));
+  const estimated = rankings.filter((row) => row.measured !== true);
   const average = found.length ? found.reduce((sum, row) => sum + row.position, 0) / found.length : null;
+  const measuredAverage = measuredFound.length ? measuredFound.reduce((sum, row) => sum + row.position, 0) / measuredFound.length : null;
   const enriched = rankings.map((row) => ({ ...row, recommendation: recommendation(row) }));
+  const status = ENABLE_SERP && errors.length === rankings.length ? "serpapi-unavailable-fallback" : errors.length && ENABLE_SERP ? "completed-with-fallback" : ENABLE_SERP ? "completed" : "skipped-no-serp-key";
+  const confidence = measured.length && estimated.length ? "mixed" : measured.length ? "measured" : "low";
   const report = {
     run_id: `serp-${today().replaceAll("-", "")}-${hash(JSON.stringify(enriched), 8)}`,
     generated_at: new Date().toISOString(),
     provider: ENABLE_SERP ? "serpapi" : "local-estimate",
-    status: errors.length && ENABLE_SERP ? "completed-with-errors" : ENABLE_SERP ? "completed" : "skipped-no-serp-key",
+    status,
     serp_enabled: ENABLE_SERP,
+    confidence,
     keywords_checked: enriched.length,
+    measured_count: measured.length,
+    fallback_count: estimated.length,
+    serp_error_count: errors.length,
     average_position: average,
+    measured_average_position: measuredAverage,
     first_page_count: found.filter((row) => row.position <= 10).length,
     top3_count: found.filter((row) => row.position <= 3).length,
     missing_count: enriched.filter((row) => !row.position).length,
     rankings: enriched,
     summary: {
       priority_queries: enriched.filter((row) => !row.position || row.position > 3).slice(0, 6).map((row) => row.query),
+      measured_queries: measured.map((row) => row.query).slice(0, 10),
+      fallback_queries: estimated.map((row) => row.query).slice(0, 10),
       competitor_domains: [...new Set(enriched.flatMap((row) => row.top_domains || []))].slice(0, 12),
       next_actions: enriched.map((row) => row.recommendation).slice(0, 8)
     },

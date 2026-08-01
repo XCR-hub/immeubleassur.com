@@ -1571,6 +1571,7 @@ async function loadSeo() {
 
   const [publicReport, antifraudReport, turnstileReport] = await Promise.all([fetchPublicSeoReport(), fetchOptionalAsset("/assets/local-antifraud-latest.json"), fetchOptionalAsset("/assets/turnstile-hybrid-latest.json")]);
   const googleHealth = publicReport.google_api_health || {};
+  const searchIntelligence = publicReport.search_intelligence || {};
   const funnel = apiResult?.conversion_funnel || {};
   const leadStats = apiResult?.lead_stats || {};
   const expansion = publicReport.opportunity_expansion || {};
@@ -1585,6 +1586,7 @@ async function loadSeo() {
       metricCard("Score moyen", String(publicReport.average_score || 0)),
       metricCard("Opportunites", String(publicReport.opportunities_count || 0)),
       metricCard("Google feedback", String(publicReport.google_feedback_loop?.actions?.length || 0), publicReport.google_feedback_loop?.status || "monitoring"),
+      metricCard("Positions SEO", searchIntelligence.status || "-", `${searchIntelligence.top3_count || 0} top 3 / ${searchIntelligence.missing_count || 0} abs., ${searchIntelligence.confidence || "confiance"}`),
       metricCard("Search Console", `${googleHealth.search_console_rows || 0}`, `${googleHealth.query_clusters || 0} cluster(s)`),
       metricCard("URL Inspection", `${googleHealth.url_inspection_checked || 0}`, `${googleHealth.url_inspection_needs_action || 0} a revoir`),
       metricCard("Sitemap Google", googleHealth.sitemap_submitted ? "OK" : "-", googleHealth.sitemap_status ? `statut ${googleHealth.sitemap_status}` : "en attente"),
@@ -1622,6 +1624,7 @@ async function loadSeo() {
 
   const fallbackRows = [
     ...(publicReport.google_feedback_loop?.actions || []).map((item) => ({ score: item.priority === "high" ? 90 : item.priority === "fix" ? 88 : item.priority === "setup" ? 80 : 55, opportunity_type: `google-${item.source || "feedback"}`, url: item.url || item.cluster || "google", query: item.priority || "monitoring", recommendation: item.action || "Mesurer et optimiser." })),
+    ...(publicReport.search_intelligence?.rankings || []).filter((item) => !item.position || Number(item.position) > 3).slice(0, 6).map((item) => ({ score: item.position ? 70 : 86, opportunity_type: `search-intelligence-${item.confidence || "signal"}`, url: item.target_url || "seo", query: item.query || "requete", recommendation: item.recommendation || "Renforcer contenu, preuves, FAQ, maillage et CTA devis." })),
     ...(antifraudReport.status === "passed" ? [] : [{ score: 82, opportunity_type: "anti-spam-local", url: "formulaires", query: "configuration", recommendation: "Verifier le honeypot, les signaux JS et le jeton de session local sur tous les formulaires." }]),
     ...(publicReport.conversion_intelligence?.actions || []).map((item) => ({ score: item.score || 0, opportunity_type: "conversion-intelligence", url: item.url || item.cluster || "money-page", query: item.priority || item.cluster || "lead", recommendation: item.action || "Renforcer le passage vers devis qualifie." })),
     ...(apiResult?.lead_actions || []),

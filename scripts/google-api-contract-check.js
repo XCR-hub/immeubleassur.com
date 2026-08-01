@@ -9,7 +9,7 @@ const expectations = [
   },
   {
     file: "scripts/search-intelligence.js",
-    snippets: ["loadDefaultEnvFiles", "SERP_API_KEY", "--serp"]
+    snippets: ["loadDefaultEnvFiles", "SERP_API_KEY", "--serp", "measured_count", "fallback_count", "serpapi-unavailable-fallback"]
   },
   {
     file: "scripts/media-autopilot.js",
@@ -33,12 +33,16 @@ const expectations = [
       "google_api_health",
       "searchconsole.googleapis.com/v1/urlInspection/index:inspect",
       "sitemap_submission",
-      "sitemaps/${encodeURIComponent(sitemapUrl)}"
+      "sitemaps/${encodeURIComponent(sitemapUrl)}",
+      "readSearchIntelligenceReport",
+      "search_intelligence",
+      "serpapi_positions",
+      "serp_error_count"
     ]
   },
   {
     file: "public/assets/admin.js",
-    snippets: ["Search Console", "URL Inspection", "Sitemap Google", "google_api_health"]
+    snippets: ["Search Console", "URL Inspection", "Sitemap Google", "google_api_health", "search_intelligence"]
   },
   {
     file: "package.json",

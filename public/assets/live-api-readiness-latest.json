@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T10:38:43.895Z",
+  "generated_at": "2026-08-01T13:38:50.748Z",
   "status": "partial",
   "connectors_checked": 8,
   "ready_count": 5,
@@ -32,7 +32,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-01T10:27:22.687Z",
+        "generated_at": "2026-08-01T11:13:49.170Z",
         "status": "passed",
         "summary": {
           "provider": "cloudflare-turnstile",
@@ -70,8 +70,8 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-01T09:57:41.741Z",
-        "status": "completed-with-errors",
+        "generated_at": "2026-08-01T13:38:40.529Z",
+        "status": "serpapi-unavailable-fallback",
         "summary": {
           "provider": "serpapi",
           "mode": "",
@@ -199,13 +199,13 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-31T01:52:32.399Z",
+        "generated_at": "2026-08-01T13:36:56.746Z",
         "status": "local-only",
         "summary": {
           "provider": "",
           "mode": "local-only",
           "configured": false,
-          "pages_checked": 176,
+          "pages_checked": 185,
           "forms_detected": 0,
           "forms_instrumented": 0
         }
@@ -239,13 +239,13 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-07-31T01:52:32.399Z",
+        "generated_at": "2026-08-01T13:36:56.746Z",
         "status": "local-only",
         "summary": {
           "provider": "",
           "mode": "local-only",
           "configured": false,
-          "pages_checked": 176,
+          "pages_checked": 185,
           "forms_detected": 0,
           "forms_instrumented": 0
         }

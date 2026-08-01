@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T13:23:51.190Z",
+  "generated_at": "2026-08-01T13:39:34.670Z",
   "action_count": 1000,
   "verified_count": 1000,
   "watch_count": 0,
@@ -11,7 +11,7 @@
     "content_bridge": true,
     "admin_friction": true,
     "event_contract": true,
-    "seo_quality": 100,
+    "seo_quality": 95,
     "money_pages": 118
   },
   "top_dimensions": [

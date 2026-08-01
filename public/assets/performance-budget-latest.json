@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T13:23:32.418Z",
+  "generated_at": "2026-08-01T13:39:25.159Z",
   "status": "passed",
   "pages_checked": 186,
   "indexable_pages": 180,
@@ -85,8 +85,8 @@
     },
     {
       "path": "assets/admin.js",
-      "bytes": 90752,
-      "kb": 88.6,
+      "bytes": 91452,
+      "kb": 89.3,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true
@@ -103,8 +103,8 @@
   "public_report_assets": [
     {
       "path": "assets/seo-autopilot-latest.json",
-      "bytes": 79009,
-      "kb": 77.2,
+      "bytes": 89052,
+      "kb": 87,
       "ok": true
     },
     {
@@ -121,8 +121,14 @@
     },
     {
       "path": "assets/live-api-readiness-latest.json",
-      "bytes": 10104,
+      "bytes": 10111,
       "kb": 9.9,
+      "ok": true
+    },
+    {
+      "path": "assets/search-intelligence-latest.json",
+      "bytes": 10086,
+      "kb": 9.8,
       "ok": true
     },
     {
@@ -144,12 +150,6 @@
       "ok": true
     },
     {
-      "path": "assets/search-intelligence-latest.json",
-      "bytes": 8363,
-      "kb": 8.2,
-      "ok": true
-    },
-    {
       "path": "assets/editorial-autopilot-latest.json",
       "bytes": 6252,
       "kb": 6.1,
@@ -157,7 +157,7 @@
     },
     {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5107,
+      "bytes": 5097,
       "kb": 5,
       "ok": true
     },
