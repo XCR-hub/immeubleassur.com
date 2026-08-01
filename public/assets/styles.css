@@ -1862,6 +1862,12 @@ details:hover {
   outline: none;
 }
 
+.traffic-no-click-intents button.is-active {
+  border-color: rgba(15, 118, 110, .65);
+  background: #ecfdf5;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, .12);
+}
+
 .traffic-no-click-intents strong,
 .traffic-no-click-intents span {
   display: block;

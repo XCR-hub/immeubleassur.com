@@ -27,6 +27,8 @@ let trafficNoClickShown = false;
 let trafficNoClickTimer = 0;
 let trafficNoClickSelectedUrgency = "standard";
 let instantCallbackStarted = false;
+let quoteRouterStallTimer = 0;
+let quoteRouterContinued = false;
 let botSignalFirstInteractionAt = 0;
 let botSignalInteractionCount = 0;
 let botSignalPointer = false;
@@ -1385,7 +1387,10 @@ function renderQuoteFastTrack(shell, key, shouldTrack = false) {
     nudgeCta.href = row.href;
     nudgeCta.dataset.intent = key;
   }
-  if (shouldTrack) track("quote_router_select", { target: key, label: row.title, route: row.href, source: "quote-fast-track" });
+  if (shouldTrack) {
+    track("quote_router_select", { target: key, label: row.title, route: row.href, source: "quote-fast-track" });
+    scheduleQuoteRouterStallRescue("quote-fast-track-select", key);
+  }
 }
 
 function quoteFastTrackApply(row, messageOverride = "") {
@@ -1394,9 +1399,27 @@ function quoteFastTrackApply(row, messageOverride = "") {
   return true;
 }
 
+function clearQuoteRouterStallTimer() {
+  if (!quoteRouterStallTimer) return;
+  window.clearTimeout(quoteRouterStallTimer);
+  quoteRouterStallTimer = 0;
+}
+
+function scheduleQuoteRouterStallRescue(source, key, delay = 7600) {
+  if (!isHomepage() || formStarted || formSubmitted || sessionStorage.getItem(trafficNoClickDismissKey) === "true") return;
+  clearQuoteRouterStallTimer();
+  quoteRouterStallTimer = window.setTimeout(() => {
+    quoteRouterStallTimer = 0;
+    if (quoteRouterContinued || formStarted || formSubmitted) return;
+    showTrafficNoClickRescue("quote-router-stall", { ignoreInteraction: true, defaultIntent: key, source });
+  }, delay);
+}
+
 function continueQuoteFastTrack(shell, rows, initial, event, source = "quote-fast-track") {
   const key = shell.dataset.activeIntent || initial;
   const row = rows[key] || rows.immeuble;
+  quoteRouterContinued = true;
+  clearQuoteRouterStallTimer();
   track("quote_router_continue", { target: key, label: row.title, route: row.href, mode: form ? "prefill" : "navigate", source });
   if (!quoteFastTrackApply(row)) return false;
   event?.preventDefault();
@@ -1420,6 +1443,7 @@ function observeQuoteFastTrackNudge(shell, initial) {
     const key = shell.dataset.activeIntent || initial;
     const row = rows[key] || rows.immeuble;
     track("quote_router_view", { target: key, label: row.title, route: row.href, source: "quote-fast-nudge", mode: "nudge" });
+    scheduleQuoteRouterStallRescue("quote-fast-nudge", key, 6200);
   };
   if (!("IntersectionObserver" in window)) {
     window.setTimeout(markShown, 2800);
@@ -1447,6 +1471,7 @@ function mountQuoteFastTrack() {
   anchor.insertAdjacentElement("afterend", shell);
   renderQuoteFastTrack(shell, initial);
   track("quote_router_view", { target: initial, label: window.location.pathname });
+  scheduleQuoteRouterStallRescue("quote-fast-track", initial, 11500);
   shell.querySelectorAll("[data-quote-fast-option]").forEach((button) => {
     button.addEventListener("click", () => renderQuoteFastTrack(shell, button.dataset.quoteFastOption, true));
   });
@@ -1737,6 +1762,8 @@ function syncHeroFastTrack(key, row) {
 function startHeroPrefill(key, row, source, targetLabel, options = {}) {
   trafficNoClickInteracted = true;
   if (trafficNoClickTimer) window.clearTimeout(trafficNoClickTimer);
+  quoteRouterContinued = true;
+  clearQuoteRouterStallTimer();
   document.body.dataset.intent = key;
   quoteFastTrackApply(row, options.message || "");
   syncHeroFastTrack(key, row);
@@ -2154,6 +2181,19 @@ function setTrafficNoClickUrgency(panel, key, shouldTrack = true) {
   if (shouldTrack) track("traffic_without_click_urgency_select", trafficNoClickPayload("urgency", { urgency: selected, label: row.label, detail: row.text }));
 }
 
+function setTrafficNoClickIntent(panel, key, shouldTrack = true) {
+  const rows = trafficNoClickIntentRows();
+  const selected = rows[key] ? key : trafficNoClickIntentKey();
+  const row = rows[selected] || rows.immeuble;
+  panel.dataset.activeIntent = selected;
+  panel.querySelectorAll("[data-traffic-no-click-intent]").forEach((button) => {
+    const active = button.dataset.trafficNoClickIntent === selected;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+  if (shouldTrack) track("quote_router_select", { target: selected, label: row.title, route: row.href, source: "traffic-no-click-rescue" });
+}
+
 function startTrafficNoClickPrefill(key) {
   const rows = trafficNoClickIntentRows();
   const selected = rows[key] ? key : trafficNoClickIntentKey();
@@ -2163,6 +2203,8 @@ function startTrafficNoClickPrefill(key) {
   const urgencyRow = urgencyRows[urgency] || urgencyRows.standard;
   const rescuePayload = { urgency, urgency_label: urgencyRow.label, urgency_detail: urgencyRow.text, source: "traffic-no-click-rescue" };
   trafficNoClickInteracted = true;
+  quoteRouterContinued = true;
+  clearQuoteRouterStallTimer();
   track("traffic_without_click_quote_click", { ...trafficNoClickPayload("quote", rescuePayload), target: selected, label: row.title, route: row.href });
   track("quote_router_select", { target: selected, label: row.title, route: row.href, ...rescuePayload });
   dismissTrafficNoClickRescue("");
@@ -2181,13 +2223,14 @@ function focusHomepageQuoteForm() {
   return true;
 }
 
-function showTrafficNoClickRescue() {
-  if (trafficNoClickShown || trafficNoClickInteracted || formStarted || formSubmitted) return;
+function showTrafficNoClickRescue(reason = "shown", options = {}) {
+  const ignoreInteraction = options.ignoreInteraction === true;
+  if (trafficNoClickShown || (!ignoreInteraction && trafficNoClickInteracted) || formStarted || formSubmitted) return;
   if (!isHomepage() || sessionStorage.getItem(trafficNoClickDismissKey) === "true") return;
   if (document.querySelector(".traffic-no-click-rescue")) return;
   const rows = trafficNoClickIntentRows();
-  const defaultIntent = trafficNoClickIntentKey();
-  const intentButtons = Object.entries(rows).map(([key, row]) => `<button type="button" data-traffic-no-click-intent="${key}"><strong>${row.label}</strong><span>${row.title}</span></button>`).join("");
+  const defaultIntent = options.defaultIntent && rows[options.defaultIntent] ? options.defaultIntent : trafficNoClickIntentKey();
+  const intentButtons = Object.entries(rows).map(([key, row]) => `<button type="button" data-traffic-no-click-intent="${key}" aria-pressed="false"><strong>${row.label}</strong><span>${row.title}</span></button>`).join("");
   const urgencyButtons = Object.entries(trafficNoClickUrgencyRows()).map(([key, row]) => `<button type="button" data-traffic-no-click-urgency="${key}" aria-pressed="false"><strong>${row.label}</strong><span>${row.text}</span></button>`).join("");
   const siteKey = turnstileSiteKey();
   const turnstileHtml = siteKey ? `<div class="turnstile-field instant-callback-turnstile"><div class="cf-turnstile" data-sitekey="${siteKey}" data-theme="light" data-action="lead_form"></div></div>` : "";
@@ -2199,18 +2242,19 @@ function showTrafficNoClickRescue() {
   document.body.append(panel);
   trafficNoClickShown = true;
   bindInstantCallbackForm(panel);
+  setTrafficNoClickIntent(panel, defaultIntent, false);
   setTrafficNoClickUrgency(panel, trafficNoClickSelectedUrgency, false);
-  track("traffic_without_click_shown", trafficNoClickPayload("shown", { source: "instant-callback" }));
+  track("traffic_without_click_shown", trafficNoClickPayload(reason, { source: options.source || "instant-callback" }));
   panel.querySelector("[data-traffic-no-click-close]")?.addEventListener("click", () => dismissTrafficNoClickRescue("closed"));
   panel.querySelectorAll("[data-traffic-no-click-urgency]").forEach((button) => {
     button.addEventListener("click", () => setTrafficNoClickUrgency(panel, button.dataset.trafficNoClickUrgency || "standard"));
   });
   panel.querySelectorAll("[data-traffic-no-click-intent]").forEach((button) => {
-    button.addEventListener("click", () => startTrafficNoClickPrefill(button.dataset.trafficNoClickIntent || "immeuble"));
+    button.addEventListener("click", () => setTrafficNoClickIntent(panel, button.dataset.trafficNoClickIntent || "immeuble"));
   });
   panel.querySelector("[data-traffic-no-click-quote]")?.addEventListener("click", (event) => {
     event.preventDefault();
-    startTrafficNoClickPrefill(trafficNoClickIntentKey());
+    startTrafficNoClickPrefill(panel.dataset.activeIntent || trafficNoClickIntentKey());
   });
   panel.querySelector("[data-traffic-no-click-phone]")?.addEventListener("click", () => {
     trafficNoClickInteracted = true;
@@ -2219,15 +2263,25 @@ function showTrafficNoClickRescue() {
   });
 }
 
+function trafficNoClickConversionInteraction(event) {
+  const target = event?.target;
+  const control = target?.closest?.("#lead-form, .quote-fast-track, .hero-hot-quote, .hero-intent-grid, .hero-actions, .lead-action-bar, .traffic-no-click-rescue");
+  if (control) return true;
+  const link = target?.closest?.("a[href]");
+  const href = link?.getAttribute("href") || "";
+  return href.startsWith("tel:") || href.includes("/devis-") || href.includes("/audit-contrat-assurance-immeuble");
+}
+
 function bindTrafficNoClickRescue() {
   if (!isHomepage() || sessionStorage.getItem(trafficNoClickDismissKey) === "true") return;
-  const markInteraction = () => {
+  const markInteraction = (event) => {
+    if (!trafficNoClickConversionInteraction(event)) return;
     trafficNoClickInteracted = true;
     if (trafficNoClickTimer) window.clearTimeout(trafficNoClickTimer);
   };
-  document.addEventListener("click", markInteraction, { once: true, capture: true });
+  document.addEventListener("click", markInteraction, { capture: true });
   form?.addEventListener("focusin", markInteraction, { once: true });
-  trafficNoClickTimer = window.setTimeout(showTrafficNoClickRescue, 8500);
+  trafficNoClickTimer = window.setTimeout(() => showTrafficNoClickRescue("no-click", { source: "homepage-idle" }), 8500);
 }
 function bindGrowthTracking() {
   track("page_view", { target: document.title, label: currentLeadIntent() });
