@@ -1546,6 +1546,69 @@ details:hover {
   background: #ffffff;
 }
 
+.traffic-no-click-rescue {
+  background: #ffffff;
+  border: 1px solid rgba(15, 118, 110, .24);
+  border-radius: 8px;
+  bottom: 6.8rem;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, .16);
+  display: grid;
+  gap: 10px;
+  left: 1rem;
+  max-width: 390px;
+  padding: 18px;
+  position: fixed;
+  z-index: 47;
+}
+
+.traffic-no-click-rescue .eyebrow {
+  margin: 0;
+  padding-right: 24px;
+}
+
+.traffic-no-click-rescue strong,
+.traffic-no-click-rescue span {
+  display: block;
+}
+
+.traffic-no-click-rescue strong {
+  color: var(--navy);
+  font-size: 1.02rem;
+}
+
+.traffic-no-click-rescue span {
+  color: var(--muted);
+  font-size: .86rem;
+  line-height: 1.45;
+}
+
+.traffic-no-click-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.traffic-no-click-rescue .button {
+  min-height: 40px;
+  padding: .62rem .82rem;
+}
+
+.traffic-no-click-close {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 1rem;
+  height: 28px;
+  justify-content: center;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 28px;
+}
 .content-lead-bridge {
   background: #f8fcfb;
   border: 1px solid rgba(15, 118, 110, .22);
@@ -1689,10 +1752,12 @@ textarea:focus {
   }
 
   .form-rescue,
+  .traffic-no-click-rescue,
   .content-lead-bridge {
     grid-template-columns: 1fr;
   }
 
+  .traffic-no-click-rescue,
   .content-lead-bridge {
     bottom: 7.4rem;
     left: .75rem;
@@ -1700,11 +1765,14 @@ textarea:focus {
     right: .75rem;
   }
 
-  .form-rescue-actions {
+  .form-rescue-actions,
+  .traffic-no-click-actions,
+  .content-lead-bridge-actions {
     justify-content: stretch;
   }
 
   .form-rescue .button,
+  .traffic-no-click-rescue .button,
   .content-lead-bridge .button {
     flex: 1 1 150px;
     justify-content: center;
@@ -1713,11 +1781,13 @@ textarea:focus {
 }
 
 @media (max-width: 640px) {
+  .traffic-no-click-rescue,
   .content-lead-bridge {
     bottom: 8.2rem;
     padding: 15px;
   }
 
+  .traffic-no-click-actions,
   .content-lead-bridge-actions {
     display: grid;
     grid-template-columns: 1fr;

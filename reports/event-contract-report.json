@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T00:46:59.669Z",
+  "generated_at": "2026-08-01T01:26:09.888Z",
   "tracked_events": [
     "content_lead_bridge_dismissed",
     "content_lead_bridge_phone_click",
@@ -37,7 +37,11 @@
     "readiness_start",
     "readiness_update",
     "risk_router_select",
-    "scroll_depth"
+    "scroll_depth",
+    "traffic_without_click_dismissed",
+    "traffic_without_click_phone_click",
+    "traffic_without_click_quote_click",
+    "traffic_without_click_shown"
   ],
   "allowed_events": [
     "content_lead_bridge_dismissed",
@@ -78,7 +82,11 @@
     "readiness_start",
     "readiness_update",
     "risk_router_select",
-    "scroll_depth"
+    "scroll_depth",
+    "traffic_without_click_dismissed",
+    "traffic_without_click_phone_click",
+    "traffic_without_click_quote_click",
+    "traffic_without_click_shown"
   ],
   "missing": [],
   "unused_front_optional": [

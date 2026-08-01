@@ -332,7 +332,7 @@ function eventSourceQualityRows(database, limit) {
         ) AS intent,
         COUNT(DISTINCT COALESCE(NULLIF(session_id, ''), id)) AS sessions,
         SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END) AS page_views,
-        SUM(CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click') THEN 1 ELSE 0 END) AS cta_clicks,
+        SUM(CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click', 'traffic_without_click_quote_click', 'traffic_without_click_phone_click') THEN 1 ELSE 0 END) AS cta_clicks,
         SUM(CASE WHEN event_type = 'quote_router_continue' THEN 1 ELSE 0 END) AS quote_router_continues,
         SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts,
         SUM(CASE WHEN event_type = 'form_submit_attempt' THEN 1 ELSE 0 END) AS submit_attempts,
@@ -343,7 +343,7 @@ function eventSourceQualityRows(database, limit) {
         SUM(CASE WHEN event_type IN ('content_lead_bridge_quote_click', 'content_lead_bridge_phone_click') THEN 1 ELSE 0 END) AS bridge_clicks
       FROM site_events
       WHERE created_at >= datetime('now', '-30 days')
-        AND event_type IN ('page_view', 'cta_click', 'phone_click', 'email_click', 'quote_router_continue', 'form_start', 'form_submit_attempt', 'lead_submit_error', 'lead_form_abandoned', 'lead_created', 'content_lead_bridge_shown', 'content_lead_bridge_quote_click', 'content_lead_bridge_phone_click')
+        AND event_type IN ('page_view', 'cta_click', 'phone_click', 'email_click', 'traffic_without_click_shown', 'traffic_without_click_quote_click', 'traffic_without_click_phone_click', 'traffic_without_click_dismissed', 'quote_router_continue', 'form_start', 'form_submit_attempt', 'lead_submit_error', 'lead_form_abandoned', 'lead_created', 'content_lead_bridge_shown', 'content_lead_bridge_quote_click', 'content_lead_bridge_phone_click')
       GROUP BY source, intent
       ORDER BY leads_created DESC, submit_attempts DESC, form_starts DESC, cta_clicks DESC, sessions DESC
       LIMIT 1200

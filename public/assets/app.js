@@ -21,6 +21,10 @@ let formRescueDismissed = false;
 const contentBridgeDismissKey = "immeubleassur_content_bridge_dismissed";
 let contentLeadBridgeShown = false;
 let contentLeadBridgeDismissed = sessionStorage.getItem(contentBridgeDismissKey) === "true";
+const trafficNoClickDismissKey = "immeubleassur_traffic_no_click_dismissed";
+let trafficNoClickInteracted = false;
+let trafficNoClickShown = false;
+let trafficNoClickTimer = 0;
 let botSignalFirstInteractionAt = 0;
 let botSignalInteractionCount = 0;
 let botSignalPointer = false;
@@ -1559,6 +1563,77 @@ function bindBotSignalTracking() {
   form.addEventListener("keydown", () => noteBotInteraction("keyboard"), { passive: true });
 }
 
+function isHomepage() {
+  return window.location.pathname === "/" || window.location.pathname === "/index.html";
+}
+
+function trafficNoClickPayload(action) {
+  return {
+    target: action,
+    label: currentLeadIntent(),
+    source_path: currentPathWithQuery(),
+    content_kind: "homepage",
+    step: "traffic-without-click",
+    level: "homepage-rescue"
+  };
+}
+
+function dismissTrafficNoClickRescue(reason) {
+  const panel = document.querySelector(".traffic-no-click-rescue");
+  if (panel) panel.remove();
+  if (trafficNoClickTimer) window.clearTimeout(trafficNoClickTimer);
+  trafficNoClickTimer = 0;
+  sessionStorage.setItem(trafficNoClickDismissKey, "true");
+  if (reason) track("traffic_without_click_dismissed", trafficNoClickPayload(reason));
+}
+
+function focusHomepageQuoteForm() {
+  if (!form) return false;
+  if (!formStarted) {
+    formStarted = true;
+    track("form_start", { target: "traffic-no-click-rescue", label: currentLeadIntent() });
+  }
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+  const focusTarget = form.querySelector("input[name='name'], input[name='phone'], input[name='email']");
+  window.setTimeout(() => focusTarget?.focus(), 260);
+  return true;
+}
+
+function showTrafficNoClickRescue() {
+  if (trafficNoClickShown || trafficNoClickInteracted || formStarted || formSubmitted) return;
+  if (!isHomepage() || sessionStorage.getItem(trafficNoClickDismissKey) === "true") return;
+  if (document.querySelector(".traffic-no-click-rescue")) return;
+  const panel = document.createElement("aside");
+  panel.className = "traffic-no-click-rescue";
+  panel.setAttribute("aria-label", "Acces rapide devis immeuble");
+  panel.innerHTML = `<button class="traffic-no-click-close" type="button" data-traffic-no-click-close aria-label="Fermer">&times;</button><p class="eyebrow dark">Devis immeuble</p><strong>Un dossier exploitable en 2 minutes.</strong><span>Lots, usage, sinistres et echeance suffisent pour lancer l'analyse.</span><div class="traffic-no-click-actions"><a class="button primary" data-track="traffic-no-click-devis" data-traffic-no-click-quote href="#lead-form">Demarrer le devis</a><a class="button secondary" data-track="traffic-no-click-phone" data-traffic-no-click-phone href="tel:+33180855786">Appeler</a></div>`;
+  document.body.append(panel);
+  trafficNoClickShown = true;
+  track("traffic_without_click_shown", trafficNoClickPayload("shown"));
+  panel.querySelector("[data-traffic-no-click-close]")?.addEventListener("click", () => dismissTrafficNoClickRescue("closed"));
+  panel.querySelector("[data-traffic-no-click-quote]")?.addEventListener("click", (event) => {
+    trafficNoClickInteracted = true;
+    track("traffic_without_click_quote_click", trafficNoClickPayload("quote"));
+    dismissTrafficNoClickRescue("");
+    if (focusHomepageQuoteForm()) event.preventDefault();
+  });
+  panel.querySelector("[data-traffic-no-click-phone]")?.addEventListener("click", () => {
+    trafficNoClickInteracted = true;
+    track("traffic_without_click_phone_click", trafficNoClickPayload("phone"));
+    dismissTrafficNoClickRescue("");
+  });
+}
+
+function bindTrafficNoClickRescue() {
+  if (!isHomepage() || sessionStorage.getItem(trafficNoClickDismissKey) === "true") return;
+  const markInteraction = () => {
+    trafficNoClickInteracted = true;
+    if (trafficNoClickTimer) window.clearTimeout(trafficNoClickTimer);
+  };
+  document.addEventListener("click", markInteraction, { once: true, capture: true });
+  form?.addEventListener("focusin", markInteraction, { once: true });
+  trafficNoClickTimer = window.setTimeout(showTrafficNoClickRescue, 8500);
+}
 function bindGrowthTracking() {
   track("page_view", { target: document.title, label: currentLeadIntent() });
   if (!experimentViewSent && !window.location.pathname.includes("/admin")) {
@@ -1783,6 +1858,7 @@ bindScrollDepthTracking();
 bindContentLeadBridge();
 bindFormAbandonment();
 bindBotSignalTracking();
+bindTrafficNoClickRescue();
 bindGrowthTracking();
 bindFormRescue();
 

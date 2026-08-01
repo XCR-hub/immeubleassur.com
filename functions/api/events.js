@@ -45,6 +45,10 @@ const allowedEvents = new Set([
   "lead_form_rescue_phone_click",
   "lead_form_rescue_dismissed",
   "lead_form_abandoned",
+  "traffic_without_click_shown",
+  "traffic_without_click_quote_click",
+  "traffic_without_click_phone_click",
+  "traffic_without_click_dismissed",
   "lead_spam_blocked",
   "newsletter_subscribe_attempt",
   "newsletter_subscribed",
@@ -87,6 +91,10 @@ const ga4EventNames = {
   lead_form_rescue_phone_click: "ia_lead_form_rescue_phone_click",
   lead_form_rescue_dismissed: "ia_lead_form_rescue_dismissed",
   lead_form_abandoned: "ia_lead_form_abandoned",
+  traffic_without_click_shown: "ia_traffic_without_click_shown",
+  traffic_without_click_quote_click: "ia_traffic_without_click_quote_click",
+  traffic_without_click_phone_click: "ia_traffic_without_click_phone_click",
+  traffic_without_click_dismissed: "ia_traffic_without_click_dismissed",
   lead_spam_blocked: "ia_lead_spam_blocked",
   newsletter_subscribe_attempt: "ia_newsletter_subscribe_attempt",
   newsletter_subscribed: "ia_newsletter_subscribed",
@@ -211,7 +219,7 @@ function suspiciousUserAgent(value) {
 }
 
 function passiveTelemetryEvent(eventType) {
-  return ["page_view", "experiment_view", "scroll_depth"].includes(eventType);
+  return ["page_view", "experiment_view", "scroll_depth", "traffic_without_click_shown", "traffic_without_click_dismissed"].includes(eventType);
 }
 
 async function countRows(env, sql, binds = []) {
