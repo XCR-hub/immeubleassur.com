@@ -77,6 +77,27 @@ function buildPayload() {
   };
 }
 
+function buildExpressPayload() {
+  const sessionId = `express-${Date.now().toString(36)}`;
+  const pageUrl = "https://immeubleassur.com/devis-assurance-immeuble";
+  return {
+    phone: "06 22 33 44 55",
+    need: "pno-cno",
+    consent: true,
+    submission_mode: "express-callback",
+    source: "lead-express-runtime-check",
+    page_url: pageUrl,
+    session_id: sessionId,
+    anti_bot: {
+      js_enabled: true,
+      form_elapsed_ms: 5200,
+      interaction_count: 2,
+      session_token: sessionToken(sessionId, "immeubleassur.com")
+    },
+    utm: { intent: "pno-cno" }
+  };
+}
+
 async function run() {
   cleanup();
   const DB = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
@@ -84,10 +105,15 @@ async function run() {
     const payload = buildPayload();
     const first = await submitLead(DB, payload);
     const second = await submitLead(DB, payload);
+    const express = await submitLead(DB, buildExpressPayload());
     const leadCount = await DB.prepare("SELECT COUNT(*) AS count FROM leads").first("count");
     const duplicateEvents = await DB.prepare("SELECT COUNT(*) AS count FROM site_events WHERE event_type = ?").bind("lead_duplicate_filtered").first("count");
     const duplicateLeadEvents = await DB.prepare("SELECT COUNT(*) AS count FROM lead_events WHERE event_type = ?").bind("lead_duplicate_filtered").first("count");
     const duplicateNotificationEvents = await DB.prepare("SELECT COUNT(*) AS count FROM lead_events WHERE event_type IN (?, ?)").bind("duplicate_email_notification_sent", "duplicate_email_notification_failed").first("count");
+    const expressRecord = express.body?.reference ? await DB.prepare("SELECT name, phone, email, profile, property_type, city, message FROM leads WHERE reference = ?").bind(express.body.reference).first() : null;
+    const expressEventRow = express.body?.id ? await DB.prepare("SELECT payload FROM lead_events WHERE lead_id = ? AND event_type = ?").bind(express.body.id, "lead_created").first() : null;
+    let expressEvent = {};
+    try { expressEvent = JSON.parse(expressEventRow?.payload || "{}"); } catch {}
     const [adminSpam, adminSeo, adminIntegrations, adminSales] = await Promise.all([
       adminGet(getAdminSpam, DB, "/api/admin/spam"),
       adminGet(getAdminSeo, DB, "/api/admin/seo"),
@@ -100,10 +126,13 @@ async function run() {
     const adminSalesDuplicateFollowups = Number(adminSales.body?.summary?.duplicate_followups || 0);
     const adminSalesDuplicateRows = Array.isArray(adminSales.body?.duplicate_followups) ? adminSales.body.duplicate_followups.length : 0;
     const adminSalesLeadMarked = (adminSales.body?.relance_leads || []).some((lead) => lead.duplicate_followup && lead.reference === first.body?.reference);
+    const dedupeVerified = first.status === 200 && first.body?.success === true && !first.body?.duplicate && second.status === 200 && second.body?.duplicate === true && second.body?.notification === "skipped" && leadCount === 2 && duplicateEvents === 1 && duplicateLeadEvents === 1 && duplicateNotificationEvents === 0;
+    const adminVerified = adminSpam.status === 200 && adminSeo.status === 200 && adminIntegrations.status === 200 && adminSales.status === 200 && adminSpamDuplicates === 1 && adminSeoDuplicates === 1 && adminIntegrationsDuplicates === 1 && adminSalesDuplicateFollowups === 1 && adminSalesDuplicateRows === 1 && adminSalesLeadMarked;
+    const expressVerified = express.status === 200 && express.body?.success === true && express.body?.submission_mode === "express-callback" && String(express.body?.next_action || "").includes("Rappeler") && expressRecord?.name === "A preciser" && expressRecord?.email === "" && expressRecord?.profile === "a-preciser" && expressRecord?.property_type === "a-preciser" && expressRecord?.city === "a-preciser" && String(expressRecord?.message || "").includes("Mode rappel express") && expressEvent?.submission_mode === "express-callback" && expressEvent?.contact_mode === "telephone";
 
     const report = {
-      success: first.status === 200 && first.body?.success === true && !first.body?.duplicate && second.status === 200 && second.body?.duplicate === true && second.body?.notification === "skipped" && leadCount === 1 && duplicateEvents === 1 && duplicateLeadEvents === 1 && duplicateNotificationEvents === 0 && adminSpam.status === 200 && adminSeo.status === 200 && adminIntegrations.status === 200 && adminSales.status === 200 && adminSpamDuplicates === 1 && adminSeoDuplicates === 1 && adminIntegrationsDuplicates === 1 && adminSalesDuplicateFollowups === 1 && adminSalesDuplicateRows === 1 && adminSalesLeadMarked,
-      scenario: "repeated-lead-dedupe",
+      success: dedupeVerified && adminVerified && expressVerified,
+      scenario: "repeated-lead-dedupe-and-express-callback",
       first: {
         status: first.status,
         success: first.body?.success === true,
@@ -118,6 +147,15 @@ async function run() {
         result_status: second.body?.status || "",
         duplicate_reason: second.body?.duplicate_reason || "",
         notification: second.body?.notification || ""
+      },
+      express: {
+        status: express.status,
+        success: express.body?.success === true,
+        submission_mode: express.body?.submission_mode || "",
+        contact_mode: expressEvent?.contact_mode || "",
+        placeholders_ok: expressRecord?.name === "A preciser" && expressRecord?.profile === "a-preciser" && expressRecord?.property_type === "a-preciser" && expressRecord?.city === "a-preciser",
+        next_action: express.body?.next_action || "",
+        notification: express.body?.notification || ""
       },
       counts: {
         leads: leadCount,
@@ -149,7 +187,7 @@ async function run() {
           lead_marked: adminSalesLeadMarked
         }
       },
-      safeguards: ["sqlite-temp-db", "no-smtp-config", "no-real-lead-persisted", "duplicate-does-not-create-new-lead", "duplicate-email-skips-without-smtp", "admin-duplicate-metrics-verified", "sales-duplicate-followup-verified"]
+      safeguards: ["sqlite-temp-db", "no-smtp-config", "no-real-lead-persisted", "duplicate-does-not-create-new-lead", "duplicate-email-skips-without-smtp", "admin-duplicate-metrics-verified", "sales-duplicate-followup-verified", "express-callback-minimal-contact-verified"]
     };
 
     mkdirSync(dirname(REPORT_PATH), { recursive: true });
@@ -159,7 +197,7 @@ async function run() {
       console.error(`Lead dedupe runtime failed: ${JSON.stringify(report.counts)}`);
       process.exit(1);
     }
-    console.log(`Lead dedupe runtime passed: ${leadCount} lead, ${duplicateEvents} duplicate event.`);
+    console.log(`Lead dedupe runtime passed: ${leadCount} leads, ${duplicateEvents} duplicate event, express callback verified.`);
   } finally {
     DB.close();
     cleanup();
