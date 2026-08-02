@@ -1,46 +1,22 @@
 {
-  "generated_at": "2026-08-01T10:01:00.110Z",
-  "mode": "fetched",
-  "fetch_enabled": true,
-  "ai_enabled": true,
-  "ai_provider": "openrouter",
-  "ai_model": "~openai/gpt-latest",
-  "ai_status": "completed",
-  "ai_attempts": [
-    {
-      "provider": "openai",
-      "model": "gpt-4.1-mini",
-      "status": "failed",
-      "error": "OpenAI HTTP 401"
-    },
-    {
-      "provider": "anthropic",
-      "model": "claude-3-5-sonnet-latest",
-      "status": "failed",
-      "error": "Anthropic HTTP 400"
-    },
-    {
-      "provider": "gemini",
-      "model": "gemini-1.5-pro",
-      "status": "failed",
-      "error": "Gemini HTTP 404"
-    },
-    {
-      "provider": "openrouter",
-      "model": "~openai/gpt-latest",
-      "status": "completed"
-    }
-  ],
+  "generated_at": "2026-08-02T23:18:58.042Z",
+  "mode": "local-fallback",
+  "fetch_enabled": false,
+  "ai_enabled": false,
+  "ai_provider": "deterministic",
+  "ai_model": "local-template",
+  "ai_status": "skipped",
+  "ai_attempts": [],
   "quality_score": 90,
   "source_count": 5,
-  "watch_items": 10,
+  "watch_items": 3,
   "issue": {
-    "id": "issue-08fe0e859072",
-    "slug": "news/veille-assurance-immeuble-2026-08-01",
-    "title": "Veille assurance immeuble: assurance, contrats et devis",
-    "html_url": "/news/veille-assurance-immeuble-2026-08-01"
+    "id": "issue-a609f8793b89",
+    "slug": "news/veille-assurance-immeuble-2026-08-02",
+    "title": "Veille assurance immeuble: copropriete, contrats et devis",
+    "html_url": "/news/veille-assurance-immeuble-2026-08-02"
   },
-  "issue_backfills": 5,
+  "issue_backfills": 6,
   "automation_plan": {
     "blog_briefs": [
       {
@@ -181,9 +157,9 @@
       }
     ],
     "source_topics": [
-      "assurance",
-      "veille",
-      "sinistres"
+      "copropriete",
+      "regulateur",
+      "droit"
     ]
   },
   "compliance": [
@@ -194,10 +170,5 @@
     "people-first-content-before-seo-volume",
     "ai-output-reviewed-by-quality-guards"
   ],
-  "errors": [
-    {
-      "source": "service-public-professionnels",
-      "error": "HTTP 404"
-    }
-  ]
+  "errors": []
 }

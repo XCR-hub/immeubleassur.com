@@ -15,6 +15,7 @@ Depuis la racine du projet:
 
 ```bash
 npm run live:api:readiness
+npm run live:ready
 npm run google:unlock
 ```
 
@@ -25,6 +26,8 @@ reports/live-api-readiness-report.json
 public/assets/live-api-readiness-latest.json
 reports/google-readiness-unlock-report.json
 public/assets/google-readiness-unlock-latest.json
+reports/live-ready-connectors-report.json
+public/assets/live-ready-connectors-latest.json
 ```
 
 Un connecteur est `ready` uniquement si toutes ses variables obligatoires sont presentes. Sinon il reste en `fallback`.
@@ -96,6 +99,8 @@ npm run check
 ```
 
 ## Controle admin
+
+Le runner `npm run live:ready` execute Turnstile, Pexels, IA editoriale et SerpApi uniquement quand les variables requises sont presentes. Si SerpApi renvoie un 429, les requetes suivantes sont sautees pendant `SERP_RATE_LIMIT_COOLDOWN_MINUTES` (360 minutes par defaut), sauf relance forcee avec `node scripts/live-ready-connectors-runner.js --force-serp`.
 
 Le panneau `/admin.html` lit `live-api-readiness-latest.json` et affiche:
 

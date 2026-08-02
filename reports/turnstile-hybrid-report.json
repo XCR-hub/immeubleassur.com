@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02T22:06:46.656Z",
+  "generated_at": "2026-08-02T23:25:34.164Z",
   "provider": "cloudflare-turnstile",
   "mode": "hybrid-turnstile-local-antifraud",
   "configured": true,
@@ -7,13 +7,13 @@
   "secret_variable": "TURNSTILE_SECRET_KEY",
   "fail_open_variable": "TURNSTILE_FAIL_OPEN",
   "fallback": "local-antifraud",
-  "pages_checked": 185,
-  "forms_detected": 182,
-  "forms_instrumented": 182,
+  "pages_checked": 186,
+  "forms_detected": 183,
+  "forms_instrumented": 183,
   "lead_forms_detected": 170,
   "lead_forms_instrumented": 170,
-  "newsletter_forms_detected": 12,
-  "newsletter_forms_instrumented": 12,
+  "newsletter_forms_detected": 13,
+  "newsletter_forms_instrumented": 13,
   "actions": [
     {
       "key": "lead",
@@ -26,7 +26,7 @@
       "label": "newsletter form"
     }
   ],
-  "pages_updated": 0,
+  "pages_updated": 8,
   "missing_widgets": [],
   "status": "passed",
   "protections": [

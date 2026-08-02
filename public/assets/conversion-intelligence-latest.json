@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-02T22:06:41.246Z",
-  "pages_checked": 182,
+  "generated_at": "2026-08-02T23:25:26.854Z",
+  "pages_checked": 183,
   "money_pages_checked": 118,
   "cluster_count": 11,
   "cluster_detection": {
@@ -344,39 +344,39 @@
     },
     {
       "cluster": "newsletter-veille",
-      "pages": 7,
+      "pages": 8,
       "money_pages": 0,
-      "average_score": 60,
+      "average_score": 69,
       "top_pages": [
         {
           "slug": "news/veille-assurance-immeuble-2026-07-29",
           "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-29",
-          "score": 62
+          "score": 74
         },
         {
           "slug": "news/veille-assurance-immeuble-2026-07-30",
           "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-30",
-          "score": 62
+          "score": 74
         },
         {
           "slug": "news/veille-assurance-immeuble-2026-07-31",
           "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-31",
-          "score": 62
+          "score": 74
         },
         {
           "slug": "news/veille-assurance-immeuble-2026-08-01",
           "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-01",
-          "score": 62
+          "score": 74
         },
         {
-          "slug": "veille-assurance-immeuble",
-          "url": "https://immeubleassur.com/veille-assurance-immeuble",
-          "score": 62
+          "slug": "news/veille-assurance-immeuble-2026-08-02",
+          "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-02",
+          "score": 74
         },
         {
-          "slug": "newsletter-assurance-immeuble",
-          "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
-          "score": 55
+          "slug": "news/veille-assurance-immeuble-2026-07-28",
+          "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
+          "score": 64
         }
       ]
     },

@@ -42,7 +42,12 @@ async function fetchJson(url, timeoutMs = 18000) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(url, { signal: controller.signal, headers: { "User-Agent": "ImmeubleAssur search intelligence (+https://immeubleassur.com)" } });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) {
+      const error = new Error(`HTTP ${response.status}`);
+      error.status = response.status;
+      error.retry_after = response.headers.get("retry-after") || "";
+      throw error;
+    }
     return await response.json();
   } finally {
     clearTimeout(timer);
@@ -110,15 +115,53 @@ function recommendation(row) {
 async function collectRankings() {
   const errors = [];
   const rankings = [];
+  let serpRequestCount = 0;
+  let rateLimit = null;
   for (const [index, keyword] of KEYWORDS.entries()) {
     if (!ENABLE_SERP) {
       rankings.push(fallbackRanking(keyword, index));
       continue;
     }
-    try { rankings.push(await serpRanking(keyword)); }
-    catch (error) { errors.push({ query: keyword.query, error: error.message || "serp failed" }); rankings.push({ ...fallbackRanking(keyword, index), status: "serp-error", data_source: "local-fallback", error: error.message || "serp failed" }); }
+    if (rateLimit) {
+      const fallback = fallbackRanking(keyword, index);
+      rankings.push({
+        ...fallback,
+        status: "serp-rate-limited-skip",
+        data_source: "local-fallback",
+        error: rateLimit.error,
+        retry_after: rateLimit.retry_after,
+        quota_limited: true,
+        skipped_due_to_rate_limit: true
+      });
+      continue;
+    }
+    try {
+      serpRequestCount += 1;
+      rankings.push(await serpRanking(keyword));
+    } catch (error) {
+      const statusCode = Number(error.status || 0);
+      const isRateLimit = statusCode === 429 || /HTTP 429/.test(error.message || "");
+      const item = {
+        query: keyword.query,
+        error: error.message || "serp failed",
+        status_code: statusCode || null,
+        retry_after: error.retry_after || "",
+        rate_limited: isRateLimit
+      };
+      errors.push(item);
+      if (isRateLimit) rateLimit = item;
+      rankings.push({
+        ...fallbackRanking(keyword, index),
+        status: isRateLimit ? "serp-rate-limited" : "serp-error",
+        data_source: "local-fallback",
+        error: item.error,
+        error_status: statusCode || null,
+        retry_after: item.retry_after,
+        quota_limited: isRateLimit
+      });
+    }
   }
-  return { rankings, errors };
+  return { rankings, errors, serpRequestCount, rateLimit };
 }
 
 function updateDashboard(report) {
@@ -129,7 +172,7 @@ function updateDashboard(report) {
 async function run() {
   ensureDir(REPORT_DIR);
   ensureDir(join(OUT, "assets"));
-  const { rankings, errors } = await collectRankings();
+  const { rankings, errors, serpRequestCount, rateLimit } = await collectRankings();
   const found = rankings.filter((row) => Number.isFinite(row.position));
   const measured = rankings.filter((row) => row.measured === true);
   const measuredFound = measured.filter((row) => Number.isFinite(row.position));
@@ -137,7 +180,8 @@ async function run() {
   const average = found.length ? found.reduce((sum, row) => sum + row.position, 0) / found.length : null;
   const measuredAverage = measuredFound.length ? measuredFound.reduce((sum, row) => sum + row.position, 0) / measuredFound.length : null;
   const enriched = rankings.map((row) => ({ ...row, recommendation: recommendation(row) }));
-  const status = ENABLE_SERP && errors.length === rankings.length ? "serpapi-unavailable-fallback" : errors.length && ENABLE_SERP ? "completed-with-fallback" : ENABLE_SERP ? "completed" : "skipped-no-serp-key";
+  const rateLimited = Boolean(rateLimit || enriched.some((row) => row.quota_limited));
+  const status = ENABLE_SERP && rateLimited && measured.length === 0 ? "serpapi-rate-limited-fallback" : ENABLE_SERP && rateLimited ? "completed-with-rate-limit-fallback" : ENABLE_SERP && errors.length === rankings.length ? "serpapi-unavailable-fallback" : errors.length && ENABLE_SERP ? "completed-with-fallback" : ENABLE_SERP ? "completed" : "skipped-no-serp-key";
   const confidence = measured.length && estimated.length ? "mixed" : measured.length ? "measured" : "low";
   const report = {
     run_id: `serp-${today().replaceAll("-", "")}-${hash(JSON.stringify(enriched), 8)}`,
@@ -150,6 +194,10 @@ async function run() {
     measured_count: measured.length,
     fallback_count: estimated.length,
     serp_error_count: errors.length,
+    serp_request_count: serpRequestCount,
+    rate_limited: rateLimited,
+    retry_after: rateLimit?.retry_after || "",
+    rate_limited_skipped_count: enriched.filter((row) => row.skipped_due_to_rate_limit).length,
     average_position: average,
     measured_average_position: measuredAverage,
     first_page_count: found.filter((row) => row.position <= 10).length,
@@ -160,10 +208,11 @@ async function run() {
       priority_queries: enriched.filter((row) => !row.position || row.position > 3).slice(0, 6).map((row) => row.query),
       measured_queries: measured.map((row) => row.query).slice(0, 10),
       fallback_queries: estimated.map((row) => row.query).slice(0, 10),
+      rate_limit: rateLimited ? { provider: "serpapi", request_count: serpRequestCount, skipped_count: enriched.filter((row) => row.skipped_due_to_rate_limit).length, retry_after: rateLimit?.retry_after || "", recommendation: "Attendre la fenetre de quota SerpApi ou augmenter le quota avant de relancer search:live." } : null,
       competitor_domains: [...new Set(enriched.flatMap((row) => row.top_domains || []))].slice(0, 12),
       next_actions: enriched.map((row) => row.recommendation).slice(0, 8)
     },
-    compliance: ["api-based-serp-monitoring", "no-automated-google-page-scraping", "no-cloaking", "people-first-content-prioritization", "ranking-data-used-for-roadmap-not-spam"],
+    compliance: ["api-based-serp-monitoring", "quota-safe-serpapi-backoff", "no-automated-google-page-scraping", "no-cloaking", "people-first-content-prioritization", "ranking-data-used-for-roadmap-not-spam"],
     errors
   };
   write(join(REPORT_DIR, "search-intelligence-report.json"), JSON.stringify(report, null, 2));

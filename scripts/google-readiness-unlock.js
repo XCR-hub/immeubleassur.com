@@ -55,6 +55,7 @@ const plans = {
     steps: [
       "Verifier que SERP_API_KEY est presente et valide.",
       "Controler le quota et la connectivite sortante du serveur.",
+      "Si le statut est serpapi-rate-limited-fallback, attendre le reset quota ou augmenter le plan SerpApi avant relance.",
       "Relancer npm run search:live.",
       "Ne traiter les positions fallback que comme signaux faibles."
     ]
@@ -99,7 +100,13 @@ function lastStatus(row) {
 
 function degraded(row) {
   const status = lastStatus(row).toLowerCase();
-  return Boolean(row?.ready && /(fallback|unavailable|invalid|failed|error|local-only)/.test(status));
+  return Boolean(row?.ready && /(fallback|unavailable|invalid|failed|error|local-only|rate-limited)/.test(status));
+}
+
+function degradedReason(id, row) {
+  const status = lastStatus(row).toLowerCase();
+  if (id === "serpapi" && (status.includes("rate-limited") || row?.last_report?.summary?.rate_limited)) return "rate-limited";
+  return "degraded-run";
 }
 
 function actionFor(id, row, reason) {
@@ -139,7 +146,7 @@ for (const id of watchedIds) {
     continue;
   }
   if (!row.ready) actions.push(actionFor(id, row, "missing-secret"));
-  else if (degraded(row)) actions.push(actionFor(id, row, "degraded-run"));
+  else if (degraded(row)) actions.push(actionFor(id, row, degradedReason(id, row)));
   else if (id === "ga4" && !envConfigured(["GA4_API_SECRET", "GOOGLE_GA4_API_SECRET"])) actions.push(actionFor(id, row, "measurement-secret-missing"));
 }
 
@@ -152,7 +159,7 @@ const report = {
   google_ready_count: readyRows.length,
   google_connector_count: googleRows.length,
   blocking_count: actions.filter((item) => item.reason === "missing-secret" || item.reason === "missing-report-row").length,
-  degraded_count: actions.filter((item) => item.reason === "degraded-run" || item.reason === "measurement-secret-missing").length,
+  degraded_count: actions.filter((item) => item.reason === "degraded-run" || item.reason === "rate-limited" || item.reason === "measurement-secret-missing").length,
   actions,
   readiness_status: readiness?.status || "missing",
   readiness_ready_count: readiness?.ready_count || 0,

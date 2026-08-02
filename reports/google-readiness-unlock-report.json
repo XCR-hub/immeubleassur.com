@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02T22:06:48.061Z",
+  "generated_at": "2026-08-02T23:25:40.200Z",
   "status": "action-required",
   "watched_connectors": [
     "google-search-console",
@@ -101,18 +101,19 @@
       "label": "SerpApi",
       "family": "seo",
       "severity": "medium",
-      "reason": "degraded-run",
+      "reason": "rate-limited",
       "status": "ready",
       "ready": true,
       "objective": "Remplacer les estimations locales par des positions Google mesurees via API autorisee.",
       "missing_required_names": [],
       "missing_optional_names": [],
       "command": "npm run search:live",
-      "signal": "Dernier statut: serpapi-unavailable-fallback",
+      "signal": "Dernier statut: serpapi-rate-limited-fallback",
       "next_action": "Verifier que SERP_API_KEY est presente et valide.",
       "steps": [
         "Verifier que SERP_API_KEY est presente et valide.",
         "Controler le quota et la connectivite sortante du serveur.",
+        "Si le statut est serpapi-rate-limited-fallback, attendre le reset quota ou augmenter le plan SerpApi avant relance.",
         "Relancer npm run search:live.",
         "Ne traiter les positions fallback que comme signaux faibles."
       ],

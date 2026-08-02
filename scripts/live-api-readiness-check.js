@@ -110,7 +110,12 @@ function readReport(file) {
         configured: Boolean(parsed.configured || parsed.serp_enabled || parsed.pexels_enabled),
         pages_checked: parsed.pages_checked || parsed.keywords_checked || 0,
         forms_detected: parsed.forms_detected || 0,
-        forms_instrumented: parsed.forms_instrumented || 0
+        forms_instrumented: parsed.forms_instrumented || 0,
+        serp_error_count: Number(parsed.serp_error_count || 0),
+        serp_request_count: Number(parsed.serp_request_count || 0),
+        rate_limited: parsed.rate_limited === true,
+        rate_limited_skipped_count: Number(parsed.rate_limited_skipped_count || 0),
+        retry_after: parsed.retry_after || ""
       }
     };
   } catch (error) {

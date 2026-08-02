@@ -559,6 +559,10 @@ function readSearchIntelligenceReport() {
     measured_count: report.measured_count || rankings.filter((row) => row.measured === true).length,
     fallback_count: report.fallback_count || rankings.filter((row) => row.measured !== true).length,
     serp_error_count: report.serp_error_count || (Array.isArray(report.errors) ? report.errors.length : 0),
+    serp_request_count: report.serp_request_count || 0,
+    rate_limited: report.rate_limited === true,
+    rate_limited_skipped_count: report.rate_limited_skipped_count || 0,
+    retry_after: report.retry_after || "",
     average_position: report.average_position || null,
     measured_average_position: report.measured_average_position || null,
     top3_count: report.top3_count || 0,
@@ -597,7 +601,9 @@ function buildGoogleFeedbackLoop({ gsc, pagespeed, searchIntelligence, contentQu
       actions.push({
         priority: searchIntelligence.serp_error_count >= searchIntelligence.keywords_checked ? "fix" : "medium",
         source: "serpapi",
-        action: `Controle SerpApi a corriger: ${searchIntelligence.serp_error_count}/${searchIntelligence.keywords_checked} requetes en erreur, statut ${searchIntelligence.status}. Les positions fallback restent utiles mais ne doivent pas etre traitees comme mesures Google.`
+        action: searchIntelligence.rate_limited
+          ? `Quota SerpApi atteint apres ${searchIntelligence.serp_request_count || 1} requete(s); ${searchIntelligence.rate_limited_skipped_count || 0} requete(s) reportee(s). Attendre la fenetre de quota ou augmenter le quota avant de relancer search:live.`
+          : `Controle SerpApi a corriger: ${searchIntelligence.serp_error_count}/${searchIntelligence.keywords_checked} requetes en erreur, statut ${searchIntelligence.status}. Les positions fallback restent utiles mais ne doivent pas etre traitees comme mesures Google.`
       });
     } else if (!gsc?.configured && searchIntelligence.top3_count > 0) {
       actions.push({ priority: "medium", source: "search-intelligence", action: `Maintenir les ${searchIntelligence.top3_count} requete(s) top 3 detectees et surveiller CTR/conversion avec GSC des que le compte service est configure.` });
@@ -709,6 +715,8 @@ function buildGoogleApiHealth({ gsc, pagespeed, searchIntelligence }) {
     serp_fallback_count: Number(searchIntelligence?.fallback_count || 0),
     serp_missing_count: Number(searchIntelligence?.missing_count || 0),
     serp_error_count: searchErrors,
+    serp_rate_limited: searchIntelligence?.rate_limited === true,
+    serp_request_count: Number(searchIntelligence?.serp_request_count || 0),
     status: gsc?.error || slowPages.length || inspections.filter(inspectionNeedsAction).length || (searchIntelligence?.serp_enabled && searchErrors) ? "action-required" : "monitoring"
   };
 }

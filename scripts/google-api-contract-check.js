@@ -13,7 +13,7 @@ const expectations = [
   },
   {
     file: "scripts/search-intelligence.js",
-    snippets: ["loadDefaultEnvFiles", "SERP_API_KEY", "--serp", "measured_count", "fallback_count", "serpapi-unavailable-fallback"]
+    snippets: ["loadDefaultEnvFiles", "SERP_API_KEY", "--serp", "measured_count", "fallback_count", "serpapi-unavailable-fallback", "serpapi-rate-limited-fallback", "rate_limited", "quota-safe-serpapi-backoff"]
   },
   {
     file: "scripts/media-autopilot.js",
@@ -41,7 +41,7 @@ const expectations = [
       "readSearchIntelligenceReport",
       "search_intelligence",
       "serpapi_positions",
-      "serp_error_count"
+      "serp_error_count", "serp_rate_limited"
     ]
   },
   {

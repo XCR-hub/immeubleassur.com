@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02T22:06:41.753Z",
+  "generated_at": "2026-08-02T23:25:28.383Z",
   "status": "passed",
   "average_conversion_score": 85,
   "average_money_score": 95,
@@ -88,8 +88,8 @@
     },
     {
       "cluster": "newsletter-veille",
-      "score": 60,
-      "pages": 7,
+      "score": 69,
+      "pages": 8,
       "money_pages": 0,
       "min_score": 60,
       "min_pages": 7,
@@ -97,7 +97,7 @@
     }
   ],
   "bridge_status": "passed",
-  "active_bridges": 51,
+  "active_bridges": 52,
   "bridge_clusters": [
     {
       "cluster": "copropriete-syndic",
@@ -135,12 +135,12 @@
   "intent_minimums": [
     {
       "intent": "travaux",
-      "count": 13,
+      "count": 15,
       "minimum": 10
     },
     {
       "intent": "veille",
-      "count": 9,
+      "count": 18,
       "minimum": 5
     },
     {
@@ -155,7 +155,7 @@
     },
     {
       "intent": "sinistre",
-      "count": 37,
+      "count": 40,
       "minimum": 30
     },
     {

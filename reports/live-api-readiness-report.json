@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02T22:06:47.267Z",
+  "generated_at": "2026-08-02T23:25:37.331Z",
   "status": "partial",
   "connectors_checked": 8,
   "ready_count": 5,
@@ -32,15 +32,20 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-02T22:06:46.656Z",
+        "generated_at": "2026-08-02T23:25:34.164Z",
         "status": "passed",
         "summary": {
           "provider": "cloudflare-turnstile",
           "mode": "hybrid-turnstile-local-antifraud",
           "configured": true,
-          "pages_checked": 185,
-          "forms_detected": 182,
-          "forms_instrumented": 182
+          "pages_checked": 186,
+          "forms_detected": 183,
+          "forms_instrumented": 183,
+          "serp_error_count": 0,
+          "serp_request_count": 0,
+          "rate_limited": false,
+          "rate_limited_skipped_count": 0,
+          "retry_after": ""
         }
       },
       "recommendation": "Executer npm run turnstile:hybrid pour rafraichir le signal live."
@@ -70,15 +75,20 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-01T13:38:40.529Z",
-        "status": "serpapi-unavailable-fallback",
+        "generated_at": "2026-08-02T23:05:03.530Z",
+        "status": "serpapi-rate-limited-fallback",
         "summary": {
           "provider": "serpapi",
           "mode": "",
           "configured": true,
           "pages_checked": 10,
           "forms_detected": 0,
-          "forms_instrumented": 0
+          "forms_instrumented": 0,
+          "serp_error_count": 1,
+          "serp_request_count": 1,
+          "rate_limited": true,
+          "rate_limited_skipped_count": 9,
+          "retry_after": ""
         }
       },
       "recommendation": "Executer npm run search:live pour rafraichir le signal live."
@@ -108,7 +118,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-01T09:58:18.122Z",
+        "generated_at": "2026-08-02T23:08:24.812Z",
         "status": "completed",
         "summary": {
           "provider": "pexels",
@@ -116,7 +126,12 @@
           "configured": true,
           "pages_checked": 0,
           "forms_detected": 0,
-          "forms_instrumented": 0
+          "forms_instrumented": 0,
+          "serp_error_count": 0,
+          "serp_request_count": 0,
+          "rate_limited": false,
+          "rate_limited_skipped_count": 0,
+          "retry_after": ""
         }
       },
       "recommendation": "Executer npm run media:live pour rafraichir le signal live."
@@ -154,15 +169,20 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-01T10:01:00.110Z",
-        "status": "fetched",
+        "generated_at": "2026-08-02T23:18:58.042Z",
+        "status": "local-fallback",
         "summary": {
           "provider": "",
-          "mode": "fetched",
+          "mode": "local-fallback",
           "configured": false,
           "pages_checked": 0,
           "forms_detected": 0,
-          "forms_instrumented": 0
+          "forms_instrumented": 0,
+          "serp_error_count": 0,
+          "serp_request_count": 0,
+          "rate_limited": false,
+          "rate_limited_skipped_count": 0,
+          "retry_after": ""
         }
       },
       "recommendation": "Executer npm run editorial:live pour rafraichir le signal live."
@@ -207,7 +227,12 @@
           "configured": false,
           "pages_checked": 185,
           "forms_detected": 0,
-          "forms_instrumented": 0
+          "forms_instrumented": 0,
+          "serp_error_count": 0,
+          "serp_request_count": 0,
+          "rate_limited": false,
+          "rate_limited_skipped_count": 0,
+          "retry_after": ""
         }
       },
       "recommendation": "Configurer GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY puis executer npm run seo:apis."
@@ -247,7 +272,12 @@
           "configured": false,
           "pages_checked": 185,
           "forms_detected": 0,
-          "forms_instrumented": 0
+          "forms_instrumented": 0,
+          "serp_error_count": 0,
+          "serp_request_count": 0,
+          "rate_limited": false,
+          "rate_limited_skipped_count": 0,
+          "retry_after": ""
         }
       },
       "recommendation": "Configurer PAGESPEED_API_KEY puis executer npm run seo:apis."
@@ -292,7 +322,12 @@
           "configured": false,
           "pages_checked": 0,
           "forms_detected": 0,
-          "forms_instrumented": 0
+          "forms_instrumented": 0,
+          "serp_error_count": 0,
+          "serp_request_count": 0,
+          "rate_limited": false,
+          "rate_limited_skipped_count": 0,
+          "retry_after": ""
         }
       },
       "recommendation": "Configurer GA4_MEASUREMENT_ID puis executer npm run generate."

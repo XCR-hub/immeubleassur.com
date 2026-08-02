@@ -1,14 +1,40 @@
 {
-  "generated_at": "2026-08-02T22:06:39.330Z",
-  "pages_checked": 186,
+  "generated_at": "2026-08-02T23:25:24.268Z",
+  "pages_checked": 187,
   "status": "passed",
   "severe_issue_count": 0,
-  "warning_count": 0,
+  "warning_count": 2,
   "duplicate_titles": [],
   "duplicate_descriptions": [],
-  "repeated_paragraph_clusters": [],
+  "repeated_paragraph_clusters": [
+    {
+      "fingerprint": "la veille devient actionnable quand elle est reliee aux pieces du contrat a l echeance aux sinistres et aux travaux prevus ce mini controle prepare un echange court avec un courtier",
+      "pages": [
+        "news/veille-assurance-immeuble-2026-07-28",
+        "news/veille-assurance-immeuble-2026-07-29",
+        "news/veille-assurance-immeuble-2026-07-30",
+        "news/veille-assurance-immeuble-2026-07-31",
+        "news/veille-assurance-immeuble-2026-08-01",
+        "news/veille-assurance-immeuble-2026-08-02",
+        "newsletter-assurance-immeuble",
+        "veille-assurance-immeuble"
+      ],
+      "count": 8
+    }
+  ],
   "severe_issues": [],
-  "warnings": [],
+  "warnings": [
+    {
+      "slug": "newsletter-assurance-immeuble",
+      "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
+      "warning": "no-visible-faq"
+    },
+    {
+      "slug": "veille-assurance-immeuble",
+      "url": "https://immeubleassur.com/veille-assurance-immeuble",
+      "warning": "no-visible-faq"
+    }
+  ],
   "policy_alignment": [
     "people-first-content",
     "no-ai-evasion-language",
@@ -17,5 +43,24 @@
     "conversion-path-visible",
     "automation-supports-editorial-quality"
   ],
-  "weakest_pages": []
+  "weakest_pages": [
+    {
+      "slug": "newsletter-assurance-immeuble",
+      "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
+      "words": 558,
+      "issues": [],
+      "warnings": [
+        "no-visible-faq"
+      ]
+    },
+    {
+      "slug": "veille-assurance-immeuble",
+      "url": "https://immeubleassur.com/veille-assurance-immeuble",
+      "words": 650,
+      "issues": [],
+      "warnings": [
+        "no-visible-faq"
+      ]
+    }
+  ]
 }

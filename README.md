@@ -83,6 +83,7 @@ npm run leads:quality:monitor
 npm run antifraud:local
 npm run turnstile:hybrid
 npm run live:api:readiness
+npm run live:ready
 npm run source:quality
 npm run growth:ops:runtime
 ```
@@ -115,7 +116,7 @@ Variables optionnelles pour l'optimisation continue: Google Search Console, Page
 
 Pour retrouver la verification automatique Cloudflare sur les formulaires, renseigner aussi `TURNSTILE_SITE_KEY` et `TURNSTILE_SECRET_KEY`.
 
-La procedure d'activation sans exposition de secrets est documentee dans `docs/live-api-readiness.md`. Le controle `npm run live:api:readiness` publie les statuts et `npm run google:unlock` transforme les connecteurs Google/GA4 manquants ou degrades en actions techniques sans valeur de secret.
+Le runner `npm run live:ready` execute uniquement les connecteurs prets et respecte un cooldown SerpApi apres un 429, sans exposer les valeurs de secrets. La procedure d'activation sans exposition de secrets est documentee dans `docs/live-api-readiness.md`. Le controle `npm run live:api:readiness` publie les statuts et `npm run google:unlock` transforme les connecteurs Google/GA4 manquants ou degrades en actions techniques sans valeur de secret.
 
 ## Admin
 
@@ -133,4 +134,3 @@ Etat constate le 2026-07-29:
 - nameservers: `arely.ns.cloudflare.com` et `rocky.ns.cloudflare.com`
 
 Tant que ces nameservers restent actifs, Cloudflare reste l'autorite DNS du domaine, ce qui est le compromis retenu maintenant. On ne revient pas vers IONOS comme cible DNS. Pour l'autarcie complete a terme, il faudra mettre en place un DNS secondaire/autoritaire hors Cloudflare dans le futur datacenter, recopier `dns/registrar-records.json`, puis changer les nameservers chez le registrar. Controle normal: `npm run dns:autarky`. Controle final apres migration: `npm run dns:autarky:strict`.
-

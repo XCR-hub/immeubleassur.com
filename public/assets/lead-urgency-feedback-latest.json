@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-02T22:06:28.978Z",
+  "generated_at": "2026-08-02T23:25:01.441Z",
   "status": "passed",
-  "pages_checked": 182,
-  "urgent_pages": 166,
+  "pages_checked": 183,
+  "urgent_pages": 167,
   "missing_cta_count": 0,
   "contract_missing_count": 0,
   "coverage_by_intent": [
@@ -19,7 +19,7 @@
       "intent": "travaux",
       "urgency_level": "this-month",
       "pages": 14,
-      "pages_with_intent_link": 2,
+      "pages_with_intent_link": 3,
       "pages_with_conversion_route": 14,
       "missing_pages": [],
       "action": "Orienter vers la verification travaux et garanties dommages-ouvrage."
@@ -45,9 +45,9 @@
     {
       "intent": "pno-cno",
       "urgency_level": "quote-ready",
-      "pages": 116,
-      "pages_with_intent_link": 81,
-      "pages_with_conversion_route": 116,
+      "pages": 117,
+      "pages_with_intent_link": 82,
+      "pages_with_conversion_route": 117,
       "missing_pages": [],
       "action": "Orienter vers le parcours PNO/CNO avec pre-remplissage."
     }
@@ -55,7 +55,7 @@
   "weakest_pages": [],
   "conversion_signals": {
     "lead_intent_routing": "passed",
-    "lead_intent_active_bridges": 51,
+    "lead_intent_active_bridges": 52,
     "money_score": 95,
     "funnel_leads_30d": 0,
     "funnel_form_starts_30d": 0

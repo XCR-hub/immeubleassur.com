@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-02T22:06:35.870Z",
+  "generated_at": "2026-08-02T23:25:18.844Z",
   "status": "passed",
-  "pages_targeted": 25,
-  "pages_changed": 14,
-  "noindex_pages": 5,
-  "news_watch_pages": 5,
-  "news_watch_latest_slug": "news/veille-assurance-immeuble-2026-08-01",
-  "news_archive_noindex_count": 4,
+  "pages_targeted": 26,
+  "pages_changed": 19,
+  "noindex_pages": 6,
+  "news_watch_pages": 6,
+  "news_watch_latest_slug": "news/veille-assurance-immeuble-2026-08-02",
+  "news_archive_noindex_count": 5,
   "sitemap_entries_removed": 0,
   "safeguards": [
     "visible-content-only",
@@ -20,7 +20,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-28",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
-      "changed": false,
+      "changed": true,
       "indexable": false,
       "title": "Archive veille immeuble 28 juillet 2026",
       "h1": "Archive du 28 juillet 2026: signaux assurance immeuble a relire."
@@ -28,7 +28,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-29",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-29",
-      "changed": false,
+      "changed": true,
       "indexable": false,
       "title": "Archive veille immeuble 29 juillet 2026",
       "h1": "Archive du 29 juillet 2026: signaux assurance immeuble a relire."
@@ -196,7 +196,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-30",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-30",
-      "changed": false,
+      "changed": true,
       "indexable": false,
       "title": "Archive veille immeuble 30 juillet 2026",
       "h1": "Archive du 30 juillet 2026: signaux assurance immeuble a relire."
@@ -204,7 +204,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-31",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-31",
-      "changed": false,
+      "changed": true,
       "indexable": false,
       "title": "Archive veille immeuble 31 juillet 2026",
       "h1": "Archive du 31 juillet 2026: signaux assurance immeuble a relire."
@@ -213,9 +213,17 @@
       "slug": "news/veille-assurance-immeuble-2026-08-01",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-01",
       "changed": true,
+      "indexable": false,
+      "title": "Archive veille immeuble 1 aout 2026",
+      "h1": "Archive du 1 aout 2026: signaux assurance immeuble a relire."
+    },
+    {
+      "slug": "news/veille-assurance-immeuble-2026-08-02",
+      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-02",
+      "changed": true,
       "indexable": true,
-      "title": "Veille immeuble 1 aout 2026: dernier signal",
-      "h1": "Veille assurance immeuble du 1 aout 2026."
+      "title": "Veille immeuble 2 aout 2026: dernier signal",
+      "h1": "Veille assurance immeuble du 2 aout 2026."
     }
   ]
 }

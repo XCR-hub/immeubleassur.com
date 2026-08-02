@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-02T22:06:22.707Z",
+  "generated_at": "2026-08-02T23:24:51.026Z",
   "status": "passed",
-  "pages_checked": 186,
+  "pages_checked": 187,
   "indexable_pages": 180,
   "average_html_kb": 19.7,
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 42.9,
+      "kb": 42.5,
       "issue_count": 0
     },
     {
@@ -17,7 +17,7 @@
     },
     {
       "source": "news/veille-assurance-immeuble-2026-08-01.html",
-      "kb": 27.7,
+      "kb": 28.3,
       "issue_count": 0
     },
     {
@@ -36,23 +36,23 @@
       "issue_count": 0
     },
     {
+      "source": "news/veille-assurance-immeuble-2026-07-31.html",
+      "kb": 25.9,
+      "issue_count": 0
+    },
+    {
       "source": "assurance-sci.html",
       "kb": 25.7,
       "issue_count": 0
     },
     {
-      "source": "blog.html",
-      "kb": 25.7,
-      "issue_count": 0
-    },
-    {
-      "source": "veille-assurance-immeuble.html",
-      "kb": 25.6,
-      "issue_count": 0
-    },
-    {
       "source": "comparateur-assurance-immeuble.html",
       "kb": 25.5,
+      "issue_count": 0
+    },
+    {
+      "source": "blog.html",
+      "kb": 25.4,
       "issue_count": 0
     },
     {
@@ -85,8 +85,8 @@
     },
     {
       "path": "assets/admin.js",
-      "bytes": 94574,
-      "kb": 92.4,
+      "bytes": 95520,
+      "kb": 93.3,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true
@@ -115,20 +115,20 @@
     },
     {
       "path": "assets/conversion-intelligence-latest.json",
-      "bytes": 14459,
-      "kb": 14.1,
+      "bytes": 14515,
+      "kb": 14.2,
       "ok": true
     },
     {
       "path": "assets/live-api-readiness-latest.json",
-      "bytes": 10111,
-      "kb": 9.9,
+      "bytes": 11322,
+      "kb": 11.1,
       "ok": true
     },
     {
       "path": "assets/search-intelligence-latest.json",
-      "bytes": 10086,
-      "kb": 9.8,
+      "bytes": 10859,
+      "kb": 10.6,
       "ok": true
     },
     {
@@ -139,38 +139,38 @@
     },
     {
       "path": "assets/seo-cannibalization-latest.json",
-      "bytes": 9639,
+      "bytes": 9619,
       "kb": 9.4,
       "ok": true
     },
     {
       "path": "assets/seo-angle-differentiation-latest.json",
-      "bytes": 8945,
-      "kb": 8.7,
-      "ok": true
-    },
-    {
-      "path": "assets/editorial-autopilot-latest.json",
-      "bytes": 6252,
-      "kb": 6.1,
+      "bytes": 9275,
+      "kb": 9.1,
       "ok": true
     },
     {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5864,
+      "bytes": 5874,
       "kb": 5.7,
       "ok": true
     },
     {
+      "path": "assets/editorial-autopilot-latest.json",
+      "bytes": 5646,
+      "kb": 5.5,
+      "ok": true
+    },
+    {
       "path": "assets/google-readiness-unlock-latest.json",
-      "bytes": 4828,
-      "kb": 4.7,
+      "bytes": 4956,
+      "kb": 4.8,
       "ok": true
     },
     {
       "path": "assets/performance-budget-latest.json",
-      "bytes": 4038,
-      "kb": 3.9,
+      "bytes": 4049,
+      "kb": 4,
       "ok": true
     }
   ],

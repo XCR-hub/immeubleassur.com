@@ -1,0 +1,111 @@
+{
+  "generated_at": "2026-08-02T23:08:41.054Z",
+  "status": "completed",
+  "strict": false,
+  "cooldown_minutes": 360,
+  "ready_count": 5,
+  "connectors_checked": 8,
+  "blocking_count": 3,
+  "degraded_count": 1,
+  "summary": {
+    "executed": 3,
+    "skipped": 1,
+    "failed": 0
+  },
+  "steps": [
+    {
+      "name": "readiness_before",
+      "command": "node scripts/live-api-readiness-check.js",
+      "ok": true,
+      "status": 0,
+      "duration_ms": 393,
+      "skipped": false,
+      "reason": "",
+      "report": null,
+      "objective": ""
+    },
+    {
+      "name": "turnstile",
+      "command": "node scripts/turnstile-hybrid-pass.js",
+      "ok": true,
+      "status": 0,
+      "duration_ms": 600,
+      "skipped": false,
+      "reason": "",
+      "report": null,
+      "objective": "Rafraichir les widgets Turnstile et fallback anti-fraude local."
+    },
+    {
+      "name": "pexels",
+      "command": "node scripts/media-autopilot.js --fetch",
+      "ok": true,
+      "status": 0,
+      "duration_ms": 803,
+      "skipped": false,
+      "reason": "",
+      "report": null,
+      "objective": "Rafraichir les visuels attribues lorsque Pexels est configure."
+    },
+    {
+      "name": "editorial-ai",
+      "command": "node scripts/editorial-autopilot.js --fetch --ai",
+      "ok": true,
+      "status": 0,
+      "duration_ms": 15328,
+      "skipped": false,
+      "reason": "",
+      "report": null,
+      "objective": "Rafraichir la veille editoriale IA avec fallback local."
+    },
+    {
+      "name": "serpapi",
+      "command": "node scripts/search-intelligence.js --serp",
+      "ok": true,
+      "status": 0,
+      "duration_ms": 0,
+      "skipped": true,
+      "reason": "serpapi-rate-limit-cooldown",
+      "report": {
+        "available": true,
+        "generated_at": "2026-08-02T23:05:03.530Z",
+        "status": "serpapi-rate-limited-fallback",
+        "rate_limited": true,
+        "serp_request_count": 1,
+        "rate_limited_skipped_count": 9,
+        "reason": "serpapi-rate-limit-cooldown",
+        "age_minutes": 4,
+        "cooldown_minutes": 360,
+        "next_retry_after_minutes": 357
+      },
+      "objective": "Mesurer les positions Google via SerpApi sans scraping direct."
+    },
+    {
+      "name": "readiness_after",
+      "command": "node scripts/live-api-readiness-check.js",
+      "ok": true,
+      "status": 0,
+      "duration_ms": 221,
+      "skipped": false,
+      "reason": "",
+      "report": null,
+      "objective": ""
+    },
+    {
+      "name": "google_unlock_after",
+      "command": "node scripts/google-readiness-unlock.js",
+      "ok": true,
+      "status": 0,
+      "duration_ms": 593,
+      "skipped": false,
+      "reason": "",
+      "report": null,
+      "objective": ""
+    }
+  ],
+  "safeguards": [
+    "ready-connectors-only",
+    "secret-values-never-exported",
+    "serpapi-rate-limit-cooldown",
+    "fallbacks-remain-operational"
+  ]
+}

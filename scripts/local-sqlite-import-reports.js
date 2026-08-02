@@ -27,6 +27,7 @@ const reportFiles = [
   "reports/cluster-conversion-bridge-report.json",
   "reports/editorial-cluster-rescue-report.json",
   "reports/live-api-readiness-report.json",
+  "reports/live-ready-connectors-report.json",
   "reports/google-readiness-unlock-report.json"
 ];
 

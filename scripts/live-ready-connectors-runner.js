@@ -1,0 +1,147 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { dirname, join } from "node:path";
+import { loadDefaultEnvFiles, env } from "./local-env.js";
+
+loadDefaultEnvFiles();
+
+const REPORT_DIR = "reports";
+const ASSET_DIR = join("public", "assets");
+const READINESS_REPORT = join(REPORT_DIR, "live-api-readiness-report.json");
+const SEARCH_REPORT = join(REPORT_DIR, "search-intelligence-report.json");
+const OUT_REPORT = join(REPORT_DIR, "live-ready-connectors-report.json");
+const OUT_ASSET = join(ASSET_DIR, "live-ready-connectors-latest.json");
+const args = new Set(process.argv.slice(2));
+const strict = args.has("--strict");
+const forceSerp = args.has("--force-serp");
+const cooldownMinutes = Math.max(15, Number(env("SERP_RATE_LIMIT_COOLDOWN_MINUTES", "360")) || 360);
+
+const runnable = {
+  turnstile: { command: ["scripts/turnstile-hybrid-pass.js"], objective: "Rafraichir les widgets Turnstile et fallback anti-fraude local." },
+  pexels: { command: ["scripts/media-autopilot.js", "--fetch"], objective: "Rafraichir les visuels attribues lorsque Pexels est configure." },
+  "editorial-ai": { command: ["scripts/editorial-autopilot.js", "--fetch", "--ai"], objective: "Rafraichir la veille editoriale IA avec fallback local." },
+  serpapi: { command: ["scripts/search-intelligence.js", "--serp"], objective: "Mesurer les positions Google via SerpApi sans scraping direct." }
+};
+
+function ensureDir(path) { mkdirSync(path, { recursive: true }); }
+function writeJson(path, value) { ensureDir(dirname(path)); writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, "utf8"); }
+function readJson(path) {
+  if (!existsSync(path)) return null;
+  try { return JSON.parse(readFileSync(path, "utf8")); }
+  catch { return null; }
+}
+function minutesSince(value) {
+  const time = Date.parse(value || "");
+  return Number.isFinite(time) ? (Date.now() - time) / 60000 : Infinity;
+}
+function reportStatus(path) {
+  const report = readJson(path);
+  if (!report) return { available: false };
+  return {
+    available: true,
+    generated_at: report.generated_at || report.imported_at || "",
+    status: report.status || report.mode || report.provider || "present",
+    rate_limited: report.rate_limited === true,
+    serp_request_count: Number(report.serp_request_count || 0),
+    rate_limited_skipped_count: Number(report.rate_limited_skipped_count || 0)
+  };
+}
+function runNode(name, command) {
+  const started = Date.now();
+  const result = spawnSync(process.execPath, command, {
+    cwd: process.cwd(),
+    env: process.env,
+    encoding: "utf8",
+    stdio: "pipe"
+  });
+  return {
+    name,
+    command: `node ${command.join(" ")}`,
+    ok: result.status === 0,
+    status: result.status,
+    duration_ms: Date.now() - started,
+    error: result.error?.message || ""
+  };
+}
+function rowById(report, id) {
+  return (report?.rows || []).find((row) => row.id === id) || null;
+}
+function shouldSkipSerp() {
+  if (forceSerp) return null;
+  const report = readJson(SEARCH_REPORT);
+  if (!report?.rate_limited) return null;
+  const age = minutesSince(report.generated_at);
+  if (age >= cooldownMinutes) return null;
+  return {
+    reason: "serpapi-rate-limit-cooldown",
+    age_minutes: Math.round(age),
+    cooldown_minutes: cooldownMinutes,
+    next_retry_after_minutes: Math.max(0, Math.ceil(cooldownMinutes - age))
+  };
+}
+function safePublicStep(step) {
+  return {
+    name: step.name,
+    command: step.command,
+    ok: step.ok,
+    status: step.status,
+    duration_ms: step.duration_ms,
+    skipped: step.skipped === true,
+    reason: step.reason || "",
+    report: step.report || null,
+    objective: step.objective || ""
+  };
+}
+
+const steps = [];
+steps.push(runNode("readiness_before", ["scripts/live-api-readiness-check.js"]));
+const readiness = readJson(READINESS_REPORT);
+
+for (const [id, config] of Object.entries(runnable)) {
+  const row = rowById(readiness, id);
+  if (!row?.ready) {
+    steps.push({ name: id, command: `node ${config.command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, reason: "connector-not-ready", objective: config.objective, report: row?.last_report || null });
+    continue;
+  }
+  if (id === "serpapi") {
+    const skip = shouldSkipSerp();
+    if (skip) {
+      steps.push({ name: id, command: `node ${config.command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, reason: skip.reason, objective: config.objective, report: { ...reportStatus(SEARCH_REPORT), ...skip } });
+      continue;
+    }
+  }
+  const step = runNode(id, config.command);
+  step.objective = config.objective;
+  step.report = id === "serpapi" ? reportStatus(SEARCH_REPORT) : null;
+  steps.push(step);
+}
+
+steps.push(runNode("readiness_after", ["scripts/live-api-readiness-check.js"]));
+steps.push(runNode("google_unlock_after", ["scripts/google-readiness-unlock.js"]));
+
+const finalReadiness = readJson(READINESS_REPORT);
+const googleUnlock = readJson(join(REPORT_DIR, "google-readiness-unlock-report.json"));
+const failed = steps.filter((step) => !step.ok);
+const skipped = steps.filter((step) => step.skipped);
+const report = {
+  generated_at: new Date().toISOString(),
+  status: failed.length ? "degraded" : "completed",
+  strict,
+  cooldown_minutes: cooldownMinutes,
+  ready_count: finalReadiness?.ready_count || 0,
+  connectors_checked: finalReadiness?.connectors_checked || 0,
+  blocking_count: googleUnlock?.blocking_count || 0,
+  degraded_count: googleUnlock?.degraded_count || 0,
+  summary: {
+    executed: steps.filter((step) => !step.skipped && !step.name.includes("readiness") && !step.name.includes("unlock")).length,
+    skipped: skipped.length,
+    failed: failed.length
+  },
+  steps: steps.map(safePublicStep),
+  safeguards: ["ready-connectors-only", "secret-values-never-exported", "serpapi-rate-limit-cooldown", "fallbacks-remain-operational"]
+};
+
+writeJson(OUT_REPORT, report);
+writeJson(OUT_ASSET, report);
+console.log(`Live ready connectors ${report.status}: executed=${report.summary.executed}, skipped=${report.summary.skipped}, failed=${report.summary.failed}.`);
+if (strict && failed.length) process.exit(1);
