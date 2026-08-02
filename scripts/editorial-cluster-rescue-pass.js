@@ -286,6 +286,8 @@ const targets = [...byCluster.entries()].flatMap(([cluster, clusterPages]) => {
 });
 
 const targetFiles = new Set(targets.map((page) => page.file));
+const targetReports = targets.map((page) => ({ slug: page.slug, type: page.type, cluster: page.cluster, active: true, changed: false }));
+const targetReportByFile = new Map(targets.map((page, index) => [page.file, targetReports[index]]));
 const changedPages = [];
 const removedPages = [];
 
@@ -296,8 +298,13 @@ for (const page of pages) {
   if (targetFiles.has(page.file)) updated = insertRescue(cleaned, rescueBlock(profiles[page.cluster], page.cluster));
   if (updated !== original) {
     writeFileSync(page.file, updated, "utf8");
-    if (targetFiles.has(page.file)) changedPages.push({ slug: page.slug, type: page.type, cluster: page.cluster });
-    else removedPages.push({ slug: page.slug, type: page.type, cluster: page.cluster });
+    if (targetFiles.has(page.file)) {
+      const entry = targetReportByFile.get(page.file);
+      if (entry) entry.changed = true;
+      changedPages.push({ slug: page.slug, type: page.type, cluster: page.cluster });
+    } else {
+      removedPages.push({ slug: page.slug, type: page.type, cluster: page.cluster });
+    }
   }
 }
 
@@ -333,12 +340,12 @@ const report = {
   cluster_targets: clusterTargets,
   cluster_inputs: clusterInputs,
   safeguards: ["visible-cta-only", "idempotent-marker", "no-hidden-text", "first-party-pages-only", "lead-pages-not-distracted"],
-  pages: changedPages
+  pages: targetReports
 };
 
 mkdirSync(REPORT_DIR, { recursive: true });
 mkdirSync(join(PUBLIC_DIR, "assets"), { recursive: true });
 writeFileSync(join(REPORT_DIR, "editorial-cluster-rescue-report.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
-writeFileSync(join(PUBLIC_DIR, "assets", "editorial-cluster-rescue-latest.json"), `${JSON.stringify({ ...report, pages: changedPages.slice(0, 40) }, null, 2)}\n`, "utf8");
+writeFileSync(join(PUBLIC_DIR, "assets", "editorial-cluster-rescue-latest.json"), `${JSON.stringify({ ...report, pages: targetReports.slice(0, 40) }, null, 2)}\n`, "utf8");
 
 console.log(`Editorial cluster rescue targeted ${targets.length} page(s), changed ${changedPages.length}, active=${activeRescues}.`);

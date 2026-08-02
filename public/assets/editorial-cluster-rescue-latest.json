@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02T21:52:11.443Z",
+  "generated_at": "2026-08-02T22:06:38.618Z",
   "status": "passed",
   "pages_checked": 186,
   "clusters_targeted": 2,
@@ -59,9 +59,32 @@
   ],
   "pages": [
     {
+      "slug": "newsletter-assurance-immeuble",
+      "type": "newsletter",
+      "cluster": "newsletter-veille",
+      "active": true,
+      "changed": false
+    },
+    {
       "slug": "news/veille-assurance-immeuble-2026-08-01",
       "type": "news",
-      "cluster": "newsletter-veille"
+      "cluster": "newsletter-veille",
+      "active": true,
+      "changed": true
+    },
+    {
+      "slug": "veille-assurance-immeuble",
+      "type": "newsletter",
+      "cluster": "newsletter-veille",
+      "active": true,
+      "changed": false
+    },
+    {
+      "slug": "strategie-seo-continue",
+      "type": "service",
+      "cluster": "assurance-immeuble",
+      "active": true,
+      "changed": false
     }
   ]
 }
