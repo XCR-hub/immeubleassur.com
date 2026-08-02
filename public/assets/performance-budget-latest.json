@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T16:49:59.626Z",
+  "generated_at": "2026-08-02T21:51:14.649Z",
   "status": "passed",
   "pages_checked": 186,
   "indexable_pages": 180,
@@ -13,6 +13,11 @@
     {
       "source": "assurance-immeuble.html",
       "kb": 31,
+      "issue_count": 0
+    },
+    {
+      "source": "news/veille-assurance-immeuble-2026-08-01.html",
+      "kb": 27.7,
       "issue_count": 0
     },
     {
@@ -31,11 +36,6 @@
       "issue_count": 0
     },
     {
-      "source": "news/veille-assurance-immeuble-2026-08-01.html",
-      "kb": 26.2,
-      "issue_count": 0
-    },
-    {
       "source": "assurance-sci.html",
       "kb": 25.7,
       "issue_count": 0
@@ -43,6 +43,11 @@
     {
       "source": "blog.html",
       "kb": 25.7,
+      "issue_count": 0
+    },
+    {
+      "source": "veille-assurance-immeuble.html",
+      "kb": 25.6,
       "issue_count": 0
     },
     {
@@ -59,18 +64,13 @@
       "source": "blog/assurance-immeuble-sans-sinistre.html",
       "kb": 25,
       "issue_count": 0
-    },
-    {
-      "source": "blog/checklist-sinistre-degat-des-eaux.html",
-      "kb": 25,
-      "issue_count": 0
     }
   ],
   "assets": [
     {
       "path": "assets/styles.css",
-      "bytes": 59586,
-      "kb": 58.2,
+      "bytes": 61443,
+      "kb": 60,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
@@ -139,7 +139,7 @@
     },
     {
       "path": "assets/seo-cannibalization-latest.json",
-      "bytes": 9632,
+      "bytes": 9639,
       "kb": 9.4,
       "ok": true
     },
@@ -157,8 +157,8 @@
     },
     {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5734,
-      "kb": 5.6,
+      "bytes": 5874,
+      "kb": 5.7,
       "ok": true
     },
     {
@@ -169,8 +169,8 @@
     },
     {
       "path": "assets/performance-budget-latest.json",
-      "bytes": 4049,
-      "kb": 4,
+      "bytes": 4036,
+      "kb": 3.9,
       "ok": true
     }
   ],

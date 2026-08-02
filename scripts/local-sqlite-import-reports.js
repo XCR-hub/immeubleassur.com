@@ -1,4 +1,4 @@
-﻿import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { openLocalSqlite } from "./local-sqlite-db.js";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
@@ -25,6 +25,7 @@ const reportFiles = [
   "reports/seo-angle-differentiation-report.json",
   "reports/internal-link-equity-report.json",
   "reports/cluster-conversion-bridge-report.json",
+  "reports/editorial-cluster-rescue-report.json",
   "reports/live-api-readiness-report.json",
   "reports/google-readiness-unlock-report.json"
 ];

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T16:50:10.476Z",
+  "generated_at": "2026-08-02T21:52:01.843Z",
   "status": "passed",
   "pages_checked": 186,
   "pages_targeted": 57,
@@ -151,7 +151,7 @@
       "slug": "news/veille-assurance-immeuble-2026-08-01",
       "type": "news",
       "cluster": "newsletter-veille",
-      "previous_internal_links": 22,
+      "previous_internal_links": 24,
       "links_added": 4
     }
   ]

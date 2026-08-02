@@ -1,4 +1,4 @@
-﻿# ImmeubleAssur.com
+# ImmeubleAssur.com
 
 Site specialise en assurance immeuble, PNO, CNO, copropriete, SCI, syndic et multirisque immeuble. La production cible est autonome: serveur Windows local, Node.js, SQLite, Caddy et SMTP `mail.xcr.fr`.
 
@@ -70,6 +70,7 @@ npm run seo:intent:differentiate
 npm run seo:angles
 npm run seo:links
 npm run conversion:bridge
+npm run conversion:editorial-rescue
 npm run lead:intent
 npm run editorial:autopilot
 npm run media:autopilot
@@ -86,7 +87,7 @@ npm run source:quality
 npm run growth:ops:runtime
 ```
 
-Le rapport `conversion:intelligence` classe les pages par intention visible (`slug`, titre, description, H1) pour separer villes, PNO/CNO, devis, prix, syndic/copropriete, sinistres, SCI/bailleurs, travaux et veille sans lire les blocs CTA globaux. Le controle `lead:intent` verifie que les liens SEO `?intent=...` pre-remplissent le formulaire et restent transmis a l API, aux emails et a GA4.
+Le rapport `editorial-cluster-rescue` ajoute des blocs visibles et mesures sur les grappes editoriales faibles (veille, travaux, locaux commerciaux, copropriete, assurance immeuble) afin de transformer une lecture SEO en parcours devis sans texte cache. Le rapport `conversion:intelligence` classe les pages par intention visible (`slug`, titre, description, H1) pour separer villes, PNO/CNO, devis, prix, syndic/copropriete, sinistres, SCI/bailleurs, travaux et veille sans lire les blocs CTA globaux. Le controle `lead:intent` verifie que les liens SEO `?intent=...` pre-remplissent le formulaire et restent transmis a l API, aux emails et a GA4.
 
 Les workflows GitHub Actions generent et valident les rapports, mais ne publient pas sur une plateforme externe et n'ecrivent pas dans une base externe.
 

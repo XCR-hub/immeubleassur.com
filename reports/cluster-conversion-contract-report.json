@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T16:50:17.178Z",
+  "generated_at": "2026-08-02T21:52:16.952Z",
   "status": "passed",
   "average_conversion_score": 85,
   "average_money_score": 95,
@@ -140,7 +140,7 @@
     },
     {
       "intent": "veille",
-      "count": 6,
+      "count": 9,
       "minimum": 5
     },
     {
@@ -170,7 +170,7 @@
     },
     {
       "intent": "immeuble",
-      "count": 164,
+      "count": 165,
       "minimum": 150
     },
     {

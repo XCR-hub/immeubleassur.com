@@ -1,0 +1,67 @@
+{
+  "generated_at": "2026-08-02T21:52:11.443Z",
+  "status": "passed",
+  "pages_checked": 186,
+  "clusters_targeted": 2,
+  "pages_targeted": 4,
+  "blocks_written": 4,
+  "blocks_changed": 1,
+  "blocks_removed": 0,
+  "active_rescues": 4,
+  "cluster_targets": [
+    {
+      "cluster": "newsletter-veille",
+      "count": 3
+    },
+    {
+      "cluster": "assurance-immeuble",
+      "count": 1
+    }
+  ],
+  "cluster_inputs": [
+    {
+      "cluster": "assurance-immeuble",
+      "average_score": 53,
+      "money_pages": 0,
+      "threshold": 78
+    },
+    {
+      "cluster": "copropriete-syndic",
+      "average_score": 75,
+      "money_pages": 1,
+      "threshold": 78
+    },
+    {
+      "cluster": "local-commercial",
+      "average_score": 76,
+      "money_pages": 0,
+      "threshold": 78
+    },
+    {
+      "cluster": "newsletter-veille",
+      "average_score": 60,
+      "money_pages": 0,
+      "threshold": 78
+    },
+    {
+      "cluster": "travaux",
+      "average_score": 69,
+      "money_pages": 0,
+      "threshold": 78
+    }
+  ],
+  "safeguards": [
+    "visible-cta-only",
+    "idempotent-marker",
+    "no-hidden-text",
+    "first-party-pages-only",
+    "lead-pages-not-distracted"
+  ],
+  "pages": [
+    {
+      "slug": "news/veille-assurance-immeuble-2026-08-01",
+      "type": "news",
+      "cluster": "newsletter-veille"
+    }
+  ]
+}

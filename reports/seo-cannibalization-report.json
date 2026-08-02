@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-01T16:50:15.376Z",
+  "generated_at": "2026-08-02T21:52:12.920Z",
   "status": "passed",
   "pages_checked": 177,
   "clusters_checked": 11,
   "high_risk_count": 0,
-  "medium_risk_count": 0,
+  "medium_risk_count": 1,
   "watch_count": 3,
   "generated_block_families_ignored": 12,
   "generated_block_families": [
@@ -77,11 +77,11 @@
         "civile",
         "coproprietaires",
         "obligatoire",
+        "occupants",
         "rapport",
         "retenir",
         "assure",
-        "comment",
-        "communes"
+        "comment"
       ]
     },
     {
@@ -330,18 +330,18 @@
         }
       ],
       "representative_terms": [
+        "changement",
+        "alerte",
         "communes",
         "compter",
         "dernier",
         "difference",
         "entreprendre",
         "evolution",
-        "existe",
         "explique",
         "actionnable",
         "alertes",
-        "aller",
-        "anticiper"
+        "aller"
       ]
     },
     {
@@ -377,8 +377,8 @@
   "watchlist": [
     {
       "cluster": "newsletter-veille",
-      "risk": "watch",
-      "score": 45.69,
+      "risk": "medium",
+      "score": 46.37,
       "primary_slug": "veille-assurance-immeuble",
       "pages": [
         "news/veille-assurance-immeuble-2026-08-01",
@@ -391,11 +391,11 @@
       "shared_terms": [
         "dernier",
         "difference",
+        "changement",
         "communes",
         "compter",
         "entreprendre",
         "evolution",
-        "existe",
         "explique"
       ],
       "recommendation": "Renforcer l'angle unique de news/veille-assurance-immeuble-2026-08-01 et ajouter un lien contextuel vers veille-assurance-immeuble."
