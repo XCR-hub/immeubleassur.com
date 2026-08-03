@@ -1738,6 +1738,7 @@ function renderCaseActionCell(caseRow) {
       link.className = "button secondary compact-action";
       link.textContent = "Lien assureur";
       td.append(link);
+      td.append(consultationActionButton("revoke_consultation_access", "Revoquer lien", { consultationId: consultation.id }, false));
     }
   }
   if (!draft && !approved && !request && !referral && !payment && !offer && !quotedConsultation && !consultation) td.textContent = caseRow.next_action || "Suivi manuel";

@@ -1161,6 +1161,17 @@ function validEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : "";
 }
 
+async function revokeConsultationAccess(env, body) {
+  const consultationId = clean(body.consultation_id, 120);
+  const reviewer = clean(body.reviewer || "admin", 120);
+  if (!consultationId) return json({ success: false, error: "consultation_id requis" }, 400);
+  const bundle = await consultationBundle(env, consultationId);
+  if (bundle.error) return json({ success: false, error: bundle.error }, 404);
+  const now = nowIso();
+  await safeRun(env, "UPDATE insurer_consultation_tokens SET status = 'revoked', updated_at = ? WHERE consultation_id = ? AND status = 'active'", [now, consultationId]);
+  await logTimeline(env, bundle.row.case_id, "insurer_portal_access_revoked", reviewer, { marker: "insurer-partner-access-revocation-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, human_review: true });
+  return json({ success: true, status: "revoked", consultation_id: consultationId });
+}
 async function ensureConsultationToken(env, consultationId, payload = {}) {
   const existing = await safeFirst(env, "SELECT id, token FROM insurer_consultation_tokens WHERE consultation_id = ? AND status = 'active' ORDER BY created_at DESC LIMIT 1", [consultationId]);
   if (existing?.token && !errorOf(existing)) return existing;
@@ -1466,6 +1477,7 @@ export async function onRequestPost({ request, env }) {
   if (action === "approve_consultation") return approveConsultation(env, body);
   if (action === "send_consultation") return sendConsultation(env, body);
   if (action === "mark_consultation_sent") return markConsultationSent(env, body);
+  if (action === "revoke_consultation_access") return revokeConsultationAccess(env, body);
   if (action === "consultation_followup") return queueConsultationFollowup(env, body);
   if (action === "prepare_client_offer") return prepareClientOffer(env, body);
   if (action === "approve_client_offer") return approveClientOffer(env, body);
