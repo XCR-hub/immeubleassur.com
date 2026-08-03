@@ -1,4 +1,4 @@
-const form = document.querySelector("#admin-form");
+﻿const form = document.querySelector("#admin-form");
 const tokenInput = document.querySelector("#admin-token");
 const statusBox = document.querySelector(".form-status");
 const body = document.querySelector("#leads-body");
@@ -1690,6 +1690,10 @@ function renderCaseActionCell(caseRow) {
     td.append(button);
   }
   if (request) {
+    const note = document.createElement("small");
+    note.className = "admin-action-note";
+    note.textContent = `${request.subject || request.request_type || "Demande"}${request.message ? `: ${request.message}` : ""}`;
+    td.append(note);
     const nextStatus = request.status === "open" ? "in_progress" : "resolved";
     td.append(contractActionButton("contract_request_status", request.status === "open" ? "Prendre demande" : "Resoudre demande", { requestId: request.id, status: nextStatus }, true));
   }

@@ -37,6 +37,8 @@ const REQUIRED = [
   ["functions/api/admin/cases.js", "partner-performance-v1"],
   ["functions/api/admin/cases.js", "partnerRowsWithPerformance"],
   ["functions/api/admin/cases.js", "crm-action-queue-v1"],
+  ["functions/api/admin/cases.js", "request.message"],
+  ["public/assets/admin.js", "admin-action-note"],
   ["functions/api/admin/cases.js", "buildCrmActionQueue"],
   ["functions/api/admin/cases.js", "crm_action_queue"],
   ["functions/api/admin/cases.js", "insurer-package-readiness-v1"],

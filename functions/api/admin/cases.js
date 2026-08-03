@@ -765,7 +765,7 @@ function buildCrmActionQueue(cases = [], mails = [], consultations = [], partner
         priority: request.priority === "high" ? 99 : 89,
         due_at: request.due_at || base.due_at,
         type: "demande-contrat",
-        signal: request.subject || request.request_type || contract.contract_reference,
+        signal: [request.subject || request.request_type || contract.contract_reference, request.message].filter(Boolean).join("\\n"),
         recommendation: "Traiter la demande client depuis l'espace contrat et tracer le statut.",
         human_review_required: true,
         quick_action: "contract_request_status"

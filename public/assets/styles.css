@@ -3467,7 +3467,7 @@ textarea:focus {
   min-width: 150px;
 }
 
-.compact-action {
+.admin-action-note {\n  color: var(--muted);\n  font-size: .78rem;\n  line-height: 1.35;\n  overflow-wrap: anywhere;\n}\n\n.compact-action {
   min-height: 36px;
   padding: 8px 10px;
   border-radius: 7px;
