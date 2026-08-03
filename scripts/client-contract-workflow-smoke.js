@@ -37,12 +37,12 @@ function restoreEnv(previous) {
 async function post(token, body, DB) {
   return readJson(await clientPost({
     request: new Request(`${siteOrigin}/api/client/case?token=${token}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }),
-    env: { DB }
+    env: { DB, SMTP_TO: "team@example.test" }
   }));
 }
 
 async function getClient(token, DB) {
-  return readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=${token}`), env: { DB } }));
+  return readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=${token}`), env: { DB, SMTP_TO: "team@example.test" } }));
 }
 
 async function postAdmin(body, DB) {
@@ -116,6 +116,8 @@ async function main() {
   assert(clientRequest.status === 200 && clientRequest.body.status === "open", "client request should accept a detailed message");
   const refreshedWithMessage = await getClient(caseRow.client_portal_token, DB);
   assert(refreshedWithMessage.body.case.contracts?.[0]?.requests?.some((item) => item.subject === "Modification smoke" && /local technique/.test(item.message || "")), "client portal should expose the request message for follow-up");
+  const notificationDraft = DB.prepare("SELECT status, audience, subject, body FROM case_mail_queue WHERE case_id = ? AND audience = ? ORDER BY created_at DESC LIMIT 1").bind(caseRow.id, "internal_request").first();
+  assert(notificationDraft?.status === "draft_review" && notificationDraft.audience === "internal_request" && /local technique/.test(notificationDraft.body || ""), "client request should create a supervised internal notification draft");
 
   const blockedConsent = await post(caseRow.client_portal_token, { action: "contract_consent", contract_id: contract.id, consent_type: "cross_sell", granted: true }, DB);
   assert(blockedConsent.status === 422, "granting commercial consent should require explicit acceptance");
