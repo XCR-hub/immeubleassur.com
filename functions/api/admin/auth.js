@@ -3,7 +3,8 @@ import {
   adminTokenMatches,
   createAdminSession,
   masterAdminTokenMatches,
-  revokeAdminSession
+  revokeAdminSession,
+  revokeAdminSessionsForProfile
 } from "../../_shared/admin-auth.js";
 
 const headers = {
@@ -161,6 +162,30 @@ async function createProfile(request, env, body) {
   return json({ success: true, profile: publicProfile(row), marker: "admin-profile-created-v1" }, 201);
 }
 
+async function changePassword(request, env, body) {
+  const session = adminSessionProfile(request);
+  const isMaster = masterAdminTokenMatches(request, env);
+  if (!session && !isMaster) return json({ success: false, error: "Acces refuse" }, 401);
+  if (session?.role === "readonly") return json({ success: false, error: "Acces refuse" }, 403);
+  const newPassword = String(body.new_password || "");
+  if (newPassword.length < 12) return json({ success: false, error: "Le nouveau mot de passe doit contenir au moins 12 caracteres" }, 400);
+  const profileId = session?.profile_id || clean(body.profile_id, 120);
+  const row = await env.DB.prepare("SELECT * FROM admin_profiles WHERE id = ? LIMIT 1").bind(profileId).first();
+  if (!row || Number(row.active) !== 1) return json({ success: false, error: "Profil introuvable" }, 404);
+  if (!isMaster) {
+    const currentPassword = String(body.current_password || "");
+    if (!currentPassword || !(await passwordMatches(currentPassword, row.password_salt, row.password_hash))) {
+      await logAuthEvent(env, request, { profile_id: row.id, email: row.email, action: "password_change_failed", success: false });
+      return json({ success: false, error: "Mot de passe actuel invalide" }, 401);
+    }
+  }
+  const credentials = await passwordHash(newPassword);
+  const now = new Date().toISOString();
+  await env.DB.prepare("UPDATE admin_profiles SET password_hash = ?, password_salt = ?, failed_login_count = 0, locked_until = '', updated_at = ? WHERE id = ?").bind(credentials.hash, credentials.salt, now, row.id).run();
+  revokeAdminSessionsForProfile(row.id);
+  await logAuthEvent(env, request, { profile_id: row.id, email: row.email, action: "password_changed", success: true, payload: { actor: isMaster ? "master" : "self" } });
+  return json({ success: true, marker: "admin-profile-password-changed-v1" });
+}
 async function login(request, env, body) {
   const email = normalizedEmail(body.email);
   const password = String(body.password || "");
@@ -222,6 +247,7 @@ export async function onRequestPost({ request, env }) {
   const body = await bodyOf(request);
   const action = clean(body.action || "login", 40);
   if (action === "create_profile") return createProfile(request, env, body);
+  if (action === "change_password") return changePassword(request, env, body);
   if (action === "logout") {
     const profile = adminSessionProfile(request);
     await logAuthEvent(env, request, { profile_id: profile?.profile_id || "", email: profile?.email || "master", action: "logout", success: true, payload: { role: profile?.role || "master" } });

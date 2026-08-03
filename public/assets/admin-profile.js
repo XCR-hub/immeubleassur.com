@@ -2,6 +2,7 @@ const profileLoginForm = document.querySelector("#admin-profile-login-form");
 const profileCreateForm = document.querySelector("#admin-profile-create-form");
 const profileStatus = document.querySelector("#admin-profile-status");
 const profileLogout = document.querySelector("#admin-profile-logout");
+const passwordForm = document.querySelector("#admin-profile-password-form");
 const masterTokenInput = document.querySelector("#admin-token");
 const adminForm = document.querySelector("#admin-form");
 const auditButton = document.querySelector("#load-admin-auth-events");
@@ -126,3 +127,26 @@ profileLogout?.addEventListener("click", async () => {
 auditButton?.addEventListener("click", () => loadAuditEvents().catch((error) => {
   status(error.message || "Audit indisponible.", "error");
 }));
+passwordForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const current = token();
+  if (!current) {
+    status("Authentifiez-vous pour changer le mot de passe.", "error");
+    return;
+  }
+  const form = new FormData(passwordForm);
+  status("Mise a jour du mot de passe...");
+  try {
+    await responseJson(await fetch("/api/admin/auth", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + current, "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "change_password", current_password: form.get("current_password"), new_password: form.get("new_password") })
+    }));
+    sessionStorage.removeItem(PROFILE_SESSION_KEY);
+    if (masterTokenInput) masterTokenInput.value = "";
+    passwordForm.reset();
+    status("Mot de passe modifie. Reconnectez-vous.", "ok");
+  } catch (error) {
+    status(error.message || "Modification refusee.", "error");
+  }
+});

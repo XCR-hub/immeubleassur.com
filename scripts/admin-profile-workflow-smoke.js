@@ -78,12 +78,19 @@ try {
     env
   }));
   assert(readonlyPatch.status === 401, "readonly profile should not mutate CRM leads");
+  const reset = await read(await authPost({ request: request("/api/admin/auth", { method: "POST", headers: { Authorization: "Bearer admin-profile-master-token", "Content-Type": "application/json" }, body: JSON.stringify({ action: "change_password", profile_id: readonlyLogin.body.profile.id, new_password: "Lecture-Phrase-2027!" }) }), env }));
+  assert(reset.status === 200 && reset.body.marker === "admin-profile-password-changed-v1", "master should reset an operator password");
+  const revokedReadonly = await read(await authGet({ request: request("/api/admin/auth", { headers: readonlyAuthorization }), env }));
+  assert(revokedReadonly.status === 401, "password reset should revoke existing operator sessions");
+  const refreshedReadonlyLogin = await read(await authPost({ request: request("/api/admin/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "login", email: "lecture@example.test", password: "Lecture-Phrase-2027!" }) }), env }));
+  assert(refreshedReadonlyLogin.status === 200, "operator should login with the reset password");
+  const refreshedReadonlyAuthorization = { Authorization: "Bearer " + refreshedReadonlyLogin.body.session.token };
   const logout = await read(await authPost({ request: request("/api/admin/auth", { method: "POST", headers: authorization, body: JSON.stringify({ action: "logout" }) }), env }));
   assert(logout.status === 200 && logout.body.success, "operator logout should succeed");
 
   const audit = await read(await authGet({ request: request("/api/admin/auth?events=1", { headers: { Authorization: "Bearer admin-profile-master-token" } }), env }));
   assert(audit.status === 200 && audit.body.marker === "admin-auth-audit-v1" && audit.body.events.some((event) => event.action === "login_success"), "authenticated operators should read the authentication audit");
-  const readonlyAudit = await read(await authGet({ request: request("/api/admin/auth?events=1", { headers: readonlyAuthorization }), env }));
+  const readonlyAudit = await read(await authGet({ request: request("/api/admin/auth?events=1", { headers: refreshedReadonlyAuthorization }), env }));
   assert(readonlyAudit.status === 403, "readonly profile should not read the authentication audit");
 
   const revoked = await read(await authGet({ request: request("/api/admin/auth", { headers: authorization }), env }));

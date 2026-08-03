@@ -102,6 +102,13 @@ export function revokeAdminSession(request) {
   if (token) adminSessions.delete(token);
 }
 
+export function revokeAdminSessionsForProfile(profileId) {
+  const id = String(profileId || "");
+  for (const [token, session] of adminSessions) {
+    if (session.profile_id === id) adminSessions.delete(token);
+  }
+}
+
 export function adminRequestAllowed(request, env) {
   const method = String(request?.method || "GET").toUpperCase();
   if (method === "GET" || method === "HEAD" || method === "OPTIONS") return adminTokenMatches(request, env);
