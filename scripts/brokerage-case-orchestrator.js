@@ -4,6 +4,9 @@ import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { openLocalSqlite } from "./local-sqlite-db.js";
 import {
   BROKERAGE_CASE_MARKER,
+  CLIENT_OFFER_FOLLOWUP_MARKER,
+  buildClientOfferFollowupDraft,
+  clientOfferFollowupDue,
   buildClientEmailDraft,
   buildInsurerEmailDraft,
   caseReferenceForLead,
@@ -166,6 +169,34 @@ function materializeCase(database, lead, counters) {
   return { case_id: caseId, stage, priority, readiness_score: refreshedReadiness.score, reference: fullCase?.case_reference || caseReferenceForLead(lead) };
 }
 
+function materializeClientOfferFollowups(database, counters) {
+  const offerRows = rows(database, `SELECT o.*, c.case_reference, c.client_portal_token, l.name, l.email, l.city, l.need, l.property_type, l.status AS lead_status
+    FROM client_offer_recommendations o
+    JOIN brokerage_cases c ON c.id = o.case_id
+    JOIN leads l ON l.id = c.lead_id
+    WHERE o.status = 'presented' AND l.status NOT IN ('won', 'lost', 'archived')
+    ORDER BY COALESCE(o.presented_at, o.human_approved_at, o.updated_at) ASC
+    LIMIT 200`);
+  for (const offer of offerRows) {
+    if (!clientOfferFollowupDue(offer)) continue;
+    counters.offer_followups_due += 1;
+    if (!clean(offer.email, 180)) {
+      counters.offer_followups_missing_email += 1;
+      continue;
+    }
+    const existing = first(database, "SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'client_offer_followup' AND payload LIKE ? AND status IN ('draft_review', 'approved', 'sent')", [offer.case_id, `%${offer.id}%`]);
+    if (existing) continue;
+    const draft = buildClientOfferFollowupDraft(offer, siteOrigin);
+    const mailId = crypto.randomUUID();
+    run(database, `INSERT INTO case_mail_queue (id, case_id, audience, recipient_email, subject, body, status, review_required, scheduled_at, payload, created_at, updated_at)
+      VALUES (?, ?, 'client_offer_followup', ?, ?, ?, 'draft_review', 1, ?, ?, ?, ?)`, [mailId, offer.case_id, clean(offer.email, 180), draft.subject, draft.body, nowIso(), json({ marker: CLIENT_OFFER_FOLLOWUP_MARKER, offer_id: offer.id, human_review_required: true, purpose: "client_offer_followup" }), nowIso(), nowIso()]);
+    run(database, "UPDATE brokerage_cases SET next_action = ?, human_review_required = 1, updated_at = ? WHERE id = ?", ["Valider la relance offre client ou appeler le prospect avant expiration de la proposition.", nowIso(), offer.case_id]);
+    run(database, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'client_offer_followup_draft', 'system', ?, ?)", [crypto.randomUUID(), offer.case_id, json({ marker: CLIENT_OFFER_FOLLOWUP_MARKER, offer_id: offer.id, mail_id: mailId, human_review_required: true }), nowIso()]);
+    counters.offer_followup_drafts += 1;
+    counters.mail_drafts += 1;
+  }
+}
+
 function buildSummary(database) {
   const base = first(database, `SELECT COUNT(*) AS cases, SUM(CASE WHEN stage NOT IN ('contract_active', 'lost') THEN 1 ELSE 0 END) AS open_cases, SUM(CASE WHEN priority = 'hot' THEN 1 ELSE 0 END) AS hot_cases, SUM(CASE WHEN readiness_score >= 70 THEN 1 ELSE 0 END) AS ready_cases, SUM(CASE WHEN human_review_required = 1 THEN 1 ELSE 0 END) AS human_review_required, COALESCE(SUM(estimated_value_min_cents), 0) AS value_min_cents, COALESCE(SUM(estimated_value_max_cents), 0) AS value_max_cents FROM brokerage_cases`, []);
   const docs = first(database, `SELECT COUNT(*) AS requested, SUM(CASE WHEN status IN ('received', 'validated') THEN 1 ELSE 0 END) AS received, SUM(CASE WHEN required = 1 AND status NOT IN ('received', 'validated') THEN 1 ELSE 0 END) AS missing_required FROM case_documents`, []);
@@ -182,10 +213,11 @@ function buildSummary(database) {
 
 function main() {
   const database = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
-  const counters = { scanned: 0, created: 0, updated: 0, documents_requested: 0, mail_drafts: 0, consultations_prepared: 0 };
+  const counters = { scanned: 0, created: 0, updated: 0, documents_requested: 0, mail_drafts: 0, consultations_prepared: 0, offer_followups_due: 0, offer_followup_drafts: 0, offer_followups_missing_email: 0 };
   const leads = rows(database, `SELECT * FROM leads WHERE status NOT IN ('lost', 'archived') ORDER BY created_at DESC LIMIT ?`, [maxLeads]);
   counters.scanned = leads.length;
   const touched = leads.map((lead) => materializeCase(database, lead, counters));
+  materializeClientOfferFollowups(database, counters);
   const report = {
     generated_at: nowIso(),
     status: "passed",
@@ -199,7 +231,7 @@ function main() {
   writeJson(reportPath, report);
   writeJson(assetPath, report);
   database.close();
-  console.log(`Brokerage case orchestrator: ${counters.scanned} lead(s), ${counters.created} case(s) created, ${counters.mail_drafts} mail draft(s), ${counters.consultations_prepared} consultation(s).`);
+  console.log(`Brokerage case orchestrator: ${counters.scanned} lead(s), ${counters.created} case(s) created, ${counters.mail_drafts} mail draft(s), ${counters.consultations_prepared} consultation(s), ${counters.offer_followup_drafts} client offer followup draft(s).`);
 }
 
 main();

@@ -224,6 +224,44 @@ export function buildInsurerEmailDraft(lead = {}, caseRow = {}, documents = []) 
   };
 }
 
+export const CLIENT_OFFER_FOLLOWUP_MARKER = "client-offer-followup-v1";
+
+export function clientOfferMoneyLabel(cents) {
+  const amount = Math.round(Number(cents || 0) / 100);
+  return amount ? `${amount} EUR` : "montant a confirmer";
+}
+
+export function clientOfferFollowupDue(offer = {}, now = Date.now(), hours = 72) {
+  if (clean(offer.status, 40) !== "presented") return false;
+  const reference = Date.parse(offer.presented_at || offer.human_approved_at || offer.updated_at || offer.created_at || "");
+  if (!Number.isFinite(reference)) return false;
+  return Number(now || Date.now()) - reference >= Number(hours || 72) * 3600000;
+}
+
+export function buildClientOfferFollowupDraft(row = {}, origin = "https://immeubleassur.com") {
+  const portal = portalUrl(row.client_portal_token, origin);
+  return {
+    subject: `Relance proposition ImmeubleAssur ${clean(row.case_reference, 80)}`,
+    body: [
+      `Bonjour ${clean(row.name, 120) || ""}`.trim(),
+      "",
+      `Nous revenons vers vous au sujet de la proposition publiee pour votre dossier ${clean(row.case_reference, 80)}.`,
+      `Assureur: ${clean(row.insurer_name, 160) || "assureur a confirmer"}.`,
+      `Prime indicative: ${clientOfferMoneyLabel(row.premium_amount_cents)}/an. Franchise principale: ${clientOfferMoneyLabel(row.deductible_cents)}.`,
+      clean(row.recommendation, 1200),
+      "",
+      `Votre espace client securise: ${portal}`,
+      "",
+      "Vous pouvez accepter explicitement ou decliner l'offre depuis l'espace client. Aucune creation de contrat n'est lancee sans cette decision explicite et une revue finale du courtier.",
+      "",
+      "Cette relance est preparee en brouillon et doit etre validee humainement avant tout envoi.",
+      "",
+      "Bien cordialement,",
+      "ImmeubleAssur"
+    ].filter(Boolean).join("\n")
+  };
+}
+
 export function consentSnapshotFor(lead = {}) {
   return {
     source: clean(lead.source, 120) || "website",

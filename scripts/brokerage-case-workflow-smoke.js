@@ -123,6 +123,14 @@ async function main() {
 
   const approvedOffer = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "approve_client_offer", offer_id: draftOffer.body.offer_id, reviewer: "smoke" }) }), env }));
   assert(approvedOffer.status === 200 && approvedOffer.body.status === "presented", "admin should publish the client offer after human review");
+  const oldOfferAt = new Date(Date.now() - 4 * 86400000).toISOString();
+  DB.prepare("UPDATE client_offer_recommendations SET presented_at = ?, human_approved_at = ?, updated_at = ? WHERE id = ?").bind(oldOfferAt, oldOfferAt, oldOfferAt, draftOffer.body.offer_id).run();
+  const offerFollowupSync = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=1`, { headers: { Authorization: `Bearer ${adminToken}` } }), env }));
+  assert(offerFollowupSync.status === 200 && offerFollowupSync.body.sync?.counters?.offer_followup_drafts === 1, "admin sync should prepare one overdue client offer followup draft");
+  const offerFollowupMail = DB.prepare("SELECT status, body FROM case_mail_queue WHERE case_id = ? AND audience = 'client_offer_followup' AND payload LIKE ? LIMIT 1").bind(caseRow.id, `%${draftOffer.body.offer_id}%`).first();
+  assert(offerFollowupMail?.status === "draft_review" && /espace-client\.html\?token=/.test(offerFollowupMail.body || ""), "client offer followup should remain a human-reviewed draft with portal link");
+  const offerFollowupTimeline = DB.prepare("SELECT COUNT(*) AS count FROM case_timeline WHERE case_id = ? AND event_type = 'client_offer_followup_draft'").bind(caseRow.id).first()?.count || 0;
+  assert(Number(offerFollowupTimeline) === 1, "client offer followup should be traced in timeline");
   const offerPortal = await readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=${caseRow.client_portal_token}`), env }));
   const visibleOffer = (offerPortal.body.case?.client_offers || []).find((item) => item.id === draftOffer.body.offer_id);
   assert(offerPortal.status === 200 && visibleOffer?.status === "presented" && visibleOffer.marker === "client-offer-recommendation-v1", "client portal should expose only the approved offer recommendation");
@@ -134,11 +142,11 @@ async function main() {
   assert(wonCase?.stage === "contract_active" && wonCase?.lead_status === "won", "accepted offer should move the case to active contract and win the lead");
 
   const timelineCount = DB.prepare("SELECT COUNT(*) AS count FROM case_timeline WHERE case_id = ?").bind(caseRow.id).first()?.count || 0;
-  assert(Number(timelineCount) >= 12, "case timeline should trace system, client, admin, insurer and offer actions");
+  assert(Number(timelineCount) >= 13, "case timeline should trace system, client, admin, insurer, offer and followup actions");
 
   DB.close();
   cleanup();
-  console.log("Brokerage case workflow smoke passed: lead -> case -> client portal -> human mail review -> insurer portal -> client offer -> explicit acceptance -> timeline.");
+  console.log("Brokerage case workflow smoke passed: lead -> case -> client portal -> human mail review -> insurer portal -> client offer -> followup draft -> explicit acceptance -> timeline.");
 }
 
 main().catch((error) => {

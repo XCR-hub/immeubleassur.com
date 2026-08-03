@@ -1,6 +1,9 @@
 import { sendPortableSmtpMail } from "../../_shared/smtp.js";
 import {
   BROKERAGE_CASE_MARKER,
+  CLIENT_OFFER_FOLLOWUP_MARKER,
+  buildClientOfferFollowupDraft,
+  clientOfferFollowupDue,
   buildClientEmailDraft,
   buildInsurerEmailDraft,
   caseReferenceForLead,
@@ -194,8 +197,38 @@ async function materializeCase(env, lead, counters) {
   return { case_id: caseId, reference: caseRow?.case_reference || caseReferenceForLead(lead), stage, priority, readiness_score: refreshedReadiness.score };
 }
 
+async function materializeClientOfferFollowups(env, counters) {
+  const offerRows = await safeAll(env, `SELECT o.*, c.case_reference, c.client_portal_token, l.name, l.email, l.city, l.need, l.property_type, l.status AS lead_status
+    FROM client_offer_recommendations o
+    JOIN brokerage_cases c ON c.id = o.case_id
+    JOIN leads l ON l.id = c.lead_id
+    WHERE o.status = 'presented' AND l.status NOT IN ('won', 'lost', 'archived')
+    ORDER BY COALESCE(o.presented_at, o.human_approved_at, o.updated_at) ASC
+    LIMIT 200`);
+  if (errorOf(offerRows)) return errorOf(offerRows);
+  for (const offer of rowsOrEmpty(offerRows)) {
+    if (!clientOfferFollowupDue(offer)) continue;
+    counters.offer_followups_due += 1;
+    if (!clean(offer.email, 180)) {
+      counters.offer_followups_missing_email += 1;
+      continue;
+    }
+    const existing = await safeFirst(env, "SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'client_offer_followup' AND payload LIKE ? AND status IN ('draft_review', 'approved', 'sent')", [offer.case_id, `%${offer.id}%`]);
+    if (existing?.id) continue;
+    const draft = buildClientOfferFollowupDraft(offer, clean(env.SITE_ORIGIN, 240) || "https://immeubleassur.com");
+    const mailId = crypto.randomUUID();
+    await safeRun(env, `INSERT INTO case_mail_queue (id, case_id, audience, recipient_email, subject, body, status, review_required, scheduled_at, payload, created_at, updated_at)
+      VALUES (?, ?, 'client_offer_followup', ?, ?, ?, 'draft_review', 1, ?, ?, ?, ?)`, [mailId, offer.case_id, clean(offer.email, 180), draft.subject, draft.body, nowIso(), JSON.stringify({ marker: CLIENT_OFFER_FOLLOWUP_MARKER, offer_id: offer.id, human_review_required: true, purpose: "client_offer_followup" }), nowIso(), nowIso()]);
+    await safeRun(env, "UPDATE brokerage_cases SET next_action = ?, human_review_required = 1, updated_at = ? WHERE id = ?", ["Valider la relance offre client ou appeler le prospect avant expiration de la proposition.", nowIso(), offer.case_id]);
+    await logTimeline(env, offer.case_id, "client_offer_followup_draft", "system", { marker: CLIENT_OFFER_FOLLOWUP_MARKER, offer_id: offer.id, mail_id: mailId, human_review_required: true });
+    counters.offer_followup_drafts += 1;
+    counters.mail_drafts += 1;
+  }
+  return "";
+}
+
 async function ensureCasesForOpenLeads(env, limit = 160) {
-  const counters = { scanned: 0, created: 0, updated: 0, documents_requested: 0, mail_drafts: 0, consultations_prepared: 0 };
+  const counters = { scanned: 0, created: 0, updated: 0, documents_requested: 0, mail_drafts: 0, consultations_prepared: 0, offer_followups_due: 0, offer_followup_drafts: 0, offer_followups_missing_email: 0 };
   const leadRows = await safeAll(env, `SELECT * FROM leads WHERE status NOT IN ('lost', 'archived') ORDER BY created_at DESC LIMIT ?`, [limit]);
   const touched = [];
   for (const lead of rowsOrEmpty(leadRows)) {
@@ -203,7 +236,8 @@ async function ensureCasesForOpenLeads(env, limit = 160) {
     const result = await materializeCase(env, lead, counters);
     if (result) touched.push(result);
   }
-  return { counters, touched, warning: errorOf(leadRows) };
+  const followupWarning = await materializeClientOfferFollowups(env, counters);
+  return { counters, touched, warning: [errorOf(leadRows), followupWarning].filter(Boolean).join("; ") };
 }
 
 function groupBy(rows, key) {

@@ -14,6 +14,9 @@ const REQUIRED = [
   ["functions/_shared/brokerage-cases.js", "cross_sell: \"disabled_until_explicit_opt_in\""],
   ["functions/_shared/brokerage-cases.js", "insurerPortalToken"],
   ["functions/_shared/brokerage-cases.js", "insurerPortalUrl"],
+  ["functions/_shared/brokerage-cases.js", "client-offer-followup-v1"],
+  ["functions/_shared/brokerage-cases.js", "buildClientOfferFollowupDraft"],
+  ["functions/_shared/brokerage-cases.js", "clientOfferFollowupDue"],
   ["functions/api/admin/cases.js", "Validation humaine requise avant envoi"],
   ["functions/api/admin/cases.js", "approve_mail"],
   ["functions/api/admin/cases.js", "send_mail"],
@@ -26,6 +29,9 @@ const REQUIRED = [
   ["functions/api/admin/cases.js", "prepare_client_offer"],
   ["functions/api/admin/cases.js", "approve_client_offer"],
   ["functions/api/admin/cases.js", "client_offer_approved"],
+  ["functions/api/admin/cases.js", "materializeClientOfferFollowups"],
+  ["functions/api/admin/cases.js", "client_offer_followup"],
+  ["functions/api/admin/cases.js", "client_offer_followup_draft"],
   ["functions/api/admin/cases.js", "insurer-consultation-action-v1"],
   ["functions/api/admin/cases.js", "Validation humaine consultation requise avant envoi"],
   ["functions/api/admin/cases.js", "insurer-consultation-human-review"],
@@ -42,6 +48,9 @@ const REQUIRED = [
   ["functions/api/client/case.js", "client_offer_accepted"],
   ["functions/api/client/case.js", "Acceptation explicite requise"],
   ["scripts/brokerage-case-orchestrator.js", "human-review-before-send"],
+  ["scripts/brokerage-case-orchestrator.js", "materializeClientOfferFollowups"],
+  ["scripts/brokerage-case-orchestrator.js", "client_offer_followup"],
+  ["scripts/brokerage-case-orchestrator.js", "client_offer_followup_draft"],
   ["scripts/local-production-server.js", "/api/admin/cases"],
   ["scripts/local-production-server.js", "/api/client/case"],
   ["scripts/local-production-server.js", "/api/partner/consultation"],
@@ -60,7 +69,8 @@ const REQUIRED = [
   ["public/assets/styles.css", "client-offer-workflow-2026-08:start"],
   ["scripts/asset-version-pass.js", "partnerPortal"],
   ["package.json", "partner-portal.js"],
-  ["package.json", "brokerage:cases"]
+  ["package.json", "brokerage:cases"],
+  ["scripts/brokerage-case-workflow-smoke.js", "client offer followup should remain a human-reviewed draft"]
 ];
 
 const FORBIDDEN = [
@@ -92,7 +102,7 @@ const report = {
   issue_count: missing.length + forbidden.length,
   missing,
   forbidden,
-  safeguards: ["human-review-before-send", "client-token-portal", "consent-snapshot", "audit-timeline", "client-offer-human-review", "no-unsupervised-cross-sell"]
+  safeguards: ["human-review-before-send", "client-token-portal", "consent-snapshot", "audit-timeline", "client-offer-human-review", "client-offer-followup-human-review", "no-unsupervised-cross-sell"]
 };
 mkdirSync("reports", { recursive: true });
 mkdirSync(join("public", "assets"), { recursive: true });
