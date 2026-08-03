@@ -78,6 +78,7 @@ function auditPage(file) {
   const words = wordCount(text);
   const title = stripHtml(meta(html, /<title>(.*?)<\/title>/is));
   const description = meta(html, /<meta name="description" content="([^"]*)"/i);
+  const noIndex = /<meta name="robots" content="[^"]*noindex/i.test(html);
   const canonicalUrl = meta(html, /<link rel="canonical" href="([^"]*)"/i);
   const h1Count = (html.match(/<h1\b/gi) || []).length;
   const detailsCount = (html.match(/<details\b/gi) || []).length;
@@ -86,7 +87,7 @@ function auditPage(file) {
   const issues = [];
   const warnings = [];
 
-  if (slug !== "admin") {
+  if (slug !== "admin" && !noIndex) {
     if (bannedManipulation.some((pattern) => pattern.test(text))) issues.push("manipulation-language");
     if (/display\s*:\s*none|visibility\s*:\s*hidden|font-size\s*:\s*0/i.test(html) && /assurance|devis|immeuble/i.test(html)) warnings.push("possible-hidden-seo-text");
     if (canonicalUrl !== canonical(slug)) issues.push("canonical-mismatch");
@@ -97,7 +98,7 @@ function auditPage(file) {
     if (detailsCount === 0 && /assurance|devis|prix|courtier|pno|cno/i.test(title)) warnings.push("no-visible-faq");
   }
 
-  return { slug, url: canonical(slug), title, description, words, h1_count: h1Count, faq_count: detailsCount, has_lead_form: form, top_keyword: density, issues, warnings, paragraphs: paragraphs(html).map(paragraphFingerprint) };
+  return { slug, url: canonical(slug), title, description, noindex: noIndex, words, h1_count: h1Count, faq_count: detailsCount, has_lead_form: form, top_keyword: density, issues, warnings, paragraphs: paragraphs(html).map(paragraphFingerprint) };
 }
 
 const pages = walk(PUBLIC_DIR).map(auditPage);
