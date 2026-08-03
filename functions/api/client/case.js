@@ -142,7 +142,24 @@ function publicContract(row, lead, documents = [], payments = [], requests = [],
   };
 }
 
-function publicCase(row, documents, consultations, mails, contracts) {
+function publicOffer(row) {
+  return {
+    id: row.id,
+    insurer_name: clean(row.insurer_name, 160),
+    status: clean(row.status, 40),
+    premium_label: `${moneyLabel(row.premium_amount_cents)}/an`,
+    deductible_label: moneyLabel(row.deductible_cents),
+    recommendation: clean(row.recommendation, 1800),
+    coverage_summary: clean(row.coverage_summary, 1800),
+    exclusions_summary: clean(row.exclusions_summary, 1200),
+    validity_until: row.validity_until || "",
+    presented_at: row.presented_at || row.human_approved_at || "",
+    accepted_at: row.accepted_at || "",
+    marker: "client-offer-recommendation-v1"
+  };
+}
+
+function publicCase(row, documents, consultations, mails, contracts, offers = []) {
   const visibleConsultations = rowsOrEmpty(consultations).filter((item) => ["sent", "answered", "quoted"].includes(clean(item.status, 40))).map((item) => ({
     insurer_name: clean(item.insurer_name, 160),
     status: clean(item.status, 40),
@@ -177,6 +194,7 @@ function publicCase(row, documents, consultations, mails, contracts) {
       validated_at: doc.validated_at || ""
     })),
     consultations: visibleConsultations,
+    client_offers: rowsOrEmpty(offers).map(publicOffer),
     contracts,
     last_messages: rowsOrEmpty(mails).filter((mail) => ["sent", "approved"].includes(clean(mail.status, 40))).slice(0, 5).map((mail) => ({
       audience: mail.audience,
@@ -200,6 +218,11 @@ async function ownedContract(env, caseId, contractId) {
   return safeFirst(env, "SELECT * FROM client_contracts WHERE id = ? AND case_id = ?", [id, caseId]);
 }
 
+async function ownedOffer(env, row, offerId) {
+  const id = clean(offerId, 120);
+  if (!id) return null;
+  return safeFirst(env, "SELECT * FROM client_offer_recommendations WHERE id = ? AND case_id = ? AND status IN ('presented', 'accepted', 'declined')", [id, row.id]);
+}
 async function contractsForCase(env, row) {
   const contractRows = rowsOrEmpty(await safeAll(env, "SELECT * FROM client_contracts WHERE case_id = ? ORDER BY created_at DESC", [row.id]));
   if (!contractRows.length) return [];
@@ -231,13 +254,14 @@ export async function onRequestGet({ request, env }) {
   const token = tokenOf(request);
   const row = await caseByToken(env, token);
   if (!row || row.error) return json({ success: false, error: "Dossier introuvable" }, 404);
-  const [documents, consultations, mails, contracts] = await Promise.all([
+  const [documents, consultations, mails, offers, contracts] = await Promise.all([
     safeAll(env, "SELECT * FROM case_documents WHERE case_id = ? ORDER BY required DESC, label", [row.id]),
     safeAll(env, "SELECT * FROM insurer_consultations WHERE case_id = ? ORDER BY updated_at DESC", [row.id]),
     safeAll(env, "SELECT audience, subject, status, approved_at, sent_at FROM case_mail_queue WHERE case_id = ? ORDER BY updated_at DESC LIMIT 20", [row.id]),
+    safeAll(env, "SELECT * FROM client_offer_recommendations WHERE case_id = ? AND status IN ('presented', 'accepted', 'declined') ORDER BY CASE status WHEN 'accepted' THEN 1 WHEN 'presented' THEN 2 ELSE 3 END, updated_at DESC", [row.id]),
     contractsForCase(env, row)
   ]);
-  return json({ success: true, generated_at: new Date().toISOString(), case: publicCase(row, documents, consultations, mails, contracts), contract_marker: CLIENT_CONTRACT_MARKER });
+  return json({ success: true, generated_at: new Date().toISOString(), case: publicCase(row, documents, consultations, mails, contracts, offers), contract_marker: CLIENT_CONTRACT_MARKER });
 }
 
 async function markCaseDocumentReceived(env, row, body) {
@@ -250,6 +274,28 @@ async function markCaseDocumentReceived(env, row, body) {
   return json({ success: true, status: "received" });
 }
 
+async function decideClientOffer(env, row, body) {
+  const offer = await ownedOffer(env, row, body.offer_id);
+  if (!offer || offer.error) return json({ success: false, error: "Offre introuvable" }, 404);
+  const decision = clean(body.decision || body.status, 40);
+  if (!["accepted", "declined"].includes(decision)) return json({ success: false, error: "Decision offre invalide" }, 400);
+  if (clean(offer.status, 40) === "accepted") return decision === "accepted" ? json({ success: true, status: "accepted", already_done: true }) : json({ success: false, error: "Offre deja acceptee" }, 409);
+  if (clean(offer.status, 40) === "declined") return json({ success: false, error: "Offre deja declinee" }, 409);
+  if (decision === "accepted" && body.explicit_acceptance !== true) return json({ success: false, error: "Acceptation explicite requise" }, 422);
+  const now = new Date().toISOString();
+  const proof = clean(body.proof_text, 1000) || (decision === "accepted" ? "Acceptation explicite de l'offre depuis l'espace client ImmeubleAssur" : "Offre declinee depuis l'espace client ImmeubleAssur");
+  const payload = { ...safeJson(offer.payload, {}), marker: "client-offer-recommendation-v1", decision, explicit_acceptance: decision === "accepted", proof_text: proof };
+  await safeRun(env, "UPDATE client_offer_recommendations SET status = ?, decision_at = ?, accepted_at = CASE WHEN ? = 'accepted' THEN COALESCE(accepted_at, ?) ELSE accepted_at END, payload = ?, updated_at = ? WHERE id = ?", [decision, now, decision, now, JSON.stringify(payload), now, offer.id]);
+  if (decision === "accepted") {
+    await safeRun(env, "UPDATE client_offer_recommendations SET status = 'declined', decision_at = COALESCE(decision_at, ?), updated_at = ? WHERE case_id = ? AND id <> ? AND status = 'presented'", [now, now, row.id, offer.id]);
+    await safeRun(env, "UPDATE brokerage_cases SET stage = 'contract_active', next_action = ?, human_review_required = 1, updated_at = ? WHERE id = ?", ["Transformer l'offre acceptee en contrat, verifier les pieces definitives et lancer l'espace contrat.", now, row.id]);
+    await safeRun(env, "UPDATE leads SET status = 'won', updated_at = ? WHERE id = ?", [now, row.lead_id]);
+  } else {
+    await safeRun(env, "UPDATE brokerage_cases SET next_action = ?, updated_at = ? WHERE id = ?", ["Reprendre contact apres refus de l'offre client et rechercher une alternative si besoin.", now, row.id]);
+  }
+  await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, ?, 'client', ?, ?)", [crypto.randomUUID(), row.id, decision === "accepted" ? "client_offer_accepted" : "client_offer_declined", JSON.stringify({ marker: "client-offer-recommendation-v1", offer_id: offer.id, insurer_name: offer.insurer_name, explicit_acceptance: decision === "accepted" }), now]);
+  return json({ success: true, status: decision });
+}
 async function addContractRequest(env, row, contract, body, typeOverride = "") {
   const type = clean(typeOverride || body.request_type || "document", 80);
   const priority = requestPriorityFor(type);
@@ -304,6 +350,7 @@ export async function onRequestPost({ request, env }) {
   const body = await request.json().catch(() => ({}));
   const action = clean(body.action, 80) || "case_document_received";
   if (action === "case_document_received") return markCaseDocumentReceived(env, row, body);
+  if (action === "offer_decision") return decideClientOffer(env, row, body);
 
   const contract = await ownedContract(env, row.id, body.contract_id);
   if (!contract || contract.error) return json({ success: false, error: "Contrat introuvable" }, 404);

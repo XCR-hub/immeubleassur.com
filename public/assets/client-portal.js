@@ -4,6 +4,7 @@ const statusBox = document.querySelector("#portal-status");
 const content = document.querySelector("#portal-content");
 const docsBox = document.querySelector("#portal-documents");
 const consultationsBox = document.querySelector("#portal-consultations");
+const offersBox = document.querySelector("#portal-offers");
 const contractsBox = document.querySelector("#portal-contracts");
 const paymentsBox = document.querySelector("#portal-payments");
 const requestsBox = document.querySelector("#portal-requests");
@@ -52,6 +53,10 @@ function statusLabel(status) {
 
 function consultationLabel(status) {
   return ({ draft_review: "En preparation", sent: "Envoyee", answered: "Reponse recue", quoted: "Offre recue", declined: "Refusee" })[status] || "En preparation";
+}
+
+function offerLabel(status) {
+  return ({ presented: "A accepter", accepted: "Acceptee", declined: "Declinee" })[status] || "A verifier";
 }
 
 function paymentLabel(status) {
@@ -148,6 +153,70 @@ function renderConsultations(consultations = []) {
     small.textContent = consultationLabel(item.status);
     row.append(strong, small);
     consultationsBox.append(row);
+  }
+}
+
+function renderOffers(offers = []) {
+  if (!offersBox) return;
+  offersBox.replaceChildren();
+  if (!offers.length) {
+    clearWithEmpty(offersBox, "Aucune offre publiee pour le moment.");
+    return;
+  }
+  for (const offer of offers) {
+    const row = document.createElement("div");
+    row.className = "portal-offer-row";
+    if (offer.status === "accepted") row.classList.add("is-accepted");
+    row.dataset.offerId = offer.id;
+
+    const heading = document.createElement("div");
+    heading.className = "portal-row-heading";
+    const strong = document.createElement("strong");
+    strong.textContent = offer.insurer_name || "Assureur";
+    const badge = document.createElement("span");
+    badge.className = "portal-badge";
+    badge.textContent = offerLabel(offer.status);
+    heading.append(strong, badge);
+
+    const meta = document.createElement("div");
+    meta.className = "portal-offer-meta";
+    for (const value of [offer.premium_label, `Franchise ${offer.deductible_label || "a confirmer"}`, `Valable jusqu'au ${formatDate(offer.validity_until)}`]) {
+      const chip = document.createElement("span");
+      chip.textContent = value;
+      meta.append(chip);
+    }
+
+    const recommendation = document.createElement("p");
+    recommendation.textContent = offer.recommendation || "Proposition en cours de validation.";
+    row.append(heading, meta, recommendation);
+    if (offer.coverage_summary) row.append(smallText(offer.coverage_summary));
+    if (offer.exclusions_summary) row.append(smallText(offer.exclusions_summary));
+
+    if (offer.status === "presented") {
+      const proof = document.createElement("label");
+      proof.className = "portal-offer-proof";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = "explicit_acceptance";
+      const proofText = document.createElement("span");
+      proofText.textContent = "J'accepte explicitement cette proposition et la creation du contrat correspondant apres verification finale du courtier.";
+      proof.append(checkbox, proofText);
+      const actions = document.createElement("div");
+      actions.className = "portal-offer-actions";
+      const accept = document.createElement("button");
+      accept.type = "button";
+      accept.className = "submit-button compact-action";
+      accept.dataset.offerDecision = "accepted";
+      accept.textContent = "Accepter offre";
+      const decline = document.createElement("button");
+      decline.type = "button";
+      decline.className = "button secondary compact-action";
+      decline.dataset.offerDecision = "declined";
+      decline.textContent = "Decliner";
+      actions.append(accept, decline);
+      row.append(proof, actions);
+    }
+    offersBox.append(row);
   }
 }
 
@@ -356,6 +425,7 @@ function renderCase(payload) {
   const lead = caseData.lead || {};
   const documents = Array.isArray(caseData.documents) ? caseData.documents : [];
   const consultations = Array.isArray(caseData.consultations) ? caseData.consultations : [];
+  const offers = Array.isArray(caseData.client_offers) ? caseData.client_offers : [];
   const contracts = Array.isArray(caseData.contracts) ? caseData.contracts : [];
   const payments = contracts.flatMap((contract) => Array.isArray(contract.payments) ? contract.payments : []);
   const requests = contracts.flatMap((contract) => Array.isArray(contract.requests) ? contract.requests : []);
@@ -367,6 +437,7 @@ function renderCase(payload) {
   text("[data-case-need]", `${lead.need || "assurance immeuble"} - ${lead.property_type || "immeuble"}`);
   text("[data-documents-count]", `${documents.filter((doc) => ["received", "validated"].includes(doc.status)).length}/${documents.length}`);
   text("[data-consultations-count]", String(consultations.length));
+  text("[data-offers-count]", offers.length ? String(offers.length) : "0");
   text("[data-contracts-count]", contracts.length ? String(contracts.length) : "0");
   text("[data-payments-count]", payments.length ? String(payments.filter((payment) => payment.status === "pending").length) : "0");
   text("[data-requests-count]", requests.length ? String(requests.filter((request) => request.status === "open").length) : "0");
@@ -375,6 +446,7 @@ function renderCase(payload) {
   if (progress) progress.style.width = `${Math.max(4, Math.min(100, Number(caseData.readiness_score || 0)))}%`;
   renderDocuments(documents);
   renderConsultations(consultations);
+  renderOffers(offers);
   renderContracts(contracts);
   renderPayments();
   renderRequests();
@@ -445,6 +517,24 @@ docsBox?.addEventListener("click", (event) => {
   const button = target.closest("[data-document-type]");
   if (!button) return;
   markDocumentReceived(button.dataset.documentType || "", button);
+});
+
+offersBox?.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  const button = target.closest("[data-offer-decision]");
+  const row = target.closest("[data-offer-id]");
+  if (!button || !row) return;
+  const decision = button.dataset.offerDecision || "";
+  const explicit = Boolean(row.querySelector('input[name="explicit_acceptance"]')?.checked);
+  postPortalAction("offer_decision", {
+    offer_id: row.dataset.offerId,
+    decision,
+    explicit_acceptance: decision === "accepted" ? explicit : false,
+    proof_text: decision === "accepted" ? "Acceptation explicite depuis l'espace client ImmeubleAssur" : "Offre declinee depuis l'espace client ImmeubleAssur"
+  }, button)
+    .then(() => setStatus(decision === "accepted" ? "Offre acceptee. Creation du contrat en revue." : "Offre declinee.", "success"))
+    .catch((error) => setStatus(error.message || "Decision offre impossible", "error"));
 });
 
 contractsBox?.addEventListener("click", (event) => {

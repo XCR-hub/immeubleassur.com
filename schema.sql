@@ -422,6 +422,32 @@ CREATE INDEX IF NOT EXISTS idx_insurer_consultation_tokens_token ON insurer_cons
 CREATE INDEX IF NOT EXISTS idx_insurer_consultation_tokens_consultation ON insurer_consultation_tokens(consultation_id);
 CREATE INDEX IF NOT EXISTS idx_insurer_consultation_tokens_status ON insurer_consultation_tokens(status);
 
+CREATE TABLE IF NOT EXISTS client_offer_recommendations (
+  id TEXT PRIMARY KEY,
+  case_id TEXT NOT NULL REFERENCES brokerage_cases(id) ON DELETE CASCADE,
+  consultation_id TEXT REFERENCES insurer_consultations(id) ON DELETE SET NULL,
+  insurer_name TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'draft_review',
+  premium_amount_cents INTEGER,
+  deductible_cents INTEGER,
+  recommendation TEXT,
+  coverage_summary TEXT,
+  exclusions_summary TEXT,
+  validity_until TEXT,
+  human_approved_at TEXT,
+  approved_by TEXT,
+  presented_at TEXT,
+  decision_at TEXT,
+  accepted_at TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_client_offer_recommendations_consultation_unique ON client_offer_recommendations(consultation_id);
+CREATE INDEX IF NOT EXISTS idx_client_offer_recommendations_case_id ON client_offer_recommendations(case_id);
+CREATE INDEX IF NOT EXISTS idx_client_offer_recommendations_status ON client_offer_recommendations(status);
+CREATE INDEX IF NOT EXISTS idx_client_offer_recommendations_validity ON client_offer_recommendations(validity_until);
 CREATE TABLE IF NOT EXISTS case_mail_queue (
   id TEXT PRIMARY KEY,
   case_id TEXT NOT NULL REFERENCES brokerage_cases(id) ON DELETE CASCADE,

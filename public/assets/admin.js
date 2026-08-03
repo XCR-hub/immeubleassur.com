@@ -1402,6 +1402,17 @@ function consultationSummary(consultations = []) {
   return `${signals.join(" / ")}${names ? `\n${names}` : ""}`;
 }
 
+function offerSummary(offers = []) {
+  const rows = Array.isArray(offers) ? offers : [];
+  if (!rows.length) return "0 offre client";
+  const draft = rows.filter((item) => item.status === "draft_review").length;
+  const presented = rows.filter((item) => item.status === "presented").length;
+  const accepted = rows.filter((item) => item.status === "accepted").length;
+  const top = rows.find((item) => Number(item.premium_amount_cents || 0) > 0);
+  const premium = top ? `${Math.round(Number(top.premium_amount_cents || 0) / 100)} EUR/an` : "prime a confirmer";
+  return `${draft} revue / ${presented} presentee(s) / ${accepted} acceptee(s)\n${premium}`;
+}
+
 function documentSummary(documents = []) {
   const total = documents.length;
   const missing = documents.filter((doc) => doc.required && !["received", "validated", "waived"].includes(doc.status)).length;
@@ -1490,6 +1501,11 @@ function firstConsultationAction(consultations = []) {
     || rows.find((item) => consultationNeedsFollowup(item));
 }
 
+function firstOfferAction(offers = []) {
+  const rows = Array.isArray(offers) ? offers : [];
+  return rows.find((item) => item.status === "draft_review");
+}
+
 function consultationActionButton(action, text, dataset = {}, primary = false, disabled = false) {
   const button = document.createElement("button");
   button.type = "button";
@@ -1503,17 +1519,32 @@ function consultationActionButton(action, text, dataset = {}, primary = false, d
   return button;
 }
 
+function offerActionButton(action, text, dataset = {}, primary = false) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = primary ? "submit-button compact-action" : "button secondary compact-action";
+  button.dataset.offerAction = action;
+  for (const [key, value] of Object.entries(dataset)) {
+    if (value !== undefined && value !== null) button.dataset[key] = String(value);
+  }
+  button.textContent = text;
+  return button;
+}
+
 function renderCaseActionCell(caseRow) {
   const td = document.createElement("td");
   td.className = "case-action-cell";
   const mails = Array.isArray(caseRow.mail_queue) ? caseRow.mail_queue : [];
   const contracts = Array.isArray(caseRow.contracts) ? caseRow.contracts : [];
   const consultations = Array.isArray(caseRow.consultations) ? caseRow.consultations : [];
+  const offers = Array.isArray(caseRow.client_offers) ? caseRow.client_offers : [];
   const draft = mails.find((mail) => mail.status === "draft_review");
   const approved = mails.find((mail) => mail.status === "approved" && mail.recipient_email);
   const request = firstContractRequest(contracts);
   const referral = firstReferral(contracts);
   const payment = firstPendingPayment(contracts);
+  const offer = firstOfferAction(offers);
+  const quotedConsultation = consultations.find((item) => item.status === "quoted" && !offers.some((offerRow) => offerRow.consultation_id === item.id && offerRow.status !== "declined"));
   const consultation = firstConsultationAction(consultations);
   if (draft) {
     const button = document.createElement("button");
@@ -1543,6 +1574,11 @@ function renderCaseActionCell(caseRow) {
   if (payment) {
     td.append(contractActionButton("payment_status", "Prime payee", { paymentId: payment.id, status: "paid" }));
   }
+  if (offer) {
+    td.append(offerActionButton("approve_client_offer", "Publier offre", { offerId: offer.id }, true));
+  } else if (quotedConsultation) {
+    td.append(consultationActionButton("prepare_client_offer", "Proposition client", { consultationId: quotedConsultation.id }, true));
+  }
   if (consultation) {
     const emailReady = Boolean(consultation.recipient_email);
     if (consultation.status === "draft_review") {
@@ -1563,7 +1599,7 @@ function renderCaseActionCell(caseRow) {
       td.append(link);
     }
   }
-  if (!draft && !approved && !request && !referral && !payment && !consultation) td.textContent = caseRow.next_action || "Suivi manuel";
+  if (!draft && !approved && !request && !referral && !payment && !offer && !quotedConsultation && !consultation) td.textContent = caseRow.next_action || "Suivi manuel";
   return td;
 }
 
@@ -1594,7 +1630,7 @@ function renderCasesTable(cases = []) {
     tr.append(
       cell(`${item.case_reference}\n${item.value_label || "0 EUR/an"}`),
       cell(`${lead.name || "-"}\n${lead.city || ""} ${lead.need || ""}`.trim()),
-      cell(`${item.stage_label || item.stage}\n${item.priority || "standard"} - ${item.readiness_score || 0}/100\n${contractSummary(contracts)}`),
+      cell(`${item.stage_label || item.stage}\n${item.priority || "standard"} - ${item.readiness_score || 0}/100\n${contractSummary(contracts)}\n${offerSummary(item.client_offers || [])}`),
       cell(documentSummary(item.documents || [])),
       cell(`${mails.draft_review || 0} revue / ${mails.approved || 0} approuve(s) / ${mails.sent || 0} envoye(s)`),
       cell(consultationSummary(item.consultations || [])),
@@ -1664,6 +1700,35 @@ async function postContractAdminAction(action, button) {
   }
 }
 
+async function postOfferAction(action, button) {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (!token) return;
+  const previous = button?.textContent || "";
+  const body = { action, reviewer: "admin" };
+  if (button?.dataset.offerId) body.offer_id = button.dataset.offerId;
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Traitement...";
+  }
+  try {
+    const response = await fetch("/api/admin/cases", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || "Action offre impossible");
+    await loadCases();
+  } catch (error) {
+    if (casesSummary) casesSummary.replaceChildren(metricCard("Erreur offre", action, error.message || "action impossible"));
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = previous;
+    }
+  }
+}
+
 async function postConsultationAction(action, button) {
   const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
   if (!token) return;
@@ -1711,6 +1776,7 @@ async function loadCases() {
   const consultations = summary.consultations || {};
   const contracts = summary.contracts || {};
   const contractOps = summary.contract_operations || {};
+  const offers = summary.client_offers || {};
   const sync = result.sync?.counters || {};
   if (casesSummary) {
     casesSummary.replaceChildren(
@@ -1720,6 +1786,7 @@ async function loadCases() {
       metricCard("Pieces manquantes", String(documents.missing_required || 0), `${documents.received || 0}/${documents.requested || 0} recues`),
       metricCard("Mails a valider", String(mail.review_drafts || 0), `${mail.approved || 0} approuve(s), ${mail.sent || 0} envoye(s)`),
       metricCard("Consultations", String(consultations.consultations || 0), `${consultations.review_consultations || 0} revue, ${consultations.approved_consultations || 0} prete(s), ${consultations.overdue_consultations || 0} retard`),
+      metricCard("Offres client", String(offers.offers || 0), `${offers.review_offers || 0} revue, ${offers.presented_offers || 0} presentee(s), ${offers.accepted_offers || 0} acceptee(s)`),
       metricCard("Contrats", String(contracts.contracts || 0), `${contracts.active_contracts || 0} actif(s)`),
       metricCard("Ops contrats", String(contractOps.open_requests || 0), `${contractOps.review_referrals || 0} parrainage(s), ${contractOps.pending_payments || 0} prime(s)`),
       metricCard("Synchronisation", `${sync.created || 0}+${sync.updated || 0}`, `${sync.mail_drafts || 0} brouillon(s)`),
@@ -2159,6 +2226,11 @@ casesBody?.addEventListener("click", (event) => {
   const contractButton = target.closest("[data-contract-action]");
   if (contractButton) {
     postContractAdminAction(contractButton.dataset.contractAction || "", contractButton);
+    return;
+  }
+  const offerButton = target.closest("[data-offer-action]");
+  if (offerButton) {
+    postOfferAction(offerButton.dataset.offerAction || "", offerButton);
     return;
   }
   const consultationButton = target.closest("[data-consultation-action]");

@@ -59,6 +59,7 @@ async function main() {
   assert(adminResponse.body.cases?.length >= 1, "admin API should expose created case");
   assert(adminResponse.body.mail_queue?.some((mail) => mail.status === "draft_review"), "mail queue should keep drafts under human review");
   assert(adminResponse.body.safeguards?.includes("human-review-before-send"), "admin safeguards should require human review before send");
+  assert(adminResponse.body.safeguards?.includes("client-offer-human-review"), "admin safeguards should require human review before client offer publication");
 
   const caseRow = DB.prepare("SELECT id, client_portal_token FROM brokerage_cases WHERE lead_id = ?").bind(leadId).first();
   assert(caseRow?.client_portal_token?.length >= 24, "case should have a private client portal token");
@@ -113,12 +114,31 @@ async function main() {
   const refreshedCase = DB.prepare("SELECT stage FROM brokerage_cases WHERE id = ?").bind(caseRow.id).first();
   assert(refreshedCase?.stage === "offer_followup", "quoted consultation should move case to offer followup");
 
+  const draftOffer = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "prepare_client_offer", consultation_id: consultation.id, reviewer: "smoke" }) }), env }));
+  assert(draftOffer.status === 200 && draftOffer.body.status === "draft_review" && draftOffer.body.offer_id && draftOffer.body.mail_id, "admin should prepare a human-reviewed client offer draft");
+  const draftOfferClient = await readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=${caseRow.client_portal_token}`), env }));
+  assert(draftOfferClient.status === 200 && !(draftOfferClient.body.case?.client_offers || []).length, "client offer draft should stay hidden before human approval");
+  const prematureOfferDecision = await readJson(await clientPost({ request: new Request(`${siteOrigin}/api/client/case?token=${caseRow.client_portal_token}`, { method: "POST", body: JSON.stringify({ action: "offer_decision", offer_id: draftOffer.body.offer_id, decision: "accepted", explicit_acceptance: true }) }), env }));
+  assert(prematureOfferDecision.status === 404, "client should not decide an unpublished offer");
+
+  const approvedOffer = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "approve_client_offer", offer_id: draftOffer.body.offer_id, reviewer: "smoke" }) }), env }));
+  assert(approvedOffer.status === 200 && approvedOffer.body.status === "presented", "admin should publish the client offer after human review");
+  const offerPortal = await readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=${caseRow.client_portal_token}`), env }));
+  const visibleOffer = (offerPortal.body.case?.client_offers || []).find((item) => item.id === draftOffer.body.offer_id);
+  assert(offerPortal.status === 200 && visibleOffer?.status === "presented" && visibleOffer.marker === "client-offer-recommendation-v1", "client portal should expose only the approved offer recommendation");
+  const missingExplicit = await readJson(await clientPost({ request: new Request(`${siteOrigin}/api/client/case?token=${caseRow.client_portal_token}`, { method: "POST", body: JSON.stringify({ action: "offer_decision", offer_id: draftOffer.body.offer_id, decision: "accepted" }) }), env }));
+  assert(missingExplicit.status === 422 && /Acceptation explicite/.test(missingExplicit.body.error || ""), "client offer acceptance should require explicit consent");
+  const acceptedOffer = await readJson(await clientPost({ request: new Request(`${siteOrigin}/api/client/case?token=${caseRow.client_portal_token}`, { method: "POST", body: JSON.stringify({ action: "offer_decision", offer_id: draftOffer.body.offer_id, decision: "accepted", explicit_acceptance: true }) }), env }));
+  assert(acceptedOffer.status === 200 && acceptedOffer.body.status === "accepted", "client should accept a published offer explicitly");
+  const wonCase = DB.prepare("SELECT c.stage, l.status AS lead_status FROM brokerage_cases c JOIN leads l ON l.id = c.lead_id WHERE c.id = ?").bind(caseRow.id).first();
+  assert(wonCase?.stage === "contract_active" && wonCase?.lead_status === "won", "accepted offer should move the case to active contract and win the lead");
+
   const timelineCount = DB.prepare("SELECT COUNT(*) AS count FROM case_timeline WHERE case_id = ?").bind(caseRow.id).first()?.count || 0;
-  assert(Number(timelineCount) >= 8, "case timeline should trace system, client, admin and insurer actions");
+  assert(Number(timelineCount) >= 12, "case timeline should trace system, client, admin, insurer and offer actions");
 
   DB.close();
   cleanup();
-  console.log("Brokerage case workflow smoke passed: lead -> case -> client portal -> human mail review -> insurer portal -> timeline.");
+  console.log("Brokerage case workflow smoke passed: lead -> case -> client portal -> human mail review -> insurer portal -> client offer -> explicit acceptance -> timeline.");
 }
 
 main().catch((error) => {

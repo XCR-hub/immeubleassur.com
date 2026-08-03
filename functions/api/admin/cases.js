@@ -23,6 +23,7 @@ import {
 import { CLIENT_CONTRACT_MARKER } from "../../_shared/client-contracts.js";
 
 const headers = { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" };
+const CLIENT_OFFER_MARKER = "client-offer-recommendation-v1";
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
@@ -261,7 +262,7 @@ function consultationOperationSummary(consultations = []) {
     missing_recipient_consultations: rows.filter((item) => ["draft_review", "approved"].includes(clean(item.status, 40)) && !clean(item.recipient_email, 180)).length
   };
 }
-function caseRowsWithChildren(cases, documents, mails, consultations, timelines, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env) {
+function caseRowsWithChildren(cases, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env) {
   const docsByCase = groupBy(documents, "case_id");
   const mailsByCase = groupBy(mails, "case_id");
   const consultationRows = rowsOrEmpty(consultations).map((item) => ({
@@ -270,6 +271,7 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
   }));
   const consultationsByCase = groupBy(consultationRows, "case_id");
   const timelineByCase = groupBy(timelines, "case_id");
+  const offersByCase = groupBy(offers, "case_id");
   const contractRows = contractsWithChildren(contracts, contractRequests, contractPayments, contractReferrals, contractConsents);
   const contractsByCase = groupBy(contractRows, "case_id");
   return rowsOrEmpty(cases).map((row) => {
@@ -305,6 +307,7 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
       documents: docs,
       mail_queue: mailsByCase.get(row.id) || [],
       consultations: consultationsByCase.get(row.id) || [],
+      client_offers: offersByCase.get(row.id) || [],
       timeline: timelineByCase.get(row.id) || [],
       contracts: contractsByCase.get(row.id) || [],
       consent_snapshot: safeJson(row.consent_snapshot, {})
@@ -360,12 +363,13 @@ export async function onRequestGet({ request, env }) {
   const sync = url.searchParams.get("sync") !== "0";
   const syncResult = sync ? await ensureCasesForOpenLeads(env) : null;
 
-  const [caseRows, documents, mails, consultations, timelines, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, summaryRow, docSummary, mailSummary, consultSummary, contractSummary] = await Promise.all([
+  const [caseRows, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, summaryRow, docSummary, mailSummary, consultSummary, contractSummary, offerSummary] = await Promise.all([
     safeAll(env, `SELECT c.*, l.reference AS lead_reference, l.name, l.phone, l.email, l.profile, l.property_type, l.city, l.units_count, l.need, l.status AS lead_status FROM brokerage_cases c JOIN leads l ON l.id = c.lead_id ORDER BY CASE c.priority WHEN 'hot' THEN 1 WHEN 'warm' THEN 2 WHEN 'standard' THEN 3 ELSE 4 END, c.updated_at DESC LIMIT 120`),
     safeAll(env, `SELECT d.* FROM case_documents d JOIN brokerage_cases c ON c.id = d.case_id ORDER BY d.required DESC, d.label LIMIT 800`),
     safeAll(env, `SELECT m.*, c.case_reference FROM case_mail_queue m JOIN brokerage_cases c ON c.id = m.case_id ORDER BY CASE m.status WHEN 'draft_review' THEN 1 WHEN 'approved' THEN 2 WHEN 'sent' THEN 3 ELSE 4 END, m.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT i.*, c.case_reference, tok.token AS insurer_portal_token FROM insurer_consultations i JOIN brokerage_cases c ON c.id = i.case_id LEFT JOIN insurer_consultation_tokens tok ON tok.consultation_id = i.id AND tok.status = 'active' ORDER BY CASE i.status WHEN 'draft_review' THEN 1 WHEN 'approved' THEN 2 WHEN 'sent' THEN 3 ELSE 4 END, i.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT t.* FROM case_timeline t JOIN brokerage_cases c ON c.id = t.case_id ORDER BY t.created_at DESC LIMIT 300`),
+    safeAll(env, `SELECT o.*, c.case_reference FROM client_offer_recommendations o JOIN brokerage_cases c ON c.id = o.case_id ORDER BY CASE o.status WHEN 'draft_review' THEN 1 WHEN 'presented' THEN 2 WHEN 'accepted' THEN 3 ELSE 4 END, o.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT cc.*, c.case_reference FROM client_contracts cc JOIN brokerage_cases c ON c.id = cc.case_id ORDER BY cc.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT r.*, cc.case_id, cc.contract_reference FROM contract_service_requests r JOIN client_contracts cc ON cc.id = r.contract_id ORDER BY CASE r.status WHEN 'open' THEN 1 WHEN 'in_progress' THEN 2 ELSE 3 END, r.due_at LIMIT 400`),
     safeAll(env, `SELECT p.*, cc.case_id, cc.contract_reference FROM contract_payment_schedule p JOIN client_contracts cc ON cc.id = p.contract_id ORDER BY CASE p.status WHEN 'pending' THEN 1 ELSE 2 END, p.due_at LIMIT 400`),
@@ -376,16 +380,18 @@ export async function onRequestGet({ request, env }) {
     safeFirst(env, `SELECT COUNT(*) AS requested, SUM(CASE WHEN status IN ('received', 'validated') THEN 1 ELSE 0 END) AS received, SUM(CASE WHEN required = 1 AND status NOT IN ('received', 'validated') THEN 1 ELSE 0 END) AS missing_required FROM case_documents`),
     safeFirst(env, `SELECT COUNT(*) AS drafts, SUM(CASE WHEN status = 'draft_review' THEN 1 ELSE 0 END) AS review_drafts, SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) AS approved, SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) AS sent FROM case_mail_queue`),
     safeFirst(env, `SELECT COUNT(*) AS consultations, SUM(CASE WHEN status = 'draft_review' THEN 1 ELSE 0 END) AS review_consultations, SUM(CASE WHEN status IN ('sent', 'answered', 'quoted') THEN 1 ELSE 0 END) AS active_consultations FROM insurer_consultations`),
-    safeFirst(env, `SELECT COUNT(*) AS contracts, SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS active_contracts, COALESCE(SUM(annual_premium_cents), 0) AS annual_premium_cents FROM client_contracts`)
+    safeFirst(env, `SELECT COUNT(*) AS contracts, SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS active_contracts, COALESCE(SUM(annual_premium_cents), 0) AS annual_premium_cents FROM client_contracts`),
+    safeFirst(env, `SELECT COUNT(*) AS offers, SUM(CASE WHEN status = 'draft_review' THEN 1 ELSE 0 END) AS review_offers, SUM(CASE WHEN status = 'presented' THEN 1 ELSE 0 END) AS presented_offers, SUM(CASE WHEN status = 'accepted' THEN 1 ELSE 0 END) AS accepted_offers FROM client_offer_recommendations`)
   ]);
 
-  const cases = caseRowsWithChildren(caseRows, documents, mails, consultations, timelines, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env);
+  const cases = caseRowsWithChildren(caseRows, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env);
   const summary = {
     ...(summaryRow || {}),
     documents: docSummary || {},
     mail_queue: mailSummary || {},
     consultations: { ...(consultSummary || {}), ...consultationOperationSummary(consultations) },
     contracts: contractSummary || {},
+    client_offers: offerSummary || {},
     contract_marker: CLIENT_CONTRACT_MARKER,
     contract_operations: contractOperationSummary(contracts, contractRequests, contractPayments, contractReferrals),
     pipeline_value_label: valueLabel(summaryRow?.value_min_cents, summaryRow?.value_max_cents)
@@ -399,13 +405,14 @@ export async function onRequestGet({ request, env }) {
     cases,
     mail_queue: rowsOrEmpty(mails),
     consultations: rowsOrEmpty(consultations),
+    client_offers: rowsOrEmpty(offers),
     contract_requests: rowsOrEmpty(contractRequests),
     contract_payments: rowsOrEmpty(contractPayments),
     contract_referrals: rowsOrEmpty(contractReferrals),
     partners: rowsOrEmpty(partners),
     actions: buildActions(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations)),
-    warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(contracts), errorOf(contractRequests), errorOf(contractPayments), errorOf(contractReferrals), errorOf(contractConsents), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary)].filter(Boolean),
-    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace"]
+    warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(offers), errorOf(contracts), errorOf(contractRequests), errorOf(contractPayments), errorOf(contractReferrals), errorOf(contractConsents), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary), errorOf(offerSummary)].filter(Boolean),
+    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review"]
   });
 }
 
@@ -478,7 +485,7 @@ function consultationPortalLink(env, token) {
 }
 
 async function consultationBundle(env, consultationId) {
-  const row = await safeFirst(env, `SELECT i.*, c.case_reference, c.readiness_score, c.stage, l.reference AS lead_reference, l.name, l.phone, l.email, l.profile, l.property_type, l.city, l.units_count, l.need, l.message, l.lead_score, l.status AS lead_status
+  const row = await safeFirst(env, `SELECT i.*, c.case_reference, c.client_portal_token, c.readiness_score, c.stage, l.reference AS lead_reference, l.name, l.phone, l.email, l.profile, l.property_type, l.city, l.units_count, l.need, l.message, l.lead_score, l.status AS lead_status
     FROM insurer_consultations i
     JOIN brokerage_cases c ON c.id = i.case_id
     JOIN leads l ON l.id = c.lead_id
@@ -583,6 +590,100 @@ async function queueConsultationFollowup(env, body) {
   return json({ success: true, status: "draft_review", mail_id: mailId });
 }
 
+function offerMoneyLabel(cents) {
+  return `${Math.round(Number(cents || 0) / 100)} EUR`;
+}
+
+function defaultClientOfferRecommendation(row, premium, deductible) {
+  const insurer = clean(row.insurer_name, 160) || "assureur retenu";
+  const city = clean(row.city, 120) || "ville a confirmer";
+  const property = clean(row.property_type, 120) || "immeuble";
+  return `Recommandation ImmeubleAssur: retenir l'offre ${insurer} pour ${property} a ${city}, sous reserve de validation des garanties, exclusions, franchises et pieces definitives. Prime indicative ${offerMoneyLabel(premium)}/an, franchise principale ${offerMoneyLabel(deductible)}.`;
+}
+
+function clientOfferMailDraft(row, offer, env) {
+  const portal = portalUrl(row.client_portal_token, clean(env.SITE_ORIGIN, 240) || "https://immeubleassur.com");
+  return {
+    subject: `Votre proposition assurance immeuble ${clean(row.case_reference, 80)}`,
+    body: [
+      `Bonjour ${clean(row.name, 120) || ""}`.trim(),
+      "",
+      `Nous avons prepare une proposition apres retour assureur pour votre dossier ${clean(row.case_reference, 80)}.`,
+      `Assureur: ${clean(offer.insurer_name, 160)}.`,
+      `Prime indicative: ${offerMoneyLabel(offer.premium_amount_cents)}/an. Franchise principale: ${offerMoneyLabel(offer.deductible_cents)}.`,
+      clean(offer.recommendation, 1800),
+      clean(offer.coverage_summary, 1800),
+      clean(offer.exclusions_summary, 1200),
+      "",
+      `Votre espace client securise: ${portal}`,
+      "",
+      "Cette proposition est publiee apres validation humaine. L'acceptation finale doit etre explicite depuis votre espace client avant creation du contrat.",
+      "",
+      "Bien cordialement,",
+      "ImmeubleAssur"
+    ].filter(Boolean).join("\n")
+  };
+}
+
+async function prepareClientOffer(env, body) {
+  const consultationId = clean(body.consultation_id, 120);
+  const reviewer = clean(body.reviewer || "admin", 120);
+  if (!consultationId) return json({ success: false, error: "consultation_id requis" }, 400);
+  const bundle = await consultationBundle(env, consultationId);
+  if (bundle.error) return json({ success: false, error: bundle.error }, 404);
+  if (clean(bundle.row.status, 40) !== "quoted") return json({ success: false, error: "Offre assureur quotee requise avant proposition client" }, 409);
+  if (!validEmail(bundle.row.email)) return json({ success: false, error: "Email client requis pour brouillon offre" }, 409);
+  let premium = centsFromBody(body.premium_amount_cents ?? body.premium_amount);
+  if (premium === null) premium = Number(bundle.row.premium_amount_cents || 0);
+  let deductible = centsFromBody(body.deductible_cents ?? body.deductible);
+  if (deductible === null) deductible = Number(bundle.row.deductible_cents || 0);
+  if (!premium || premium < 1) return json({ success: false, error: "Prime assureur requise avant proposition client" }, 409);
+  const existing = await safeFirst(env, "SELECT * FROM client_offer_recommendations WHERE consultation_id = ? ORDER BY created_at DESC LIMIT 1", [consultationId]);
+  if (existing?.id && clean(existing.status, 40) === "accepted") return json({ success: false, error: "Offre client deja acceptee" }, 409);
+  const offerId = existing?.id || crypto.randomUUID();
+  const validity = clean(body.validity_until, 80) || new Date(Date.now() + 30 * 86400000).toISOString();
+  const offer = {
+    id: offerId,
+    insurer_name: clean(bundle.row.insurer_name, 160),
+    premium_amount_cents: premium,
+    deductible_cents: deductible,
+    recommendation: clean(body.recommendation, 1800) || defaultClientOfferRecommendation(bundle.row, premium, deductible),
+    coverage_summary: clean(body.coverage_summary, 1800) || "Garanties principales a verifier: multirisque immeuble, responsabilite, degat des eaux, incendie, recours des voisins, protection juridique selon conditions assureur.",
+    exclusions_summary: clean(body.exclusions_summary, 1200) || "Points a relire avant acceptation: exclusions, franchises, antecedents sinistres, mesures de prevention, clauses travaux ou vacance."
+  };
+  if (existing?.id) {
+    await safeRun(env, "UPDATE client_offer_recommendations SET insurer_name = ?, status = 'draft_review', premium_amount_cents = ?, deductible_cents = ?, recommendation = ?, coverage_summary = ?, exclusions_summary = ?, validity_until = ?, payload = ?, updated_at = ? WHERE id = ?", [offer.insurer_name, offer.premium_amount_cents, offer.deductible_cents, offer.recommendation, offer.coverage_summary, offer.exclusions_summary, validity, JSON.stringify({ marker: CLIENT_OFFER_MARKER, consultation_id: consultationId, human_review_required: true }), nowIso(), offerId]);
+  } else {
+    await safeRun(env, `INSERT INTO client_offer_recommendations (id, case_id, consultation_id, insurer_name, status, premium_amount_cents, deductible_cents, recommendation, coverage_summary, exclusions_summary, validity_until, payload, created_at, updated_at)
+      VALUES (?, ?, ?, ?, 'draft_review', ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [offerId, bundle.row.case_id, consultationId, offer.insurer_name, offer.premium_amount_cents, offer.deductible_cents, offer.recommendation, offer.coverage_summary, offer.exclusions_summary, validity, JSON.stringify({ marker: CLIENT_OFFER_MARKER, consultation_id: consultationId, human_review_required: true }), nowIso(), nowIso()]);
+  }
+  const mailExists = await safeFirst(env, "SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'client_offer' AND payload LIKE ? AND status IN ('draft_review', 'approved', 'sent')", [bundle.row.case_id, `%${offerId}%`]);
+  let mailId = mailExists?.id || "";
+  if (!mailId) {
+    mailId = crypto.randomUUID();
+    const draft = clientOfferMailDraft(bundle.row, offer, env);
+    await safeRun(env, `INSERT INTO case_mail_queue (id, case_id, audience, recipient_email, subject, body, status, review_required, scheduled_at, payload, created_at, updated_at)
+      VALUES (?, ?, 'client_offer', ?, ?, ?, 'draft_review', 1, ?, ?, ?, ?)`, [mailId, bundle.row.case_id, clean(bundle.row.email, 180), draft.subject, draft.body, nowIso(), JSON.stringify({ marker: CLIENT_OFFER_MARKER, offer_id: offerId, purpose: "client_offer_recommendation", human_review_required: true }), nowIso(), nowIso()]);
+  }
+  await safeRun(env, "UPDATE brokerage_cases SET stage = 'offer_followup', next_action = ?, updated_at = ? WHERE id = ?", ["Relire la proposition client, approuver l'offre puis suivre l'acceptation explicite dans l'espace client.", nowIso(), bundle.row.case_id]);
+  await logTimeline(env, bundle.row.case_id, "client_offer_draft_prepared", reviewer, { marker: CLIENT_OFFER_MARKER, offer_id: offerId, consultation_id: consultationId, mail_id: mailId, human_review_required: true });
+  return json({ success: true, status: "draft_review", offer_id: offerId, mail_id: mailId });
+}
+
+async function approveClientOffer(env, body) {
+  const offerId = clean(body.offer_id, 120);
+  const reviewer = clean(body.reviewer || "admin", 120);
+  if (!offerId) return json({ success: false, error: "offer_id requis" }, 400);
+  const row = await safeFirst(env, `SELECT o.*, c.case_reference FROM client_offer_recommendations o JOIN brokerage_cases c ON c.id = o.case_id WHERE o.id = ?`, [offerId]);
+  if (!row || errorOf(row)) return json({ success: false, error: "Offre client introuvable" }, 404);
+  const status = clean(row.status, 40);
+  if (status === "accepted") return json({ success: true, status: "accepted", already_done: true });
+  if (status !== "draft_review" && status !== "presented") return json({ success: false, error: "Offre non publiable" }, 409);
+  await safeRun(env, "UPDATE client_offer_recommendations SET status = 'presented', human_approved_at = COALESCE(human_approved_at, ?), approved_by = COALESCE(NULLIF(?, ''), approved_by), presented_at = COALESCE(presented_at, ?), updated_at = ? WHERE id = ?", [nowIso(), reviewer, nowIso(), nowIso(), offerId]);
+  await safeRun(env, "UPDATE brokerage_cases SET next_action = ?, updated_at = ? WHERE id = ?", ["Attendre acceptation explicite client ou relancer humainement la proposition publiee.", nowIso(), row.case_id]);
+  await logTimeline(env, row.case_id, "client_offer_approved", reviewer, { marker: CLIENT_OFFER_MARKER, offer_id: offerId, human_review: true });
+  return json({ success: true, status: "presented", offer_id: offerId });
+}
 async function updateConsultationResponse(env, body) {
   const consultationId = clean(body.consultation_id, 120);
   const reviewer = clean(body.reviewer || "admin", 120);
@@ -611,6 +712,8 @@ export async function onRequestPost({ request, env }) {
   if (action === "send_consultation") return sendConsultation(env, body);
   if (action === "mark_consultation_sent") return markConsultationSent(env, body);
   if (action === "consultation_followup") return queueConsultationFollowup(env, body);
+  if (action === "prepare_client_offer") return prepareClientOffer(env, body);
+  if (action === "approve_client_offer") return approveClientOffer(env, body);
   if (action === "consultation_response") return updateConsultationResponse(env, body);
 
   if (!["approve_mail", "send_mail", "mark_sent"].includes(action)) return json({ success: false, error: "Action non supportee" }, 400);

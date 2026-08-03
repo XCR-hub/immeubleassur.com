@@ -3814,3 +3814,58 @@ textarea:focus {
   }
 }
 /* partner-insurer-portal-2026-08:end */
+
+/* client-offer-workflow-2026-08:start */
+.portal-offers-panel {
+  border-color: rgba(20, 184, 166, 0.28);
+}
+.portal-offer-row {
+  display: grid;
+  gap: 10px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+}
+.portal-offer-row:last-child {
+  border-bottom: 0;
+}
+.portal-offer-row.is-accepted {
+  background: rgba(20, 184, 166, 0.08);
+  margin: 0 -10px;
+  padding: 14px 10px;
+  border-radius: 8px;
+}
+.portal-offer-meta,
+.portal-offer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.portal-offer-meta span,
+.portal-offer-status {
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.07);
+  padding: 5px 9px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.portal-offer-proof {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+.portal-offer-proof input {
+  margin-top: 3px;
+}
+@media (max-width: 720px) {
+  .portal-offer-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .portal-offer-actions button {
+    width: 100%;
+  }
+}
+/* client-offer-workflow-2026-08:end */

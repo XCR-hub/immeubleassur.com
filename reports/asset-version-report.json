@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-03T09:00:05.016Z",
+  "generated_at": "2026-08-03T09:29:29.416Z",
   "files_checked": 189,
   "files_changed": 0,
   "replacements": 0,
   "assets": {
-    "styles": "/assets/styles.css?v=c6fd5d38f7",
+    "styles": "/assets/styles.css?v=737ea8cf21",
     "app": "/assets/app.js?v=0668b86d0e",
-    "admin": "/assets/admin.js?v=994432890a",
-    "clientPortal": "/assets/client-portal.js?v=617ffc1a4b",
+    "admin": "/assets/admin.js?v=cc91cfb269",
+    "clientPortal": "/assets/client-portal.js?v=6a7715e256",
     "partnerPortal": "/assets/partner-portal.js?v=cbb508c0fe"
   },
   "changed": [],

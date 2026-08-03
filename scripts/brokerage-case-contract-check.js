@@ -6,6 +6,7 @@ const REQUIRED = [
   ["schema.sql", "CREATE TABLE IF NOT EXISTS case_documents"],
   ["schema.sql", "CREATE TABLE IF NOT EXISTS insurer_consultations"],
   ["schema.sql", "CREATE TABLE IF NOT EXISTS insurer_consultation_tokens"],
+  ["schema.sql", "CREATE TABLE IF NOT EXISTS client_offer_recommendations"],
   ["schema.sql", "CREATE TABLE IF NOT EXISTS case_mail_queue"],
   ["schema.sql", "CREATE TABLE IF NOT EXISTS case_timeline"],
   ["functions/_shared/brokerage-cases.js", "brokerage-case-orchestrator-v1"],
@@ -21,6 +22,10 @@ const REQUIRED = [
   ["functions/api/admin/cases.js", "mark_consultation_sent"],
   ["functions/api/admin/cases.js", "consultation_followup"],
   ["functions/api/admin/cases.js", "consultation_response"],
+  ["functions/api/admin/cases.js", "client-offer-recommendation-v1"],
+  ["functions/api/admin/cases.js", "prepare_client_offer"],
+  ["functions/api/admin/cases.js", "approve_client_offer"],
+  ["functions/api/admin/cases.js", "client_offer_approved"],
   ["functions/api/admin/cases.js", "insurer-consultation-action-v1"],
   ["functions/api/admin/cases.js", "Validation humaine consultation requise avant envoi"],
   ["functions/api/admin/cases.js", "insurer-consultation-human-review"],
@@ -30,8 +35,12 @@ const REQUIRED = [
   ["functions/api/partner/consultation.js", "insurer_portal_quote"],
   ["functions/api/admin/cases.js", "case_timeline"],
   ["public/assets/admin.js", "postConsultationAction"],
+  ["public/assets/admin.js", "postOfferAction"],
   ["public/assets/admin.js", "data-consultation-action"],
   ["functions/api/client/case.js", "client_document_received"],
+  ["functions/api/client/case.js", "offer_decision"],
+  ["functions/api/client/case.js", "client_offer_accepted"],
+  ["functions/api/client/case.js", "Acceptation explicite requise"],
   ["scripts/brokerage-case-orchestrator.js", "human-review-before-send"],
   ["scripts/local-production-server.js", "/api/admin/cases"],
   ["scripts/local-production-server.js", "/api/client/case"],
@@ -39,12 +48,16 @@ const REQUIRED = [
   ["public/admin.html", "cases-admin:start"],
   ["public/assets/admin.js", "loadCases"],
   ["public/espace-client.html", "Espace client"],
+  ["public/espace-client.html", "portal-offers"],
   ["public/espace-assureur.html", "Espace assureur"],
   ["public/espace-assureur.html", "partner-token-form"],
   ["public/assets/client-portal.js", "markDocumentReceived"],
+  ["public/assets/client-portal.js", "renderOffers"],
+  ["public/assets/client-portal.js", "offer_decision"],
   ["public/assets/partner-portal.js", "submitPartnerAction"],
   ["public/assets/styles.css", "client-portal-main"],
   ["public/assets/styles.css", "partner-insurer-portal-2026-08:start"],
+  ["public/assets/styles.css", "client-offer-workflow-2026-08:start"],
   ["scripts/asset-version-pass.js", "partnerPortal"],
   ["package.json", "partner-portal.js"],
   ["package.json", "brokerage:cases"]
@@ -79,7 +92,7 @@ const report = {
   issue_count: missing.length + forbidden.length,
   missing,
   forbidden,
-  safeguards: ["human-review-before-send", "client-token-portal", "consent-snapshot", "audit-timeline", "no-unsupervised-cross-sell"]
+  safeguards: ["human-review-before-send", "client-token-portal", "consent-snapshot", "audit-timeline", "client-offer-human-review", "no-unsupervised-cross-sell"]
 };
 mkdirSync("reports", { recursive: true });
 mkdirSync(join("public", "assets"), { recursive: true });

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-03T08:59:41.308Z",
+  "generated_at": "2026-08-03T09:29:10.924Z",
   "status": "passed",
-  "required_markers": 46,
+  "required_markers": 59,
   "forbidden_markers": 6,
   "issue_count": 0,
   "missing": [],
@@ -11,6 +11,7 @@
     "client-token-portal",
     "consent-snapshot",
     "audit-timeline",
+    "client-offer-human-review",
     "no-unsupervised-cross-sell"
   ]
 }
