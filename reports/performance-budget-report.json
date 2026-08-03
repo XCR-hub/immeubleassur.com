@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T10:13:03.533Z",
+  "generated_at": "2026-08-03T10:28:17.573Z",
   "status": "passed",
   "pages_checked": 189,
   "indexable_pages": 180,
@@ -85,8 +85,8 @@
     },
     {
       "path": "assets/admin.js",
-      "bytes": 121451,
-      "kb": 118.6,
+      "bytes": 122137,
+      "kb": 119.3,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true

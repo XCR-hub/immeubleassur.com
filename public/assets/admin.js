@@ -1470,11 +1470,14 @@ function consultationSummary(consultations = []) {
   const active = rows.filter((item) => ["sent", "answered", "quoted"].includes(item.status)).length;
   const overdue = rows.filter((item) => item.status === "sent" && new Date(item.response_due_at || "").getTime() < Date.now()).length;
   const quoted = rows.filter((item) => item.status === "quoted").length;
+  const missingEmail = rows.filter((item) => ["draft_review", "approved"].includes(item.status) && !item.recipient_email).length;
+  const nextDue = rows.filter((item) => item.status === "sent" && item.response_due_at).sort((a, b) => new Date(a.response_due_at || 0) - new Date(b.response_due_at || 0))[0];
   const names = rows.slice(0, 3).map((item) => item.insurer_name).filter(Boolean).join(", ");
   const signals = [`${draft} revue`, `${approved} pret(s)`, `${active} active(s)`];
+  if (missingEmail) signals.push(`${missingEmail} email`);
   if (overdue) signals.push(`${overdue} retard`);
   if (quoted) signals.push(`${quoted} offre(s)`);
-  return `${signals.join(" / ")}${names ? `\n${names}` : ""}`;
+  return `${signals.join(" / ")}${nextDue ? `\nSLA ${shortDate(nextDue.response_due_at)}` : ""}${names ? `\n${names}` : ""}`;
 }
 
 function offerSummary(offers = []) {
@@ -1854,6 +1857,7 @@ async function loadCases() {
   const contractOps = summary.contract_operations || {};
   const offers = summary.client_offers || {};
   const actionPlan = summary.action_plan || {};
+  const partnerPerformance = summary.partner_performance || {};
   const sync = result.sync?.counters || {};
   const followupDrafts = (Array.isArray(result.mail_queue) ? result.mail_queue : []).filter((item) => item.status === "draft_review" && /followup/.test(item.audience || "")).length;
   if (casesSummary) {
@@ -1866,6 +1870,7 @@ async function loadCases() {
       metricCard("Mails a valider", String(mail.review_drafts || 0), `${mail.approved || 0} approuve(s), ${mail.sent || 0} envoye(s)`),
       metricCard("Relances en revue", String(followupDrafts), "client/assureur a valider"),
       metricCard("Consultations", String(consultations.consultations || 0), `${consultations.review_consultations || 0} revue, ${consultations.approved_consultations || 0} prete(s), ${consultations.overdue_consultations || 0} retard`),
+      metricCard("Partenaires", String(partnerPerformance.active || 0), `${partnerPerformance.contact_missing || 0} email manquant, ${partnerPerformance.overdue_consultations || 0} retard`),
       metricCard("Offres client", String(offers.offers || 0), `${offers.review_offers || 0} revue, ${offers.presented_offers || 0} presentee(s), ${offers.accepted_offers || 0} acceptee(s)`),
       metricCard("Contrats", String(contracts.contracts || 0), `${contracts.active_contracts || 0} actif(s)`),
       metricCard("Ops contrats", String(contractOps.open_requests || 0), `${contractOps.review_referrals || 0} parrainage(s), ${contractOps.pending_payments || 0} prime(s)`),

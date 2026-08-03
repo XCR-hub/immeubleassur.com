@@ -28,6 +28,7 @@ import { CLIENT_CONTRACT_MARKER } from "../../_shared/client-contracts.js";
 const headers = { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" };
 const CLIENT_OFFER_MARKER = "client-offer-recommendation-v1";
 const CASE_ACTION_PLAN_MARKER = "case-action-plan-v1";
+const PARTNER_PERFORMANCE_MARKER = "partner-performance-v1";
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
@@ -361,6 +362,70 @@ function actionPlanSummary(cases = []) {
   }, { marker: CASE_ACTION_PLAN_MARKER, total: 0, high: 0, human_review_required: 0 });
 }
 
+function partnerRowsWithPerformance(partners = [], consultations = []) {
+  const now = Date.now();
+  const consultationRows = rowsOrEmpty(consultations);
+  return rowsOrEmpty(partners).map((partner) => {
+    const related = consultationRows.filter((item) => clean(item.partner_id, 120) === clean(partner.id, 120) || clean(item.insurer_name, 160) === clean(partner.name, 160));
+    const stats = {
+      consultations: related.length,
+      draft_review: related.filter((item) => clean(item.status, 40) === "draft_review").length,
+      approved: related.filter((item) => clean(item.status, 40) === "approved").length,
+      sent: related.filter((item) => clean(item.status, 40) === "sent").length,
+      answered: related.filter((item) => ["answered", "quoted"].includes(clean(item.status, 40))).length,
+      quoted: related.filter((item) => clean(item.status, 40) === "quoted").length,
+      declined: related.filter((item) => clean(item.status, 40) === "declined").length,
+      overdue: related.filter((item) => clean(item.status, 40) === "sent" && Number.isFinite(new Date(item.response_due_at || "").getTime()) && new Date(item.response_due_at).getTime() < now).length,
+      missing_recipient: related.filter((item) => ["draft_review", "approved"].includes(clean(item.status, 40)) && !clean(item.recipient_email, 180)).length
+    };
+    const latest = latestByFields(related, ["answered_at", "sent_at", "updated_at", "created_at"]);
+    const contactEmail = clean(partner.contact_email, 180);
+    const active = Number(partner.active || 0) === 1;
+    const score = Math.max(0, Math.min(100, 55 + (contactEmail ? 8 : -18) + stats.quoted * 10 + stats.answered * 4 - stats.overdue * 15 - stats.missing_recipient * 8 - stats.declined * 4));
+    const status = !active ? "inactive" : !contactEmail ? "contact_missing" : stats.overdue ? "overdue" : stats.missing_recipient ? "setup_required" : stats.quoted ? "productive" : (stats.sent || stats.approved || stats.draft_review) ? "in_progress" : "ready";
+    const nextAction = ({
+      inactive: "Verifier si ce partenaire doit rester desactive.",
+      contact_missing: "Renseigner un email assureur avant toute consultation.",
+      overdue: "Relancer ce partenaire depuis un brouillon relu humainement.",
+      setup_required: "Completer le contact et valider le pack avant envoi.",
+      productive: "Capitaliser sur les retours cotes et comparer les conditions.",
+      in_progress: "Suivre les consultations ouvertes et tracer les retours.",
+      ready: "Partenaire pret pour une prochaine consultation qualifiee."
+    })[status] || "Suivi partenaire a tracer.";
+    return {
+      ...partner,
+      performance: {
+        marker: PARTNER_PERFORMANCE_MARKER,
+        status,
+        score,
+        active,
+        contact_configured: Boolean(contactEmail),
+        last_activity_at: latest?.answered_at || latest?.sent_at || latest?.updated_at || latest?.created_at || "",
+        next_action: nextAction,
+        ...stats
+      }
+    };
+  });
+}
+
+function partnerPerformanceSummary(partners = []) {
+  const rows = rowsOrEmpty(partners);
+  const summary = rows.reduce((acc, partner) => {
+    const performance = partner.performance || {};
+    const status = clean(performance.status, 80) || "ready";
+    acc.partners += 1;
+    if (performance.active) acc.active += 1;
+    if (performance.contact_configured) acc.contact_configured += 1;
+    acc[status] = (acc[status] || 0) + 1;
+    acc.overdue_consultations += Number(performance.overdue || 0);
+    acc.quoted += Number(performance.quoted || 0);
+    acc.missing_recipient += Number(performance.missing_recipient || 0);
+    return acc;
+  }, { marker: PARTNER_PERFORMANCE_MARKER, partners: 0, active: 0, contact_configured: 0, contact_missing: 0, setup_required: 0, overdue: 0, overdue_consultations: 0, quoted: 0, missing_recipient: 0 });
+  const top = rows.slice().sort((a, b) => Number(b.performance?.score || 0) - Number(a.performance?.score || 0))[0];
+  summary.top_partner = clean(top?.name, 160);
+  return summary;
+}
 function caseRowsWithChildren(cases, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env) {
   const docsByCase = groupBy(documents, "case_id");
   const mailsByCase = groupBy(mails, "case_id");
@@ -419,7 +484,7 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
   });
 }
 
-function buildActions(cases, mails, consultations) {
+function buildActions(cases, mails, consultations, partners = []) {
   const actions = [];
   const caseList = rowsOrEmpty(cases);
   const reviewMail = rowsOrEmpty(mails).find((item) => item.status === "draft_review");
@@ -428,7 +493,9 @@ function buildActions(cases, mails, consultations) {
   const missingDocs = caseList.find((item) => Number(item.missing_required_documents || 0) > 0);
   const plan = caseList.find((item) => item.action_plan?.severity === "high");
   const consultation = rowsOrEmpty(consultations).find((item) => item.status === "draft_review");
+  const partnerIssue = rowsOrEmpty(partners).find((item) => ["contact_missing", "overdue", "setup_required"].includes(item.performance?.status));
   if (plan) actions.push({ priority: 104, type: "plan-action-dossier", target: plan.case_reference, signal: plan.action_plan?.label || "plan action", recommendation: plan.action_plan?.next_action || "Executer la prochaine action humaine tracee." });
+  if (partnerIssue) actions.push({ priority: 94, type: "relation-assureur", target: partnerIssue.name, signal: partnerIssue.performance?.status || "partenaire", recommendation: partnerIssue.performance?.next_action || "Mettre a jour le partenaire assureur." });
   if (hot) actions.push({ priority: 100, type: "pilotage", target: hot.case_reference, signal: "dossier chaud sans pilote", recommendation: "Assigner un courtier et appeler avant automatisation." });
   if (missingDocs) actions.push({ priority: 96, type: "pieces-client", target: missingDocs.case_reference, signal: `${missingDocs.missing_required_documents} piece(s) requise(s)`, recommendation: "Valider le mail client et demander uniquement les pieces manquantes." });
   if (ready) actions.push({ priority: 92, type: "pret-marche", target: ready.case_reference, signal: `${ready.readiness_score}/100`, recommendation: "Relire le dossier puis choisir les assureurs a consulter." });
@@ -493,6 +560,8 @@ export async function onRequestGet({ request, env }) {
 
   const cases = caseRowsWithChildren(caseRows, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env);
   const planSummary = actionPlanSummary(cases);
+  const partnerRows = partnerRowsWithPerformance(partners, consultations);
+  const partnerSummary = partnerPerformanceSummary(partnerRows);
   const summary = {
     ...(summaryRow || {}),
     documents: docSummary || {},
@@ -503,6 +572,7 @@ export async function onRequestGet({ request, env }) {
     contract_marker: CLIENT_CONTRACT_MARKER,
     contract_operations: contractOperationSummary(contracts, contractRequests, contractPayments, contractReferrals),
     action_plan: planSummary,
+    partner_performance: partnerSummary,
     pipeline_value_label: valueLabel(summaryRow?.value_min_cents, summaryRow?.value_max_cents)
   };
   return json({
@@ -518,10 +588,10 @@ export async function onRequestGet({ request, env }) {
     contract_requests: rowsOrEmpty(contractRequests),
     contract_payments: rowsOrEmpty(contractPayments),
     contract_referrals: rowsOrEmpty(contractReferrals),
-    partners: rowsOrEmpty(partners),
-    actions: buildActions(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations)),
+    partners: partnerRows,
+    actions: buildActions(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations), partnerRows),
     warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(offers), errorOf(contracts), errorOf(contractRequests), errorOf(contractPayments), errorOf(contractReferrals), errorOf(contractConsents), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary), errorOf(offerSummary)].filter(Boolean),
-    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1"]
+    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1", "partner-performance-v1"]
   });
 }
 

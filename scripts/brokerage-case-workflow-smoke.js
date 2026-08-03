@@ -78,6 +78,8 @@ async function main() {
   const marketSync = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=1`, { headers: { Authorization: `Bearer ${adminToken}` } }), env }));
   assert(marketSync.status === 200 && marketSync.body.success, "admin sync should refresh a complete market-ready case");
   assert((marketSync.body.consultations || []).length >= 1, "complete case should prepare an insurer consultation");
+  assert(marketSync.body.summary?.partner_performance?.marker === "partner-performance-v1", "partner performance summary should count configured insurers");
+  assert(marketSync.body.partners?.some((partner) => partner.performance?.marker === "partner-performance-v1"), "partner rows should expose insurer performance");
 
   const mail = DB.prepare("SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'client' LIMIT 1").bind(caseRow.id).first();
   const blockedSend = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "send_mail", mail_id: mail.id, reviewer: "smoke" }) }), env }));
