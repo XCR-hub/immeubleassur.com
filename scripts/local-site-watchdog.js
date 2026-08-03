@@ -48,6 +48,7 @@ const requiredSecurityHeaders = [
   "permissions-policy",
   "cross-origin-opener-policy"
 ];
+const WATCHDOG_PROCESS_MATCH_MARKER = "watchdog-process-match-v1";
 
 mkdirSync(logDir, { recursive: true });
 mkdirSync(dirname(reportPath), { recursive: true });
@@ -58,6 +59,7 @@ function writeReport(status, details = {}) {
     status,
     site_dir: siteDir,
     port,
+    marker: WATCHDOG_PROCESS_MATCH_MARKER,
     details
   };
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
@@ -155,13 +157,19 @@ function queryProcessesByName(name) {
   }
 }
 
-function siteProcesses() {
+function matchesSiteProcess(processInfo) {
+  const command = normalizeForMatch(processInfo.command_line);
   const siteMarker = normalizeForMatch(siteDir);
+  return command.includes("local-production-server.js") && (
+    command.includes(siteMarker) ||
+    command.includes("scripts/local-production-server.js") ||
+    command.includes("\\scripts\\local-production-server.js")
+  );
+}
+
+function siteProcesses() {
   return [...queryProcessesByName("node.exe"), ...queryProcessesByName("cmd.exe")]
-    .filter((processInfo) => {
-      const command = normalizeForMatch(processInfo.command_line);
-      return command.includes("local-production-server.js") && command.includes(siteMarker);
-    })
+    .filter(matchesSiteProcess)
     .filter((processInfo, index, all) => all.findIndex((item) => item.process_id === processInfo.process_id) === index);
 }
 
