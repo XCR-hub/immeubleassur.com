@@ -91,6 +91,33 @@ function publicProfile(row) {
   };
 }
 
+function requestContext(request) {
+  return {
+    ip_address: clean(request?.headers?.get("x-forwarded-for") || request?.headers?.get("cf-connecting-ip"), 120).split(",")[0].trim(),
+    user_agent: clean(request?.headers?.get("user-agent"), 500)
+  };
+}
+
+async function logAuthEvent(env, request, details = {}) {
+  try {
+    const context = requestContext(request);
+    await env.DB.prepare(
+      "INSERT INTO admin_auth_events (id, profile_id, email, action, success, ip_address, user_agent, payload, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    ).bind(
+      crypto.randomUUID(),
+      clean(details.profile_id, 120),
+      normalizedEmail(details.email || ""),
+      clean(details.action, 80),
+      details.success ? 1 : 0,
+      context.ip_address,
+      context.user_agent,
+      JSON.stringify(details.payload || {}),
+      new Date().toISOString()
+    ).run();
+  } catch {
+    // Authentication must remain available if audit storage is temporarily unavailable.
+  }
+}
 async function bodyOf(request) {
   try {
     return await request.json();
@@ -129,30 +156,35 @@ async function createProfile(request, env, body) {
   };
   const insertSql = "INSERT INTO admin_profiles (id, email, display_name, role, active, password_hash, password_salt, failed_login_count, locked_until, last_login_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   await env.DB.prepare(insertSql).bind(row.id, row.email, row.display_name, row.role, row.active, row.password_hash, row.password_salt, 0, "", "", now, now).run();
+  await logAuthEvent(env, request, { profile_id: row.id, email: row.email, action: "profile_created", success: true, payload: { role: row.role } });
   return json({ success: true, profile: publicProfile(row), marker: "admin-profile-created-v1" }, 201);
 }
 
 async function login(request, env, body) {
   const email = normalizedEmail(body.email);
   const password = String(body.password || "");
-  if (!validEmail(email) || !password) return json({ success: false, error: "Identifiants invalides" }, 401);
+  const genericError = async (action, profileId = "") => {
+    await logAuthEvent(env, request, { profile_id: profileId, email, action, success: false });
+    return json({ success: false, error: "Identifiants invalides" }, 401);
+  };
+  if (!validEmail(email) || !password) return genericError("login_invalid_input");
   const row = await env.DB.prepare("SELECT * FROM admin_profiles WHERE lower(email) = ? LIMIT 1").bind(email).first();
   const now = new Date();
-  const genericError = () => json({ success: false, error: "Identifiants invalides" }, 401);
-  if (!row || Number(row.active) !== 1) return genericError();
-  if (row.locked_until && new Date(row.locked_until).getTime() > now.getTime()) return genericError();
+  if (!row || Number(row.active) !== 1) return genericError("login_unknown_profile", row?.id || "");
+  if (row.locked_until && new Date(row.locked_until).getTime() > now.getTime()) return genericError("login_locked", row.id);
   const matches = await passwordMatches(password, row.password_salt, row.password_hash);
   if (!matches) {
     const failed = Number(row.failed_login_count || 0) + 1;
     const lockedUntil = failed >= 5 ? new Date(now.getTime() + 15 * 60 * 1000).toISOString() : "";
     await env.DB.prepare("UPDATE admin_profiles SET failed_login_count = ?, locked_until = ?, updated_at = ? WHERE id = ?").bind(failed, lockedUntil, now.toISOString(), row.id).run();
-    return genericError();
+    await logAuthEvent(env, request, { profile_id: row.id, email, action: "login_failed", success: false, payload: { failed_count: failed, locked: Boolean(lockedUntil) } });
+    return json({ success: false, error: "Identifiants invalides" }, 401);
   }
   await env.DB.prepare("UPDATE admin_profiles SET failed_login_count = 0, locked_until = '', last_login_at = ?, updated_at = ? WHERE id = ?").bind(now.toISOString(), now.toISOString(), row.id).run();
   const session = createAdminSession(row);
+  await logAuthEvent(env, request, { profile_id: row.id, email, action: "login_success", success: true, payload: { role: row.role } });
   return json({ success: true, profile: publicProfile({ ...row, last_login_at: now.toISOString() }), session, marker: "admin-profile-login-v1" });
 }
-
 export async function onRequestGet({ request, env }) {
   if (!adminTokenMatches(request, env)) return json({ success: false, error: "Acces refuse" }, 401);
   const profile = adminSessionProfile(request);
@@ -169,6 +201,8 @@ export async function onRequestPost({ request, env }) {
   const action = clean(body.action || "login", 40);
   if (action === "create_profile") return createProfile(request, env, body);
   if (action === "logout") {
+    const profile = adminSessionProfile(request);
+    await logAuthEvent(env, request, { profile_id: profile?.profile_id || "", email: profile?.email || "master", action: "logout", success: true, payload: { role: profile?.role || "master" } });
     revokeAdminSession(request);
     return json({ success: true, marker: "admin-profile-logout-v1" });
   }

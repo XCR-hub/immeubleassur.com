@@ -84,6 +84,13 @@ try {
   const revoked = await read(await authGet({ request: request("/api/admin/auth", { headers: authorization }), env }));
   assert(revoked.status === 401, "logged out operator session should be rejected");
 
+  const auditRows = DB.prepare("SELECT action, success, payload FROM admin_auth_events ORDER BY created_at").all().results;
+  assert(auditRows.length >= 5, "profile authentication events should be persisted");
+  const auditText = JSON.stringify(auditRows);
+  assert(!auditText.includes("Longue-Phrase-2026!") && !auditText.includes(login.body.session.token), "authentication audit must not store passwords or session tokens");
+  assert(auditRows.some((row) => row.action === "login_failed" && Number(row.success) === 0), "failed login should be audited");
+  assert(auditRows.some((row) => row.action === "login_success" && Number(row.success) === 1), "successful login should be audited");
+  assert(auditRows.some((row) => row.action === "logout" && Number(row.success) === 1), "logout should be audited");
   console.log("Admin profile workflow smoke passed: protected creation -> PBKDF2 login -> CRM session -> logout.");
 } finally {
   DB.close();

@@ -663,3 +663,19 @@ CREATE TABLE IF NOT EXISTS admin_profiles (
 
 CREATE INDEX IF NOT EXISTS idx_admin_profiles_email ON admin_profiles(email);
 CREATE INDEX IF NOT EXISTS idx_admin_profiles_active ON admin_profiles(active);
+CREATE TABLE IF NOT EXISTS admin_auth_events (
+  id TEXT PRIMARY KEY,
+  profile_id TEXT,
+  email TEXT NOT NULL,
+  action TEXT NOT NULL,
+  success INTEGER NOT NULL DEFAULT 0,
+  ip_address TEXT,
+  user_agent TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_admin_auth_events_profile_id ON admin_auth_events(profile_id);
+CREATE INDEX IF NOT EXISTS idx_admin_auth_events_email ON admin_auth_events(email);
+CREATE INDEX IF NOT EXISTS idx_admin_auth_events_action ON admin_auth_events(action);
+CREATE INDEX IF NOT EXISTS idx_admin_auth_events_created_at ON admin_auth_events(created_at);

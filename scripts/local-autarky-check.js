@@ -6,6 +6,8 @@ const required = [
   ["functions/_shared/admin-auth.js", "admin-profile-session-v1"],
   ["functions/api/admin/auth.js", "PBKDF2"],
   ["schema.sql", "admin_profiles"],
+  ["schema.sql", "admin_auth_events"],
+  ["functions/api/admin/auth.js", "login_failed"],
   ["package.json", "db:sqlite:restore"],
   ["package.json", "db:sqlite:import-reports"],
   ["package.json", "production:monitor"],
