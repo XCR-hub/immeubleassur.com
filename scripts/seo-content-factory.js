@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const SITE = "https://immeubleassur.com";
@@ -581,6 +581,10 @@ function run() {
   pages.push({ type: "system", slug: "strategie-seo-continue", title: "Systeme SEO continu", quality_score: qualityScore(strategyHtml) });
   enhanceCityDepth();
   enhanceHubs(generatedCities);
+  // Keep extensionless hub URLs working with static directory serving.
+  for (const slug of ["blog", "faq"]) {
+    copyFileSync(join(OUT, `${slug}.html`), join(OUT, slug, "index.html"));
+  }
   enhanceAdminPage();
 
   const report = { generated_at: new Date().toISOString(), articles: articleBlueprints.length, new_city_pages: generatedCities.length, faq_hubs: faqClusters.length, total_pages_written: pages.length, min_quality_score: Math.min(...pages.map((page) => page.quality_score)), average_quality_score: Math.round(pages.reduce((sum, page) => sum + page.quality_score, 0) / pages.length), anti_spam_controls: ["no-google-result-scraping", "no-indexing-api-for-non-job-pages", "no-hidden-keyword-blocks", "city-pages-require-local-angle-and-lead-utility", "faq-pages-serve-user-questions-before-schema"], pages };
