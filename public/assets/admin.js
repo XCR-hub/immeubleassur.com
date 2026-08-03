@@ -1388,6 +1388,72 @@ function mailStatusCounts(mails = []) {
   }, {});
 }
 
+function mailAudienceLabel(audience = "") {
+  return ({
+    client: "Client",
+    client_offer: "Offre client",
+    client_offer_followup: "Relance offre",
+    insurer: "Assureur",
+    insurer_followup: "Relance assureur"
+  })[audience] || audience || "Mail";
+}
+
+function mailStateLabel(status = "") {
+  return ({
+    draft_review: "revue humaine",
+    approved: "approuve",
+    sent: "envoye",
+    failed: "erreur"
+  })[status] || status || "statut";
+}
+
+function eventTraceLabel(type = "") {
+  return ({
+    case_created: "Dossier cree",
+    client_document_received: "Piece client",
+    document_status: "Statut piece",
+    mail_approved: "Mail approuve",
+    mail_marked_sent: "Mail marque envoye",
+    mail_sent: "Mail envoye",
+    insurer_consultation_approved: "Consultation approuvee",
+    insurer_consultation_marked_sent: "Consultation envoyee",
+    insurer_consultation_sent: "Mail assureur envoye",
+    insurer_consultation_followup_draft: "Relance assureur",
+    insurer_consultation_response: "Retour assureur",
+    client_offer_draft_prepared: "Offre client preparee",
+    client_offer_approved: "Offre client publiee",
+    client_offer_followup_draft: "Relance offre client",
+    client_offer_accepted: "Offre acceptee",
+    client_offer_declined: "Offre declinee",
+    contract_request_admin_status: "Demande contrat",
+    contract_payment_admin_status: "Prime contrat",
+    contract_referral_admin_status: "Parrainage"
+  })[type] || type || "Trace";
+}
+
+function latestByDate(rows = [], fields = ["updated_at", "created_at"]) {
+  const list = Array.isArray(rows) ? rows : [];
+  return [...list].sort((a, b) => {
+    const at = Math.max(...fields.map((field) => Date.parse(a?.[field] || "")).filter(Number.isFinite), 0);
+    const bt = Math.max(...fields.map((field) => Date.parse(b?.[field] || "")).filter(Number.isFinite), 0);
+    return bt - at;
+  })[0] || null;
+}
+
+function communicationTraceSummary(caseRow = {}) {
+  const latestMail = latestByDate(caseRow.mail_queue || [], ["sent_at", "approved_at", "updated_at", "created_at"]);
+  const latestEvent = latestByDate(caseRow.timeline || [], ["created_at"]);
+  const lines = [];
+  if (latestMail) {
+    lines.push(`${mailAudienceLabel(latestMail.audience)} - ${mailStateLabel(latestMail.status)}`);
+    if (latestMail.subject) lines.push(String(latestMail.subject).slice(0, 90));
+  } else {
+    lines.push("Aucun mail trace");
+  }
+  if (latestEvent) lines.push(`${eventTraceLabel(latestEvent.event_type)} - ${reportDate(latestEvent.created_at)}`);
+  return lines.join("\n");
+}
+
 function consultationSummary(consultations = []) {
   const rows = Array.isArray(consultations) ? consultations : [];
   const draft = rows.filter((item) => item.status === "draft_review").length;
@@ -1609,7 +1675,7 @@ function renderCasesTable(cases = []) {
   if (!cases.length) {
     const tr = document.createElement("tr");
     const td = cell("Aucun dossier courtage synchronise.");
-    td.colSpan = 8;
+    td.colSpan = 9;
     tr.append(td);
     casesBody.append(tr);
     return;
@@ -1633,6 +1699,7 @@ function renderCasesTable(cases = []) {
       cell(`${item.stage_label || item.stage}\n${item.priority || "standard"} - ${item.readiness_score || 0}/100\n${contractSummary(contracts)}\n${offerSummary(item.client_offers || [])}`),
       cell(documentSummary(item.documents || [])),
       cell(`${mails.draft_review || 0} revue / ${mails.approved || 0} approuve(s) / ${mails.sent || 0} envoye(s)`),
+      cell(communicationTraceSummary(item)),
       cell(consultationSummary(item.consultations || [])),
       linkCell,
       renderCaseActionCell(item)
@@ -1778,6 +1845,7 @@ async function loadCases() {
   const contractOps = summary.contract_operations || {};
   const offers = summary.client_offers || {};
   const sync = result.sync?.counters || {};
+  const followupDrafts = (Array.isArray(result.mail_queue) ? result.mail_queue : []).filter((item) => item.status === "draft_review" && /followup/.test(item.audience || "")).length;
   if (casesSummary) {
     casesSummary.replaceChildren(
       metricCard("Dossiers", String(summary.cases || 0), `${summary.open_cases || 0} ouvert(s)`),
@@ -1785,6 +1853,7 @@ async function loadCases() {
       metricCard("Valeur pipeline", summary.pipeline_value_label || "0 EUR/an", "prime estimee"),
       metricCard("Pieces manquantes", String(documents.missing_required || 0), `${documents.received || 0}/${documents.requested || 0} recues`),
       metricCard("Mails a valider", String(mail.review_drafts || 0), `${mail.approved || 0} approuve(s), ${mail.sent || 0} envoye(s)`),
+      metricCard("Relances en revue", String(followupDrafts), "client/assureur a valider"),
       metricCard("Consultations", String(consultations.consultations || 0), `${consultations.review_consultations || 0} revue, ${consultations.approved_consultations || 0} prete(s), ${consultations.overdue_consultations || 0} retard`),
       metricCard("Offres client", String(offers.offers || 0), `${offers.review_offers || 0} revue, ${offers.presented_offers || 0} presentee(s), ${offers.accepted_offers || 0} acceptee(s)`),
       metricCard("Contrats", String(contracts.contracts || 0), `${contracts.active_contracts || 0} actif(s)`),

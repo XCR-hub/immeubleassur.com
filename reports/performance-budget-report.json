@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T09:47:31.854Z",
+  "generated_at": "2026-08-03T09:58:50.934Z",
   "status": "passed",
   "pages_checked": 189,
   "indexable_pages": 180,
@@ -85,8 +85,8 @@
     },
     {
       "path": "assets/admin.js",
-      "bytes": 117892,
-      "kb": 115.1,
+      "bytes": 120758,
+      "kb": 117.9,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true
@@ -151,7 +151,7 @@
     },
     {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5874,
+      "bytes": 5870,
       "kb": 5.7,
       "ok": true
     },

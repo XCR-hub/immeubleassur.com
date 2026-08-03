@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T09:47:45.799Z",
+  "generated_at": "2026-08-03T09:59:01.787Z",
   "provider": "cloudflare-turnstile",
   "mode": "hybrid-turnstile-local-antifraud",
   "configured": true,
