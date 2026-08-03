@@ -27,4 +27,13 @@ $env:LOCAL_MONITOR_ALERTS = '0'
 $env:LOCAL_LEAD_SLA_ALERTS = '0'
 New-Item -ItemType Directory -Force -Path (Join-Path $RuntimeRoot 'assets'), (Join-Path $RuntimeRoot 'reports'), $BackupRoot | Out-Null
 & 'C:\Program Files\nodejs\node.exe' 'scripts\local-runtime-report-cycle.js'
-exit $LASTEXITCODE
+$reportExitCode = $LASTEXITCODE
+
+# Refresh only connectors that are configured and ready. The runner keeps
+# fallbacks operational, never prints secret values, and applies the SerpApi
+# cooldown so the 15-minute runtime task does not burn quota.
+& 'C:\Program Files\nodejs\node.exe' 'scripts\live-ready-connectors-runner.js'
+$liveConnectorExitCode = $LASTEXITCODE
+
+if ($reportExitCode -ne 0) { exit $reportExitCode }
+exit $liveConnectorExitCode
