@@ -1,4 +1,4 @@
-﻿import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const REQUIRED = [
@@ -65,6 +65,7 @@ const REQUIRED = [
   ["functions/api/partner/consultation.js", "insurer-partner-portal-v1"],
   ["functions/api/partner/consultation.js", "no-client-email"],
   ["functions/api/partner/consultation.js", "insurer_portal_quote"],
+  ["functions/api/partner/consultation.js", "insurer-portal-internal-draft-v1"],
   ["functions/api/admin/cases.js", "case_timeline"],
   ["public/assets/admin.js", "postConsultationAction"],
   ["public/assets/admin.js", "postOfferAction"],
@@ -138,7 +139,9 @@ const REQUIRED = [
   ["scripts/brokerage-case-workflow-smoke.js", "insurer package send guard should block incomplete insurer mail approval"],
   ["scripts/brokerage-case-workflow-smoke.js", "insurer package send guard should block sending if required documents regress"],
   ["scripts/brokerage-case-workflow-smoke.js", "admin sync should prepare one overdue insurer followup draft"],
-  ["scripts/brokerage-case-workflow-smoke.js", "crm action queue should expose supervised next actions"]
+  ["scripts/brokerage-case-workflow-smoke.js", "crm action queue should expose supervised next actions"],
+  ["scripts/brokerage-case-workflow-smoke.js", "partner question should create a human-reviewed internal draft"],
+  ["scripts/brokerage-case-workflow-smoke.js", "partner quote should create a human-reviewed internal draft"]
 ];
 
 const FORBIDDEN = [

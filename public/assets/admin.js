@@ -1408,6 +1408,7 @@ function mailAudienceLabel(audience = "") {
     client_offer_followup: "Relance offre",
     insurer: "Assureur",
     insurer_followup: "Relance assureur",
+    internal_partner_response: "Reponse assureur",
     internal_request: "Demande client",
     client_request_update: "Reponse demande",
     client_contract_renewal: "Renouv.",

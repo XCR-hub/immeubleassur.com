@@ -55,6 +55,39 @@ function centsFromBody(value) {
   return Math.round(numeric > 10000 ? numeric : numeric * 100);
 }
 
+function internalNotificationRecipient(env = {}) {
+  const raw = String(env.SMTP_TO || env.CONTACT_EMAIL || env.SMTP_FROM || "");
+  return raw.split(/[;,]/).map((value) => clean(value, 180)).find((value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) || "";
+}
+
+async function queueInternalPartnerResponse(env, row, action, notes, details = {}) {
+  const normalizedAction = clean(action, 40);
+  const marker = "insurer-portal-internal-draft-v1";
+  const existing = await safeFirst(env, "SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'internal_partner_response' AND payload LIKE ? AND status IN ('draft_review', 'approved', 'sent') LIMIT 1", [row.case_id, `%${row.id}%${normalizedAction}%`]);
+  if (existing?.id) return existing.id;
+  const recipient = internalNotificationRecipient(env);
+  const responseLabel = ({ question: "Question assureur", quote: "Offre assureur", decline: "Refus assureur" })[normalizedAction] || "Reponse assureur";
+  const subject = `${responseLabel} - ${clean(row.case_reference, 80)} - ${clean(row.insurer_name, 120)}`;
+  const body = [
+    "Une reponse partenaire est disponible dans le portail assureur.",
+    "",
+    `Dossier: ${clean(row.case_reference, 80)}`,
+    `Assureur: ${clean(row.insurer_name, 160)}`,
+    `Type: ${responseLabel}`,
+    details.premium_amount_cents ? `Prime indicative: ${Math.round(Number(details.premium_amount_cents) / 100)} EUR/an` : "",
+    details.deductible_cents ? `Franchise indicative: ${Math.round(Number(details.deductible_cents) / 100)} EUR` : "",
+    notes ? `Message assureur: ${clean(notes, 1800)}` : "Aucun message complementaire.",
+    "",
+    "Action: relire la reponse, verifier les conditions puis mettre a jour le dossier ou preparer la suite.",
+    "Ce message est un brouillon interne sous validation humaine; aucun envoi automatique n'est declenche."
+  ].filter(Boolean).join("\n");
+  const now = nowIso();
+  const mailId = crypto.randomUUID();
+  await safeRun(env, `INSERT INTO case_mail_queue (id, case_id, audience, recipient_email, subject, body, status, review_required, scheduled_at, payload, created_at, updated_at)
+    VALUES (?, ?, 'internal_partner_response', ?, ?, ?, 'draft_review', 1, ?, ?, ?, ?)`, [mailId, row.case_id, recipient, subject, body, now, JSON.stringify({ marker, consultation_id: row.id, response_action: normalizedAction, human_review_required: true }), now, now]);
+  await logTimeline(env, row.case_id, "insurer_portal_internal_draft", "system", { marker, consultation_id: row.id, mail_id: mailId, response_action: normalizedAction, human_review_required: true });
+  return mailId;
+}
 function redact(value, max = 1400) {
   return clean(value, max)
     .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email masque]")
@@ -137,6 +170,7 @@ export async function onRequestPost({ request, env }) {
     await safeRun(env, "UPDATE insurer_consultations SET status = CASE WHEN status = 'quoted' THEN status ELSE 'answered' END, answered_at = COALESCE(answered_at, ?), notes = ?, updated_at = ? WHERE id = ?", [nowIso(), nextNotes, nowIso(), bundle.row.id]);
     await safeRun(env, "UPDATE brokerage_cases SET next_action = ?, updated_at = ? WHERE id = ?", ["Repondre a la question assureur puis mettre a jour le pack de consultation.", nowIso(), bundle.row.case_id]);
     await logTimeline(env, bundle.row.case_id, "insurer_portal_question", bundle.row.insurer_name, { marker: PARTNER_PORTAL_MARKER, consultation_id: bundle.row.id, human_followup_required: true });
+    await queueInternalPartnerResponse(env, bundle.row, action, notes);
     return json({ success: true, status: "answered" });
   }
 
@@ -147,6 +181,7 @@ export async function onRequestPost({ request, env }) {
     await safeRun(env, "UPDATE insurer_consultations SET status = 'quoted', answered_at = COALESCE(answered_at, ?), premium_amount_cents = COALESCE(?, premium_amount_cents), deductible_cents = COALESCE(?, deductible_cents), notes = ?, updated_at = ? WHERE id = ?", [nowIso(), premium, deductible, nextNotes, nowIso(), bundle.row.id]);
     await safeRun(env, "UPDATE brokerage_cases SET stage = 'offer_followup', next_action = ?, updated_at = ? WHERE id = ?", ["Comparer l'offre assureur recue via portail et preparer la recommandation client.", nowIso(), bundle.row.case_id]);
     await logTimeline(env, bundle.row.case_id, "insurer_portal_quote", bundle.row.insurer_name, { marker: PARTNER_PORTAL_MARKER, consultation_id: bundle.row.id, premium_amount_cents: premium, deductible_cents: deductible, human_review_required: true });
+    await queueInternalPartnerResponse(env, bundle.row, action, notes, { premium_amount_cents: premium, deductible_cents: deductible });
     return json({ success: true, status: "quoted" });
   }
 
@@ -155,6 +190,7 @@ export async function onRequestPost({ request, env }) {
     await safeRun(env, "UPDATE insurer_consultations SET status = 'declined', answered_at = COALESCE(answered_at, ?), notes = ?, updated_at = ? WHERE id = ?", [nowIso(), nextNotes, nowIso(), bundle.row.id]);
     await safeRun(env, "UPDATE brokerage_cases SET next_action = ?, updated_at = ? WHERE id = ?", ["Analyser le refus assureur et relancer un partenaire adapte si besoin.", nowIso(), bundle.row.case_id]);
     await logTimeline(env, bundle.row.case_id, "insurer_portal_decline", bundle.row.insurer_name, { marker: PARTNER_PORTAL_MARKER, consultation_id: bundle.row.id, human_review_required: true });
+    await queueInternalPartnerResponse(env, bundle.row, action, notes);
     return json({ success: true, status: "declined" });
   }
 

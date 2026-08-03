@@ -1,4 +1,4 @@
-﻿import { existsSync, rmSync } from "node:fs";
+import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { openLocalSqlite } from "./local-sqlite-db.js";
@@ -150,11 +150,13 @@ async function main() {
   const insurerFollowupTimeline = DB.prepare("SELECT COUNT(*) AS count FROM case_timeline WHERE case_id = ? AND event_type = 'insurer_consultation_followup_autopilot'").bind(caseRow.id).first()?.count || 0;
   assert(Number(insurerFollowupTimeline) === 1, "overdue insurer followup should be traced in timeline");
   const partnerQuestion = await readJson(await partnerPost({ request: new Request(`${siteOrigin}/api/partner/consultation?token=${tokenRow.token}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "question", notes: "Merci de confirmer la franchise toiture." }) }), env }));
-  assert(partnerQuestion.status === 200 && partnerQuestion.body.status === "answered", "partner portal should trace an insurer question");
+  assert(partnerQuestion.status === 200 && partnerQuestion.body.status === "answered", "partner portal should trace an insurer question");  const internalQuestionDraft = DB.prepare("SELECT status, body FROM case_mail_queue WHERE case_id = ? AND audience = 'internal_partner_response' AND payload LIKE ? LIMIT 1").bind(caseRow.id, `%${consultation.id}%question%`).first();
+  assert(internalQuestionDraft?.status === "draft_review" && /Question assureur/.test(internalQuestionDraft.body || ""), "partner question should create a human-reviewed internal draft");
   const followupDraft = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "consultation_followup", consultation_id: consultation.id, reviewer: "smoke" }) }), env }));
   assert(followupDraft.status === 200 && followupDraft.body.status === "draft_review", "insurer followup should be prepared as a reviewed mail draft");
   const consultationQuote = await readJson(await partnerPost({ request: new Request(`${siteOrigin}/api/partner/consultation?token=${tokenRow.token}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "quote", premium_amount_cents: 123400, deductible_cents: 50000, notes: "Offre smoke recue via portail." }) }), env }));
-  assert(consultationQuote.status === 200 && consultationQuote.body.status === "quoted", "partner portal should trace insurer quote response");
+  assert(consultationQuote.status === 200 && consultationQuote.body.status === "quoted", "partner portal should trace insurer quote response");  const internalQuoteDraft = DB.prepare("SELECT status, body FROM case_mail_queue WHERE case_id = ? AND audience = 'internal_partner_response' AND payload LIKE ? LIMIT 1").bind(caseRow.id, `%${consultation.id}%quote%`).first();
+  assert(internalQuoteDraft?.status === "draft_review" && /Offre assureur/.test(internalQuoteDraft.body || "") && /1234/.test(internalQuoteDraft.body || ""), "partner quote should create a human-reviewed internal draft");
   const followupMail = DB.prepare("SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'insurer_followup' AND status = 'draft_review'").bind(caseRow.id).first();
   assert(followupMail?.id, "insurer followup should remain in human-reviewed draft queue");
   const refreshedCase = DB.prepare("SELECT stage FROM brokerage_cases WHERE id = ?").bind(caseRow.id).first();
