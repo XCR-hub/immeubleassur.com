@@ -20,7 +20,8 @@ const runnable = {
   turnstile: { command: ["scripts/turnstile-hybrid-pass.js"], objective: "Rafraichir les widgets Turnstile et fallback anti-fraude local." },
   pexels: { command: ["scripts/media-autopilot.js", "--fetch"], objective: "Rafraichir les visuels attribues lorsque Pexels est configure." },
   "editorial-ai": { command: ["scripts/editorial-autopilot.js", "--fetch", "--ai"], objective: "Rafraichir la veille editoriale IA avec fallback local." },
-  serpapi: { command: ["scripts/search-intelligence.js", "--serp"], objective: "Mesurer les positions Google via SerpApi sans scraping direct." }
+  serpapi: { command: ["scripts/search-intelligence.js", "--serp"], objective: "Mesurer les positions Google via SerpApi sans scraping direct." },
+  "google-seo": { command: ["scripts/seo-autopilot.js", "--pagespeed", "--gsc-if-configured", "--url-inspection", "--submit-sitemap"], objective: "Rafraichir Search Console, PageSpeed et les signaux SEO Google lorsque les connecteurs sont prets.", readinessIds: ["google-search-console", "pagespeed"] }
 };
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
@@ -98,8 +99,10 @@ steps.push(runNode("readiness_before", ["scripts/live-api-readiness-check.js"]))
 const readiness = readJson(READINESS_REPORT);
 
 for (const [id, config] of Object.entries(runnable)) {
-  const row = rowById(readiness, id);
-  if (!row?.ready) {
+  const readinessRows = (config.readinessIds || [id]).map((readinessId) => rowById(readiness, readinessId)).filter(Boolean);
+  const row = rowById(readiness, id) || readinessRows[0] || null;
+  const connectorReady = readinessRows.length ? readinessRows.some((item) => item.ready) : Boolean(row?.ready);
+  if (!connectorReady) {
     steps.push({ name: id, command: `node ${config.command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, reason: "connector-not-ready", objective: config.objective, report: row?.last_report || null });
     continue;
   }
