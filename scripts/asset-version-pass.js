@@ -23,7 +23,8 @@ const assets = {
   styles: versionedAsset("/assets/styles.css"),
   app: versionedAsset("/assets/app.js"),
   admin: versionedAsset("/assets/admin.js"),
-  clientPortal: versionedAsset("/assets/client-portal.js")
+  clientPortal: versionedAsset("/assets/client-portal.js"),
+  partnerPortal: versionedAsset("/assets/partner-portal.js")
 };
 
 const tagRules = [
@@ -46,6 +47,11 @@ const tagRules = [
     name: "client-portal",
     pattern: /<script\s+src="\/assets\/client-portal\.js(?:\?v=[^"]*)?"\s+type="module"><\/script>/g,
     replacement: `<script src="${assets.clientPortal}" type="module"></script>`
+  },
+  {
+    name: "partner-portal",
+    pattern: /<script\s+src="\/assets\/partner-portal\.js(?:\?v=[^"]*)?"\s+type="module"><\/script>/g,
+    replacement: `<script src="${assets.partnerPortal}" type="module"></script>`
   }
 ];
 

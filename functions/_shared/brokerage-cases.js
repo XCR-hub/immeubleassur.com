@@ -39,6 +39,15 @@ export function portalUrl(token, origin = "https://immeubleassur.com") {
   return `${root}/espace-client.html?token=${encodeURIComponent(clean(token, 120))}`;
 }
 
+export function insurerPortalToken() {
+  return `ins-${crypto.randomUUID().replace(/-/g, "")}${crypto.randomUUID().replace(/-/g, "").slice(0, 12)}`;
+}
+
+export function insurerPortalUrl(token, origin = "https://immeubleassur.com") {
+  const root = clean(origin, 240).replace(/\/+$/, "") || "https://immeubleassur.com";
+  return `${root}/espace-assureur.html?token=${encodeURIComponent(clean(token, 160))}`;
+}
+
 export function leadValueEstimate(lead, score = 0) {
   const units = Math.max(1, unitCount(lead.units_count));
   const need = clean(lead.need, 80);

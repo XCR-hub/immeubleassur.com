@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T08:36:46.717Z",
+  "generated_at": "2026-08-03T08:59:39.406Z",
   "status": "partial",
   "connectors_checked": 8,
   "ready_count": 5,
@@ -32,13 +32,13 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-03T08:36:46.143Z",
+        "generated_at": "2026-08-03T08:59:38.416Z",
         "status": "passed",
         "summary": {
           "provider": "cloudflare-turnstile",
           "mode": "hybrid-turnstile-local-antifraud",
           "configured": true,
-          "pages_checked": 187,
+          "pages_checked": 188,
           "forms_detected": 183,
           "forms_instrumented": 183,
           "serp_error_count": 0,

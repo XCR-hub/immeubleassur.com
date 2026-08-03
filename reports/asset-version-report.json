@@ -1,13 +1,14 @@
 {
-  "generated_at": "2026-08-03T08:37:11.186Z",
-  "files_checked": 188,
+  "generated_at": "2026-08-03T09:00:05.016Z",
+  "files_checked": 189,
   "files_changed": 0,
   "replacements": 0,
   "assets": {
-    "styles": "/assets/styles.css?v=5460579af6",
+    "styles": "/assets/styles.css?v=c6fd5d38f7",
     "app": "/assets/app.js?v=0668b86d0e",
-    "admin": "/assets/admin.js?v=17edf6f65e",
-    "clientPortal": "/assets/client-portal.js?v=617ffc1a4b"
+    "admin": "/assets/admin.js?v=994432890a",
+    "clientPortal": "/assets/client-portal.js?v=617ffc1a4b",
+    "partnerPortal": "/assets/partner-portal.js?v=cbb508c0fe"
   },
   "changed": [],
   "status": "passed"

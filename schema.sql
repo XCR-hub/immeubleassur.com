@@ -406,6 +406,22 @@ CREATE INDEX IF NOT EXISTS idx_insurer_consultations_case_id ON insurer_consulta
 CREATE INDEX IF NOT EXISTS idx_insurer_consultations_status ON insurer_consultations(status);
 CREATE INDEX IF NOT EXISTS idx_insurer_consultations_due_at ON insurer_consultations(response_due_at);
 
+CREATE TABLE IF NOT EXISTS insurer_consultation_tokens (
+  id TEXT PRIMARY KEY,
+  consultation_id TEXT NOT NULL REFERENCES insurer_consultations(id) ON DELETE CASCADE,
+  token TEXT NOT NULL UNIQUE,
+  status TEXT NOT NULL DEFAULT 'active',
+  expires_at TEXT,
+  last_used_at TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_insurer_consultation_tokens_token ON insurer_consultation_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_insurer_consultation_tokens_consultation ON insurer_consultation_tokens(consultation_id);
+CREATE INDEX IF NOT EXISTS idx_insurer_consultation_tokens_status ON insurer_consultation_tokens(status);
+
 CREATE TABLE IF NOT EXISTS case_mail_queue (
   id TEXT PRIMARY KEY,
   case_id TEXT NOT NULL REFERENCES brokerage_cases(id) ON DELETE CASCADE,

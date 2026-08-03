@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-03T08:36:42.717Z",
-  "pages_checked": 184,
+  "generated_at": "2026-08-03T08:59:33.798Z",
+  "pages_checked": 185,
   "money_pages_checked": 118,
   "cluster_count": 11,
   "cluster_detection": {
@@ -382,9 +382,9 @@
     },
     {
       "cluster": "assurance-immeuble",
-      "pages": 3,
+      "pages": 4,
       "money_pages": 0,
-      "average_score": 44,
+      "average_score": 38,
       "top_pages": [
         {
           "slug": "faq/assurance-immeuble",
@@ -400,6 +400,11 @@
           "slug": "espace-client",
           "url": "https://immeubleassur.com/espace-client",
           "score": 26
+        },
+        {
+          "slug": "espace-assureur",
+          "url": "https://immeubleassur.com/espace-assureur",
+          "score": 22
         }
       ]
     }

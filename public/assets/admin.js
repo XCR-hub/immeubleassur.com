@@ -1553,6 +1553,15 @@ function renderCaseActionCell(caseRow) {
     } else if (consultationNeedsFollowup(consultation)) {
       td.append(consultationActionButton("consultation_followup", "Brouillon relance", { consultationId: consultation.id }, false, !emailReady));
     }
+    if (consultation.insurer_portal_url) {
+      const link = document.createElement("a");
+      link.href = consultation.insurer_portal_url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.className = "button secondary compact-action";
+      link.textContent = "Lien assureur";
+      td.append(link);
+    }
   }
   if (!draft && !approved && !request && !referral && !payment && !consultation) td.textContent = caseRow.next_action || "Suivi manuel";
   return td;

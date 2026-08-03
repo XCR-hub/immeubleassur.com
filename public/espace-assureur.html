@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Espace assureur securise ImmeubleAssur pour repondre a une consultation courtage immeuble." />
+    <link rel="canonical" href="https://immeubleassur.com/espace-assureur" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/styles.css?v=c6fd5d38f7" />
+    <title>Espace assureur - ImmeubleAssur</title>
+  </head>
+  <body class="plain-page client-portal-page partner-portal-page">
+    <header class="site-header" data-elevate>
+      <a class="brand" href="/" aria-label="ImmeubleAssur accueil">
+        <span class="brand-mark" aria-hidden="true">IA</span>
+        <span><strong>ImmeubleAssur</strong><small>courtier immeuble</small></span>
+      </a>
+      <a class="header-phone" href="tel:+33180855786">01 80 85 57 86</a>
+    </header>
+    <main class="plain-main client-portal-main partner-portal-main">
+      <section class="portal-hero">
+        <div>
+          <p class="eyebrow dark">Espace assureur</p>
+          <h1>Retour consultation assurance immeuble</h1>
+        </div>
+        <form class="portal-token-form" id="partner-token-form">
+          <label>Jeton consultation<input id="partner-token" name="token" autocomplete="one-time-code" placeholder="Collez votre jeton" /></label>
+          <button class="submit-button" type="submit">Ouvrir</button>
+        </form>
+      </section>
+      <p class="form-status" id="partner-status" role="status" aria-live="polite"></p>
+      <section class="portal-grid partner-portal-grid" id="partner-content" hidden>
+        <article class="portal-panel portal-status-panel">
+          <span>Dossier</span>
+          <h2 data-case-reference>-</h2>
+          <p data-consultation-status>-</p>
+          <small data-response-due>-</small>
+        </article>
+        <article class="portal-panel">
+          <span>Risque</span>
+          <h2 data-risk-city>-</h2>
+          <p data-risk-summary>-</p>
+        </article>
+        <article class="portal-panel partner-context-panel">
+          <span>Contexte</span>
+          <h2 data-risk-need>-</h2>
+          <p data-risk-context>-</p>
+        </article>
+        <article class="portal-panel portal-documents-panel">
+          <span>Pieces</span>
+          <h2 data-documents-count>-</h2>
+          <div id="partner-documents"></div>
+        </article>
+        <article class="portal-panel partner-actions-panel">
+          <span>Offre</span>
+          <h2>Repondre</h2>
+          <form class="portal-mini-form" id="partner-quote-form">
+            <label>Prime annuelle EUR<input name="premium_amount" inputmode="decimal" maxlength="20" placeholder="Ex. 2450" /></label>
+            <label>Franchise EUR<input name="deductible" inputmode="decimal" maxlength="20" placeholder="Ex. 500" /></label>
+            <label>Notes<textarea name="notes" maxlength="1800" placeholder="Garanties, exclusions, conditions, pieces restantes"></textarea></label>
+            <button class="submit-button compact-action" type="submit">Transmettre offre</button>
+          </form>
+        </article>
+        <article class="portal-panel partner-actions-panel">
+          <span>Question</span>
+          <h2>Demander precision</h2>
+          <form class="portal-mini-form" id="partner-question-form">
+            <label>Question<textarea name="notes" maxlength="1200" placeholder="Piece ou information complementaire demandee"></textarea></label>
+            <button class="button secondary compact-action" type="submit">Envoyer question</button>
+          </form>
+        </article>
+        <article class="portal-panel partner-actions-panel">
+          <span>Refus</span>
+          <h2>Decliner</h2>
+          <form class="portal-mini-form" id="partner-decline-form">
+            <label>Motif<textarea name="notes" maxlength="1200" placeholder="Motif de non-appetit ou condition bloquante"></textarea></label>
+            <button class="button secondary compact-action" type="submit">Transmettre refus</button>
+          </form>
+        </article>
+      </section>
+    </main>
+    <script src="/assets/app.js?v=0668b86d0e" type="module"></script>
+    <script src="/assets/partner-portal.js?v=cbb508c0fe" type="module"></script>
+  </body>
+</html>

@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-03T08:36:38.825Z",
+  "generated_at": "2026-08-03T08:59:29.435Z",
   "status": "passed",
-  "pages_checked": 188,
+  "pages_checked": 189,
   "pages_targeted": 57,
   "pages_changed": 14,
   "links_added": 56,
   "pages_with_active_blocks": 61,
   "active_internal_links": 241,
-  "noindex_skipped": 8,
+  "noindex_skipped": 9,
   "lead_pages_skipped": 6,
   "cluster_targets": [
     {

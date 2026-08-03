@@ -3785,3 +3785,32 @@ textarea:focus {
   }
 }
 /* client-contract-portal-2026-08:end */
+/* partner-insurer-portal-2026-08:start */
+.partner-portal-main .portal-hero h1 {
+  max-width: 680px;
+}
+.partner-portal-grid {
+  align-items: stretch;
+}
+.partner-context-panel {
+  grid-column: span 2;
+}
+.partner-actions-panel textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+.partner-actions-panel .portal-mini-form {
+  gap: 10px;
+}
+.partner-portal-page .portal-document-row strong {
+  max-width: 44ch;
+}
+@media (max-width: 760px) {
+  .partner-context-panel {
+    grid-column: span 1;
+  }
+  .partner-portal-main .portal-hero {
+    gap: 18px;
+  }
+}
+/* partner-insurer-portal-2026-08:end */

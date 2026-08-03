@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-03T08:36:48.380Z",
+  "generated_at": "2026-08-03T08:59:41.308Z",
   "status": "passed",
-  "required_markers": 32,
-  "forbidden_markers": 3,
+  "required_markers": 46,
+  "forbidden_markers": 6,
   "issue_count": 0,
   "missing": [],
   "forbidden": [],

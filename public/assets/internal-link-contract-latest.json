@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-03T08:36:31.177Z",
+  "generated_at": "2026-08-03T08:59:19.459Z",
   "status": "passed",
-  "pages_checked": 187,
-  "refs_checked": 5915,
-  "internal_refs_checked": 4747,
+  "pages_checked": 188,
+  "refs_checked": 5922,
+  "internal_refs_checked": 4753,
   "broken_count": 0,
   "broken": [],
   "safeguards": [

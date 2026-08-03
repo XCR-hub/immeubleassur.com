@@ -10,6 +10,8 @@ import {
   leadValueEstimate,
   nextActionForCase,
   nowIso,
+  insurerPortalToken,
+  insurerPortalUrl,
   portalToken,
   portalUrl,
   readinessScoreFor,
@@ -262,7 +264,11 @@ function consultationOperationSummary(consultations = []) {
 function caseRowsWithChildren(cases, documents, mails, consultations, timelines, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env) {
   const docsByCase = groupBy(documents, "case_id");
   const mailsByCase = groupBy(mails, "case_id");
-  const consultationsByCase = groupBy(consultations, "case_id");
+  const consultationRows = rowsOrEmpty(consultations).map((item) => ({
+    ...item,
+    insurer_portal_url: item.insurer_portal_token ? insurerPortalUrl(item.insurer_portal_token, clean(env.SITE_ORIGIN, 240) || "https://immeubleassur.com") : ""
+  }));
+  const consultationsByCase = groupBy(consultationRows, "case_id");
   const timelineByCase = groupBy(timelines, "case_id");
   const contractRows = contractsWithChildren(contracts, contractRequests, contractPayments, contractReferrals, contractConsents);
   const contractsByCase = groupBy(contractRows, "case_id");
@@ -358,7 +364,7 @@ export async function onRequestGet({ request, env }) {
     safeAll(env, `SELECT c.*, l.reference AS lead_reference, l.name, l.phone, l.email, l.profile, l.property_type, l.city, l.units_count, l.need, l.status AS lead_status FROM brokerage_cases c JOIN leads l ON l.id = c.lead_id ORDER BY CASE c.priority WHEN 'hot' THEN 1 WHEN 'warm' THEN 2 WHEN 'standard' THEN 3 ELSE 4 END, c.updated_at DESC LIMIT 120`),
     safeAll(env, `SELECT d.* FROM case_documents d JOIN brokerage_cases c ON c.id = d.case_id ORDER BY d.required DESC, d.label LIMIT 800`),
     safeAll(env, `SELECT m.*, c.case_reference FROM case_mail_queue m JOIN brokerage_cases c ON c.id = m.case_id ORDER BY CASE m.status WHEN 'draft_review' THEN 1 WHEN 'approved' THEN 2 WHEN 'sent' THEN 3 ELSE 4 END, m.updated_at DESC LIMIT 240`),
-    safeAll(env, `SELECT i.*, c.case_reference FROM insurer_consultations i JOIN brokerage_cases c ON c.id = i.case_id ORDER BY CASE i.status WHEN 'draft_review' THEN 1 WHEN 'sent' THEN 2 ELSE 3 END, i.updated_at DESC LIMIT 240`),
+    safeAll(env, `SELECT i.*, c.case_reference, tok.token AS insurer_portal_token FROM insurer_consultations i JOIN brokerage_cases c ON c.id = i.case_id LEFT JOIN insurer_consultation_tokens tok ON tok.consultation_id = i.id AND tok.status = 'active' ORDER BY CASE i.status WHEN 'draft_review' THEN 1 WHEN 'approved' THEN 2 WHEN 'sent' THEN 3 ELSE 4 END, i.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT t.* FROM case_timeline t JOIN brokerage_cases c ON c.id = t.case_id ORDER BY t.created_at DESC LIMIT 300`),
     safeAll(env, `SELECT cc.*, c.case_reference FROM client_contracts cc JOIN brokerage_cases c ON c.id = cc.case_id ORDER BY cc.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT r.*, cc.case_id, cc.contract_reference FROM contract_service_requests r JOIN client_contracts cc ON cc.id = r.contract_id ORDER BY CASE r.status WHEN 'open' THEN 1 WHEN 'in_progress' THEN 2 ELSE 3 END, r.due_at LIMIT 400`),
@@ -458,6 +464,19 @@ function validEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : "";
 }
 
+async function ensureConsultationToken(env, consultationId, payload = {}) {
+  const existing = await safeFirst(env, "SELECT id, token FROM insurer_consultation_tokens WHERE consultation_id = ? AND status = 'active' ORDER BY created_at DESC LIMIT 1", [consultationId]);
+  if (existing?.token && !errorOf(existing)) return existing;
+  const tokenRow = { id: crypto.randomUUID(), token: insurerPortalToken() };
+  await safeRun(env, `INSERT INTO insurer_consultation_tokens (id, consultation_id, token, status, expires_at, payload, created_at, updated_at)
+    VALUES (?, ?, ?, 'active', ?, ?, ?, ?)`, [tokenRow.id, consultationId, tokenRow.token, new Date(Date.now() + 45 * 86400000).toISOString(), JSON.stringify({ marker: "insurer-partner-portal-v1", ...payload }), nowIso(), nowIso()]);
+  return tokenRow;
+}
+
+function consultationPortalLink(env, token) {
+  return insurerPortalUrl(token, clean(env.SITE_ORIGIN, 240) || "https://immeubleassur.com");
+}
+
 async function consultationBundle(env, consultationId) {
   const row = await safeFirst(env, `SELECT i.*, c.case_reference, c.readiness_score, c.stage, l.reference AS lead_reference, l.name, l.phone, l.email, l.profile, l.property_type, l.city, l.units_count, l.need, l.message, l.lead_score, l.status AS lead_status
     FROM insurer_consultations i
@@ -473,7 +492,7 @@ function missingRequiredDocuments(documents = []) {
   return rowsOrEmpty(documents).filter((doc) => Number(doc.required || 0) === 1 && !["received", "validated", "waived"].includes(clean(doc.status, 40)));
 }
 
-function insurerDraft(row, documents, followup = false) {
+function insurerDraft(row, documents, followup = false, portalUrlValue = "") {
   if (followup) {
     return {
       subject: `Relance consultation ${clean(row.case_reference, 80)} - ${clean(row.insurer_name, 120)}`,
@@ -483,15 +502,17 @@ function insurerDraft(row, documents, followup = false) {
         `Nous revenons vers vous au sujet du dossier ${clean(row.case_reference, 80)} transmis pour etude.`,
         `Risque: ${clean(row.property_type, 120) || "immeuble"} - ${clean(row.city, 120) || "ville a confirmer"} - ${clean(row.units_count, 40) || "lots a confirmer"} lot(s).`,
         "Merci de nous confirmer votre appetit, les garanties envisageables, franchises, exclusions et prime indicative.",
+        portalUrlValue ? `Retour assureur securise: ${portalUrlValue}` : "",
         "",
         "Cette relance est preparee en brouillon et doit rester validee humainement avant tout envoi.",
         "",
         "Bien cordialement,",
         "ImmeubleAssur"
-      ].join("\n")
+      ].filter(Boolean).join("\n")
     };
   }
-  return buildInsurerEmailDraft(row, row, documents);
+  const draft = buildInsurerEmailDraft(row, row, documents);
+  return portalUrlValue ? { ...draft, body: `${draft.body}\n\nRetour assureur securise: ${portalUrlValue}` } : draft;
 }
 
 async function approveConsultation(env, body) {
@@ -505,8 +526,9 @@ async function approveConsultation(env, body) {
   const missing = missingRequiredDocuments(bundle.documents);
   if (missing.length && body.override_missing_documents !== true) return json({ success: false, error: "Pieces requises manquantes avant consultation assureur", missing_required: missing.map((doc) => doc.label) }, 409);
   await safeRun(env, "UPDATE insurer_consultations SET recipient_email = ?, status = 'approved', package_status = 'approved_for_send', human_approved_at = COALESCE(human_approved_at, ?), notes = COALESCE(NULLIF(?, ''), notes), updated_at = ? WHERE id = ?", [recipient, nowIso(), clean(body.notes, 1000), nowIso(), consultationId]);
-  await logTimeline(env, bundle.row.case_id, "insurer_consultation_approved", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, human_review: true });
-  return json({ success: true, status: "approved" });
+  const access = await ensureConsultationToken(env, consultationId, { insurer_name: bundle.row.insurer_name, case_id: bundle.row.case_id });
+  await logTimeline(env, bundle.row.case_id, "insurer_consultation_approved", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, human_review: true, partner_portal: true });
+  return json({ success: true, status: "approved", insurer_portal_url: consultationPortalLink(env, access.token) });
 }
 
 async function markConsultationSent(env, body, sentBy = "admin") {
@@ -517,10 +539,11 @@ async function markConsultationSent(env, body, sentBy = "admin") {
   if (bundle.error) return json({ success: false, error: bundle.error }, 404);
   if (clean(bundle.row.status, 40) !== "approved" || !bundle.row.human_approved_at) return json({ success: false, error: "Validation humaine consultation requise avant envoi" }, 409);
   if (!validEmail(bundle.row.recipient_email)) return json({ success: false, error: "Email assureur requis avant envoi" }, 409);
+  const access = await ensureConsultationToken(env, consultationId, { insurer_name: bundle.row.insurer_name, case_id: bundle.row.case_id });
   await safeRun(env, "UPDATE insurer_consultations SET status = 'sent', package_status = 'sent_to_partner', sent_at = COALESCE(sent_at, ?), response_due_at = COALESCE(response_due_at, ?), updated_at = ? WHERE id = ?", [nowIso(), new Date(Date.now() + 48 * 3600000).toISOString(), nowIso(), consultationId]);
   await safeRun(env, "UPDATE brokerage_cases SET stage = 'insurer_consultation', next_action = ?, updated_at = ? WHERE id = ?", ["Suivre les retours assureurs et relancer sans envoi non relu si l'echeance est depassee.", nowIso(), bundle.row.case_id]);
-  await logTimeline(env, bundle.row.case_id, "insurer_consultation_marked_sent", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name });
-  return json({ success: true, status: "sent" });
+  await logTimeline(env, bundle.row.case_id, "insurer_consultation_marked_sent", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, partner_portal: true });
+  return json({ success: true, status: "sent", insurer_portal_url: consultationPortalLink(env, access.token) });
 }
 
 async function sendConsultation(env, body) {
@@ -530,7 +553,8 @@ async function sendConsultation(env, body) {
   if (bundle.error) return json({ success: false, error: bundle.error }, 404);
   if (clean(bundle.row.status, 40) !== "approved" || !bundle.row.human_approved_at) return json({ success: false, error: "Validation humaine consultation requise avant envoi" }, 409);
   if (!validEmail(bundle.row.recipient_email)) return json({ success: false, error: "Email assureur requis avant envoi" }, 409);
-  const draft = insurerDraft(bundle.row, bundle.documents, false);
+  const access = await ensureConsultationToken(env, consultationId, { insurer_name: bundle.row.insurer_name, case_id: bundle.row.case_id });
+  const draft = insurerDraft(bundle.row, bundle.documents, false, consultationPortalLink(env, access.token));
   const config = await smtpConfig(env, { recipient_email: bundle.row.recipient_email });
   if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return json({ success: false, error: "Configuration SMTP incomplete" }, 503);
   const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, { recipient_email: bundle.row.recipient_email, subject: draft.subject, body: draft.body }), env);
@@ -547,9 +571,10 @@ async function queueConsultationFollowup(env, body) {
   if (bundle.error) return json({ success: false, error: bundle.error }, 404);
   if (!["sent", "answered", "quoted"].includes(clean(bundle.row.status, 40))) return json({ success: false, error: "Relance possible apres envoi initial seulement" }, 409);
   if (!validEmail(bundle.row.recipient_email)) return json({ success: false, error: "Email assureur requis pour preparer la relance" }, 409);
+  const access = await ensureConsultationToken(env, consultationId, { insurer_name: bundle.row.insurer_name, case_id: bundle.row.case_id });
   const existing = await safeFirst(env, "SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'insurer_followup' AND recipient_email = ? AND status IN ('draft_review', 'approved')", [bundle.row.case_id, bundle.row.recipient_email]);
   if (existing?.id) return json({ success: true, status: "draft_review", mail_id: existing.id, reused: true });
-  const draft = insurerDraft(bundle.row, bundle.documents, true);
+  const draft = insurerDraft(bundle.row, bundle.documents, true, consultationPortalLink(env, access.token));
   const mailId = crypto.randomUUID();
   await safeRun(env, `INSERT INTO case_mail_queue (id, case_id, audience, recipient_email, subject, body, status, review_required, scheduled_at, payload, created_at, updated_at)
     VALUES (?, ?, 'insurer_followup', ?, ?, ?, 'draft_review', 1, ?, ?, ?, ?)`, [mailId, bundle.row.case_id, bundle.row.recipient_email, draft.subject, draft.body, nowIso(), JSON.stringify({ marker: "insurer-consultation-action-v1", consultation_id: consultationId, purpose: "insurer_followup", human_review_required: true }), nowIso(), nowIso()]);

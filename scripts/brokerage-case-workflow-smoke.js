@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { openLocalSqlite } from "./local-sqlite-db.js";
 import { onRequestGet as adminGet, onRequestPost as adminPost } from "../functions/api/admin/cases.js";
 import { onRequestGet as clientGet, onRequestPost as clientPost } from "../functions/api/client/case.js";
+import { onRequestGet as partnerGet, onRequestPost as partnerPost } from "../functions/api/partner/consultation.js";
 
 const dbPath = join(tmpdir(), `immeubleassur-brokerage-smoke-${process.pid}-${Date.now()}.sqlite`);
 const adminToken = "brokerage-smoke-token";
@@ -91,12 +92,22 @@ async function main() {
   assert(blockedConsultationSend.status === 409 && /Validation humaine consultation/.test(blockedConsultationSend.body.error || ""), "consultation send should be blocked before human approval");
   const consultationApproved = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "approve_consultation", consultation_id: consultation.id, reviewer: "smoke" }) }), env }));
   assert(consultationApproved.status === 200 && consultationApproved.body.status === "approved", "admin should approve insurer consultation after review");
+  assert(/espace-assureur\.html\?token=/.test(consultationApproved.body.insurer_portal_url || ""), "approval should create an insurer portal URL");
+  const tokenRow = DB.prepare("SELECT token FROM insurer_consultation_tokens WHERE consultation_id = ? AND status = 'active' LIMIT 1").bind(consultation.id).first();
+  assert(tokenRow?.token, "approved consultation should store an active partner token");
+  const partnerPayload = await readJson(await partnerGet({ request: new Request(`${siteOrigin}/api/partner/consultation?token=${tokenRow.token}`), env }));
+  assert(partnerPayload.status === 200 && partnerPayload.body.marker === "insurer-partner-portal-v1", "partner portal should open by token");
+  const partnerJson = JSON.stringify(partnerPayload.body);
+  assert(!partnerJson.includes("client-smoke@example.test") && !partnerJson.includes("0600000000"), "partner portal should not expose client email or phone");
+
   const consultationSent = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "mark_consultation_sent", consultation_id: consultation.id, reviewer: "smoke" }) }), env }));
   assert(consultationSent.status === 200 && consultationSent.body.status === "sent", "admin should mark reviewed insurer consultation as sent");
+  const partnerQuestion = await readJson(await partnerPost({ request: new Request(`${siteOrigin}/api/partner/consultation?token=${tokenRow.token}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "question", notes: "Merci de confirmer la franchise toiture." }) }), env }));
+  assert(partnerQuestion.status === 200 && partnerQuestion.body.status === "answered", "partner portal should trace an insurer question");
   const followupDraft = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "consultation_followup", consultation_id: consultation.id, reviewer: "smoke" }) }), env }));
   assert(followupDraft.status === 200 && followupDraft.body.status === "draft_review", "insurer followup should be prepared as a reviewed mail draft");
-  const consultationQuote = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "consultation_response", consultation_id: consultation.id, status: "quoted", premium_amount_cents: 123400, deductible_cents: 50000, notes: "Offre smoke recue", reviewer: "smoke" }) }), env }));
-  assert(consultationQuote.status === 200 && consultationQuote.body.status === "quoted", "admin should trace insurer quote response");
+  const consultationQuote = await readJson(await partnerPost({ request: new Request(`${siteOrigin}/api/partner/consultation?token=${tokenRow.token}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "quote", premium_amount_cents: 123400, deductible_cents: 50000, notes: "Offre smoke recue via portail." }) }), env }));
+  assert(consultationQuote.status === 200 && consultationQuote.body.status === "quoted", "partner portal should trace insurer quote response");
   const followupMail = DB.prepare("SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'insurer_followup' AND status = 'draft_review'").bind(caseRow.id).first();
   assert(followupMail?.id, "insurer followup should remain in human-reviewed draft queue");
   const refreshedCase = DB.prepare("SELECT stage FROM brokerage_cases WHERE id = ?").bind(caseRow.id).first();
@@ -107,7 +118,7 @@ async function main() {
 
   DB.close();
   cleanup();
-  console.log("Brokerage case workflow smoke passed: lead -> case -> client portal -> human mail review -> insurer consultation -> timeline.");
+  console.log("Brokerage case workflow smoke passed: lead -> case -> client portal -> human mail review -> insurer portal -> timeline.");
 }
 
 main().catch((error) => {
