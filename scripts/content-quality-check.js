@@ -4,6 +4,7 @@ import { extname, join, relative } from "node:path";
 const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
 const SITE = "https://immeubleassur.com";
+const duplicateAliasSlugs = new Set(["blog/index", "faq/index"]);
 const stopwords = new Set("assurance immeuble immeubles pour avec dans des les une aux votre vous nous plus sur par qui est sont cette entre sans devis prix garanties contrat contrats copropriete pno cno sci syndic bailleur proprietaire proprietaires".split(" "));
 const bannedManipulation = [
   /contenu\s+non\s+identifiable/i,
@@ -105,7 +106,7 @@ const pages = walk(PUBLIC_DIR).map(auditPage);
 const titleMap = new Map();
 const descriptionMap = new Map();
 const paragraphMap = new Map();
-for (const page of pages.filter((page) => page.slug !== "admin")) {
+for (const page of pages.filter((page) => page.slug !== "admin" && !page.noindex && !duplicateAliasSlugs.has(page.slug))) {
   if (page.title) titleMap.set(page.title, [...(titleMap.get(page.title) || []), page.slug]);
   if (page.description) descriptionMap.set(page.description, [...(descriptionMap.get(page.description) || []), page.slug]);
   for (const fingerprint of page.paragraphs) {

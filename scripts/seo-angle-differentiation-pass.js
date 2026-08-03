@@ -398,6 +398,14 @@ function applyProfile(slug, profile) {
   };
 }
 
+function sitemapEntryIsIndexable(url) {
+  const path = String(url || "").replace(`${SITE}/`, "");
+  const file = path ? join(PUBLIC_DIR, `${path}.html`) : join(PUBLIC_DIR, "index.html");
+  if (!existsSync(file)) return false;
+  const html = readFileSync(file, "utf8");
+  return !/<meta name="robots" content="[^"]*noindex/i.test(html);
+}
+
 function removeNoIndexFromSitemap(pages) {
   const sitemapFile = join(PUBLIC_DIR, "sitemap.xml");
   if (!existsSync(sitemapFile)) return { changed: false, removed: 0 };
@@ -411,6 +419,12 @@ function removeNoIndexFromSitemap(pages) {
     });
     xml = next;
   }
+  xml = xml.replace(/\s*<url>[\s\S]*?<\/url>/g, (block) => {
+    const loc = (block.match(/<loc>(.*?)<\/loc>/) || [])[1] || "";
+    if (sitemapEntryIsIndexable(loc)) return block;
+    removed += 1;
+    return "";
+  });
   if (removed) writeFileSync(sitemapFile, xml.trim() + "\n", "utf8");
   return { changed: removed > 0, removed };
 }

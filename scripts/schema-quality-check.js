@@ -8,6 +8,7 @@ const REPORT_PATH = join(REPORT_DIR, "schema-quality-report.json");
 const ASSET_PATH = join(PUBLIC_DIR, "assets", "schema-quality-latest.json");
 const privateSlugs = new Set(["admin", "espace-client", "espace-assureur"]);
 const nonServiceSlugs = new Set(["index", "blog", "villes", "guides", "faq", "contact", "mentions-legales", "confidentialite", "merci"]);
+const aliasSlugs = new Set(["blog/index", "faq/index"]);
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
 
@@ -141,7 +142,7 @@ function validateSitemap(publicUrls) {
   return issues;
 }
 
-const publicFiles = walk(PUBLIC_DIR).filter((file) => !privateSlugs.has(slugFromFile(file)));
+const publicFiles = walk(PUBLIC_DIR).filter((file) => !privateSlugs.has(slugFromFile(file)) && !aliasSlugs.has(slugFromFile(file)));
 const indexablePublicFiles = publicFiles.filter((file) => !isNoIndex(readFileSync(file, "utf8")));
 const publicUrls = new Set(indexablePublicFiles.map((file) => pageUrl(slugFromFile(file))));
 const sitemap = sitemapUrls();

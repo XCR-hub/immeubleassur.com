@@ -10,7 +10,8 @@ const REPORT_DIR = "reports";
 const BRAND = "ImmeubleAssur";
 const EMAIL = "team@immeubleassur.com";
 const PHONE = "+33180855786";
-const privateSlugs = new Set(["admin"]);
+const privateSlugs = new Set(["admin", "espace-client", "espace-assureur"]);
+const nonIndexableSlugs = new Set(["admin", "espace-client", "espace-assureur", "blog/index", "faq/index"]);
 
 function walk(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -40,6 +41,11 @@ function slugFromFile(file) {
 
 function cleanPath(slug) {
   return slug ? `/${slug}` : "/";
+}
+
+function isNoIndex(html) {
+  const robots = (html.match(/<meta name="robots" content="([^"]*)"/i) || [])[1] || "";
+  return /(^|,\s*)noindex(\s*,|$)/i.test(robots);
 }
 
 function pageUrl(slug) {
@@ -281,14 +287,14 @@ function enhanceHtml(file) {
 function buildSearchIndex(pages) {
   mkdirSync(join(PUBLIC_DIR, "assets"), { recursive: true });
   const rows = pages
-    .filter((page) => page.slug !== "admin")
+    .filter((page) => !nonIndexableSlugs.has(page.slug) && !page.noindex)
     .map((page) => ({ title: page.title, description: page.description, url: page.url.replace(SITE, "") || "/" }));
   writeFileSync(join(PUBLIC_DIR, "assets", "search-index.json"), JSON.stringify(rows, null, 2), "utf8");
 }
 
 function buildSitemap(pages) {
   const entries = pages
-    .filter((page) => page.slug !== "admin")
+    .filter((page) => !nonIndexableSlugs.has(page.slug) && !page.noindex)
     .sort((a, b) => (a.url === `${SITE}/` ? -1 : b.url === `${SITE}/` ? 1 : a.url.localeCompare(b.url)));
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.map((page) => `  <url><loc>${page.url}</loc><lastmod>${page.lastmod}</lastmod><changefreq>weekly</changefreq><priority>${page.url === `${SITE}/` ? "1.0" : "0.8"}</priority></url>`).join("\n")}\n</urlset>\n`;
   writeFileSync(join(PUBLIC_DIR, "sitemap.xml"), xml, "utf8");
