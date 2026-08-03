@@ -123,6 +123,9 @@ async function main() {
   assert(contract.cross_sell?.enabled === true && contract.cross_sell.recommendations?.length > 0, "recommendations should appear only after opt-in");
   const grantedReceipt = contract.consent_receipts?.find((receipt) => receipt.consent_type === "cross_sell");
   assert(grantedReceipt?.latest_event?.explicit_acceptance === true, "consent receipt should expose explicit acceptance proof");
+  const adminCrossSell = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=0`, { headers: { Authorization: `Bearer ${adminToken}` } }), env: { DB, ADMIN_API_TOKEN: adminToken, SITE_ORIGIN: siteOrigin } }));
+  assert(Number(adminCrossSell.body.summary?.contract_operations?.cross_sell_reviews || 0) >= 1, "admin should expose cross-sell consent as a human-reviewed contract opportunity");
+  assert((adminCrossSell.body.crm_action_queue || []).some((item) => item.type === "cross-sell-revue" && item.human_review_required), "crm action queue should route cross-sell through human review");
 
   const revokedConsent = await post(caseRow.client_portal_token, { action: "contract_consent", contract_id: contract.id, consent_type: "cross_sell", granted: false }, DB);
   assert(revokedConsent.status === 200 && revokedConsent.body.status === "revoked", "revocation should be stored");
@@ -167,7 +170,7 @@ async function main() {
 
   DB.close();
   cleanup();
-  console.log("Client contract workflow smoke passed: won case -> contract -> consent -> referral -> requests -> admin actions -> timeline.");
+  console.log("Client contract workflow smoke passed: won case -> contract -> consent -> cross-sell review -> referral -> requests -> admin actions -> timeline.");
 }
 
 main().catch((error) => {

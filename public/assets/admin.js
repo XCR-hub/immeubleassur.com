@@ -1539,10 +1539,12 @@ function contractSummary(contracts = []) {
   const requests = flatContractItems(rows, "requests").filter((item) => ["open", "in_progress"].includes(item.status));
   const referrals = flatContractItems(rows, "referrals").filter((item) => item.status === "draft_review");
   const payments = flatContractItems(rows, "payments").filter((item) => item.status === "pending");
+  const crossSellReviews = rows.filter((contract) => contract.cross_sell_review?.enabled === true);
   const ops = [];
   if (requests.length) ops.push(`${requests.length} demande(s)`);
   if (referrals.length) ops.push(`${referrals.length} parrainage(s)`);
   if (payments.length) ops.push(`${payments.length} prime(s)`);
+  if (crossSellReviews.length) ops.push(`${crossSellReviews.length} cross-sell`);
   const nextPayment = [...payments].sort((a, b) => new Date(a.due_at || 0) - new Date(b.due_at || 0))[0];
   const renewal = rows.map((contract) => ({ ...contract, renewalTime: new Date(contract.renewal_at || "").getTime() })).filter((contract) => Number.isFinite(contract.renewalTime)).sort((a, b) => a.renewalTime - b.renewalTime)[0];
   const dates = [];
@@ -1919,7 +1921,7 @@ async function loadCases() {
       metricCard("Partenaires", String(partnerPerformance.active || 0), `${partnerPerformance.contact_missing || 0} email manquant, ${partnerPerformance.overdue_consultations || 0} retard`),
       metricCard("Offres client", String(offers.offers || 0), `${offers.review_offers || 0} revue, ${offers.presented_offers || 0} presentee(s), ${offers.accepted_offers || 0} acceptee(s)`),
       metricCard("Contrats", String(contracts.contracts || 0), `${contracts.active_contracts || 0} actif(s)`),
-      metricCard("Ops contrats", String(contractOps.open_requests || 0), `${contractOps.review_referrals || 0} parrainage(s), ${contractOps.pending_payments || 0} prime(s)`),
+      metricCard("Ops contrats", String(contractOps.open_requests || 0), `${contractOps.review_referrals || 0} parrainage(s), ${contractOps.cross_sell_reviews || 0} cross-sell, ${contractOps.pending_payments || 0} prime(s)`),
       metricCard("Synchronisation", `${sync.created || 0}+${sync.updated || 0}`, `${sync.mail_drafts || 0} brouillon(s), ${sync.insurer_followup_drafts || 0} relance(s) auto`),
       metricCard("File CRM", String(crmQueueSummary.total || 0), `${crmQueueSummary.critical || 0} critique, ${crmQueueSummary.high || 0} haute`),
       metricCard("Actions", String((result.actions || []).length), (result.safeguards || []).slice(0, 2).join(", "))

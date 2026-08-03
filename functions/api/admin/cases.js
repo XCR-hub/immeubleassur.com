@@ -23,7 +23,7 @@ import {
   stageLabel,
   urgencyForLead
 } from "../../_shared/brokerage-cases.js";
-import { CLIENT_CONTRACT_MARKER } from "../../_shared/client-contracts.js";
+import { CLIENT_CONTRACT_MARKER, consentProfileFor, crossSellRecommendationsFor } from "../../_shared/client-contracts.js";
 
 const headers = { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" };
 const CLIENT_OFFER_MARKER = "client-offer-recommendation-v1";
@@ -33,6 +33,7 @@ const CRM_ACTION_QUEUE_MARKER = "crm-action-queue-v1";
 const INSURER_PACKAGE_READINESS_MARKER = "insurer-package-readiness-v1";
 const INSURER_PACKAGE_SEND_GUARD_MARKER = "insurer-package-send-guard-v1";
 const INSURER_FOLLOWUP_AUTOPILOT_MARKER = "insurer-followup-autopilot-v1";
+const CROSS_SELL_REVIEW_MARKER = "cross-sell-human-review-v1";
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
@@ -310,6 +311,26 @@ function contractsWithChildren(contracts = [], requests = [], payments = [], ref
   }));
 }
 
+function crossSellReviewFor(contract = {}, lead = {}) {
+  const consent = consentProfileFor(safeJson(contract.consent_profile, {}));
+  const recommendations = crossSellRecommendationsFor(lead, consent);
+  if (clean(contract.status, 40) !== "active" || recommendations.enabled !== true || !rowsOrEmpty(recommendations.recommendations).length) {
+    return { marker: CROSS_SELL_REVIEW_MARKER, enabled: false, reason: recommendations.reason || "cross_sell_not_available", human_review_required: true, no_automatic_contact: true };
+  }
+  const top = rowsOrEmpty(recommendations.recommendations).slice(0, 3);
+  return {
+    marker: CROSS_SELL_REVIEW_MARKER,
+    enabled: true,
+    status: "review_required",
+    reason: recommendations.reason || "explicit-opt-in",
+    recommendations: top,
+    recommendation_labels: top.map((item) => clean(item.label, 160)),
+    next_action: "Verifier l'interet client, preparer une proposition utile et contacter uniquement apres revue humaine.",
+    human_review_required: true,
+    no_automatic_contact: true
+  };
+}
+
 function contractOperationSummary(contracts = [], requests = [], payments = [], referrals = []) {
   const now = Date.now();
   const renewalLimit = now + 60 * 86400000;
@@ -317,12 +338,16 @@ function contractOperationSummary(contracts = [], requests = [], payments = [], 
   const requestRows = rowsOrEmpty(requests);
   const paymentRows = rowsOrEmpty(payments);
   const referralRows = rowsOrEmpty(referrals);
+  const crossSellReviews = rows.filter((item) => clean(item.status, 40) === "active" && consentProfileFor(safeJson(item.consent_profile, {})).cross_sell === true).length;
+  const navigationStudyEnabled = rows.filter((item) => clean(item.status, 40) === "active" && consentProfileFor(safeJson(item.consent_profile, {})).navigation_study === true).length;
   return {
     contracts: rows.length,
     open_requests: requestRows.filter((item) => ["open", "in_progress"].includes(clean(item.status, 40))).length,
     high_requests: requestRows.filter((item) => clean(item.priority, 40) === "high" && ["open", "in_progress"].includes(clean(item.status, 40))).length,
     pending_payments: paymentRows.filter((item) => clean(item.status, 40) === "pending").length,
     review_referrals: referralRows.filter((item) => clean(item.status, 40) === "draft_review").length,
+    cross_sell_reviews: crossSellReviews,
+    navigation_study_enabled: navigationStudyEnabled,
     renewals_60d: rows.filter((item) => {
       const due = new Date(item.renewal_at || "").getTime();
       return Number.isFinite(due) && due >= now && due <= renewalLimit;
@@ -751,6 +776,17 @@ function buildCrmActionQueue(cases = [], mails = [], consultations = [], partner
         human_review_required: true,
         quick_action: "referral_status"
       });
+      const crossSell = contract.cross_sell_review || {};
+      if (crossSell.enabled === true) pushCrmAction(queue, {
+        ...base,
+        priority: 82,
+        type: "cross-sell-revue",
+        signal: rowsOrEmpty(crossSell.recommendation_labels).join(", ") || contract.contract_reference,
+        recommendation: crossSell.next_action || "Verifier l'interet client avant toute proposition complementaire.",
+        contact_channel: "admin",
+        human_review_required: true,
+        quick_action: "cross_sell_review"
+      });
     }
   }
 
@@ -806,7 +842,18 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
     const caseMails = mailsByCase.get(row.id) || [];
     const caseConsultations = consultationsByCase.get(row.id) || [];
     const caseOffers = offersByCase.get(row.id) || [];
-    const caseContracts = contractsByCase.get(row.id) || [];
+    const lead = {
+      name: clean(row.name, 120),
+      phone: clean(row.phone, 80),
+      email: clean(row.email, 180),
+      profile: clean(row.profile, 120),
+      property_type: clean(row.property_type, 120),
+      city: clean(row.city, 120),
+      need: clean(row.need, 120),
+      units_count: clean(row.units_count, 40),
+      status: clean(row.lead_status, 40)
+    };
+    const caseContracts = (contractsByCase.get(row.id) || []).map((contract) => ({ ...contract, cross_sell_review: crossSellReviewFor(contract, lead) }));
     const packageReadiness = insurerPackageReadiness(row, docs, caseMails, caseConsultations, partners);
     const plan = caseActionPlan(row, docs, caseMails, caseConsultations, caseOffers, caseContracts);
     return {
@@ -827,17 +874,7 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
       updated_at: row.updated_at,
       created_at: row.created_at,
       value_label: valueLabel(row.estimated_value_min_cents, row.estimated_value_max_cents),
-      lead: {
-        name: clean(row.name, 120),
-        phone: clean(row.phone, 80),
-        email: clean(row.email, 180),
-        profile: clean(row.profile, 120),
-        property_type: clean(row.property_type, 120),
-        city: clean(row.city, 120),
-        need: clean(row.need, 120),
-        units_count: clean(row.units_count, 40),
-        status: clean(row.lead_status, 40)
-      },
+      lead,
       documents: docs,
       mail_queue: caseMails,
       consultations: caseConsultations,
@@ -966,7 +1003,7 @@ export async function onRequestGet({ request, env }) {
     crm_action_queue: crmActionQueue,
     actions: buildActions(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations), partnerRows),
     warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(offers), errorOf(contracts), errorOf(contractRequests), errorOf(contractPayments), errorOf(contractReferrals), errorOf(contractConsents), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary), errorOf(offerSummary)].filter(Boolean),
-    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1", "partner-performance-v1", "crm-action-queue-v1", "insurer-package-readiness-v1", "insurer-package-send-guard-v1", "insurer-followup-autopilot-v1"]
+    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1", "partner-performance-v1", "crm-action-queue-v1", "insurer-package-readiness-v1", "insurer-package-send-guard-v1", "insurer-followup-autopilot-v1", "cross-sell-human-review-v1"]
   });
 }
 

@@ -29,11 +29,17 @@ const required = [
   ["functions/api/client/case.js", "consent_receipts"],
   ["functions/api/client/case.js", "revocation_available"],
   ["functions/api/admin/cases.js", "client-contract-workspace"],
+  ["functions/api/admin/cases.js", "cross-sell-human-review-v1"],
+  ["functions/api/admin/cases.js", "crossSellReviewFor"],
+  ["functions/api/admin/cases.js", "cross_sell_review"],
+  ["functions/api/admin/cases.js", "cross-sell-revue"],
+  ["functions/api/admin/cases.js", "cross_sell_reviews"],
   ["functions/api/admin/cases.js", "contract_request_status"],
   ["functions/api/admin/cases.js", "referral_status"],
   ["functions/api/admin/cases.js", "payment_status"],
   ["functions/api/admin/cases.js", "admin-contract-action-v1"],
   ["public/assets/admin.js", "postContractAdminAction"],
+  ["public/assets/admin.js", "cross_sell_reviews"],
   ["public/assets/admin.js", "data-contract-action"],
   ["public/espace-client.html", "portal-contracts"],
   ["public/espace-client.html", "portal-consents"],
@@ -51,7 +57,8 @@ const required = [
   ["package.json", "client:contracts"],
   ["package.json", "client:contracts:contract"],
   ["package.json", "client:contracts:smoke"],
-  ["scripts/client-contract-workflow-smoke.js", "consent receipt should expose explicit acceptance proof"]
+  ["scripts/client-contract-workflow-smoke.js", "consent receipt should expose explicit acceptance proof"],
+  ["scripts/client-contract-workflow-smoke.js", "crm action queue should route cross-sell through human review"]
 ];
 
 const forbidden = [
