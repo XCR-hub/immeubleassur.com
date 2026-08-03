@@ -55,7 +55,7 @@ const contentTypes = {
   ".woff": "font/woff",
   ".woff2": "font/woff2",
   ".webmanifest": "application/manifest+json; charset=utf-8"
-};
+  };
 const SECURITY_HEADER_MARKER = "runtime-security-headers-v1";
 
 function contentSecurityPolicy() {
@@ -125,7 +125,8 @@ function envForRequest() {
     ...process.env,
     DB: db,
     SEND_SMTP_MAIL: sendNodeSmtpMail,
-    SCAN_DOCUMENT: documentScanner
+    SCAN_DOCUMENT: documentScanner,
+    DOCUMENT_SCANNER_STATUS: documentScanner.status
   };
 }
 

@@ -942,6 +942,7 @@ async function loadIntegrations() {
       metricCard("Dedupe leads", String(duplicateLeads || eventCount(reports.site_events_30d, "lead_duplicate_filtered")), "doublons filtres"),
       metricCard("Growth ops", growthOpsStatusLabel(growthOpsReport), growthOpsDetail(growthOpsReport)),
       metricCard("Runtime", runtimeHealth ? `${runtimeHealth.runtime?.platform || "local"} / ${runtimeHealth.database?.driver || "db"}` : "Token requis", runtimeHealth?.database?.size_bytes ? `${runtimeHealth.database.table_count || 0} tables, ${formatBytes(runtimeHealth.database.size_bytes)}` : "diagnostic protege"),
+      metricCard("Antivirus", runtimeHealth?.document_scanner?.available ? "Actif" : "A verifier", runtimeHealth?.document_scanner ? `${runtimeHealth.document_scanner.engine_count || 0} moteur(s), ${runtimeHealth.document_scanner.counters?.scans || 0} scan(s)` : "diagnostic protege"),
       metricCard("Production", monitorStatusLabel(runtimeHealth?.monitor), monitorDetail(runtimeHealth?.monitor)),
       metricCard("SLA leads", leadSlaStatusLabel(runtimeHealth?.lead_sla), leadSlaDetail(runtimeHealth?.lead_sla)),
       metricCard("Qualite leads", leadQualityStatusLabel(runtimeHealth?.lead_quality), leadQualityDetail(runtimeHealth?.lead_quality)),
@@ -1053,6 +1054,16 @@ async function loadIntegrations() {
       scope: `Relances dues: ${runtimeHealth.lead_sla.summary?.due_now || 0}\nAlertes: ${runtimeHealth.lead_sla.alert?.status || "-"}`,
       signal: leadSlaSignal(runtimeHealth.lead_sla),
       action: Number(runtimeHealth.lead_sla.summary?.due_now || 0) > 0 ? "Traiter les references en retard dans le centre de relance commerciale." : "Conserver la surveillance locale des delais de rappel."
+    });
+  }
+  if (runtimeHealth?.document_scanner) {
+    const scanner = runtimeHealth.document_scanner;
+    rows.unshift({
+      label: "Antivirus documents",
+      status: scanner.available ? "Actif" : "A verifier",
+      scope: "Uploads client, scan local avant validation humaine",
+      signal: `${scanner.engine_count || 0} moteur(s), ${scanner.counters?.scans || 0} scan(s), dernier: ${scanner.counters?.last_status || "jamais"}`,
+      action: scanner.available ? "Maintenir les signatures antivirus a jour et verifier les alertes." : "Installer ou rendre accessible ClamAV/Windows Defender au processus de production; les uploads restent bloques si le scan est indisponible."
     });
   }
   if (runtimeHealth) {

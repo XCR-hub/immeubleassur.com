@@ -485,6 +485,9 @@ export async function onRequestGet({ request, env }) {
   const sourceQualityReport = await readLocalJson(sourceQualityPath);
   const seoBacklogPath = env.LOCAL_SEO_BACKLOG_REPORT || "reports/local-seo-backlog-report.json";
   const seoBacklogReport = await readLocalJson(seoBacklogPath);
+  const documentScanner = typeof env.DOCUMENT_SCANNER_STATUS === "function"
+    ? await env.DOCUMENT_SCANNER_STATUS()
+    : { available: false, configured: false, reason: "scanner_status_unavailable" };
   return json({
     success: true,
     generated_at: new Date().toISOString(),
@@ -502,6 +505,7 @@ export async function onRequestGet({ request, env }) {
           driver: "sqlite-unavailable",
           detailed_health: "local-runtime-only"
         },
+    document_scanner: documentScanner,
     monitor: sanitizeMonitorReport(monitorReport),
     lead_sla: sanitizeLeadSlaReport(leadSlaReport),
     lead_quality: sanitizeLeadQualityReport(leadQualityReport),
