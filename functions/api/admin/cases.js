@@ -1365,12 +1365,27 @@ async function updateConsultationResponse(env, body) {
   await logTimeline(env, bundle.row.case_id, "insurer_consultation_response", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, status, premium_amount_cents: premium, deductible_cents: deductible });
   return json({ success: true, status });
 }
+async function attachInboxMail(env, body) {
+  const inboxId = clean(body.inbox_id, 120);
+  const caseReference = clean(body.case_reference, 120).toUpperCase();
+  const reviewer = clean(body.reviewer || "admin", 120);
+  if (!inboxId || !/^DOS-[A-Z0-9-]{4,}$/.test(caseReference)) return json({ success: false, error: "Reference DOS-* valide requise" }, 422);
+  const mail = await safeFirst(env, "SELECT * FROM case_mail_inbox WHERE id = ?", [inboxId]);
+  if (!mail || errorOf(mail)) return json({ success: false, error: "Reponse email introuvable" }, 404);
+  const caseRow = await safeFirst(env, "SELECT id, case_reference FROM brokerage_cases WHERE case_reference = ?", [caseReference]);
+  if (!caseRow || errorOf(caseRow)) return json({ success: false, error: "Dossier DOS-* introuvable" }, 404);
+  await safeRun(env, "UPDATE case_mail_inbox SET case_id = ?, matched_reference = ?, status = 'received_pending_review', updated_at = ? WHERE id = ?", [caseRow.id, caseReference, nowIso(), inboxId]);
+  await safeRun(env, "UPDATE brokerage_cases SET human_review_required = 1, next_action = ?, updated_at = ? WHERE id = ?", ["Relire la reponse email rattachee et tracer la suite avant toute action.", nowIso(), caseRow.id]);
+  await logTimeline(env, caseRow.id, "mail_received_manual_attach", reviewer, { marker: "local-imap-inbox-v1", inbox_id: inboxId, case_reference: caseReference, subject: clean(mail.subject, 500), human_review_required: true });
+  return json({ success: true, status: "received_pending_review", case_reference: caseReference, inbox_id: inboxId });
+}
 export async function onRequestPost({ request, env }) {
   if (!authorized(request, env)) return json({ success: false, error: "Acces refuse" }, 401);
   if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
   const body = await request.json().catch(() => ({}));
   const action = clean(body.action, 80);
   if (action === "sync") return json({ success: true, sync: await ensureCasesForOpenLeads(env, 220) });
+  if (action === "attach_inbox_mail") return attachInboxMail(env, body);
 
   if (action === "contract_request_status") return updateContractRequestStatus(env, body);
   if (action === "referral_status") return updateReferralStatus(env, body);

@@ -12,6 +12,8 @@ const required = [
   ["schema.sql", "case_mail_inbox"],
   ["functions/api/admin/integrations.js", 'id: "imap"'],
   ["functions/api/admin/cases.js", "inbox_mails"],
+  ["functions/api/admin/cases.js", "attach_inbox_mail"],
+  ["public/assets/admin.js", "postInboxAttach"],
   ["public/assets/admin.js", "Reponses email"],
   ["package.json", "leads:sla:monitor"],
   ["package.json", "leads:quality:monitor"],

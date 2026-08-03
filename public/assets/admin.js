@@ -1798,6 +1798,26 @@ function renderCasesTable(cases = []) {
   }
 }
 
+function inboxMailActionCell(item = {}) {
+  const td = document.createElement("td");
+  if (item.case_reference) {
+    td.textContent = "Dossier rattache";
+    return td;
+  }
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = "DOS-...";
+  input.maxLength = 120;
+  input.dataset.inboxReference = "1";
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "button secondary compact-button";
+  button.textContent = "Rattacher";
+  button.dataset.inboxAction = "attach";
+  button.dataset.inboxId = item.id || "";
+  td.append(input, button);
+  return td;
+}
 function renderInboxMailTable(items = []) {
   if (!inboxMailBody) return;
   inboxMailBody.replaceChildren();
@@ -1818,9 +1838,29 @@ function renderInboxMailTable(items = []) {
       cell(item.sender || "-"),
       cell(item.subject || "-"),
       cell(reportDate(item.sent_at || item.created_at)),
-      cell("Revue humaine obligatoire; rattacher le DOS-* puis tracer l'action")
+      inboxMailActionCell(item)
     );
     inboxMailBody.append(tr);
+  }
+}
+async function postInboxAttach(button) {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  const referenceInput = button?.parentElement?.querySelector("[data-inbox-reference]");
+  const caseReference = referenceInput?.value.trim() || "";
+  if (!token || !button?.dataset.inboxId || !caseReference) return;
+  const previous = button.textContent;
+  button.disabled = true;
+  button.textContent = "...";
+  try {
+    const response = await fetch("/api/admin/cases", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "attach_inbox_mail", inbox_id: button.dataset.inboxId, case_reference: caseReference, reviewer: "admin" }) });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || "Rattachement impossible");
+    await loadCases();
+  } catch (error) {
+    if (casesSummary) casesSummary.replaceChildren(metricCard("Erreur email", "Rattachement", error.message || "action impossible"));
+  } finally {
+    button.disabled = false;
+    button.textContent = previous;
   }
 }
 async function postDocumentAction(button) {
@@ -2430,7 +2470,12 @@ casesButton?.addEventListener("click", () => {
     if (casesSummary) casesSummary.replaceChildren(metricCard("Erreur", "Dossiers", error.message || "chargement impossible"));
   });
 });
-casesBody?.addEventListener("click", (event) => {
+inboxMailBody?.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  const button = target.closest("[data-inbox-action]");
+  if (button) postInboxAttach(button);
+});casesBody?.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
   const documentButton = target.closest("[data-document-action]");
