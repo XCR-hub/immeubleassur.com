@@ -259,18 +259,34 @@ function handleStatic(request, response) {
   }
 }
 
+function healthSnapshot() {
+  try {
+    const database = db.health();
+    const databaseReady = Number(database.size_bytes || 0) > 0 && Array.isArray(database.tables) && database.tables.length >= 10;
+    const scanner = typeof documentScanner.status === "function" ? documentScanner.status() : { available: false, configured: false };
+    return {
+      ready: databaseReady,
+      database: { ready: databaseReady, table_count: database.tables?.length || 0 },
+      document_scanner: { available: scanner.available === true, configured: scanner.configured === true, engine_count: Number(scanner.engine_count || 0) }
+    };
+  } catch {
+    return { ready: false, database: { ready: false, table_count: 0 }, document_scanner: { available: false, configured: false, engine_count: 0 } };
+  }
+}
 const server = createServer((request, response) => {
   applySecurityHeaders(response, request);
   const pathname = apiPathOf(request.url);
   if (["GET", "HEAD"].includes(request.method || "GET") && new URL(request.url || "/", "http://local").pathname === "/health") {
+    const health = healthSnapshot();
     return json(
       response,
-      200,
+      health.ready ? 200 : 503,
       {
-        success: true,
+        success: health.ready,
         service: "immeubleassur-local-site",
-        status: "ok",
+        status: health.ready ? "ok" : "degraded",
         mode: "sqlite",
+        checks: health,
         generated_at: new Date().toISOString()
       },
       { head: request.method === "HEAD" }

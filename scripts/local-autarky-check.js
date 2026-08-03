@@ -144,6 +144,8 @@ const required = [
   ["public/assets/client-portal.js", "asset_update"],
   ["package.json", "dns:autarky"],
   ["scripts/local-production-server.js", "openLocalSqlite"],
+  ["scripts/local-production-server.js", "healthSnapshot"],
+  ["scripts/local-production-server.js", "checks: health"],
   ["scripts/local-production-server.js", "SCAN_DOCUMENT"],
   ["scripts/local-production-server.js", "DOCUMENT_SCANNER_STATUS"],
   ["functions/api/admin/runtime-health.js", "document_scanner"],
