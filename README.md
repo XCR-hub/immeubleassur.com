@@ -22,7 +22,7 @@ Sur le serveur de donnees `192.168.1.70`, la base active doit etre un fichier SQ
 F:\immeubleassur-data\immeubleassur.sqlite
 ```
 
-Le serveur Node ecoute sur `LOCAL_SITE_PORT` (8790 par defaut). Caddy termine HTTPS sur 80/443 et relaie vers Node. Le diagnostic public minimal est `/health`; le diagnostic detaille est protege par `/api/admin/runtime-health` avec `ADMIN_API_TOKEN`.
+Le serveur Node ecoute sur `LOCAL_SITE_PORT` (8790 par defaut). Caddy termine HTTPS sur 80/443 et relaie vers Node. Le diagnostic public minimal est `/health`; le cycle runtime controle aussi l expiration du certificat TLS et conserve le rapport dans le stockage runtime; le diagnostic detaille est protege par `/api/admin/runtime-health` avec `ADMIN_API_TOKEN`.
 
 Commandes utiles:
 

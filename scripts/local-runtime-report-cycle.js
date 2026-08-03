@@ -59,6 +59,7 @@ function run() {
     runStep("imap_sync", ["scripts/local-imap-sync.js"]),
     runStep("contract_renewal_monitor", ["scripts/local-contract-renewal-monitor.js"]),
     runStep("production_monitor", ["scripts/local-production-monitor.js"]),
+    runStep("tls_certificate_monitor", ["scripts/local-tls-certificate-monitor.js"]),
     runStep("lead_sla_monitor", ["scripts/local-lead-sla-monitor.js"]),
     runStep("lead_quality_monitor", ["scripts/local-lead-quality-monitor.js"]),
     runStep("conversion_funnel_monitor", ["scripts/local-conversion-funnel-monitor.js"]),

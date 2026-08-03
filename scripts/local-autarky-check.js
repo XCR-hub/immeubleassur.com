@@ -6,6 +6,8 @@ const required = [
   ["package.json", "db:sqlite:restore"],
   ["package.json", "db:sqlite:import-reports"],
   ["package.json", "production:monitor"],
+  ["package.json", "production:tls"],
+  ["scripts/local-tls-certificate-monitor.js", "renewal_provider"],
   ["package.json", "production:runtime-reports"],
   ["scripts/local-runtime-task.ps1", "LOCAL_CONTRACT_RENEWAL_REPORT"],
   ["scripts/local-runtime-task.ps1", "local-runtime-report-cycle.js"],

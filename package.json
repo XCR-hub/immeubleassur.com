@@ -56,6 +56,7 @@
                     "db:sqlite:restore":  "node scripts/local-sqlite-restore.js --replace",
                     "db:sqlite:backup":  "node scripts/local-sqlite-backup.js",
                     "production:monitor":  "node scripts/local-production-monitor.js",
+                    "production:tls":  "node scripts/local-tls-certificate-monitor.js",
                     "production:runtime-reports":  "node scripts/local-runtime-report-cycle.js",
                     "mail:sync":  "node scripts/local-imap-sync.js",
                     "contracts:renewals":  "node scripts/local-contract-renewal-monitor.js",
