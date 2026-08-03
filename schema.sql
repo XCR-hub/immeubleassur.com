@@ -447,3 +447,137 @@ VALUES
   ('partner-default-mri', 'Partenaire MRI a configurer', '', 'multirisque immeuble, copropriete, SCI, syndic', 48, 1, '{"setup":"contact_email_required_before_send"}', datetime('now'), datetime('now')),
   ('partner-default-pno', 'Partenaire PNO CNO a configurer', '', 'PNO, CNO, lots copropriete, logements vacants', 48, 1, '{"setup":"contact_email_required_before_send"}', datetime('now'), datetime('now')),
   ('partner-default-complex', 'Partenaire risques complexes a configurer', '', 'sinistres, resiliation, refus assureur, travaux', 72, 1, '{"setup":"contact_email_required_before_send"}', datetime('now'), datetime('now'));
+
+CREATE TABLE IF NOT EXISTS client_contracts (
+  id TEXT PRIMARY KEY,
+  case_id TEXT NOT NULL UNIQUE REFERENCES brokerage_cases(id) ON DELETE CASCADE,
+  lead_id TEXT NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
+  contract_reference TEXT NOT NULL UNIQUE,
+  status TEXT NOT NULL DEFAULT 'active',
+  insurer_name TEXT,
+  policy_number TEXT,
+  annual_premium_cents INTEGER NOT NULL DEFAULT 0,
+  premium_frequency TEXT NOT NULL DEFAULT 'annual',
+  next_payment_due_at TEXT,
+  renewal_at TEXT,
+  referral_code TEXT NOT NULL UNIQUE,
+  consent_profile TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_client_contracts_case_id ON client_contracts(case_id);
+CREATE INDEX IF NOT EXISTS idx_client_contracts_lead_id ON client_contracts(lead_id);
+CREATE INDEX IF NOT EXISTS idx_client_contracts_status ON client_contracts(status);
+CREATE INDEX IF NOT EXISTS idx_client_contracts_renewal_at ON client_contracts(renewal_at);
+
+CREATE TABLE IF NOT EXISTS contract_documents (
+  id TEXT PRIMARY KEY,
+  contract_id TEXT NOT NULL REFERENCES client_contracts(id) ON DELETE CASCADE,
+  document_type TEXT NOT NULL,
+  label TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'requested',
+  required INTEGER NOT NULL DEFAULT 0,
+  file_url TEXT,
+  due_at TEXT,
+  received_at TEXT,
+  validated_at TEXT,
+  notes TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE(contract_id, document_type)
+);
+
+CREATE INDEX IF NOT EXISTS idx_contract_documents_contract_id ON contract_documents(contract_id);
+CREATE INDEX IF NOT EXISTS idx_contract_documents_status ON contract_documents(status);
+
+CREATE TABLE IF NOT EXISTS contract_payment_schedule (
+  id TEXT PRIMARY KEY,
+  contract_id TEXT NOT NULL REFERENCES client_contracts(id) ON DELETE CASCADE,
+  installment_reference TEXT NOT NULL,
+  amount_cents INTEGER NOT NULL DEFAULT 0,
+  due_at TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  payment_url TEXT,
+  paid_at TEXT,
+  notes TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE(contract_id, installment_reference)
+);
+
+CREATE INDEX IF NOT EXISTS idx_contract_payment_schedule_contract_id ON contract_payment_schedule(contract_id);
+CREATE INDEX IF NOT EXISTS idx_contract_payment_schedule_due_at ON contract_payment_schedule(due_at);
+CREATE INDEX IF NOT EXISTS idx_contract_payment_schedule_status ON contract_payment_schedule(status);
+
+CREATE TABLE IF NOT EXISTS client_assets (
+  id TEXT PRIMARY KEY,
+  contract_id TEXT NOT NULL REFERENCES client_contracts(id) ON DELETE CASCADE,
+  asset_type TEXT NOT NULL,
+  label TEXT NOT NULL,
+  address TEXT,
+  units_count TEXT,
+  occupancy TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE(contract_id, label)
+);
+
+CREATE INDEX IF NOT EXISTS idx_client_assets_contract_id ON client_assets(contract_id);
+
+CREATE TABLE IF NOT EXISTS contract_service_requests (
+  id TEXT PRIMARY KEY,
+  contract_id TEXT NOT NULL REFERENCES client_contracts(id) ON DELETE CASCADE,
+  request_type TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'open',
+  priority TEXT NOT NULL DEFAULT 'standard',
+  subject TEXT NOT NULL,
+  message TEXT,
+  due_at TEXT,
+  human_review_required INTEGER NOT NULL DEFAULT 1,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_contract_service_requests_contract_id ON contract_service_requests(contract_id);
+CREATE INDEX IF NOT EXISTS idx_contract_service_requests_status ON contract_service_requests(status);
+CREATE INDEX IF NOT EXISTS idx_contract_service_requests_due_at ON contract_service_requests(due_at);
+
+CREATE TABLE IF NOT EXISTS contract_consent_events (
+  id TEXT PRIMARY KEY,
+  contract_id TEXT NOT NULL REFERENCES client_contracts(id) ON DELETE CASCADE,
+  consent_type TEXT NOT NULL,
+  status TEXT NOT NULL,
+  channel TEXT NOT NULL DEFAULT 'client_portal',
+  proof_text TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_contract_consent_events_contract_id ON contract_consent_events(contract_id);
+CREATE INDEX IF NOT EXISTS idx_contract_consent_events_type ON contract_consent_events(consent_type);
+
+CREATE TABLE IF NOT EXISTS contract_referrals (
+  id TEXT PRIMARY KEY,
+  contract_id TEXT NOT NULL REFERENCES client_contracts(id) ON DELETE CASCADE,
+  referral_code TEXT NOT NULL,
+  filleul_name TEXT,
+  filleul_email TEXT,
+  filleul_phone TEXT,
+  status TEXT NOT NULL DEFAULT 'draft_review',
+  reward_type TEXT NOT NULL DEFAULT 'low_cost_partner_reward',
+  reward_label TEXT NOT NULL DEFAULT 'Avantage parrainage a confirmer',
+  explicit_permission INTEGER NOT NULL DEFAULT 0,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_contract_referrals_contract_id ON contract_referrals(contract_id);
+CREATE INDEX IF NOT EXISTS idx_contract_referrals_code ON contract_referrals(referral_code);
+CREATE INDEX IF NOT EXISTS idx_contract_referrals_status ON contract_referrals(status);

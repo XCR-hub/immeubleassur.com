@@ -36,6 +36,9 @@ npm run production:runtime-reports
 npm run brokerage:cases
 npm run brokerage:contract
 npm run brokerage:smoke
+npm run client:contracts
+npm run client:contracts:contract
+npm run client:contracts:smoke
 npm run production:watchdog
 npm run production:watchdog:node
 npm run local:autarky:check
@@ -54,6 +57,8 @@ Le workflow courtier synchronise les leads ouverts en dossiers exploitables avec
 - Admin: `/admin.html`, section `Dossiers courtage` via `/api/admin/cases`.
 - Client mobile: `/espace-client.html?token=...` via `/api/client/case`.
 - Controle: `npm run brokerage:contract` verifie validation humaine, consentement, portail tokenise, timeline et absence d'automatisation marketing/cross-sell sans opt-in explicite. `npm run brokerage:smoke` teste le parcours lead -> dossier -> portail client -> validation mail -> timeline sur SQLite temporaire.
+- Apres contrat gagne: `npm run client:contracts` cree l'espace contrat client pour les dossiers `contract_active` ou les leads `won`: documents de contrat, echeancier de prime, parc assure, demandes client, consentements revocables et parrainages en revue humaine.
+- Controle contrat client: `npm run client:contracts:contract` verifie les garde-fous opt-in/revocation/absence de collecte intrusive. `npm run client:contracts:smoke` teste sur SQLite temporaire le parcours contrat -> consentement explicite -> parrainage -> paiement -> parc -> timeline.
 ## Base de donnees
 
 La base se manage comme un fichier SQLite local:

@@ -1,19 +1,14 @@
 {
-  "generated_at": "2026-08-03T07:06:08.208Z",
+  "generated_at": "2026-08-03T07:45:28.853Z",
   "files_checked": 188,
-  "files_changed": 1,
-  "replacements": 1,
+  "files_changed": 0,
+  "replacements": 0,
   "assets": {
-    "styles": "/assets/styles.css?v=5931a37d61",
+    "styles": "/assets/styles.css?v=5460579af6",
     "app": "/assets/app.js?v=0668b86d0e",
-    "admin": "/assets/admin.js?v=35fe20a01f",
-    "clientPortal": "/assets/client-portal.js?v=05a18d2700"
+    "admin": "/assets/admin.js?v=09f030fb0c",
+    "clientPortal": "/assets/client-portal.js?v=617ffc1a4b"
   },
-  "changed": [
-    {
-      "file": "espace-client.html",
-      "updates": 1
-    }
-  ],
+  "changed": [],
   "status": "passed"
 }

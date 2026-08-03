@@ -1403,6 +1403,16 @@ function documentSummary(documents = []) {
   return `${received}/${total} recues\n${missing} requise(s) manque(nt)${next ? `\n${next.label}` : ""}`;
 }
 
+function contractSummary(contracts = []) {
+  const rows = Array.isArray(contracts) ? contracts : [];
+  if (!rows.length) return "Aucun contrat actif";
+  const active = rows.filter((contract) => contract.status === "active").length;
+  const refs = rows.slice(0, 2).map((contract) => contract.contract_reference).filter(Boolean).join(", ");
+  const premium = rows.find((contract) => Number(contract.annual_premium_cents || 0) > 0);
+  const premiumLabel = premium ? `${Math.round(Number(premium.annual_premium_cents || 0) / 100)} EUR/an` : "prime a confirmer";
+  return `${active}/${rows.length} actif(s)\n${refs || "reference a confirmer"}\n${premiumLabel}`;
+}
+
 function renderCaseActionCell(caseRow) {
   const td = document.createElement("td");
   td.className = "case-action-cell";
@@ -1445,6 +1455,7 @@ function renderCasesTable(cases = []) {
   for (const item of cases.slice(0, 80)) {
     const lead = item.lead || {};
     const mails = mailStatusCounts(item.mail_queue || []);
+    const contracts = Array.isArray(item.contracts) ? item.contracts : [];
     const link = document.createElement("a");
     link.href = item.client_portal_url || "/espace-client.html";
     link.target = "_blank";
@@ -1457,7 +1468,7 @@ function renderCasesTable(cases = []) {
     tr.append(
       cell(`${item.case_reference}\n${item.value_label || "0 EUR/an"}`),
       cell(`${lead.name || "-"}\n${lead.city || ""} ${lead.need || ""}`.trim()),
-      cell(`${item.stage_label || item.stage}\n${item.priority || "standard"} - ${item.readiness_score || 0}/100`),
+      cell(`${item.stage_label || item.stage}\n${item.priority || "standard"} - ${item.readiness_score || 0}/100\n${contractSummary(contracts)}`),
       cell(documentSummary(item.documents || [])),
       cell(`${mails.draft_review || 0} revue / ${mails.approved || 0} approuve(s) / ${mails.sent || 0} envoye(s)`),
       cell(consultationSummary(item.consultations || [])),
@@ -1510,6 +1521,7 @@ async function loadCases() {
   const documents = summary.documents || {};
   const mail = summary.mail_queue || {};
   const consultations = summary.consultations || {};
+  const contracts = summary.contracts || {};
   const sync = result.sync?.counters || {};
   if (casesSummary) {
     casesSummary.replaceChildren(
@@ -1519,6 +1531,7 @@ async function loadCases() {
       metricCard("Pieces manquantes", String(documents.missing_required || 0), `${documents.received || 0}/${documents.requested || 0} recues`),
       metricCard("Mails a valider", String(mail.review_drafts || 0), `${mail.approved || 0} approuve(s), ${mail.sent || 0} envoye(s)`),
       metricCard("Consultations", String(consultations.consultations || 0), `${consultations.review_consultations || 0} en revue`),
+      metricCard("Contrats", String(contracts.contracts || 0), `${contracts.active_contracts || 0} actif(s)`),
       metricCard("Synchronisation", `${sync.created || 0}+${sync.updated || 0}`, `${sync.mail_drafts || 0} brouillon(s)`),
       metricCard("Actions", String((result.actions || []).length), (result.safeguards || []).slice(0, 2).join(", "))
     );

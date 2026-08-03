@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T07:06:51.926Z",
+  "generated_at": "2026-08-03T07:44:43.680Z",
   "pages_checked": 188,
   "status": "passed",
   "severe_issue_count": 0,
@@ -16,7 +16,7 @@
     {
       "slug": "espace-client",
       "url": "https://immeubleassur.com/espace-client",
-      "words": 34,
+      "words": 83,
       "issues": [],
       "warnings": [
         "thin-content-risk",

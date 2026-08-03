@@ -1,0 +1,89 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+
+const required = [
+  ["schema.sql", "CREATE TABLE IF NOT EXISTS client_contracts"],
+  ["schema.sql", "CREATE TABLE IF NOT EXISTS contract_documents"],
+  ["schema.sql", "CREATE TABLE IF NOT EXISTS contract_payment_schedule"],
+  ["schema.sql", "CREATE TABLE IF NOT EXISTS client_assets"],
+  ["schema.sql", "CREATE TABLE IF NOT EXISTS contract_service_requests"],
+  ["schema.sql", "CREATE TABLE IF NOT EXISTS contract_consent_events"],
+  ["schema.sql", "CREATE TABLE IF NOT EXISTS contract_referrals"],
+  ["functions/_shared/client-contracts.js", "client-contract-workspace-v1"],
+  ["functions/_shared/client-contracts.js", "contact_import: false"],
+  ["functions/_shared/client-contracts.js", "no-address-book-scraping"],
+  ["functions/_shared/client-contracts.js", "cross_sell_disabled_until_explicit_opt_in"],
+  ["functions/_shared/client-contracts.js", "explicit-opt-in"],
+  ["scripts/client-contract-orchestrator.js", "explicit-opt-in-cross-sell"],
+  ["scripts/client-contract-orchestrator.js", "revocation-stored"],
+  ["scripts/client-contract-orchestrator.js", "no-address-book-scraping"],
+  ["scripts/client-contract-orchestrator.js", "human-review-contract-requests"],
+  ["functions/api/client/case.js", "contract_consent"],
+  ["functions/api/client/case.js", "contract_referral"],
+  ["functions/api/client/case.js", "payment_link_request"],
+  ["functions/api/client/case.js", "asset_update"],
+  ["functions/api/client/case.js", "explicit_acceptance"],
+  ["functions/api/client/case.js", "contract_consent_updated"],
+  ["functions/api/admin/cases.js", "client-contract-workspace"],
+  ["public/espace-client.html", "portal-contracts"],
+  ["public/espace-client.html", "portal-consents"],
+  ["public/espace-client.html", "portal-referral-form"],
+  ["public/espace-client.html", "portal-asset-form"],
+  ["public/assets/client-portal.js", "contract_consent"],
+  ["public/assets/client-portal.js", "contract_referral"],
+  ["public/assets/client-portal.js", "payment_link_request"],
+  ["public/assets/client-portal.js", "asset_update"],
+  ["public/assets/client-portal.js", "explicit_acceptance"],
+  ["public/assets/styles.css", "client-contract-portal-2026-08:start"],
+  ["package.json", "client:contracts"],
+  ["package.json", "client:contracts:contract"],
+  ["package.json", "client:contracts:smoke"]
+];
+
+const forbidden = [
+  ["functions/_shared/client-contracts.js", "contact_import: true"],
+  ["functions/api/client/case.js", "navigator.contacts"],
+  ["public/assets/client-portal.js", "navigator.contacts"],
+  ["public/assets/client-portal.js", "ContactsManager"],
+  ["public/assets/client-portal.js", "addressBook"],
+  ["public/assets/client-portal.js", "collectContacts"],
+  ["public/assets/client-portal.js", "external_navigation"],
+  ["public/assets/client-portal.js", "third_party_navigation_probe"],
+  ["public/assets/client-portal.js", "hidden_tracking"],
+  ["scripts/client-contract-orchestrator.js", "contact_import: true"]
+];
+
+const missing = [];
+const violations = [];
+
+for (const [file, needle] of required) {
+  if (!existsSync(file) || !readFileSync(file, "utf8").includes(needle)) missing.push(`${file}:${needle}`);
+}
+
+for (const [file, needle] of forbidden) {
+  if (existsSync(file) && readFileSync(file, "utf8").includes(needle)) violations.push(`${file}:${needle}`);
+}
+
+const report = {
+  generated_at: new Date().toISOString(),
+  status: missing.length || violations.length ? "failed" : "passed",
+  marker: "client-contract-workspace-v1",
+  checked_required: required.length,
+  checked_forbidden: forbidden.length,
+  missing,
+  violations,
+  safeguards: ["explicit-opt-in", "revocation-tracing", "no-address-book-scraping", "first-party-navigation-only", "human-review-before-commercial-contact"]
+};
+
+for (const file of [join("reports", "client-contract-contract-report.json"), join("public", "assets", "client-contract-contract-latest.json")]) {
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+}
+
+if (missing.length || violations.length) {
+  if (missing.length) console.error(`Client contract required markers missing: ${missing.join(", ")}`);
+  if (violations.length) console.error(`Client contract forbidden markers present: ${violations.join(", ")}`);
+  process.exit(1);
+}
+
+console.log(`Client contract contract passed for ${required.length} required markers and ${forbidden.length} forbidden markers.`);

@@ -18,6 +18,7 @@ import {
   stageLabel,
   urgencyForLead
 } from "../../_shared/brokerage-cases.js";
+import { CLIENT_CONTRACT_MARKER } from "../../_shared/client-contracts.js";
 
 const headers = { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" };
 
@@ -212,11 +213,12 @@ function groupBy(rows, key) {
   return map;
 }
 
-function caseRowsWithChildren(cases, documents, mails, consultations, timelines, env) {
+function caseRowsWithChildren(cases, documents, mails, consultations, timelines, contracts, env) {
   const docsByCase = groupBy(documents, "case_id");
   const mailsByCase = groupBy(mails, "case_id");
   const consultationsByCase = groupBy(consultations, "case_id");
   const timelineByCase = groupBy(timelines, "case_id");
+  const contractsByCase = groupBy(contracts, "case_id");
   return rowsOrEmpty(cases).map((row) => {
     const docs = docsByCase.get(row.id) || [];
     const missingRequired = docs.filter((doc) => Number(doc.required || 0) === 1 && !["received", "validated"].includes(clean(doc.status, 40))).length;
@@ -251,6 +253,7 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
       mail_queue: mailsByCase.get(row.id) || [],
       consultations: consultationsByCase.get(row.id) || [],
       timeline: timelineByCase.get(row.id) || [],
+      contracts: contractsByCase.get(row.id) || [],
       consent_snapshot: safeJson(row.consent_snapshot, {})
     };
   });
@@ -304,25 +307,29 @@ export async function onRequestGet({ request, env }) {
   const sync = url.searchParams.get("sync") !== "0";
   const syncResult = sync ? await ensureCasesForOpenLeads(env) : null;
 
-  const [caseRows, documents, mails, consultations, timelines, partners, summaryRow, docSummary, mailSummary, consultSummary] = await Promise.all([
+  const [caseRows, documents, mails, consultations, timelines, contracts, partners, summaryRow, docSummary, mailSummary, consultSummary, contractSummary] = await Promise.all([
     safeAll(env, `SELECT c.*, l.reference AS lead_reference, l.name, l.phone, l.email, l.profile, l.property_type, l.city, l.units_count, l.need, l.status AS lead_status FROM brokerage_cases c JOIN leads l ON l.id = c.lead_id ORDER BY CASE c.priority WHEN 'hot' THEN 1 WHEN 'warm' THEN 2 WHEN 'standard' THEN 3 ELSE 4 END, c.updated_at DESC LIMIT 120`),
     safeAll(env, `SELECT d.* FROM case_documents d JOIN brokerage_cases c ON c.id = d.case_id ORDER BY d.required DESC, d.label LIMIT 800`),
     safeAll(env, `SELECT m.*, c.case_reference FROM case_mail_queue m JOIN brokerage_cases c ON c.id = m.case_id ORDER BY CASE m.status WHEN 'draft_review' THEN 1 WHEN 'approved' THEN 2 WHEN 'sent' THEN 3 ELSE 4 END, m.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT i.*, c.case_reference FROM insurer_consultations i JOIN brokerage_cases c ON c.id = i.case_id ORDER BY CASE i.status WHEN 'draft_review' THEN 1 WHEN 'sent' THEN 2 ELSE 3 END, i.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT t.* FROM case_timeline t JOIN brokerage_cases c ON c.id = t.case_id ORDER BY t.created_at DESC LIMIT 300`),
+    safeAll(env, `SELECT cc.*, c.case_reference FROM client_contracts cc JOIN brokerage_cases c ON c.id = cc.case_id ORDER BY cc.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT id, name, contact_email, appetite_profile, service_level_hours, active FROM insurer_partners ORDER BY active DESC, name`),
     safeFirst(env, `SELECT COUNT(*) AS cases, SUM(CASE WHEN stage NOT IN ('contract_active', 'lost') THEN 1 ELSE 0 END) AS open_cases, SUM(CASE WHEN priority = 'hot' THEN 1 ELSE 0 END) AS hot_cases, SUM(CASE WHEN readiness_score >= 70 THEN 1 ELSE 0 END) AS ready_cases, SUM(CASE WHEN human_review_required = 1 THEN 1 ELSE 0 END) AS human_review_required, COALESCE(SUM(estimated_value_min_cents), 0) AS value_min_cents, COALESCE(SUM(estimated_value_max_cents), 0) AS value_max_cents FROM brokerage_cases`),
     safeFirst(env, `SELECT COUNT(*) AS requested, SUM(CASE WHEN status IN ('received', 'validated') THEN 1 ELSE 0 END) AS received, SUM(CASE WHEN required = 1 AND status NOT IN ('received', 'validated') THEN 1 ELSE 0 END) AS missing_required FROM case_documents`),
     safeFirst(env, `SELECT COUNT(*) AS drafts, SUM(CASE WHEN status = 'draft_review' THEN 1 ELSE 0 END) AS review_drafts, SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) AS approved, SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) AS sent FROM case_mail_queue`),
-    safeFirst(env, `SELECT COUNT(*) AS consultations, SUM(CASE WHEN status = 'draft_review' THEN 1 ELSE 0 END) AS review_consultations, SUM(CASE WHEN status IN ('sent', 'answered', 'quoted') THEN 1 ELSE 0 END) AS active_consultations FROM insurer_consultations`)
+    safeFirst(env, `SELECT COUNT(*) AS consultations, SUM(CASE WHEN status = 'draft_review' THEN 1 ELSE 0 END) AS review_consultations, SUM(CASE WHEN status IN ('sent', 'answered', 'quoted') THEN 1 ELSE 0 END) AS active_consultations FROM insurer_consultations`),
+    safeFirst(env, `SELECT COUNT(*) AS contracts, SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS active_contracts, COALESCE(SUM(annual_premium_cents), 0) AS annual_premium_cents FROM client_contracts`)
   ]);
 
-  const cases = caseRowsWithChildren(caseRows, documents, mails, consultations, timelines, env);
+  const cases = caseRowsWithChildren(caseRows, documents, mails, consultations, timelines, contracts, env);
   const summary = {
     ...(summaryRow || {}),
     documents: docSummary || {},
     mail_queue: mailSummary || {},
     consultations: consultSummary || {},
+    contracts: contractSummary || {},
+    contract_marker: CLIENT_CONTRACT_MARKER,
     pipeline_value_label: valueLabel(summaryRow?.value_min_cents, summaryRow?.value_max_cents)
   };
   return json({
@@ -336,8 +343,8 @@ export async function onRequestGet({ request, env }) {
     consultations: rowsOrEmpty(consultations),
     partners: rowsOrEmpty(partners),
     actions: buildActions(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations)),
-    warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary)].filter(Boolean),
-    safeguards: ["human-review-before-send", "mail-draft-review", "client-portal-token", "consent-snapshot", "audit-timeline"]
+    warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(contracts), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary)].filter(Boolean),
+    safeguards: ["human-review-before-send", "mail-draft-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace"]
   });
 }
 

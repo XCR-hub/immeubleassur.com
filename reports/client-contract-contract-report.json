@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-08-03T07:46:58.570Z",
+  "status": "passed",
+  "marker": "client-contract-workspace-v1",
+  "checked_required": 36,
+  "checked_forbidden": 10,
+  "missing": [],
+  "violations": [],
+  "safeguards": [
+    "explicit-opt-in",
+    "revocation-tracing",
+    "no-address-book-scraping",
+    "first-party-navigation-only",
+    "human-review-before-commercial-contact"
+  ]
+}
