@@ -27,7 +27,7 @@ function daysBetween(a, b) {
 }
 
 function portalUrl(origin, token) {
-  return origin.replace(/\/+$/, "") + "/espace-client.html?token=" + encodeURIComponent(clean(token, 160));
+  return origin.replace(/\/+$/, "") + "/espace-client.html#token=" + encodeURIComponent(clean(token, 160));
 }
 
 function money(cents) {

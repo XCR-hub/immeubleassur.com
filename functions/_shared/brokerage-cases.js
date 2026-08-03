@@ -36,7 +36,7 @@ export function portalToken() {
 
 export function portalUrl(token, origin = "https://immeubleassur.com") {
   const root = clean(origin, 240).replace(/\/+$/, "") || "https://immeubleassur.com";
-  return `${root}/espace-client.html?token=${encodeURIComponent(clean(token, 120))}`;
+  return `${root}/espace-client.html#token=${encodeURIComponent(clean(token, 120))}`;
 }
 
 export function insurerPortalToken() {

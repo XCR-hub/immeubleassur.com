@@ -11,6 +11,8 @@ const required = [
   ["schema.sql", "CREATE TABLE IF NOT EXISTS contract_consent_events"],
   ["schema.sql", "CREATE TABLE IF NOT EXISTS contract_referrals"],
   ["functions/_shared/client-contracts.js", "client-contract-workspace-v1"],
+  ["functions/_shared/brokerage-cases.js", "espace-client.html#token="],
+  ["public/assets/client-portal.js", "hashParams"],
   ["functions/_shared/client-contracts.js", "contact_import: false"],
   ["functions/_shared/client-contracts.js", "no-address-book-scraping"],
   ["functions/_shared/client-contracts.js", "cross_sell_disabled_until_explicit_opt_in"],

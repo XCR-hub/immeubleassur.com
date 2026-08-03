@@ -188,7 +188,7 @@ async function main() {
   const offerFollowupSync = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=1`, { headers: { Authorization: `Bearer ${adminToken}` } }), env }));
   assert(offerFollowupSync.status === 200 && offerFollowupSync.body.sync?.counters?.offer_followup_drafts === 1, "admin sync should prepare one overdue client offer followup draft");
   const offerFollowupMail = DB.prepare("SELECT status, body FROM case_mail_queue WHERE case_id = ? AND audience = 'client_offer_followup' AND payload LIKE ? LIMIT 1").bind(caseRow.id, `%${draftOffer.body.offer_id}%`).first();
-  assert(offerFollowupMail?.status === "draft_review" && /espace-client\.html\?token=/.test(offerFollowupMail.body || ""), "client offer followup should remain a human-reviewed draft with portal link");
+  assert(offerFollowupMail?.status === "draft_review" && /espace-client\.html(?:\?token=|#token=)/.test(offerFollowupMail.body || ""), "client offer followup should remain a human-reviewed draft with portal link");
   const offerFollowupTimeline = DB.prepare("SELECT COUNT(*) AS count FROM case_timeline WHERE case_id = ? AND event_type = 'client_offer_followup_draft'").bind(caseRow.id).first()?.count || 0;
   assert(Number(offerFollowupTimeline) === 1, "client offer followup should be traced in timeline");
   const offerPortal = await readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=${caseRow.client_portal_token}`), env }));

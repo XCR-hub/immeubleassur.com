@@ -39,14 +39,21 @@ function text(selector, value) {
 }
 
 function tokenFromUrl() {
-  return new URLSearchParams(window.location.search).get("token") || "";
+  const url = new URL(window.location.href);
+  const queryToken = url.searchParams.get("token") || "";
+  if (queryToken) return queryToken;
+  const hashParams = new URLSearchParams(url.hash.startsWith("#") ? url.hash.slice(1) : url.hash);
+  return hashParams.get("token") || "";
 }
 
 function clearTokenFromUrl() {
   const url = new URL(window.location.href);
-  if (!url.searchParams.has("token")) return;
+  const hashParams = new URLSearchParams(url.hash.startsWith("#") ? url.hash.slice(1) : url.hash);
+  if (!url.searchParams.has("token") && !hashParams.has("token")) return;
   url.searchParams.delete("token");
-  window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+  hashParams.delete("token");
+  url.hash = hashParams.toString() ? "#" + hashParams.toString() : "";
+  window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
 }
 
 function documentDownloadUrl(documentId) {
