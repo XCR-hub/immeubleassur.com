@@ -49,12 +49,16 @@ function run() {
   ensureDir(runtimeReportsRoot);
   ensureDir(join(runtimeAssetsRoot, "assets"));
   const commonRuntimeEnv = {
+    LOCAL_RUNTIME_REPORTS_ROOT: runtimeReportsRoot,
+    LOCAL_RUNTIME_ASSETS_ROOT: runtimeAssetsRoot,
     LOCAL_INTENT_CONVERSION_REPORT: runtimeIntentReport,
     LOCAL_INTENT_CONVERSION_PUBLIC_REPORT: runtimeIntentAsset,
     LOCAL_SOURCE_QUALITY_REPORT: runtimeSourceReport,
     LOCAL_SOURCE_QUALITY_PUBLIC_REPORT: runtimeSourceAsset
   };
   const steps = [
+    runStep("live_api_readiness", ["scripts/live-api-readiness-check.js"], commonRuntimeEnv),
+    runStep("google_readiness_unlock", ["scripts/google-readiness-unlock.js"], commonRuntimeEnv),
     runStep("sqlite_backup", ["scripts/local-sqlite-backup.js"]),
     runStep("imap_sync", ["scripts/local-imap-sync.js"]),
     runStep("contract_renewal_monitor", ["scripts/local-contract-renewal-monitor.js"]),
