@@ -92,8 +92,8 @@ export function paymentScheduleFor(contract = {}) {
 }
 
 export function requestPriorityFor(type) {
-  if (["claim", "payment_issue", "coverage_gap"].includes(clean(type, 80))) return "high";
-  if (["endorsement", "renewal", "document"].includes(clean(type, 80))) return "standard";
+  if (["claim", "payment_issue", "coverage_gap", "privacy_erasure", "privacy_revoke"].includes(clean(type, 80))) return "high";
+  if (["endorsement", "renewal", "document", "privacy_access", "privacy_export", "privacy_rectification"].includes(clean(type, 80))) return "standard";
   return "low";
 }
 
@@ -111,7 +111,12 @@ export function requestTypeLabel(type) {
     claim: "Sinistre",
     asset_update: "Parc immobilier",
     coverage_gap: "Garantie a verifier",
-    referral: "Parrainage"
+    referral: "Parrainage",
+    privacy_access: "Droit d acces a mes donnees",
+    privacy_export: "Exporter mes donnees",
+    privacy_rectification: "Rectifier mes donnees",
+    privacy_erasure: "Demander l effacement",
+    privacy_revoke: "Revoquer mes acces et consentements"
   })[type] || "Demande client";
 }
 

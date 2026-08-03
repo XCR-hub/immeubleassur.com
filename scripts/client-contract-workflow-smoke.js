@@ -140,6 +140,10 @@ async function main() {
   assert(refreshedWithMessage.body.case.contracts?.[0]?.requests?.some((item) => item.subject === "Modification smoke" && /local technique/.test(item.message || "")), "client portal should expose the request message for follow-up");
   const notificationDraft = DB.prepare("SELECT status, audience, subject, body FROM case_mail_queue WHERE case_id = ? AND audience = ? ORDER BY created_at DESC LIMIT 1").bind(caseRow.id, "internal_request").first();
   assert(notificationDraft?.status === "draft_review" && notificationDraft.audience === "internal_request" && /local technique/.test(notificationDraft.body || ""), "client request should create a supervised internal notification draft");
+  const privacyRequest = await post(caseRow.client_portal_token, { action: "contract_request", contract_id: contract.id, request_type: "privacy_erasure", subject: "Demande d effacement smoke", message: "Merci d examiner ma demande d effacement et de me recontacter apres verification des obligations de conservation." }, DB);
+  assert(privacyRequest.status === 200 && privacyRequest.body.status === "open", "client should be able to submit a supervised privacy erasure request");
+  const privacyRow = DB.prepare("SELECT request_type, priority, human_review_required FROM contract_service_requests WHERE contract_id = ? AND request_type = 'privacy_erasure' ORDER BY created_at DESC LIMIT 1").bind(contract.id).first();
+  assert(privacyRow?.request_type === "privacy_erasure" && privacyRow.priority === "high" && Number(privacyRow.human_review_required) === 1, "privacy erasure should be high priority and human reviewed");
 
   const blockedConsent = await post(caseRow.client_portal_token, { action: "contract_consent", contract_id: contract.id, consent_type: "cross_sell", granted: true }, DB);
   assert(blockedConsent.status === 422, "granting commercial consent should require explicit acceptance");

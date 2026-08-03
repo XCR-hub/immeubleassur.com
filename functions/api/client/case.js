@@ -480,7 +480,7 @@ async function addContractRequest(env, row, contract, body, typeOverride = "") {
   const requestId = crypto.randomUUID();
   const createdAt = new Date().toISOString();
   await safeRun(env, `INSERT INTO contract_service_requests (id, contract_id, request_type, status, priority, subject, message, due_at, human_review_required, payload, created_at, updated_at)
-    VALUES (?, ?, ?, 'open', ?, ?, ?, ?, 1, ?, ?, ?)`, [requestId, contract.id, type, priority, subject, message, requestDueAtFor(type), JSON.stringify({ marker: CLIENT_CONTRACT_MARKER, source: "client_portal" }), createdAt, createdAt]);
+    VALUES (?, ?, ?, 'open', ?, ?, ?, ?, 1, ?, ?, ?)`, [requestId, contract.id, type, priority, subject, message, requestDueAtFor(type), JSON.stringify({ marker: CLIENT_CONTRACT_MARKER, source: "client_portal", privacy_request: type.startsWith("privacy_"), no_automatic_erasure: type === "privacy_erasure", human_review_required: true }), createdAt, createdAt]);
   const recipient = internalNotificationRecipient(env);
   const mailId = recipient ? crypto.randomUUID() : "";
   if (recipient) {
@@ -491,7 +491,7 @@ async function addContractRequest(env, row, contract, body, typeOverride = "") {
       VALUES (?, ?, 'internal_request', ?, ?, ?, 'draft_review', 1, ?, ?, ?, ?)`, [mailId, row.id, recipient, mailSubject, mailBody, createdAt, JSON.stringify({ marker: CLIENT_CONTRACT_MARKER, purpose: "contract_request_notification", request_id: requestId, human_review_required: true }), createdAt, createdAt]);
     await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'contract_request_notification_draft', 'system', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ marker: CLIENT_CONTRACT_MARKER, request_id: requestId, mail_id: mailId, recipient, human_review_required: true }), createdAt]);
   }
-  await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'contract_request_created', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ contract_id: contract.id, request_id: requestId, request_type: type, priority, notification: recipient ? "draft_review" : "recipient_missing" }), createdAt]);  return json({ success: true, status: "open" });
+  await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'contract_request_created', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ contract_id: contract.id, request_id: requestId, request_type: type, priority, privacy_request: type.startsWith("privacy_"), notification: recipient ? "draft_review" : "recipient_missing" }), createdAt]);  return json({ success: true, status: "open" });
 }
 
 async function updateContractConsent(env, row, contract, body) {
