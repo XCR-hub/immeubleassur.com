@@ -31,6 +31,7 @@ const CASE_ACTION_PLAN_MARKER = "case-action-plan-v1";
 const PARTNER_PERFORMANCE_MARKER = "partner-performance-v1";
 const CRM_ACTION_QUEUE_MARKER = "crm-action-queue-v1";
 const INSURER_PACKAGE_READINESS_MARKER = "insurer-package-readiness-v1";
+const INSURER_PACKAGE_SEND_GUARD_MARKER = "insurer-package-send-guard-v1";
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
@@ -925,7 +926,7 @@ export async function onRequestGet({ request, env }) {
     crm_action_queue: crmActionQueue,
     actions: buildActions(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations), partnerRows),
     warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(offers), errorOf(contracts), errorOf(contractRequests), errorOf(contractPayments), errorOf(contractReferrals), errorOf(contractConsents), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary), errorOf(offerSummary)].filter(Boolean),
-    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1", "partner-performance-v1", "crm-action-queue-v1", "insurer-package-readiness-v1"]
+    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1", "partner-performance-v1", "crm-action-queue-v1", "insurer-package-readiness-v1", "insurer-package-send-guard-v1"]
   });
 }
 
@@ -1012,6 +1013,41 @@ function missingRequiredDocuments(documents = []) {
   return rowsOrEmpty(documents).filter((doc) => Number(doc.required || 0) === 1 && !["received", "validated", "waived"].includes(clean(doc.status, 40)));
 }
 
+async function insurerPackageSendGuard(env, caseId, context = "insurer_send", actor = "admin") {
+  const documents = rowsOrEmpty(await safeAll(env, "SELECT * FROM case_documents WHERE case_id = ? ORDER BY required DESC, label", [caseId]));
+  const missing = missingRequiredDocuments(documents);
+  const guard = {
+    marker: INSURER_PACKAGE_SEND_GUARD_MARKER,
+    context: clean(context, 120),
+    missing_required: missing.map((doc) => clean(doc.label, 160)),
+    missing_count: missing.length,
+    human_review_required: true
+  };
+  if (!missing.length) return { ok: true, guard, documents };
+  await logTimeline(env, caseId, "insurer_package_send_blocked", actor, guard);
+  return { ok: false, guard, documents };
+}
+
+function insurerPackageSendGuardResponse(guard) {
+  return json({
+    success: false,
+    marker: INSURER_PACKAGE_SEND_GUARD_MARKER,
+    error: "Pack assureur incomplet: pieces requises manquantes avant envoi",
+    missing_required: guard.missing_required || [],
+    missing_count: guard.missing_count || 0,
+    context: guard.context || "insurer_send"
+  }, 409);
+}
+
+async function requireInsurerPackageSendable(env, caseId, context, actor) {
+  const result = await insurerPackageSendGuard(env, caseId, context, actor);
+  return result.ok ? null : insurerPackageSendGuardResponse(result.guard);
+}
+
+async function requireMailPackageSendable(env, mail, action, actor) {
+  if (clean(mail.audience, 80) !== "insurer") return null;
+  return requireInsurerPackageSendable(env, mail.case_id, `mail_${clean(action, 80)}`, actor);
+}
 function insurerDraft(row, documents, followup = false, portalUrlValue = "") {
   if (followup) {
     return {
@@ -1043,8 +1079,8 @@ async function approveConsultation(env, body) {
   if (bundle.error) return json({ success: false, error: bundle.error }, 404);
   const recipient = validEmail(body.recipient_email || bundle.row.recipient_email);
   if (!recipient) return json({ success: false, error: "Email assureur requis avant approbation" }, 409);
-  const missing = missingRequiredDocuments(bundle.documents);
-  if (missing.length && body.override_missing_documents !== true) return json({ success: false, error: "Pieces requises manquantes avant consultation assureur", missing_required: missing.map((doc) => doc.label) }, 409);
+  const blocked = await requireInsurerPackageSendable(env, bundle.row.case_id, "approve_consultation", reviewer);
+  if (blocked) return blocked;
   await safeRun(env, "UPDATE insurer_consultations SET recipient_email = ?, status = 'approved', package_status = 'approved_for_send', human_approved_at = COALESCE(human_approved_at, ?), notes = COALESCE(NULLIF(?, ''), notes), updated_at = ? WHERE id = ?", [recipient, nowIso(), clean(body.notes, 1000), nowIso(), consultationId]);
   const access = await ensureConsultationToken(env, consultationId, { insurer_name: bundle.row.insurer_name, case_id: bundle.row.case_id });
   await logTimeline(env, bundle.row.case_id, "insurer_consultation_approved", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, human_review: true, partner_portal: true });
@@ -1059,6 +1095,8 @@ async function markConsultationSent(env, body, sentBy = "admin") {
   if (bundle.error) return json({ success: false, error: bundle.error }, 404);
   if (clean(bundle.row.status, 40) !== "approved" || !bundle.row.human_approved_at) return json({ success: false, error: "Validation humaine consultation requise avant envoi" }, 409);
   if (!validEmail(bundle.row.recipient_email)) return json({ success: false, error: "Email assureur requis avant envoi" }, 409);
+  const blocked = await requireInsurerPackageSendable(env, bundle.row.case_id, "mark_consultation_sent", reviewer);
+  if (blocked) return blocked;
   const access = await ensureConsultationToken(env, consultationId, { insurer_name: bundle.row.insurer_name, case_id: bundle.row.case_id });
   await safeRun(env, "UPDATE insurer_consultations SET status = 'sent', package_status = 'sent_to_partner', sent_at = COALESCE(sent_at, ?), response_due_at = COALESCE(response_due_at, ?), updated_at = ? WHERE id = ?", [nowIso(), new Date(Date.now() + 48 * 3600000).toISOString(), nowIso(), consultationId]);
   await safeRun(env, "UPDATE brokerage_cases SET stage = 'insurer_consultation', next_action = ?, updated_at = ? WHERE id = ?", ["Suivre les retours assureurs et relancer sans envoi non relu si l'echeance est depassee.", nowIso(), bundle.row.case_id]);
@@ -1068,18 +1106,21 @@ async function markConsultationSent(env, body, sentBy = "admin") {
 
 async function sendConsultation(env, body) {
   const consultationId = clean(body.consultation_id, 120);
+  const reviewer = clean(body.reviewer || "admin", 120);
   if (!consultationId) return json({ success: false, error: "consultation_id requis" }, 400);
   const bundle = await consultationBundle(env, consultationId);
   if (bundle.error) return json({ success: false, error: bundle.error }, 404);
   if (clean(bundle.row.status, 40) !== "approved" || !bundle.row.human_approved_at) return json({ success: false, error: "Validation humaine consultation requise avant envoi" }, 409);
   if (!validEmail(bundle.row.recipient_email)) return json({ success: false, error: "Email assureur requis avant envoi" }, 409);
+  const blocked = await requireInsurerPackageSendable(env, bundle.row.case_id, "send_consultation", reviewer);
+  if (blocked) return blocked;
   const access = await ensureConsultationToken(env, consultationId, { insurer_name: bundle.row.insurer_name, case_id: bundle.row.case_id });
   const draft = insurerDraft(bundle.row, bundle.documents, false, consultationPortalLink(env, access.token));
   const config = await smtpConfig(env, { recipient_email: bundle.row.recipient_email });
   if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return json({ success: false, error: "Configuration SMTP incomplete" }, 503);
   const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, { recipient_email: bundle.row.recipient_email, subject: draft.subject, body: draft.body }), env);
   const result = await markConsultationSent(env, body, "smtp");
-  await logTimeline(env, bundle.row.case_id, "insurer_consultation_sent", clean(body.reviewer || "admin", 120), { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, smtp: clean(smtpResult, 500) });
+  await logTimeline(env, bundle.row.case_id, "insurer_consultation_sent", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, smtp: clean(smtpResult, 500) });
   return result;
 }
 
@@ -1236,18 +1277,24 @@ export async function onRequestPost({ request, env }) {
   if (!mail || errorOf(mail)) return json({ success: false, error: "Mail introuvable" }, 404);
 
   if (action === "approve_mail") {
+    const blocked = await requireMailPackageSendable(env, mail, action, reviewer);
+    if (blocked) return blocked;
     await safeRun(env, "UPDATE case_mail_queue SET status = 'approved', approved_at = ?, approved_by = ?, updated_at = ? WHERE id = ?", [nowIso(), reviewer, nowIso(), mailId]);
     await logTimeline(env, mail.case_id, "mail_approved", reviewer, { mail_id: mailId, audience: mail.audience, subject: mail.subject });
     return json({ success: true, status: "approved" });
   }
 
   if (action === "mark_sent") {
+    const blocked = await requireMailPackageSendable(env, mail, action, reviewer);
+    if (blocked) return blocked;
     await safeRun(env, "UPDATE case_mail_queue SET status = 'sent', sent_at = COALESCE(sent_at, ?), updated_at = ? WHERE id = ?", [nowIso(), nowIso(), mailId]);
     await logTimeline(env, mail.case_id, "mail_marked_sent", reviewer, { mail_id: mailId, audience: mail.audience, subject: mail.subject });
     return json({ success: true, status: "sent" });
   }
 
   if (mail.status !== "approved") return json({ success: false, error: "Validation humaine requise avant envoi" }, 409);
+  const blocked = await requireMailPackageSendable(env, mail, action, reviewer);
+  if (blocked) return blocked;
   if (!clean(mail.recipient_email, 180)) return json({ success: false, error: "Destinataire manquant" }, 409);
   const config = await smtpConfig(env, mail);
   if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return json({ success: false, error: "Configuration SMTP incomplete" }, 503);

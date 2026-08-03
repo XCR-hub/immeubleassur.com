@@ -68,6 +68,12 @@ async function main() {
 
   const caseRow = DB.prepare("SELECT id, client_portal_token FROM brokerage_cases WHERE lead_id = ?").bind(leadId).first();
   assert(caseRow?.client_portal_token?.length >= 24, "case should have a private client portal token");
+  const insurerMailDraft = DB.prepare("SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'insurer' AND status = 'draft_review' LIMIT 1").bind(caseRow.id).first();
+  assert(insurerMailDraft?.id, "smoke should create an initial insurer mail draft before package completion");
+  const blockedInsurerMailApproval = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "approve_mail", mail_id: insurerMailDraft.id, reviewer: "smoke" }) }), env }));
+  assert(blockedInsurerMailApproval.status === 409 && blockedInsurerMailApproval.body.marker === "insurer-package-send-guard-v1", "insurer package send guard should block incomplete insurer mail approval");
+  const initialGuardTimeline = DB.prepare("SELECT COUNT(*) AS count FROM case_timeline WHERE case_id = ? AND event_type = 'insurer_package_send_blocked'").bind(caseRow.id).first()?.count || 0;
+  assert(Number(initialGuardTimeline) >= 1, "insurer package send guard should trace blocked insurer mail approval");
 
   const clientResponse = await readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=${caseRow.client_portal_token}`), env }));
   assert(clientResponse.status === 200 && clientResponse.body.success, "client portal API should open case by token");
@@ -112,6 +118,13 @@ async function main() {
   assert(partnerPayload.status === 200 && partnerPayload.body.marker === "insurer-partner-portal-v1", "partner portal should open by token");
   const partnerJson = JSON.stringify(partnerPayload.body);
   assert(!partnerJson.includes("client-smoke@example.test") && !partnerJson.includes("0600000000"), "partner portal should not expose client email or phone");
+
+  const guardDoc = DB.prepare("SELECT id FROM case_documents WHERE case_id = ? AND required = 1 LIMIT 1").bind(caseRow.id).first();
+  assert(guardDoc?.id, "smoke should have one required document for send guard regression");
+  DB.prepare("UPDATE case_documents SET status = 'requested', updated_at = ? WHERE id = ?").bind(now, guardDoc.id).run();
+  const blockedPackageSend = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "mark_consultation_sent", consultation_id: consultation.id, reviewer: "smoke" }) }), env }));
+  assert(blockedPackageSend.status === 409 && blockedPackageSend.body.marker === "insurer-package-send-guard-v1" && Number(blockedPackageSend.body.missing_count || 0) >= 1, "insurer package send guard should block sending if required documents regress");
+  DB.prepare("UPDATE case_documents SET status = 'validated', received_at = COALESCE(received_at, ?), validated_at = COALESCE(validated_at, ?), updated_at = ? WHERE id = ?").bind(now, now, now, guardDoc.id).run();
 
   const consultationSent = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "mark_consultation_sent", consultation_id: consultation.id, reviewer: "smoke" }) }), env }));
   assert(consultationSent.status === 200 && consultationSent.body.status === "sent", "admin should mark reviewed insurer consultation as sent");

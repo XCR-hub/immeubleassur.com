@@ -1419,6 +1419,7 @@ function eventTraceLabel(type = "") {
     insurer_consultation_approved: "Consultation approuvee",
     insurer_consultation_marked_sent: "Consultation envoyee",
     insurer_consultation_sent: "Mail assureur envoye",
+    insurer_package_send_blocked: "Pack assureur bloque",
     insurer_consultation_followup_draft: "Relance assureur",
     insurer_consultation_response: "Retour assureur",
     client_offer_draft_prepared: "Offre client preparee",
