@@ -209,7 +209,12 @@ function resolveStaticPath(requestUrlValue) {
   const pathname = cleanUrl === "/" ? "/index.html" : cleanUrl;
   const direct = normalize(join(root, pathname));
   if (!isInside(root, direct)) return "";
-  if (existsSync(direct)) return direct;
+  if (existsSync(direct)) {
+    if (statSync(direct).isDirectory()) {
+      const index = join(direct, "index.html");
+      if (existsSync(index)) return index;
+    } else return direct;
+  }
   if (!extname(direct)) {
     const html = `${direct}.html`;
     if (isInside(root, html) && existsSync(html)) return html;
