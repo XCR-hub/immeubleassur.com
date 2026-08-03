@@ -74,6 +74,51 @@ function moneyLabel(cents) {
   return `${Math.round(Number(cents || 0) / 100)} EUR`;
 }
 
+const consentReceiptTypes = ["marketing_automation", "cross_sell", "navigation_study"];
+const CONSENT_RECEIPT_MARKER = "consent-receipt-v1";
+
+function consentScopeFor(type) {
+  return ({
+    marketing_automation: "Relances contractuelles, echeances, documents et conseils lies au contrat ImmeubleAssur.",
+    cross_sell: "Suggestions commerciales limitees aux produits d'assurance utiles au profil immeuble connu.",
+    navigation_study: "Analyse first-party des pages ImmeubleAssur consultees dans l'espace client, sans donnees externes ni carnet d'adresses."
+  })[type] || "Preference client explicite.";
+}
+
+function latestConsentEventsByType(consents = []) {
+  const map = new Map();
+  for (const event of rowsOrEmpty(consents).slice().sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))) {
+    const type = normalizeConsentType(event.consent_type);
+    if (type && !map.has(type)) map.set(type, event);
+  }
+  return map;
+}
+
+function consentReceiptsFor(consent = {}, consents = []) {
+  const latest = latestConsentEventsByType(consents);
+  return consentReceiptTypes.map((type) => {
+    const event = latest.get(type);
+    const payload = safeJson(event?.payload, {});
+    const granted = consent[type] === true;
+    return {
+      marker: CONSENT_RECEIPT_MARKER,
+      consent_type: type,
+      label: consentTypeLabel(type),
+      granted,
+      status: granted ? "granted" : "revoked",
+      legal_basis: "consentement explicite du client",
+      scope: consentScopeFor(type),
+      revocation_available: true,
+      latest_event: event ? {
+        status: clean(event.status, 40),
+        created_at: event.created_at || "",
+        proof_text: clean(event.proof_text, 1000),
+        explicit_acceptance: payload.explicit_acceptance === true
+      } : null
+    };
+  });
+}
+
 function publicContract(row, lead, documents = [], payments = [], requests = [], referrals = [], consents = [], assets = []) {
   const consent = consentProfileFor(safeJson(row.consent_profile, {}));
   return {
@@ -125,6 +170,7 @@ function publicContract(row, lead, documents = [], payments = [], requests = [],
       reward_label: item.reward_label,
       created_at: item.created_at
     })),
+    consent_receipts: consentReceiptsFor(consent, consents),
     consent_events: rowsOrEmpty(consents).slice(0, 12).map((item) => ({
       consent_type: item.consent_type,
       label: consentTypeLabel(item.consent_type),
@@ -316,7 +362,7 @@ async function updateContractConsent(env, row, contract, body) {
   const next = applyConsent(current, consentType, granted);
   const status = granted ? "granted" : "revoked";
   await safeRun(env, "UPDATE client_contracts SET consent_profile = ?, updated_at = ? WHERE id = ?", [JSON.stringify(next), new Date().toISOString(), contract.id]);
-  await safeRun(env, "INSERT INTO contract_consent_events (id, contract_id, consent_type, status, channel, proof_text, payload, created_at) VALUES (?, ?, ?, ?, 'client_portal', ?, ?, ?)", [crypto.randomUUID(), contract.id, consentType, status, clean(body.proof_text, 1000) || consentTypeLabel(consentType), JSON.stringify({ marker: CLIENT_CONTRACT_MARKER, explicit_acceptance: granted === true }), new Date().toISOString()]);
+  await safeRun(env, "INSERT INTO contract_consent_events (id, contract_id, consent_type, status, channel, proof_text, payload, created_at) VALUES (?, ?, ?, ?, 'client_portal', ?, ?, ?)", [crypto.randomUUID(), contract.id, consentType, status, clean(body.proof_text, 1000) || consentTypeLabel(consentType), JSON.stringify({ marker: CLIENT_CONTRACT_MARKER, explicit_acceptance: granted === true, receipt_marker: CONSENT_RECEIPT_MARKER, revocation_available: true }), new Date().toISOString()]);
   await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'contract_consent_updated', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ contract_id: contract.id, consent_type: consentType, status }), new Date().toISOString()]);
   return json({ success: true, status, consent: next });
 }

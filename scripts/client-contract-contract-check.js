@@ -24,6 +24,10 @@ const required = [
   ["functions/api/client/case.js", "asset_update"],
   ["functions/api/client/case.js", "explicit_acceptance"],
   ["functions/api/client/case.js", "contract_consent_updated"],
+  ["functions/api/client/case.js", "consent-receipt-v1"],
+  ["functions/api/client/case.js", "consentReceiptsFor"],
+  ["functions/api/client/case.js", "consent_receipts"],
+  ["functions/api/client/case.js", "revocation_available"],
   ["functions/api/admin/cases.js", "client-contract-workspace"],
   ["functions/api/admin/cases.js", "contract_request_status"],
   ["functions/api/admin/cases.js", "referral_status"],
@@ -40,10 +44,14 @@ const required = [
   ["public/assets/client-portal.js", "payment_link_request"],
   ["public/assets/client-portal.js", "asset_update"],
   ["public/assets/client-portal.js", "explicit_acceptance"],
+  ["public/assets/client-portal.js", "renderConsentReceipt"],
+  ["public/assets/client-portal.js", "consent_receipts"],
+  ["public/assets/styles.css", "portal-consent-receipt"],
   ["public/assets/styles.css", "client-contract-portal-2026-08:start"],
   ["package.json", "client:contracts"],
   ["package.json", "client:contracts:contract"],
-  ["package.json", "client:contracts:smoke"]
+  ["package.json", "client:contracts:smoke"],
+  ["scripts/client-contract-workflow-smoke.js", "consent receipt should expose explicit acceptance proof"]
 ];
 
 const forbidden = [

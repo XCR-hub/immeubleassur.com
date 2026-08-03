@@ -110,6 +110,7 @@ async function main() {
   assert(contract?.assets?.length >= 1, "client contract should expose insured assets");
   assert(contract.consent?.cross_sell === false, "cross-sell should be refused by default");
   assert(contract.cross_sell?.enabled === false, "cross-sell recommendations should stay disabled before opt-in");
+  assert(contract.consent_receipts?.some((receipt) => receipt.marker === "consent-receipt-v1" && receipt.consent_type === "cross_sell" && receipt.revocation_available), "consent receipt should expose revocation proof");
 
   const blockedConsent = await post(caseRow.client_portal_token, { action: "contract_consent", contract_id: contract.id, consent_type: "cross_sell", granted: true }, DB);
   assert(blockedConsent.status === 422, "granting commercial consent should require explicit acceptance");
@@ -120,9 +121,15 @@ async function main() {
   contract = clientResponse.body.case.contracts?.[0];
   assert(contract.consent?.cross_sell === true, "cross-sell consent should become true after opt-in");
   assert(contract.cross_sell?.enabled === true && contract.cross_sell.recommendations?.length > 0, "recommendations should appear only after opt-in");
+  const grantedReceipt = contract.consent_receipts?.find((receipt) => receipt.consent_type === "cross_sell");
+  assert(grantedReceipt?.latest_event?.explicit_acceptance === true, "consent receipt should expose explicit acceptance proof");
 
   const revokedConsent = await post(caseRow.client_portal_token, { action: "contract_consent", contract_id: contract.id, consent_type: "cross_sell", granted: false }, DB);
   assert(revokedConsent.status === 200 && revokedConsent.body.status === "revoked", "revocation should be stored");
+  clientResponse = await getClient(caseRow.client_portal_token, DB);
+  contract = clientResponse.body.case.contracts?.[0];
+  const revokedReceipt = contract.consent_receipts?.find((receipt) => receipt.consent_type === "cross_sell");
+  assert(revokedReceipt?.status === "revoked" && revokedReceipt.latest_event?.status === "revoked", "consent receipt should expose revocation status");
 
   const blockedReferral = await post(caseRow.client_portal_token, { action: "contract_referral", contract_id: contract.id, filleul_email: "filleul@example.test" }, DB);
   assert(blockedReferral.status === 422, "referral should require explicit filleul permission");

@@ -347,6 +347,21 @@ function renderRequests() {
   }
 }
 
+function renderConsentReceipt(receipt = {}) {
+  const box = document.createElement("div");
+  box.className = "portal-consent-receipt";
+  const latest = receipt.latest_event;
+  const lines = [
+    receipt.scope,
+    receipt.legal_basis,
+    receipt.revocation_available ? "Revocation disponible depuis cet espace client." : "Revocation sur demande.",
+    latest ? `Dernier evenement: ${latest.status || "trace"} le ${formatDate(latest.created_at)}` : "Aucun accord actif trace pour cette finalite.",
+    latest?.proof_text ? `Preuve: ${latest.proof_text}` : ""
+  ].filter(Boolean);
+  for (const line of lines) box.append(smallText(line));
+  return box;
+}
+
 function renderConsents() {
   if (!consentsBox) return;
   const contract = currentContract();
@@ -355,6 +370,7 @@ function renderConsents() {
     clearWithEmpty(consentsBox, "Consentements disponibles apres creation du contrat.");
     return;
   }
+  const receipts = Array.isArray(contract.consent_receipts) ? contract.consent_receipts : [];
   for (const [type, label, detail] of consentTypes) {
     const granted = contract.consent?.[type] === true;
     const row = document.createElement("div");
@@ -371,6 +387,8 @@ function renderConsents() {
     button.dataset.granted = granted ? "false" : "true";
     button.textContent = granted ? "Revoquer" : "Accepter";
     row.append(copy, button);
+    const receipt = receipts.find((item) => item.consent_type === type);
+    if (receipt) row.append(renderConsentReceipt(receipt));
     consentsBox.append(row);
   }
 }

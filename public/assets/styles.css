@@ -3753,6 +3753,16 @@ textarea:focus {
   align-items: center;
 }
 
+.portal-consent-receipt {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 4px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
 .portal-payment-row .button,
 .portal-consent-row .button,
 .portal-consent-row .submit-button {

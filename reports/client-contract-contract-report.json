@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-03T10:58:49.972Z",
+  "generated_at": "2026-08-03T11:11:03.201Z",
   "status": "passed",
   "marker": "client-contract-workspace-v1",
-  "checked_required": 42,
+  "checked_required": 50,
   "checked_forbidden": 10,
   "missing": [],
   "violations": [],
