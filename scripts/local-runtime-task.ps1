@@ -20,6 +20,7 @@ $env:LOCAL_SOURCE_QUALITY_PUBLIC_REPORT = Join-Path $RuntimeRoot 'assets\local-s
 $env:LOCAL_SEO_BACKLOG_REPORT = 'F:\immeubleassur-monitor\seo-backlog-latest.json'
 $env:LOCAL_RUNTIME_ASSETS_ROOT = $RuntimeRoot
 $env:LOCAL_RUNTIME_REPORTS_ROOT = Join-Path $RuntimeRoot 'reports'
+$env:LOCAL_IMAP_REPORT = Join-Path $RuntimeRoot 'reports\local-imap-sync-report.json'
 $env:LOCAL_CONTRACT_RENEWAL_REPORT = Join-Path $RuntimeRoot 'reports\local-contract-renewal-report.json'
 $env:LOCAL_GROWTH_OPS_RUNTIME_ONLY = '1'
 $env:LOCAL_GROWTH_OPS_RUNTIME_ASSET = Join-Path $RuntimeRoot 'assets\local-growth-ops-latest.json'
