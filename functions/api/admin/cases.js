@@ -27,6 +27,7 @@ import { CLIENT_CONTRACT_MARKER } from "../../_shared/client-contracts.js";
 
 const headers = { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" };
 const CLIENT_OFFER_MARKER = "client-offer-recommendation-v1";
+const CASE_ACTION_PLAN_MARKER = "case-action-plan-v1";
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
@@ -296,6 +297,70 @@ function consultationOperationSummary(consultations = []) {
     missing_recipient_consultations: rows.filter((item) => ["draft_review", "approved"].includes(clean(item.status, 40)) && !clean(item.recipient_email, 180)).length
   };
 }
+
+function latestByFields(rows = [], fields = ["updated_at", "created_at"]) {
+  return rowsOrEmpty(rows).slice().sort((a, b) => {
+    const at = Math.max(...fields.map((field) => new Date(a?.[field] || "").getTime()).filter(Number.isFinite), 0);
+    const bt = Math.max(...fields.map((field) => new Date(b?.[field] || "").getTime()).filter(Number.isFinite), 0);
+    return bt - at;
+  })[0] || null;
+}
+
+function caseActionPlan(row = {}, documents = [], mails = [], consultations = [], offers = [], contracts = []) {
+  const now = Date.now();
+  const missing = rowsOrEmpty(documents).filter((doc) => Number(doc.required || 0) === 1 && !["received", "validated", "waived"].includes(clean(doc.status, 40)));
+  const draftMail = latestByFields(rowsOrEmpty(mails).filter((item) => clean(item.status, 40) === "draft_review"));
+  const approvedMail = latestByFields(rowsOrEmpty(mails).filter((item) => clean(item.status, 40) === "approved"));
+  const draftConsultation = latestByFields(rowsOrEmpty(consultations).filter((item) => clean(item.status, 40) === "draft_review"));
+  const approvedConsultation = latestByFields(rowsOrEmpty(consultations).filter((item) => clean(item.status, 40) === "approved"));
+  const overdueConsultation = latestByFields(rowsOrEmpty(consultations).filter((item) => clean(item.status, 40) === "sent" && Number.isFinite(new Date(item.response_due_at || "").getTime()) && new Date(item.response_due_at).getTime() < now), ["response_due_at", "updated_at"]);
+  const quotedConsultation = latestByFields(rowsOrEmpty(consultations).filter((item) => clean(item.status, 40) === "quoted"));
+  const draftOffer = latestByFields(rowsOrEmpty(offers).filter((item) => clean(item.status, 40) === "draft_review"));
+  const presentedOffer = latestByFields(rowsOrEmpty(offers).filter((item) => clean(item.status, 40) === "presented"), ["validity_until", "updated_at"]);
+  const contractOps = rowsOrEmpty(contracts).flatMap((contract) => [
+    ...rowsOrEmpty(contract.requests).filter((item) => ["open", "in_progress"].includes(clean(item.status, 40))).map((item) => ({ type: "demande", due_at: item.due_at, label: item.subject || item.request_type || contract.contract_reference })),
+    ...rowsOrEmpty(contract.payments).filter((item) => clean(item.status, 40) === "pending").map((item) => ({ type: "prime", due_at: item.due_at, label: item.label || contract.contract_reference })),
+    ...rowsOrEmpty(contract.referrals).filter((item) => clean(item.status, 40) === "draft_review").map((item) => ({ type: "parrainage", due_at: item.updated_at, label: item.referred_name || contract.contract_reference }))
+  ]);
+  const base = {
+    marker: CASE_ACTION_PLAN_MARKER,
+    status: "manual_followup",
+    severity: "normal",
+    label: "Suivi manuel",
+    next_action: clean(row.next_action, 1000) || "Controler le dossier et tracer la prochaine action humaine.",
+    blockers: [],
+    due_at: row.due_at || "",
+    human_review_required: Number(row.human_review_required || 0) === 1,
+    missing_required_documents: missing.length
+  };
+  if (clean(row.stage, 60) === "contract_active" && contractOps.length) return { ...base, status: "contract_ops", severity: "high", label: "Operations contrat", next_action: "Traiter les demandes, primes ou parrainages ouverts depuis l'espace client.", blockers: contractOps.slice(0, 3).map((item) => `${item.type}: ${clean(item.label, 120)}`), due_at: contractOps.find((item) => item.due_at)?.due_at || base.due_at, human_review_required: true };
+  if (!clean(row.email, 180) && !clean(row.phone, 80)) return { ...base, status: "blocked_contact", severity: "high", label: "Contact client incomplet", next_action: "Completer email ou telephone avant toute relance automatisee.", blockers: ["email/telephone manquant"], human_review_required: true };
+  if (missing.length) return { ...base, status: "blocked_documents", severity: "high", label: "Pieces manquantes", next_action: "Relancer le client avec le lien d'espace client et limiter la demande aux pieces utiles.", blockers: missing.slice(0, 3).map((doc) => clean(doc.label, 160)), human_review_required: true };
+  if (draftOffer) return { ...base, status: "offer_review", severity: "high", label: "Offre client a relire", next_action: "Verifier prime, franchises, exclusions et publier seulement apres validation humaine.", blockers: [clean(draftOffer.insurer_name, 120) || "offre client"], human_review_required: true };
+  if (draftConsultation) return { ...base, status: clean(draftConsultation.recipient_email, 180) ? "consultation_review" : "consultation_contact_missing", severity: "high", label: "Consultation assureur a relire", next_action: clean(draftConsultation.recipient_email, 180) ? "Relire le pack assureur puis approuver la consultation." : "Renseigner l'email assureur avant approbation.", blockers: clean(draftConsultation.recipient_email, 180) ? [clean(draftConsultation.insurer_name, 120)] : [`${clean(draftConsultation.insurer_name, 120)}: email manquant`], human_review_required: true };
+  if (draftMail) return { ...base, status: "mail_review", severity: "high", label: "Mail a valider", next_action: "Relire le message avant approbation; aucun envoi direct sans controle humain.", blockers: [clean(draftMail.subject, 180)], human_review_required: true };
+  if (approvedConsultation) return { ...base, status: "consultation_ready_send", severity: "normal", label: "Consultation prete", next_action: "Envoyer ou marquer envoyee la consultation assureur deja approuvee.", blockers: [clean(approvedConsultation.insurer_name, 120)], human_review_required: true };
+  if (approvedMail) return { ...base, status: "mail_ready_send", severity: "normal", label: "Mail approuve", next_action: "Envoyer ou marquer envoye le mail deja relu.", blockers: [clean(approvedMail.subject, 180)], human_review_required: true };
+  if (overdueConsultation) return { ...base, status: "insurer_overdue", severity: "high", label: "Assureur en retard", next_action: "Creer une relance assureur en brouillon puis la valider humainement.", blockers: [clean(overdueConsultation.insurer_name, 120)], due_at: overdueConsultation.response_due_at || base.due_at, human_review_required: true };
+  if (quotedConsultation && !draftOffer && !presentedOffer) return { ...base, status: "offer_to_prepare", severity: "high", label: "Offre a preparer", next_action: "Transformer le retour assureur en proposition client relue et comparable.", blockers: [clean(quotedConsultation.insurer_name, 120)], human_review_required: true };
+  if (presentedOffer) return { ...base, status: "client_offer_followup", severity: "normal", label: "Offre client a suivre", next_action: "Suivre l'acceptation explicite client ou preparer une relance humaine.", blockers: [clean(presentedOffer.insurer_name, 120)], due_at: presentedOffer.validity_until || base.due_at, human_review_required: true };
+  if (Number(row.readiness_score || 0) >= 70 && clean(row.stage, 60) === "ready_for_market") return { ...base, status: "ready_for_market", severity: "normal", label: "Pret assureurs", next_action: "Choisir les partenaires, relire le dossier et approuver la consultation.", human_review_required: true };
+  return base;
+}
+
+function actionPlanSummary(cases = []) {
+  const rows = rowsOrEmpty(cases);
+  return rows.reduce((acc, item) => {
+    const plan = item.action_plan || {};
+    const status = clean(plan.status, 80) || "manual_followup";
+    acc.total += 1;
+    acc[status] = (acc[status] || 0) + 1;
+    if (clean(plan.severity, 40) === "high") acc.high += 1;
+    if (plan.human_review_required) acc.human_review_required += 1;
+    return acc;
+  }, { marker: CASE_ACTION_PLAN_MARKER, total: 0, high: 0, human_review_required: 0 });
+}
+
 function caseRowsWithChildren(cases, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env) {
   const docsByCase = groupBy(documents, "case_id");
   const mailsByCase = groupBy(mails, "case_id");
@@ -310,7 +375,11 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
   const contractsByCase = groupBy(contractRows, "case_id");
   return rowsOrEmpty(cases).map((row) => {
     const docs = docsByCase.get(row.id) || [];
-    const missingRequired = docs.filter((doc) => Number(doc.required || 0) === 1 && !["received", "validated"].includes(clean(doc.status, 40))).length;
+    const caseMails = mailsByCase.get(row.id) || [];
+    const caseConsultations = consultationsByCase.get(row.id) || [];
+    const caseOffers = offersByCase.get(row.id) || [];
+    const caseContracts = contractsByCase.get(row.id) || [];
+    const plan = caseActionPlan(row, docs, caseMails, caseConsultations, caseOffers, caseContracts);
     return {
       id: row.id,
       case_reference: row.case_reference,
@@ -319,7 +388,8 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
       stage_label: stageLabel(row.stage),
       priority: row.priority,
       readiness_score: Number(row.readiness_score || 0),
-      missing_required_documents: missingRequired,
+      missing_required_documents: plan.missing_required_documents,
+      action_plan: plan,
       client_portal_url: portalUrl(row.client_portal_token, clean(env.SITE_ORIGIN, 240) || "https://immeubleassur.com"),
       assigned_to: clean(row.assigned_to, 120),
       next_action: clean(row.next_action, 1000),
@@ -339,11 +409,11 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
         status: clean(row.lead_status, 40)
       },
       documents: docs,
-      mail_queue: mailsByCase.get(row.id) || [],
-      consultations: consultationsByCase.get(row.id) || [],
-      client_offers: offersByCase.get(row.id) || [],
+      mail_queue: caseMails,
+      consultations: caseConsultations,
+      client_offers: caseOffers,
       timeline: timelineByCase.get(row.id) || [],
-      contracts: contractsByCase.get(row.id) || [],
+      contracts: caseContracts,
       consent_snapshot: safeJson(row.consent_snapshot, {})
     };
   });
@@ -351,11 +421,14 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
 
 function buildActions(cases, mails, consultations) {
   const actions = [];
+  const caseList = rowsOrEmpty(cases);
   const reviewMail = rowsOrEmpty(mails).find((item) => item.status === "draft_review");
-  const ready = rowsOrEmpty(cases).find((item) => Number(item.readiness_score || 0) >= 70 && item.stage === "ready_for_market");
-  const hot = rowsOrEmpty(cases).find((item) => item.priority === "hot" && !item.assigned_to);
-  const missingDocs = rowsOrEmpty(cases).find((item) => Number(item.missing_required_documents || 0) > 0);
+  const ready = caseList.find((item) => Number(item.readiness_score || 0) >= 70 && item.stage === "ready_for_market");
+  const hot = caseList.find((item) => item.priority === "hot" && !item.assigned_to);
+  const missingDocs = caseList.find((item) => Number(item.missing_required_documents || 0) > 0);
+  const plan = caseList.find((item) => item.action_plan?.severity === "high");
   const consultation = rowsOrEmpty(consultations).find((item) => item.status === "draft_review");
+  if (plan) actions.push({ priority: 104, type: "plan-action-dossier", target: plan.case_reference, signal: plan.action_plan?.label || "plan action", recommendation: plan.action_plan?.next_action || "Executer la prochaine action humaine tracee." });
   if (hot) actions.push({ priority: 100, type: "pilotage", target: hot.case_reference, signal: "dossier chaud sans pilote", recommendation: "Assigner un courtier et appeler avant automatisation." });
   if (missingDocs) actions.push({ priority: 96, type: "pieces-client", target: missingDocs.case_reference, signal: `${missingDocs.missing_required_documents} piece(s) requise(s)`, recommendation: "Valider le mail client et demander uniquement les pieces manquantes." });
   if (ready) actions.push({ priority: 92, type: "pret-marche", target: ready.case_reference, signal: `${ready.readiness_score}/100`, recommendation: "Relire le dossier puis choisir les assureurs a consulter." });
@@ -419,6 +492,7 @@ export async function onRequestGet({ request, env }) {
   ]);
 
   const cases = caseRowsWithChildren(caseRows, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env);
+  const planSummary = actionPlanSummary(cases);
   const summary = {
     ...(summaryRow || {}),
     documents: docSummary || {},
@@ -428,6 +502,7 @@ export async function onRequestGet({ request, env }) {
     client_offers: offerSummary || {},
     contract_marker: CLIENT_CONTRACT_MARKER,
     contract_operations: contractOperationSummary(contracts, contractRequests, contractPayments, contractReferrals),
+    action_plan: planSummary,
     pipeline_value_label: valueLabel(summaryRow?.value_min_cents, summaryRow?.value_max_cents)
   };
   return json({
@@ -446,7 +521,7 @@ export async function onRequestGet({ request, env }) {
     partners: rowsOrEmpty(partners),
     actions: buildActions(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations)),
     warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(offers), errorOf(contracts), errorOf(contractRequests), errorOf(contractPayments), errorOf(contractReferrals), errorOf(contractConsents), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary), errorOf(offerSummary)].filter(Boolean),
-    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review"]
+    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1"]
   });
 }
 

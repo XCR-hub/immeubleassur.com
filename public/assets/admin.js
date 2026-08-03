@@ -1454,6 +1454,15 @@ function communicationTraceSummary(caseRow = {}) {
   return lines.join("\n");
 }
 
+function actionPlanSummary(caseRow = {}) {
+  const plan = caseRow.action_plan || {};
+  const label = plan.label || "Suivi manuel";
+  const next = String(plan.next_action || caseRow.next_action || "").slice(0, 120);
+  const blockers = Array.isArray(plan.blockers) && plan.blockers.length ? `\nBlocage: ${plan.blockers.slice(0, 2).join(", ")}` : "";
+  const review = plan.human_review_required ? "\nRevue humaine" : "";
+  return `Plan: ${label}${review}${blockers}${next ? `\n${next}` : ""}`;
+}
+
 function consultationSummary(consultations = []) {
   const rows = Array.isArray(consultations) ? consultations : [];
   const draft = rows.filter((item) => item.status === "draft_review").length;
@@ -1696,7 +1705,7 @@ function renderCasesTable(cases = []) {
     tr.append(
       cell(`${item.case_reference}\n${item.value_label || "0 EUR/an"}`),
       cell(`${lead.name || "-"}\n${lead.city || ""} ${lead.need || ""}`.trim()),
-      cell(`${item.stage_label || item.stage}\n${item.priority || "standard"} - ${item.readiness_score || 0}/100\n${contractSummary(contracts)}\n${offerSummary(item.client_offers || [])}`),
+      cell(`${item.stage_label || item.stage}\n${item.priority || "standard"} - ${item.readiness_score || 0}/100\n${actionPlanSummary(item)}\n${contractSummary(contracts)}\n${offerSummary(item.client_offers || [])}`),
       cell(documentSummary(item.documents || [])),
       cell(`${mails.draft_review || 0} revue / ${mails.approved || 0} approuve(s) / ${mails.sent || 0} envoye(s)`),
       cell(communicationTraceSummary(item)),
@@ -1844,12 +1853,14 @@ async function loadCases() {
   const contracts = summary.contracts || {};
   const contractOps = summary.contract_operations || {};
   const offers = summary.client_offers || {};
+  const actionPlan = summary.action_plan || {};
   const sync = result.sync?.counters || {};
   const followupDrafts = (Array.isArray(result.mail_queue) ? result.mail_queue : []).filter((item) => item.status === "draft_review" && /followup/.test(item.audience || "")).length;
   if (casesSummary) {
     casesSummary.replaceChildren(
       metricCard("Dossiers", String(summary.cases || 0), `${summary.open_cases || 0} ouvert(s)`),
       metricCard("Prets assureurs", String(summary.ready_cases || 0), `${summary.hot_cases || 0} chaud(s)`),
+      metricCard("Plans action", String(actionPlan.high || 0), `${actionPlan.human_review_required || 0} revue humaine`),
       metricCard("Valeur pipeline", summary.pipeline_value_label || "0 EUR/an", "prime estimee"),
       metricCard("Pieces manquantes", String(documents.missing_required || 0), `${documents.received || 0}/${documents.requested || 0} recues`),
       metricCard("Mails a valider", String(mail.review_drafts || 0), `${mail.approved || 0} approuve(s), ${mail.sent || 0} envoye(s)`),

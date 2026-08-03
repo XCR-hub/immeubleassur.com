@@ -32,6 +32,8 @@ const REQUIRED = [
   ["functions/api/admin/cases.js", "materializeClientOfferFollowups"],
   ["functions/api/admin/cases.js", "client_offer_followup"],
   ["functions/api/admin/cases.js", "client_offer_followup_draft"],
+  ["functions/api/admin/cases.js", "case-action-plan-v1"],
+  ["functions/api/admin/cases.js", "caseActionPlan"],
   ["functions/api/admin/cases.js", "insurer-consultation-action-v1"],
   ["functions/api/admin/cases.js", "Validation humaine consultation requise avant envoi"],
   ["functions/api/admin/cases.js", "insurer-consultation-human-review"],
@@ -59,6 +61,8 @@ const REQUIRED = [
   ["public/assets/admin.js", "loadCases"],
   ["public/assets/admin.js", "communicationTraceSummary"],
   ["public/assets/admin.js", "Relances en revue"],
+  ["public/assets/admin.js", "actionPlanSummary"],
+  ["public/assets/admin.js", "Plans action"],
   ["public/espace-client.html", "Espace client"],
   ["public/espace-client.html", "portal-offers"],
   ["public/espace-assureur.html", "Espace assureur"],
@@ -73,7 +77,8 @@ const REQUIRED = [
   ["scripts/asset-version-pass.js", "partnerPortal"],
   ["package.json", "partner-portal.js"],
   ["package.json", "brokerage:cases"],
-  ["scripts/brokerage-case-workflow-smoke.js", "client offer followup should remain a human-reviewed draft"]
+  ["scripts/brokerage-case-workflow-smoke.js", "client offer followup should remain a human-reviewed draft"],
+  ["scripts/brokerage-case-workflow-smoke.js", "case action plan should expose supervised next action"]
 ];
 
 const FORBIDDEN = [

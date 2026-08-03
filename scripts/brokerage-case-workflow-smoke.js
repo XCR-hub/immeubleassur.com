@@ -57,6 +57,8 @@ async function main() {
   assert(adminResponse.status === 200 && adminResponse.body.success, "admin cases API should return success");
   assert(adminResponse.body.sync?.counters?.created === 1, "admin sync should create one brokerage case");
   assert(adminResponse.body.cases?.length >= 1, "admin API should expose created case");
+  assert(adminResponse.body.cases[0]?.action_plan?.marker === "case-action-plan-v1", "case action plan should expose supervised next action");
+  assert(Number(adminResponse.body.summary?.action_plan?.total || 0) >= 1, "case action plan summary should count dossiers");
   assert(adminResponse.body.mail_queue?.some((mail) => mail.status === "draft_review"), "mail queue should keep drafts under human review");
   assert(adminResponse.body.safeguards?.includes("human-review-before-send"), "admin safeguards should require human review before send");
   assert(adminResponse.body.safeguards?.includes("client-offer-human-review"), "admin safeguards should require human review before client offer publication");
