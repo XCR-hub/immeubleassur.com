@@ -132,10 +132,10 @@ async function main() {
   assert(blockedConsultationSend.status === 409 && /Validation humaine consultation/.test(blockedConsultationSend.body.error || ""), "consultation send should be blocked before human approval");
   const consultationApproved = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "approve_consultation", consultation_id: consultation.id, reviewer: "smoke" }) }), env }));
   assert(consultationApproved.status === 200 && consultationApproved.body.status === "approved", "admin should approve insurer consultation after review");
-  assert(/espace-assureur\.html\?token=/.test(consultationApproved.body.insurer_portal_url || ""), "approval should create an insurer portal URL");
+  assert(/espace-assureur\.html#token=/.test(consultationApproved.body.insurer_portal_url || ""), "approval should create an insurer portal URL");
   const tokenRow = DB.prepare("SELECT token FROM insurer_consultation_tokens WHERE consultation_id = ? AND status = 'active' LIMIT 1").bind(consultation.id).first();
   assert(tokenRow?.token, "approved consultation should store an active partner token");
-  const partnerPayload = await readJson(await partnerGet({ request: new Request(`${siteOrigin}/api/partner/consultation?token=${tokenRow.token}`), env }));
+  const partnerPayload = await readJson(await partnerGet({ request: new Request(`${siteOrigin}/api/partner/consultation`, { headers: { Authorization: "Bearer " + tokenRow.token } }), env }));
   assert(partnerPayload.status === 200 && partnerPayload.body.marker === "insurer-partner-portal-v1", "partner portal should open by token");
   const partnerJson = JSON.stringify(partnerPayload.body);
   assert(!partnerJson.includes("client-smoke@example.test") && !partnerJson.includes("0600000000"), "partner portal should not expose client email or phone");
@@ -154,7 +154,7 @@ async function main() {
   const insurerFollowupSync = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=1`, { headers: { Authorization: `Bearer ${adminToken}` } }), env }));
   assert(insurerFollowupSync.status === 200 && insurerFollowupSync.body.sync?.counters?.insurer_followup_drafts === 1, "admin sync should prepare one overdue insurer followup draft");
   const autoFollowupMail = DB.prepare("SELECT status, body FROM case_mail_queue WHERE case_id = ? AND audience = 'insurer_followup' AND payload LIKE ? LIMIT 1").bind(caseRow.id, `%${consultation.id}%`).first();
-  assert(autoFollowupMail?.status === "draft_review" && /espace-assureur\.html\?token=/.test(autoFollowupMail.body || ""), "overdue insurer followup should remain a human-reviewed draft with partner portal link");
+  assert(autoFollowupMail?.status === "draft_review" && /espace-assureur\.html#token=/.test(autoFollowupMail.body || ""), "overdue insurer followup should remain a human-reviewed draft with partner portal link");
   const insurerFollowupTimeline = DB.prepare("SELECT COUNT(*) AS count FROM case_timeline WHERE case_id = ? AND event_type = 'insurer_consultation_followup_autopilot'").bind(caseRow.id).first()?.count || 0;
   assert(Number(insurerFollowupTimeline) === 1, "overdue insurer followup should be traced in timeline");
   const partnerQuestion = await readJson(await partnerPost({ request: new Request(`${siteOrigin}/api/partner/consultation?token=${tokenRow.token}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "question", notes: "Merci de confirmer la franchise toiture." }) }), env }));
@@ -166,7 +166,7 @@ async function main() {
   assert(consultationQuote.status === 200 && consultationQuote.body.status === "quoted", "partner portal should trace insurer quote response");
   const revokePartnerAccess = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "revoke_consultation_access", consultation_id: consultation.id, reviewer: "smoke" }) }), env }));
   assert(revokePartnerAccess.status === 200 && revokePartnerAccess.body.status === "revoked", "admin should revoke the active partner portal access");
-  const revokedPartnerPayload = await readJson(await partnerGet({ request: new Request(`${siteOrigin}/api/partner/consultation?token=${tokenRow.token}`), env }));
+  const revokedPartnerPayload = await readJson(await partnerGet({ request: new Request(`${siteOrigin}/api/partner/consultation`, { headers: { Authorization: "Bearer " + tokenRow.token } }), env }));
   assert(revokedPartnerPayload.status === 403, "revoked partner portal token should be refused");  const internalQuoteDraft = DB.prepare("SELECT status, body FROM case_mail_queue WHERE case_id = ? AND audience = 'internal_partner_response' AND payload LIKE ? LIMIT 1").bind(caseRow.id, `%${consultation.id}%quote%`).first();
   assert(internalQuoteDraft?.status === "draft_review" && /Offre assureur/.test(internalQuoteDraft.body || "") && /1234/.test(internalQuoteDraft.body || ""), "partner quote should create a human-reviewed internal draft");
   const followupMail = DB.prepare("SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'insurer_followup' AND status = 'draft_review'").bind(caseRow.id).first();

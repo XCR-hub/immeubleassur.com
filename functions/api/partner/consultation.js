@@ -45,7 +45,9 @@ async function safeRun(env, sql, binds = []) {
 }
 
 function tokenFrom(request) {
-  return clean(new URL(request.url).searchParams.get("token"), 180);
+  const authorization = request?.headers?.get("Authorization") || "";
+  const bearer = authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : "";
+  return clean(bearer || new URL(request.url).searchParams.get("token"), 180);
 }
 
 function centsFromBody(value) {

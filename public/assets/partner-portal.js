@@ -22,7 +22,8 @@ function text(selector, value) {
 }
 
 function tokenFromUrl() {
-  return new URLSearchParams(window.location.search).get("token") || "";
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  return hash.get("token") || new URLSearchParams(window.location.search).get("token") || "";
 }
 
 function storedToken() {
@@ -94,7 +95,7 @@ async function load(token) {
   if (tokenInput) tokenInput.value = activeToken;
   saveToken(activeToken);
   setStatus("Chargement consultation...");
-  const response = await fetch(`/api/partner/consultation?token=${encodeURIComponent(activeToken)}`);
+  const response = await fetch("/api/partner/consultation", { headers: { Authorization: "Bearer " + activeToken } });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok || !payload.success) throw new Error(payload.error || "Consultation introuvable");
   render(payload);
@@ -105,9 +106,9 @@ async function submitPartnerAction(action, fields = {}) {
   if (!activeToken) activeToken = storedToken();
   if (!activeToken) return setStatus("Jeton consultation requis.", "error");
   setStatus("Transmission en cours...");
-  const response = await fetch(`/api/partner/consultation?token=${encodeURIComponent(activeToken)}`, {
+  const response = await fetch("/api/partner/consultation", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { Authorization: "Bearer " + activeToken, "Content-Type": "application/json" },
     body: JSON.stringify({ action, ...fields })
   });
   const payload = await response.json().catch(() => ({}));

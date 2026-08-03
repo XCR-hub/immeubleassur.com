@@ -45,7 +45,7 @@ export function insurerPortalToken() {
 
 export function insurerPortalUrl(token, origin = "https://immeubleassur.com") {
   const root = clean(origin, 240).replace(/\/+$/, "") || "https://immeubleassur.com";
-  return `${root}/espace-assureur.html?token=${encodeURIComponent(clean(token, 160))}`;
+  return `${root}/espace-assureur.html#token=${encodeURIComponent(clean(token, 160))}`;
 }
 
 export function leadValueEstimate(lead, score = 0) {
