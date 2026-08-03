@@ -146,7 +146,7 @@ Le runner `npm run live:ready` execute uniquement les connecteurs prets et respe
 
 ## Admin
 
-`/admin.html` permet de consulter les leads, newsletter, contenu SEO, attribution, anti-spam, relances, runtime et backlog SEO. Les endpoints admin exigent `ADMIN_API_TOKEN`.
+`/admin.html` permet de consulter les leads, newsletter, contenu SEO, attribution, anti-spam, relances, runtime et backlog SEO. Les endpoints admin exigent `ADMIN_API_TOKEN`. Les echecs sont limites par IP pendant cinq minutes, sans stockage du jeton.
 
 Le panneau integrations affiche les secrets par nom uniquement, jamais leurs valeurs. Il affiche aussi le rapport public des headers HTTP/CSP/HSTS et du fichier `/.well-known/security.txt`.
 
