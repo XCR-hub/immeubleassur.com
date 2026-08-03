@@ -80,6 +80,8 @@ async function main() {
   assert((marketSync.body.consultations || []).length >= 1, "complete case should prepare an insurer consultation");
   assert(marketSync.body.summary?.partner_performance?.marker === "partner-performance-v1", "partner performance summary should count configured insurers");
   assert(marketSync.body.partners?.some((partner) => partner.performance?.marker === "partner-performance-v1"), "partner rows should expose insurer performance");
+  assert(marketSync.body.summary?.crm_action_queue?.marker === "crm-action-queue-v1", "crm action queue summary should expose supervised next actions");
+  assert((marketSync.body.crm_action_queue || []).some((item) => item.marker === "crm-action-queue-v1" && item.human_review_required), "crm action queue should expose supervised next actions");
 
   const mail = DB.prepare("SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'client' LIMIT 1").bind(caseRow.id).first();
   const blockedSend = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "send_mail", mail_id: mail.id, reviewer: "smoke" }) }), env }));

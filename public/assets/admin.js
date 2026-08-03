@@ -27,6 +27,7 @@ const attributionBody = document.querySelector("#attribution-body");
 const casesButton = document.querySelector("#load-cases");
 const casesSummary = document.querySelector("#cases-summary");
 const casesBody = document.querySelector("#cases-body");
+const casesActionBody = document.querySelector("#cases-action-body");
 const leadSummary = document.querySelector("#lead-summary");
 const leadSearch = document.querySelector("#lead-search");
 const priorityFilter = document.querySelector("#lead-priority-filter");
@@ -1681,6 +1682,36 @@ function renderCaseActionCell(caseRow) {
   return td;
 }
 
+function crmUrgencyLabel(value) {
+  return ({ critical: "Critique", high: "Haute", normal: "Normale" })[value] || "Normale";
+}
+
+function renderCrmActionQueue(queue = []) {
+  if (!casesActionBody) return;
+  casesActionBody.replaceChildren();
+  const rows = Array.isArray(queue) ? queue : [];
+  if (!rows.length) {
+    const tr = document.createElement("tr");
+    const td = cell("Aucune action CRM prioritaire.");
+    td.colSpan = 4;
+    tr.append(td);
+    casesActionBody.append(tr);
+    return;
+  }
+  for (const item of rows.slice(0, 12)) {
+    const tr = document.createElement("tr");
+    tr.dataset.priority = item.urgency || "normal";
+    const due = item.due_at ? `\nEcheance ${shortDate(item.due_at)}` : "";
+    tr.append(
+      cell(`${crmUrgencyLabel(item.urgency)}\n${item.priority || 0}/100\n${item.contact_channel || "admin"}`),
+      cell(`${item.case_reference || item.target || "-"}\n${item.lead_name || ""}${item.lead_city ? ` - ${item.lead_city}` : ""}`.trim()),
+      cell(`${item.type || "action"}\n${item.signal || "signal"}${due}`),
+      cell(`${item.recommendation || "Traiter et tracer la prochaine action."}\n${item.human_review_required ? "Revue humaine obligatoire" : "Suivi"}`)
+    );
+    casesActionBody.append(tr);
+  }
+}
+
 function renderCasesTable(cases = []) {
   if (!casesBody) return;
   casesBody.replaceChildren();
@@ -1858,6 +1889,7 @@ async function loadCases() {
   const offers = summary.client_offers || {};
   const actionPlan = summary.action_plan || {};
   const partnerPerformance = summary.partner_performance || {};
+  const crmQueueSummary = summary.crm_action_queue || {};
   const sync = result.sync?.counters || {};
   const followupDrafts = (Array.isArray(result.mail_queue) ? result.mail_queue : []).filter((item) => item.status === "draft_review" && /followup/.test(item.audience || "")).length;
   if (casesSummary) {
@@ -1875,9 +1907,11 @@ async function loadCases() {
       metricCard("Contrats", String(contracts.contracts || 0), `${contracts.active_contracts || 0} actif(s)`),
       metricCard("Ops contrats", String(contractOps.open_requests || 0), `${contractOps.review_referrals || 0} parrainage(s), ${contractOps.pending_payments || 0} prime(s)`),
       metricCard("Synchronisation", `${sync.created || 0}+${sync.updated || 0}`, `${sync.mail_drafts || 0} brouillon(s)`),
+      metricCard("File CRM", String(crmQueueSummary.total || 0), `${crmQueueSummary.critical || 0} critique, ${crmQueueSummary.high || 0} haute`),
       metricCard("Actions", String((result.actions || []).length), (result.safeguards || []).slice(0, 2).join(", "))
     );
   }
+  renderCrmActionQueue(result.crm_action_queue || []);
   renderCasesTable(result.cases || []);
 }
 function attributionRows(result = {}) {

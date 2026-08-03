@@ -29,6 +29,7 @@ const headers = { "Content-Type": "application/json; charset=utf-8", "Cache-Cont
 const CLIENT_OFFER_MARKER = "client-offer-recommendation-v1";
 const CASE_ACTION_PLAN_MARKER = "case-action-plan-v1";
 const PARTNER_PERFORMANCE_MARKER = "partner-performance-v1";
+const CRM_ACTION_QUEUE_MARKER = "crm-action-queue-v1";
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
@@ -426,6 +427,210 @@ function partnerPerformanceSummary(partners = []) {
   summary.top_partner = clean(top?.name, 160);
   return summary;
 }
+
+function queueUrgency(priority, dueAt = "") {
+  const dueTime = new Date(dueAt || "").getTime();
+  if ((Number.isFinite(dueTime) && dueTime < Date.now()) || Number(priority || 0) >= 100) return "critical";
+  if (Number(priority || 0) >= 90) return "high";
+  return "normal";
+}
+
+function pushCrmAction(queue, item) {
+  const priority = Number(item.priority || 0);
+  const dueAt = item.due_at || "";
+  queue.push({
+    marker: CRM_ACTION_QUEUE_MARKER,
+    priority,
+    urgency: queueUrgency(priority, dueAt),
+    due_at: dueAt,
+    type: clean(item.type, 80),
+    target: clean(item.target, 160),
+    case_reference: clean(item.case_reference, 120),
+    lead_name: clean(item.lead_name, 120),
+    lead_city: clean(item.lead_city, 120),
+    stage: clean(item.stage, 80),
+    contact_channel: clean(item.contact_channel, 40) || "admin",
+    signal: clean(item.signal, 500),
+    recommendation: clean(item.recommendation, 1000),
+    human_review_required: item.human_review_required !== false,
+    quick_action: clean(item.quick_action, 80)
+  });
+}
+
+function buildCrmActionQueue(cases = [], mails = [], consultations = [], partners = []) {
+  const queue = [];
+  const partnerIssue = rowsOrEmpty(partners).find((item) => ["contact_missing", "overdue", "setup_required"].includes(item.performance?.status));
+  if (partnerIssue) pushCrmAction(queue, {
+    priority: 95,
+    type: "relation-assureur",
+    target: partnerIssue.name,
+    signal: partnerIssue.performance?.status || "partenaire",
+    recommendation: partnerIssue.performance?.next_action || "Mettre a jour le partenaire assureur.",
+    contact_channel: "partenaire",
+    human_review_required: true,
+    quick_action: "update_partner"
+  });
+
+  for (const caseRow of rowsOrEmpty(cases)) {
+    const lead = caseRow.lead || {};
+    const base = {
+      target: caseRow.case_reference,
+      case_reference: caseRow.case_reference,
+      lead_name: lead.name,
+      lead_city: lead.city,
+      stage: caseRow.stage,
+      due_at: caseRow.due_at,
+      contact_channel: lead.phone ? "appel" : (lead.email ? "email" : "admin")
+    };
+    const plan = caseRow.action_plan || {};
+    if (plan.severity === "high" || plan.human_review_required) pushCrmAction(queue, {
+      ...base,
+      priority: plan.severity === "high" ? 106 : 86,
+      type: "plan-dossier",
+      signal: plan.label || "plan action",
+      recommendation: plan.next_action || caseRow.next_action || "Controler le dossier et tracer la prochaine action humaine.",
+      human_review_required: Boolean(plan.human_review_required),
+      quick_action: "open_case"
+    });
+    if (Number(caseRow.missing_required_documents || 0) > 0) pushCrmAction(queue, {
+      ...base,
+      priority: 98,
+      type: "pieces-client",
+      signal: `${caseRow.missing_required_documents} piece(s) requise(s)`,
+      recommendation: "Relancer le client sur les seules pieces manquantes, apres relecture humaine du message.",
+      human_review_required: true,
+      quick_action: "review_client_mail"
+    });
+    if (caseRow.priority === "hot" && !caseRow.assigned_to) pushCrmAction(queue, {
+      ...base,
+      priority: 101,
+      type: "assignation",
+      signal: "dossier chaud sans pilote",
+      recommendation: "Assigner un courtier puis appeler le prospect avant toute automatisation.",
+      human_review_required: true,
+      quick_action: "assign_broker"
+    });
+
+    for (const mail of rowsOrEmpty(caseRow.mail_queue)) {
+      if (mail.status === "draft_review") pushCrmAction(queue, {
+        ...base,
+        priority: /followup/.test(mail.audience || "") ? 93 : 88,
+        type: "mail-a-valider",
+        signal: mail.subject || mail.audience,
+        recommendation: "Relire le brouillon, verifier le destinataire et approuver uniquement si le contexte est exact.",
+        human_review_required: true,
+        quick_action: "approve_mail"
+      });
+      if (mail.status === "approved" && mail.recipient_email) pushCrmAction(queue, {
+        ...base,
+        priority: 90,
+        type: "mail-approuve",
+        signal: mail.subject || mail.audience,
+        recommendation: "Envoyer ou marquer comme envoye le mail deja approuve, puis tracer la suite.",
+        human_review_required: true,
+        quick_action: "send_mail"
+      });
+    }
+
+    for (const consultation of rowsOrEmpty(caseRow.consultations)) {
+      if (consultation.status === "draft_review") pushCrmAction(queue, {
+        ...base,
+        priority: consultation.recipient_email ? 91 : 87,
+        type: "consultation-assureur",
+        signal: consultation.insurer_name || "assureur",
+        recommendation: consultation.recipient_email ? "Relire le pack assureur puis approuver la consultation." : "Completer l'email assureur avant approbation.",
+        human_review_required: true,
+        quick_action: "approve_consultation"
+      });
+      if (consultation.status === "approved") pushCrmAction(queue, {
+        ...base,
+        priority: 92,
+        type: "consultation-a-envoyer",
+        signal: consultation.insurer_name || "assureur",
+        recommendation: "Envoyer la consultation approuvee ou la marquer envoyee apres controle.",
+        human_review_required: true,
+        quick_action: "send_consultation"
+      });
+      if (consultation.status === "sent" && Number.isFinite(new Date(consultation.response_due_at || "").getTime()) && new Date(consultation.response_due_at).getTime() < Date.now()) pushCrmAction(queue, {
+        ...base,
+        priority: 96,
+        due_at: consultation.response_due_at,
+        type: "relance-assureur",
+        signal: consultation.insurer_name || "SLA depasse",
+        recommendation: "Generer un brouillon de relance assureur et le faire valider humainement.",
+        human_review_required: true,
+        quick_action: "consultation_followup"
+      });
+      if (consultation.status === "quoted") pushCrmAction(queue, {
+        ...base,
+        priority: 94,
+        type: "offre-a-preparer",
+        signal: consultation.insurer_name || "offre recue",
+        recommendation: "Comparer les conditions puis preparer une proposition client sous revue humaine.",
+        human_review_required: true,
+        quick_action: "prepare_client_offer"
+      });
+    }
+
+    for (const offer of rowsOrEmpty(caseRow.client_offers)) {
+      if (offer.status === "draft_review") pushCrmAction(queue, {
+        ...base,
+        priority: 97,
+        type: "offre-client-a-valider",
+        signal: offer.insurer_name || offer.case_reference || "offre client",
+        recommendation: "Relire la recommandation, les garanties et la prime avant publication dans l'espace client.",
+        human_review_required: true,
+        quick_action: "approve_client_offer"
+      });
+    }
+
+    for (const contract of rowsOrEmpty(caseRow.contracts)) {
+      for (const request of rowsOrEmpty(contract.requests).filter((item) => ["open", "in_progress"].includes(clean(item.status, 40)))) pushCrmAction(queue, {
+        ...base,
+        priority: request.priority === "high" ? 99 : 89,
+        due_at: request.due_at || base.due_at,
+        type: "demande-contrat",
+        signal: request.subject || request.request_type || contract.contract_reference,
+        recommendation: "Traiter la demande client depuis l'espace contrat et tracer le statut.",
+        human_review_required: true,
+        quick_action: "contract_request_status"
+      });
+      for (const payment of rowsOrEmpty(contract.payments).filter((item) => clean(item.status, 40) === "pending")) pushCrmAction(queue, {
+        ...base,
+        priority: 90,
+        due_at: payment.due_at || base.due_at,
+        type: "prime-a-suivre",
+        signal: payment.label || contract.contract_reference,
+        recommendation: "Verifier la prime, le lien de paiement et tracer le reglement apres controle.",
+        human_review_required: true,
+        quick_action: "payment_status"
+      });
+      for (const referral of rowsOrEmpty(contract.referrals).filter((item) => clean(item.status, 40) === "draft_review")) pushCrmAction(queue, {
+        ...base,
+        priority: 84,
+        type: "parrainage-a-valider",
+        signal: referral.referred_name || contract.contract_reference,
+        recommendation: "Verifier le parrainage et valider l'avantage uniquement apres controle humain.",
+        human_review_required: true,
+        quick_action: "referral_status"
+      });
+    }
+  }
+
+  return queue.sort((a, b) => Number(b.priority || 0) - Number(a.priority || 0) || new Date(a.due_at || 8640000000000000) - new Date(b.due_at || 8640000000000000)).slice(0, 40);
+}
+
+function crmActionQueueSummary(queue = []) {
+  const rows = rowsOrEmpty(queue);
+  return {
+    marker: CRM_ACTION_QUEUE_MARKER,
+    total: rows.length,
+    critical: rows.filter((item) => item.urgency === "critical").length,
+    high: rows.filter((item) => item.urgency === "high").length,
+    human_review_required: rows.filter((item) => item.human_review_required).length,
+    overdue: rows.filter((item) => Number.isFinite(new Date(item.due_at || "").getTime()) && new Date(item.due_at).getTime() < Date.now()).length
+  };
+}
 function caseRowsWithChildren(cases, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env) {
   const docsByCase = groupBy(documents, "case_id");
   const mailsByCase = groupBy(mails, "case_id");
@@ -562,6 +767,8 @@ export async function onRequestGet({ request, env }) {
   const planSummary = actionPlanSummary(cases);
   const partnerRows = partnerRowsWithPerformance(partners, consultations);
   const partnerSummary = partnerPerformanceSummary(partnerRows);
+  const crmActionQueue = buildCrmActionQueue(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations), partnerRows);
+  const crmActionSummary = crmActionQueueSummary(crmActionQueue);
   const summary = {
     ...(summaryRow || {}),
     documents: docSummary || {},
@@ -573,6 +780,7 @@ export async function onRequestGet({ request, env }) {
     contract_operations: contractOperationSummary(contracts, contractRequests, contractPayments, contractReferrals),
     action_plan: planSummary,
     partner_performance: partnerSummary,
+    crm_action_queue: crmActionSummary,
     pipeline_value_label: valueLabel(summaryRow?.value_min_cents, summaryRow?.value_max_cents)
   };
   return json({
@@ -589,9 +797,10 @@ export async function onRequestGet({ request, env }) {
     contract_payments: rowsOrEmpty(contractPayments),
     contract_referrals: rowsOrEmpty(contractReferrals),
     partners: partnerRows,
+    crm_action_queue: crmActionQueue,
     actions: buildActions(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations), partnerRows),
     warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(offers), errorOf(contracts), errorOf(contractRequests), errorOf(contractPayments), errorOf(contractReferrals), errorOf(contractConsents), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary), errorOf(offerSummary)].filter(Boolean),
-    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1", "partner-performance-v1"]
+    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1", "partner-performance-v1", "crm-action-queue-v1"]
   });
 }
 
