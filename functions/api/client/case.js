@@ -477,12 +477,11 @@ async function markCaseDocumentReceived(env, row, body) {
   const notes = clean(body.notes, 1000);
   const documentRow = await safeFirst(env, "SELECT * FROM case_documents WHERE case_id = ? AND document_type = ?", [row.id, documentType]);
   if (!documentRow || documentRow.error) return json({ success: false, error: "Piece inconnue" }, 404);
-  await safeRun(env, "UPDATE case_documents SET status = 'received', received_at = COALESCE(received_at, ?), notes = COALESCE(NULLIF(?, ''), notes), updated_at = ? WHERE id = ?", [new Date().toISOString(), notes, new Date().toISOString(), documentRow.id]);
-  await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'client_document_received', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ document_type: documentType, notes: notes ? "client-note" : "" }), new Date().toISOString()]);
-  return json({ success: true, status: "received" });
-}
-
-async function decideClientOffer(env, row, body) {
+  const now = new Date().toISOString();
+  await safeRun(env, "UPDATE case_documents SET status = 'declared', notes = COALESCE(NULLIF(?, ''), notes), updated_at = ? WHERE id = ?", [notes, now, documentRow.id]);
+  await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'client_document_declared', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ marker: DOCUMENT_UPLOAD_MARKER, document_type: documentType, file_required: true, notes: notes ? "client-note" : "" }), now]);
+  return json({ success: true, status: "declared_file_required", document_id: documentRow.id, marker: DOCUMENT_UPLOAD_MARKER, file_required: true });
+}async function decideClientOffer(env, row, body) {
   const offer = await ownedOffer(env, row, body.offer_id);
   if (!offer || offer.error) return json({ success: false, error: "Offre introuvable" }, 404);
   const decision = clean(body.decision || body.status, 40);

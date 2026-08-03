@@ -81,7 +81,11 @@ async function main() {
   assert(clientResponse.body.case?.documents?.length >= 4, "client portal should expose document checklist");
   assert(!clientResponse.body.case?.lead?.email, "client portal response should not expose email back to browser payload");
 
-  const firstDoc = clientResponse.body.case.documents[0];
+  const firstDoc = clientResponse.body.case.documents[0];  const declarationDoc = clientResponse.body.case.documents.find((document) => document.required && document.id !== firstDoc.id);
+  const declarationResponse = await readJson(await clientPost({ request: new Request(siteOrigin + "/api/client/case?token=" + caseRow.client_portal_token, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "case_document_received", document_type: declarationDoc.document_type, notes: "Document transmis par email a confirmer." }) }), env }));
+  assert(declarationResponse.status === 200 && declarationResponse.body.status === "declared_file_required", "client declaration should keep a file-required status");
+  const declarationRow = DB.prepare("SELECT status FROM case_documents WHERE id = ?").bind(declarationDoc.id).first();
+  assert(declarationRow?.status === "declared", "declared document must remain incomplete for insurer package readiness");
   const uploadBody = { action: "case_document_upload", document_type: firstDoc.document_type, file_name: "contrat-smoke.pdf", mime_type: "application/pdf", content_base64: Buffer.from("%PDF-1.4\\nsmoke-document").toString("base64") };
   const clientPostResponse = await readJson(await clientPost({ request: new Request(siteOrigin + "/api/client/case?token=" + caseRow.client_portal_token, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(uploadBody) }), env }));
   assert(clientPostResponse.status === 200 && clientPostResponse.body.status === "received_pending_human_validation", "client portal should receive an uploaded document under human validation");

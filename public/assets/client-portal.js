@@ -61,7 +61,7 @@ function storedToken() {
 }
 
 function statusLabel(status) {
-  return ({ requested: "Demandee", received: "Transmise", validated: "Validee", waived: "Non requise", to_upload: "A transmettre", available: "Disponible" })[status] || "Demandee";
+  return ({ requested: "Demandee", declared: "Declaration recue - fichier requis", received: "Transmise", validated: "Validee", waived: "Non requise", to_upload: "A transmettre", available: "Disponible" })[status] || "Demandee";
 }
 
 function consultationLabel(status) {
