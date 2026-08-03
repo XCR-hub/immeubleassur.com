@@ -847,9 +847,10 @@ function adminDocumentRow(document = {}) {
   return { ...document, payload: JSON.stringify(payload) };
 }
 
-function caseRowsWithChildren(cases, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, env) {
+function caseRowsWithChildren(cases, documents, mails, inboxMails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, env) {
   const docsByCase = groupBy(documents, "case_id");
   const mailsByCase = groupBy(mails, "case_id");
+  const inboxMailsByCase = groupBy(inboxMails, "case_id");
   const consultationRows = rowsOrEmpty(consultations).map((item) => ({
     ...item,
     insurer_portal_url: item.insurer_portal_token ? insurerPortalUrl(item.insurer_portal_token, clean(env.SITE_ORIGIN, 240) || "https://immeubleassur.com") : ""
@@ -899,6 +900,7 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
       lead,
       documents: docs.map(adminDocumentRow),
       mail_queue: caseMails,
+      inbox_mails: inboxMailsByCase.get(row.id) || [],
       consultations: caseConsultations,
       client_offers: caseOffers,
       timeline: timelineByCase.get(row.id) || [],
@@ -965,10 +967,11 @@ export async function onRequestGet({ request, env }) {
   const sync = url.searchParams.get("sync") !== "0";
   const syncResult = sync ? await ensureCasesForOpenLeads(env) : null;
 
-  const [caseRows, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, summaryRow, docSummary, mailSummary, consultSummary, contractSummary, offerSummary] = await Promise.all([
+  const [caseRows, documents, mails, inboxMails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, summaryRow, docSummary, mailSummary, consultSummary, contractSummary, offerSummary] = await Promise.all([
     safeAll(env, `SELECT c.*, l.reference AS lead_reference, l.name, l.phone, l.email, l.profile, l.property_type, l.city, l.units_count, l.need, l.status AS lead_status FROM brokerage_cases c JOIN leads l ON l.id = c.lead_id ORDER BY CASE c.priority WHEN 'hot' THEN 1 WHEN 'warm' THEN 2 WHEN 'standard' THEN 3 ELSE 4 END, c.updated_at DESC LIMIT 120`),
     safeAll(env, `SELECT d.* FROM case_documents d JOIN brokerage_cases c ON c.id = d.case_id ORDER BY d.required DESC, d.label LIMIT 800`),
     safeAll(env, `SELECT m.*, c.case_reference FROM case_mail_queue m JOIN brokerage_cases c ON c.id = m.case_id ORDER BY CASE m.status WHEN 'draft_review' THEN 1 WHEN 'approved' THEN 2 WHEN 'sent' THEN 3 ELSE 4 END, m.updated_at DESC LIMIT 240`),
+    safeAll(env, `SELECT i.*, c.case_reference FROM case_mail_inbox i LEFT JOIN brokerage_cases c ON c.id = i.case_id ORDER BY CASE i.status WHEN 'received_pending_review' THEN 1 ELSE 2 END, i.created_at DESC LIMIT 240`),
     safeAll(env, `SELECT i.*, c.case_reference, tok.token AS insurer_portal_token FROM insurer_consultations i JOIN brokerage_cases c ON c.id = i.case_id LEFT JOIN insurer_consultation_tokens tok ON tok.consultation_id = i.id AND tok.status = 'active' ORDER BY CASE i.status WHEN 'draft_review' THEN 1 WHEN 'approved' THEN 2 WHEN 'sent' THEN 3 ELSE 4 END, i.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT t.* FROM case_timeline t JOIN brokerage_cases c ON c.id = t.case_id ORDER BY t.created_at DESC LIMIT 300`),
     safeAll(env, `SELECT o.*, c.case_reference FROM client_offer_recommendations o JOIN brokerage_cases c ON c.id = o.case_id ORDER BY CASE o.status WHEN 'draft_review' THEN 1 WHEN 'presented' THEN 2 WHEN 'accepted' THEN 3 ELSE 4 END, o.updated_at DESC LIMIT 240`),
@@ -986,7 +989,7 @@ export async function onRequestGet({ request, env }) {
     safeFirst(env, `SELECT COUNT(*) AS offers, SUM(CASE WHEN status = 'draft_review' THEN 1 ELSE 0 END) AS review_offers, SUM(CASE WHEN status = 'presented' THEN 1 ELSE 0 END) AS presented_offers, SUM(CASE WHEN status = 'accepted' THEN 1 ELSE 0 END) AS accepted_offers FROM client_offer_recommendations`)
   ]);
 
-  const cases = caseRowsWithChildren(caseRows, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, env);
+  const cases = caseRowsWithChildren(caseRows, documents, mails, inboxMails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, env);
   const planSummary = actionPlanSummary(cases);
   const packageSummary = insurerPackageReadinessSummary(cases);
   const partnerRows = partnerRowsWithPerformance(partners, consultations);
@@ -997,6 +1000,7 @@ export async function onRequestGet({ request, env }) {
     ...(summaryRow || {}),
     documents: docSummary || {},
     mail_queue: mailSummary || {},
+    inbox_mail: { received: rowsOrEmpty(inboxMails).length, pending_review: rowsOrEmpty(inboxMails).filter((item) => item.status === "received_pending_review").length },
     consultations: { ...(consultSummary || {}), ...consultationOperationSummary(consultations) },
     contracts: contractSummary || {},
     client_offers: offerSummary || {},
@@ -1016,6 +1020,7 @@ export async function onRequestGet({ request, env }) {
     summary,
     cases,
     mail_queue: rowsOrEmpty(mails),
+    inbox_mails: rowsOrEmpty(inboxMails),
     consultations: rowsOrEmpty(consultations),
     client_offers: rowsOrEmpty(offers),
     contract_requests: rowsOrEmpty(contractRequests),

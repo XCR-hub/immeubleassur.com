@@ -54,6 +54,8 @@ Le cycle `npm run production:runtime-reports` met a jour les rapports operationn
 
 Le workflow courtier synchronise les leads ouverts en dossiers exploitables avec `npm run brokerage:cases`. Chaque dossier stocke les pieces demandees, la readiness assureur, les brouillons de mails, les consultations assureurs, le lien d'espace client et une timeline d'audit. Les emails restent en `draft_review` jusqu'a validation humaine explicite; l'envoi SMTP est refuse tant qu'un brouillon n'est pas approuve.
 
+La synchronisation `npm run mail:sync` ouvre la boite IMAP en lecture seule, importe uniquement les en-tetes des messages recents et rattache les objets contenant une reference `DOS-*` au dossier correspondant. Chaque reponse est marquee `received_pending_review`, ajoutee a la timeline et exposee dans l'admin; aucune reponse automatique ni envoi n'est declenche. Le cycle `npm run production:runtime-reports` execute aussi cette synchronisation.
+
 - Admin: `/admin.html`, section `Dossiers courtage` via `/api/admin/cases`.
 - Client mobile: `/espace-client.html?token=...` via `/api/client/case`.
 - Assureurs partenaires: les consultations se traitent depuis l'admin avec approbation humaine, envoi ou marquage manuel, brouillon de relance et retour offre/refus trace en timeline.

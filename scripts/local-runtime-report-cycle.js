@@ -1,4 +1,4 @@
-﻿import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
@@ -56,6 +56,7 @@ function run() {
   };
   const steps = [
     runStep("sqlite_backup", ["scripts/local-sqlite-backup.js"]),
+    runStep("imap_sync", ["scripts/local-imap-sync.js"]),
     runStep("production_monitor", ["scripts/local-production-monitor.js"]),
     runStep("lead_sla_monitor", ["scripts/local-lead-sla-monitor.js"]),
     runStep("lead_quality_monitor", ["scripts/local-lead-quality-monitor.js"]),

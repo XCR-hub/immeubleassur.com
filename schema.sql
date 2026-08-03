@@ -623,3 +623,25 @@ CREATE TABLE IF NOT EXISTS contract_referrals (
 CREATE INDEX IF NOT EXISTS idx_contract_referrals_contract_id ON contract_referrals(contract_id);
 CREATE INDEX IF NOT EXISTS idx_contract_referrals_code ON contract_referrals(referral_code);
 CREATE INDEX IF NOT EXISTS idx_contract_referrals_status ON contract_referrals(status);
+CREATE TABLE IF NOT EXISTS case_mail_inbox (
+  id TEXT PRIMARY KEY,
+  case_id TEXT REFERENCES brokerage_cases(id) ON DELETE SET NULL,
+  mailbox TEXT NOT NULL,
+  message_uid TEXT NOT NULL,
+  message_id TEXT,
+  sender TEXT,
+  recipients TEXT,
+  subject TEXT,
+  sent_at TEXT,
+  matched_reference TEXT,
+  status TEXT NOT NULL DEFAULT 'received_pending_review',
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE(mailbox, message_uid),
+  UNIQUE(message_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_case_mail_inbox_case_id ON case_mail_inbox(case_id);
+CREATE INDEX IF NOT EXISTS idx_case_mail_inbox_status ON case_mail_inbox(status);
+CREATE INDEX IF NOT EXISTS idx_case_mail_inbox_sent_at ON case_mail_inbox(sent_at);

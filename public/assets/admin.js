@@ -1457,6 +1457,7 @@ function latestByDate(rows = [], fields = ["updated_at", "created_at"]) {
 function communicationTraceSummary(caseRow = {}) {
   const latestMail = latestByDate(caseRow.mail_queue || [], ["sent_at", "approved_at", "updated_at", "created_at"]);
   const latestEvent = latestByDate(caseRow.timeline || [], ["created_at"]);
+  const latestInbound = latestByDate(caseRow.inbox_mails || [], ["created_at", "sent_at"]);
   const lines = [];
   if (latestMail) {
     lines.push(`${mailAudienceLabel(latestMail.audience)} - ${mailStateLabel(latestMail.status)}`);
@@ -1464,6 +1465,7 @@ function communicationTraceSummary(caseRow = {}) {
   } else {
     lines.push("Aucun mail trace");
   }
+  if (latestInbound) lines.push(`Reponse recue - ${String(latestInbound.subject || "email").slice(0, 90)}`);
   if (latestEvent) lines.push(`${eventTraceLabel(latestEvent.event_type)} - ${reportDate(latestEvent.created_at)}`);
   return lines.join("\n");
 }
@@ -1769,6 +1771,7 @@ function renderCasesTable(cases = []) {
   for (const item of cases.slice(0, 80)) {
     const lead = item.lead || {};
     const mails = mailStatusCounts(item.mail_queue || []);
+    const inboundMails = Array.isArray(item.inbox_mails) ? item.inbox_mails : [];
     const contracts = Array.isArray(item.contracts) ? item.contracts : [];
     const link = document.createElement("a");
     link.href = item.client_portal_url || "/espace-client.html";
@@ -1784,7 +1787,7 @@ function renderCasesTable(cases = []) {
       cell(`${lead.name || "-"}\n${lead.city || ""} ${lead.need || ""}`.trim()),
       cell(`${item.stage_label || item.stage}\n${item.priority || "standard"} - ${item.readiness_score || 0}/100\n${actionPlanSummary(item)}\n${contractSummary(contracts)}\n${offerSummary(item.client_offers || [])}`),
       cell(documentSummary(item.documents || [])),
-      cell(`${mails.draft_review || 0} revue / ${mails.approved || 0} approuve(s) / ${mails.sent || 0} envoye(s)`),
+      cell(`${mails.draft_review || 0} revue / ${mails.approved || 0} approuve(s) / ${mails.sent || 0} envoye(s)\n${inboundMails.length} reponse(s) recue(s)`),
       cell(communicationTraceSummary(item)),
       cell(`${packageReadinessSummary(item)}\n${consultationSummary(item.consultations || [])}`),
       linkCell,
@@ -1945,6 +1948,7 @@ async function loadCases() {
   const summary = result.summary || {};
   const documents = summary.documents || {};
   const mail = summary.mail_queue || {};
+  const inboxMail = summary.inbox_mail || {};
   const consultations = summary.consultations || {};
   const contracts = summary.contracts || {};
   const contractOps = summary.contract_operations || {};
@@ -1964,6 +1968,7 @@ async function loadCases() {
       metricCard("Valeur pipeline", summary.pipeline_value_label || "0 EUR/an", "prime estimee"),
       metricCard("Pieces manquantes", String(documents.missing_required || 0), `${documents.received || 0}/${documents.requested || 0} recues`),
       metricCard("Mails a valider", String(mail.review_drafts || 0), `${mail.approved || 0} approuve(s), ${mail.sent || 0} envoye(s)`),
+      metricCard("Reponses email", String(inboxMail.received || 0), `${inboxMail.pending_review || 0} a relire`),
       metricCard("Relances en revue", String(followupDrafts), "client/assureur a valider"),
       metricCard("Consultations", String(consultations.consultations || 0), `${consultations.review_consultations || 0} revue, ${consultations.approved_consultations || 0} prete(s), ${consultations.overdue_consultations || 0} retard`),
       metricCard("Partenaires", String(partnerPerformance.active || 0), `${partnerPerformance.contact_missing || 0} email manquant, ${partnerPerformance.overdue_consultations || 0} retard`),

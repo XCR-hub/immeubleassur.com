@@ -104,6 +104,15 @@ const connectorDefinitions = [
     optional: ["NEWSLETTER_SEND_LIMIT"]
   },
   {
+    id: "imap",
+    label: "IMAP boite mail",
+    family: "email",
+    scope: "Import en lecture seule des en-tetes de reponse et rattachement aux dossiers DOS-*.",
+    runtime: "runtime",
+    required: ["IMAP_HOST", "IMAP_PORT", "IMAP_USER", "IMAP_PASS"],
+    optional: ["IMAP_MAILBOX", "IMAP_LOOKBACK_DAYS", "IMAP_MAX_MESSAGES"]
+  },
+  {
     id: "local-antifraud",
     label: "Anti-fraude local",
     family: "security",
