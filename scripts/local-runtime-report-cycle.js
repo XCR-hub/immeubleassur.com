@@ -57,6 +57,7 @@ function run() {
   const steps = [
     runStep("sqlite_backup", ["scripts/local-sqlite-backup.js"]),
     runStep("imap_sync", ["scripts/local-imap-sync.js"]),
+    runStep("contract_renewal_monitor", ["scripts/local-contract-renewal-monitor.js"]),
     runStep("production_monitor", ["scripts/local-production-monitor.js"]),
     runStep("lead_sla_monitor", ["scripts/local-lead-sla-monitor.js"]),
     runStep("lead_quality_monitor", ["scripts/local-lead-quality-monitor.js"]),

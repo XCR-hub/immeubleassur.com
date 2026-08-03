@@ -1409,7 +1409,9 @@ function mailAudienceLabel(audience = "") {
     insurer: "Assureur",
     insurer_followup: "Relance assureur",
     internal_request: "Demande client",
-    client_request_update: "Reponse demande"
+    client_request_update: "Reponse demande",
+    client_contract_renewal: "Renouv.",
+    client_payment_reminder: "Prime"
   })[audience] || audience || "Mail";
 }
 
@@ -1648,7 +1650,7 @@ function renderCaseActionCell(caseRow) {
   const consultations = Array.isArray(caseRow.consultations) ? caseRow.consultations : [];
   const offers = Array.isArray(caseRow.client_offers) ? caseRow.client_offers : [];
   const pendingDocument = (Array.isArray(caseRow.documents) ? caseRow.documents : []).find((doc) => doc.attachment?.marker === "client-document-upload-v1" && doc.attachment?.scan_status !== "validated_clean");
-  const pendingContractDocument = flatContractItems(contracts, "documents").find((doc) => doc.attachment?.marker === "client-document-upload-v1" && doc.attachment?.scan_status !== "validated_clean");
+  const pendingContractDocument=flatContractItems(contracts,"documents").find((doc) => doc.attachment?.scan_status === "clean_pending_human_validation");
   const draft = mails.find((mail) => mail.status === "draft_review");
   const approved = mails.find((mail) => mail.status === "approved" && mail.recipient_email);
   const request = firstContractRequest(contracts);
@@ -1657,11 +1659,11 @@ function renderCaseActionCell(caseRow) {
   const offer = firstOfferAction(offers);
   const quotedConsultation = consultations.find((item) => item.status === "quoted" && !offers.some((offerRow) => offerRow.consultation_id === item.id && offerRow.status !== "declined"));
   const consultation = firstConsultationAction(consultations);
-  if (pendingContractDocument) {
-    const link = Object.assign(document.createElement("a"), { href: caseRow.client_portal_url + "&action=download_document&contract_document_id=" + encodeURIComponent(pendingContractDocument.id), textContent: "Ouvrir" });
-    const button = contractActionButton("validate_document", "Valider doc contrat", { contractDocumentId: pendingContractDocument.id });
+  if(pendingContractDocument) {
+    const link=Object.assign(document.createElement("a"), { href: caseRow.client_portal_url + "&action=download_document&contract_document_id=" + pendingContractDocument.id, textContent: "Ouvrir" });
+    const button=contractActionButton("validate_document", "Valider", { contractDocumentId: pendingContractDocument.id });
     button.dataset.documentAction = "validate_document";
-td.append(link, button);
+    td.append(link, button);
   }
   if (pendingDocument) {
     const link = document.createElement("a");
@@ -1678,7 +1680,7 @@ td.append(link, button);
     button.disabled = pendingDocument.attachment?.scan_status === "pending_antivirus";
     button.title = button.disabled ? "Scan antivirus requis avant validation" : "Valider apres controle humain";
     button.textContent = button.disabled ? "Scan antivirus requis" : "Valider piece";
-    td.append(link, button);
+        td.append(link, button);
   }
   if (draft) {
     const button = document.createElement("button");

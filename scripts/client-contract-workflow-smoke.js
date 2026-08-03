@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { openLocalSqlite } from "./local-sqlite-db.js";
 import { onRequestGet as adminGet, onRequestPatch as adminPatch, onRequestPost as adminPost } from "../functions/api/admin/cases.js";
 import { onRequestGet as clientGet, onRequestPost as clientPost } from "../functions/api/client/case.js";
+import { runContractRenewalMonitor } from "./local-contract-renewal-monitor.js";
 
 const stamp = `${process.pid}-${Date.now()}`;
 const dbPath = join(tmpdir(), `immeubleassur-client-contract-smoke-${stamp}.sqlite`);
@@ -107,7 +108,17 @@ async function main() {
   assert(contract?.documents?.length >= 4, "client contract should expose contract documents");
   assert(contract?.payments?.length >= 1, "client contract should expose premium schedule");
   assert(contract?.requests?.length >= 1, "client contract should expose service requests");
-  assert(contract?.assets?.length >= 1, "client contract should expose insured assets");  const uploadTarget = contract.documents.find((item) => item.status === "requested");
+  assert(contract?.assets?.length >= 1, "client contract should expose insured assets");
+  const monitorNow = new Date("2026-08-03T12:00:00.000Z");
+  const renewalAt = new Date(monitorNow.getTime() + 30 * 86400000).toISOString();
+  const paymentAt = new Date(monitorNow.getTime() + 5 * 86400000).toISOString();
+  DB.prepare("UPDATE client_contracts SET renewal_at = ?, updated_at = ? WHERE id = ?").bind(renewalAt, monitorNow.toISOString(), contract.id).run();
+  DB.prepare("UPDATE contract_payment_schedule SET due_at = ?, updated_at = ? WHERE contract_id = ? AND status = 'pending'").bind(paymentAt, monitorNow.toISOString(), contract.id).run();
+  const renewalDrafts = runContractRenewalMonitor(DB, { now: monitorNow, siteOrigin, renewalDays: 90, paymentDays: 14 });
+  assert(renewalDrafts.created === 2 && renewalDrafts.renewal_drafts === 1 && renewalDrafts.payment_drafts === 1, "renewal monitor should prepare supervised renewal and payment drafts");
+  const renewalSecondRun = runContractRenewalMonitor(DB, { now: monitorNow, siteOrigin, renewalDays: 90, paymentDays: 14 });
+  assert(renewalSecondRun.created === 0 && renewalSecondRun.duplicates === 2, "renewal monitor should deduplicate the same contractual periods");
+  const uploadTarget = contract.documents.find((item) => item.status === "requested");
   assert(uploadTarget?.document_type, "client contract should expose a requested document for upload");
   const contractUpload = await post(caseRow.client_portal_token, { action: "contract_document_upload", contract_id: contract.id, document_type: uploadTarget.document_type, file_name: "attestation-smoke.pdf", mime_type: "application/pdf", content_base64: Buffer.from("%PDF-1.4 smoke").toString("base64") }, DB);
   assert(contractUpload.status === 200 && contractUpload.body.status === "received_pending_human_validation", "client should upload a contract document under human validation");

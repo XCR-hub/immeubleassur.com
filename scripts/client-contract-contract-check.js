@@ -31,6 +31,8 @@ const required = [
   ["public/espace-client.html", "portal-message-field"],
   ["public/assets/client-portal.js", "item.message"],
   ["scripts/client-contract-workflow-smoke.js", "client request should accept a detailed message"],
+  ["scripts/local-contract-renewal-monitor.js", "contract-renewal-autopilot-v1"],
+  ["scripts/local-contract-renewal-monitor.js", "no_automatic_send: true"],
   ["functions/api/client/case.js", "contract_referral"],
   ["functions/api/client/case.js", "payment_link_request"],
   ["functions/api/client/case.js", "asset_update"],
@@ -53,6 +55,8 @@ const required = [
   ["functions/api/admin/cases.js", "contract_request_client_reply_draft"],
   ["functions/api/admin/cases.js", "reply_status"],
   ["public/assets/admin.js", "client_request_update"],
+  ["public/assets/admin.js", "client_contract_renewal"],
+  ["public/assets/admin.js", "client_payment_reminder"],
   ["scripts/client-contract-workflow-smoke.js", "request status changes should create supervised client reply drafts"],
   ["functions/api/admin/cases.js", "referral_status"],
   ["functions/api/admin/cases.js", "payment_status"],
@@ -76,11 +80,15 @@ const required = [
   ["public/assets/styles.css", "portal-consent-receipt"],
   ["public/assets/styles.css", "client-contract-portal-2026-08:start"],
   ["package.json", "client:contracts"],
+  ["package.json", "contracts:renewals"],
+  ["scripts/local-runtime-report-cycle.js", "contract_renewal_monitor"],
   ["package.json", "client:contracts:contract"],
   ["package.json", "client:contracts:smoke"],
   ["scripts/client-contract-workflow-smoke.js", "consent receipt should expose explicit acceptance proof"],
   ["scripts/client-contract-workflow-smoke.js", "client should upload a contract document under human validation"],
   ["scripts/client-contract-workflow-smoke.js", "admin should validate a clean contract document"],
+  ["scripts/client-contract-workflow-smoke.js", "renewal monitor should prepare supervised renewal and payment drafts"],
+  ["scripts/client-contract-workflow-smoke.js", "renewal monitor should deduplicate the same contractual periods"],
   ["scripts/client-contract-workflow-smoke.js", "crm action queue should route cross-sell through human review"]
 ];
 
