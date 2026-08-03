@@ -1140,13 +1140,27 @@ async function updatePaymentStatus(env, body) {
   const paymentId = clean(body.payment_id, 120);
   const reviewer = clean(body.reviewer || "admin", 120);
   const status = normalizeStatus(body.status, ["pending", "paid", "failed", "waived"]);
-  const paymentUrl = clean(body.payment_url, 500);
+  const requestedPaymentUrl = clean(body.payment_url, 500);
+  const paymentUrl = safePaymentUrl(requestedPaymentUrl);
   if (!paymentId || !status) return json({ success: false, error: "Statut paiement invalide" }, 400);
+  if (requestedPaymentUrl && !paymentUrl) return json({ success: false, error: "Lien de paiement HTTPS invalide" }, 400);
   const row = await safeFirst(env, "SELECT p.*, cc.case_id FROM contract_payment_schedule p JOIN client_contracts cc ON cc.id = p.contract_id WHERE p.id = ?", [paymentId]);
   if (!row || errorOf(row)) return json({ success: false, error: "Echeance introuvable" }, 404);
   await safeRun(env, "UPDATE contract_payment_schedule SET status = ?, payment_url = COALESCE(NULLIF(?, ''), payment_url), paid_at = CASE WHEN ? = 'paid' THEN COALESCE(paid_at, ?) ELSE paid_at END, updated_at = ? WHERE id = ?", [status, paymentUrl, status, nowIso(), nowIso(), paymentId]);
-  await logTimeline(env, row.case_id, "contract_payment_admin_status", reviewer, { marker: "admin-contract-action-v1", payment_id: paymentId, contract_id: row.contract_id, status });
+  await logTimeline(env, row.case_id, "contract_payment_admin_status", reviewer, { marker: "admin-contract-action-v1", payment_id: paymentId, contract_id: row.contract_id, status, payment_url_set: Boolean(paymentUrl) });
   return json({ success: true, status });
+}
+
+function safePaymentUrl(value) {
+  const candidate = clean(value, 500);
+  if (!candidate) return "";
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.protocol !== "https:" || parsed.username || parsed.password || !parsed.hostname) return "";
+    return parsed.toString();
+  } catch {
+    return "";
+  }
 }
 
 function centsFromBody(value) {

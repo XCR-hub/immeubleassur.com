@@ -204,7 +204,9 @@ async function main() {
 
   const paymentRow = DB.prepare("SELECT id FROM contract_payment_schedule WHERE contract_id = ? AND status = 'pending' ORDER BY due_at LIMIT 1").bind(contract.id).first();
   assert(paymentRow?.id, "admin smoke should find a pending premium schedule");
-  const paymentMarked = await postAdmin({ action: "payment_status", payment_id: paymentRow.id, status: "paid", reviewer: "smoke-admin" }, DB);
+  const unsafePayment = await postAdmin({ action: "payment_status", payment_id: paymentRow.id, status: "pending", payment_url: "http://example.test/pay", reviewer: "smoke-admin" }, DB);
+  assert(unsafePayment.status === 400, "admin should reject non-HTTPS payment links");
+  const paymentMarked = await postAdmin({ action: "payment_status", payment_id: paymentRow.id, status: "paid", payment_url: "https://pay.example.test/session/abc", reviewer: "smoke-admin" }, DB);
   assert(paymentMarked.status === 200 && paymentMarked.body.status === "paid", "admin should mark a reviewed premium as paid");
 
   const revokePortal = await post(caseRow.client_portal_token, { action: "contract_request", contract_id: contract.id, request_type: "privacy_revoke", subject: "Revoquer l acces portail", message: "Je demande la revocation immediate de mon acces au portail client." }, DB);
