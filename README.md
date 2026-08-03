@@ -39,7 +39,7 @@ npm run local:autarky:check
 npm run check
 ```
 
-Le watchdog Node `scripts/local-site-watchdog.js` est utilise par la tache planifiee Windows. Le watchdog PowerShell `scripts/windows-local-site-watchdog.ps1` reste disponible en secours manuel. Il sert au maintien en ligne: il teste `http://127.0.0.1:8790/health`, arrete les processus Node applicatifs bloques si necessaire, relance `scripts/local-production-server.js` en processus detache et ecrit un rapport JSON local. En production, il est prevu en tache planifiee au demarrage et toutes les 5 minutes.
+Le watchdog Node `scripts/local-site-watchdog.js` est utilise par la tache planifiee Windows. Le watchdog PowerShell `scripts/windows-local-site-watchdog.ps1` reste disponible en secours manuel. Il sert au maintien en ligne: il teste `http://127.0.0.1:8790/health` et le contrat de headers HTTP runtime sur `/`, arrete les processus Node applicatifs bloques ou obsoletes si necessaire, relance `scripts/local-production-server.js` en processus detache et ecrit un rapport JSON local. En production, il est prevu en tache planifiee au demarrage et toutes les 5 minutes.
 
 Le cycle `npm run production:runtime-reports` met a jour les rapports operationnels sans modifier Git: les sorties dynamiques publiques sont ecrites dans `data/runtime-assets/` et servies en priorite par `scripts/local-production-server.js` pour `/assets/*.json`. Le fichier suivi `public/assets/local-growth-ops-latest.json` reste un fallback de build; le serveur publie l'overlay runtime quand il existe.
 

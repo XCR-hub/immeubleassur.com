@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T00:20:23.388Z",
+  "generated_at": "2026-08-03T00:35:26.312Z",
   "status": "passed",
   "pages_checked": 187,
   "indexable_pages": 180,
@@ -139,7 +139,7 @@
     },
     {
       "path": "assets/seo-angle-differentiation-latest.json",
-      "bytes": 9275,
+      "bytes": 9280,
       "kb": 9.1,
       "ok": true
     },
@@ -151,7 +151,7 @@
     },
     {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5876,
+      "bytes": 5874,
       "kb": 5.7,
       "ok": true
     },

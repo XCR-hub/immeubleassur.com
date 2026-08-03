@@ -9,6 +9,13 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$RequiredSecurityHeaders = @(
+  'Content-Security-Policy',
+  'X-Frame-Options',
+  'X-Content-Type-Options',
+  'Permissions-Policy',
+  'Cross-Origin-Opener-Policy'
+)
 
 function Resolve-AbsolutePath([string]$PathValue) {
   if ([System.IO.Path]::IsPathRooted($PathValue)) {
@@ -30,21 +37,53 @@ function New-WatchdogReport([string]$Status, [hashtable]$Details) {
   return $report
 }
 
+function Test-LocalSecurityHeaders {
+  try {
+    $response = Invoke-WebRequest -UseBasicParsing -Method Head -Uri "http://127.0.0.1:$Port/" -TimeoutSec 6
+    $missing = @()
+    $headerValues = [ordered]@{}
+    foreach ($name in $RequiredSecurityHeaders) {
+      $value = $response.Headers[$name]
+      $headerValues[$name] = if ($value) { $value } else { '' }
+      if (!$value) { $missing += $name }
+    }
+    return [ordered]@{
+      ok = ($response.StatusCode -eq 200 -and $missing.Count -eq 0)
+      status_code = $response.StatusCode
+      missing = $missing
+      headers = $headerValues
+      error = if ($missing.Count -gt 0) { "Missing runtime security headers: $($missing -join ', ')" } else { '' }
+    }
+  } catch {
+    return [ordered]@{
+      ok = $false
+      status_code = 0
+      missing = $RequiredSecurityHeaders
+      headers = [ordered]@{}
+      error = $_.Exception.Message
+    }
+  }
+}
+
 function Test-LocalHealth {
   try {
     $response = Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:$Port/health" -TimeoutSec 6
     $body = $response.Content | ConvertFrom-Json
+    $headers = Test-LocalSecurityHeaders
+    $baseOk = ($response.StatusCode -eq 200 -and $body.success -eq $true -and $body.status -eq 'ok')
     return [ordered]@{
-      ok = ($response.StatusCode -eq 200 -and $body.success -eq $true -and $body.status -eq 'ok')
+      ok = ($baseOk -and $headers.ok)
       status_code = $response.StatusCode
       body = $body
-      error = ''
+      security_headers = $headers
+      error = if ($baseOk -and !$headers.ok) { $headers.error } else { '' }
     }
   } catch {
     return [ordered]@{
       ok = $false
       status_code = 0
       body = $null
+      security_headers = $null
       error = $_.Exception.Message
     }
   }

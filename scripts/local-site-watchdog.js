@@ -41,6 +41,13 @@ const reportPath = resolve(argValue("--report", env("LOCAL_SITE_WATCHDOG_REPORT"
 const startupWaitSeconds = numberValue(argValue("--startup-wait", env("LOCAL_SITE_WATCHDOG_STARTUP_WAIT_SECONDS", "12")), 12);
 const forceRestart = hasArg("--force");
 const serverScript = join(siteDir, "scripts", "local-production-server.js");
+const requiredSecurityHeaders = [
+  "content-security-policy",
+  "x-frame-options",
+  "x-content-type-options",
+  "permissions-policy",
+  "cross-origin-opener-policy"
+];
 
 mkdirSync(logDir, { recursive: true });
 mkdirSync(dirname(reportPath), { recursive: true });
@@ -84,6 +91,44 @@ function healthCheck() {
     });
     request.end();
   });
+}
+
+function securityHeaderCheck() {
+  return new Promise((resolveSecurity) => {
+    const request = httpRequest(
+      { hostname: "127.0.0.1", port, path: "/", method: "HEAD", timeout: 6000 },
+      (response) => {
+        response.resume();
+        response.on("end", () => {
+          const missing = requiredSecurityHeaders.filter((name) => !response.headers[name]);
+          resolveSecurity({
+            ok: response.statusCode === 200 && missing.length === 0,
+            status_code: response.statusCode || 0,
+            missing,
+            headers: Object.fromEntries(requiredSecurityHeaders.map((name) => [name, response.headers[name] || ""])),
+            error: missing.length ? `Missing runtime security headers: ${missing.join(", ")}` : ""
+          });
+        });
+      }
+    );
+    request.on("timeout", () => request.destroy(new Error("security header timeout")));
+    request.on("error", (error) => {
+      resolveSecurity({ ok: false, status_code: 0, missing: requiredSecurityHeaders, headers: {}, error: error.message || "security headers unavailable" });
+    });
+    request.end();
+  });
+}
+
+async function runtimeCheck() {
+  const health = await healthCheck();
+  if (!health.ok) return { ...health, security_headers: null };
+  const securityHeaders = await securityHeaderCheck();
+  return {
+    ...health,
+    ok: health.ok && securityHeaders.ok,
+    security_headers: securityHeaders,
+    error: securityHeaders.ok ? health.error : securityHeaders.error
+  };
 }
 
 function parseWmicProcesses(output) {
@@ -160,7 +205,7 @@ function startSite() {
 }
 
 async function main() {
-  const before = await healthCheck();
+  const before = await runtimeCheck();
   if (before.ok && !forceRestart) {
     writeReport("healthy", { action: "none", health_before: before });
     console.log("immeubleassur_node_watchdog=healthy");
@@ -170,7 +215,7 @@ async function main() {
   const stopped = stopSiteProcesses();
   const started = startSite();
   await sleep(startupWaitSeconds * 1000);
-  const after = await healthCheck();
+  const after = await runtimeCheck();
   writeReport(after.ok ? "recovered" : "failed", {
     action: "restart",
     health_before: before,

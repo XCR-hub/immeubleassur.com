@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T00:20:55.417Z",
+  "generated_at": "2026-08-03T00:35:58.350Z",
   "provider": "cloudflare-turnstile",
   "mode": "hybrid-turnstile-local-antifraud",
   "configured": true,
@@ -26,7 +26,7 @@
       "label": "newsletter form"
     }
   ],
-  "pages_updated": 8,
+  "pages_updated": 0,
   "missing_widgets": [],
   "status": "passed",
   "protections": [
