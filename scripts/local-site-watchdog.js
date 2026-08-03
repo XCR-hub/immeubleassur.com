@@ -48,7 +48,7 @@ const requiredSecurityHeaders = [
   "permissions-policy",
   "cross-origin-opener-policy"
 ];
-const WATCHDOG_PROCESS_MATCH_MARKER = "watchdog-process-match-v1";
+const WATCHDOG_PROCESS_MATCH_MARKER = "watchdog-process-discovery-v2";
 
 mkdirSync(logDir, { recursive: true });
 mkdirSync(dirname(reportPath), { recursive: true });
@@ -133,13 +133,31 @@ async function runtimeCheck() {
   };
 }
 
+function normalizeProcess(processInfo = {}) {
+  const processId = Number.parseInt(processInfo.process_id ?? processInfo.ProcessId ?? "", 10);
+  const commandLine = String(processInfo.command_line ?? processInfo.CommandLine ?? "").trim();
+  return commandLine && Number.isFinite(processId) ? { process_id: processId, command_line: commandLine } : null;
+}
+
+function parsePowerShellProcesses(output) {
+  const raw = String(output || "").trim();
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return (Array.isArray(parsed) ? parsed : [parsed]).map(normalizeProcess).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
 function parseWmicProcesses(output) {
   const blocks = String(output || "").split(/\r?\n\r?\n+/);
   const processes = [];
   for (const block of blocks) {
     const commandLine = block.match(/CommandLine=(.*)/)?.[1]?.trim() || "";
     const processId = Number.parseInt(block.match(/ProcessId=(\d+)/)?.[1] || "", 10);
-    if (commandLine && Number.isFinite(processId)) processes.push({ process_id: processId, command_line: commandLine });
+    const processInfo = normalizeProcess({ process_id: processId, command_line: commandLine });
+    if (processInfo) processes.push(processInfo);
   }
   return processes;
 }
@@ -157,18 +175,51 @@ function queryProcessesByName(name) {
   }
 }
 
+function queryProcessesByCim(names = ["node.exe", "cmd.exe"]) {
+  try {
+    const filter = names.map((name) => `Name='${String(name).replace(/'/g, "''")}'`).join(" OR ");
+    const script = `$ErrorActionPreference='Stop'; Get-CimInstance Win32_Process -Filter "${filter}" | Select-Object ProcessId,CommandLine | ConvertTo-Json -Compress`;
+    const output = execFileSync("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script], {
+      encoding: "utf8",
+      windowsHide: true,
+      timeout: 10000
+    });
+    return parsePowerShellProcesses(output);
+  } catch {
+    return [];
+  }
+}
+
+function queryPortOwnerProcesses() {
+  try {
+    const script = `$ErrorActionPreference='Stop'; $owners = Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction Stop | Select-Object -ExpandProperty OwningProcess -Unique; $owners | ForEach-Object { Get-CimInstance Win32_Process -Filter "ProcessId=$_" | Select-Object ProcessId,CommandLine } | ConvertTo-Json -Compress`;
+    const output = execFileSync("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script], {
+      encoding: "utf8",
+      windowsHide: true,
+      timeout: 10000
+    });
+    return parsePowerShellProcesses(output);
+  } catch {
+    return [];
+  }
+}
+
 function matchesSiteProcess(processInfo) {
   const command = normalizeForMatch(processInfo.command_line);
   const siteMarker = normalizeForMatch(siteDir);
   return command.includes("local-production-server.js") && (
     command.includes(siteMarker) ||
-    command.includes("scripts/local-production-server.js") ||
-    command.includes("\\scripts\\local-production-server.js")
+    command.includes("scripts/local-production-server.js")
   );
 }
 
 function siteProcesses() {
-  return [...queryProcessesByName("node.exe"), ...queryProcessesByName("cmd.exe")]
+  return [
+    ...queryProcessesByName("node.exe"),
+    ...queryProcessesByName("cmd.exe"),
+    ...queryProcessesByCim(),
+    ...queryPortOwnerProcesses()
+  ]
     .filter(matchesSiteProcess)
     .filter((processInfo, index, all) => all.findIndex((item) => item.process_id === processInfo.process_id) === index);
 }
