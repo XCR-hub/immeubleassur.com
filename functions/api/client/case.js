@@ -56,7 +56,9 @@ async function safeRun(env, sql, binds = []) {
 
 function tokenOf(request) {
   const url = new URL(request.url);
-  return clean(url.searchParams.get("token") || "", 160);
+  const authorization = request?.headers?.get("Authorization") || "";
+  const bearer = authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : "";
+  return clean(bearer || url.searchParams.get("token") || "", 160);
 }
 
 function requestIp(request) {
@@ -519,7 +521,7 @@ async function addContractRequest(env, row, contract, body, typeOverride = "") {
   const recipient = internalNotificationRecipient(env);
   const mailId = recipient ? crypto.randomUUID() : "";
   if (recipient) {
-    const portal = `/espace-client.html?token=${encodeURIComponent(row.client_portal_token || "")}`;
+    const portal = `/espace-client.html#token=${encodeURIComponent(row.client_portal_token || "")}`;
     const mailSubject = `Nouvelle demande ${clean(row.case_reference, 80)} - ${subject}`;
     const mailBody = ["Bonjour,", "", "Une demande client nécessite une revue humaine.", `Dossier: ${clean(row.case_reference, 80)}`, `Contrat: ${clean(contract.contract_reference, 120)}`, `Client: ${clean(row.name, 160)}`, `Type: ${requestTypeLabel(type)}`, `Sujet: ${subject}`, `Message: ${message}`, "", `Espace client: ${portal}`, "", "Aucun envoi automatique au client n est déclenché par cette notification."].join("\n");
     await safeRun(env, `INSERT INTO case_mail_queue (id, case_id, audience, recipient_email, subject, body, status, review_required, scheduled_at, payload, created_at, updated_at)

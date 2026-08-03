@@ -78,6 +78,8 @@ async function main() {
 
   const clientResponse = await readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=${caseRow.client_portal_token}`), env }));
   assert(clientResponse.status === 200 && clientResponse.body.success, "client portal API should open case by token");
+  const clientHeaderResponse = await readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case`, { headers: { Authorization: "Bearer " + caseRow.client_portal_token } }), env }));
+  assert(clientHeaderResponse.status === 200 && clientHeaderResponse.body.success, "client portal API should accept Authorization bearer token");
   assert(clientResponse.body.case?.documents?.length >= 4, "client portal should expose document checklist");
   assert(!clientResponse.body.case?.lead?.email, "client portal response should not expose email back to browser payload");
 

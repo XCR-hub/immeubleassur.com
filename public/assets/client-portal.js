@@ -56,11 +56,21 @@ function clearTokenFromUrl() {
   window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
 }
 
-function documentDownloadUrl(documentId) {
-  const token = tokenInput?.value.trim() || tokenFromUrl() || sessionStorage.getItem("immeubleassur_case_token") || "";
-  return `/api/client/case?action=download_document&token=${encodeURIComponent(token)}&document_id=${encodeURIComponent(documentId || "")}`;
+async function downloadPrivateDocument(documentId, contractDocumentId = "") {
+  const token = storedToken();
+  if (!token) throw new Error("Jeton dossier requis.");
+  const params = new URLSearchParams({ action: "download_document" });
+  if (documentId) params.set("document_id", documentId);
+  if (contractDocumentId) params.set("contract_document_id", contractDocumentId);
+  const response = await fetch("/api/client/case?" + params.toString(), { headers: { Authorization: "Bearer " + token } });
+  if (!response.ok) throw new Error("Telechargement impossible");
+  const blob = await response.blob();
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "document-immeubleassur";
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
-
 function saveToken(token) {
   if (token) sessionStorage.setItem("immeubleassur_case_token", token);
 }
@@ -166,10 +176,9 @@ function renderDocuments(documents = []) {
     small.textContent = `${statusLabel(doc.status)}${doc.required ? " - requise" : ""}`;
     copy.append(strong, small);
     if (doc.attachment?.file_name) {
-      const link = document.createElement("a");
-      link.href = documentDownloadUrl(doc.id);
-      link.target = "_blank";
-      link.rel = "noopener";
+      const link = document.createElement("button");
+      link.type = "button";
+      link.dataset.downloadDocument = doc.id;
       link.textContent = "Telecharger";
       row.append(link);
     }
@@ -288,11 +297,10 @@ function renderContractDocuments(container, documents = [], contractId = "") {
     strong.textContent = doc.label || "Document";
     const small = smallText(statusLabel(doc.status));
     row.append(strong, small);
-    if (doc.file_url || doc.attachment?.file_name) {
-      const link = document.createElement("a");
-      link.href = doc.file_url || `/api/client/case?action=download_document&token=${encodeURIComponent(token)}&contract_document_id=${encodeURIComponent(doc.id)}`;
-      link.target = "_blank";
-      link.rel = "noopener";
+    if (doc.attachment?.file_name) {
+      const link = document.createElement("button");
+      link.type = "button";
+      link.dataset.downloadContractDocument = doc.id;
       link.textContent = "Voir";
       row.append(link);
     }
@@ -556,7 +564,7 @@ async function loadCase(token) {
   saveToken(cleanToken);
   if (tokenInput) tokenInput.value = cleanToken;
   setStatus("Chargement du dossier...");
-  const response = await fetch(`/api/client/case?token=${encodeURIComponent(cleanToken)}`);
+  const response = await fetch("/api/client/case", { headers: { Authorization: "Bearer " + cleanToken } });
   const result = await response.json();
   if (!response.ok || !result.success) throw new Error(result.error || "Dossier introuvable");
   renderCase(result);
@@ -574,9 +582,9 @@ async function postPortalAction(action, body = {}, button = null) {
     button.textContent = "Envoi...";
   }
   try {
-    const response = await fetch(`/api/client/case?token=${encodeURIComponent(token)}`, {
+    const response = await fetch("/api/client/case", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" },
       body: JSON.stringify({ action, ...body })
     });
     const result = await response.json();
@@ -630,6 +638,8 @@ form?.addEventListener("submit", (event) => {
 docsBox?.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
+  const download = target.closest("[data-download-document]");
+  if (download) return void downloadPrivateDocument(download.dataset.downloadDocument).catch((error) => setStatus(error.message || "Telechargement impossible", "error"));
   const button = target.closest("[data-document-type]");
   if (!button) return;
   const action = button.dataset.documentUpload === "true" ? uploadDocument : markDocumentReceived;
@@ -657,6 +667,8 @@ offersBox?.addEventListener("click", (event) => {
 contractsBox?.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
+  const download = target.closest("[data-download-contract-document]");
+  if (download) return void downloadPrivateDocument("", download.dataset.downloadContractDocument).catch((error) => setStatus(error.message || "Telechargement impossible", "error"));
   const uploadButton = target.closest("[data-contract-document-upload]");
   if (uploadButton) {
     uploadContractDocument(uploadButton.dataset.contractDocumentType || "", uploadButton.dataset.contractDocumentId || "", uploadButton).catch((error) => setStatus(error.message || "Transmission impossible", "error"));
