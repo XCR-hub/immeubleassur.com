@@ -3,9 +3,11 @@ import { BROKERAGE_CASE_MARKER, clean, nowIso } from "../../_shared/brokerage-ca
 export const PARTNER_PORTAL_MARKER = "insurer-partner-portal-v1";
 
 const headers = { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" };
+const PARTNER_TOKEN_GUARD_MARKER = "insurer-partner-token-guard-v1";
+const PARTNER_TOKEN_FAILURE_LIMIT = 20;
 
-function json(body, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers });
+function json(body, status = 200, extraHeaders = {}) {
+  return new Response(JSON.stringify(body), { status, headers: { ...headers, ...extraHeaders } });
 }
 
 function rowsOrEmpty(value) {
@@ -48,6 +50,24 @@ function tokenFrom(request) {
   const authorization = request?.headers?.get("Authorization") || "";
   const bearer = authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : "";
   return clean(bearer || new URL(request.url).searchParams.get("token"), 180);
+}
+
+function requestIp(request) {
+  const forwarded = clean(request.headers.get("x-forwarded-for") || "", 200);
+  return clean((forwarded.split(",")[0] || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip") || "").trim(), 120);
+}
+
+async function partnerTokenGuard(env, request) {
+  const ip = requestIp(request);
+  if (!ip || !env.DB) return { allowed: true, ip };
+  const row = await safeFirst(env, "SELECT COUNT(*) AS count FROM site_events WHERE event_type = 'insurer_partner_token_failure' AND ip_address = ? AND created_at >= datetime('now', '-5 minutes')", [ip]);
+  if (Number(row?.count || 0) >= PARTNER_TOKEN_FAILURE_LIMIT) return { allowed: false, ip, response: json({ success: false, error: "Trop de tentatives. Reessayez plus tard.", marker: PARTNER_TOKEN_GUARD_MARKER }, 429, { "Retry-After": "300" }) };
+  return { allowed: true, ip };
+}
+
+async function recordPartnerTokenFailure(env, request, token, ip) {
+  if (!ip || !env.DB) return;
+  await safeRun(env, "INSERT INTO site_events (id, event_type, page_url, target, payload, ip_address, user_agent, created_at) VALUES (?, 'insurer_partner_token_failure', ?, 'insurer-partner-portal', ?, ?, ?, ?)", [crypto.randomUUID(), clean(request.url, 500), JSON.stringify({ marker: PARTNER_TOKEN_GUARD_MARKER, token_present: Boolean(token), token_length: String(token || "").length, raw_token_stored: false }), ip, clean(request.headers.get("user-agent") || "", 500), nowIso()]);
 }
 
 function centsFromBody(value) {
@@ -153,13 +173,21 @@ function publicPayload(row, documents = []) {
 }
 
 export async function onRequestGet({ request, env }) {
-  const bundle = await portalBundle(env, tokenFrom(request));
+  const token = tokenFrom(request);
+  const guard = await partnerTokenGuard(env, request);
+  if (!guard.allowed) return guard.response;
+  const bundle = await portalBundle(env, token);
+  if (bundle.error && [400, 403, 404].includes(bundle.status)) await recordPartnerTokenFailure(env, request, token, guard.ip);
   if (bundle.error) return json({ success: false, error: bundle.error }, bundle.status || 400);
   return json(publicPayload(bundle.row, bundle.documents));
 }
 
 export async function onRequestPost({ request, env }) {
-  const bundle = await portalBundle(env, tokenFrom(request));
+  const token = tokenFrom(request);
+  const guard = await partnerTokenGuard(env, request);
+  if (!guard.allowed) return guard.response;
+  const bundle = await portalBundle(env, token);
+  if (bundle.error && [400, 403, 404].includes(bundle.status)) await recordPartnerTokenFailure(env, request, token, guard.ip);
   if (bundle.error) return json({ success: false, error: bundle.error }, bundle.status || 400);
   const body = await request.json().catch(() => ({}));
   const action = clean(body.action, 40);

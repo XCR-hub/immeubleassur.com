@@ -137,6 +137,16 @@ async function main() {
   assert(/espace-assureur\.html#token=/.test(consultationApproved.body.insurer_portal_url || ""), "approval should create an insurer portal URL");
   const tokenRow = DB.prepare("SELECT token FROM insurer_consultation_tokens WHERE consultation_id = ? AND status = 'active' LIMIT 1").bind(consultation.id).first();
   assert(tokenRow?.token, "approved consultation should store an active partner token");
+
+  let lastInvalidPartnerResponse = null;
+  for (let attempt = 0; attempt < 21; attempt += 1) {
+    lastInvalidPartnerResponse = await partnerGet({ request: new Request(siteOrigin + "/api/partner/consultation?token=invalid-partner-token-" + attempt, { headers: { "x-forwarded-for": "198.51.100.88" } }), env });
+  }
+  assert(lastInvalidPartnerResponse.status === 429, "partner portal token guard should throttle repeated invalid tokens");
+  assert(lastInvalidPartnerResponse.headers.get("Retry-After") === "300", "partner portal token guard should expose a retry delay");
+  const partnerGuardEvent = DB.prepare("SELECT payload FROM site_events WHERE event_type = 'insurer_partner_token_failure' AND ip_address = '198.51.100.88' ORDER BY created_at DESC LIMIT 1").first();
+  assert(partnerGuardEvent?.payload && /raw_token_stored.*false/.test(partnerGuardEvent.payload), "partner portal token failures should never store the raw token");
+
   const partnerPayload = await readJson(await partnerGet({ request: new Request(`${siteOrigin}/api/partner/consultation`, { headers: { Authorization: "Bearer " + tokenRow.token } }), env }));
   assert(partnerPayload.status === 200 && partnerPayload.body.marker === "insurer-partner-portal-v1", "partner portal should open by token");
   const partnerJson = JSON.stringify(partnerPayload.body);
