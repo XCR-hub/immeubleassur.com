@@ -191,6 +191,7 @@ export async function onRequestGet({ request, env }) {
   const profile = adminSessionProfile(request);
   const url = new URL(request.url);
   if (url.searchParams.get("events") === "1") {
+    if (profile && !["owner", "manager"].includes(profile.role)) return json({ success: false, error: "Acces refuse" }, 403);
     const rows = await env.DB.prepare(
       "SELECT id, profile_id, email, action, success, ip_address, user_agent, created_at FROM admin_auth_events ORDER BY created_at DESC LIMIT 100"
     ).all();
