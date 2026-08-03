@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { openLocalSqlite } from "./local-sqlite-db.js";
 import { onRequestGet as adminGet, onRequestPost as adminPost } from "../functions/api/admin/cases.js";
+import { onRequestPatch as adminPatch } from "../functions/api/admin/cases.js";
 import { onRequestGet as clientGet, onRequestPost as clientPost } from "../functions/api/client/case.js";
 import { onRequestGet as partnerGet, onRequestPost as partnerPost } from "../functions/api/partner/consultation.js";
 
@@ -81,8 +82,17 @@ async function main() {
   assert(!clientResponse.body.case?.lead?.email, "client portal response should not expose email back to browser payload");
 
   const firstDoc = clientResponse.body.case.documents[0];
-  const clientPostResponse = await readJson(await clientPost({ request: new Request(`${siteOrigin}/api/client/case?token=${caseRow.client_portal_token}`, { method: "POST", body: JSON.stringify({ document_type: firstDoc.document_type, notes: "Piece recue smoke test" }) }), env }));
-  assert(clientPostResponse.status === 200 && clientPostResponse.body.status === "received", "client portal should mark a document as received");
+  const uploadBody = { action: "case_document_upload", document_type: firstDoc.document_type, file_name: "contrat-smoke.pdf", mime_type: "application/pdf", content_base64: Buffer.from("%PDF-1.4\\nsmoke-document").toString("base64") };
+  const clientPostResponse = await readJson(await clientPost({ request: new Request(siteOrigin + "/api/client/case?token=" + caseRow.client_portal_token, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(uploadBody) }), env }));
+  assert(clientPostResponse.status === 200 && clientPostResponse.body.status === "received_pending_human_validation", "client portal should receive an uploaded document under human validation");
+  const downloadResponse = await clientGet({ request: new Request(siteOrigin + "/api/client/case?action=download_document&token=" + caseRow.client_portal_token + "&document_id=" + firstDoc.id), env });
+  assert(downloadResponse.status === 200 && (downloadResponse.headers.get("Content-Type") || "").startsWith("application/pdf"), "client portal should download the private uploaded document");
+  const adminSafeResponse = await readJson(await adminGet({ request: new Request(siteOrigin + "/api/admin/cases?sync=0", { headers: { Authorization: "Bearer " + adminToken } }), env }));
+  assert(!JSON.stringify(adminSafeResponse.body.cases || []).includes("content_base64"), "admin case payload should not expose uploaded binary content");
+  const pendingUploadBlock = await readJson(await adminPost({ request: new Request(siteOrigin + "/api/admin/cases", { method: "POST", headers: { Authorization: "Bearer " + adminToken, "Content-Type": "application/json" }, body: JSON.stringify({ action: "approve_mail", mail_id: insurerMailDraft.id, reviewer: "smoke" }) }), env }));
+  assert(pendingUploadBlock.status === 409 && (pendingUploadBlock.body.pending_upload_validation || []).length >= 1, "insurer send should remain blocked while uploaded document awaits validation");
+  const validationResponse = await readJson(await adminPatch({ request: new Request(siteOrigin + "/api/admin/cases", { method: "PATCH", headers: { Authorization: "Bearer " + adminToken, "Content-Type": "application/json" }, body: JSON.stringify({ document_id: firstDoc.id, status: "validated", actor: "smoke" }) }), env }));
+  assert(validationResponse.status === 200 && validationResponse.body.status === "validated", "admin should validate an uploaded document before insurer use");
   DB.prepare("UPDATE case_documents SET status = 'validated', received_at = COALESCE(received_at, ?), validated_at = COALESCE(validated_at, ?), updated_at = ? WHERE case_id = ?").bind(now, now, now, caseRow.id).run();
   const marketSync = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=1`, { headers: { Authorization: `Bearer ${adminToken}` } }), env }));
   assert(marketSync.status === 200 && marketSync.body.success, "admin sync should refresh a complete market-ready case");

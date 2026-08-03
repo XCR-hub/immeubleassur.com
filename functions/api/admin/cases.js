@@ -376,7 +376,8 @@ function insurerPackageReadiness(row = {}, documents = [], mails = [], consultat
   const required = rowsOrEmpty(documents).filter((doc) => Number(doc.required || 0) === 1);
   const acceptedStatuses = ["received", "validated", "waived"];
   const receivedRequired = required.filter((doc) => acceptedStatuses.includes(clean(doc.status, 40)));
-  const missingRequired = required.filter((doc) => !acceptedStatuses.includes(clean(doc.status, 40)));
+  const pendingRequiredUploads = pendingUploadedDocuments(required);
+  const missingRequired = required.filter((doc) => !acceptedStatuses.includes(clean(doc.status, 40)) || pendingRequiredUploads.includes(doc));
   const consultationRows = rowsOrEmpty(consultations);
   const mailRows = rowsOrEmpty(mails);
   const activePartners = rowsOrEmpty(partners).filter((partner) => Number(partner.active || 0) === 1);
@@ -453,7 +454,9 @@ function latestByFields(rows = [], fields = ["updated_at", "created_at"]) {
 
 function caseActionPlan(row = {}, documents = [], mails = [], consultations = [], offers = [], contracts = []) {
   const now = Date.now();
-  const missing = rowsOrEmpty(documents).filter((doc) => Number(doc.required || 0) === 1 && !["received", "validated", "waived"].includes(clean(doc.status, 40)));
+  const requiredDocuments = rowsOrEmpty(documents).filter((doc) => Number(doc.required || 0) === 1);
+  const pendingRequiredUploads = pendingUploadedDocuments(requiredDocuments);
+  const missing = requiredDocuments.filter((doc) => !["received", "validated", "waived"].includes(clean(doc.status, 40)) || pendingRequiredUploads.includes(doc));
   const draftMail = latestByFields(rowsOrEmpty(mails).filter((item) => clean(item.status, 40) === "draft_review"));
   const approvedMail = latestByFields(rowsOrEmpty(mails).filter((item) => clean(item.status, 40) === "approved"));
   const draftConsultation = latestByFields(rowsOrEmpty(consultations).filter((item) => clean(item.status, 40) === "draft_review"));
@@ -654,6 +657,16 @@ function buildCrmActionQueue(cases = [], mails = [], consultations = [], partner
       human_review_required: Boolean(plan.human_review_required),
       quick_action: "open_case"
     });
+    const pendingDocuments = rowsOrEmpty(caseRow.documents).filter((doc) => safeJson(doc.payload, {}).attachment?.scan_status === "pending_human_validation");
+    if (pendingDocuments.length) pushCrmAction(queue, {
+      ...base,
+      priority: 100,
+      type: "piece-upload-revue",
+      signal: pendingDocuments.map((doc) => clean(doc.label, 120)).slice(0, 3).join(", "),
+      recommendation: "Ouvrir la piece, controler son contenu puis la valider humainement avant tout envoi assureur.",
+      human_review_required: true,
+      quick_action: "validate_document"
+    });
     if (Number(caseRow.missing_required_documents || 0) > 0) pushCrmAction(queue, {
       ...base,
       priority: 98,
@@ -825,6 +838,15 @@ function insurerPackageReadinessSummary(cases = []) {
   summary.top_case = clean(top?.case_reference, 120);
   return summary;
 }
+function adminDocumentRow(document = {}) {
+  const payload = safeJson(document.payload, {});
+  if (payload.attachment && typeof payload.attachment === "object") {
+    const { content_base64: _content, ...metadata } = payload.attachment;
+    payload.attachment = metadata;
+  }
+  return { ...document, payload: JSON.stringify(payload) };
+}
+
 function caseRowsWithChildren(cases, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, env) {
   const docsByCase = groupBy(documents, "case_id");
   const mailsByCase = groupBy(mails, "case_id");
@@ -875,7 +897,7 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
       created_at: row.created_at,
       value_label: valueLabel(row.estimated_value_min_cents, row.estimated_value_max_cents),
       lead,
-      documents: docs,
+      documents: docs.map(adminDocumentRow),
       mail_queue: caseMails,
       consultations: caseConsultations,
       client_offers: caseOffers,
@@ -1089,18 +1111,26 @@ async function consultationBundle(env, consultationId) {
 function missingRequiredDocuments(documents = []) {
   return rowsOrEmpty(documents).filter((doc) => Number(doc.required || 0) === 1 && !["received", "validated", "waived"].includes(clean(doc.status, 40)));
 }
+function pendingUploadedDocuments(documents = []) {
+  return rowsOrEmpty(documents).filter((doc) => {
+    const attachment = safeJson(doc.payload, {}).attachment;
+    return attachment?.marker === "client-document-upload-v1" && clean(attachment.scan_status, 60) !== "validated_clean";
+  });
+}
 
 async function insurerPackageSendGuard(env, caseId, context = "insurer_send", actor = "admin") {
   const documents = rowsOrEmpty(await safeAll(env, "SELECT * FROM case_documents WHERE case_id = ? ORDER BY required DESC, label", [caseId]));
   const missing = missingRequiredDocuments(documents);
+  const pendingUploads = pendingUploadedDocuments(documents);
   const guard = {
     marker: INSURER_PACKAGE_SEND_GUARD_MARKER,
     context: clean(context, 120),
     missing_required: missing.map((doc) => clean(doc.label, 160)),
-    missing_count: missing.length,
+    pending_upload_validation: pendingUploads.map((doc) => clean(doc.label, 160)),
+    missing_count: missing.length + pendingUploads.length,
     human_review_required: true
   };
-  if (!missing.length) return { ok: true, guard, documents };
+  if (!missing.length && !pendingUploads.length) return { ok: true, guard, documents };
   await logTimeline(env, caseId, "insurer_package_send_blocked", actor, guard);
   return { ok: false, guard, documents };
 }
@@ -1111,6 +1141,7 @@ function insurerPackageSendGuardResponse(guard) {
     marker: INSURER_PACKAGE_SEND_GUARD_MARKER,
     error: "Pack assureur incomplet: pieces requises manquantes avant envoi",
     missing_required: guard.missing_required || [],
+    pending_upload_validation: guard.pending_upload_validation || [],
     missing_count: guard.missing_count || 0,
     context: guard.context || "insurer_send"
   }, 409);
@@ -1399,6 +1430,12 @@ export async function onRequestPatch({ request, env }) {
     const documentRow = await safeFirst(env, "SELECT * FROM case_documents WHERE id = ?", [documentId]);
     if (!documentRow || errorOf(documentRow)) return json({ success: false, error: "Piece introuvable" }, 404);
     await safeRun(env, "UPDATE case_documents SET status = ?, received_at = CASE WHEN ? IN ('received', 'validated') THEN COALESCE(received_at, ?) ELSE received_at END, validated_at = CASE WHEN ? = 'validated' THEN COALESCE(validated_at, ?) ELSE validated_at END, notes = COALESCE(NULLIF(?, ''), notes), updated_at = ? WHERE id = ?", [status, status, nowIso(), status, nowIso(), clean(body.notes, 1000), nowIso(), documentId]);
+    const documentPayload = safeJson(documentRow.payload, {});
+    if (status === "validated" && documentPayload.attachment?.marker === "client-document-upload-v1") {
+      documentPayload.attachment.scan_status = "validated_clean";
+      documentPayload.attachment.validated_at = nowIso();
+      await safeRun(env, "UPDATE case_documents SET payload = ?, updated_at = ? WHERE id = ?", [JSON.stringify(documentPayload), nowIso(), documentId]);
+    }
     await logTimeline(env, documentRow.case_id, "document_status", actor, { document_id: documentId, status });
     return json({ success: true, status });
   }

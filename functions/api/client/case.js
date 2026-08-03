@@ -76,6 +76,74 @@ function moneyLabel(cents) {
 
 const consentReceiptTypes = ["marketing_automation", "cross_sell", "navigation_study"];
 const CONSENT_RECEIPT_MARKER = "consent-receipt-v1";
+const DOCUMENT_UPLOAD_MARKER = "client-document-upload-v1";
+const MAX_DOCUMENT_BYTES = 6 * 1024 * 1024;
+const uploadTypes = new Map([
+  ["application/pdf", { extension: "pdf", signature: (bytes) => textPrefix(bytes, 4) === "%PDF" }],
+  ["image/jpeg", { extension: "jpg", signature: (bytes) => bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff }],
+  ["image/png", { extension: "png", signature: (bytes) => textPrefix(bytes, 8) === "\x89PNG\r\n\x1a\n" }],
+  ["image/webp", { extension: "webp", signature: (bytes) => textPrefix(bytes, 4) === "RIFF" && textPrefix(bytes.slice(8), 4) === "WEBP" }]
+]);
+
+function textPrefix(bytes, length) {
+  return String.fromCharCode(...Array.from(bytes.slice(0, length)));
+}
+
+function attachmentMeta(payload = {}) {
+  const attachment = safeJson(payload, {}).attachment;
+  if (!attachment || typeof attachment !== "object") return null;
+  return {
+    marker: DOCUMENT_UPLOAD_MARKER,
+    file_name: clean(attachment.file_name, 160),
+    mime_type: clean(attachment.mime_type, 100),
+    size_bytes: Number(attachment.size_bytes || 0),
+    scan_status: clean(attachment.scan_status, 60),
+    uploaded_at: attachment.uploaded_at || "",
+    validated_at: attachment.validated_at || ""
+  };
+}
+
+function publicAttachment(payload = {}) {
+  const attachment = attachmentMeta(payload);
+  if (!attachment?.file_name) return null;
+  return attachment;
+}
+
+function decodeUpload(body = {}) {
+  const fileName = clean(body.file_name, 160).replace(/[\\/\0]/g, "-");
+  const mimeType = clean(body.mime_type, 100).toLowerCase();
+  const raw = clean(body.content_base64, MAX_DOCUMENT_BYTES * 2);
+  const encoded = raw.includes(",") && raw.startsWith("data:") ? raw.slice(raw.indexOf(",") + 1) : raw;
+  if (!fileName || !encoded || !uploadTypes.has(mimeType)) return { error: "Format de piece non supporte" };
+  if (!/^[A-Za-z0-9+/=\r\n]+$/.test(encoded)) return { error: "Fichier invalide" };
+  try {
+    const bytes = Uint8Array.from(atob(encoded.replace(/\s/g, "")), (char) => char.charCodeAt(0));
+    const type = uploadTypes.get(mimeType);
+    if (!bytes.length || bytes.length > MAX_DOCUMENT_BYTES || !type.signature(bytes)) return { error: "Signature ou taille de fichier invalide" };
+    return { fileName, mimeType, bytes, encoded: encoded.replace(/\s/g, ""), extension: type.extension };
+  } catch {
+    return { error: "Fichier illisible" };
+  }
+}
+
+function uploadedPayload(documentRow, upload) {
+  const current = safeJson(documentRow?.payload, {});
+  return {
+    ...current,
+    marker: DOCUMENT_UPLOAD_MARKER,
+    attachment: {
+      marker: DOCUMENT_UPLOAD_MARKER,
+      file_name: upload.fileName,
+      mime_type: upload.mimeType,
+      size_bytes: upload.bytes.length,
+      content_base64: upload.encoded,
+      scan_status: "pending_human_validation",
+      scan_provider: "local-signature-gate",
+      uploaded_at: new Date().toISOString(),
+      validated_at: ""
+    }
+  };
+}
 
 function consentScopeFor(type) {
   return ({
@@ -143,7 +211,8 @@ function publicContract(row, lead, documents = [], payments = [], requests = [],
       file_url: clean(doc.file_url, 500),
       due_at: doc.due_at || "",
       received_at: doc.received_at || "",
-      validated_at: doc.validated_at || ""
+      validated_at: doc.validated_at || "",
+      attachment: publicAttachment(doc.payload)
     })),
     payments: rowsOrEmpty(payments).map((payment) => ({
       id: payment.id,
@@ -237,7 +306,8 @@ function publicCase(row, documents, consultations, mails, contracts, offers = []
       status: doc.status,
       requested_at: doc.requested_at,
       received_at: doc.received_at || "",
-      validated_at: doc.validated_at || ""
+      validated_at: doc.validated_at || "",
+      attachment: publicAttachment(doc.payload)
     })),
     consultations: visibleConsultations,
     client_offers: rowsOrEmpty(offers).map(publicOffer),
@@ -300,6 +370,7 @@ export async function onRequestGet({ request, env }) {
   const token = tokenOf(request);
   const row = await caseByToken(env, token);
   if (!row || row.error) return json({ success: false, error: "Dossier introuvable" }, 404);
+  if (new URL(request.url).searchParams.get("action") === "download_document") return downloadCaseDocument(env, row, request);
   const [documents, consultations, mails, offers, contracts] = await Promise.all([
     safeAll(env, "SELECT * FROM case_documents WHERE case_id = ? ORDER BY required DESC, label", [row.id]),
     safeAll(env, "SELECT * FROM insurer_consultations WHERE case_id = ? ORDER BY updated_at DESC", [row.id]),
@@ -310,6 +381,31 @@ export async function onRequestGet({ request, env }) {
   return json({ success: true, generated_at: new Date().toISOString(), case: publicCase(row, documents, consultations, mails, contracts, offers), contract_marker: CLIENT_CONTRACT_MARKER });
 }
 
+async function uploadCaseDocument(env, row, body) {
+  const documentType = clean(body.document_type, 120);
+  const documentRow = await safeFirst(env, "SELECT * FROM case_documents WHERE case_id = ? AND document_type = ?", [row.id, documentType]);
+  if (!documentRow || documentRow.error) return json({ success: false, error: "Piece inconnue" }, 404);
+  const upload = decodeUpload(body);
+  if (upload.error) return json({ success: false, error: upload.error }, 422);
+  const now = new Date().toISOString();
+  await safeRun(env, "UPDATE case_documents SET status = 'received', received_at = COALESCE(received_at, ?), notes = COALESCE(NULLIF(?, ''), notes), payload = ?, updated_at = ? WHERE id = ?", [now, clean(body.notes, 1000), JSON.stringify(uploadedPayload(documentRow, upload)), now, documentRow.id]);
+  await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'client_document_uploaded', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ marker: DOCUMENT_UPLOAD_MARKER, document_id: documentRow.id, document_type: documentType, file_name: upload.fileName, mime_type: upload.mimeType, size_bytes: upload.bytes.length, scan_status: "pending_human_validation" }), now]);
+  return json({ success: true, status: "received_pending_human_validation", document_id: documentRow.id, marker: DOCUMENT_UPLOAD_MARKER });
+}
+
+async function downloadCaseDocument(env, row, request) {
+  const documentId = clean(new URL(request.url).searchParams.get("document_id"), 120);
+  const documentRow = await safeFirst(env, "SELECT * FROM case_documents WHERE case_id = ? AND id = ?", [row.id, documentId]);
+  const attachment = documentRow && !documentRow.error ? safeJson(documentRow.payload, {}).attachment : null;
+  if (!attachment?.content_base64 || !attachment?.mime_type) return json({ success: false, error: "Fichier introuvable" }, 404);
+  try {
+    const bytes = Uint8Array.from(atob(attachment.content_base64), (char) => char.charCodeAt(0));
+    const safeName = clean(attachment.file_name, 160).replace(/"/g, "-");
+    return new Response(bytes, { status: 200, headers: { "Content-Type": attachment.mime_type, "Content-Length": String(bytes.length), "Content-Disposition": "attachment; filename=\"" + safeName + "\"", "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });
+  } catch {
+    return json({ success: false, error: "Fichier illisible" }, 500);
+  }
+}
 async function markCaseDocumentReceived(env, row, body) {
   const documentType = clean(body.document_type, 120);
   const notes = clean(body.notes, 1000);
@@ -395,6 +491,7 @@ export async function onRequestPost({ request, env }) {
   if (!row || row.error) return json({ success: false, error: "Dossier introuvable" }, 404);
   const body = await request.json().catch(() => ({}));
   const action = clean(body.action, 80) || "case_document_received";
+  if (action === "case_document_upload") return uploadCaseDocument(env, row, body);
   if (action === "case_document_received") return markCaseDocumentReceived(env, row, body);
   if (action === "offer_decision") return decideClientOffer(env, row, body);
 

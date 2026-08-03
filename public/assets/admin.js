@@ -1631,6 +1631,7 @@ function renderCaseActionCell(caseRow) {
   const contracts = Array.isArray(caseRow.contracts) ? caseRow.contracts : [];
   const consultations = Array.isArray(caseRow.consultations) ? caseRow.consultations : [];
   const offers = Array.isArray(caseRow.client_offers) ? caseRow.client_offers : [];
+  const pendingDocument = (Array.isArray(caseRow.documents) ? caseRow.documents : []).find((doc) => doc.attachment?.scan_status === "pending_human_validation");
   const draft = mails.find((mail) => mail.status === "draft_review");
   const approved = mails.find((mail) => mail.status === "approved" && mail.recipient_email);
   const request = firstContractRequest(contracts);
@@ -1639,6 +1640,21 @@ function renderCaseActionCell(caseRow) {
   const offer = firstOfferAction(offers);
   const quotedConsultation = consultations.find((item) => item.status === "quoted" && !offers.some((offerRow) => offerRow.consultation_id === item.id && offerRow.status !== "declined"));
   const consultation = firstConsultationAction(consultations);
+  if (pendingDocument) {
+    const link = document.createElement("a");
+    link.href = `${caseRow.client_portal_url}&action=download_document&document_id=${encodeURIComponent(pendingDocument.id)}`;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.className = "button secondary compact-action";
+    link.textContent = "Ouvrir piece";
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "button secondary compact-action";
+    button.dataset.documentAction = "validate_document";
+    button.dataset.documentId = pendingDocument.id;
+    button.textContent = "Valider piece";
+    td.append(link, button);
+  }
   if (draft) {
     const button = document.createElement("button");
     button.type = "button";
@@ -1762,6 +1778,25 @@ function renderCasesTable(cases = []) {
       renderCaseActionCell(item)
     );
     casesBody.append(tr);
+  }
+}
+
+async function postDocumentAction(button) {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (!token || !button?.dataset.documentId) return;
+  const previous = button.textContent;
+  button.disabled = true;
+  button.textContent = "Validation...";
+  try {
+    const response = await fetch("/api/admin/cases", { method: "PATCH", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ document_id: button.dataset.documentId, status: "validated", actor: "admin" }) });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || "Validation piece impossible");
+    await loadCases();
+  } catch (error) {
+    if (casesSummary) casesSummary.replaceChildren(metricCard("Erreur piece", "Validation", error.message || "action impossible"));
+  } finally {
+    button.disabled = false;
+    button.textContent = previous;
   }
 }
 
@@ -2353,6 +2388,11 @@ casesButton?.addEventListener("click", () => {
 casesBody?.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
+  const documentButton = target.closest("[data-document-action]");
+  if (documentButton) {
+    postDocumentAction(documentButton);
+    return;
+  }
   const mailButton = target.closest("[data-case-mail-action]");
   if (mailButton) {
     postCaseAction(mailButton.dataset.caseMailAction || "", mailButton.dataset.mailId || "", mailButton);

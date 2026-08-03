@@ -39,6 +39,11 @@ function tokenFromUrl() {
   return new URLSearchParams(window.location.search).get("token") || "";
 }
 
+function documentDownloadUrl(documentId) {
+  const token = tokenInput?.value.trim() || tokenFromUrl() || sessionStorage.getItem("immeubleassur_case_token") || "";
+  return `/api/client/case?action=download_document&token=${encodeURIComponent(token)}&document_id=${encodeURIComponent(documentId || "")}`;
+}
+
 function saveToken(token) {
   if (token) sessionStorage.setItem("immeubleassur_case_token", token);
 }
@@ -124,14 +129,30 @@ function renderDocuments(documents = []) {
     const small = document.createElement("small");
     small.textContent = `${statusLabel(doc.status)}${doc.required ? " - requise" : ""}`;
     copy.append(strong, small);
+    if (doc.attachment?.file_name) {
+      const link = document.createElement("a");
+      link.href = documentDownloadUrl(doc.id);
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = "Telecharger";
+      row.append(link);
+    }
     row.append(copy);
+
     if (!["received", "validated", "waived"].includes(doc.status)) {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp";
+      input.className = "portal-document-input";
+      input.dataset.documentInput = doc.document_type;
+      input.setAttribute("aria-label", `Joindre ${doc.label || "la piece"}`);
       const button = document.createElement("button");
       button.type = "button";
       button.className = "button secondary compact-action";
       button.dataset.documentType = doc.document_type;
-      button.textContent = "Piece transmise";
-      row.append(button);
+      button.dataset.documentUpload = "true";
+      button.textContent = "Transmettre";
+      row.append(input, button);
     }
     docsBox.append(row);
   }
@@ -308,6 +329,7 @@ function renderPayments() {
     const small = smallText(`${paymentLabel(item.status)} - echeance ${formatDate(item.due_at)}`);
     copy.append(strong, small);
     row.append(copy);
+
     if (item.payment_url) {
       const link = document.createElement("a");
       link.className = "button secondary compact-action";
@@ -516,6 +538,17 @@ async function postPortalAction(action, body = {}, button = null) {
   }
 }
 
+async function uploadDocument(documentType, button) {
+  const input = docsBox?.querySelector(`[data-document-input="${CSS.escape(documentType)}"]`);
+  const file = input?.files?.[0];
+  if (!file) return markDocumentReceived(documentType, button);
+  if (file.size > 6 * 1024 * 1024) throw new Error("Fichier trop volumineux (6 Mo maximum). ");
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  let binary = "";
+  for (let offset = 0; offset < bytes.length; offset += 0x8000) binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+  await postPortalAction("case_document_upload", { document_type: documentType, file_name: file.name, mime_type: file.type, content_base64: btoa(binary) }, button);
+  setStatus("Piece recue. Elle sera controlee par un collaborateur avant tout envoi.", "success");
+}
 async function markDocumentReceived(documentType, button) {
   try {
     await postPortalAction("case_document_received", { document_type: documentType }, button);
@@ -534,7 +567,8 @@ docsBox?.addEventListener("click", (event) => {
   if (!(target instanceof Element)) return;
   const button = target.closest("[data-document-type]");
   if (!button) return;
-  markDocumentReceived(button.dataset.documentType || "", button);
+  const action = button.dataset.documentUpload === "true" ? uploadDocument : markDocumentReceived;
+  action(button.dataset.documentType || "", button).catch((error) => setStatus(error.message || "Transmission impossible", "error"));
 });
 
 offersBox?.addEventListener("click", (event) => {
