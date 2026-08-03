@@ -1,3 +1,4 @@
+import { adminTokenMatches } from "../../_shared/admin-auth.js";
 import { sendPortableSmtpMail } from "../../_shared/smtp.js";
 import {
   BROKERAGE_CASE_MARKER,
@@ -39,11 +40,7 @@ function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
 }
 
-function authorized(request, env) {
-  const expected = env.ADMIN_API_TOKEN;
-  if (!expected) return false;
-  return (request.headers.get("Authorization") || "") === `Bearer ${expected}`;
-}
+function authorized(request, env) { return adminTokenMatches(request, env); }
 
 async function safeAll(env, sql, binds = []) {
   try {
