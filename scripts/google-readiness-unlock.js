@@ -4,8 +4,8 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
 
-const REPORT_DIR = "reports";
-const ASSET_DIR = join("public", "assets");
+const REPORT_DIR = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
+const ASSET_DIR = process.env.LOCAL_RUNTIME_ASSETS_ROOT ? join(process.env.LOCAL_RUNTIME_ASSETS_ROOT, "assets") : join("public", "assets");
 const READINESS_REPORT = join(REPORT_DIR, "live-api-readiness-report.json");
 const REPORT_PATH = join(REPORT_DIR, "google-readiness-unlock-report.json");
 const ASSET_PATH = join(ASSET_DIR, "google-readiness-unlock-latest.json");

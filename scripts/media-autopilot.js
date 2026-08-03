@@ -6,7 +6,9 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 loadDefaultEnvFiles();
 
 const OUT = "public";
-const REPORT_DIR = "reports";
+const RUNTIME_ONLY = process.env.LOCAL_RUNTIME_ONLY === "1";
+const ASSET_DIR = process.env.LOCAL_RUNTIME_ASSETS_ROOT ? join(process.env.LOCAL_RUNTIME_ASSETS_ROOT, "assets") : join(OUT, "assets");
+const REPORT_DIR = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const SITE = "https://immeubleassur.com";
 const args = new Set(process.argv.slice(2));
 const ENABLE_FETCH = args.has("--fetch") && Boolean(process.env.PEXELS_API_KEY);
@@ -101,7 +103,7 @@ function injectBlock(file, block) {
   const pattern = /\n?<!-- media-autopilot:start -->[\s\S]*?<!-- media-autopilot:end -->/g;
   html = html.replace(pattern, "");
   html = html.replace("</main>", `\n<!-- media-autopilot:start -->\n${block}\n<!-- media-autopilot:end -->\n</main>`);
-  write(file, html);
+  if (!RUNTIME_ONLY) write(file, html);
   return true;
 }
 
@@ -131,7 +133,7 @@ async function run() {
   };
   write(join(REPORT_DIR, "media-autopilot-report.json"), JSON.stringify(report, null, 2));
 
-  write(join(OUT, "assets", "media-autopilot-latest.json"), JSON.stringify(report, null, 2));
+  write(join(ASSET_DIR, "media-autopilot-latest.json"), JSON.stringify(report, null, 2));
   console.log(`Media autopilot ${report.status}; assets=${report.assets_count}, injected_pages=${injected_pages}.`);
 }
 

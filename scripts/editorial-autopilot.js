@@ -7,7 +7,9 @@ loadDefaultEnvFiles();
 
 const SITE = "https://immeubleassur.com";
 const OUT = "public";
-const REPORT_DIR = "reports";
+const RUNTIME_ONLY = process.env.LOCAL_RUNTIME_ONLY === "1";
+const ASSET_DIR = process.env.LOCAL_RUNTIME_ASSETS_ROOT ? join(process.env.LOCAL_RUNTIME_ASSETS_ROOT, "assets") : join(OUT, "assets");
+const REPORT_DIR = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const EMAIL = "team@immeubleassur.com";
 const PHONE = "01 80 85 57 86";
 const PHONE_HREF = "+33180855786";
@@ -327,7 +329,7 @@ function injectBlock(file, marker, block) {
   const pattern = new RegExp(`\n?<!-- ${marker}:start -->[\\s\\S]*?<!-- ${marker}:end -->`, "g");
   html = html.replace(pattern, "");
   html = html.replace("</main>", `\n<!-- ${marker}:start -->\n${block}\n<!-- ${marker}:end -->\n</main>`);
-  write(file, html);
+  if (!RUNTIME_ONLY) write(file, html);
   return true;
 }
 
@@ -358,7 +360,7 @@ function updateSitemap(extraUrls) {
     if (!existing.has(loc)) inserts.push(`  <url><loc>${loc}</loc><lastmod>${todayIsoDate()}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>`);
   }
   if (!inserts.length) return false;
-  write(file, xml.replace("</urlset>", `${inserts.join("\n")}\n</urlset>`));
+  if (!RUNTIME_ONLY) write(file, xml.replace("</urlset>", `${inserts.join("\n")}\n</urlset>`));
   return true;
 }
 
@@ -388,9 +390,9 @@ async function run() {
   const { items, errors, mode } = await collectWatchItems();
   const synthesis = await synthesize(items);
   const issue = buildIssue(items, synthesis);
-  write(join(OUT, "veille-assurance-immeuble.html"), veillePage(items, synthesis, issue));
-  write(join(OUT, "newsletter-assurance-immeuble.html"), newsletterPage(issue));
-  write(join(OUT, `${issue.slug}.html`), issuePage(issue, items, synthesis));
+  if (!RUNTIME_ONLY) write(join(OUT, "veille-assurance-immeuble.html"), veillePage(items, synthesis, issue));
+  if (!RUNTIME_ONLY) write(join(OUT, "newsletter-assurance-immeuble.html"), newsletterPage(issue));
+  if (!RUNTIME_ONLY) write(join(OUT, `${issue.slug}.html`), issuePage(issue, items, synthesis));
   injectHubs(issue);
   const issueBackfills = injectIssueBacklog();
   updateSitemap(["veille-assurance-immeuble", "newsletter-assurance-immeuble", issue.slug]);
@@ -413,7 +415,7 @@ async function run() {
     errors
   };
   write(join(REPORT_DIR, "editorial-autopilot-report.json"), JSON.stringify(report, null, 2));
-  write(join(OUT, "assets", "editorial-autopilot-latest.json"), JSON.stringify(report, null, 2));
+  write(join(ASSET_DIR, "editorial-autopilot-latest.json"), JSON.stringify(report, null, 2));
 
   console.log(`Editorial autopilot wrote veille, newsletter and issue ${issue.slug} with ${items.length} watch items (${synthesis.provider}/${synthesis.status}).`);
 }

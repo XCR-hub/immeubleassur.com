@@ -5,8 +5,9 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 loadDefaultEnvFiles();
 
 const PUBLIC_DIR = "public";
-const REPORT_DIR = "reports";
-const ASSET_DIR = join(PUBLIC_DIR, "assets");
+const RUNTIME_ONLY = process.env.LOCAL_RUNTIME_ONLY === "1";
+const REPORT_DIR = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
+const ASSET_DIR = process.env.LOCAL_RUNTIME_ASSETS_ROOT ? join(process.env.LOCAL_RUNTIME_ASSETS_ROOT, "assets") : join(PUBLIC_DIR, "assets");
 const SITE_KEY = String(process.env.TURNSTILE_SITE_KEY || "").trim();
 const THEME = ["light", "dark", "auto"].includes(String(process.env.TURNSTILE_THEME || "light").trim()) ? String(process.env.TURNSTILE_THEME || "light").trim() : "light";
 const configured = SITE_KEY.length > 0;
@@ -99,7 +100,7 @@ function inspectPage(file) {
     html = ensureApiScript(html);
   }
 
-  if (html !== original) writeFileSync(file, html, "utf8");
+  if (!RUNTIME_ONLY && html !== original) writeFileSync(file, html, "utf8");
 
   const instrumented = Object.fromEntries(
     formTargets.map((target) => [target.key, configured ? Math.min(countActionWidgets(html, target.action), detected[target.key]) : 0])

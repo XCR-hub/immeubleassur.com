@@ -7,8 +7,8 @@ loadDefaultEnvFiles();
 
 const SITE = "https://immeubleassur.com";
 const DOMAIN = "immeubleassur.com";
-const OUT = "public";
-const REPORT_DIR = "reports";
+const OUT = process.env.LOCAL_RUNTIME_ASSETS_ROOT ? join(process.env.LOCAL_RUNTIME_ASSETS_ROOT, "assets") : join("public", "assets");
+const REPORT_DIR = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const args = new Set(process.argv.slice(2));
 const ENABLE_SERP = args.has("--serp") && Boolean(process.env.SERP_API_KEY);
 
@@ -165,13 +165,13 @@ async function collectRankings() {
 }
 
 function updateDashboard(report) {
-  const dashboard = join(OUT, "assets", "search-intelligence-latest.json");
+  const dashboard = join(OUT, "search-intelligence-latest.json");
   write(dashboard, JSON.stringify(report, null, 2));
 }
 
 async function run() {
   ensureDir(REPORT_DIR);
-  ensureDir(join(OUT, "assets"));
+  ensureDir(OUT);
   const { rankings, errors, serpRequestCount, rateLimit } = await collectRankings();
   const found = rankings.filter((row) => Number.isFinite(row.position));
   const measured = rankings.filter((row) => row.measured === true);

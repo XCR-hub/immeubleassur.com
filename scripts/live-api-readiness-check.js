@@ -4,8 +4,8 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
 
-const OUT = "public";
-const REPORT_DIR = "reports";
+const REPORT_DIR = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
+const ASSET_DIR = process.env.LOCAL_RUNTIME_ASSETS_ROOT ? join(process.env.LOCAL_RUNTIME_ASSETS_ROOT, "assets") : join("public", "assets");
 
 const connectors = [
   {
@@ -162,6 +162,6 @@ const report = {
 };
 
 write(join(REPORT_DIR, "live-api-readiness-report.json"), report);
-write(join(OUT, "assets", "live-api-readiness-latest.json"), report);
+write(join(ASSET_DIR, "live-api-readiness-latest.json"), report);
 
 console.log(`Live API readiness ${report.status}: ${report.ready_count}/${report.connectors_checked} connector(s) ready.`);
