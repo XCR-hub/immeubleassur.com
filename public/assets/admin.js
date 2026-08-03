@@ -1,4 +1,4 @@
-﻿const form = document.querySelector("#admin-form");
+const form = document.querySelector("#admin-form");
 const tokenInput = document.querySelector("#admin-token");
 const statusBox = document.querySelector(".form-status");
 const body = document.querySelector("#leads-body");
@@ -1648,6 +1648,7 @@ function renderCaseActionCell(caseRow) {
   const consultations = Array.isArray(caseRow.consultations) ? caseRow.consultations : [];
   const offers = Array.isArray(caseRow.client_offers) ? caseRow.client_offers : [];
   const pendingDocument = (Array.isArray(caseRow.documents) ? caseRow.documents : []).find((doc) => doc.attachment?.marker === "client-document-upload-v1" && doc.attachment?.scan_status !== "validated_clean");
+  const pendingContractDocument = flatContractItems(contracts, "documents").find((doc) => doc.attachment?.marker === "client-document-upload-v1" && doc.attachment?.scan_status !== "validated_clean");
   const draft = mails.find((mail) => mail.status === "draft_review");
   const approved = mails.find((mail) => mail.status === "approved" && mail.recipient_email);
   const request = firstContractRequest(contracts);
@@ -1656,6 +1657,12 @@ function renderCaseActionCell(caseRow) {
   const offer = firstOfferAction(offers);
   const quotedConsultation = consultations.find((item) => item.status === "quoted" && !offers.some((offerRow) => offerRow.consultation_id === item.id && offerRow.status !== "declined"));
   const consultation = firstConsultationAction(consultations);
+  if (pendingContractDocument) {
+    const link = Object.assign(document.createElement("a"), { href: caseRow.client_portal_url + "&action=download_document&contract_document_id=" + encodeURIComponent(pendingContractDocument.id), textContent: "Ouvrir" });
+    const button = contractActionButton("validate_document", "Valider doc contrat", { contractDocumentId: pendingContractDocument.id });
+    button.dataset.documentAction = "validate_document";
+td.append(link, button);
+  }
   if (pendingDocument) {
     const link = document.createElement("a");
     link.href = `${caseRow.client_portal_url}&action=download_document&document_id=${encodeURIComponent(pendingDocument.id)}`;
@@ -1876,7 +1883,10 @@ async function postDocumentAction(button) {
   button.disabled = true;
   button.textContent = "Validation...";
   try {
-    const response = await fetch("/api/admin/cases", { method: "PATCH", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ document_id: button.dataset.documentId, status: "validated", actor: "admin" }) });
+    const payload = { status: "validated", actor: "admin" };
+    if (button.dataset.contractDocumentId) payload.contract_document_id = button.dataset.contractDocumentId;
+    else payload.document_id = button.dataset.documentId;
+    const response = await fetch("/api/admin/cases", { method: "PATCH", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     const result = await response.json();
     if (!response.ok || !result.success) throw new Error(result.error || "Validation piece impossible");
     await loadCases();

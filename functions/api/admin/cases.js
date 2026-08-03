@@ -1,4 +1,4 @@
-﻿import { sendPortableSmtpMail } from "../../_shared/smtp.js";
+import { sendPortableSmtpMail } from "../../_shared/smtp.js";
 import {
   BROKERAGE_CASE_MARKER,
   CLIENT_OFFER_FOLLOWUP_MARKER,
@@ -297,17 +297,19 @@ function groupBy(rows, key) {
 }
 
 
-function contractsWithChildren(contracts = [], requests = [], payments = [], referrals = [], consentEvents = []) {
+function contractsWithChildren(contracts = [], requests = [], payments = [], referrals = [], consentEvents = [], documents = []) {
   const requestsByContract = groupBy(requests, "contract_id");
   const paymentsByContract = groupBy(payments, "contract_id");
   const referralsByContract = groupBy(referrals, "contract_id");
   const consentByContract = groupBy(consentEvents, "contract_id");
+  const documentsByContract = groupBy(documents, "contract_id");
   return rowsOrEmpty(contracts).map((contract) => ({
     ...contract,
     requests: requestsByContract.get(contract.id) || [],
     payments: paymentsByContract.get(contract.id) || [],
     referrals: referralsByContract.get(contract.id) || [],
-    consent_events: consentByContract.get(contract.id) || []
+    consent_events: consentByContract.get(contract.id) || [],
+    documents: (documentsByContract.get(contract.id) || []).map(adminDocumentRow)
   }));
 }
 
@@ -844,10 +846,11 @@ function adminDocumentRow(document = {}) {
     const { content_base64: _content, ...metadata } = payload.attachment;
     payload.attachment = metadata;
   }
-  return { ...document, payload: JSON.stringify(payload) };
+  const attachment = payload.attachment && typeof payload.attachment === "object" ? payload.attachment : null;
+  return { ...document, payload: JSON.stringify(payload), attachment };
 }
 
-function caseRowsWithChildren(cases, documents, mails, inboxMails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, env) {
+function caseRowsWithChildren(cases, documents, mails, inboxMails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, contractDocuments, partners, env) {
   const docsByCase = groupBy(documents, "case_id");
   const mailsByCase = groupBy(mails, "case_id");
   const inboxMailsByCase = groupBy(inboxMails, "case_id");
@@ -858,7 +861,7 @@ function caseRowsWithChildren(cases, documents, mails, inboxMails, consultations
   const consultationsByCase = groupBy(consultationRows, "case_id");
   const timelineByCase = groupBy(timelines, "case_id");
   const offersByCase = groupBy(offers, "case_id");
-  const contractRows = contractsWithChildren(contracts, contractRequests, contractPayments, contractReferrals, contractConsents);
+  const contractRows = contractsWithChildren(contracts, contractRequests, contractPayments, contractReferrals, contractConsents, contractDocuments);
   const contractsByCase = groupBy(contractRows, "case_id");
   return rowsOrEmpty(cases).map((row) => {
     const docs = docsByCase.get(row.id) || [];
@@ -1009,7 +1012,7 @@ export async function onRequestGet({ request, env }) {
   const sync = url.searchParams.get("sync") !== "0";
   const syncResult = sync ? await ensureCasesForOpenLeads(env) : null;
 
-  const [caseRows, documents, mails, inboxMails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, summaryRow, docSummary, mailSummary, consultSummary, contractSummary, offerSummary] = await Promise.all([
+  const [caseRows, documents, mails, inboxMails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, contractDocuments, partners, summaryRow, docSummary, mailSummary, consultSummary, contractSummary, offerSummary] = await Promise.all([
     safeAll(env, `SELECT c.*, l.reference AS lead_reference, l.name, l.phone, l.email, l.profile, l.property_type, l.city, l.units_count, l.need, l.status AS lead_status FROM brokerage_cases c JOIN leads l ON l.id = c.lead_id ORDER BY CASE c.priority WHEN 'hot' THEN 1 WHEN 'warm' THEN 2 WHEN 'standard' THEN 3 ELSE 4 END, c.updated_at DESC LIMIT 120`),
     safeAll(env, `SELECT d.* FROM case_documents d JOIN brokerage_cases c ON c.id = d.case_id ORDER BY d.required DESC, d.label LIMIT 800`),
     safeAll(env, `SELECT m.*, c.case_reference FROM case_mail_queue m JOIN brokerage_cases c ON c.id = m.case_id ORDER BY CASE m.status WHEN 'draft_review' THEN 1 WHEN 'approved' THEN 2 WHEN 'sent' THEN 3 ELSE 4 END, m.updated_at DESC LIMIT 240`),
@@ -1022,6 +1025,7 @@ export async function onRequestGet({ request, env }) {
     safeAll(env, `SELECT p.*, cc.case_id, cc.contract_reference FROM contract_payment_schedule p JOIN client_contracts cc ON cc.id = p.contract_id ORDER BY CASE p.status WHEN 'pending' THEN 1 ELSE 2 END, p.due_at LIMIT 400`),
     safeAll(env, `SELECT f.*, cc.case_id, cc.contract_reference FROM contract_referrals f JOIN client_contracts cc ON cc.id = f.contract_id ORDER BY CASE f.status WHEN 'draft_review' THEN 1 ELSE 2 END, f.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT e.*, cc.case_id, cc.contract_reference FROM contract_consent_events e JOIN client_contracts cc ON cc.id = e.contract_id ORDER BY e.created_at DESC LIMIT 400`),
+    safeAll(env, `SELECT d.* FROM contract_documents d JOIN client_contracts cc ON cc.id = d.contract_id ORDER BY d.updated_at DESC LIMIT 500`),
     safeAll(env, `SELECT id, name, contact_email, appetite_profile, service_level_hours, active FROM insurer_partners ORDER BY active DESC, name`),
     safeFirst(env, `SELECT COUNT(*) AS cases, SUM(CASE WHEN stage NOT IN ('contract_active', 'lost') THEN 1 ELSE 0 END) AS open_cases, SUM(CASE WHEN priority = 'hot' THEN 1 ELSE 0 END) AS hot_cases, SUM(CASE WHEN readiness_score >= 70 THEN 1 ELSE 0 END) AS ready_cases, SUM(CASE WHEN human_review_required = 1 THEN 1 ELSE 0 END) AS human_review_required, COALESCE(SUM(estimated_value_min_cents), 0) AS value_min_cents, COALESCE(SUM(estimated_value_max_cents), 0) AS value_max_cents FROM brokerage_cases`),
     safeFirst(env, `SELECT COUNT(*) AS requested, SUM(CASE WHEN status IN ('received', 'validated') THEN 1 ELSE 0 END) AS received, SUM(CASE WHEN required = 1 AND status NOT IN ('received', 'validated') THEN 1 ELSE 0 END) AS missing_required FROM case_documents`),
@@ -1031,7 +1035,7 @@ export async function onRequestGet({ request, env }) {
     safeFirst(env, `SELECT COUNT(*) AS offers, SUM(CASE WHEN status = 'draft_review' THEN 1 ELSE 0 END) AS review_offers, SUM(CASE WHEN status = 'presented' THEN 1 ELSE 0 END) AS presented_offers, SUM(CASE WHEN status = 'accepted' THEN 1 ELSE 0 END) AS accepted_offers FROM client_offer_recommendations`)
   ]);
 
-  const cases = caseRowsWithChildren(caseRows, documents, mails, inboxMails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, env);
+  const cases = caseRowsWithChildren(caseRows, documents, mails, inboxMails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, contractDocuments, partners, env);
   const planSummary = actionPlanSummary(cases);
   const packageSummary = insurerPackageReadinessSummary(cases);
   const partnerRows = partnerRowsWithPerformance(partners, consultations);
@@ -1517,7 +1521,25 @@ export async function onRequestPatch({ request, env }) {
   const body = await request.json().catch(() => ({}));
   const caseId = clean(body.case_id, 120);
   const documentId = clean(body.document_id, 120);
+  const contractDocumentId = clean(body.contract_document_id, 120);
   const actor = clean(body.actor || "admin", 120);
+  if (contractDocumentId) {
+    const status = clean(body.status, 40);
+    if (!["requested", "received", "validated", "waived"].includes(status)) return json({ success: false, error: "Statut document contrat invalide" }, 400);
+    const documentRow = await safeFirst(env, "SELECT d.*, cc.case_id FROM contract_documents d JOIN client_contracts cc ON cc.id = d.contract_id WHERE d.id = ?", [contractDocumentId]);
+    if (!documentRow || errorOf(documentRow)) return json({ success: false, error: "Document contrat introuvable" }, 404);
+    const documentPayload = safeJson(documentRow.payload, {});
+    if (status === "validated" && documentPayload.attachment?.marker === "client-document-upload-v1" && documentPayload.attachment.scan_status !== "clean_pending_human_validation") return json({ success: false, error: "Scan antivirus propre requis avant validation" }, 409);
+    const now = nowIso();
+    await safeRun(env, "UPDATE contract_documents SET status = ?, received_at = CASE WHEN ? IN ('received', 'validated') THEN COALESCE(received_at, ?) ELSE received_at END, validated_at = CASE WHEN ? = 'validated' THEN COALESCE(validated_at, ?) ELSE validated_at END, notes = COALESCE(NULLIF(?, ''), notes), updated_at = ? WHERE id = ?", [status, status, now, status, now, clean(body.notes, 1000), now, contractDocumentId]);
+    if (status === "validated" && documentPayload.attachment?.marker === "client-document-upload-v1") {
+      documentPayload.attachment.scan_status = "validated_clean";
+      documentPayload.attachment.validated_at = now;
+      await safeRun(env, "UPDATE contract_documents SET payload = ?, updated_at = ? WHERE id = ?", [JSON.stringify(documentPayload), now, contractDocumentId]);
+    }
+    await logTimeline(env, documentRow.case_id, "contract_document_status", actor, { marker: "contract-document-review-v1", contract_id: documentRow.contract_id, document_id: contractDocumentId, status });
+    return json({ success: true, status, contract_document_id: contractDocumentId });
+  }
   if (documentId) {
     const status = clean(body.status, 40);
     if (!["requested", "received", "validated", "waived"].includes(status)) return json({ success: false, error: "Statut piece invalide" }, 400);

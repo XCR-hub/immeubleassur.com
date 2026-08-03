@@ -1,8 +1,8 @@
-﻿import { existsSync, rmSync } from "node:fs";
+import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { openLocalSqlite } from "./local-sqlite-db.js";
-import { onRequestGet as adminGet, onRequestPost as adminPost } from "../functions/api/admin/cases.js";
+import { onRequestGet as adminGet, onRequestPatch as adminPatch, onRequestPost as adminPost } from "../functions/api/admin/cases.js";
 import { onRequestGet as clientGet, onRequestPost as clientPost } from "../functions/api/client/case.js";
 
 const stamp = `${process.pid}-${Date.now()}`;
@@ -37,12 +37,12 @@ function restoreEnv(previous) {
 async function post(token, body, DB) {
   return readJson(await clientPost({
     request: new Request(`${siteOrigin}/api/client/case?token=${token}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }),
-    env: { DB, SMTP_TO: "team@example.test" }
+    env: { DB, SMTP_TO: "team@example.test", SCAN_DOCUMENT: async () => ({ status: "clean", provider: "smoke-antivirus" }) }
   }));
 }
 
 async function getClient(token, DB) {
-  return readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=${token}`), env: { DB, SMTP_TO: "team@example.test" } }));
+  return readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=${token}`), env: { DB, SMTP_TO: "team@example.test", SCAN_DOCUMENT: async () => ({ status: "clean", provider: "smoke-antivirus" }) } }));
 }
 
 async function postAdmin(body, DB) {
@@ -107,7 +107,18 @@ async function main() {
   assert(contract?.documents?.length >= 4, "client contract should expose contract documents");
   assert(contract?.payments?.length >= 1, "client contract should expose premium schedule");
   assert(contract?.requests?.length >= 1, "client contract should expose service requests");
-  assert(contract?.assets?.length >= 1, "client contract should expose insured assets");
+  assert(contract?.assets?.length >= 1, "client contract should expose insured assets");  const uploadTarget = contract.documents.find((item) => item.status === "requested");
+  assert(uploadTarget?.document_type, "client contract should expose a requested document for upload");
+  const contractUpload = await post(caseRow.client_portal_token, { action: "contract_document_upload", contract_id: contract.id, document_type: uploadTarget.document_type, file_name: "attestation-smoke.pdf", mime_type: "application/pdf", content_base64: Buffer.from("%PDF-1.4 smoke").toString("base64") }, DB);
+  assert(contractUpload.status === 200 && contractUpload.body.status === "received_pending_human_validation", "client should upload a contract document under human validation");
+  const contractDocAfterUpload = DB.prepare("SELECT * FROM contract_documents WHERE id = ?").bind(contractUpload.body.document_id).first();
+  assert(contractDocAfterUpload?.status === "received" && /clean_pending_human_validation/.test(contractDocAfterUpload.payload || ""), "contract upload should keep antivirus result pending human validation");
+  const contractDocValidation = await readJson(await adminPatch({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "PATCH", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ contract_document_id: contractUpload.body.document_id, status: "validated", actor: "smoke-admin" }) }), env: { DB, ADMIN_API_TOKEN: adminToken, SITE_ORIGIN: siteOrigin } }));
+  assert(contractDocValidation.status === 200 && contractDocValidation.body.status === "validated", "admin should validate a clean contract document");
+  const contractDocAfterValidation = DB.prepare("SELECT status, validated_at, payload FROM contract_documents WHERE id = ?").bind(contractUpload.body.document_id).first();
+  assert(contractDocAfterValidation?.status === "validated" && contractDocAfterValidation.validated_at && /validated_clean/.test(contractDocAfterValidation.payload || ""), "validated contract document should record clean review");
+  const adminWithContractDocument = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=0`, { headers: { Authorization: `Bearer ${adminToken}` } }), env: { DB, ADMIN_API_TOKEN: adminToken, SITE_ORIGIN: siteOrigin } }));
+  assert(adminWithContractDocument.body.cases?.[0]?.contracts?.some((item) => item.documents?.some((doc) => doc.id === contractUpload.body.document_id && doc.status === "validated")), "admin should expose validated contract documents without binary content");
   assert(contract.consent?.cross_sell === false, "cross-sell should be refused by default");
   assert(contract.cross_sell?.enabled === false, "cross-sell recommendations should stay disabled before opt-in");
   assert(contract.consent_receipts?.some((receipt) => receipt.marker === "consent-receipt-v1" && receipt.consent_type === "cross_sell" && receipt.revocation_available), "consent receipt should expose revocation proof");

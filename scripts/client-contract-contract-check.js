@@ -1,4 +1,4 @@
-﻿import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const required = [
@@ -19,6 +19,9 @@ const required = [
   ["scripts/client-contract-orchestrator.js", "no-address-book-scraping"],
   ["scripts/client-contract-orchestrator.js", "human-review-contract-requests"],
   ["functions/api/client/case.js", "contract_consent"],
+  ["functions/api/client/case.js", "contract_document_upload"],
+  ["functions/api/client/case.js", "contract_document_uploaded"],
+  ["functions/api/client/case.js", "contract_document_id"],
   ["functions/api/client/case.js", "message: clean(request.message, 2000)"],
   ["functions/api/client/case.js", "internalNotificationRecipient"],
   ["functions/api/client/case.js", "internal_request"],
@@ -44,6 +47,8 @@ const required = [
   ["functions/api/admin/cases.js", "cross-sell-revue"],
   ["functions/api/admin/cases.js", "cross_sell_reviews"],
   ["functions/api/admin/cases.js", "contract_request_status"],
+  ["functions/api/admin/cases.js", "contract_document_id"],
+  ["functions/api/admin/cases.js", "contract-document-review-v1"],
   ["functions/api/admin/cases.js", "client-contract-request-reply-v1"],
   ["functions/api/admin/cases.js", "contract_request_client_reply_draft"],
   ["functions/api/admin/cases.js", "reply_status"],
@@ -60,6 +65,8 @@ const required = [
   ["public/espace-client.html", "portal-referral-form"],
   ["public/espace-client.html", "portal-asset-form"],
   ["public/assets/client-portal.js", "contract_consent"],
+  ["public/assets/client-portal.js", "uploadContractDocument"],
+  ["public/assets/client-portal.js", "contractDocumentUpload"],
   ["public/assets/client-portal.js", "contract_referral"],
   ["public/assets/client-portal.js", "payment_link_request"],
   ["public/assets/client-portal.js", "asset_update"],
@@ -72,6 +79,8 @@ const required = [
   ["package.json", "client:contracts:contract"],
   ["package.json", "client:contracts:smoke"],
   ["scripts/client-contract-workflow-smoke.js", "consent receipt should expose explicit acceptance proof"],
+  ["scripts/client-contract-workflow-smoke.js", "client should upload a contract document under human validation"],
+  ["scripts/client-contract-workflow-smoke.js", "admin should validate a clean contract document"],
   ["scripts/client-contract-workflow-smoke.js", "crm action queue should route cross-sell through human review"]
 ];
 

@@ -1,4 +1,4 @@
-﻿const form = document.querySelector("#portal-token-form");
+const form = document.querySelector("#portal-token-form");
 const tokenInput = document.querySelector("#portal-token");
 const statusBox = document.querySelector("#portal-status");
 const content = document.querySelector("#portal-content");
@@ -241,7 +241,7 @@ function renderOffers(offers = []) {
   }
 }
 
-function renderContractDocuments(container, documents = []) {
+function renderContractDocuments(container, documents = [], contractId = "") {
   if (!documents.length) return;
   const list = document.createElement("div");
   list.className = "portal-contract-docs";
@@ -252,13 +252,27 @@ function renderContractDocuments(container, documents = []) {
     strong.textContent = doc.label || "Document";
     const small = smallText(statusLabel(doc.status));
     row.append(strong, small);
-    if (doc.file_url) {
+    if (doc.file_url || doc.attachment?.file_name) {
       const link = document.createElement("a");
-      link.href = doc.file_url;
+      link.href = doc.file_url || `/api/client/case?action=download_document&token=${encodeURIComponent(token)}&contract_document_id=${encodeURIComponent(doc.id)}`;
       link.target = "_blank";
       link.rel = "noopener";
       link.textContent = "Voir";
       row.append(link);
+    }
+    if (!["validated", "waived"].includes(doc.status)) {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp";
+      input.dataset.contractDocumentInput = doc.document_type;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "button secondary compact-action";
+      button.dataset.contractDocumentUpload = "true";
+      button.dataset.contractDocumentId = contractId;
+      button.dataset.contractDocumentType = doc.document_type;
+      button.textContent = "Transmettre";
+      row.append(input, button);
     }
     list.append(row);
   }
@@ -307,7 +321,7 @@ function renderContracts(contracts = []) {
       row.append(smallText("Offres complementaires bloquees tant que le consentement n'est pas donne."));
     }
 
-    renderContractDocuments(row, contract.documents || []);
+    renderContractDocuments(row, contract.documents || [], contract.id);
     contractsBox.append(row);
   }
 }
@@ -539,6 +553,18 @@ async function postPortalAction(action, body = {}, button = null) {
   }
 }
 
+async function uploadContractDocument(documentType, contractId, button) {
+  const row = button?.closest(".portal-contract-doc-row");
+  const input = row?.querySelector(`[data-contract-document-input="${CSS.escape(documentType)}"]`);
+  const file = input?.files?.[0];
+  if (!file) throw new Error("Choisissez un fichier.");
+  if (file.size > 6 * 1024 * 1024) throw new Error("Fichier trop volumineux (6 Mo maximum).");
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  let binary = "";
+  for (let offset = 0; offset < bytes.length; offset += 0x8000) binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+  await postPortalAction("contract_document_upload", { contract_id: contractId, document_type: documentType, file_name: file.name, mime_type: file.type, content_base64: btoa(binary) }, button);
+  setStatus("Document contractuel recu. Il sera controle avant validation.", "success");
+}
 async function uploadDocument(documentType, button) {
   const input = docsBox?.querySelector(`[data-document-input="${CSS.escape(documentType)}"]`);
   const file = input?.files?.[0];
@@ -593,6 +619,11 @@ offersBox?.addEventListener("click", (event) => {
 contractsBox?.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
+  const uploadButton = target.closest("[data-contract-document-upload]");
+  if (uploadButton) {
+    uploadContractDocument(uploadButton.dataset.contractDocumentType || "", uploadButton.dataset.contractDocumentId || "", uploadButton).catch((error) => setStatus(error.message || "Transmission impossible", "error"));
+    return;
+  }
   const row = target.closest("[data-contract-id]");
   if (!row) return;
   activeContractId = row.dataset.contractId || "";

@@ -1,4 +1,4 @@
-﻿import { clean, safeJson, stageLabel } from "../../_shared/brokerage-cases.js";
+import { clean, safeJson, stageLabel } from "../../_shared/brokerage-cases.js";
 import {
   CLIENT_CONTRACT_MARKER,
   applyConsent,
@@ -410,9 +410,25 @@ async function uploadCaseDocument(env, row, body) {
   return json({ success: true, status: scan.status === "clean" ? "received_pending_human_validation" : "received_pending_antivirus", document_id: documentRow.id, marker: DOCUMENT_UPLOAD_MARKER, scan_status: scan.status === "clean" ? "clean_pending_human_validation" : "pending_antivirus", scan_provider: scan.provider || "clamav" });
 }
 
-async function downloadCaseDocument(env, row, request) {
-  const documentId = clean(new URL(request.url).searchParams.get("document_id"), 120);
-  const documentRow = await safeFirst(env, "SELECT * FROM case_documents WHERE case_id = ? AND id = ?", [row.id, documentId]);
+async function uploadContractDocument(env, row, contract, body) {
+  const documentType = clean(body.document_type, 120);
+  const documentRow = await safeFirst(env, "SELECT * FROM contract_documents WHERE contract_id = ? AND document_type = ?", [contract.id, documentType]);
+  if (!documentRow || documentRow.error) return json({ success: false, error: "Document contractuel inconnu" }, 404);
+  const upload = decodeUpload(body);
+  if (upload.error) return json({ success: false, error: upload.error }, 422);
+  const scan = await scanUploadedDocument(env, upload);
+  if (scan.status === "infected") return json({ success: false, error: "Fichier bloque par l antivirus", marker: DOCUMENT_UPLOAD_MARKER, scan_status: "infected" }, 422);
+  const now = new Date().toISOString();
+  await safeRun(env, "UPDATE contract_documents SET status = 'received', received_at = COALESCE(received_at, ?), notes = COALESCE(NULLIF(?, ''), notes), payload = ?, updated_at = ? WHERE id = ?", [now, clean(body.notes, 1000), JSON.stringify(uploadedPayload(documentRow, upload, scan)), now, documentRow.id]);
+  await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'contract_document_uploaded', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ marker: DOCUMENT_UPLOAD_MARKER, contract_id: contract.id, document_id: documentRow.id, document_type: documentType, file_name: upload.fileName, mime_type: upload.mimeType, size_bytes: upload.bytes.length, scan_status: scan.status === "clean" ? "clean_pending_human_validation" : "pending_antivirus", scan_provider: scan.provider || "clamav" }), now]);
+  return json({ success: true, status: scan.status === "clean" ? "received_pending_human_validation" : "received_pending_antivirus", document_id: documentRow.id, marker: DOCUMENT_UPLOAD_MARKER, scan_status: scan.status === "clean" ? "clean_pending_human_validation" : "pending_antivirus", scan_provider: scan.provider || "clamav" });
+}async function downloadCaseDocument(env, row, request) {
+  const url = new URL(request.url);
+  const documentId = clean(url.searchParams.get("document_id"), 120);
+  const contractDocumentId = clean(url.searchParams.get("contract_document_id"), 120);
+  const documentRow = contractDocumentId
+    ? await safeFirst(env, "SELECT d.* FROM contract_documents d JOIN client_contracts cc ON cc.id = d.contract_id WHERE cc.case_id = ? AND d.id = ?", [row.id, contractDocumentId])
+    : await safeFirst(env, "SELECT * FROM case_documents WHERE case_id = ? AND id = ?", [row.id, documentId]);
   const attachment = documentRow && !documentRow.error ? safeJson(documentRow.payload, {}).attachment : null;
   if (!attachment?.content_base64 || !attachment?.mime_type) return json({ success: false, error: "Fichier introuvable" }, 404);
   try {
@@ -526,6 +542,7 @@ export async function onRequestPost({ request, env }) {
 
   const contract = await ownedContract(env, row.id, body.contract_id);
   if (!contract || contract.error) return json({ success: false, error: "Contrat introuvable" }, 404);
+  if (action === "contract_document_upload") return uploadContractDocument(env, row, contract, body);
   if (action === "contract_request") return addContractRequest(env, row, contract, body);
   if (action === "payment_link_request") return addContractRequest(env, row, contract, { ...body, subject: "Demande de lien de paiement", request_type: "payment_issue" }, "payment_issue");
   if (action === "contract_consent") return updateContractConsent(env, row, contract, body);
