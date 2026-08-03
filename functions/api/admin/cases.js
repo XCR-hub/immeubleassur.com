@@ -1498,6 +1498,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   if (action === "mark_sent") {
+    if (mail.status !== "approved" || !clean(mail.approved_at, 80) || !clean(mail.approved_by, 120)) return json({ success: false, error: "Validation humaine requise avant envoi" }, 409);
     const blocked = await requireMailPackageSendable(env, mail, action, reviewer);
     if (blocked) return blocked;
     await safeRun(env, "UPDATE case_mail_queue SET status = 'sent', sent_at = COALESCE(sent_at, ?), updated_at = ? WHERE id = ?", [nowIso(), nowIso(), mailId]);
@@ -1505,7 +1506,7 @@ export async function onRequestPost({ request, env }) {
     return json({ success: true, status: "sent" });
   }
 
-  if (mail.status !== "approved") return json({ success: false, error: "Validation humaine requise avant envoi" }, 409);
+  if (mail.status !== "approved" || !clean(mail.approved_at, 80) || !clean(mail.approved_by, 120)) return json({ success: false, error: "Validation humaine requise avant envoi" }, 409);
   const blocked = await requireMailPackageSendable(env, mail, action, reviewer);
   if (blocked) return blocked;
   if (!clean(mail.recipient_email, 180)) return json({ success: false, error: "Destinataire manquant" }, 409);

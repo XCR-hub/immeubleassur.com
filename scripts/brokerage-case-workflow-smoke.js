@@ -115,6 +115,8 @@ async function main() {
   assert((marketSync.body.crm_action_queue || []).some((item) => item.type === "pack-assureur-revue"), "crm action queue should prioritize insurer package review");
 
   const mail = DB.prepare("SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'client' LIMIT 1").bind(caseRow.id).first();
+  const blockedMarkSent = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "mark_sent", mail_id: mail.id, reviewer: "smoke" }) }), env }));
+  assert(blockedMarkSent.status === 409 && /Validation humaine/.test(blockedMarkSent.body.error || ""), "mark_sent should be blocked before human approval");
   const blockedSend = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "send_mail", mail_id: mail.id, reviewer: "smoke" }) }), env }));
   assert(blockedSend.status === 409 && /Validation humaine/.test(blockedSend.body.error || ""), "send_mail should be blocked before human approval");
 

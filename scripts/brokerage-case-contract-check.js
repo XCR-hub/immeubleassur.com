@@ -18,6 +18,8 @@ const REQUIRED = [
   ["functions/_shared/brokerage-cases.js", "buildClientOfferFollowupDraft"],
   ["functions/_shared/brokerage-cases.js", "clientOfferFollowupDue"],
   ["functions/api/admin/cases.js", "Validation humaine requise avant envoi"],
+  ["functions/api/admin/cases.js", "!clean(mail.approved_at, 80)"],
+  ["functions/api/admin/cases.js", "!clean(mail.approved_by, 120)"],
   ["functions/api/admin/cases.js", "approve_mail"],
   ["functions/api/admin/cases.js", "send_mail"],
   ["functions/api/admin/cases.js", "approve_consultation"],
