@@ -142,6 +142,7 @@ const REQUIRED = [
   ["public/assets/client-portal.js", "offer_decision"],
   ["public/assets/partner-portal.js", "submitPartnerAction"],
   ["public/assets/partner-portal.js", "window.location.hash"],
+  ["public/assets/partner-portal.js", "clearTokenFromUrl"],
   ["public/assets/styles.css", "client-portal-main"],
   ["public/assets/styles.css", "partner-insurer-portal-2026-08:start"],
   ["public/assets/styles.css", "client-offer-workflow-2026-08:start"],

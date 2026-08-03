@@ -26,6 +26,16 @@ function tokenFromUrl() {
   return hash.get("token") || new URLSearchParams(window.location.search).get("token") || "";
 }
 
+function clearTokenFromUrl() {
+  const url = new URL(window.location.href);
+  const hash = new URLSearchParams(url.hash.replace(/^#/, ""));
+  if (!url.searchParams.has("token") && !hash.has("token")) return;
+  url.searchParams.delete("token");
+  hash.delete("token");
+  url.hash = hash.toString() ? "#" + hash.toString() : "";
+  window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
+}
+
 function storedToken() {
   return tokenFromUrl() || sessionStorage.getItem("immeubleassur_partner_token") || "";
 }
