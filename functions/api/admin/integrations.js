@@ -221,7 +221,8 @@ async function reportStatus(env) {
     newsletterEvents,
     siteEventCounts,
     recentSpamBlocks,
-    recentDuplicateLeads
+    recentDuplicateLeads,
+    recentPartnerTokenFailures
   ] = await Promise.all([
     safeFirst(env, `SELECT id, source, status, pages_checked, opportunities_count, created_at FROM seo_runs ORDER BY created_at DESC LIMIT 1`),
     safeFirst(env, `SELECT id, provider, model, task, status, created_at FROM ai_generation_runs ORDER BY created_at DESC LIMIT 1`),
@@ -234,7 +235,8 @@ async function reportStatus(env) {
     safeAll(env, `SELECT event_type, COUNT(*) AS count FROM newsletter_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type ORDER BY count DESC`),
     safeAll(env, `SELECT event_type, COUNT(*) AS count FROM site_events WHERE created_at >= datetime('now', '-30 days') GROUP BY event_type ORDER BY count DESC`),
     safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'anti-spam') AS reason, COUNT(*) AS blocked FROM site_events WHERE event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked') AND created_at >= datetime('now', '-30 days') GROUP BY path, reason ORDER BY blocked DESC LIMIT 10`),
-    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.duplicate_reason'), ''), COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'doublon-contact')) AS reason, COUNT(*) AS duplicates, COUNT(DISTINCT NULLIF(lead_reference, '')) AS existing_leads FROM site_events WHERE event_type = 'lead_duplicate_filtered' AND created_at >= datetime('now', '-30 days') GROUP BY path, reason ORDER BY duplicates DESC LIMIT 10`)
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.path'), ''), page_url, '/') AS path, COALESCE(NULLIF(json_extract(payload, '$.duplicate_reason'), ''), COALESCE(NULLIF(json_extract(payload, '$.label'), ''), 'doublon-contact')) AS reason, COUNT(*) AS duplicates, COUNT(DISTINCT NULLIF(lead_reference, '')) AS existing_leads FROM site_events WHERE event_type = 'lead_duplicate_filtered' AND created_at >= datetime('now', '-30 days') GROUP BY path, reason ORDER BY duplicates DESC LIMIT 10`),
+    safeAll(env, `SELECT COALESCE(NULLIF(json_extract(payload, '$.token_present'), ''), 'unknown') AS token_present, COUNT(*) AS failures, MAX(created_at) AS last_seen FROM site_events WHERE event_type = 'insurer_partner_token_failure' AND created_at >= datetime('now', '-30 days') GROUP BY token_present ORDER BY failures DESC LIMIT 10`)
   ]);
 
   return {
@@ -250,7 +252,8 @@ async function reportStatus(env) {
       errorOf(newsletterEvents),
       errorOf(siteEventCounts),
       errorOf(recentSpamBlocks),
-      errorOf(recentDuplicateLeads)
+      errorOf(recentDuplicateLeads),
+      errorOf(recentPartnerTokenFailures)
     ].filter(Boolean),
     reports: {
       latest_seo_run: latestSeoRun && !latestSeoRun.error ? latestSeoRun : null,
@@ -267,7 +270,9 @@ async function reportStatus(env) {
       newsletter_spam_blocks_30d: countEvent(siteEventCounts, "newsletter_spam_blocked"),
       lead_duplicates_30d: countEvent(siteEventCounts, "lead_duplicate_filtered"),
       recent_spam_blocks: rowsOrEmpty(recentSpamBlocks),
-      recent_duplicate_leads: rowsOrEmpty(recentDuplicateLeads)
+      recent_duplicate_leads: rowsOrEmpty(recentDuplicateLeads),
+      partner_token_failures_30d: countEvent(siteEventCounts, "insurer_partner_token_failure"),
+      recent_partner_token_failures: rowsOrEmpty(recentPartnerTokenFailures)
     }
   };
 }
@@ -319,6 +324,16 @@ function buildActions(connectors, reports) {
       connector: "Anti-spam",
       type: "robots-detectes",
       recommendation: `Surveiller ${spamBlocks} blocage(s) formulaire sur 30 jours et renforcer les seuils du filtre local si le volume augmente.`
+    });
+  }
+
+  const partnerTokenFailures = Number(reports.partner_token_failures_30d || 0);
+  if (partnerTokenFailures > 0) {
+    actions.push({
+      priority: 94,
+      connector: "Portail assureur",
+      type: "jetons-portail-bloques",
+      recommendation: `Examiner ${partnerTokenFailures} tentative(s) de jeton assureur bloquee(s) sur 30 jours; aucune valeur de jeton n est conservee.`
     });
   }
 
