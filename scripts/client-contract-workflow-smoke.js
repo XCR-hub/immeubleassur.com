@@ -104,6 +104,14 @@ async function main() {
   let clientResponse = await getClient(caseRow.client_portal_token, DB);
   assert(clientResponse.status === 200 && clientResponse.body.success, "client API should expose the case by token");
   assert(clientResponse.body.contract_marker === "client-contract-workspace-v1", "client API should expose the contract marker");
+  let lastInvalidPortalResponse = null;
+  for (let attempt = 0; attempt < 21; attempt += 1) {
+    lastInvalidPortalResponse = await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=invalid-portal-token-${attempt}`, { headers: { "x-forwarded-for": "198.51.100.77" } }), env: { DB, SMTP_TO: "team@example.test" } });
+  }
+  assert(lastInvalidPortalResponse.status === 429, "client portal token guard should throttle repeated invalid tokens");
+  assert(lastInvalidPortalResponse.headers.get("Retry-After") === "300", "client portal token guard should expose a retry delay");
+  const portalGuardEvent = DB.prepare("SELECT payload FROM site_events WHERE event_type = 'client_portal_token_failure' AND ip_address = '198.51.100.77' ORDER BY created_at DESC LIMIT 1").first();
+  assert(portalGuardEvent?.payload && /raw_token_stored.*false/.test(portalGuardEvent.payload), "client portal token failures should never store the raw token");
   let contract = clientResponse.body.case.contracts?.[0];
   assert(contract?.documents?.length >= 4, "client contract should expose contract documents");
   assert(contract?.payments?.length >= 1, "client contract should expose premium schedule");

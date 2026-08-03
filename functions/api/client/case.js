@@ -11,6 +11,9 @@ import {
   requestTypeLabel
 } from "../../_shared/client-contracts.js";
 
+const PORTAL_TOKEN_GUARD_MARKER = "client-portal-token-guard-v1";
+const PORTAL_TOKEN_FAILURE_LIMIT = 20;
+
 const headers = {
   "Content-Type": "application/json; charset=utf-8",
   "Cache-Control": "no-store",
@@ -19,8 +22,8 @@ const headers = {
   "Access-Control-Allow-Headers": "Content-Type"
 };
 
-function json(body, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers });
+function json(body, status = 200, extraHeaders = {}) {
+  return new Response(JSON.stringify(body), { status, headers: { ...headers, ...extraHeaders } });
 }
 
 async function safeAll(env, sql, binds = []) {
@@ -54,6 +57,34 @@ async function safeRun(env, sql, binds = []) {
 function tokenOf(request) {
   const url = new URL(request.url);
   return clean(url.searchParams.get("token") || "", 160);
+}
+
+function requestIp(request) {
+  const forwarded = clean(request.headers.get("x-forwarded-for") || "", 200);
+  return clean((forwarded.split(",")[0] || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip") || "").trim(), 120);
+}
+
+async function portalTokenGuard(env, request) {
+  const ip = requestIp(request);
+  if (!ip) return { allowed: true, ip: "" };
+  const row = await safeFirst(env, "SELECT COUNT(*) AS count FROM site_events WHERE event_type = 'client_portal_token_failure' AND ip_address = ? AND created_at >= datetime('now', '-5 minutes')", [ip]);
+  const failures = Number(row?.count || 0);
+  if (failures >= PORTAL_TOKEN_FAILURE_LIMIT) {
+    return { allowed: false, ip, response: json({ success: false, error: "Trop de tentatives. Reessayez plus tard.", marker: PORTAL_TOKEN_GUARD_MARKER }, 429, { "Retry-After": "300" }) };
+  }
+  return { allowed: true, ip };
+}
+
+async function recordPortalTokenFailure(env, request, token, ip) {
+  if (!ip) return;
+  await safeRun(env, "INSERT INTO site_events (id, event_type, page_url, target, payload, ip_address, user_agent, created_at) VALUES (?, 'client_portal_token_failure', ?, 'client-portal', ?, ?, ?, ?)", [
+    crypto.randomUUID(),
+    clean(request.url, 500),
+    JSON.stringify({ marker: PORTAL_TOKEN_GUARD_MARKER, token_present: Boolean(token), token_length: token.length, raw_token_stored: false }),
+    ip,
+    clean(request.headers.get("user-agent") || "", 500),
+    new Date().toISOString()
+  ]);
 }
 
 function rowsOrEmpty(value) {
@@ -383,8 +414,10 @@ export function onRequestOptions() {
 export async function onRequestGet({ request, env }) {
   if (!env.DB) return json({ success: false, error: "Base indisponible" }, 503);
   const token = tokenOf(request);
+  const guard = await portalTokenGuard(env, request);
+  if (!guard.allowed) return guard.response;
   const row = await caseByToken(env, token);
-  if (!row || row.error) return json({ success: false, error: "Dossier introuvable" }, 404);
+  if (!row || row.error) { await recordPortalTokenFailure(env, request, token, guard.ip); return json({ success: false, error: "Dossier introuvable" }, 404); }
   if (new URL(request.url).searchParams.get("action") === "download_document") return downloadCaseDocument(env, row, request);
   const [documents, consultations, mails, offers, contracts] = await Promise.all([
     safeAll(env, "SELECT * FROM case_documents WHERE case_id = ? ORDER BY required DESC, label", [row.id]),
@@ -532,8 +565,10 @@ async function addAsset(env, row, contract, body) {
 export async function onRequestPost({ request, env }) {
   if (!env.DB) return json({ success: false, error: "Base indisponible" }, 503);
   const token = tokenOf(request);
+  const guard = await portalTokenGuard(env, request);
+  if (!guard.allowed) return guard.response;
   const row = await caseByToken(env, token);
-  if (!row || row.error) return json({ success: false, error: "Dossier introuvable" }, 404);
+  if (!row || row.error) { await recordPortalTokenFailure(env, request, token, guard.ip); return json({ success: false, error: "Dossier introuvable" }, 404); }
   const body = await request.json().catch(() => ({}));
   const action = clean(body.action, 80) || "case_document_received";
   if (action === "case_document_upload") return uploadCaseDocument(env, row, body);
