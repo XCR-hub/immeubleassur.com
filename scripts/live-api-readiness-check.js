@@ -123,6 +123,19 @@ function readReport(file) {
   }
 }
 
+function smtpHealthReport() {
+  const file = join(REPORT_DIR, "local-smtp-health-report.json");
+  if (!existsSync(file)) return { available: false };
+  try {
+    const parsed = JSON.parse(readFileSync(file, "utf8"));
+    const generatedAt = Date.parse(parsed.generated_at || "");
+    const ageMinutes = Number.isFinite(generatedAt) ? Math.max(0, Math.round((Date.now() - generatedAt) / 60000)) : null;
+    return { available: true, status: parsed.status || "unknown", authenticated: parsed.authenticated === true, age_minutes: ageMinutes, error: String(parsed.error || "").slice(0, 240) };
+  } catch (error) {
+    return { available: true, status: "invalid-json", authenticated: false, error: "invalid-json" };
+  }
+}
+
 function connectorStatus(connector) {
   const required = connector.required || [];
   const requiredAny = connector.requiredAny || [];
@@ -130,7 +143,11 @@ function connectorStatus(connector) {
   const missingRequired = required.filter((name) => !configured(name));
   const anyConfigured = requiredAny.length ? requiredAny.some(configured) : true;
   const missingAny = requiredAny.length && !anyConfigured ? requiredAny : [];
-  const ready = missingRequired.length === 0 && missingAny.length === 0;
+  const configuredReady = missingRequired.length === 0 && missingAny.length === 0;
+  const smtpHealth = connector.id === "smtp" ? smtpHealthReport() : null;
+  const smtpUnavailable = connector.id === "smtp" && (!smtpHealth?.available || smtpHealth.status !== "ready" || smtpHealth.authenticated !== true || Number(smtpHealth.age_minutes) > 180);
+  const ready = configuredReady && !smtpUnavailable;
+  const runtimeReason = smtpUnavailable ? "SMTP health " + (smtpHealth?.available ? smtpHealth.status + (smtpHealth.error ? ": " + smtpHealth.error : "") : "report missing") : "";
   return {
     ...connector,
     ready,
@@ -144,8 +161,9 @@ function connectorStatus(connector) {
     optional_names: optional,
     missing_required_names: missingRequired,
     missing_any_names: missingAny,
-    last_report: readReport(connector.report),
-    recommendation: ready ? `Executer ${connector.command} pour rafraichir le signal live.` : `Configurer ${[...missingRequired, ...(missingAny.length ? ["une cle IA"] : [])].join(", ")} puis executer ${connector.command}.`
+    last_report: connector.id === "smtp" ? { ...readReport(connector.report), health: smtpHealth } : readReport(connector.report),
+    runtime_reason: runtimeReason,
+    recommendation: ready ? `Executer ${connector.command} pour rafraichir le signal live.` : runtimeReason || `Configurer ${[...missingRequired, ...(missingAny.length ? ["une cle IA"] : [])].join(", ")} puis executer ${connector.command}.`
   };
 }
 

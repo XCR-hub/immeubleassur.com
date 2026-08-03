@@ -5,7 +5,7 @@ const REPORT_DIR = "reports";
 const expectations = [
   {
     file: "scripts/live-api-readiness-check.js",
-    snippets: ["loadDefaultEnvFiles", "live-api-readiness-report.json", "no-secret-values-exported", "TURNSTILE_SITE_KEY", "SERP_API_KEY"]
+    snippets: ["loadDefaultEnvFiles", "live-api-readiness-report.json", "local-smtp-health-report.json", "smtpHealthReport", "runtime_reason", "no-secret-values-exported", "TURNSTILE_SITE_KEY", "SERP_API_KEY"]
   },
   {
     file: "scripts/google-readiness-unlock.js",
