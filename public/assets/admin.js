@@ -1389,10 +1389,17 @@ function mailStatusCounts(mails = []) {
 }
 
 function consultationSummary(consultations = []) {
-  const draft = consultations.filter((item) => item.status === "draft_review").length;
-  const active = consultations.filter((item) => ["sent", "answered", "quoted"].includes(item.status)).length;
-  const names = consultations.slice(0, 3).map((item) => item.insurer_name).filter(Boolean).join(", ");
-  return `${draft} revue / ${active} active(s)${names ? `\n${names}` : ""}`;
+  const rows = Array.isArray(consultations) ? consultations : [];
+  const draft = rows.filter((item) => item.status === "draft_review").length;
+  const approved = rows.filter((item) => item.status === "approved").length;
+  const active = rows.filter((item) => ["sent", "answered", "quoted"].includes(item.status)).length;
+  const overdue = rows.filter((item) => item.status === "sent" && new Date(item.response_due_at || "").getTime() < Date.now()).length;
+  const quoted = rows.filter((item) => item.status === "quoted").length;
+  const names = rows.slice(0, 3).map((item) => item.insurer_name).filter(Boolean).join(", ");
+  const signals = [`${draft} revue`, `${approved} pret(s)`, `${active} active(s)`];
+  if (overdue) signals.push(`${overdue} retard`);
+  if (quoted) signals.push(`${quoted} offre(s)`);
+  return `${signals.join(" / ")}${names ? `\n${names}` : ""}`;
 }
 
 function documentSummary(documents = []) {
@@ -1471,16 +1478,43 @@ function contractActionButton(action, text, dataset = {}, primary = false) {
   return button;
 }
 
+function consultationNeedsFollowup(item = {}) {
+  const due = new Date(item.response_due_at || "").getTime();
+  return item.status === "sent" && Number.isFinite(due) && due < Date.now();
+}
+
+function firstConsultationAction(consultations = []) {
+  const rows = Array.isArray(consultations) ? consultations : [];
+  return rows.find((item) => item.status === "draft_review")
+    || rows.find((item) => item.status === "approved")
+    || rows.find((item) => consultationNeedsFollowup(item));
+}
+
+function consultationActionButton(action, text, dataset = {}, primary = false, disabled = false) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = primary ? "submit-button compact-action" : "button secondary compact-action";
+  button.dataset.consultationAction = action;
+  for (const [key, value] of Object.entries(dataset)) {
+    if (value !== undefined && value !== null) button.dataset[key] = String(value);
+  }
+  button.disabled = Boolean(disabled);
+  button.textContent = text;
+  return button;
+}
+
 function renderCaseActionCell(caseRow) {
   const td = document.createElement("td");
   td.className = "case-action-cell";
   const mails = Array.isArray(caseRow.mail_queue) ? caseRow.mail_queue : [];
   const contracts = Array.isArray(caseRow.contracts) ? caseRow.contracts : [];
+  const consultations = Array.isArray(caseRow.consultations) ? caseRow.consultations : [];
   const draft = mails.find((mail) => mail.status === "draft_review");
   const approved = mails.find((mail) => mail.status === "approved" && mail.recipient_email);
   const request = firstContractRequest(contracts);
   const referral = firstReferral(contracts);
   const payment = firstPendingPayment(contracts);
+  const consultation = firstConsultationAction(consultations);
   if (draft) {
     const button = document.createElement("button");
     button.type = "button";
@@ -1509,7 +1543,18 @@ function renderCaseActionCell(caseRow) {
   if (payment) {
     td.append(contractActionButton("payment_status", "Prime payee", { paymentId: payment.id, status: "paid" }));
   }
-  if (!draft && !approved && !request && !referral && !payment) td.textContent = caseRow.next_action || "Suivi manuel";
+  if (consultation) {
+    const emailReady = Boolean(consultation.recipient_email);
+    if (consultation.status === "draft_review") {
+      td.append(consultationActionButton("approve_consultation", emailReady ? "Approuver assureur" : "Email assureur requis", { consultationId: consultation.id }, false, !emailReady));
+    } else if (consultation.status === "approved") {
+      td.append(consultationActionButton("send_consultation", "Envoyer assureur", { consultationId: consultation.id }, true, !emailReady));
+      td.append(consultationActionButton("mark_consultation_sent", "Marquer envoye", { consultationId: consultation.id }, false, !emailReady));
+    } else if (consultationNeedsFollowup(consultation)) {
+      td.append(consultationActionButton("consultation_followup", "Brouillon relance", { consultationId: consultation.id }, false, !emailReady));
+    }
+  }
+  if (!draft && !approved && !request && !referral && !payment && !consultation) td.textContent = caseRow.next_action || "Suivi manuel";
   return td;
 }
 
@@ -1610,6 +1655,36 @@ async function postContractAdminAction(action, button) {
   }
 }
 
+async function postConsultationAction(action, button) {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (!token) return;
+  const previous = button?.textContent || "";
+  const body = { action, reviewer: "admin" };
+  if (button?.dataset.consultationId) body.consultation_id = button.dataset.consultationId;
+  if (button?.dataset.status) body.status = button.dataset.status;
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Traitement...";
+  }
+  try {
+    const response = await fetch("/api/admin/cases", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || "Action consultation impossible");
+    await loadCases();
+  } catch (error) {
+    if (casesSummary) casesSummary.replaceChildren(metricCard("Erreur assureur", action, error.message || "action impossible"));
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = previous;
+    }
+  }
+}
+
 async function loadCases() {
   const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
   if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
@@ -1635,7 +1710,7 @@ async function loadCases() {
       metricCard("Valeur pipeline", summary.pipeline_value_label || "0 EUR/an", "prime estimee"),
       metricCard("Pieces manquantes", String(documents.missing_required || 0), `${documents.received || 0}/${documents.requested || 0} recues`),
       metricCard("Mails a valider", String(mail.review_drafts || 0), `${mail.approved || 0} approuve(s), ${mail.sent || 0} envoye(s)`),
-      metricCard("Consultations", String(consultations.consultations || 0), `${consultations.review_consultations || 0} en revue`),
+      metricCard("Consultations", String(consultations.consultations || 0), `${consultations.review_consultations || 0} revue, ${consultations.approved_consultations || 0} prete(s), ${consultations.overdue_consultations || 0} retard`),
       metricCard("Contrats", String(contracts.contracts || 0), `${contracts.active_contracts || 0} actif(s)`),
       metricCard("Ops contrats", String(contractOps.open_requests || 0), `${contractOps.review_referrals || 0} parrainage(s), ${contractOps.pending_payments || 0} prime(s)`),
       metricCard("Synchronisation", `${sync.created || 0}+${sync.updated || 0}`, `${sync.mail_drafts || 0} brouillon(s)`),
@@ -2073,7 +2148,12 @@ casesBody?.addEventListener("click", (event) => {
     return;
   }
   const contractButton = target.closest("[data-contract-action]");
-  if (contractButton) postContractAdminAction(contractButton.dataset.contractAction || "", contractButton);
+  if (contractButton) {
+    postContractAdminAction(contractButton.dataset.contractAction || "", contractButton);
+    return;
+  }
+  const consultationButton = target.closest("[data-consultation-action]");
+  if (consultationButton) postConsultationAction(consultationButton.dataset.consultationAction || "", consultationButton);
 });
 attributionButton?.addEventListener("click", () => {
   loadAttribution().catch((error) => {

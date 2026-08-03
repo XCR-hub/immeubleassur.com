@@ -247,6 +247,18 @@ function contractOperationSummary(contracts = [], requests = [], payments = [], 
     }).length
   };
 }
+
+function consultationOperationSummary(consultations = []) {
+  const now = Date.now();
+  const rows = rowsOrEmpty(consultations);
+  return {
+    approved_consultations: rows.filter((item) => clean(item.status, 40) === "approved").length,
+    overdue_consultations: rows.filter((item) => clean(item.status, 40) === "sent" && Number.isFinite(new Date(item.response_due_at || "").getTime()) && new Date(item.response_due_at).getTime() < now).length,
+    quoted_consultations: rows.filter((item) => clean(item.status, 40) === "quoted").length,
+    declined_consultations: rows.filter((item) => clean(item.status, 40) === "declined").length,
+    missing_recipient_consultations: rows.filter((item) => ["draft_review", "approved"].includes(clean(item.status, 40)) && !clean(item.recipient_email, 180)).length
+  };
+}
 function caseRowsWithChildren(cases, documents, mails, consultations, timelines, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env) {
   const docsByCase = groupBy(documents, "case_id");
   const mailsByCase = groupBy(mails, "case_id");
@@ -366,7 +378,7 @@ export async function onRequestGet({ request, env }) {
     ...(summaryRow || {}),
     documents: docSummary || {},
     mail_queue: mailSummary || {},
-    consultations: consultSummary || {},
+    consultations: { ...(consultSummary || {}), ...consultationOperationSummary(consultations) },
     contracts: contractSummary || {},
     contract_marker: CLIENT_CONTRACT_MARKER,
     contract_operations: contractOperationSummary(contracts, contractRequests, contractPayments, contractReferrals),
@@ -387,7 +399,7 @@ export async function onRequestGet({ request, env }) {
     partners: rowsOrEmpty(partners),
     actions: buildActions(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations)),
     warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(contracts), errorOf(contractRequests), errorOf(contractPayments), errorOf(contractReferrals), errorOf(contractConsents), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary)].filter(Boolean),
-    safeguards: ["human-review-before-send", "mail-draft-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace"]
+    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace"]
   });
 }
 
@@ -433,6 +445,133 @@ async function updatePaymentStatus(env, body) {
   await logTimeline(env, row.case_id, "contract_payment_admin_status", reviewer, { marker: "admin-contract-action-v1", payment_id: paymentId, contract_id: row.contract_id, status });
   return json({ success: true, status });
 }
+
+function centsFromBody(value) {
+  if (value === undefined || value === null || value === "") return null;
+  const numeric = Number(String(value).replace(/[^0-9.,-]/g, "").replace(",", "."));
+  if (!Number.isFinite(numeric)) return null;
+  return Math.round(numeric > 10000 ? numeric : numeric * 100);
+}
+
+function validEmail(value) {
+  const email = clean(value, 180);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : "";
+}
+
+async function consultationBundle(env, consultationId) {
+  const row = await safeFirst(env, `SELECT i.*, c.case_reference, c.readiness_score, c.stage, l.reference AS lead_reference, l.name, l.phone, l.email, l.profile, l.property_type, l.city, l.units_count, l.need, l.message, l.lead_score, l.status AS lead_status
+    FROM insurer_consultations i
+    JOIN brokerage_cases c ON c.id = i.case_id
+    JOIN leads l ON l.id = c.lead_id
+    WHERE i.id = ?`, [consultationId]);
+  if (!row || errorOf(row)) return { error: "Consultation assureur introuvable" };
+  const documents = rowsOrEmpty(await safeAll(env, "SELECT * FROM case_documents WHERE case_id = ? ORDER BY required DESC, label", [row.case_id]));
+  return { row, documents };
+}
+
+function missingRequiredDocuments(documents = []) {
+  return rowsOrEmpty(documents).filter((doc) => Number(doc.required || 0) === 1 && !["received", "validated", "waived"].includes(clean(doc.status, 40)));
+}
+
+function insurerDraft(row, documents, followup = false) {
+  if (followup) {
+    return {
+      subject: `Relance consultation ${clean(row.case_reference, 80)} - ${clean(row.insurer_name, 120)}`,
+      body: [
+        "Bonjour,",
+        "",
+        `Nous revenons vers vous au sujet du dossier ${clean(row.case_reference, 80)} transmis pour etude.`,
+        `Risque: ${clean(row.property_type, 120) || "immeuble"} - ${clean(row.city, 120) || "ville a confirmer"} - ${clean(row.units_count, 40) || "lots a confirmer"} lot(s).`,
+        "Merci de nous confirmer votre appetit, les garanties envisageables, franchises, exclusions et prime indicative.",
+        "",
+        "Cette relance est preparee en brouillon et doit rester validee humainement avant tout envoi.",
+        "",
+        "Bien cordialement,",
+        "ImmeubleAssur"
+      ].join("\n")
+    };
+  }
+  return buildInsurerEmailDraft(row, row, documents);
+}
+
+async function approveConsultation(env, body) {
+  const consultationId = clean(body.consultation_id, 120);
+  const reviewer = clean(body.reviewer || "admin", 120);
+  if (!consultationId) return json({ success: false, error: "consultation_id requis" }, 400);
+  const bundle = await consultationBundle(env, consultationId);
+  if (bundle.error) return json({ success: false, error: bundle.error }, 404);
+  const recipient = validEmail(body.recipient_email || bundle.row.recipient_email);
+  if (!recipient) return json({ success: false, error: "Email assureur requis avant approbation" }, 409);
+  const missing = missingRequiredDocuments(bundle.documents);
+  if (missing.length && body.override_missing_documents !== true) return json({ success: false, error: "Pieces requises manquantes avant consultation assureur", missing_required: missing.map((doc) => doc.label) }, 409);
+  await safeRun(env, "UPDATE insurer_consultations SET recipient_email = ?, status = 'approved', package_status = 'approved_for_send', human_approved_at = COALESCE(human_approved_at, ?), notes = COALESCE(NULLIF(?, ''), notes), updated_at = ? WHERE id = ?", [recipient, nowIso(), clean(body.notes, 1000), nowIso(), consultationId]);
+  await logTimeline(env, bundle.row.case_id, "insurer_consultation_approved", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, human_review: true });
+  return json({ success: true, status: "approved" });
+}
+
+async function markConsultationSent(env, body, sentBy = "admin") {
+  const consultationId = clean(body.consultation_id, 120);
+  const reviewer = clean(body.reviewer || sentBy, 120);
+  if (!consultationId) return json({ success: false, error: "consultation_id requis" }, 400);
+  const bundle = await consultationBundle(env, consultationId);
+  if (bundle.error) return json({ success: false, error: bundle.error }, 404);
+  if (clean(bundle.row.status, 40) !== "approved" || !bundle.row.human_approved_at) return json({ success: false, error: "Validation humaine consultation requise avant envoi" }, 409);
+  if (!validEmail(bundle.row.recipient_email)) return json({ success: false, error: "Email assureur requis avant envoi" }, 409);
+  await safeRun(env, "UPDATE insurer_consultations SET status = 'sent', package_status = 'sent_to_partner', sent_at = COALESCE(sent_at, ?), response_due_at = COALESCE(response_due_at, ?), updated_at = ? WHERE id = ?", [nowIso(), new Date(Date.now() + 48 * 3600000).toISOString(), nowIso(), consultationId]);
+  await safeRun(env, "UPDATE brokerage_cases SET stage = 'insurer_consultation', next_action = ?, updated_at = ? WHERE id = ?", ["Suivre les retours assureurs et relancer sans envoi non relu si l'echeance est depassee.", nowIso(), bundle.row.case_id]);
+  await logTimeline(env, bundle.row.case_id, "insurer_consultation_marked_sent", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name });
+  return json({ success: true, status: "sent" });
+}
+
+async function sendConsultation(env, body) {
+  const consultationId = clean(body.consultation_id, 120);
+  if (!consultationId) return json({ success: false, error: "consultation_id requis" }, 400);
+  const bundle = await consultationBundle(env, consultationId);
+  if (bundle.error) return json({ success: false, error: bundle.error }, 404);
+  if (clean(bundle.row.status, 40) !== "approved" || !bundle.row.human_approved_at) return json({ success: false, error: "Validation humaine consultation requise avant envoi" }, 409);
+  if (!validEmail(bundle.row.recipient_email)) return json({ success: false, error: "Email assureur requis avant envoi" }, 409);
+  const draft = insurerDraft(bundle.row, bundle.documents, false);
+  const config = await smtpConfig(env, { recipient_email: bundle.row.recipient_email });
+  if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return json({ success: false, error: "Configuration SMTP incomplete" }, 503);
+  const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, { recipient_email: bundle.row.recipient_email, subject: draft.subject, body: draft.body }), env);
+  const result = await markConsultationSent(env, body, "smtp");
+  await logTimeline(env, bundle.row.case_id, "insurer_consultation_sent", clean(body.reviewer || "admin", 120), { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, smtp: clean(smtpResult, 500) });
+  return result;
+}
+
+async function queueConsultationFollowup(env, body) {
+  const consultationId = clean(body.consultation_id, 120);
+  const reviewer = clean(body.reviewer || "admin", 120);
+  if (!consultationId) return json({ success: false, error: "consultation_id requis" }, 400);
+  const bundle = await consultationBundle(env, consultationId);
+  if (bundle.error) return json({ success: false, error: bundle.error }, 404);
+  if (!["sent", "answered", "quoted"].includes(clean(bundle.row.status, 40))) return json({ success: false, error: "Relance possible apres envoi initial seulement" }, 409);
+  if (!validEmail(bundle.row.recipient_email)) return json({ success: false, error: "Email assureur requis pour preparer la relance" }, 409);
+  const existing = await safeFirst(env, "SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'insurer_followup' AND recipient_email = ? AND status IN ('draft_review', 'approved')", [bundle.row.case_id, bundle.row.recipient_email]);
+  if (existing?.id) return json({ success: true, status: "draft_review", mail_id: existing.id, reused: true });
+  const draft = insurerDraft(bundle.row, bundle.documents, true);
+  const mailId = crypto.randomUUID();
+  await safeRun(env, `INSERT INTO case_mail_queue (id, case_id, audience, recipient_email, subject, body, status, review_required, scheduled_at, payload, created_at, updated_at)
+    VALUES (?, ?, 'insurer_followup', ?, ?, ?, 'draft_review', 1, ?, ?, ?, ?)`, [mailId, bundle.row.case_id, bundle.row.recipient_email, draft.subject, draft.body, nowIso(), JSON.stringify({ marker: "insurer-consultation-action-v1", consultation_id: consultationId, purpose: "insurer_followup", human_review_required: true }), nowIso(), nowIso()]);
+  await safeRun(env, "UPDATE insurer_consultations SET response_due_at = ?, updated_at = ? WHERE id = ?", [new Date(Date.now() + 24 * 3600000).toISOString(), nowIso(), consultationId]);
+  await logTimeline(env, bundle.row.case_id, "insurer_consultation_followup_draft", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, mail_id: mailId, human_review: true });
+  return json({ success: true, status: "draft_review", mail_id: mailId });
+}
+
+async function updateConsultationResponse(env, body) {
+  const consultationId = clean(body.consultation_id, 120);
+  const reviewer = clean(body.reviewer || "admin", 120);
+  const status = normalizeStatus(body.status, ["answered", "quoted", "declined"]);
+  if (!consultationId || !status) return json({ success: false, error: "Statut retour assureur invalide" }, 400);
+  const bundle = await consultationBundle(env, consultationId);
+  if (bundle.error) return json({ success: false, error: bundle.error }, 404);
+  const premium = centsFromBody(body.premium_amount_cents ?? body.premium_amount);
+  const deductible = centsFromBody(body.deductible_cents ?? body.deductible);
+  await safeRun(env, "UPDATE insurer_consultations SET status = ?, answered_at = COALESCE(answered_at, ?), premium_amount_cents = COALESCE(?, premium_amount_cents), deductible_cents = COALESCE(?, deductible_cents), notes = COALESCE(NULLIF(?, ''), notes), updated_at = ? WHERE id = ?", [status, nowIso(), premium, deductible, clean(body.notes, 1500), nowIso(), consultationId]);
+  if (status === "quoted") await safeRun(env, "UPDATE brokerage_cases SET stage = 'offer_followup', next_action = ?, updated_at = ? WHERE id = ?", ["Comparer l'offre assureur, verifier franchises/exclusions et presenter la meilleure option au client.", nowIso(), bundle.row.case_id]);
+  await logTimeline(env, bundle.row.case_id, "insurer_consultation_response", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, status, premium_amount_cents: premium, deductible_cents: deductible });
+  return json({ success: true, status });
+}
 export async function onRequestPost({ request, env }) {
   if (!authorized(request, env)) return json({ success: false, error: "Acces refuse" }, 401);
   if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
@@ -443,6 +582,11 @@ export async function onRequestPost({ request, env }) {
   if (action === "contract_request_status") return updateContractRequestStatus(env, body);
   if (action === "referral_status") return updateReferralStatus(env, body);
   if (action === "payment_status") return updatePaymentStatus(env, body);
+  if (action === "approve_consultation") return approveConsultation(env, body);
+  if (action === "send_consultation") return sendConsultation(env, body);
+  if (action === "mark_consultation_sent") return markConsultationSent(env, body);
+  if (action === "consultation_followup") return queueConsultationFollowup(env, body);
+  if (action === "consultation_response") return updateConsultationResponse(env, body);
 
   if (!["approve_mail", "send_mail", "mark_sent"].includes(action)) return json({ success: false, error: "Action non supportee" }, 400);
   const mailId = clean(body.mail_id, 120);
