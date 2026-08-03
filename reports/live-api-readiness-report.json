@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T07:44:48.445Z",
+  "generated_at": "2026-08-03T08:16:11.937Z",
   "status": "partial",
   "connectors_checked": 8,
   "ready_count": 5,
@@ -32,7 +32,7 @@
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-03T07:44:47.748Z",
+        "generated_at": "2026-08-03T08:16:11.461Z",
         "status": "passed",
         "summary": {
           "provider": "cloudflare-turnstile",

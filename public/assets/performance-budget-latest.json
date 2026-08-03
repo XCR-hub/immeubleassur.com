@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T07:44:32.654Z",
+  "generated_at": "2026-08-03T08:15:59.649Z",
   "status": "passed",
   "pages_checked": 188,
   "indexable_pages": 180,
@@ -85,8 +85,8 @@
     },
     {
       "path": "assets/admin.js",
-      "bytes": 104508,
-      "kb": 102.1,
+      "bytes": 110031,
+      "kb": 107.5,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true
@@ -151,7 +151,7 @@
     },
     {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5866,
+      "bytes": 5864,
       "kb": 5.7,
       "ok": true
     },
@@ -169,7 +169,7 @@
     },
     {
       "path": "assets/performance-budget-latest.json",
-      "bytes": 4056,
+      "bytes": 4054,
       "kb": 4,
       "ok": true
     }

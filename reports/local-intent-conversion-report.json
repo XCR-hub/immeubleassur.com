@@ -2,7 +2,7 @@
   "success": true,
   "status": "no-data",
   "attention_required": false,
-  "generated_at": "2026-08-03T07:44:37.500Z",
+  "generated_at": "2026-08-03T08:16:02.585Z",
   "database": {
     "engine": "sqlite",
     "file": "immeubleassur.sqlite",

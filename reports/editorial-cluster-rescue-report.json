@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T07:44:43.099Z",
+  "generated_at": "2026-08-03T08:16:07.334Z",
   "status": "passed",
   "pages_checked": 188,
   "clusters_targeted": 2,
@@ -21,7 +21,7 @@
   "cluster_inputs": [
     {
       "cluster": "assurance-immeuble",
-      "average_score": 40,
+      "average_score": 44,
       "money_pages": 0,
       "threshold": 78
     },

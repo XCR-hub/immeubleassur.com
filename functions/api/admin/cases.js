@@ -213,12 +213,47 @@ function groupBy(rows, key) {
   return map;
 }
 
-function caseRowsWithChildren(cases, documents, mails, consultations, timelines, contracts, env) {
+
+function contractsWithChildren(contracts = [], requests = [], payments = [], referrals = [], consentEvents = []) {
+  const requestsByContract = groupBy(requests, "contract_id");
+  const paymentsByContract = groupBy(payments, "contract_id");
+  const referralsByContract = groupBy(referrals, "contract_id");
+  const consentByContract = groupBy(consentEvents, "contract_id");
+  return rowsOrEmpty(contracts).map((contract) => ({
+    ...contract,
+    requests: requestsByContract.get(contract.id) || [],
+    payments: paymentsByContract.get(contract.id) || [],
+    referrals: referralsByContract.get(contract.id) || [],
+    consent_events: consentByContract.get(contract.id) || []
+  }));
+}
+
+function contractOperationSummary(contracts = [], requests = [], payments = [], referrals = []) {
+  const now = Date.now();
+  const renewalLimit = now + 60 * 86400000;
+  const rows = rowsOrEmpty(contracts);
+  const requestRows = rowsOrEmpty(requests);
+  const paymentRows = rowsOrEmpty(payments);
+  const referralRows = rowsOrEmpty(referrals);
+  return {
+    contracts: rows.length,
+    open_requests: requestRows.filter((item) => ["open", "in_progress"].includes(clean(item.status, 40))).length,
+    high_requests: requestRows.filter((item) => clean(item.priority, 40) === "high" && ["open", "in_progress"].includes(clean(item.status, 40))).length,
+    pending_payments: paymentRows.filter((item) => clean(item.status, 40) === "pending").length,
+    review_referrals: referralRows.filter((item) => clean(item.status, 40) === "draft_review").length,
+    renewals_60d: rows.filter((item) => {
+      const due = new Date(item.renewal_at || "").getTime();
+      return Number.isFinite(due) && due >= now && due <= renewalLimit;
+    }).length
+  };
+}
+function caseRowsWithChildren(cases, documents, mails, consultations, timelines, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env) {
   const docsByCase = groupBy(documents, "case_id");
   const mailsByCase = groupBy(mails, "case_id");
   const consultationsByCase = groupBy(consultations, "case_id");
   const timelineByCase = groupBy(timelines, "case_id");
-  const contractsByCase = groupBy(contracts, "case_id");
+  const contractRows = contractsWithChildren(contracts, contractRequests, contractPayments, contractReferrals, contractConsents);
+  const contractsByCase = groupBy(contractRows, "case_id");
   return rowsOrEmpty(cases).map((row) => {
     const docs = docsByCase.get(row.id) || [];
     const missingRequired = docs.filter((doc) => Number(doc.required || 0) === 1 && !["received", "validated"].includes(clean(doc.status, 40))).length;
@@ -307,13 +342,17 @@ export async function onRequestGet({ request, env }) {
   const sync = url.searchParams.get("sync") !== "0";
   const syncResult = sync ? await ensureCasesForOpenLeads(env) : null;
 
-  const [caseRows, documents, mails, consultations, timelines, contracts, partners, summaryRow, docSummary, mailSummary, consultSummary, contractSummary] = await Promise.all([
+  const [caseRows, documents, mails, consultations, timelines, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, summaryRow, docSummary, mailSummary, consultSummary, contractSummary] = await Promise.all([
     safeAll(env, `SELECT c.*, l.reference AS lead_reference, l.name, l.phone, l.email, l.profile, l.property_type, l.city, l.units_count, l.need, l.status AS lead_status FROM brokerage_cases c JOIN leads l ON l.id = c.lead_id ORDER BY CASE c.priority WHEN 'hot' THEN 1 WHEN 'warm' THEN 2 WHEN 'standard' THEN 3 ELSE 4 END, c.updated_at DESC LIMIT 120`),
     safeAll(env, `SELECT d.* FROM case_documents d JOIN brokerage_cases c ON c.id = d.case_id ORDER BY d.required DESC, d.label LIMIT 800`),
     safeAll(env, `SELECT m.*, c.case_reference FROM case_mail_queue m JOIN brokerage_cases c ON c.id = m.case_id ORDER BY CASE m.status WHEN 'draft_review' THEN 1 WHEN 'approved' THEN 2 WHEN 'sent' THEN 3 ELSE 4 END, m.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT i.*, c.case_reference FROM insurer_consultations i JOIN brokerage_cases c ON c.id = i.case_id ORDER BY CASE i.status WHEN 'draft_review' THEN 1 WHEN 'sent' THEN 2 ELSE 3 END, i.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT t.* FROM case_timeline t JOIN brokerage_cases c ON c.id = t.case_id ORDER BY t.created_at DESC LIMIT 300`),
     safeAll(env, `SELECT cc.*, c.case_reference FROM client_contracts cc JOIN brokerage_cases c ON c.id = cc.case_id ORDER BY cc.updated_at DESC LIMIT 240`),
+    safeAll(env, `SELECT r.*, cc.case_id, cc.contract_reference FROM contract_service_requests r JOIN client_contracts cc ON cc.id = r.contract_id ORDER BY CASE r.status WHEN 'open' THEN 1 WHEN 'in_progress' THEN 2 ELSE 3 END, r.due_at LIMIT 400`),
+    safeAll(env, `SELECT p.*, cc.case_id, cc.contract_reference FROM contract_payment_schedule p JOIN client_contracts cc ON cc.id = p.contract_id ORDER BY CASE p.status WHEN 'pending' THEN 1 ELSE 2 END, p.due_at LIMIT 400`),
+    safeAll(env, `SELECT f.*, cc.case_id, cc.contract_reference FROM contract_referrals f JOIN client_contracts cc ON cc.id = f.contract_id ORDER BY CASE f.status WHEN 'draft_review' THEN 1 ELSE 2 END, f.updated_at DESC LIMIT 240`),
+    safeAll(env, `SELECT e.*, cc.case_id, cc.contract_reference FROM contract_consent_events e JOIN client_contracts cc ON cc.id = e.contract_id ORDER BY e.created_at DESC LIMIT 400`),
     safeAll(env, `SELECT id, name, contact_email, appetite_profile, service_level_hours, active FROM insurer_partners ORDER BY active DESC, name`),
     safeFirst(env, `SELECT COUNT(*) AS cases, SUM(CASE WHEN stage NOT IN ('contract_active', 'lost') THEN 1 ELSE 0 END) AS open_cases, SUM(CASE WHEN priority = 'hot' THEN 1 ELSE 0 END) AS hot_cases, SUM(CASE WHEN readiness_score >= 70 THEN 1 ELSE 0 END) AS ready_cases, SUM(CASE WHEN human_review_required = 1 THEN 1 ELSE 0 END) AS human_review_required, COALESCE(SUM(estimated_value_min_cents), 0) AS value_min_cents, COALESCE(SUM(estimated_value_max_cents), 0) AS value_max_cents FROM brokerage_cases`),
     safeFirst(env, `SELECT COUNT(*) AS requested, SUM(CASE WHEN status IN ('received', 'validated') THEN 1 ELSE 0 END) AS received, SUM(CASE WHEN required = 1 AND status NOT IN ('received', 'validated') THEN 1 ELSE 0 END) AS missing_required FROM case_documents`),
@@ -322,7 +361,7 @@ export async function onRequestGet({ request, env }) {
     safeFirst(env, `SELECT COUNT(*) AS contracts, SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS active_contracts, COALESCE(SUM(annual_premium_cents), 0) AS annual_premium_cents FROM client_contracts`)
   ]);
 
-  const cases = caseRowsWithChildren(caseRows, documents, mails, consultations, timelines, contracts, env);
+  const cases = caseRowsWithChildren(caseRows, documents, mails, consultations, timelines, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env);
   const summary = {
     ...(summaryRow || {}),
     documents: docSummary || {},
@@ -330,6 +369,7 @@ export async function onRequestGet({ request, env }) {
     consultations: consultSummary || {},
     contracts: contractSummary || {},
     contract_marker: CLIENT_CONTRACT_MARKER,
+    contract_operations: contractOperationSummary(contracts, contractRequests, contractPayments, contractReferrals),
     pipeline_value_label: valueLabel(summaryRow?.value_min_cents, summaryRow?.value_max_cents)
   };
   return json({
@@ -341,19 +381,68 @@ export async function onRequestGet({ request, env }) {
     cases,
     mail_queue: rowsOrEmpty(mails),
     consultations: rowsOrEmpty(consultations),
+    contract_requests: rowsOrEmpty(contractRequests),
+    contract_payments: rowsOrEmpty(contractPayments),
+    contract_referrals: rowsOrEmpty(contractReferrals),
     partners: rowsOrEmpty(partners),
     actions: buildActions(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations)),
-    warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(contracts), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary)].filter(Boolean),
+    warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(contracts), errorOf(contractRequests), errorOf(contractPayments), errorOf(contractReferrals), errorOf(contractConsents), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary)].filter(Boolean),
     safeguards: ["human-review-before-send", "mail-draft-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace"]
   });
 }
 
+
+function normalizeStatus(value, allowed) {
+  const status = clean(value, 40);
+  return allowed.includes(status) ? status : "";
+}
+
+async function updateContractRequestStatus(env, body) {
+  const requestId = clean(body.request_id, 120);
+  const reviewer = clean(body.reviewer || "admin", 120);
+  const status = normalizeStatus(body.status, ["open", "in_progress", "resolved", "closed"]);
+  if (!requestId || !status) return json({ success: false, error: "Statut demande invalide" }, 400);
+  const row = await safeFirst(env, "SELECT r.*, cc.case_id, cc.contract_reference FROM contract_service_requests r JOIN client_contracts cc ON cc.id = r.contract_id WHERE r.id = ?", [requestId]);
+  if (!row || errorOf(row)) return json({ success: false, error: "Demande contrat introuvable" }, 404);
+  await safeRun(env, "UPDATE contract_service_requests SET status = ?, updated_at = ? WHERE id = ?", [status, nowIso(), requestId]);
+  await logTimeline(env, row.case_id, "contract_request_admin_status", reviewer, { marker: "admin-contract-action-v1", request_id: requestId, contract_id: row.contract_id, status });
+  return json({ success: true, status });
+}
+
+async function updateReferralStatus(env, body) {
+  const referralId = clean(body.referral_id, 120);
+  const reviewer = clean(body.reviewer || "admin", 120);
+  const status = normalizeStatus(body.status, ["draft_review", "approved", "rejected", "contacted", "rewarded"]);
+  if (!referralId || !status) return json({ success: false, error: "Statut parrainage invalide" }, 400);
+  const row = await safeFirst(env, "SELECT f.*, cc.case_id FROM contract_referrals f JOIN client_contracts cc ON cc.id = f.contract_id WHERE f.id = ?", [referralId]);
+  if (!row || errorOf(row)) return json({ success: false, error: "Parrainage introuvable" }, 404);
+  await safeRun(env, "UPDATE contract_referrals SET status = ?, updated_at = ? WHERE id = ?", [status, nowIso(), referralId]);
+  await logTimeline(env, row.case_id, "contract_referral_admin_status", reviewer, { marker: "admin-contract-action-v1", referral_id: referralId, contract_id: row.contract_id, status, human_review: true });
+  return json({ success: true, status });
+}
+
+async function updatePaymentStatus(env, body) {
+  const paymentId = clean(body.payment_id, 120);
+  const reviewer = clean(body.reviewer || "admin", 120);
+  const status = normalizeStatus(body.status, ["pending", "paid", "failed", "waived"]);
+  const paymentUrl = clean(body.payment_url, 500);
+  if (!paymentId || !status) return json({ success: false, error: "Statut paiement invalide" }, 400);
+  const row = await safeFirst(env, "SELECT p.*, cc.case_id FROM contract_payment_schedule p JOIN client_contracts cc ON cc.id = p.contract_id WHERE p.id = ?", [paymentId]);
+  if (!row || errorOf(row)) return json({ success: false, error: "Echeance introuvable" }, 404);
+  await safeRun(env, "UPDATE contract_payment_schedule SET status = ?, payment_url = COALESCE(NULLIF(?, ''), payment_url), paid_at = CASE WHEN ? = 'paid' THEN COALESCE(paid_at, ?) ELSE paid_at END, updated_at = ? WHERE id = ?", [status, paymentUrl, status, nowIso(), nowIso(), paymentId]);
+  await logTimeline(env, row.case_id, "contract_payment_admin_status", reviewer, { marker: "admin-contract-action-v1", payment_id: paymentId, contract_id: row.contract_id, status });
+  return json({ success: true, status });
+}
 export async function onRequestPost({ request, env }) {
   if (!authorized(request, env)) return json({ success: false, error: "Acces refuse" }, 401);
   if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
   const body = await request.json().catch(() => ({}));
   const action = clean(body.action, 80);
   if (action === "sync") return json({ success: true, sync: await ensureCasesForOpenLeads(env, 220) });
+
+  if (action === "contract_request_status") return updateContractRequestStatus(env, body);
+  if (action === "referral_status") return updateReferralStatus(env, body);
+  if (action === "payment_status") return updatePaymentStatus(env, body);
 
   if (!["approve_mail", "send_mail", "mark_sent"].includes(action)) return json({ success: false, error: "Action non supportee" }, 400);
   const mailId = clean(body.mail_id, 120);

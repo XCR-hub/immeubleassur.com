@@ -2,7 +2,7 @@ import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { openLocalSqlite } from "./local-sqlite-db.js";
-import { onRequestGet as adminGet } from "../functions/api/admin/cases.js";
+import { onRequestGet as adminGet, onRequestPost as adminPost } from "../functions/api/admin/cases.js";
 import { onRequestGet as clientGet, onRequestPost as clientPost } from "../functions/api/client/case.js";
 
 const stamp = `${process.pid}-${Date.now()}`;
@@ -43,6 +43,13 @@ async function post(token, body, DB) {
 
 async function getClient(token, DB) {
   return readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=${token}`), env: { DB } }));
+}
+
+async function postAdmin(body, DB) {
+  return readJson(await adminPost({
+    request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify(body) }),
+    env: { DB, ADMIN_API_TOKEN: adminToken, SITE_ORIGIN: siteOrigin }
+  }));
 }
 
 async function main() {
@@ -127,16 +134,33 @@ async function main() {
   const assetUpdate = await post(caseRow.client_portal_token, { action: "asset_update", contract_id: contract.id, label: "Immeuble Smoke Bordeaux", units_count: "20", address: "Bordeaux", occupancy: "locatif" }, DB);
   assert(assetUpdate.status === 200 && assetUpdate.body.status === "asset_saved", "asset update should be stored");
 
+  const requestRow = DB.prepare("SELECT id FROM contract_service_requests WHERE contract_id = ? AND status = 'open' ORDER BY created_at DESC LIMIT 1").bind(contract.id).first();
+  assert(requestRow?.id, "admin smoke should find an open contract request");
+  const requestTaken = await postAdmin({ action: "contract_request_status", request_id: requestRow.id, status: "in_progress", reviewer: "smoke-admin" }, DB);
+  assert(requestTaken.status === 200 && requestTaken.body.status === "in_progress", "admin should take a contract request");
+  const requestResolved = await postAdmin({ action: "contract_request_status", request_id: requestRow.id, status: "resolved", reviewer: "smoke-admin" }, DB);
+  assert(requestResolved.status === 200 && requestResolved.body.status === "resolved", "admin should resolve a contract request");
+
+  const referralRow = DB.prepare("SELECT id FROM contract_referrals WHERE contract_id = ? AND status = 'draft_review' ORDER BY created_at DESC LIMIT 1").bind(contract.id).first();
+  assert(referralRow?.id, "admin smoke should find a referral in review");
+  const referralApproved = await postAdmin({ action: "referral_status", referral_id: referralRow.id, status: "approved", reviewer: "smoke-admin" }, DB);
+  assert(referralApproved.status === 200 && referralApproved.body.status === "approved", "admin should approve a referral after review");
+
+  const paymentRow = DB.prepare("SELECT id FROM contract_payment_schedule WHERE contract_id = ? AND status = 'pending' ORDER BY due_at LIMIT 1").bind(contract.id).first();
+  assert(paymentRow?.id, "admin smoke should find a pending premium schedule");
+  const paymentMarked = await postAdmin({ action: "payment_status", payment_id: paymentRow.id, status: "paid", reviewer: "smoke-admin" }, DB);
+  assert(paymentMarked.status === 200 && paymentMarked.body.status === "paid", "admin should mark a reviewed premium as paid");
+
   const consentEvents = DB.prepare("SELECT COUNT(*) AS count FROM contract_consent_events WHERE contract_id = ?").bind(contract.id).first()?.count || 0;
   assert(Number(consentEvents) >= 2, "consent grant and revocation should be traced");
   const timelineCount = DB.prepare("SELECT COUNT(*) AS count FROM case_timeline WHERE case_id = ? AND event_type LIKE 'contract_%'").bind(caseRow.id).first()?.count || 0;
-  assert(Number(timelineCount) >= 5, "contract timeline should trace system and client actions");
+  assert(Number(timelineCount) >= 8, "contract timeline should trace system, client and admin actions");
   const humanReviewRequests = DB.prepare("SELECT COUNT(*) AS count FROM contract_service_requests WHERE contract_id = ? AND human_review_required = 1").bind(contract.id).first()?.count || 0;
   assert(Number(humanReviewRequests) >= 3, "contract requests should require human review");
 
   DB.close();
   cleanup();
-  console.log("Client contract workflow smoke passed: won case -> contract -> consent -> referral -> requests -> timeline.");
+  console.log("Client contract workflow smoke passed: won case -> contract -> consent -> referral -> requests -> admin actions -> timeline.");
 }
 
 main().catch((error) => {

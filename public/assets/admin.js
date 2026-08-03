@@ -1403,6 +1403,23 @@ function documentSummary(documents = []) {
   return `${received}/${total} recues\n${missing} requise(s) manque(nt)${next ? `\n${next.label}` : ""}`;
 }
 
+function shortDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "2-digit" });
+}
+
+function flatContractItems(contracts = [], key) {
+  return (Array.isArray(contracts) ? contracts : []).flatMap((contract) =>
+    (Array.isArray(contract[key]) ? contract[key] : []).map((item) => ({
+      ...item,
+      contract_id: item.contract_id || contract.id,
+      contract_reference: item.contract_reference || contract.contract_reference
+    }))
+  );
+}
+
 function contractSummary(contracts = []) {
   const rows = Array.isArray(contracts) ? contracts : [];
   if (!rows.length) return "Aucun contrat actif";
@@ -1410,15 +1427,60 @@ function contractSummary(contracts = []) {
   const refs = rows.slice(0, 2).map((contract) => contract.contract_reference).filter(Boolean).join(", ");
   const premium = rows.find((contract) => Number(contract.annual_premium_cents || 0) > 0);
   const premiumLabel = premium ? `${Math.round(Number(premium.annual_premium_cents || 0) / 100)} EUR/an` : "prime a confirmer";
-  return `${active}/${rows.length} actif(s)\n${refs || "reference a confirmer"}\n${premiumLabel}`;
+  const requests = flatContractItems(rows, "requests").filter((item) => ["open", "in_progress"].includes(item.status));
+  const referrals = flatContractItems(rows, "referrals").filter((item) => item.status === "draft_review");
+  const payments = flatContractItems(rows, "payments").filter((item) => item.status === "pending");
+  const ops = [];
+  if (requests.length) ops.push(`${requests.length} demande(s)`);
+  if (referrals.length) ops.push(`${referrals.length} parrainage(s)`);
+  if (payments.length) ops.push(`${payments.length} prime(s)`);
+  const nextPayment = [...payments].sort((a, b) => new Date(a.due_at || 0) - new Date(b.due_at || 0))[0];
+  const renewal = rows.map((contract) => ({ ...contract, renewalTime: new Date(contract.renewal_at || "").getTime() })).filter((contract) => Number.isFinite(contract.renewalTime)).sort((a, b) => a.renewalTime - b.renewalTime)[0];
+  const dates = [];
+  if (nextPayment?.due_at) dates.push(`Prime ${shortDate(nextPayment.due_at)}`);
+  if (renewal?.renewal_at) dates.push(`Renouv. ${shortDate(renewal.renewal_at)}`);
+  return `${active}/${rows.length} actif(s)\n${refs || "reference a confirmer"}\n${premiumLabel}${ops.length ? `\n${ops.join(", ")}` : ""}${dates.length ? `\n${dates.join(" / ")}` : ""}`;
+}
+
+function firstContractRequest(contracts = []) {
+  const order = { open: 1, in_progress: 2 };
+  return flatContractItems(contracts, "requests")
+    .filter((item) => ["open", "in_progress"].includes(item.status))
+    .sort((a, b) => (order[a.status] || 9) - (order[b.status] || 9) || new Date(a.due_at || 0) - new Date(b.due_at || 0))[0];
+}
+
+function firstReferral(contracts = []) {
+  return flatContractItems(contracts, "referrals").find((item) => item.status === "draft_review");
+}
+
+function firstPendingPayment(contracts = []) {
+  return flatContractItems(contracts, "payments")
+    .filter((item) => item.status === "pending")
+    .sort((a, b) => new Date(a.due_at || 0) - new Date(b.due_at || 0))[0];
+}
+
+function contractActionButton(action, text, dataset = {}, primary = false) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = primary ? "submit-button compact-action" : "button secondary compact-action";
+  button.dataset.contractAction = action;
+  for (const [key, value] of Object.entries(dataset)) {
+    if (value !== undefined && value !== null) button.dataset[key] = String(value);
+  }
+  button.textContent = text;
+  return button;
 }
 
 function renderCaseActionCell(caseRow) {
   const td = document.createElement("td");
   td.className = "case-action-cell";
   const mails = Array.isArray(caseRow.mail_queue) ? caseRow.mail_queue : [];
+  const contracts = Array.isArray(caseRow.contracts) ? caseRow.contracts : [];
   const draft = mails.find((mail) => mail.status === "draft_review");
   const approved = mails.find((mail) => mail.status === "approved" && mail.recipient_email);
+  const request = firstContractRequest(contracts);
+  const referral = firstReferral(contracts);
+  const payment = firstPendingPayment(contracts);
   if (draft) {
     const button = document.createElement("button");
     button.type = "button";
@@ -1437,7 +1499,17 @@ function renderCaseActionCell(caseRow) {
     button.textContent = "Envoyer approuve";
     td.append(button);
   }
-  if (!draft && !approved) td.textContent = caseRow.next_action || "Suivi manuel";
+  if (request) {
+    const nextStatus = request.status === "open" ? "in_progress" : "resolved";
+    td.append(contractActionButton("contract_request_status", request.status === "open" ? "Prendre demande" : "Resoudre demande", { requestId: request.id, status: nextStatus }, true));
+  }
+  if (referral) {
+    td.append(contractActionButton("referral_status", "Valider parrainage", { referralId: referral.id, status: "approved" }));
+  }
+  if (payment) {
+    td.append(contractActionButton("payment_status", "Prime payee", { paymentId: payment.id, status: "paid" }));
+  }
+  if (!draft && !approved && !request && !referral && !payment) td.textContent = caseRow.next_action || "Suivi manuel";
   return td;
 }
 
@@ -1506,6 +1578,38 @@ async function postCaseAction(action, mailId, button) {
   }
 }
 
+async function postContractAdminAction(action, button) {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (!token) return;
+  const previous = button?.textContent || "";
+  const body = { action, reviewer: "admin" };
+  if (button?.dataset.requestId) body.request_id = button.dataset.requestId;
+  if (button?.dataset.referralId) body.referral_id = button.dataset.referralId;
+  if (button?.dataset.paymentId) body.payment_id = button.dataset.paymentId;
+  if (button?.dataset.status) body.status = button.dataset.status;
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Traitement...";
+  }
+  try {
+    const response = await fetch("/api/admin/cases", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || "Action contrat impossible");
+    await loadCases();
+  } catch (error) {
+    if (casesSummary) casesSummary.replaceChildren(metricCard("Erreur contrat", action, error.message || "action impossible"));
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = previous;
+    }
+  }
+}
+
 async function loadCases() {
   const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
   if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
@@ -1522,6 +1626,7 @@ async function loadCases() {
   const mail = summary.mail_queue || {};
   const consultations = summary.consultations || {};
   const contracts = summary.contracts || {};
+  const contractOps = summary.contract_operations || {};
   const sync = result.sync?.counters || {};
   if (casesSummary) {
     casesSummary.replaceChildren(
@@ -1532,6 +1637,7 @@ async function loadCases() {
       metricCard("Mails a valider", String(mail.review_drafts || 0), `${mail.approved || 0} approuve(s), ${mail.sent || 0} envoye(s)`),
       metricCard("Consultations", String(consultations.consultations || 0), `${consultations.review_consultations || 0} en revue`),
       metricCard("Contrats", String(contracts.contracts || 0), `${contracts.active_contracts || 0} actif(s)`),
+      metricCard("Ops contrats", String(contractOps.open_requests || 0), `${contractOps.review_referrals || 0} parrainage(s), ${contractOps.pending_payments || 0} prime(s)`),
       metricCard("Synchronisation", `${sync.created || 0}+${sync.updated || 0}`, `${sync.mail_drafts || 0} brouillon(s)`),
       metricCard("Actions", String((result.actions || []).length), (result.safeguards || []).slice(0, 2).join(", "))
     );
@@ -1961,9 +2067,13 @@ casesButton?.addEventListener("click", () => {
 casesBody?.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
-  const button = target.closest("[data-case-mail-action]");
-  if (!button) return;
-  postCaseAction(button.dataset.caseMailAction || "", button.dataset.mailId || "", button);
+  const mailButton = target.closest("[data-case-mail-action]");
+  if (mailButton) {
+    postCaseAction(mailButton.dataset.caseMailAction || "", mailButton.dataset.mailId || "", mailButton);
+    return;
+  }
+  const contractButton = target.closest("[data-contract-action]");
+  if (contractButton) postContractAdminAction(contractButton.dataset.contractAction || "", contractButton);
 });
 attributionButton?.addEventListener("click", () => {
   loadAttribution().catch((error) => {
