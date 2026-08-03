@@ -37,7 +37,7 @@
             <form class="admin-toolbar" id="admin-profile-login-form">
               <label>Email operateur<input name="email" type="email" autocomplete="username" required placeholder="nom@entreprise.fr" /></label>
               <label>Mot de passe<input name="password" type="password" autocomplete="current-password" required minlength="12" /></label>
-              <button class="submit-button" type="submit">Se connecter</button>
+              <button class="submit-button" type="submit" data-track="lead-submit">Se connecter</button>
             </form>
 <form class="admin-toolbar" id="admin-profile-invite-form"><label>Email invite<input name="email" type="email" autocomplete="off" required placeholder="nom@entreprise.fr" /></label><label>Nom affiche<input name="display_name" autocomplete="off" required placeholder="Nom operateur" /></label><label>Role<select name="role"><option value="commercial">Commercial</option><option value="manager">Manager</option><option value="readonly">Lecture seule</option><option value="owner">Direction</option></select></label><button class="button secondary" type="submit">Generer une invitation</button></form><p class="form-note" id="admin-profile-invite-output"></p>
                         <form class="admin-toolbar" id="admin-profile-create-form">
@@ -54,7 +54,7 @@
             <p class="form-status" id="admin-profile-status" role="status" aria-live="polite"></p>
           </div>
         </section>
-<section class="plain-panel" id="admin-profile-invite-acceptance" hidden><h2>Activer votre acces operateur</h2><form class="admin-toolbar" id="admin-profile-invite-accept-form"><input type="hidden" name="token" /><label>Mot de passe<input name="password" type="password" autocomplete="new-password" required minlength="12" /></label><button class="submit-button" type="submit">Activer mon profil</button></form></section>
+<section class="plain-panel" id="admin-profile-invite-acceptance" hidden><h2>Activer votre acces operateur</h2><form class="admin-toolbar" id="admin-profile-invite-accept-form"><input type="hidden" name="token" /><label>Mot de passe<input name="password" type="password" autocomplete="new-password" required minlength="12" /></label><button class="submit-button" type="submit" data-track="lead-submit">Activer mon profil</button></form></section>
         <section class="plain-panel admin-auth-audit-panel" aria-labelledby="admin-auth-audit-title">
           <div class="admin-toolbar">
             <h2 id="admin-auth-audit-title">Audit des acces operateurs</h2>
@@ -89,6 +89,17 @@
 
 
 
+
+
+
+
+<!-- cases-admin:start -->
+<section class="plain-panel admin-seo-panel admin-cases-panel"><h2>Dossiers courtage</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-cases">Synchroniser dossiers</button><a class="button secondary" data-track="cta-secondary" href="/espace-client" target="_blank" rel="noopener">Voir espace client</a><span class="admin-muted">Pieces, mails a valider, consultations assureurs et tracabilite.</span></div><div class="seo-admin-grid" id="cases-summary"><p>Synchronise les leads ouverts en dossiers courtage supervises.</p></div><section class="admin-table-wrap admin-crm-action-queue" aria-label="File actions CRM"><table class="admin-table admin-crm-action-table"><thead><tr><th>Priorite</th><th>Dossier</th><th>Signal</th><th>Prochaine action</th></tr></thead><tbody id="cases-action-body"><tr><td colspan="4">Aucune action chargee.</td></tr></tbody></table></section><section class="admin-table-wrap" aria-label="Dossiers courtage"><table class="admin-table admin-cases-table"><thead><tr><th>Dossier</th><th>Client</th><th>Etape</th><th>Pieces</th><th>Mails</th><th>Trace</th><th>Assureurs</th><th>Lien client</th><th>Action</th></tr></thead><tbody id="cases-body"><tr><td colspan="9">Aucun chargement effectue.</td></tr></tbody></table></section></section>
+<section class="plain-panel admin-seo-panel"><h2>Reponses email a relire</h2><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Statut</th><th>Dossier</th><th>Expediteur</th><th>Objet</th><th>Recu</th><th>Action</th></tr></thead><tbody id="inbox-mail-body"><tr><td colspan="6">Aucune reponse importee.</td></tr></tbody></table></div></section><!-- cases-admin:end -->
+
+
+
+
 
 <!-- seo-admin:start -->
 <section class="plain-panel admin-seo-panel"><h2>Pilotage SEO continu</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-seo">Charger SEO</button><a class="button secondary" data-track="cta-secondary" href="/strategie-seo-continue">Voir systeme public</a></div><div class="seo-admin-grid" id="seo-summary"><p>Charge les derniers signaux SEO, conversions et opportunites SQLite.</p></div><section class="admin-table-wrap" aria-label="Opportunites SEO"><table class="admin-table"><thead><tr><th>Score</th><th>Type</th><th>URL</th><th>Requete</th><th>Action</th></tr></thead><tbody id="seo-opportunities-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
@@ -98,10 +109,6 @@
 <section class="plain-panel admin-seo-panel admin-sales-panel"><h2>Centre de relance commerciale</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-sales">Charger relances</button><span class="admin-muted">SLA, scripts de rappel et priorites commerciales depuis SQLite.</span></div><div class="seo-admin-grid" id="sales-summary"><p>Charge relances dues, pipeline estime, leads chauds et scripts de rappel.</p></div><section class="admin-table-wrap" aria-label="Centre de relance commerciale"><table class="admin-table admin-sales-table"><thead><tr><th>Type</th><th>Lead</th><th>Valeur</th><th>Signal</th><th>Action</th></tr></thead><tbody id="sales-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
 <!-- sales-admin:end -->
 
-
-<!-- cases-admin:start -->
-<section class="plain-panel admin-seo-panel admin-cases-panel"><h2>Dossiers courtage</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-cases">Synchroniser dossiers</button><a class="button secondary" href="/espace-client.html" target="_blank" rel="noopener">Voir espace client</a><span class="admin-muted">Pieces, mails a valider, consultations assureurs et tracabilite.</span></div><div class="seo-admin-grid" id="cases-summary"><p>Synchronise les leads ouverts en dossiers courtage supervises.</p></div><section class="admin-table-wrap admin-crm-action-queue" aria-label="File actions CRM"><table class="admin-table admin-crm-action-table"><thead><tr><th>Priorite</th><th>Dossier</th><th>Signal</th><th>Prochaine action</th></tr></thead><tbody id="cases-action-body"><tr><td colspan="4">Aucune action chargee.</td></tr></tbody></table></section><section class="admin-table-wrap" aria-label="Dossiers courtage"><table class="admin-table admin-cases-table"><thead><tr><th>Dossier</th><th>Client</th><th>Etape</th><th>Pieces</th><th>Mails</th><th>Trace</th><th>Assureurs</th><th>Lien client</th><th>Action</th></tr></thead><tbody id="cases-body"><tr><td colspan="9">Aucun chargement effectue.</td></tr></tbody></table></section></section>
-<section class="plain-panel admin-seo-panel"><h2>Reponses email a relire</h2><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Statut</th><th>Dossier</th><th>Expediteur</th><th>Objet</th><th>Recu</th><th>Action</th></tr></thead><tbody id="inbox-mail-body"><tr><td colspan="6">Aucune reponse importee.</td></tr></tbody></table></div></section><!-- cases-admin:end -->
 <!-- attribution-admin:start -->
 <section class="plain-panel admin-seo-panel admin-attribution-panel"><h2>Attribution acquisition</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-attribution">Charger attribution</button><span class="admin-muted">Sources, landing pages, campagnes et besoins mesures en agregats.</span></div><div class="seo-admin-grid" id="attribution-summary"><p>Charge les canaux, pages et campagnes qui generent les leads les plus qualifies.</p></div><section class="admin-table-wrap" aria-label="Attribution acquisition"><table class="admin-table admin-attribution-table"><thead><tr><th>Type</th><th>Source ou page</th><th>Trafic</th><th>Conversion</th><th>Action</th></tr></thead><tbody id="attribution-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
 <!-- attribution-admin:end -->

@@ -1,26 +1,26 @@
 {
-  "generated_at": "2026-08-03T16:26:47.488Z",
+  "generated_at": "2026-08-03T22:14:48.930Z",
   "status": "passed",
-  "pages_checked": 189,
-  "urgent_pages": 174,
+  "pages_checked": 188,
+  "urgent_pages": 171,
   "missing_cta_count": 0,
   "contract_missing_count": 0,
   "coverage_by_intent": [
     {
       "intent": "sinistre",
       "urgency_level": "immediate",
-      "pages": 54,
-      "pages_with_intent_link": 21,
-      "pages_with_conversion_route": 54,
+      "pages": 52,
+      "pages_with_intent_link": 19,
+      "pages_with_conversion_route": 52,
       "missing_pages": [],
       "action": "Orienter vers un audit sinistre/resiliation avec rappel prioritaire."
     },
     {
       "intent": "travaux",
       "urgency_level": "this-month",
-      "pages": 17,
+      "pages": 18,
       "pages_with_intent_link": 3,
-      "pages_with_conversion_route": 17,
+      "pages_with_conversion_route": 18,
       "missing_pages": [],
       "action": "Orienter vers la verification travaux et garanties dommages-ouvrage."
     },
@@ -36,18 +36,18 @@
     {
       "intent": "prix",
       "urgency_level": "quote-ready",
-      "pages": 34,
-      "pages_with_intent_link": 14,
-      "pages_with_conversion_route": 34,
+      "pages": 27,
+      "pages_with_intent_link": 11,
+      "pages_with_conversion_route": 27,
       "missing_pages": [],
       "action": "Orienter vers un devis comparatif prix, franchises et garanties."
     },
     {
       "intent": "pno-cno",
       "urgency_level": "quote-ready",
-      "pages": 112,
-      "pages_with_intent_link": 78,
-      "pages_with_conversion_route": 112,
+      "pages": 111,
+      "pages_with_intent_link": 77,
+      "pages_with_conversion_route": 111,
       "missing_pages": [],
       "action": "Orienter vers le parcours PNO/CNO avec pre-remplissage."
     }
@@ -55,8 +55,8 @@
   "weakest_pages": [],
   "conversion_signals": {
     "lead_intent_routing": "passed",
-    "lead_intent_active_bridges": 66,
-    "money_score": 96,
+    "lead_intent_active_bridges": 65,
+    "money_score": 95,
     "funnel_leads_30d": 0,
     "funnel_form_starts_30d": 0
   },

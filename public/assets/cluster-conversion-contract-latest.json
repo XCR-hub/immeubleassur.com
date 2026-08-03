@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-03T16:26:47.175Z",
+  "generated_at": "2026-08-03T22:14:57.082Z",
   "status": "passed",
-  "average_conversion_score": 88,
-  "average_money_score": 96,
+  "average_conversion_score": 85,
+  "average_money_score": 95,
   "weak_money_pages": 0,
   "cluster_requirements": [
     {
@@ -16,7 +16,7 @@
     },
     {
       "cluster": "pno-cno",
-      "score": 96,
+      "score": 95,
       "pages": 15,
       "money_pages": 13,
       "min_score": 95,
@@ -25,7 +25,7 @@
     },
     {
       "cluster": "sinistre-resilie",
-      "score": 95,
+      "score": 90,
       "pages": 15,
       "money_pages": 12,
       "min_score": 81,
@@ -34,7 +34,7 @@
     },
     {
       "cluster": "devis-courtier",
-      "score": 89,
+      "score": 84,
       "pages": 16,
       "money_pages": 10,
       "min_score": 77,
@@ -43,7 +43,7 @@
     },
     {
       "cluster": "prix-tarif",
-      "score": 91,
+      "score": 85,
       "pages": 9,
       "money_pages": 6,
       "min_score": 80,
@@ -52,7 +52,7 @@
     },
     {
       "cluster": "sci-bailleur",
-      "score": 84,
+      "score": 77,
       "pages": 13,
       "money_pages": 4,
       "min_score": 76,
@@ -61,8 +61,8 @@
     },
     {
       "cluster": "copropriete-syndic",
-      "score": 80,
-      "pages": 18,
+      "score": 76,
+      "pages": 17,
       "money_pages": 2,
       "min_score": 75,
       "min_pages": 16,
@@ -70,7 +70,7 @@
     },
     {
       "cluster": "local-commercial",
-      "score": 86,
+      "score": 76,
       "pages": 6,
       "money_pages": 0,
       "min_score": 76,
@@ -79,7 +79,7 @@
     },
     {
       "cluster": "travaux",
-      "score": 78,
+      "score": 69,
       "pages": 3,
       "money_pages": 0,
       "min_score": 69,
@@ -97,15 +97,15 @@
     }
   ],
   "bridge_status": "passed",
-  "active_bridges": 66,
+  "active_bridges": 65,
   "bridge_clusters": [
     {
       "cluster": "copropriete-syndic",
-      "count": 19
+      "count": 17
     },
     {
       "cluster": "sci-bailleur",
-      "count": 7
+      "count": 8
     },
     {
       "cluster": "sinistre-resilie",
@@ -113,7 +113,7 @@
     },
     {
       "cluster": "devis-courtier",
-      "count": 8
+      "count": 9
     },
     {
       "cluster": "local-commercial",
@@ -121,7 +121,7 @@
     },
     {
       "cluster": "prix-tarif",
-      "count": 6
+      "count": 5
     },
     {
       "cluster": "newsletter-veille",
@@ -135,7 +135,7 @@
   "intent_minimums": [
     {
       "intent": "travaux",
-      "count": 16,
+      "count": 17,
       "minimum": 10
     },
     {
@@ -150,7 +150,7 @@
     },
     {
       "intent": "prix",
-      "count": 17,
+      "count": 16,
       "minimum": 10
     },
     {
@@ -160,27 +160,27 @@
     },
     {
       "intent": "copropriete",
-      "count": 36,
+      "count": 34,
       "minimum": 30
     },
     {
       "intent": "sci",
-      "count": 21,
+      "count": 18,
       "minimum": 15
     },
     {
       "intent": "immeuble",
-      "count": 164,
+      "count": 225,
       "minimum": 150
     },
     {
       "intent": "pno",
-      "count": 17,
+      "count": 120,
       "minimum": 8
     },
     {
       "intent": "cno",
-      "count": 99,
+      "count": 91,
       "minimum": 80
     }
   ],

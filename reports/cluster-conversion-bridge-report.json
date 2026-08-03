@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-08-03T16:22:32.921Z",
+  "generated_at": "2026-08-03T22:14:54.285Z",
   "status": "passed",
-  "pages_checked": 201,
-  "pages_targeted": 61,
-  "pages_changed": 61,
-  "active_bridges": 66,
+  "pages_checked": 203,
+  "pages_targeted": 60,
+  "pages_changed": 14,
+  "active_bridges": 65,
   "cluster_targets": [
     {
       "cluster": "copropriete-syndic",
-      "count": 19
+      "count": 17
     },
     {
       "cluster": "sinistre-resilie",
@@ -16,15 +16,15 @@
     },
     {
       "cluster": "devis-courtier",
-      "count": 8
+      "count": 9
     },
     {
       "cluster": "sci-bailleur",
-      "count": 7
+      "count": 8
     },
     {
       "cluster": "prix-tarif",
-      "count": 6
+      "count": 5
     },
     {
       "cluster": "local-commercial",
@@ -53,69 +53,14 @@
       "cluster": "copropriete-syndic"
     },
     {
-      "slug": "blog/assurance-copropriete-obligatoire",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/assurance-immeuble-ancien",
-      "type": "blog",
-      "cluster": "devis-courtier"
-    },
-    {
       "slug": "blog/assurance-immeuble-apres-refus-assureur",
       "type": "blog",
       "cluster": "sinistre-resilie"
     },
     {
-      "slug": "blog/assurance-immeuble-etudiant",
-      "type": "blog",
-      "cluster": "sci-bailleur"
-    },
-    {
-      "slug": "blog/assurance-immeuble-local-professionnel",
-      "type": "blog",
-      "cluster": "sci-bailleur"
-    },
-    {
-      "slug": "blog/assurance-immeuble-mixte-commerce",
-      "type": "blog",
-      "cluster": "local-commercial"
-    },
-    {
-      "slug": "blog/assurance-immeuble-protection-du-patrimoine",
-      "type": "blog",
-      "cluster": "sci-bailleur"
-    },
-    {
       "slug": "blog/assurance-immeuble-sans-sinistre",
       "type": "blog",
       "cluster": "sinistre-resilie"
-    },
-    {
-      "slug": "blog/assurance-lot-vacant-copropriete",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/assurance-parking-garages-copropriete",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/assurance-sci-immeuble-cartographie-patrimoine",
-      "type": "blog",
-      "cluster": "sci-bailleur"
-    },
-    {
-      "slug": "blog/assurance-sci-patrimoine-locatif",
-      "type": "blog",
-      "cluster": "sci-bailleur"
-    },
-    {
-      "slug": "blog/audit-franchises-assurance-immeuble",
-      "type": "blog",
-      "cluster": "prix-tarif"
     },
     {
       "slug": "blog/checklist-documents-devis-immeuble",
@@ -133,79 +78,14 @@
       "cluster": "copropriete-syndic"
     },
     {
-      "slug": "blog/coproprietaire-non-occupant-documents-devis",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
-    },
-    {
       "slug": "blog/copropriete-petite-syndic-benevole",
       "type": "blog",
       "cluster": "copropriete-syndic"
     },
     {
-      "slug": "blog/devis-assurance-immeuble-comparatif",
-      "type": "blog",
-      "cluster": "devis-courtier"
-    },
-    {
-      "slug": "blog/devis-assurance-immeuble-complet",
-      "type": "blog",
-      "cluster": "devis-courtier"
-    },
-    {
-      "slug": "blog/devis-assurance-immeuble-echeance",
-      "type": "blog",
-      "cluster": "devis-courtier"
-    },
-    {
-      "slug": "blog/devis-assurance-immeuble-refus",
-      "type": "blog",
-      "cluster": "sinistre-resilie"
-    },
-    {
-      "slug": "blog/devis-courtier-assurance-immeuble",
-      "type": "blog",
-      "cluster": "prix-tarif"
-    },
-    {
       "slug": "blog/dommages-ouvrage-copropriete-travaux",
       "type": "blog",
       "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/dossier-preuve-assurance-copropriete",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/franchise-degat-des-eaux-immeuble",
-      "type": "blog",
-      "cluster": "sinistre-resilie"
-    },
-    {
-      "slug": "blog/immeuble-mixte-restaurant",
-      "type": "blog",
-      "cluster": "local-commercial"
-    },
-    {
-      "slug": "blog/infiltration-toiture-terrasse",
-      "type": "blog",
-      "cluster": "sinistre-resilie"
-    },
-    {
-      "slug": "blog/local-commercial-vacant",
-      "type": "blog",
-      "cluster": "local-commercial"
-    },
-    {
-      "slug": "blog/mandat-courtier-assurance-immeuble-consultation",
-      "type": "blog",
-      "cluster": "devis-courtier"
-    },
-    {
-      "slug": "blog/multirisque-immeuble-garanties-batiment-preuves",
-      "type": "blog",
-      "cluster": "devis-courtier"
     },
     {
       "slug": "blog/pno-bailleur-copropriete",
@@ -223,54 +103,9 @@
       "cluster": "prix-tarif"
     },
     {
-      "slug": "blog/prix-assurance-immeuble-franchise",
-      "type": "blog",
-      "cluster": "prix-tarif"
-    },
-    {
-      "slug": "blog/prix-assurance-immeuble-franchises-reste-a-charge",
-      "type": "blog",
-      "cluster": "prix-tarif"
-    },
-    {
-      "slug": "blog/protection-juridique-copropriete",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/ravalement-toiture-travaux-assurance",
-      "type": "blog",
-      "cluster": "travaux"
-    },
-    {
-      "slug": "blog/refus-assureur-apres-sinistre-immeuble",
-      "type": "blog",
-      "cluster": "sinistre-resilie"
-    },
-    {
-      "slug": "blog/renouvellement-apres-sinistre-immeuble",
-      "type": "blog",
-      "cluster": "sinistre-resilie"
-    },
-    {
       "slug": "blog/renovation-energetique-copropriete-assurance",
       "type": "blog",
       "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/sci-familiale-immeuble",
-      "type": "blog",
-      "cluster": "sci-bailleur"
-    },
-    {
-      "slug": "blog/sinistre-immeuble-apres-declaration",
-      "type": "blog",
-      "cluster": "sinistre-resilie"
-    },
-    {
-      "slug": "blog/sinistre-recurrent-assurance-immeuble",
-      "type": "blog",
-      "cluster": "sinistre-resilie"
     },
     {
       "slug": "blog/sinistres-recurrents-immeuble",
@@ -278,79 +113,9 @@
       "cluster": "sinistre-resilie"
     },
     {
-      "slug": "blog/syndic-benevole-assurance-immeuble-archives-ag",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/syndic-benevole-assurance",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "blog/syndic-copropriete-assurance-contrat",
-      "type": "blog",
-      "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "faq/copropriete",
-      "type": "faq",
-      "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "faq/local-commercial",
-      "type": "faq",
-      "cluster": "local-commercial"
-    },
-    {
-      "slug": "faq/pno",
-      "type": "faq",
-      "cluster": "copropriete-syndic"
-    },
-    {
-      "slug": "faq/prix",
-      "type": "faq",
-      "cluster": "prix-tarif"
-    },
-    {
-      "slug": "faq/sci",
-      "type": "faq",
-      "cluster": "sci-bailleur"
-    },
-    {
-      "slug": "faq/sinistres",
-      "type": "faq",
-      "cluster": "sinistre-resilie"
-    },
-    {
-      "slug": "faq/travaux",
-      "type": "faq",
-      "cluster": "travaux"
-    },
-    {
-      "slug": "guides",
-      "type": "service",
-      "cluster": "copropriete-syndic"
-    },
-    {
       "slug": "news/veille-assurance-immeuble-2026-08-03",
       "type": "news",
       "cluster": "newsletter-veille"
-    },
-    {
-      "slug": "newsletter-assurance-immeuble",
-      "type": "newsletter",
-      "cluster": "newsletter-veille"
-    },
-    {
-      "slug": "veille-assurance-immeuble",
-      "type": "newsletter",
-      "cluster": "newsletter-veille"
-    },
-    {
-      "slug": "villes",
-      "type": "service",
-      "cluster": "devis-courtier"
     }
   ]
 }

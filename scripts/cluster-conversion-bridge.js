@@ -196,6 +196,7 @@ function block(profile, cluster) {
       <div class="cluster-conversion-actions">
         <a class="button primary" data-track="cluster-conversion-primary" href="${esc(primaryHref)}">${esc(primaryLabel)}</a>
         <a class="button secondary" data-track="cluster-conversion-secondary" href="${esc(secondaryHref)}">${esc(secondaryLabel)}</a>
+        <a class="cluster-conversion-general-link" data-track="cluster-conversion-general" href="/devis-assurance-immeuble?intent=immeuble">Devis assurance immeuble</a>
       </div>
     </div>
   </div>

@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-01T09:39:59.405Z",
-  "articles": 28,
+  "generated_at": "2026-08-03T21:57:31.183Z",
+  "articles": 39,
   "new_city_pages": 0,
   "faq_hubs": 8,
-  "total_pages_written": 37,
+  "total_pages_written": 48,
   "min_quality_score": 65,
-  "average_quality_score": 91,
+  "average_quality_score": 93,
   "anti_spam_controls": [
     "no-google-result-scraping",
     "no-indexing-api-for-non-job-pages",
@@ -180,6 +180,72 @@
       "type": "article",
       "slug": "blog/checklist-sinistre-degat-des-eaux",
       "title": "Checklist degat des eaux immeuble: pieces a reunir",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/sinistre-immeuble-apres-declaration",
+      "title": "Apres un sinistre immeuble: organiser les etapes et les pieces",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/refus-assureur-apres-sinistre-immeuble",
+      "title": "Refus assureur apres sinistre immeuble: chronologie et mesures correctives",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/renouvellement-apres-sinistre-immeuble",
+      "title": "Renouvellement apres sinistres: preparer une consultation utile",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/sinistre-recurrent-assurance-immeuble",
+      "title": "Sinistre recurrent assurance immeuble: mesurer le risque et les corrections",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/prix-assurance-immeuble-franchise",
+      "title": "Prix assurance immeuble et franchise: calculer le reste a charge",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/syndic-copropriete-assurance-contrat",
+      "title": "Syndic et assurance copropriete: preparer la decision du conseil syndical",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/devis-assurance-immeuble-complet",
+      "title": "Devis assurance immeuble complet: quelles informations transmettre",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/devis-courtier-assurance-immeuble",
+      "title": "Devis courtier assurance immeuble: placement et validation humaine",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/devis-assurance-immeuble-refus",
+      "title": "Devis assurance immeuble apres refus: lettre et pieces de resouscription",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/devis-assurance-immeuble-echeance",
+      "title": "Devis assurance immeuble avant echeance: organiser le calendrier",
+      "quality_score": 100
+    },
+    {
+      "type": "article",
+      "slug": "blog/devis-assurance-immeuble-comparatif",
+      "title": "Devis assurance immeuble comparatif: presenter des garanties comparables",
       "quality_score": 100
     },
     {

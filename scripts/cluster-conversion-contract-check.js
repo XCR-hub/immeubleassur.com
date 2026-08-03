@@ -1,4 +1,5 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { extname } from "node:path";
 import { dirname, join } from "node:path";
 
 const REPORT_DIR = "reports";
@@ -42,6 +43,26 @@ const intentMinimums = {
   pno: 8,
   cno: 80
 };
+
+function htmlFiles(dir) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const file = join(dir, entry.name);
+    if (entry.isDirectory()) return htmlFiles(file);
+    return extname(entry.name) === ".html" ? [file] : [];
+  });
+}
+
+function liveIntentCounts() {
+  const counts = Object.fromEntries(Object.keys(intentMinimums).map((name) => [name, 0]));
+  for (const file of htmlFiles("public")) {
+    const source = readFileSync(file, "utf8");
+    for (const name of Object.keys(counts)) {
+      const pattern = new RegExp("[?&]intent=" + name, "g");
+      counts[name] += (source.match(pattern) || []).length;
+    }
+  }
+  return counts;
+}
 
 function ensureDir(path) {
   mkdirSync(path, { recursive: true });
@@ -116,7 +137,7 @@ if (bridge) {
   }
 }
 
-const intentCounts = intent?.intent_link_counts || {};
+const intentCounts = liveIntentCounts();
 if (intent) {
   if (intent.status !== "passed") issue(issues, "high", "lead-intent-routing", "intent-status", `Statut ${intent.status}.`);
   for (const [name, minimum] of Object.entries(intentMinimums)) {

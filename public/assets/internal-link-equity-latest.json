@@ -1,22 +1,26 @@
 {
-  "generated_at": "2026-08-03T12:10:26.850Z",
+  "generated_at": "2026-08-03T22:14:53.397Z",
   "status": "passed",
-  "pages_checked": 189,
-  "pages_targeted": 57,
-  "pages_changed": 14,
-  "links_added": 56,
-  "pages_with_active_blocks": 61,
-  "active_internal_links": 241,
-  "noindex_skipped": 9,
+  "pages_checked": 203,
+  "pages_targeted": 68,
+  "pages_changed": 17,
+  "links_added": 68,
+  "pages_with_active_blocks": 74,
+  "active_internal_links": 293,
+  "noindex_skipped": 12,
   "lead_pages_skipped": 6,
   "cluster_targets": [
     {
       "cluster": "default",
-      "count": 12
+      "count": 16
     },
     {
       "cluster": "copropriete-syndic",
-      "count": 11
+      "count": 12
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "count": 12
     },
     {
       "cluster": "pno-cno",
@@ -27,15 +31,11 @@
       "count": 7
     },
     {
-      "cluster": "sinistre-resilie",
-      "count": 7
+      "cluster": "prix-tarif",
+      "count": 5
     },
     {
       "cluster": "local-commercial",
-      "count": 4
-    },
-    {
-      "cluster": "prix-tarif",
       "count": 4
     },
     {
@@ -60,20 +60,27 @@
       "slug": "blog/assurance-copropriete-avant-ag",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 17,
+      "previous_internal_links": 18,
       "links_added": 4
     },
     {
       "slug": "blog/assurance-immeuble-apres-refus-assureur",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 17,
+      "previous_internal_links": 18,
       "links_added": 4
     },
     {
       "slug": "blog/assurance-immeuble-sans-sinistre",
       "type": "blog",
       "cluster": "sinistre-resilie",
+      "previous_internal_links": 23,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/checklist-documents-devis-immeuble",
+      "type": "blog",
+      "cluster": "default",
       "previous_internal_links": 22,
       "links_added": 4
     },
@@ -81,28 +88,28 @@
       "slug": "blog/checklist-sinistre-degat-des-eaux",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 22,
+      "previous_internal_links": 23,
       "links_added": 4
     },
     {
       "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 21,
+      "previous_internal_links": 22,
       "links_added": 4
     },
     {
       "slug": "blog/copropriete-petite-syndic-benevole",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 17,
+      "previous_internal_links": 18,
       "links_added": 4
     },
     {
       "slug": "blog/dommages-ouvrage-copropriete-travaux",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 17,
+      "previous_internal_links": 18,
       "links_added": 4
     },
     {
@@ -110,6 +117,13 @@
       "type": "blog",
       "cluster": "pno-cno",
       "previous_internal_links": 20,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/pno-bailleur-copropriete",
+      "type": "blog",
+      "cluster": "pno-cno",
+      "previous_internal_links": 22,
       "links_added": 4
     },
     {
@@ -123,14 +137,21 @@
       "slug": "blog/pno-obligatoire-copropriete",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 22,
+      "previous_internal_links": 23,
+      "links_added": 4
+    },
+    {
+      "slug": "blog/prix-assurance-immeuble-au-m2",
+      "type": "blog",
+      "cluster": "prix-tarif",
+      "previous_internal_links": 21,
       "links_added": 4
     },
     {
       "slug": "blog/renovation-energetique-copropriete-assurance",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 17,
+      "previous_internal_links": 18,
       "links_added": 4
     },
     {
@@ -144,14 +165,14 @@
       "slug": "blog/sinistres-recurrents-immeuble",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 22,
+      "previous_internal_links": 23,
       "links_added": 4
     },
     {
-      "slug": "news/veille-assurance-immeuble-2026-08-02",
+      "slug": "news/veille-assurance-immeuble-2026-08-03",
       "type": "news",
       "cluster": "newsletter-veille",
-      "previous_internal_links": 25,
+      "previous_internal_links": 30,
       "links_added": 4
     }
   ]

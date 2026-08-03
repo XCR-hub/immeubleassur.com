@@ -1,23 +1,18 @@
 {
-  "generated_at": "2026-08-03T16:22:30.097Z",
+  "generated_at": "2026-08-03T22:14:45.444Z",
   "status": "passed",
-  "pages_checked": 201,
-  "indexable_pages": 192,
-  "average_html_kb": 20.5,
+  "pages_checked": 203,
+  "indexable_pages": 191,
+  "average_html_kb": 19.9,
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 37.7,
+      "kb": 37.9,
       "issue_count": 0
     },
     {
-      "source": "assurance-sci.html",
-      "kb": 29.5,
-      "issue_count": 0
-    },
-    {
-      "source": "prix-assurance-immeuble.html",
-      "kb": 28.4,
+      "source": "assurance-immeuble.html",
+      "kb": 31.2,
       "issue_count": 0
     },
     {
@@ -26,51 +21,56 @@
       "issue_count": 0
     },
     {
-      "source": "assurance-pno-cno.html",
-      "kb": 28.2,
+      "source": "prix-assurance-immeuble.html",
+      "kb": 27.6,
+      "issue_count": 0
+    },
+    {
+      "source": "news/veille-assurance-immeuble-2026-08-03.html",
+      "kb": 27.5,
       "issue_count": 0
     },
     {
       "source": "assurance-copropriete.html",
-      "kb": 27.8,
+      "kb": 27,
       "issue_count": 0
     },
     {
       "source": "devis-assurance-immeuble.html",
-      "kb": 27.2,
+      "kb": 26.7,
       "issue_count": 0
     },
     {
-      "source": "assurance-immeuble.html",
-      "kb": 26.8,
-      "issue_count": 0
-    },
-    {
-      "source": "comparateur-assurance-immeuble.html",
-      "kb": 26.1,
+      "source": "blog/index.html",
+      "kb": 26.2,
       "issue_count": 0
     },
     {
       "source": "blog.html",
+      "kb": 26.1,
+      "issue_count": 0
+    },
+    {
+      "source": "news/veille-assurance-immeuble-2026-07-31.html",
       "kb": 26,
       "issue_count": 0
     },
     {
-      "source": "gestion-sinistres-immeuble.html",
-      "kb": 25.7,
+      "source": "assurance-immeuble-de-rapport.html",
+      "kb": 25.9,
       "issue_count": 0
     },
     {
-      "source": "courtier-assurance-immeuble.html",
-      "kb": 25.1,
+      "source": "assurance-sci.html",
+      "kb": 25.9,
       "issue_count": 0
     }
   ],
   "assets": [
     {
       "path": "assets/styles.css",
-      "bytes": 69639,
-      "kb": 68,
+      "bytes": 70769,
+      "kb": 69.1,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
@@ -85,16 +85,16 @@
     },
     {
       "path": "assets/admin.js",
-      "bytes": 133107,
-      "kb": 130,
+      "bytes": 97003,
+      "kb": 94.7,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true
     },
     {
       "path": "assets/search-index.json",
-      "bytes": 55622,
-      "kb": 54.3,
+      "bytes": 49262,
+      "kb": 48.1,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
@@ -103,14 +103,14 @@
   "public_report_assets": [
     {
       "path": "assets/seo-autopilot-latest.json",
-      "bytes": 89052,
-      "kb": 87,
+      "bytes": 91909,
+      "kb": 89.8,
       "ok": true
     },
     {
       "path": "assets/seo-cannibalization-latest.json",
-      "bytes": 21244,
-      "kb": 20.7,
+      "bytes": 21262,
+      "kb": 20.8,
       "ok": true
     },
     {
@@ -121,56 +121,56 @@
     },
     {
       "path": "assets/conversion-intelligence-latest.json",
-      "bytes": 15371,
-      "kb": 15,
+      "bytes": 15037,
+      "kb": 14.7,
       "ok": true
     },
     {
       "path": "assets/live-api-readiness-latest.json",
-      "bytes": 11363,
+      "bytes": 11336,
       "kb": 11.1,
       "ok": true
     },
     {
+      "path": "assets/search-intelligence-latest.json",
+      "bytes": 11172,
+      "kb": 10.9,
+      "ok": true
+    },
+    {
+      "path": "assets/media-autopilot-latest.json",
+      "bytes": 9883,
+      "kb": 9.7,
+      "ok": true
+    },
+    {
       "path": "assets/seo-angle-differentiation-latest.json",
-      "bytes": 9602,
+      "bytes": 9612,
       "kb": 9.4,
       "ok": true
     },
     {
-      "path": "assets/search-intelligence-latest.json",
-      "bytes": 9195,
-      "kb": 9,
-      "ok": true
-    },
-    {
       "path": "assets/internal-link-equity-latest.json",
-      "bytes": 6651,
-      "kb": 6.5,
-      "ok": true
-    },
-    {
-      "path": "assets/local-growth-ops-latest.json",
-      "bytes": 6093,
-      "kb": 6,
+      "bytes": 6536,
+      "kb": 6.4,
       "ok": true
     },
     {
       "path": "assets/cluster-conversion-bridge-latest.json",
-      "bytes": 5969,
+      "bytes": 5973,
       "kb": 5.8,
       "ok": true
     },
     {
-      "path": "assets/editorial-autopilot-latest.json",
-      "bytes": 5646,
-      "kb": 5.5,
+      "path": "assets/local-growth-ops-latest.json",
+      "bytes": 5874,
+      "kb": 5.7,
       "ok": true
     },
     {
-      "path": "assets/performance-budget-latest.json",
-      "bytes": 4017,
-      "kb": 3.9,
+      "path": "assets/editorial-autopilot-latest.json",
+      "bytes": 5819,
+      "kb": 5.7,
       "ok": true
     }
   ],

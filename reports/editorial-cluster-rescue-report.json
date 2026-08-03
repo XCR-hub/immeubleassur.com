@@ -1,29 +1,39 @@
 {
-  "generated_at": "2026-08-03T16:22:33.398Z",
+  "generated_at": "2026-08-03T22:14:54.710Z",
   "status": "passed",
-  "pages_checked": 201,
-  "clusters_targeted": 1,
-  "pages_targeted": 3,
-  "blocks_written": 3,
-  "blocks_changed": 3,
+  "pages_checked": 203,
+  "clusters_targeted": 2,
+  "pages_targeted": 4,
+  "blocks_written": 4,
+  "blocks_changed": 1,
   "blocks_removed": 0,
-  "active_rescues": 3,
+  "active_rescues": 4,
   "cluster_targets": [
     {
       "cluster": "newsletter-veille",
       "count": 3
+    },
+    {
+      "cluster": "assurance-immeuble",
+      "count": 1
     }
   ],
   "cluster_inputs": [
     {
       "cluster": "assurance-immeuble",
-      "average_score": 60,
+      "average_score": 52,
       "money_pages": 0,
       "threshold": 78
     },
     {
+      "cluster": "copropriete-syndic",
+      "average_score": 76,
+      "money_pages": 2,
+      "threshold": 78
+    },
+    {
       "cluster": "local-commercial",
-      "average_score": 86,
+      "average_score": 76,
       "money_pages": 0,
       "threshold": 78
     },
@@ -35,7 +45,7 @@
     },
     {
       "cluster": "travaux",
-      "average_score": 78,
+      "average_score": 69,
       "money_pages": 0,
       "threshold": 78
     }
@@ -53,14 +63,14 @@
       "type": "newsletter",
       "cluster": "newsletter-veille",
       "active": true,
-      "changed": true
+      "changed": false
     },
     {
       "slug": "veille-assurance-immeuble",
       "type": "newsletter",
       "cluster": "newsletter-veille",
       "active": true,
-      "changed": true
+      "changed": false
     },
     {
       "slug": "news/veille-assurance-immeuble-2026-08-03",
@@ -68,6 +78,13 @@
       "cluster": "newsletter-veille",
       "active": true,
       "changed": true
+    },
+    {
+      "slug": "strategie-seo-continue",
+      "type": "service",
+      "cluster": "assurance-immeuble",
+      "active": true,
+      "changed": false
     }
   ]
 }

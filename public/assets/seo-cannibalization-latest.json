@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-03T12:10:30.114Z",
+  "generated_at": "2026-08-03T22:14:55.852Z",
   "status": "passed",
-  "pages_checked": 177,
+  "pages_checked": 188,
   "clusters_checked": 11,
   "high_risk_count": 0,
-  "medium_risk_count": 0,
-  "watch_count": 2,
+  "medium_risk_count": 10,
+  "watch_count": 30,
   "generated_block_families_ignored": 12,
   "generated_block_families": [
     "seo-intent-differentiation",
@@ -35,26 +35,26 @@
       "representative_terms": [
         "historique",
         "locale",
-        "coproprietes",
         "arbitrage",
+        "multirisque",
+        "coproprietes",
         "climatiques",
+        "batiment",
         "evenements",
         "activites",
-        "batiment",
         "correctives",
         "degats",
-        "delais",
-        "exploitable"
+        "delais"
       ]
     },
     {
       "cluster": "assurance-immeuble",
-      "pages": 20,
+      "pages": 19,
       "primary_slug": "multirisque-immeuble",
       "type_mix": [
         {
           "type": "service",
-          "count": 10
+          "count": 9
         },
         {
           "type": "blog",
@@ -72,26 +72,26 @@
       "representative_terms": [
         "aller",
         "batiment",
+        "accelerent",
+        "comment",
         "multirisque",
         "checklist",
         "civile",
-        "coproprietaires",
-        "obligatoire",
-        "occupants",
-        "rapport",
-        "retenir",
-        "assure",
-        "comment"
+        "commerce",
+        "eviter",
+        "assurer",
+        "changement",
+        "communes"
       ]
     },
     {
       "cluster": "copropriete-syndic",
-      "pages": 18,
+      "pages": 19,
       "primary_slug": "assurance-copropriete",
       "type_mix": [
         {
           "type": "blog",
-          "count": 10
+          "count": 11
         },
         {
           "type": "service",
@@ -106,15 +106,15 @@
         "aller",
         "quand",
         "coproprietaires",
-        "dommages",
         "benevole",
-        "communes",
+        "comment",
+        "accelerent",
         "civile",
+        "communes",
         "multirisque",
-        "parties",
-        "retenir",
         "archives",
-        "assemblee"
+        "assemblee",
+        "batiment"
       ]
     },
     {
@@ -147,15 +147,81 @@
         "occupant",
         "aller",
         "coproprietaire",
+        "quand",
         "statut",
         "vacant",
         "civile",
-        "quand",
         "attestation",
         "biens",
-        "logement",
         "comprendre",
-        "locataire"
+        "locataire",
+        "logement"
+      ]
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "pages": 15,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "type_mix": [
+        {
+          "type": "blog",
+          "count": 11
+        },
+        {
+          "type": "service",
+          "count": 3
+        },
+        {
+          "type": "faq",
+          "count": 1
+        }
+      ],
+      "representative_terms": [
+        "accelerent",
+        "aller",
+        "historique",
+        "comment",
+        "dernier",
+        "batiment",
+        "cache",
+        "changement",
+        "changer",
+        "fuite",
+        "mesures",
+        "causes"
+      ]
+    },
+    {
+      "cluster": "devis-courtier",
+      "pages": 13,
+      "primary_slug": "devis-assurance-immeuble",
+      "type_mix": [
+        {
+          "type": "blog",
+          "count": 8
+        },
+        {
+          "type": "lead",
+          "count": 4
+        },
+        {
+          "type": "service",
+          "count": 1
+        }
+      ],
+      "representative_terms": [
+        "batiment",
+        "aller",
+        "accelerent",
+        "comment",
+        "cache",
+        "changement",
+        "changer",
+        "chere",
+        "clauses",
+        "complet",
+        "dernier",
+        "offres"
       ]
     },
     {
@@ -181,86 +247,24 @@
         "multirisque",
         "biens",
         "locative",
-        "occupants",
         "patrimoine",
         "quand",
-        "aller",
+        "comment",
+        "commerce",
         "gerant",
         "principal",
-        "retenir",
-        "coherence"
-      ]
-    },
-    {
-      "cluster": "sinistre-resilie",
-      "pages": 10,
-      "primary_slug": "gestion-sinistres-immeuble",
-      "type_mix": [
-        {
-          "type": "blog",
-          "count": 6
-        },
-        {
-          "type": "service",
-          "count": 3
-        },
-        {
-          "type": "faq",
-          "count": 1
-        }
-      ],
-      "representative_terms": [
-        "historique",
         "aller",
-        "causes",
-        "comment",
-        "fuite",
-        "mesures",
-        "correctives",
-        "degat",
-        "prevention",
-        "retenir",
-        "cause",
-        "correctifs"
-      ]
-    },
-    {
-      "cluster": "devis-courtier",
-      "pages": 8,
-      "primary_slug": "devis-assurance-immeuble",
-      "type_mix": [
-        {
-          "type": "blog",
-          "count": 4
-        },
-        {
-          "type": "lead",
-          "count": 4
-        }
-      ],
-      "representative_terms": [
-        "batiment",
-        "aller",
-        "comment",
-        "complet",
-        "ligne",
-        "mandat",
-        "offres",
-        "acceder",
-        "arbitrage",
-        "assure",
-        "assurer",
-        "cahier"
+        "batiment"
       ]
     },
     {
       "cluster": "prix-tarif",
-      "pages": 6,
+      "pages": 7,
       "primary_slug": "prix-assurance-immeuble",
       "type_mix": [
         {
           "type": "blog",
-          "count": 3
+          "count": 4
         },
         {
           "type": "service",
@@ -272,18 +276,18 @@
         }
       ],
       "representative_terms": [
-        "comprendre",
-        "arbitrage",
         "budget",
+        "comprendre",
+        "reste",
+        "accelerent",
+        "aller",
+        "arbitrage",
         "charge",
         "comparaison",
         "historique",
         "quand",
         "tarif",
-        "affiche",
-        "aller",
-        "changent",
-        "comment"
+        "batiment"
       ]
     },
     {
@@ -301,18 +305,18 @@
         }
       ],
       "representative_terms": [
-        "activite",
         "aller",
         "commerce",
         "commercial",
-        "commerciale",
+        "dernier",
+        "accelerent",
+        "activite",
         "batiment",
         "cache",
         "changement",
         "changer",
         "chere",
-        "clauses",
-        "comment"
+        "clauses"
       ]
     },
     {
@@ -330,6 +334,8 @@
         }
       ],
       "representative_terms": [
+        "comment",
+        "historique",
         "transformer",
         "alerte",
         "changement",
@@ -337,11 +343,9 @@
         "coproprietaires",
         "droit",
         "exploitable",
-        "historique",
+        "newsletter",
         "preparer",
-        "regulateur",
-        "renouvellement",
-        "actionnable"
+        "regulateur"
       ]
     },
     {
@@ -359,26 +363,251 @@
         }
       ],
       "representative_terms": [
-        "chantier",
-        "dommage",
-        "ouvrage",
+        "dernier",
         "ravalement",
         "toiture",
+        "accelerent",
         "aller",
         "anticiper",
         "basse",
         "batiment",
         "cache",
         "changement",
-        "changer"
+        "changer",
+        "chantier"
       ]
     }
   ],
   "watchlist": [
     {
+      "cluster": "devis-courtier",
+      "risk": "medium",
+      "score": 52.71,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/assurance-immeuble-ancien",
+        "blog/devis-assurance-immeuble-comparatif"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "presenter",
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement",
+        "changer"
+      ],
+      "recommendation": "Clarifier blog/devis-assurance-immeuble-comparatif comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+    },
+    {
+      "cluster": "devis-courtier",
+      "risk": "medium",
+      "score": 51.9,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/devis-assurance-immeuble-comparatif",
+        "blog/devis-assurance-immeuble-echeance"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "comparables",
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement",
+        "changer"
+      ],
+      "recommendation": "Clarifier blog/devis-assurance-immeuble-echeance comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+    },
+    {
+      "cluster": "devis-courtier",
+      "risk": "medium",
+      "score": 50,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/devis-assurance-immeuble-echeance",
+        "blog/devis-courtier-assurance-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "humaine",
+        "validation",
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement"
+      ],
+      "recommendation": "Clarifier blog/devis-courtier-assurance-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+    },
+    {
+      "cluster": "devis-courtier",
+      "risk": "medium",
+      "score": 49.89,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/assurance-immeuble-ancien",
+        "blog/devis-assurance-immeuble-echeance"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement",
+        "changer",
+        "chere"
+      ],
+      "recommendation": "Clarifier blog/devis-assurance-immeuble-echeance comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+    },
+    {
+      "cluster": "devis-courtier",
+      "risk": "medium",
+      "score": 48.88,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/devis-assurance-immeuble-comparatif",
+        "blog/devis-assurance-immeuble-complet"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "comparables",
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement",
+        "changer"
+      ],
+      "recommendation": "Clarifier blog/devis-assurance-immeuble-complet comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+    },
+    {
+      "cluster": "devis-courtier",
+      "risk": "medium",
+      "score": 48.88,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/devis-assurance-immeuble-complet",
+        "blog/devis-assurance-immeuble-echeance"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "aller",
+        "dernier",
+        "accelerent",
+        "batiment",
+        "cache",
+        "changement",
+        "changer",
+        "chere"
+      ],
+      "recommendation": "Clarifier blog/devis-assurance-immeuble-echeance comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+    },
+    {
+      "cluster": "devis-courtier",
+      "risk": "medium",
+      "score": 47.92,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/assurance-immeuble-ancien",
+        "blog/devis-assurance-immeuble-complet"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement",
+        "changer",
+        "chere"
+      ],
+      "recommendation": "Clarifier blog/devis-assurance-immeuble-complet comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "risk": "medium",
+      "score": 46.64,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "pages": [
+        "blog/refus-assureur-apres-sinistre-immeuble",
+        "blog/sinistre-recurrent-assurance-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "mesures",
+        "documenter",
+        "prevention",
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache"
+      ],
+      "recommendation": "Clarifier blog/sinistre-recurrent-assurance-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "risk": "medium",
+      "score": 46.14,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "pages": [
+        "blog/infiltration-toiture-terrasse",
+        "blog/sinistre-recurrent-assurance-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "documenter",
+        "coproprietes",
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement"
+      ],
+      "recommendation": "Clarifier blog/sinistre-recurrent-assurance-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
       "cluster": "local-commercial",
-      "risk": "watch",
-      "score": 41.42,
+      "risk": "medium",
+      "score": 46.13,
       "primary_slug": "blog/local-commercial-vacant",
       "pages": [
         "blog/immeuble-mixte-restaurant",
@@ -389,8 +618,8 @@
         "blog"
       ],
       "shared_terms": [
-        "activite",
-        "retenir",
+        "dernier",
+        "accelerent",
         "aller",
         "batiment",
         "cache",
@@ -401,27 +630,249 @@
       "recommendation": "Clarifier blog/immeuble-mixte-restaurant comme support informationnel et renforcer le lien vers blog/local-commercial-vacant."
     },
     {
-      "cluster": "sci-bailleur",
+      "cluster": "sinistre-resilie",
       "risk": "watch",
-      "score": 40.36,
-      "primary_slug": "assurance-sci",
+      "score": 45.3,
+      "primary_slug": "gestion-sinistres-immeuble",
       "pages": [
-        "assurance-immeuble-locatif",
-        "assurance-sci"
+        "blog/renouvellement-apres-sinistre-immeuble",
+        "blog/sinistre-immeuble-apres-declaration"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement",
+        "changer",
+        "chere"
+      ],
+      "recommendation": "Clarifier blog/sinistre-immeuble-apres-declaration comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "devis-courtier",
+      "risk": "watch",
+      "score": 45.23,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/devis-assurance-immeuble-comparatif",
+        "blog/devis-courtier-assurance-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "offres",
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement",
+        "changer"
+      ],
+      "recommendation": "Clarifier blog/devis-courtier-assurance-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "risk": "watch",
+      "score": 44.24,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "pages": [
+        "blog/renouvellement-apres-sinistre-immeuble",
+        "blog/sinistre-recurrent-assurance-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement",
+        "changer"
+      ],
+      "recommendation": "Clarifier blog/sinistre-recurrent-assurance-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "risk": "watch",
+      "score": 44.16,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "pages": [
+        "blog/devis-assurance-immeuble-refus",
+        "blog/refus-assureur-apres-sinistre-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "refus",
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement"
+      ],
+      "recommendation": "Clarifier blog/refus-assureur-apres-sinistre-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "risk": "watch",
+      "score": 43.97,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "pages": [
+        "blog/sinistre-immeuble-apres-declaration",
+        "blog/sinistre-recurrent-assurance-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement",
+        "changer"
+      ],
+      "recommendation": "Clarifier blog/sinistre-recurrent-assurance-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "risk": "watch",
+      "score": 43.73,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "pages": [
+        "blog/infiltration-toiture-terrasse",
+        "blog/renouvellement-apres-sinistre-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement",
+        "changer",
+        "chere"
+      ],
+      "recommendation": "Clarifier blog/renouvellement-apres-sinistre-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "risk": "watch",
+      "score": 43.49,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "pages": [
+        "assurance-immeuble-resilie",
+        "assurance-immeuble-sinistre"
       ],
       "page_types": [
         "service",
         "service"
       ],
       "shared_terms": [
-        "locatif",
-        "multirisque",
-        "biens",
-        "locative",
-        "dependances",
-        "principal"
+        "historique",
+        "causes",
+        "correctifs",
+        "correctives",
+        "mesures",
+        "comment",
+        "commerce"
       ],
-      "recommendation": "Renforcer l'angle unique de assurance-immeuble-locatif et ajouter un lien contextuel vers assurance-sci."
+      "recommendation": "Renforcer l'angle unique de assurance-immeuble-resilie et ajouter un lien contextuel vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "risk": "watch",
+      "score": 43.48,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "pages": [
+        "blog/infiltration-toiture-terrasse",
+        "blog/sinistre-immeuble-apres-declaration"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement",
+        "changer",
+        "chere"
+      ],
+      "recommendation": "Clarifier blog/sinistre-immeuble-apres-declaration comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "devis-courtier",
+      "risk": "watch",
+      "score": 43,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/assurance-immeuble-ancien",
+        "blog/devis-courtier-assurance-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement",
+        "changer",
+        "chere"
+      ],
+      "recommendation": "Clarifier blog/devis-courtier-assurance-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "risk": "watch",
+      "score": 42.78,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "pages": [
+        "blog/refus-assureur-apres-sinistre-immeuble",
+        "blog/sinistre-immeuble-apres-declaration"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "correctives",
+        "dernier",
+        "accelerent",
+        "aller",
+        "batiment",
+        "cache",
+        "changement"
+      ],
+      "recommendation": "Clarifier blog/sinistre-immeuble-apres-declaration comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
     }
   ],
   "safeguards": [

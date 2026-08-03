@@ -12,6 +12,7 @@ const EMAIL = "team@immeubleassur.com";
 const PHONE = "+33180855786";
 const privateSlugs = new Set(["admin", "espace-client", "espace-assureur"]);
 const nonIndexableSlugs = new Set(["admin", "espace-client", "espace-assureur", "blog/index", "faq/index"]);
+const aliasCanonicalSlugs = new Map([["blog/index", "blog"], ["faq/index", "faq"]]);
 
 function walk(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -50,6 +51,19 @@ function isNoIndex(html) {
 
 function pageUrl(slug) {
   return `${SITE}${cleanPath(slug)}`;
+}
+
+function canonicalUrl(slug) {
+  return pageUrl(aliasCanonicalSlugs.get(slug) || slug);
+}
+
+function setRobots(html, slug) {
+  const mustNoIndex = nonIndexableSlugs.has(slug) || privateSlugs.has(slug);
+  const existing = html.match(/<meta name="robots" content="([^"]*)"\s*\/>/i);
+  if (existing && /(^|,\s*)noindex(\s*,|$)/i.test(existing[1])) return html;
+  const content = mustNoIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large";
+  if (existing) return html.replace(existing[0], "<meta name=\"robots\" content=\"" + content + "\" />");
+  return html.replace("</head>", "    <meta name=\"robots\" content=\"" + content + "\" />\n</head>");
 }
 
 function titleOf(html) {
@@ -244,16 +258,18 @@ function enhanceHtml(file) {
   const description = descriptionOf(html);
   const h1 = h1Of(html);
   const url = pageUrl(slug);
+  const canonical = canonicalUrl(slug);
 
   html = normalizeLinks(html);
+  html = setRobots(html, slug);
   html = enhanceCtaTracking(html);
   html = ensureLeadMagnet(html, slug);
   html = removeMarkedBlock(html, "<!-- growth-meta:start -->", "<!-- growth-meta:end -->");
   html = removeMarkedBlock(html, "<!-- growth-schema:start -->", "<!-- growth-schema:end -->");
   html = removeMarkedBlock(html, "<!-- analytics:start -->", "<!-- analytics:end -->");
   if (!privateSlugs.has(slug)) {
-    html = html.replace(/<link rel="canonical" href="[^"]+" \/>/, `<link rel="canonical" href="${url}" />`);
-    html = html.replace(/<meta property="og:url" content="[^"]+" \/>/, `<meta property="og:url" content="${url}" />`);
+    html = html.replace(/<link rel="canonical" href="[^"]+" \/>/, `<link rel="canonical" href="${canonical}" />`);
+    html = html.replace(/<meta property="og:url" content="[^"]+" \/>/, `<meta property="og:url" content="${canonical}" />`);
     html = html.replace("</head>", `${metaBlock({ title, description, slug })}\n${schemaBlock([organizationSchema(), websiteSchema(), breadcrumbSchema(slug, h1), webpageSchema(slug, title, description), serviceSchema(slug, title, description), faqSchema(html, slug)])}\n${analyticsTagBlock()}\n  </head>`);
   }
 
@@ -265,6 +281,7 @@ function enhanceHtml(file) {
     url,
     title,
     description,
+    noindex: isNoIndex(html),
     lastmod,
     changed: html !== original,
     improvements: [

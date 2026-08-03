@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-03T12:10:26.097Z",
+  "generated_at": "2026-08-03T22:14:52.775Z",
   "status": "passed",
-  "pages_targeted": 26,
+  "pages_targeted": 27,
   "pages_changed": 14,
-  "noindex_pages": 6,
+  "noindex_pages": 7,
   "sitemap_entries_removed": 0,
-  "news_watch_pages": 6,
-  "news_watch_latest_slug": "news/veille-assurance-immeuble-2026-08-02",
-  "news_archive_noindex_count": 5,
+  "news_watch_pages": 7,
+  "news_watch_latest_slug": "news/veille-assurance-immeuble-2026-08-03",
+  "news_archive_noindex_count": 6,
   "safeguards": [
     "visible-content-only",
     "title-h1-meta-differentiation",
@@ -220,10 +220,18 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-08-02",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-02",
+      "changed": false,
+      "indexable": false,
+      "title": "Archive veille immeuble 2 aout 2026",
+      "h1": "Archive du 2 aout 2026: signaux assurance immeuble a relire."
+    },
+    {
+      "slug": "news/veille-assurance-immeuble-2026-08-03",
+      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-03",
       "changed": true,
       "indexable": true,
-      "title": "Veille immeuble 2 aout 2026: dernier signal",
-      "h1": "Veille assurance immeuble du 2 aout 2026."
+      "title": "Veille immeuble 3 aout 2026: dernier signal",
+      "h1": "Veille assurance immeuble du 3 aout 2026."
     }
   ]
 }
