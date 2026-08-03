@@ -1087,13 +1087,42 @@ async function updateContractRequestStatus(env, body) {
   const reviewer = clean(body.reviewer || "admin", 120);
   const status = normalizeStatus(body.status, ["open", "in_progress", "resolved", "closed"]);
   if (!requestId || !status) return json({ success: false, error: "Statut demande invalide" }, 400);
-  const row = await safeFirst(env, "SELECT r.*, cc.case_id, cc.contract_reference FROM contract_service_requests r JOIN client_contracts cc ON cc.id = r.contract_id WHERE r.id = ?", [requestId]);
+  const row = await safeFirst(env, `SELECT r.*, cc.case_id, cc.contract_reference, c.case_reference, c.client_portal_token, l.email AS client_email, l.name AS client_name
+    FROM contract_service_requests r
+    JOIN client_contracts cc ON cc.id = r.contract_id
+    JOIN brokerage_cases c ON c.id = cc.case_id
+    JOIN leads l ON l.id = c.lead_id
+    WHERE r.id = ?`, [requestId]);
   if (!row || errorOf(row)) return json({ success: false, error: "Demande contrat introuvable" }, 404);
-  await safeRun(env, "UPDATE contract_service_requests SET status = ?, updated_at = ? WHERE id = ?", [status, nowIso(), requestId]);
-  await logTimeline(env, row.case_id, "contract_request_admin_status", reviewer, { marker: "admin-contract-action-v1", request_id: requestId, contract_id: row.contract_id, status });
-  return json({ success: true, status });
+  const now = nowIso();
+  await safeRun(env, "UPDATE contract_service_requests SET status = ?, updated_at = ? WHERE id = ?", [status, now, requestId]);
+  const statusLabel = ({ open: "ouverte", in_progress: "prise en charge", resolved: "resolue", closed: "cloturee" })[status] || status;
+  const recipient = clean(row.client_email, 180);
+  let replyMailId = "";
+  if (recipient) {
+    const existing = await safeFirst(env, "SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'client_request_update' AND status IN ('draft_review', 'approved', 'sent') AND payload LIKE ? LIMIT 1", [row.case_id, `%${requestId}%${status}%`]);
+    if (!existing?.id) {
+      replyMailId = crypto.randomUUID();
+      const portal = portalUrl(row.client_portal_token, clean(env.SITE_ORIGIN, 240) || "https://immeubleassur.com");
+      const subject = `Suivi de votre demande ${clean(row.case_reference, 80)} - ${statusLabel}`;
+      const bodyText = [
+        `Bonjour ${clean(row.client_name, 160) || "client"},`,
+        "",
+        `Votre demande "${clean(row.subject, 180)}" est maintenant ${statusLabel}.`,
+        status === "resolved" || status === "closed" ? "Notre equipe a termine le traitement et reste disponible depuis votre espace client." : "Notre equipe poursuit son traitement et vous recontactera si une information est necessaire.",
+        "",
+        `Espace client: ${portal}`,
+        "",
+        "Brouillon prepare automatiquement et soumis a validation humaine avant envoi."
+      ].join("\\n");
+      await safeRun(env, `INSERT INTO case_mail_queue (id, case_id, audience, recipient_email, subject, body, status, review_required, scheduled_at, payload, created_at, updated_at)
+        VALUES (?, ?, 'client_request_update', ?, ?, ?, 'draft_review', 1, ?, ?, ?, ?)`, [replyMailId, row.case_id, recipient, subject, bodyText, now, JSON.stringify({ marker: "client-contract-request-reply-v1", request_id: requestId, request_status: status, human_review_required: true }), now, now]);
+      await logTimeline(env, row.case_id, "contract_request_client_reply_draft", reviewer, { marker: "client-contract-request-reply-v1", request_id: requestId, mail_id: replyMailId, status, human_review_required: true });
+    }
+  }
+  await logTimeline(env, row.case_id, "contract_request_admin_status", reviewer, { marker: "admin-contract-action-v1", request_id: requestId, contract_id: row.contract_id, status, reply_mail_id: replyMailId, reply_status: recipient ? "draft_review" : "missing_email" });
+  return json({ success: true, status, reply_mail_id: replyMailId, reply_status: recipient ? "draft_review" : "missing_email" });
 }
-
 async function updateReferralStatus(env, body) {
   const referralId = clean(body.referral_id, 120);
   const reviewer = clean(body.reviewer || "admin", 120);

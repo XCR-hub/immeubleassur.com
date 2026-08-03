@@ -1408,7 +1408,8 @@ function mailAudienceLabel(audience = "") {
     client_offer_followup: "Relance offre",
     insurer: "Assureur",
     insurer_followup: "Relance assureur",
-    internal_request: "Demande client"
+    internal_request: "Demande client",
+    client_request_update: "Reponse demande"
   })[audience] || audience || "Mail";
 }
 

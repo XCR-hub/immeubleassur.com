@@ -155,8 +155,11 @@ async function main() {
   assert(requestRow?.id, "admin smoke should find an open contract request");
   const requestTaken = await postAdmin({ action: "contract_request_status", request_id: requestRow.id, status: "in_progress", reviewer: "smoke-admin" }, DB);
   assert(requestTaken.status === 200 && requestTaken.body.status === "in_progress", "admin should take a contract request");
+  assert(requestTaken.body.reply_status === "draft_review" && requestTaken.body.reply_mail_id, "taking a request should prepare a reviewed client reply");
   const requestResolved = await postAdmin({ action: "contract_request_status", request_id: requestRow.id, status: "resolved", reviewer: "smoke-admin" }, DB);
   assert(requestResolved.status === 200 && requestResolved.body.status === "resolved", "admin should resolve a contract request");
+  const clientReplyDrafts = DB.prepare("SELECT COUNT(*) AS count FROM case_mail_queue WHERE case_id = ? AND audience = ? AND status = ?").bind(caseRow.id, "client_request_update", "draft_review").first()?.count || 0;
+  assert(Number(clientReplyDrafts) >= 2, "request status changes should create supervised client reply drafts");
 
   const referralRow = DB.prepare("SELECT id FROM contract_referrals WHERE contract_id = ? AND status = 'draft_review' ORDER BY created_at DESC LIMIT 1").bind(contract.id).first();
   assert(referralRow?.id, "admin smoke should find a referral in review");
