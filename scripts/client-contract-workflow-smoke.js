@@ -181,6 +181,8 @@ async function main() {
   assert(referral.status === 200 && referral.body.status === "draft_review", "referral should stay in human review");
 
   const paymentRequest = await post(caseRow.client_portal_token, { action: "payment_link_request", contract_id: contract.id }, DB);
+  const duplicatePaymentRequest = await post(caseRow.client_portal_token, { action: "payment_link_request", contract_id: contract.id }, DB);
+  assert(duplicatePaymentRequest.status === 200 && duplicatePaymentRequest.body.duplicate === true, "duplicate payment link request should be deduplicated");
   assert(paymentRequest.status === 200 && paymentRequest.body.status === "open", "payment link request should create an open request");
   const assetUpdate = await post(caseRow.client_portal_token, { action: "asset_update", contract_id: contract.id, label: "Immeuble Smoke Bordeaux", units_count: "20", address: "Bordeaux", occupancy: "locatif" }, DB);
   assert(assetUpdate.status === 200 && assetUpdate.body.status === "asset_saved", "asset update should be stored");

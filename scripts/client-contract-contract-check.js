@@ -55,6 +55,7 @@ const required = [
   ["scripts/local-contract-renewal-monitor.js", "LOCAL_RUNTIME_REPORTS_ROOT"],
   ["functions/api/client/case.js", "contract_referral"],
   ["functions/api/client/case.js", "payment_link_request"],
+  ["functions/api/client/case.js", "client-request-deduplicated-v1"],
   ["functions/api/client/case.js", "asset_update"],
   ["functions/api/client/case.js", "explicit_acceptance"],
   ["functions/api/client/case.js", "contract_consent_updated"],

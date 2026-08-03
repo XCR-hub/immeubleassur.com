@@ -510,6 +510,8 @@ async function addContractRequest(env, row, contract, body, typeOverride = "") {
   const subject = clean(body.subject, 180) || requestTypeLabel(type);
   const message = clean(body.message, 2000);
   if (!typeOverride && !message) return json({ success: false, error: "Message requis pour cette demande" }, 422);
+  const duplicate = await safeFirst(env, "SELECT id FROM contract_service_requests WHERE contract_id = ? AND request_type = ? AND subject = ? AND status IN ('open', 'in_progress') ORDER BY created_at DESC LIMIT 1", [contract.id, type, subject]);
+  if (duplicate?.id) return json({ success: true, duplicate: true, request_id: duplicate.id, status: "open", marker: "client-request-deduplicated-v1" });
   const requestId = crypto.randomUUID();
   const createdAt = new Date().toISOString();
   await safeRun(env, `INSERT INTO contract_service_requests (id, contract_id, request_type, status, priority, subject, message, due_at, human_review_required, payload, created_at, updated_at)
