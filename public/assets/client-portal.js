@@ -14,6 +14,7 @@ const assetsBox = document.querySelector("#portal-assets");
 const requestForm = document.querySelector("#portal-request-form");
 const referralForm = document.querySelector("#portal-referral-form");
 const assetForm = document.querySelector("#portal-asset-form");
+const logoutButton = document.querySelector("#portal-logout");
 
 let activeContractId = "";
 let latestPayload = null;
@@ -37,6 +38,13 @@ function text(selector, value) {
 
 function tokenFromUrl() {
   return new URLSearchParams(window.location.search).get("token") || "";
+}
+
+function clearTokenFromUrl() {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("token")) return;
+  url.searchParams.delete("token");
+  window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
 }
 
 function documentDownloadUrl(documentId) {
@@ -524,6 +532,7 @@ async function loadCase(token) {
   const result = await response.json();
   if (!response.ok || !result.success) throw new Error(result.error || "Dossier introuvable");
   renderCase(result);
+  clearTokenFromUrl();
   setStatus("Dossier charge.", "success");
 }
 
@@ -721,6 +730,16 @@ assetForm?.addEventListener("submit", (event) => {
       setStatus("Parc mis a jour.", "success");
     })
     .catch((error) => setStatus(error.message || "Mise a jour impossible", "error"));
+});
+
+logoutButton?.addEventListener("click", () => {
+  sessionStorage.removeItem("immeubleassur_case_token");
+  if (tokenInput) tokenInput.value = "";
+  if (content) content.hidden = true;
+  latestPayload = null;
+  activeContractId = "";
+  clearTokenFromUrl();
+  setStatus("Acces ferme sur cet appareil.", "success");
 });
 
 const initialToken = storedToken();
