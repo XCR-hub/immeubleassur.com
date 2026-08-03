@@ -657,7 +657,7 @@ function buildCrmActionQueue(cases = [], mails = [], consultations = [], partner
       human_review_required: Boolean(plan.human_review_required),
       quick_action: "open_case"
     });
-    const pendingDocuments = rowsOrEmpty(caseRow.documents).filter((doc) => safeJson(doc.payload, {}).attachment?.scan_status === "pending_human_validation");
+    const pendingDocuments = rowsOrEmpty(caseRow.documents).filter((doc) => safeJson(doc.payload, {}).attachment?.marker === "client-document-upload-v1" && safeJson(doc.payload, {}).attachment?.scan_status !== "validated_clean");
     if (pendingDocuments.length) pushCrmAction(queue, {
       ...base,
       priority: 100,
@@ -1429,9 +1429,12 @@ export async function onRequestPatch({ request, env }) {
     if (!["requested", "received", "validated", "waived"].includes(status)) return json({ success: false, error: "Statut piece invalide" }, 400);
     const documentRow = await safeFirst(env, "SELECT * FROM case_documents WHERE id = ?", [documentId]);
     if (!documentRow || errorOf(documentRow)) return json({ success: false, error: "Piece introuvable" }, 404);
+    const scanPayload = safeJson(documentRow.payload, {});
+    if (status === "validated" && scanPayload.attachment?.marker === "client-document-upload-v1" && scanPayload.attachment.scan_status !== "clean_pending_human_validation") return json({ success: false, error: "Scan antivirus propre requis avant validation" }, 409);
     await safeRun(env, "UPDATE case_documents SET status = ?, received_at = CASE WHEN ? IN ('received', 'validated') THEN COALESCE(received_at, ?) ELSE received_at END, validated_at = CASE WHEN ? = 'validated' THEN COALESCE(validated_at, ?) ELSE validated_at END, notes = COALESCE(NULLIF(?, ''), notes), updated_at = ? WHERE id = ?", [status, status, nowIso(), status, nowIso(), clean(body.notes, 1000), nowIso(), documentId]);
     const documentPayload = safeJson(documentRow.payload, {});
     if (status === "validated" && documentPayload.attachment?.marker === "client-document-upload-v1") {
+      if (documentPayload.attachment.scan_status !== "clean_pending_human_validation") return json({ success: false, error: "Scan antivirus propre requis avant validation" }, 409);
       documentPayload.attachment.scan_status = "validated_clean";
       documentPayload.attachment.validated_at = nowIso();
       await safeRun(env, "UPDATE case_documents SET payload = ?, updated_at = ? WHERE id = ?", [JSON.stringify(documentPayload), nowIso(), documentId]);

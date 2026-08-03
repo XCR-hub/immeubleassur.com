@@ -53,7 +53,7 @@ async function main() {
     now
   ).run();
 
-  const env = { DB, ADMIN_API_TOKEN: adminToken, SITE_ORIGIN: siteOrigin };
+  const env = { DB, ADMIN_API_TOKEN: adminToken, SITE_ORIGIN: siteOrigin, SCAN_DOCUMENT: async () => ({ status: "clean", provider: "smoke-clamav" }) };
   const adminResponse = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=1`, { headers: { Authorization: `Bearer ${adminToken}` } }), env }));
   assert(adminResponse.status === 200 && adminResponse.body.success, "admin cases API should return success");
   assert(adminResponse.body.sync?.counters?.created === 1, "admin sync should create one brokerage case");

@@ -1631,7 +1631,7 @@ function renderCaseActionCell(caseRow) {
   const contracts = Array.isArray(caseRow.contracts) ? caseRow.contracts : [];
   const consultations = Array.isArray(caseRow.consultations) ? caseRow.consultations : [];
   const offers = Array.isArray(caseRow.client_offers) ? caseRow.client_offers : [];
-  const pendingDocument = (Array.isArray(caseRow.documents) ? caseRow.documents : []).find((doc) => doc.attachment?.scan_status === "pending_human_validation");
+  const pendingDocument = (Array.isArray(caseRow.documents) ? caseRow.documents : []).find((doc) => doc.attachment?.marker === "client-document-upload-v1" && doc.attachment?.scan_status !== "validated_clean");
   const draft = mails.find((mail) => mail.status === "draft_review");
   const approved = mails.find((mail) => mail.status === "approved" && mail.recipient_email);
   const request = firstContractRequest(contracts);
@@ -1652,7 +1652,9 @@ function renderCaseActionCell(caseRow) {
     button.className = "button secondary compact-action";
     button.dataset.documentAction = "validate_document";
     button.dataset.documentId = pendingDocument.id;
-    button.textContent = "Valider piece";
+    button.disabled = pendingDocument.attachment?.scan_status === "pending_antivirus";
+    button.title = button.disabled ? "Scan antivirus requis avant validation" : "Valider apres controle humain";
+    button.textContent = button.disabled ? "Scan antivirus requis" : "Valider piece";
     td.append(link, button);
   }
   if (draft) {
