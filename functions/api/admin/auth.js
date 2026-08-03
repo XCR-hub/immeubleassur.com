@@ -114,6 +114,7 @@ async function logAuthEvent(env, request, details = {}) {
       JSON.stringify(details.payload || {}),
       new Date().toISOString()
     ).run();
+    await env.DB.prepare("DELETE FROM admin_auth_events WHERE created_at < datetime('now', '-180 days')").run();
   } catch {
     // Authentication must remain available if audit storage is temporarily unavailable.
   }
@@ -188,6 +189,26 @@ async function login(request, env, body) {
 export async function onRequestGet({ request, env }) {
   if (!adminTokenMatches(request, env)) return json({ success: false, error: "Acces refuse" }, 401);
   const profile = adminSessionProfile(request);
+  const url = new URL(request.url);
+  if (url.searchParams.get("events") === "1") {
+    const rows = await env.DB.prepare(
+      "SELECT id, profile_id, email, action, success, ip_address, user_agent, created_at FROM admin_auth_events ORDER BY created_at DESC LIMIT 100"
+    ).all();
+    return json({
+      success: true,
+      events: (rows?.results || []).map((row) => ({
+        id: row.id,
+        profile_id: row.profile_id || "",
+        email: row.email || "",
+        action: row.action || "",
+        success: Number(row.success) === 1,
+        ip_address: row.ip_address || "",
+        user_agent: row.user_agent || "",
+        created_at: row.created_at || ""
+      })),
+      marker: "admin-auth-audit-v1"
+    });
+  }
   return json({
     success: true,
     mode: profile ? "profile" : "master",

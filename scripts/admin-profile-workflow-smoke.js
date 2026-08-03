@@ -81,6 +81,9 @@ try {
   const logout = await read(await authPost({ request: request("/api/admin/auth", { method: "POST", headers: authorization, body: JSON.stringify({ action: "logout" }) }), env }));
   assert(logout.status === 200 && logout.body.success, "operator logout should succeed");
 
+  const audit = await read(await authGet({ request: request("/api/admin/auth?events=1", { headers: readonlyAuthorization }), env }));
+  assert(audit.status === 200 && audit.body.marker === "admin-auth-audit-v1" && audit.body.events.some((event) => event.action === "login_success"), "authenticated operators should read the authentication audit");
+
   const revoked = await read(await authGet({ request: request("/api/admin/auth", { headers: authorization }), env }));
   assert(revoked.status === 401, "logged out operator session should be rejected");
 

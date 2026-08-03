@@ -4,6 +4,8 @@ const profileStatus = document.querySelector("#admin-profile-status");
 const profileLogout = document.querySelector("#admin-profile-logout");
 const masterTokenInput = document.querySelector("#admin-token");
 const adminForm = document.querySelector("#admin-form");
+const auditButton = document.querySelector("#load-admin-auth-events");
+const auditBody = document.querySelector("#admin-auth-events-body");
 const PROFILE_SESSION_KEY = "immeubleassur_admin_token";
 
 function status(message, type = "") {
@@ -23,6 +25,42 @@ async function responseJson(response) {
   return body;
 }
 
+function renderAuditEvents(events = []) {
+  if (!auditBody) return;
+  auditBody.replaceChildren();
+  if (!events.length) {
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = 6;
+    cell.textContent = "Aucun acces enregistre.";
+    row.append(cell);
+    auditBody.append(row);
+    return;
+  }
+  for (const event of events) {
+    const row = document.createElement("tr");
+    for (const value of [event.created_at, event.email, event.action, event.success ? "Succes" : "Echec", event.ip_address, event.user_agent]) {
+      const cell = document.createElement("td");
+      cell.textContent = String(value || "-");
+      row.append(cell);
+    }
+    auditBody.append(row);
+  }
+}
+
+async function loadAuditEvents() {
+  const current = token();
+  if (!current) {
+    status("Authentifiez-vous pour consulter l audit.", "error");
+    return;
+  }
+  status("Chargement de l audit...");
+  const body = await responseJson(await fetch("/api/admin/auth?events=1", {
+    headers: { Authorization: "Bearer " + current }
+  }));
+  renderAuditEvents(body.events || []);
+  status("Audit charge.", "ok");
+}
 profileLoginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = new FormData(profileLoginForm);
@@ -85,3 +123,6 @@ profileLogout?.addEventListener("click", async () => {
   status("Session fermee.", "ok");
   document.querySelector("#leads-body")?.replaceChildren();
 });
+auditButton?.addEventListener("click", () => loadAuditEvents().catch((error) => {
+  status(error.message || "Audit indisponible.", "error");
+}));
