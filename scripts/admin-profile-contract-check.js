@@ -1,13 +1,13 @@
 import { readFileSync } from "node:fs";
 
 const expectations = [
-  ["schema.sql", ["admin_profiles", "admin_auth_events", "password_hash", "failed_login_count"]],
+  ["schema.sql", ["admin_profiles", "admin_auth_events", "admin_profile_invites", "password_hash", "failed_login_count"]],
   ["functions/_shared/admin-auth.js", ["admin-profile-session-v1", "ADMIN_SESSION_TTL_MS", "createAdminSession", "revokeAdminSession", "adminRequestAllowed"]],
-  ["functions/api/admin/auth.js", ["PBKDF2", "create_profile", "admin_auth_events", "login_failed", "admin-profile-login-v1", "locked_until", "Identifiants invalides", "admin-auth-audit-v1", "-180 days", "admin-profile-password-changed-v1", "change_password"]],
+  ["functions/api/admin/auth.js", ["PBKDF2", "create_profile", "admin_auth_events", "login_failed", "admin-profile-login-v1", "locked_until", "Identifiants invalides", "admin-auth-audit-v1", "-180 days", "admin-profile-password-changed-v1", "change_password", "admin-profile-invite-created-v1", "admin-profile-invite-accepted-v1", "create_invite", "accept_invite"]],
   ["scripts/local-production-server.js", ["/api/admin/auth"]],
-  ["public/admin.html", ["admin-profile-login-form", "admin-profile-create-form", "admin-profile-logout", "admin-profile.js", "admin-profile-password-form", "load-admin-auth-events", "admin-auth-events-body"]],
+  ["public/admin.html", ["admin-profile-login-form", "admin-profile-create-form", "admin-profile-logout", "admin-profile.js", "admin-profile-password-form", "admin-profile-invite-form", "admin-profile-invite-accept-form", "load-admin-auth-events", "admin-auth-events-body"]],
   ["public/assets/admin-profile.js", ["admin-profile-login", "create_profile", "sessionStorage", "admin-profile-status", "loadAuditEvents", "change_password", "admin-auth-events-body"]],
-  ["scripts/admin-profile-workflow-smoke.js", ["PBKDF2 login", "CRM session", "readonly profile should not mutate CRM leads", "authentication audit must not store passwords", "logged out operator session"]],
+  ["scripts/admin-profile-workflow-smoke.js", ["PBKDF2 login", "CRM session", "readonly profile should not mutate CRM leads", "authentication audit must not store passwords, invitation tokens or session tokens", "logged out operator session"]],
   ["package.json", ["admin:profiles:smoke", "functions/api/admin/auth.js"]]
 ];
 

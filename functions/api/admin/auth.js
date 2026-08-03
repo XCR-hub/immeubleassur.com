@@ -162,6 +162,51 @@ async function createProfile(request, env, body) {
   return json({ success: true, profile: publicProfile(row), marker: "admin-profile-created-v1" }, 201);
 }
 
+async function hashInviteToken(token) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(token || "")));
+  return bytesToBase64(new Uint8Array(digest));
+}
+
+function randomInviteToken() {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  return bytesToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+async function createProfileInvite(request, env, body) {
+  if (!masterAdminTokenMatches(request, env)) return json({ success: false, error: "Acces maitre requis" }, 401);
+  const email = normalizedEmail(body.email);
+  const displayName = clean(body.display_name || body.name, 160);
+  const roleValue = clean(body.role, 40);
+  const role = PROFILE_ROLES.has(roleValue) ? roleValue : "commercial";
+  if (!validEmail(email) || !displayName) return json({ success: false, error: "Email et nom valides requis" }, 400);
+  const existing = await env.DB.prepare("SELECT id FROM admin_profiles WHERE lower(email) = ?").bind(email).first();
+  if (existing) return json({ success: false, error: "Profil deja existant" }, 409);
+  const token = randomInviteToken();
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString();
+  await env.DB.prepare("UPDATE admin_profile_invites SET used_at = ? WHERE email = ? AND used_at = '' AND expires_at > ?").bind(now.toISOString(), email, now.toISOString()).run();
+  await env.DB.prepare("INSERT INTO admin_profile_invites (id, token_hash, email, display_name, role, expires_at, used_at, created_at) VALUES (?, ?, ?, ?, ?, ?, '', ?)").bind(crypto.randomUUID(), await hashInviteToken(token), email, displayName, role, expiresAt, now.toISOString()).run();
+  await logAuthEvent(env, request, { email, action: "profile_invite_created", success: true, payload: { role, expires_at: expiresAt } });
+  const origin = clean(new URL(request.url).origin, 240);
+  return json({ success: true, invite_url: (origin || "") + "/admin.html?invite=" + encodeURIComponent(token), expires_at: expiresAt, marker: "admin-profile-invite-created-v1" }, 201);
+}
+
+async function acceptProfileInvite(request, env, body) {
+  const token = clean(body.token, 240);
+  const password = String(body.password || "");
+  if (!token || password.length < 12) return json({ success: false, error: "Invitation et mot de passe de 12 caracteres minimum requis" }, 400);
+  const now = new Date().toISOString();
+  const row = await env.DB.prepare("SELECT * FROM admin_profile_invites WHERE token_hash = ? AND used_at = '' AND expires_at > ? LIMIT 1").bind(await hashInviteToken(token), now).first();
+  if (!row) return json({ success: false, error: "Invitation invalide ou expiree" }, 400);
+  const existing = await env.DB.prepare("SELECT id FROM admin_profiles WHERE lower(email) = ?").bind(row.email).first();
+  if (existing) return json({ success: false, error: "Profil deja existant" }, 409);
+  const credentials = await passwordHash(password);
+  const profileId = crypto.randomUUID();
+  await env.DB.prepare("INSERT INTO admin_profiles (id, email, display_name, role, active, password_hash, password_salt, failed_login_count, locked_until, last_login_at, created_at, updated_at) VALUES (?, ?, ?, ?, 1, ?, ?, 0, '', '', ?, ?)").bind(profileId, row.email, row.display_name, row.role, credentials.hash, credentials.salt, now, now).run();
+  await env.DB.prepare("UPDATE admin_profile_invites SET used_at = ? WHERE id = ?").bind(now, row.id).run();
+  await logAuthEvent(env, request, { profile_id: profileId, email: row.email, action: "profile_created_from_invite", success: true, payload: { role: row.role } });
+  return json({ success: true, profile: publicProfile({ id: profileId, email: row.email, display_name: row.display_name, role: row.role, active: 1, last_login_at: "" }), marker: "admin-profile-invite-accepted-v1" }, 201);
+}
+
 async function changePassword(request, env, body) {
   const session = adminSessionProfile(request);
   const isMaster = masterAdminTokenMatches(request, env);
@@ -247,6 +292,8 @@ export async function onRequestPost({ request, env }) {
   const body = await bodyOf(request);
   const action = clean(body.action || "login", 40);
   if (action === "create_profile") return createProfile(request, env, body);
+  if (action === "create_invite") return createProfileInvite(request, env, body);
+  if (action === "accept_invite") return acceptProfileInvite(request, env, body);
   if (action === "change_password") return changePassword(request, env, body);
   if (action === "logout") {
     const profile = adminSessionProfile(request);

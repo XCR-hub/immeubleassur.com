@@ -646,6 +646,20 @@ CREATE TABLE IF NOT EXISTS case_mail_inbox (
 CREATE INDEX IF NOT EXISTS idx_case_mail_inbox_case_id ON case_mail_inbox(case_id);
 CREATE INDEX IF NOT EXISTS idx_case_mail_inbox_status ON case_mail_inbox(status);
 CREATE INDEX IF NOT EXISTS idx_case_mail_inbox_sent_at ON case_mail_inbox(sent_at);
+CREATE TABLE IF NOT EXISTS admin_profile_invites (
+  id TEXT PRIMARY KEY,
+  token_hash TEXT NOT NULL UNIQUE,
+  email TEXT NOT NULL,
+  display_name TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'commercial',
+  expires_at TEXT NOT NULL,
+  used_at TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_admin_profile_invites_expires_at ON admin_profile_invites(expires_at);
+CREATE INDEX IF NOT EXISTS idx_admin_profile_invites_email ON admin_profile_invites(email);
+
 CREATE TABLE IF NOT EXISTS admin_profiles (
   id TEXT PRIMARY KEY,
   email TEXT NOT NULL UNIQUE,

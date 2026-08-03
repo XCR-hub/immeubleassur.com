@@ -23,6 +23,16 @@ function request(path, options = {}) {
 }
 
 try {
+  const invitation = await read(await authPost({ request: request("/api/admin/auth", { method: "POST", headers: { Authorization: "Bearer admin-profile-master-token", "Content-Type": "application/json" }, body: JSON.stringify({ action: "create_invite", email: "invite@example.test", display_name: "Invite", role: "commercial" }) }), env }));
+  assert(invitation.status === 201 && invitation.body.marker === "admin-profile-invite-created-v1" && invitation.body.invite_url, "master should create a one-time operator invitation");
+  const inviteToken = new URL(invitation.body.invite_url).searchParams.get("invite");
+  const acceptedInvite = await read(await authPost({ request: request("/api/admin/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "accept_invite", token: inviteToken, password: "Invitation-Phrase-2026!" }) }), env }));
+  assert(acceptedInvite.status === 201 && acceptedInvite.body.marker === "admin-profile-invite-accepted-v1", "operator should accept an invitation and set a password");
+  const reusedInvite = await read(await authPost({ request: request("/api/admin/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "accept_invite", token: inviteToken, password: "Invitation-Phrase-2027!" }) }), env }));
+  assert(reusedInvite.status === 400, "operator invitation should be one-time");
+  const invitedLogin = await read(await authPost({ request: request("/api/admin/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "login", email: "invite@example.test", password: "Invitation-Phrase-2026!" }) }), env }));
+  assert(invitedLogin.status === 200, "invited operator should login with the chosen password");
+
   const create = await read(await authPost({
     request: request("/api/admin/auth", {
       method: "POST",
@@ -99,7 +109,7 @@ try {
   const auditRows = DB.prepare("SELECT action, success, payload FROM admin_auth_events ORDER BY created_at").all().results;
   assert(auditRows.length >= 5, "profile authentication events should be persisted");
   const auditText = JSON.stringify(auditRows);
-  assert(!auditText.includes("Longue-Phrase-2026!") && !auditText.includes(login.body.session.token), "authentication audit must not store passwords or session tokens");
+  assert(!auditText.includes("Longue-Phrase-2026!") && !auditText.includes("Invitation-Phrase-2026!") && !auditText.includes(inviteToken) && !auditText.includes(login.body.session.token), "authentication audit must not store passwords, invitation tokens or session tokens");
   assert(auditRows.some((row) => row.action === "login_failed" && Number(row.success) === 0), "failed login should be audited");
   assert(auditRows.some((row) => row.action === "login_success" && Number(row.success) === 1), "successful login should be audited");
   assert(auditRows.some((row) => row.action === "logout" && Number(row.success) === 1), "logout should be audited");

@@ -1,5 +1,9 @@
 const profileLoginForm = document.querySelector("#admin-profile-login-form");
 const profileCreateForm = document.querySelector("#admin-profile-create-form");
+const profileInviteForm = document.querySelector("#admin-profile-invite-form");
+const profileInviteOutput = document.querySelector("#admin-profile-invite-output");
+const profileInviteAcceptPanel = document.querySelector("#admin-profile-invite-acceptance");
+const profileInviteAcceptForm = document.querySelector("#admin-profile-invite-accept-form");
 const profileStatus = document.querySelector("#admin-profile-status");
 const profileLogout = document.querySelector("#admin-profile-logout");
 const passwordForm = document.querySelector("#admin-profile-password-form");
@@ -8,6 +12,8 @@ const adminForm = document.querySelector("#admin-form");
 const auditButton = document.querySelector("#load-admin-auth-events");
 const auditBody = document.querySelector("#admin-auth-events-body");
 const PROFILE_SESSION_KEY = "immeubleassur_admin_token";
+const inviteFromUrl = new URLSearchParams(window.location.search).get("invite") || "";
+if (inviteFromUrl && profileInviteAcceptPanel) { profileInviteAcceptPanel.hidden = false; profileInviteAcceptForm?.elements.token && (profileInviteAcceptForm.elements.token.value = inviteFromUrl); }
 
 function status(message, type = "") {
   if (!profileStatus) return;
@@ -148,5 +154,45 @@ passwordForm?.addEventListener("submit", async (event) => {
     status("Mot de passe modifie. Reconnectez-vous.", "ok");
   } catch (error) {
     status(error.message || "Modification refusee.", "error");
+  }
+});
+profileInviteForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const authorization = token();
+  if (!authorization) {
+    status("Chargez le jeton maitre pour generer une invitation.", "error");
+    return;
+  }
+  const form = new FormData(profileInviteForm);
+  status("Generation de l invitation...");
+  try {
+    const body = await responseJson(await fetch("/api/admin/auth", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + authorization, "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "create_invite", email: form.get("email"), display_name: form.get("display_name"), role: form.get("role") })
+    }));
+    profileInviteOutput.textContent = "Lien a transmettre une seule fois : " + body.invite_url + " (expire le " + body.expires_at + ")";
+    profileInviteForm.reset();
+    status("Invitation generee.", "ok");
+  } catch (error) {
+    status(error.message || "Invitation impossible.", "error");
+  }
+});
+
+profileInviteAcceptForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = new FormData(profileInviteAcceptForm);
+  status("Activation du profil...");
+  try {
+    const body = await responseJson(await fetch("/api/admin/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "accept_invite", token: form.get("token"), password: form.get("password") })
+    }));
+    profileInviteAcceptForm.reset();
+    profileInviteAcceptPanel.hidden = true;
+    status("Profil active pour " + (body.profile?.email || "operateur") + ". Connectez-vous.", "ok");
+  } catch (error) {
+    status(error.message || "Activation impossible.", "error");
   }
 });
