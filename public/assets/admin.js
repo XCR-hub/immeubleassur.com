@@ -28,6 +28,7 @@ const casesButton = document.querySelector("#load-cases");
 const casesSummary = document.querySelector("#cases-summary");
 const casesBody = document.querySelector("#cases-body");
 const casesActionBody = document.querySelector("#cases-action-body");
+const inboxMailBody = document.querySelector("#inbox-mail-body");
 const leadSummary = document.querySelector("#lead-summary");
 const leadSearch = document.querySelector("#lead-search");
 const priorityFilter = document.querySelector("#lead-priority-filter");
@@ -1797,6 +1798,31 @@ function renderCasesTable(cases = []) {
   }
 }
 
+function renderInboxMailTable(items = []) {
+  if (!inboxMailBody) return;
+  inboxMailBody.replaceChildren();
+  const rows = Array.isArray(items) ? items : [];
+  if (!rows.length) {
+    const tr = document.createElement("tr");
+    const td = cell("Aucune reponse email importee.");
+    td.colSpan = 6;
+    tr.append(td);
+    inboxMailBody.append(tr);
+    return;
+  }
+  for (const item of rows.slice(0, 80)) {
+    const tr = document.createElement("tr");
+    tr.append(
+      cell(item.status === "received_pending_review" ? "A relire" : (item.status || "Recu")),
+      cell(item.case_reference || "Non rattache"),
+      cell(item.sender || "-"),
+      cell(item.subject || "-"),
+      cell(reportDate(item.sent_at || item.created_at)),
+      cell("Revue humaine obligatoire; rattacher le DOS-* puis tracer l'action")
+    );
+    inboxMailBody.append(tr);
+  }
+}
 async function postDocumentAction(button) {
   const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
   if (!token || !button?.dataset.documentId) return;
@@ -1982,6 +2008,7 @@ async function loadCases() {
   }
   renderCrmActionQueue(result.crm_action_queue || []);
   renderCasesTable(result.cases || []);
+  renderInboxMailTable(result.inbox_mails || []);
 }
 function attributionRows(result = {}) {
   const rows = [];
