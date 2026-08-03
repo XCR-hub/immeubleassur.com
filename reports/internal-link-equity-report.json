@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-02T23:25:20.431Z",
+  "generated_at": "2026-08-03T00:20:36.713Z",
   "status": "passed",
   "pages_checked": 187,
   "pages_targeted": 57,
-  "pages_changed": 15,
-  "links_added": 60,
+  "pages_changed": 14,
+  "links_added": 56,
   "pages_with_active_blocks": 61,
   "active_internal_links": 241,
   "noindex_skipped": 7,
@@ -148,17 +148,10 @@
       "links_added": 4
     },
     {
-      "slug": "faq",
-      "type": "faq",
-      "cluster": "default",
-      "previous_internal_links": 42,
-      "links_added": 4
-    },
-    {
       "slug": "news/veille-assurance-immeuble-2026-08-02",
       "type": "news",
       "cluster": "newsletter-veille",
-      "previous_internal_links": 21,
+      "previous_internal_links": 25,
       "links_added": 4
     }
   ]

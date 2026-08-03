@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02T23:25:01.441Z",
+  "generated_at": "2026-08-03T00:20:26.440Z",
   "status": "passed",
   "pages_checked": 183,
   "urgent_pages": 167,
@@ -9,9 +9,9 @@
     {
       "intent": "sinistre",
       "urgency_level": "immediate",
-      "pages": 45,
-      "pages_with_intent_link": 16,
-      "pages_with_conversion_route": 45,
+      "pages": 46,
+      "pages_with_intent_link": 17,
+      "pages_with_conversion_route": 46,
       "missing_pages": [],
       "action": "Orienter vers un audit sinistre/resiliation avec rappel prioritaire."
     },

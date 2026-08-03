@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-02T23:25:18.844Z",
+  "generated_at": "2026-08-03T00:20:36.000Z",
   "status": "passed",
   "pages_targeted": 26,
-  "pages_changed": 19,
+  "pages_changed": 14,
   "noindex_pages": 6,
   "news_watch_pages": 6,
   "news_watch_latest_slug": "news/veille-assurance-immeuble-2026-08-02",
@@ -20,7 +20,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-28",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
-      "changed": true,
+      "changed": false,
       "indexable": false,
       "title": "Archive veille immeuble 28 juillet 2026",
       "h1": "Archive du 28 juillet 2026: signaux assurance immeuble a relire."
@@ -28,7 +28,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-29",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-29",
-      "changed": true,
+      "changed": false,
       "indexable": false,
       "title": "Archive veille immeuble 29 juillet 2026",
       "h1": "Archive du 29 juillet 2026: signaux assurance immeuble a relire."
@@ -196,7 +196,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-30",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-30",
-      "changed": true,
+      "changed": false,
       "indexable": false,
       "title": "Archive veille immeuble 30 juillet 2026",
       "h1": "Archive du 30 juillet 2026: signaux assurance immeuble a relire."
@@ -204,7 +204,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-07-31",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-31",
-      "changed": true,
+      "changed": false,
       "indexable": false,
       "title": "Archive veille immeuble 31 juillet 2026",
       "h1": "Archive du 31 juillet 2026: signaux assurance immeuble a relire."
@@ -212,7 +212,7 @@
     {
       "slug": "news/veille-assurance-immeuble-2026-08-01",
       "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-01",
-      "changed": true,
+      "changed": false,
       "indexable": false,
       "title": "Archive veille immeuble 1 aout 2026",
       "h1": "Archive du 1 aout 2026: signaux assurance immeuble a relire."

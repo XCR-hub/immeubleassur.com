@@ -51,6 +51,43 @@ const contentTypes = {
   ".woff2": "font/woff2",
   ".webmanifest": "application/manifest+json; charset=utf-8"
 };
+const SECURITY_HEADER_MARKER = "runtime-security-headers-v1";
+
+function contentSecurityPolicy() {
+  return [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "form-action 'self'",
+    "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://challenges.cloudflare.com https://region1.google-analytics.com https://www.google-analytics.com",
+    "frame-src https://challenges.cloudflare.com",
+    "manifest-src 'self'",
+    "worker-src 'self' blob:",
+    "upgrade-insecure-requests"
+  ].join('; ');
+}
+
+function isHttpsRequest(request) {
+  const forwarded = String(request?.headers?.['x-forwarded-proto'] || '').toLowerCase();
+  if (forwarded.split(',').map((item) => item.trim()).includes('https')) return true;
+  return env('SITE_ORIGIN', '').startsWith('https://');
+}
+
+function applySecurityHeaders(response, request) {
+  response.setHeader('X-Content-Type-Options', 'nosniff');
+  response.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.setHeader('X-Frame-Options', 'DENY');
+  response.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+  response.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self)');
+  response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  response.setHeader('Content-Security-Policy', contentSecurityPolicy());
+  if (isHttpsRequest(request)) response.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+}
 
 function json(response, status, body, options = {}) {
   response.writeHead(status, {
@@ -211,6 +248,7 @@ function handleStatic(request, response) {
 }
 
 const server = createServer((request, response) => {
+  applySecurityHeaders(response, request);
   const pathname = apiPathOf(request.url);
   if (["GET", "HEAD"].includes(request.method || "GET") && new URL(request.url || "/", "http://local").pathname === "/health") {
     return json(

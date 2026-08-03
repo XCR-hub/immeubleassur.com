@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02T23:24:51.026Z",
+  "generated_at": "2026-08-03T00:20:23.388Z",
   "status": "passed",
   "pages_checked": 187,
   "indexable_pages": 180,
@@ -7,7 +7,7 @@
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 42.5,
+      "kb": 42.8,
       "issue_count": 0
     },
     {
@@ -46,13 +46,13 @@
       "issue_count": 0
     },
     {
-      "source": "comparateur-assurance-immeuble.html",
-      "kb": 25.5,
+      "source": "blog.html",
+      "kb": 25.6,
       "issue_count": 0
     },
     {
-      "source": "blog.html",
-      "kb": 25.4,
+      "source": "comparateur-assurance-immeuble.html",
+      "kb": 25.5,
       "issue_count": 0
     },
     {
@@ -85,8 +85,8 @@
     },
     {
       "path": "assets/admin.js",
-      "bytes": 95520,
-      "kb": 93.3,
+      "bytes": 96164,
+      "kb": 93.9,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true
@@ -121,7 +121,7 @@
     },
     {
       "path": "assets/live-api-readiness-latest.json",
-      "bytes": 11322,
+      "bytes": 11336,
       "kb": 11.1,
       "ok": true
     },
@@ -138,20 +138,20 @@
       "ok": true
     },
     {
-      "path": "assets/seo-cannibalization-latest.json",
-      "bytes": 9619,
-      "kb": 9.4,
-      "ok": true
-    },
-    {
       "path": "assets/seo-angle-differentiation-latest.json",
       "bytes": 9275,
       "kb": 9.1,
       "ok": true
     },
     {
+      "path": "assets/seo-cannibalization-latest.json",
+      "bytes": 8979,
+      "kb": 8.8,
+      "ok": true
+    },
+    {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5874,
+      "bytes": 5876,
       "kb": 5.7,
       "ok": true
     },
@@ -169,7 +169,7 @@
     },
     {
       "path": "assets/performance-budget-latest.json",
-      "bytes": 4049,
+      "bytes": 4054,
       "kb": 4,
       "ok": true
     }

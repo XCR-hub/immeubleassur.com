@@ -882,7 +882,7 @@ async function loadIntegrations() {
   if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
   if (integrationsSummary) integrationsSummary.replaceChildren(metricCard("Chargement", "API", "lecture des integrations"));
 
-  const [editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport, googleUnlockReport, liveReadyConnectorsReport, growthOpsReport] = await Promise.all([
+  const [editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport, googleUnlockReport, liveReadyConnectorsReport, securityReport, growthOpsReport] = await Promise.all([
     fetchOptionalAsset("/assets/editorial-autopilot-latest.json"),
     fetchOptionalAsset("/assets/media-autopilot-latest.json"),
     fetchOptionalAsset("/assets/search-intelligence-latest.json"),
@@ -913,7 +913,7 @@ async function loadIntegrations() {
 
   const connectors = apiResult?.connectors || [];
   const reports = apiResult?.reports || {};
-  const publicReports = { editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport, googleUnlockReport, liveReadyConnectorsReport, growthOpsReport };
+  const publicReports = { editorialReport, mediaReport, searchReport, searchGapReport, seoReport, antifraudReport, turnstileReport, liveReadinessReport, googleUnlockReport, liveReadyConnectorsReport, securityReport, growthOpsReport };
   const googleHealth = seoReport.google_api_health || {};
   const spamBlocks = Number(reports.lead_spam_blocks_30d || 0) + Number(reports.newsletter_spam_blocks_30d || 0);
   const duplicateLeads = Number(reports.lead_duplicates_30d || 0);
@@ -924,6 +924,7 @@ async function loadIntegrations() {
       metricCard("Live APIs", liveReadinessReport.connectors_checked ? `${liveReadinessReport.ready_count || 0}/${liveReadinessReport.connectors_checked}` : "Rapport", liveReadinessReport.status || "readiness"),
       metricCard("Google unlock", googleUnlockReport.watched_connectors ? googleUnlockReport.status || "rapport" : "Rapport", `${googleUnlockReport.blocking_count || 0} blocage(s), ${googleUnlockReport.degraded_count || 0} degrade(s)`),
       metricCard("Live runner", liveReadyConnectorsReport.status || "Rapport", liveReadyConnectorsReport.summary ? `${liveReadyConnectorsReport.summary.executed || 0} execute(s), ${liveReadyConnectorsReport.summary.skipped || 0} saute(s)` : "rapport absent"),
+      metricCard("Securite HTTP", securityReport.status || "Rapport", securityReport.header_count ? `${securityReport.header_count} header(s), ${securityReport.csp_directive_count || 0} CSP` : "rapport absent"),
       metricCard("IA configurees", connectors.length ? `${countConfigured(connectors, "ia")}/${countFamily(connectors, "ia")}` : "-", `${editorialReport.ai_provider || "deterministic"} / ${editorialReport.ai_status || "public"}`),
       metricCard("Veille", editorialReport.mode || "-", `${editorialReport.watch_items || 0} signal(s), qualite ${editorialReport.quality_score || 0}`),
       metricCard("Pexels", mediaReport.pexels_enabled ? "Actif" : "Fallback", `${mediaReport.assets_count || 0} asset(s)`),
@@ -959,6 +960,7 @@ async function loadIntegrations() {
       { label: "Admin API", status: "Token requis", scope: "Audit des secrets runtime protege.", signal: "Entrez le token admin.", action: "Charger avec ADMIN_API_TOKEN pour verifier les connecteurs." },
       { label: "Live API readiness", status: liveReadinessReport.status || "rapport public", scope: "Prerequis API live sans valeur secrete.", signal: liveReadinessReport.connectors_checked ? `${liveReadinessReport.ready_count || 0}/${liveReadinessReport.connectors_checked} connecteur(s) prets` : "rapport absent", action: "Configurer les variables manquantes dans .env.local ou sur le serveur puis lancer npm run seo:live." },
       { label: "Live runner", status: liveReadyConnectorsReport.status || "rapport public", scope: "Execution automatique des connecteurs deja prets, avec cooldown SerpApi.", signal: liveReadyConnectorsReport.summary ? `${liveReadyConnectorsReport.summary.executed || 0} execute(s), ${liveReadyConnectorsReport.summary.skipped || 0} saute(s), ${liveReadyConnectorsReport.summary.failed || 0} echec(s)` : "rapport absent", action: "Planifier npm run live:ready pour rafraichir les APIs pretes sans bloquer sur les secrets manquants." },
+      { label: "Securite HTTP", status: securityReport.status || "rapport public", scope: "Headers runtime, CSP, HSTS et security.txt.", signal: securityReport.header_count ? `${securityReport.header_count} header(s), ${securityReport.issue_count || 0} alerte(s)` : "rapport absent", action: "Conserver npm run security:headers dans les checks et verifier les headers apres chaque deploiement." },
       { label: "Veille IA", status: editorialReport.ai_status || "rapport public", scope: "Dernier build editorial.", signal: `${editorialReport.ai_provider || "-"} - ${reportDate(editorialReport.generated_at)}`, action: "Configurer les secrets IA dans GitHub Actions pour activer un provider." },
       { label: "Pexels", status: mediaReport.status || "rapport public", scope: "Dernier build media.", signal: `${mediaReport.assets_count || 0} asset(s)`, action: "Configurer PEXELS_API_KEY pour injecter des visuels attribues." },
       { label: "SerpApi", status: searchReport.status || "rapport public", scope: "Dernier suivi positions.", signal: `${searchReport.keywords_checked || 0} requete(s)`, action: "Configurer SERP_API_KEY pour remplacer l'estimation locale." },

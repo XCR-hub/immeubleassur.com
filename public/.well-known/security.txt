@@ -1,0 +1,5 @@
+Contact: mailto:team@immeubleassur.com
+Expires: 2027-08-03T00:00:00Z
+Preferred-Languages: fr, en
+Canonical: https://immeubleassur.com/.well-known/security.txt
+Policy: https://immeubleassur.com/confidentialite

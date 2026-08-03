@@ -1,0 +1,71 @@
+{
+  "generated_at": "2026-08-03T00:20:58.331Z",
+  "status": "passed",
+  "header_count": 8,
+  "csp_directive_count": 9,
+  "files_checked": 2,
+  "security_txt": true,
+  "files": [
+    {
+      "file": "scripts/local-production-server.js",
+      "marker": true,
+      "applied_to_requests": true,
+      "headers_present": [
+        "Content-Security-Policy",
+        "Strict-Transport-Security",
+        "X-Content-Type-Options",
+        "Referrer-Policy",
+        "X-Frame-Options",
+        "X-Permitted-Cross-Domain-Policies",
+        "Permissions-Policy",
+        "Cross-Origin-Opener-Policy"
+      ],
+      "csp_directives_present": [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "object-src 'none'",
+        "frame-ancestors 'none'",
+        "form-action 'self'",
+        "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com",
+        "connect-src 'self' https://challenges.cloudflare.com https://region1.google-analytics.com https://www.google-analytics.com",
+        "frame-src https://challenges.cloudflare.com",
+        "upgrade-insecure-requests"
+      ]
+    },
+    {
+      "file": "scripts/local-static-server.js",
+      "marker": true,
+      "applied_to_requests": true,
+      "headers_present": [
+        "Content-Security-Policy",
+        "Strict-Transport-Security",
+        "X-Content-Type-Options",
+        "Referrer-Policy",
+        "X-Frame-Options",
+        "X-Permitted-Cross-Domain-Policies",
+        "Permissions-Policy",
+        "Cross-Origin-Opener-Policy"
+      ],
+      "csp_directives_present": [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "object-src 'none'",
+        "frame-ancestors 'none'",
+        "form-action 'self'",
+        "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com",
+        "connect-src 'self' https://challenges.cloudflare.com https://region1.google-analytics.com https://www.google-analytics.com",
+        "frame-src https://challenges.cloudflare.com",
+        "upgrade-insecure-requests"
+      ]
+    }
+  ],
+  "issue_count": 0,
+  "issues": [],
+  "safeguards": [
+    "centralized-runtime-security-headers",
+    "csp-allows-turnstile-and-ga4-only",
+    "hsts-behind-https-proxy",
+    "frame-ancestors-none",
+    "security-txt-contact"
+  ]
+}
