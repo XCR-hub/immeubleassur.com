@@ -1,4 +1,4 @@
-import { adminTokenMatches } from "../../_shared/admin-auth.js";
+import { adminRequestAllowed } from "../../_shared/admin-auth.js";
 import { sendPortableSmtpMail } from "../../_shared/smtp.js";
 
 const headers = {
@@ -10,7 +10,7 @@ function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
 }
 
-function authorized(request, env) { return adminTokenMatches(request, env); }
+function authorized(request, env) { return adminRequestAllowed(request, env); }
 
 function clean(value, max = 500) {
   return String(value || "").trim().slice(0, max);

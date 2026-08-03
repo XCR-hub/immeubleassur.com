@@ -1,4 +1,4 @@
-import { adminTokenMatches } from "../../_shared/admin-auth.js";
+import { adminRequestAllowed } from "../../_shared/admin-auth.js";
 const headers = {
   "Content-Type": "application/json; charset=utf-8",
   "Cache-Control": "no-store"
@@ -146,7 +146,7 @@ function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
 }
 
-function authorized(request, env) { return adminTokenMatches(request, env); }
+function authorized(request, env) { return adminRequestAllowed(request, env); }
 
 function hasConfiguredValue(env, key) {
   return String(env[key] || "").trim().length > 0;

@@ -3,6 +3,9 @@ import { existsSync, readFileSync } from "node:fs";
 const required = [
   ["package.json", "serve:local"],
   ["functions/_shared/admin-auth.js", "admin-auth-rate-limit-v1"],
+  ["functions/_shared/admin-auth.js", "admin-profile-session-v1"],
+  ["functions/api/admin/auth.js", "PBKDF2"],
+  ["schema.sql", "admin_profiles"],
   ["package.json", "db:sqlite:restore"],
   ["package.json", "db:sqlite:import-reports"],
   ["package.json", "production:monitor"],

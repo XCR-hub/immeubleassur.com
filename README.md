@@ -60,7 +60,7 @@ La synchronisation `npm run mail:sync` ouvre la boite IMAP en lecture seule, imp
 Le cycle runtime prepare aussi les rappels contractuels de renouvellement et d appels de prime dans `draft_review`, dedupliques par echeance, sans envoi automatique; la validation humaine reste obligatoire.
 
 - Admin: `/admin.html`, section `Dossiers courtage` via `/api/admin/cases`.
-- Client mobile: `/espace-client.html?token=...` via `/api/client/case`.
+- Client mobile: `/espace-client.html#token=...` via `/api/client/case`.
 - Assureurs partenaires: les consultations se traitent depuis l'admin avec approbation humaine, envoi ou marquage manuel, brouillon de relance et retour offre/refus trace en timeline.
 - Espace assureur: `/espace-assureur.html?token=...` via `/api/partner/consultation` donne au partenaire un resume risque sans email/telephone client et permet question, offre ou refus traces.
 - Offre client: apres offre assureur quotee, l'admin prepare une proposition en `draft_review`, la publie apres revue humaine, puis le client l'accepte explicitement dans `/espace-client.html`; l'acceptation passe le dossier en `contract_active` et le lead en `won`.
@@ -146,7 +146,7 @@ Le runner `npm run live:ready` execute uniquement les connecteurs prets et respe
 
 ## Admin
 
-`/admin.html` permet de consulter les leads, newsletter, contenu SEO, attribution, anti-spam, relances, runtime et backlog SEO. Les endpoints admin exigent `ADMIN_API_TOKEN`. Les echecs sont limites par IP pendant cinq minutes, sans stockage du jeton.
+/admin.html permet de consulter les leads, newsletter, contenu SEO, attribution, anti-spam, relances, runtime et backlog SEO. Le jeton maitre ADMIN_API_TOKEN reste disponible pour l administration initiale. Des profils operateurs peuvent etre crees depuis le panneau admin avec un mot de passe PBKDF2; leurs sessions sont temporaires, conservees en memoire du processus et utilisent le meme acces CRM. Le role readonly peut consulter mais ne peut pas modifier les leads, dossiers ou newsletters. Les echecs de jeton maitre sont limites par IP pendant cinq minutes, sans stockage du jeton.
 
 Le panneau integrations affiche les secrets par nom uniquement, jamais leurs valeurs. Il affiche aussi le rapport public des headers HTTP/CSP/HSTS et du fichier `/.well-known/security.txt`.
 

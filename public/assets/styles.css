@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   color-scheme: light;
   --ink: #14211f;
   --muted: #58716c;
@@ -3916,3 +3916,4 @@ textarea:focus {
     font-size: .78rem;
   }
 }
+.admin-profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:end}.admin-profile-grid .admin-toolbar{margin:0;align-items:end}.admin-profile-actions{display:flex;gap:1rem;align-items:center;justify-content:space-between;margin-top:1rem}.admin-profile-actions .form-status{margin:0}.admin-profile-panel{margin-bottom:1.25rem}@media (max-width:760px){.admin-profile-grid{grid-template-columns:1fr}.admin-profile-actions{align-items:stretch;flex-direction:column}.admin-profile-actions button{width:100%}}

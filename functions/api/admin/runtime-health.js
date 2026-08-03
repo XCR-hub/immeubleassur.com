@@ -1,4 +1,4 @@
-import { adminTokenMatches } from "../../_shared/admin-auth.js";
+import { adminRequestAllowed } from "../../_shared/admin-auth.js";
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -9,7 +9,7 @@ function json(body, status = 200) {
   });
 }
 
-function isAuthorized(request, env) { return adminTokenMatches(request, env); }
+function isAuthorized(request, env) { return adminRequestAllowed(request, env); }
 
 function publicRuntime() {
   return {

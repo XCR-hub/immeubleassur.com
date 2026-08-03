@@ -26,6 +26,7 @@ const apiRoutes = new Map([
   ["/api/newsletter", "functions/api/newsletter.js"],
   ["/api/client/case", "functions/api/client/case.js"],
   ["/api/partner/consultation", "functions/api/partner/consultation.js"],
+  ["/api/admin/auth", "functions/api/admin/auth.js"],
   ["/api/admin/attribution", "functions/api/admin/attribution.js"],
   ["/api/admin/cases", "functions/api/admin/cases.js"],
   ["/api/admin/content", "functions/api/admin/content.js"],

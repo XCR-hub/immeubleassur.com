@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/styles.css?v=94ce67cf89" />
+    <link rel="stylesheet" href="/assets/styles.css?v=a1b2c3d4e5" />
     <title>Admin leads - ImmeubleAssur</title>
   </head>
   <body class="plain-page">
@@ -31,6 +31,27 @@
       <h1>Leads immeuble</h1>
       <p>Acces protege par ADMIN_API_TOKEN cote serveur local.</p>
       <section class="plain-panel">
+        <section class="plain-panel admin-profile-panel" id="admin-profile-access">
+          <h2>Acces operateur</h2>
+          <div class="admin-profile-grid">
+            <form class="admin-toolbar" id="admin-profile-login-form">
+              <label>Email operateur<input name="email" type="email" autocomplete="username" required placeholder="nom@entreprise.fr" /></label>
+              <label>Mot de passe<input name="password" type="password" autocomplete="current-password" required minlength="12" /></label>
+              <button class="submit-button" type="submit">Se connecter</button>
+            </form>
+            <form class="admin-toolbar" id="admin-profile-create-form">
+              <label>Email du profil<input name="email" type="email" autocomplete="off" required placeholder="nom@entreprise.fr" /></label>
+              <label>Nom affiche<input name="display_name" autocomplete="off" required placeholder="Nom operateur" /></label>
+              <label>Role<select name="role"><option value="commercial">Commercial</option><option value="manager">Manager</option><option value="readonly">Lecture seule</option><option value="owner">Direction</option></select></label>
+              <label>Mot de passe initial<input name="password" type="password" autocomplete="new-password" required minlength="12" /></label>
+              <button class="button secondary" type="submit">Creer le profil</button>
+            </form>
+          </div>
+          <div class="admin-profile-actions">
+            <button class="button secondary" id="admin-profile-logout" type="button">Fermer la session operateur</button>
+            <p class="form-status" id="admin-profile-status" role="status" aria-live="polite"></p>
+          </div>
+        </section>
         <form class="admin-toolbar" id="admin-form">
           <label>Token admin<input id="admin-token" type="password" autocomplete="current-password" required placeholder="Token admin" /></label>
           <button class="submit-button" type="submit" data-track="lead-submit">Charger</button>
@@ -89,6 +110,7 @@
 <section class="plain-panel admin-seo-panel admin-spam-panel"><h2>Bouclier anti-spam</h2><div class="admin-toolbar"><button class="submit-button" type="button" id="load-spam">Charger anti-spam</button><span class="admin-muted">IP masquees, raisons de blocage et signaux robots uniquement.</span></div><div class="seo-admin-grid" id="spam-summary"><p>Charge blocages formulaires, sources repetees, pages ciblees et erreurs de validation.</p></div><section class="admin-table-wrap" aria-label="Bouclier anti-spam"><table class="admin-table admin-spam-table"><thead><tr><th>Type</th><th>Volume</th><th>Signal</th><th>Derniere trace</th><th>Action</th></tr></thead><tbody id="spam-body"><tr><td colspan="5">Aucun chargement effectue.</td></tr></tbody></table></section></section>
 <!-- spam-admin:end -->
 </main>
+    <script src="/assets/admin-profile.js?v=admin-profile-1" type="module"></script>
     <script src="/assets/admin.js?v=bd3f6a20" type="module"></script>
   </body>
 </html>
