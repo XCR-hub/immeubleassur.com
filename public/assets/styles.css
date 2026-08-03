@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   color-scheme: light;
   --ink: #14211f;
   --muted: #58716c;
@@ -3618,7 +3618,8 @@ textarea:focus {
 }
 
 .portal-mini-form input,
-.portal-mini-form select {
+.portal-mini-form select,
+.portal-mini-form textarea {
   width: 100%;
   min-height: 42px;
   border: 1px solid var(--line);
@@ -3629,6 +3630,10 @@ textarea:focus {
   font-size: .92rem;
   font-weight: 800;
   text-transform: none;
+}
+
+.portal-message-field {
+  grid-column: 1 / -1;
 }
 
 .portal-mini-form .portal-check {

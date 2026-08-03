@@ -1,4 +1,4 @@
-import { clean, safeJson, stageLabel } from "../../_shared/brokerage-cases.js";
+﻿import { clean, safeJson, stageLabel } from "../../_shared/brokerage-cases.js";
 import {
   CLIENT_CONTRACT_MARKER,
   applyConsent,
@@ -239,6 +239,7 @@ function publicContract(row, lead, documents = [], payments = [], requests = [],
       status: request.status,
       priority: request.priority,
       subject: request.subject,
+      message: clean(request.message, 2000),
       due_at: request.due_at || "",
       created_at: request.created_at
     })),
@@ -454,6 +455,7 @@ async function addContractRequest(env, row, contract, body, typeOverride = "") {
   const priority = requestPriorityFor(type);
   const subject = clean(body.subject, 180) || requestTypeLabel(type);
   const message = clean(body.message, 2000);
+  if (!typeOverride && !message) return json({ success: false, error: "Message requis pour cette demande" }, 422);
   await safeRun(env, `INSERT INTO contract_service_requests (id, contract_id, request_type, status, priority, subject, message, due_at, human_review_required, payload, created_at, updated_at)
     VALUES (?, ?, ?, 'open', ?, ?, ?, ?, 1, ?, ?, ?)`, [crypto.randomUUID(), contract.id, type, priority, subject, message, requestDueAtFor(type), JSON.stringify({ marker: CLIENT_CONTRACT_MARKER, source: "client_portal" }), new Date().toISOString(), new Date().toISOString()]);
   await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'contract_request_created', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ contract_id: contract.id, request_type: type, priority }), new Date().toISOString()]);

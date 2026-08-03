@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+﻿import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const required = [
@@ -19,6 +19,11 @@ const required = [
   ["scripts/client-contract-orchestrator.js", "no-address-book-scraping"],
   ["scripts/client-contract-orchestrator.js", "human-review-contract-requests"],
   ["functions/api/client/case.js", "contract_consent"],
+  ["functions/api/client/case.js", "message: clean(request.message, 2000)"],
+  ["functions/api/client/case.js", "Message requis pour cette demande"],
+  ["public/espace-client.html", "portal-message-field"],
+  ["public/assets/client-portal.js", "item.message"],
+  ["scripts/client-contract-workflow-smoke.js", "client request should accept a detailed message"],
   ["functions/api/client/case.js", "contract_referral"],
   ["functions/api/client/case.js", "payment_link_request"],
   ["functions/api/client/case.js", "asset_update"],

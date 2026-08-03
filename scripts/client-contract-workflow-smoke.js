@@ -1,4 +1,4 @@
-import { existsSync, rmSync } from "node:fs";
+﻿import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { openLocalSqlite } from "./local-sqlite-db.js";
@@ -111,6 +111,11 @@ async function main() {
   assert(contract.consent?.cross_sell === false, "cross-sell should be refused by default");
   assert(contract.cross_sell?.enabled === false, "cross-sell recommendations should stay disabled before opt-in");
   assert(contract.consent_receipts?.some((receipt) => receipt.marker === "consent-receipt-v1" && receipt.consent_type === "cross_sell" && receipt.revocation_available), "consent receipt should expose revocation proof");
+
+  const clientRequest = await post(caseRow.client_portal_token, { action: "contract_request", contract_id: contract.id, request_type: "endorsement", subject: "Modification smoke", message: "Merci de modifier la garantie du local technique et de confirmer la franchise." }, DB);
+  assert(clientRequest.status === 200 && clientRequest.body.status === "open", "client request should accept a detailed message");
+  const refreshedWithMessage = await getClient(caseRow.client_portal_token, DB);
+  assert(refreshedWithMessage.body.case.contracts?.[0]?.requests?.some((item) => item.subject === "Modification smoke" && /local technique/.test(item.message || "")), "client portal should expose the request message for follow-up");
 
   const blockedConsent = await post(caseRow.client_portal_token, { action: "contract_consent", contract_id: contract.id, consent_type: "cross_sell", granted: true }, DB);
   assert(blockedConsent.status === 422, "granting commercial consent should require explicit acceptance");

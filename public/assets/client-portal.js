@@ -1,4 +1,4 @@
-const form = document.querySelector("#portal-token-form");
+﻿const form = document.querySelector("#portal-token-form");
 const tokenInput = document.querySelector("#portal-token");
 const statusBox = document.querySelector("#portal-status");
 const content = document.querySelector("#portal-content");
@@ -365,6 +365,7 @@ function renderRequests() {
     strong.textContent = item.subject || item.label || "Demande";
     const small = smallText(`${item.label || "Demande"} - ${requestLabel(item.status)} - ${item.priority || "standard"}`);
     row.append(strong, small);
+    if (item.message) row.append(smallText(item.message));
     requestsBox.append(row);
   }
 }
@@ -637,7 +638,8 @@ requestForm?.addEventListener("submit", (event) => {
   postPortalAction("contract_request", {
     contract_id: contract.id,
     request_type: String(data.get("request_type") || "document"),
-    subject: String(data.get("subject") || "")
+    subject: String(data.get("subject") || ""),
+    message: String(data.get("message") || "")
   }, requestForm.querySelector("button"))
     .then(() => {
       requestForm.reset();
