@@ -1,51 +1,41 @@
 {
-  "generated_at": "2026-08-03T12:10:29.001Z",
+  "generated_at": "2026-08-03T16:22:33.398Z",
   "status": "passed",
-  "pages_checked": 189,
-  "clusters_targeted": 2,
-  "pages_targeted": 4,
-  "blocks_written": 4,
-  "blocks_changed": 1,
+  "pages_checked": 201,
+  "clusters_targeted": 1,
+  "pages_targeted": 3,
+  "blocks_written": 3,
+  "blocks_changed": 3,
   "blocks_removed": 0,
-  "active_rescues": 4,
+  "active_rescues": 3,
   "cluster_targets": [
     {
       "cluster": "newsletter-veille",
       "count": 3
-    },
-    {
-      "cluster": "assurance-immeuble",
-      "count": 1
     }
   ],
   "cluster_inputs": [
     {
       "cluster": "assurance-immeuble",
-      "average_score": 38,
+      "average_score": 60,
       "money_pages": 0,
       "threshold": 78
     },
     {
-      "cluster": "copropriete-syndic",
-      "average_score": 75,
-      "money_pages": 1,
-      "threshold": 78
-    },
-    {
       "cluster": "local-commercial",
-      "average_score": 76,
+      "average_score": 86,
       "money_pages": 0,
       "threshold": 78
     },
     {
       "cluster": "newsletter-veille",
-      "average_score": 69,
+      "average_score": 73,
       "money_pages": 0,
       "threshold": 78
     },
     {
       "cluster": "travaux",
-      "average_score": 69,
+      "average_score": 78,
       "money_pages": 0,
       "threshold": 78
     }
@@ -63,28 +53,21 @@
       "type": "newsletter",
       "cluster": "newsletter-veille",
       "active": true,
-      "changed": false
+      "changed": true
     },
     {
       "slug": "veille-assurance-immeuble",
       "type": "newsletter",
       "cluster": "newsletter-veille",
       "active": true,
-      "changed": false
+      "changed": true
     },
     {
-      "slug": "news/veille-assurance-immeuble-2026-08-02",
+      "slug": "news/veille-assurance-immeuble-2026-08-03",
       "type": "news",
       "cluster": "newsletter-veille",
       "active": true,
       "changed": true
-    },
-    {
-      "slug": "strategie-seo-continue",
-      "type": "service",
-      "cluster": "assurance-immeuble",
-      "active": true,
-      "changed": false
     }
   ]
 }

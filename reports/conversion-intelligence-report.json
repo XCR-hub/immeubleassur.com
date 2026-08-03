@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-03T12:10:30.770Z",
-  "pages_checked": 185,
-  "money_pages_checked": 118,
+  "generated_at": "2026-08-03T16:22:35.192Z",
+  "pages_checked": 197,
+  "money_pages_checked": 128,
   "cluster_count": 11,
   "cluster_detection": {
     "strategy": "slug-title-description-h1",
@@ -12,8 +12,8 @@
       "no-google-scraping"
     ]
   },
-  "average_conversion_score": 85,
-  "average_money_score": 95,
+  "average_conversion_score": 88,
+  "average_money_score": 96,
   "cluster_coverage": [
     {
       "cluster": "local",
@@ -57,7 +57,7 @@
       "cluster": "pno-cno",
       "pages": 15,
       "money_pages": 13,
-      "average_score": 95,
+      "average_score": 96,
       "top_pages": [
         {
           "slug": "assurance-cno",
@@ -93,9 +93,9 @@
     },
     {
       "cluster": "sinistre-resilie",
-      "pages": 14,
-      "money_pages": 7,
-      "average_score": 81,
+      "pages": 15,
+      "money_pages": 12,
+      "average_score": 95,
       "top_pages": [
         {
           "slug": "blog/assurance-immeuble-sans-sinistre",
@@ -108,74 +108,79 @@
           "score": 100
         },
         {
-          "slug": "blog/sinistres-recurrents-immeuble",
-          "url": "https://immeubleassur.com/blog/sinistres-recurrents-immeuble",
+          "slug": "blog/devis-assurance-immeuble-refus",
+          "url": "https://immeubleassur.com/blog/devis-assurance-immeuble-refus",
           "score": 100
         },
         {
-          "slug": "faq/sinistres",
-          "url": "https://immeubleassur.com/faq/sinistres",
+          "slug": "blog/refus-assureur-apres-sinistre-immeuble",
+          "url": "https://immeubleassur.com/blog/refus-assureur-apres-sinistre-immeuble",
           "score": 100
         },
         {
-          "slug": "gestion-sinistres-immeuble",
-          "url": "https://immeubleassur.com/gestion-sinistres-immeuble",
+          "slug": "blog/renouvellement-apres-sinistre-immeuble",
+          "url": "https://immeubleassur.com/blog/renouvellement-apres-sinistre-immeuble",
           "score": 100
         },
         {
-          "slug": "assurance-immeuble-resilie",
-          "url": "https://immeubleassur.com/assurance-immeuble-resilie",
-          "score": 94
+          "slug": "blog/sinistre-immeuble-apres-declaration",
+          "url": "https://immeubleassur.com/blog/sinistre-immeuble-apres-declaration",
+          "score": 100
         }
       ]
     },
     {
       "cluster": "devis-courtier",
       "pages": 16,
-      "money_pages": 7,
-      "average_score": 77,
+      "money_pages": 10,
+      "average_score": 89,
       "top_pages": [
-        {
-          "slug": "assurance-immeuble",
-          "url": "https://immeubleassur.com/assurance-immeuble",
-          "score": 100
-        },
         {
           "slug": "blog/checklist-documents-devis-immeuble",
           "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
           "score": 100
         },
         {
+          "slug": "blog/devis-assurance-immeuble-comparatif",
+          "url": "https://immeubleassur.com/blog/devis-assurance-immeuble-comparatif",
+          "score": 100
+        },
+        {
+          "slug": "blog/devis-assurance-immeuble-complet",
+          "url": "https://immeubleassur.com/blog/devis-assurance-immeuble-complet",
+          "score": 100
+        },
+        {
+          "slug": "blog/devis-assurance-immeuble-echeance",
+          "url": "https://immeubleassur.com/blog/devis-assurance-immeuble-echeance",
+          "score": 100
+        },
+        {
+          "slug": "blog/devis-courtier-assurance-immeuble",
+          "url": "https://immeubleassur.com/blog/devis-courtier-assurance-immeuble",
+          "score": 100
+        },
+        {
           "slug": "comparateur-assurance-immeuble",
           "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
           "score": 100
-        },
-        {
-          "slug": "devis-assurance-immeuble",
-          "url": "https://immeubleassur.com/devis-assurance-immeuble",
-          "score": 100
-        },
-        {
-          "slug": "index",
-          "url": "https://immeubleassur.com/",
-          "score": 100
-        },
-        {
-          "slug": "courtier-assurance-immeuble",
-          "url": "https://immeubleassur.com/courtier-assurance-immeuble",
-          "score": 97
         }
       ]
     },
     {
       "cluster": "prix-tarif",
       "pages": 9,
-      "money_pages": 5,
-      "average_score": 80,
+      "money_pages": 6,
+      "average_score": 91,
       "top_pages": [
         {
           "slug": "blog/prix-assurance-immeuble-au-m2",
           "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-au-m2",
+          "score": 100
+        },
+        {
+          "slug": "blog/prix-assurance-immeuble-franchise",
+          "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-franchise",
           "score": 100
         },
         {
@@ -191,25 +196,20 @@
         {
           "slug": "tarif-assurance-immeuble",
           "url": "https://immeubleassur.com/tarif-assurance-immeuble",
-          "score": 94
+          "score": 100
         },
         {
           "slug": "blog/prix-assurance-immeuble-franchises-reste-a-charge",
           "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-franchises-reste-a-charge",
           "score": 90
-        },
-        {
-          "slug": "blog/audit-franchises-assurance-immeuble",
-          "url": "https://immeubleassur.com/blog/audit-franchises-assurance-immeuble",
-          "score": 75
         }
       ]
     },
     {
       "cluster": "sci-bailleur",
-      "pages": 12,
+      "pages": 13,
       "money_pages": 4,
-      "average_score": 76,
+      "average_score": 84,
       "top_pages": [
         {
           "slug": "assurance-immeuble-de-rapport",
@@ -224,30 +224,30 @@
         {
           "slug": "assurance-immeuble-locatif",
           "url": "https://immeubleassur.com/assurance-immeuble-locatif",
-          "score": 84
+          "score": 91
         },
         {
           "slug": "assurance-immeuble-meuble-colocation",
           "url": "https://immeubleassur.com/assurance-immeuble-meuble-colocation",
-          "score": 84
+          "score": 91
         },
         {
           "slug": "assurance-immeuble-monopropriete",
           "url": "https://immeubleassur.com/assurance-immeuble-monopropriete",
-          "score": 84
+          "score": 91
         },
         {
-          "slug": "blog/assurance-sci-immeuble-cartographie-patrimoine",
-          "url": "https://immeubleassur.com/blog/assurance-sci-immeuble-cartographie-patrimoine",
-          "score": 75
+          "slug": "blog/assurance-immeuble-etudiant",
+          "url": "https://immeubleassur.com/blog/assurance-immeuble-etudiant",
+          "score": 86
         }
       ]
     },
     {
       "cluster": "copropriete-syndic",
-      "pages": 16,
-      "money_pages": 1,
-      "average_score": 75,
+      "pages": 18,
+      "money_pages": 2,
+      "average_score": 80,
       "top_pages": [
         {
           "slug": "assurance-copropriete",
@@ -255,29 +255,29 @@
           "score": 100
         },
         {
+          "slug": "assurance-immeuble",
+          "url": "https://immeubleassur.com/assurance-immeuble",
+          "score": 100
+        },
+        {
+          "slug": "blog/assurance-copropriete-avant-ag",
+          "url": "https://immeubleassur.com/blog/assurance-copropriete-avant-ag",
+          "score": 86
+        },
+        {
+          "slug": "blog/assurance-parking-garages-copropriete",
+          "url": "https://immeubleassur.com/blog/assurance-parking-garages-copropriete",
+          "score": 86
+        },
+        {
           "slug": "blog/copropriete-petite-syndic-benevole",
           "url": "https://immeubleassur.com/blog/copropriete-petite-syndic-benevole",
           "score": 86
         },
         {
-          "slug": "blog/assurance-copropriete-avant-ag",
-          "url": "https://immeubleassur.com/blog/assurance-copropriete-avant-ag",
-          "score": 79
-        },
-        {
           "slug": "blog/dommages-ouvrage-copropriete-travaux",
           "url": "https://immeubleassur.com/blog/dommages-ouvrage-copropriete-travaux",
-          "score": 79
-        },
-        {
-          "slug": "blog/renovation-energetique-copropriete-assurance",
-          "url": "https://immeubleassur.com/blog/renovation-energetique-copropriete-assurance",
-          "score": 79
-        },
-        {
-          "slug": "blog/syndic-benevole-assurance-immeuble-archives-ag",
-          "url": "https://immeubleassur.com/blog/syndic-benevole-assurance-immeuble-archives-ag",
-          "score": 79
+          "score": 86
         }
       ]
     },
@@ -285,37 +285,37 @@
       "cluster": "local-commercial",
       "pages": 6,
       "money_pages": 0,
-      "average_score": 76,
+      "average_score": 86,
       "top_pages": [
         {
           "slug": "assurance-local-commercial",
           "url": "https://immeubleassur.com/assurance-local-commercial",
-          "score": 93
+          "score": 100
         },
         {
           "slug": "blog/assurance-immeuble-local-professionnel",
           "url": "https://immeubleassur.com/blog/assurance-immeuble-local-professionnel",
-          "score": 75
-        },
-        {
-          "slug": "faq/local-commercial",
-          "url": "https://immeubleassur.com/faq/local-commercial",
-          "score": 75
-        },
-        {
-          "slug": "blog/assurance-immeuble-mixte-commerce",
-          "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
-          "score": 71
+          "score": 86
         },
         {
           "slug": "blog/immeuble-mixte-restaurant",
           "url": "https://immeubleassur.com/blog/immeuble-mixte-restaurant",
-          "score": 71
+          "score": 86
         },
         {
           "slug": "blog/local-commercial-vacant",
           "url": "https://immeubleassur.com/blog/local-commercial-vacant",
-          "score": 71
+          "score": 86
+        },
+        {
+          "slug": "blog/assurance-immeuble-mixte-commerce",
+          "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
+          "score": 79
+        },
+        {
+          "slug": "faq/local-commercial",
+          "url": "https://immeubleassur.com/faq/local-commercial",
+          "score": 79
         }
       ]
     },
@@ -323,30 +323,30 @@
       "cluster": "travaux",
       "pages": 3,
       "money_pages": 0,
-      "average_score": 69,
+      "average_score": 78,
       "top_pages": [
-        {
-          "slug": "faq/travaux",
-          "url": "https://immeubleassur.com/faq/travaux",
-          "score": 75
-        },
         {
           "slug": "blog/ravalement-toiture-travaux-assurance",
           "url": "https://immeubleassur.com/blog/ravalement-toiture-travaux-assurance",
-          "score": 71
+          "score": 86
+        },
+        {
+          "slug": "faq/travaux",
+          "url": "https://immeubleassur.com/faq/travaux",
+          "score": 79
         },
         {
           "slug": "dommages-ouvrage-immeuble",
           "url": "https://immeubleassur.com/dommages-ouvrage-immeuble",
-          "score": 61
+          "score": 69
         }
       ]
     },
     {
       "cluster": "newsletter-veille",
-      "pages": 8,
+      "pages": 9,
       "money_pages": 0,
-      "average_score": 69,
+      "average_score": 73,
       "top_pages": [
         {
           "slug": "news/veille-assurance-immeuble-2026-07-29",
@@ -374,37 +374,47 @@
           "score": 74
         },
         {
-          "slug": "news/veille-assurance-immeuble-2026-07-28",
-          "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-28",
-          "score": 64
+          "slug": "news/veille-assurance-immeuble-2026-08-03",
+          "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-03",
+          "score": 74
         }
       ]
     },
     {
       "cluster": "assurance-immeuble",
-      "pages": 4,
+      "pages": 11,
       "money_pages": 0,
-      "average_score": 38,
+      "average_score": 60,
       "top_pages": [
+        {
+          "slug": "assurance-batiment-proprietaire",
+          "url": "https://immeubleassur.com/assurance-batiment-proprietaire",
+          "score": 76
+        },
+        {
+          "slug": "faq",
+          "url": "https://immeubleassur.com/faq",
+          "score": 76
+        },
+        {
+          "slug": "multirisque-immeuble",
+          "url": "https://immeubleassur.com/multirisque-immeuble",
+          "score": 76
+        },
+        {
+          "slug": "blog/assurance-immeuble-avec-ascenseur",
+          "url": "https://immeubleassur.com/blog/assurance-immeuble-avec-ascenseur",
+          "score": 64
+        },
         {
           "slug": "faq/assurance-immeuble",
           "url": "https://immeubleassur.com/faq/assurance-immeuble",
-          "score": 60
+          "score": 64
         },
         {
-          "slug": "strategie-seo-continue",
-          "url": "https://immeubleassur.com/strategie-seo-continue",
-          "score": 45
-        },
-        {
-          "slug": "espace-client",
-          "url": "https://immeubleassur.com/espace-client",
-          "score": 26
-        },
-        {
-          "slug": "espace-assureur",
-          "url": "https://immeubleassur.com/espace-assureur",
-          "score": 22
+          "slug": "blog/preparer-renouvellement-assurance-immeuble",
+          "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
+          "score": 57
         }
       ]
     }

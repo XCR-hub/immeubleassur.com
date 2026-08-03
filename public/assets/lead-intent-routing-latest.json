@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T12:10:21.209Z",
+  "generated_at": "2026-08-03T16:22:36.271Z",
   "status": "passed",
   "checked_files": [
     "public/assets/app.js",
@@ -27,21 +27,21 @@
     "sinistre"
   ],
   "intent_link_counts": {
-    "travaux": 15,
-    "veille": 18,
+    "travaux": 16,
+    "veille": 20,
     "local-commercial": 8,
-    "prix": 13,
-    "sinistre": 40,
-    "copropriete": 32,
-    "sci": 18,
-    "immeuble": 165,
-    "pno": 9,
-    "cno": 91
+    "prix": 17,
+    "sinistre": 54,
+    "copropriete": 36,
+    "sci": 21,
+    "immeuble": 164,
+    "pno": 17,
+    "cno": 99
   },
   "missing_required_intent_links": [],
   "missing_money_intent_links": [],
   "bridge_status": "passed",
-  "active_bridges": 52,
+  "active_bridges": 66,
   "missing": [],
   "safeguards": [
     "query intent prefills form",

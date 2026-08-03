@@ -145,6 +145,7 @@ function auditPage(file) {
   const slug = slugFromFile(file);
   const title = meta(html, /<title>([\s\S]*?)<\/title>/i);
   const description = meta(html, /<meta name="description" content="([^"]*)"/i);
+  const noIndex = /<meta name="robots" content="[^"]*noindex/i.test(html);
   const h1 = meta(html, /<h1[^>]*>([\s\S]*?)<\/h1>/i);
   const text = normalize(`${slug} ${title} ${description} ${h1}`);
   const intents = detectIntents(text);
@@ -158,6 +159,7 @@ function auditPage(file) {
   return {
     slug,
     url: pageUrl(slug),
+    noindex: noIndex,
     title,
     intents,
     expected_intents: expectedIntents,
@@ -206,7 +208,7 @@ function readJson(file, fallback) {
   }
 }
 
-const pages = walk(PUBLIC_DIR).map(auditPage).filter((page) => !ignoredSlugs.has(page.slug));
+const pages = walk(PUBLIC_DIR).map(auditPage).filter((page) => !ignoredSlugs.has(page.slug) && !page.noindex);
 const urgentPages = pages.filter((page) => page.intents.length);
 const missingCtaPages = urgentPages.filter((page) => page.status !== "passed");
 const missingContracts = contractMissing();

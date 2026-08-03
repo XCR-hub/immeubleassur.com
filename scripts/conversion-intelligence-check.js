@@ -31,7 +31,7 @@ const explicitSlugRules = [
 
 const signalRules = [
   ["devis-courtier", /devis|courtier|comparateur|audit contrat|dossier assureur/],
-  ["prix-tarif", /prix|tarif|cout|combien|franchise|prime annuelle/],
+  ["prix-tarif", /prix|tarif|cout|combien|prime annuelle/],
   ["local-commercial", /commerce|commercial|restaurant|local professionnel|immeuble mixte/],
   ["sinistre-resilie", /sinistre|resilie|resiliation|refus assureur|degat|fuite|incendie|infiltration/],
   ["travaux", /travaux|dommages ouvrage|renovation|ravalement|toiture|chantier/],
@@ -117,7 +117,7 @@ function detectCluster({ slug, title, description, h1 }) {
   if (isCitySlug(normalizedSlug)) return "local";
   const explicit = explicitSlugRules.find(([, pattern]) => pattern.test(normalizedSlug));
   if (explicit) return explicit[0];
-  const source = normalizeSignal(`${slug} ${title} ${description} ${h1}`);
+  const source = normalizeSignal(`${slug} ${title} ${h1}`);
   return (signalRules.find(([, pattern]) => pattern.test(source)) || ["assurance-immeuble"])[0];
 }
 

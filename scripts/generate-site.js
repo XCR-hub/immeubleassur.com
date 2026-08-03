@@ -557,6 +557,19 @@ function leadForm(defaults = {}) {
     </form>`;
 }
 
+function homepageInstantCallback() {
+  return `
+    <div class="hero-inline-callback" data-instant-callback-context data-active-intent="immeuble" aria-label="Rappel express assurance immeuble">
+      <div><strong>Rappel express</strong><span>Telephone ou email suffit. Un conseiller complete le dossier immeuble avec vous.</span></div>
+      <form class="instant-callback-form hero-inline-callback-form" data-instant-callback-form data-instant-callback-source="homepage-inline-callback" data-instant-callback-content-kind="homepage-inline-callback" novalidate>
+        <input class="hp-field" type="text" name="company_website" tabindex="-1" autocomplete="off" />
+        <label>Telephone ou email *<input name="contact" autocomplete="tel" inputmode="email" required placeholder="06 12 34 56 78" /></label>
+        <label class="consent-row"><input type="checkbox" name="consent" required /><span>J'accepte d'etre recontacte pour mon devis immeuble.</span></label>
+        <button class="submit-button" type="submit" data-track="homepage-inline-callback-submit">Me rappeler</button>
+        <p class="form-status" data-instant-callback-status role="status" aria-live="polite"></p>
+      </form>
+    </div>`;
+}
 function layout({ slug, title, description, body, canonical, schema = "" }) {
   const url = slug === "index" ? `${SITE}/` : `${SITE}/${slug}`;
   const schemaMarkup = schema ? `    ${schema}\n` : "";
@@ -651,7 +664,7 @@ function homePage() {
             <div><dt>Audit</dt><dd>contrat</dd></div>
           </dl>
         </div>
-        ${leadForm({ need: "multirisque-immeuble" })}
+        ${homepageInstantCallback()}${leadForm({ need: "multirisque-immeuble" })}
       </div>
     </section>
     <section class="conversion-strip" aria-label="Preuves de specialisation">

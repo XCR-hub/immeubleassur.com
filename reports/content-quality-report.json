@@ -1,12 +1,58 @@
 {
-  "generated_at": "2026-08-03T16:02:59.020Z",
-  "pages_checked": 190,
+  "generated_at": "2026-08-03T16:26:48.036Z",
+  "pages_checked": 201,
   "status": "passed",
   "severe_issue_count": 0,
   "warning_count": 0,
   "duplicate_titles": [],
   "duplicate_descriptions": [],
   "repeated_paragraph_clusters": [
+    {
+      "fingerprint": "preparez le contrat actuel le dernier appel de prime l adresse complete le nombre de lots les surfaces les usages du batiment les sinistres sur 36 mois et les travaux votes ou prevus",
+      "pages": [
+        "blog/assurance-immeuble-ancien",
+        "blog/assurance-immeuble-vacant",
+        "blog/devis-assurance-immeuble-comparatif",
+        "blog/devis-assurance-immeuble-complet",
+        "blog/devis-assurance-immeuble-echeance",
+        "blog/devis-assurance-immeuble-refus",
+        "blog/devis-courtier-assurance-immeuble",
+        "blog/immeuble-mixte-restaurant",
+        "blog/infiltration-toiture-terrasse",
+        "blog/local-commercial-vacant",
+        "blog/prix-assurance-immeuble-franchise",
+        "blog/ravalement-toiture-travaux-assurance",
+        "blog/refus-assureur-apres-sinistre-immeuble",
+        "blog/renouvellement-apres-sinistre-immeuble",
+        "blog/sinistre-immeuble-apres-declaration",
+        "blog/sinistre-recurrent-assurance-immeuble",
+        "blog/syndic-copropriete-assurance-contrat"
+      ],
+      "count": 17
+    },
+    {
+      "fingerprint": "la prime annuelle n est qu une ligne du contrat les franchises plafonds exclusions obligations d entretien et delais de declaration peuvent changer fortement le cout final",
+      "pages": [
+        "blog/assurance-immeuble-ancien",
+        "blog/assurance-immeuble-vacant",
+        "blog/devis-assurance-immeuble-comparatif",
+        "blog/devis-assurance-immeuble-complet",
+        "blog/devis-assurance-immeuble-echeance",
+        "blog/devis-assurance-immeuble-refus",
+        "blog/devis-courtier-assurance-immeuble",
+        "blog/immeuble-mixte-restaurant",
+        "blog/infiltration-toiture-terrasse",
+        "blog/local-commercial-vacant",
+        "blog/prix-assurance-immeuble-franchise",
+        "blog/ravalement-toiture-travaux-assurance",
+        "blog/refus-assureur-apres-sinistre-immeuble",
+        "blog/renouvellement-apres-sinistre-immeuble",
+        "blog/sinistre-immeuble-apres-declaration",
+        "blog/sinistre-recurrent-assurance-immeuble",
+        "blog/syndic-copropriete-assurance-contrat"
+      ],
+      "count": 17
+    },
     {
       "fingerprint": "la veille devient actionnable quand elle est reliee aux pieces du contrat a l echeance aux sinistres et aux travaux prevus ce mini controle prepare un echange court avec un courtier",
       "pages": [
