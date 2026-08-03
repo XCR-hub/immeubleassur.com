@@ -1,0 +1,30 @@
+param(
+  [string]$SiteRoot = 'F:\immeubleassur-sync\immeubleassur.com',
+  [string]$DataRoot = 'F:\immeubleassur-data',
+  [string]$RuntimeRoot = 'F:\immeubleassur-runtime',
+  [string]$BackupRoot = 'F:\immeubleassur-backups\sqlite'
+)
+
+$ErrorActionPreference = 'Stop'
+Set-Location -LiteralPath $SiteRoot
+$env:LOCAL_SQLITE_DB = Join-Path $DataRoot 'immeubleassur.sqlite'
+$env:LOCAL_SQLITE_BACKUP_DIR = $BackupRoot
+$env:LOCAL_PRODUCTION_MONITOR_REPORT = 'F:\immeubleassur-monitor\latest.json'
+$env:LOCAL_LEAD_SLA_REPORT = 'F:\immeubleassur-monitor\lead-sla-latest.json'
+$env:LOCAL_LEAD_QUALITY_REPORT = 'F:\immeubleassur-monitor\lead-quality-latest.json'
+$env:LOCAL_CONVERSION_FUNNEL_REPORT = 'F:\immeubleassur-monitor\conversion-funnel-latest.json'
+$env:LOCAL_INTENT_CONVERSION_REPORT = Join-Path $RuntimeRoot 'reports\local-intent-conversion-report.json'
+$env:LOCAL_INTENT_CONVERSION_PUBLIC_REPORT = Join-Path $RuntimeRoot 'assets\local-intent-conversion-latest.json'
+$env:LOCAL_SOURCE_QUALITY_REPORT = Join-Path $RuntimeRoot 'reports\local-source-quality-report.json'
+$env:LOCAL_SOURCE_QUALITY_PUBLIC_REPORT = Join-Path $RuntimeRoot 'assets\local-source-quality-latest.json'
+$env:LOCAL_SEO_BACKLOG_REPORT = 'F:\immeubleassur-monitor\seo-backlog-latest.json'
+$env:LOCAL_RUNTIME_ASSETS_ROOT = $RuntimeRoot
+$env:LOCAL_RUNTIME_REPORTS_ROOT = Join-Path $RuntimeRoot 'reports'
+$env:LOCAL_CONTRACT_RENEWAL_REPORT = Join-Path $RuntimeRoot 'reports\local-contract-renewal-report.json'
+$env:LOCAL_GROWTH_OPS_RUNTIME_ONLY = '1'
+$env:LOCAL_GROWTH_OPS_RUNTIME_ASSET = Join-Path $RuntimeRoot 'assets\local-growth-ops-latest.json'
+$env:LOCAL_MONITOR_ALERTS = '0'
+$env:LOCAL_LEAD_SLA_ALERTS = '0'
+New-Item -ItemType Directory -Force -Path (Join-Path $RuntimeRoot 'assets'), (Join-Path $RuntimeRoot 'reports'), $BackupRoot | Out-Null
+& 'C:\Program Files\nodejs\node.exe' 'scripts\local-runtime-report-cycle.js'
+exit $LASTEXITCODE
