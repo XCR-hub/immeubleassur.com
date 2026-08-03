@@ -42,6 +42,7 @@ const required = [
   ["package.json", "client:contracts:contract"],
   ["package.json", "client:contracts:smoke"],
   ["schema.sql", "CREATE TABLE IF NOT EXISTS brokerage_cases"],
+  ["schema.sql", "client_portal_token_revoked_at"],
   ["schema.sql", "CREATE TABLE IF NOT EXISTS case_mail_queue"],
   ["schema.sql", "CREATE TABLE IF NOT EXISTS insurer_consultation_tokens"],
   ["schema.sql", "CREATE TABLE IF NOT EXISTS client_offer_recommendations"],

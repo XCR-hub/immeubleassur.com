@@ -332,6 +332,7 @@ CREATE TABLE IF NOT EXISTS brokerage_cases (
   estimated_value_min_cents INTEGER NOT NULL DEFAULT 0,
   estimated_value_max_cents INTEGER NOT NULL DEFAULT 0,
   client_portal_token TEXT NOT NULL UNIQUE,
+  client_portal_token_revoked_at TEXT NOT NULL DEFAULT "",
   assigned_to TEXT,
   next_action TEXT,
   due_at TEXT,

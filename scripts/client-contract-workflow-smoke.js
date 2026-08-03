@@ -205,6 +205,14 @@ async function main() {
   const paymentMarked = await postAdmin({ action: "payment_status", payment_id: paymentRow.id, status: "paid", reviewer: "smoke-admin" }, DB);
   assert(paymentMarked.status === 200 && paymentMarked.body.status === "paid", "admin should mark a reviewed premium as paid");
 
+  const revokePortal = await post(caseRow.client_portal_token, { action: "contract_request", contract_id: contract.id, request_type: "privacy_revoke", subject: "Revoquer l acces portail", message: "Je demande la revocation immediate de mon acces au portail client." }, DB);
+  assert(revokePortal.status === 200 && revokePortal.body.access_revoked === true && revokePortal.body.marker === "client-portal-access-revocation-v1", "client should be able to revoke portal access explicitly");
+  const revokedPortal = await getClient(caseRow.client_portal_token, DB);
+  assert(revokedPortal.status === 404, "revoked client portal token should be refused server-side");
+  const revokedAccess = DB.prepare("SELECT client_portal_token_revoked_at FROM brokerage_cases WHERE id = ?").bind(caseRow.id).first();
+  assert(revokedAccess?.client_portal_token_revoked_at, "portal access revocation should be persisted");
+  const revokeTimeline = DB.prepare("SELECT payload FROM case_timeline WHERE case_id = ? AND event_type = 'client_portal_access_revoked' ORDER BY created_at DESC LIMIT 1").bind(caseRow.id).first();
+  assert(revokeTimeline?.payload && /client-portal-access-revocation-v1/.test(revokeTimeline.payload), "portal access revocation should be traced");
   const consentEvents = DB.prepare("SELECT COUNT(*) AS count FROM contract_consent_events WHERE contract_id = ?").bind(contract.id).first()?.count || 0;
   assert(Number(consentEvents) >= 2, "consent grant and revocation should be traced");
   const timelineCount = DB.prepare("SELECT COUNT(*) AS count FROM case_timeline WHERE case_id = ? AND event_type LIKE 'contract_%'").bind(caseRow.id).first()?.count || 0;

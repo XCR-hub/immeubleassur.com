@@ -371,7 +371,7 @@ function publicCase(row, documents, consultations, mails, contracts, offers = []
 
 async function caseByToken(env, token) {
   if (!token || token.length < 24) return null;
-  return safeFirst(env, `SELECT c.*, l.name, l.city, l.need, l.property_type, l.units_count, l.profile, l.message FROM brokerage_cases c JOIN leads l ON l.id = c.lead_id WHERE c.client_portal_token = ?`, [token]);
+  return safeFirst(env, `SELECT c.*, l.name, l.city, l.need, l.property_type, l.units_count, l.profile, l.message FROM brokerage_cases c JOIN leads l ON l.id = c.lead_id WHERE c.client_portal_token = ? AND (c.client_portal_token_revoked_at IS NULL OR c.client_portal_token_revoked_at = '')`, [token]);
 }
 
 async function ownedContract(env, caseId, contractId) {
@@ -524,7 +524,13 @@ async function addContractRequest(env, row, contract, body, typeOverride = "") {
       VALUES (?, ?, 'internal_request', ?, ?, ?, 'draft_review', 1, ?, ?, ?, ?)`, [mailId, row.id, recipient, mailSubject, mailBody, createdAt, JSON.stringify({ marker: CLIENT_CONTRACT_MARKER, purpose: "contract_request_notification", request_id: requestId, human_review_required: true }), createdAt, createdAt]);
     await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'contract_request_notification_draft', 'system', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ marker: CLIENT_CONTRACT_MARKER, request_id: requestId, mail_id: mailId, recipient, human_review_required: true }), createdAt]);
   }
-  await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'contract_request_created', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ contract_id: contract.id, request_id: requestId, request_type: type, priority, privacy_request: type.startsWith("privacy_"), notification: recipient ? "draft_review" : "recipient_missing" }), createdAt]);  return json({ success: true, status: "open" });
+  await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'contract_request_created', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ contract_id: contract.id, request_id: requestId, request_type: type, priority, privacy_request: type.startsWith("privacy_"), notification: recipient ? "draft_review" : "recipient_missing" }), createdAt]);
+  if (type === "privacy_revoke") {
+    await safeRun(env, "UPDATE brokerage_cases SET client_portal_token_revoked_at = ?, updated_at = ? WHERE id = ?", [createdAt, createdAt, row.id]);
+    await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'client_portal_access_revoked', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ marker: "client-portal-access-revocation-v1", request_id: requestId, human_review_required: true }), createdAt]);
+    return json({ success: true, status: "open", access_revoked: true, marker: "client-portal-access-revocation-v1" });
+  }
+  return json({ success: true, status: "open" });
 }
 
 async function updateContractConsent(env, row, contract, body) {

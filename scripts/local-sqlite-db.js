@@ -58,6 +58,8 @@ export function openLocalSqlite({ dbPath, schemaPath = "schema.sql" }) {
   if (schemaPath && existsSync(schemaPath)) {
     database.exec(readFileSync(schemaPath, "utf8"));
   }
+  const brokerageColumns = database.prepare("PRAGMA table_info(brokerage_cases)").all().map((row) => row.name);
+  if (!brokerageColumns.includes("client_portal_token_revoked_at")) database.exec("ALTER TABLE brokerage_cases ADD COLUMN client_portal_token_revoked_at TEXT NOT NULL DEFAULT ''");
 
   return {
     path: resolvedDbPath,

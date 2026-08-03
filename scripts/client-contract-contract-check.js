@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 
 const required = [
   ["schema.sql", "CREATE TABLE IF NOT EXISTS client_contracts"],
+  ["schema.sql", "client_portal_token_revoked_at"],
   ["schema.sql", "CREATE TABLE IF NOT EXISTS contract_documents"],
   ["schema.sql", "CREATE TABLE IF NOT EXISTS contract_payment_schedule"],
   ["schema.sql", "CREATE TABLE IF NOT EXISTS client_assets"],
@@ -30,8 +31,11 @@ const required = [
   ["functions/api/client/case.js", "Message requis pour cette demande"],
   ["functions/api/client/case.js", "no_automatic_erasure"],
   ["functions/api/client/case.js", "client-portal-token-guard-v1"],
+  ["functions/api/client/case.js", "client-portal-access-revocation-v1"],
+  ["functions/api/client/case.js", "client_portal_token_revoked_at"],
   ["functions/api/client/case.js", "Retry-After"],
   ["scripts/client-contract-workflow-smoke.js", "client portal token guard should throttle repeated invalid tokens"],
+  ["scripts/client-contract-workflow-smoke.js", "client should be able to revoke portal access explicitly"],
   ["functions/api/client/case.js", "privacy_request"],
   ["functions/_shared/client-contracts.js", "privacy_erasure"],
   ["public/espace-client.html", "privacy_access"],
