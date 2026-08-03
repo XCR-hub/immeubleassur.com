@@ -114,22 +114,31 @@ async function smtpAuth(client, username, password) {
   assertSmtp(response, 235, "AUTH LOGIN password");
 }
 
-function connectTcp({ host, port, secure }) {
+function tlsOptions(host, config = {}) {
+  return {
+    host,
+    servername: host,
+    // SMTP must validate the server certificate by default.
+    rejectUnauthorized: config.rejectUnauthorized !== false
+  };
+}
+
+function connectTcp({ host, port, secure, rejectUnauthorized }) {
   return new Promise((resolve, reject) => {
     const socket = secure
-      ? tls.connect({ host, port, servername: host, rejectUnauthorized: false }, () => resolve(socket))
+      ? tls.connect({ ...tlsOptions(host, { rejectUnauthorized }), port }, () => resolve(socket))
       : net.connect({ host, port }, () => resolve(socket));
     socket.setTimeout(20000, () => socket.destroy(new Error("Timeout SMTP")));
     socket.once("error", reject);
   });
 }
 
-function startTls(socket, host) {
+function startTls(socket, host, rejectUnauthorized) {
   return new Promise((resolve, reject) => {
     socket.removeAllListeners("data");
     socket.removeAllListeners("error");
     socket.removeAllListeners("close");
-    const secureSocket = tls.connect({ socket, servername: host, rejectUnauthorized: false }, () => resolve(secureSocket));
+    const secureSocket = tls.connect({ socket, ...tlsOptions(host, { rejectUnauthorized }) }, () => resolve(secureSocket));
     secureSocket.setTimeout(20000, () => secureSocket.destroy(new Error("Timeout SMTP TLS")));
     secureSocket.once("error", reject);
   });
@@ -146,7 +155,7 @@ export async function sendNodeSmtpMail(config, message) {
     throw new Error("Configuration SMTP locale incomplete");
   }
 
-  let socket = await connectTcp({ host, port, secure: config.secureTransport === "on" });
+  let socket = await connectTcp({ host, port, secure: config.secureTransport === "on", rejectUnauthorized: config.rejectUnauthorized });
   let client = createLineClient(socket);
   let response = await readResponse(client);
   assertSmtp(response, 220, "Accueil SMTP");
@@ -154,7 +163,7 @@ export async function sendNodeSmtpMail(config, message) {
 
   if (config.secureTransport === "starttls") {
     await smtpCommand(client, "STARTTLS", 220, "STARTTLS");
-    socket = await startTls(socket, host);
+    socket = await startTls(socket, host, config.rejectUnauthorized);
     client = createLineClient(socket);
     await smtpCommand(client, "EHLO immeubleassur.com", 250, "EHLO TLS");
   }
