@@ -39,6 +39,7 @@ const required = [
   ["functions/api/client/case.js", "privacy_request"],
   ["functions/_shared/client-contracts.js", "privacy_erasure"],
   ["public/espace-client.html", "privacy_access"],
+  ["public/espace-client.html", "content=\"no-referrer\""],
   ["public/espace-client.html", "privacy_revoke"],
   ["scripts/client-contract-workflow-smoke.js", "privacy erasure should be high priority and human reviewed"],
   ["public/espace-client.html", "portal-message-field"],

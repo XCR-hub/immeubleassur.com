@@ -129,6 +129,7 @@ const REQUIRED = [
   ["public/espace-client.html", "Espace client"],
   ["public/espace-client.html", "portal-offers"],
   ["public/espace-assureur.html", "Espace assureur"],
+  ["public/espace-assureur.html", "content=\"no-referrer\""],
   ["public/espace-assureur.html", "partner-token-form"],
   ["public/assets/client-portal.js", "markDocumentReceived"],
   ["public/assets/client-portal.js", "renderOffers"],
