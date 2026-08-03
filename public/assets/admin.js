@@ -1429,6 +1429,7 @@ function eventTraceLabel(type = "") {
   return ({
     case_created: "Dossier cree",
     client_document_received: "Piece client",
+    client_document_downloaded: "Document telecharge",
     document_status: "Statut piece",
     mail_approved: "Mail approuve",
     mail_marked_sent: "Mail marque envoye",

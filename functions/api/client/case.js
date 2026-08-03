@@ -466,6 +466,7 @@ async function uploadContractDocument(env, row, contract, body) {
   if (!attachment?.content_base64 || !attachment?.mime_type) return json({ success: false, error: "Fichier introuvable" }, 404);
   try {
     const bytes = Uint8Array.from(atob(attachment.content_base64), (char) => char.charCodeAt(0));
+    await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'client_document_downloaded', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ marker: "client-document-download-v1", document_id: documentRow.id, contract_id: documentRow.contract_id || "", file_name: clean(attachment.file_name, 160), mime_type: clean(attachment.mime_type, 100), size_bytes: Number(bytes.length) }), new Date().toISOString()]);
     const safeName = clean(attachment.file_name, 160).replace(/"/g, "-");
     return new Response(bytes, { status: 200, headers: { "Content-Type": attachment.mime_type, "Content-Length": String(bytes.length), "Content-Disposition": "attachment; filename=\"" + safeName + "\"", "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });
   } catch {

@@ -91,6 +91,8 @@ async function main() {
   assert(clientPostResponse.status === 200 && clientPostResponse.body.status === "received_pending_human_validation", "client portal should receive an uploaded document under human validation");
   const downloadResponse = await clientGet({ request: new Request(siteOrigin + "/api/client/case?action=download_document&token=" + caseRow.client_portal_token + "&document_id=" + firstDoc.id), env });
   assert(downloadResponse.status === 200 && (downloadResponse.headers.get("Content-Type") || "").startsWith("application/pdf"), "client portal should download the private uploaded document");
+  const downloadTimeline = DB.prepare("SELECT COUNT(*) AS count FROM case_timeline WHERE case_id = ? AND event_type = 'client_document_downloaded'").bind(caseRow.id).first();
+  assert(Number(downloadTimeline?.count || 0) === 1, "client document download should be traced without exposing binary content");
   const adminSafeResponse = await readJson(await adminGet({ request: new Request(siteOrigin + "/api/admin/cases?sync=0", { headers: { Authorization: "Bearer " + adminToken } }), env }));
   assert(!JSON.stringify(adminSafeResponse.body.cases || []).includes("content_base64"), "admin case payload should not expose uploaded binary content");
   const pendingUploadBlock = await readJson(await adminPost({ request: new Request(siteOrigin + "/api/admin/cases", { method: "POST", headers: { Authorization: "Bearer " + adminToken, "Content-Type": "application/json" }, body: JSON.stringify({ action: "approve_mail", mail_id: insurerMailDraft.id, reviewer: "smoke" }) }), env }));
