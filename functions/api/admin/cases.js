@@ -1,4 +1,4 @@
-import { sendPortableSmtpMail } from "../../_shared/smtp.js";
+﻿import { sendPortableSmtpMail } from "../../_shared/smtp.js";
 import {
   BROKERAGE_CASE_MARKER,
   CLIENT_OFFER_FOLLOWUP_MARKER,
@@ -947,16 +947,58 @@ async function smtpConfig(env, mail) {
   };
 }
 
-function mailMessage(config, mail) {
+function mailAttachmentRows(documents = []) {
+  const maxTotalBytes = 18 * 1024 * 1024;
+  let totalBytes = 0;
+  return rowsOrEmpty(documents).flatMap((document) => {
+    if (!["received", "validated"].includes(clean(document.status, 40))) return [];
+    const attachment = safeJson(document.payload, {}).attachment;
+    if (attachment?.marker !== "client-document-upload-v1" || attachment.scan_status !== "validated_clean" || !attachment.content_base64) return [];
+    const encoded = String(attachment.content_base64).replace(/\s/g, "");
+    const bytes = Number(attachment.size_bytes || 0);
+    if (!encoded || !Number.isFinite(bytes) || bytes <= 0 || totalBytes + bytes > maxTotalBytes) return [];
+    totalBytes += bytes;
+    return [{
+      fileName: clean(attachment.file_name || document.label || "document", 160).replace(/[\\"\r\n]/g, "-"),
+      mimeType: clean(attachment.mime_type || "application/octet-stream", 100).replace(/[\r\n]/g, ""),
+      contentBase64: encoded
+    }];
+  });
+}
+
+function wrapBase64(value) {
+  return String(value).match(/.{1,76}/g)?.join("\r\n") || "";
+}
+
+export function mailMessage(config, mail, documents = []) {
   const subject = clean(mail.subject, 240).replace(/[\r\n]+/g, " ");
+  const attachments = clean(mail.audience, 80) === "insurer" ? mailAttachmentRows(documents) : [];
+  const boundary = `=_immeubleassur_${crypto.randomUUID().replace(/-/g, "")}`;
+  const bodyHeaders = attachments.length ? [`Content-Type: multipart/mixed; boundary="${boundary}"`] : ["Content-Type: text/plain; charset=utf-8"];
+  const body = attachments.length ? [
+    `--${boundary}`,
+    "Content-Type: text/plain; charset=utf-8",
+    "Content-Transfer-Encoding: 8bit",
+    "",
+    clean(mail.body, 12000),
+    ...attachments.flatMap((attachment) => [
+      `--${boundary}`,
+      `Content-Type: ${attachment.mimeType}; name="${attachment.fileName}"`,
+      `Content-Disposition: attachment; filename="${attachment.fileName}"`,
+      "Content-Transfer-Encoding: base64",
+      "",
+      wrapBase64(attachment.contentBase64)
+    ]),
+    `--${boundary}--`
+  ].join("\r\n") : clean(mail.body, 12000);
   return [
     `From: ${config.from}`,
     `To: ${clean(mail.recipient_email, 180)}`,
     `Subject: ${subject}`,
     "MIME-Version: 1.0",
-    "Content-Type: text/plain; charset=utf-8",
+    ...bodyHeaders,
     "",
-    clean(mail.body, 12000)
+    body
   ].join("\r\n");
 }
 
@@ -1231,7 +1273,7 @@ async function sendConsultation(env, body) {
   const draft = insurerDraft(bundle.row, bundle.documents, false, consultationPortalLink(env, access.token));
   const config = await smtpConfig(env, { recipient_email: bundle.row.recipient_email });
   if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return json({ success: false, error: "Configuration SMTP incomplete" }, 503);
-  const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, { recipient_email: bundle.row.recipient_email, subject: draft.subject, body: draft.body }), env);
+  const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, { recipient_email: bundle.row.recipient_email, subject: draft.subject, body: draft.body, audience: "insurer" }, bundle.documents), env);
   const result = await markConsultationSent(env, body, "smtp");
   await logTimeline(env, bundle.row.case_id, "insurer_consultation_sent", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, smtp: clean(smtpResult, 500) });
   return result;
@@ -1425,9 +1467,10 @@ export async function onRequestPost({ request, env }) {
   if (blocked) return blocked;
   if (!clean(mail.recipient_email, 180)) return json({ success: false, error: "Destinataire manquant" }, 409);
   const config = await smtpConfig(env, mail);
+  const mailDocuments = clean(mail.audience, 80) === "insurer" ? rowsOrEmpty(await safeAll(env, "SELECT * FROM case_documents WHERE case_id = ? ORDER BY required DESC, label", [mail.case_id])) : [];
   if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return json({ success: false, error: "Configuration SMTP incomplete" }, 503);
   try {
-    const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, mail), env);
+    const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, mail, mailDocuments), env);
     await safeRun(env, "UPDATE case_mail_queue SET status = 'sent', sent_at = ?, last_error = '', updated_at = ? WHERE id = ?", [nowIso(), nowIso(), mailId]);
     await logTimeline(env, mail.case_id, "mail_sent", reviewer, { mail_id: mailId, audience: mail.audience, smtp: clean(smtpResult, 500) });
     return json({ success: true, status: "sent" });

@@ -1,8 +1,8 @@
-import { existsSync, rmSync } from "node:fs";
+﻿import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { openLocalSqlite } from "./local-sqlite-db.js";
-import { onRequestGet as adminGet, onRequestPost as adminPost } from "../functions/api/admin/cases.js";
+import { mailMessage, onRequestGet as adminGet, onRequestPost as adminPost } from "../functions/api/admin/cases.js";
 import { onRequestPatch as adminPatch } from "../functions/api/admin/cases.js";
 import { onRequestGet as clientGet, onRequestPost as clientPost } from "../functions/api/client/case.js";
 import { onRequestGet as partnerGet, onRequestPost as partnerPost } from "../functions/api/partner/consultation.js";
@@ -94,6 +94,9 @@ async function main() {
   const validationResponse = await readJson(await adminPatch({ request: new Request(siteOrigin + "/api/admin/cases", { method: "PATCH", headers: { Authorization: "Bearer " + adminToken, "Content-Type": "application/json" }, body: JSON.stringify({ document_id: firstDoc.id, status: "validated", actor: "smoke" }) }), env }));
   assert(validationResponse.status === 200 && validationResponse.body.status === "validated", "admin should validate an uploaded document before insurer use");
   DB.prepare("UPDATE case_documents SET status = 'validated', received_at = COALESCE(received_at, ?), validated_at = COALESCE(validated_at, ?), updated_at = ? WHERE case_id = ?").bind(now, now, now, caseRow.id).run();
+  const uploadedDocuments = DB.prepare("SELECT * FROM case_documents WHERE case_id = ? ORDER BY required DESC, label").bind(caseRow.id).all().results;
+  const mimeMessage = mailMessage({ from: "courtier@immeubleassur.com" }, { recipient_email: "assureur-smoke@example.test", subject: "Dossier DOS-SMOKE", body: "Pack a relire", audience: "insurer" }, uploadedDocuments);
+  assert(/multipart\/mixed/.test(mimeMessage) && /contrat-smoke\.pdf/.test(mimeMessage) && /Content-Transfer-Encoding: base64/.test(mimeMessage), "validated documents should be attached to insurer MIME mail");
   const marketSync = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=1`, { headers: { Authorization: `Bearer ${adminToken}` } }), env }));
   assert(marketSync.status === 200 && marketSync.body.success, "admin sync should refresh a complete market-ready case");
   assert((marketSync.body.consultations || []).length >= 1, "complete case should prepare an insurer consultation");

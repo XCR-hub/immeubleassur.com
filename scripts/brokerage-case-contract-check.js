@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+﻿import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const REQUIRED = [
@@ -45,6 +45,9 @@ const REQUIRED = [
   ["functions/api/admin/cases.js", "insurerPackageSendGuard"],
   ["functions/api/admin/cases.js", "materializeInsurerConsultationFollowups"],
   ["functions/api/admin/cases.js", "requireMailPackageSendable"],
+  ["functions/api/admin/cases.js", "mailAttachmentRows"],
+  ["functions/api/admin/cases.js", "multipart/mixed"],
+  ["scripts/brokerage-case-workflow-smoke.js", "validated documents should be attached to insurer MIME mail"],
   ["functions/api/admin/cases.js", "insurer_package_send_blocked"],
   ["functions/api/admin/cases.js", "insurer_consultation_followup_autopilot"],
   ["functions/api/admin/cases.js", "insurer_followup_drafts"],

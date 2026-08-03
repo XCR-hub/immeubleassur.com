@@ -1,4 +1,4 @@
-# ImmeubleAssur.com
+﻿# ImmeubleAssur.com
 
 Site specialise en assurance immeuble, PNO, CNO, copropriete, SCI, syndic et multirisque immeuble. La production cible est autonome: serveur Windows local, Node.js, SQLite, Caddy et SMTP `mail.xcr.fr`.
 
