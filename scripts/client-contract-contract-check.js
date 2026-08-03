@@ -33,6 +33,7 @@ const required = [
   ["scripts/client-contract-workflow-smoke.js", "client request should accept a detailed message"],
   ["scripts/local-contract-renewal-monitor.js", "contract-renewal-autopilot-v1"],
   ["scripts/local-contract-renewal-monitor.js", "no_automatic_send: true"],
+  ["scripts/local-contract-renewal-monitor.js", "LOCAL_RUNTIME_REPORTS_ROOT"],
   ["functions/api/client/case.js", "contract_referral"],
   ["functions/api/client/case.js", "payment_link_request"],
   ["functions/api/client/case.js", "asset_update"],

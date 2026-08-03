@@ -90,7 +90,8 @@ export function runContractRenewalMonitor(database, options = {}) {
 
 function main() {
   const database = openLocalSqlite({ dbPath: env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite")), schemaPath: "schema.sql" });
-  const reportPath = resolve(env("LOCAL_CONTRACT_RENEWAL_REPORT", join("data", "runtime-reports", "local-contract-renewal-report.json")));
+  const reportRoot = env("LOCAL_RUNTIME_REPORTS_ROOT", join("data", "runtime-reports"));
+  const reportPath = resolve(env("LOCAL_CONTRACT_RENEWAL_REPORT", join(reportRoot, "local-contract-renewal-report.json")));
   mkdirSync(dirname(reportPath), { recursive: true });
   const report = runContractRenewalMonitor(database);
   writeFileSync(reportPath, JSON.stringify(report, null, 2) + "\n", "utf8");
