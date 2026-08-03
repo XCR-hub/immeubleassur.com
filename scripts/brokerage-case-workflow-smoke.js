@@ -58,6 +58,9 @@ async function main() {
   assert(adminResponse.body.sync?.counters?.created === 1, "admin sync should create one brokerage case");
   assert(adminResponse.body.cases?.length >= 1, "admin API should expose created case");
   assert(adminResponse.body.cases[0]?.action_plan?.marker === "case-action-plan-v1", "case action plan should expose supervised next action");
+  assert(adminResponse.body.summary?.insurer_package_readiness?.marker === "insurer-package-readiness-v1", "insurer package readiness summary should expose marker");
+  assert(adminResponse.body.cases[0]?.insurer_package_readiness?.marker === "insurer-package-readiness-v1", "case should expose insurer package readiness");
+  assert(adminResponse.body.cases[0]?.insurer_package_readiness?.status === "blocked_documents", "incomplete case should block insurer package on documents");
   assert(Number(adminResponse.body.summary?.action_plan?.total || 0) >= 1, "case action plan summary should count dossiers");
   assert(adminResponse.body.mail_queue?.some((mail) => mail.status === "draft_review"), "mail queue should keep drafts under human review");
   assert(adminResponse.body.safeguards?.includes("human-review-before-send"), "admin safeguards should require human review before send");
@@ -81,7 +84,10 @@ async function main() {
   assert(marketSync.body.summary?.partner_performance?.marker === "partner-performance-v1", "partner performance summary should count configured insurers");
   assert(marketSync.body.partners?.some((partner) => partner.performance?.marker === "partner-performance-v1"), "partner rows should expose insurer performance");
   assert(marketSync.body.summary?.crm_action_queue?.marker === "crm-action-queue-v1", "crm action queue summary should expose supervised next actions");
+  assert(marketSync.body.summary?.insurer_package_readiness?.market_ready >= 1, "insurer package readiness should expose market-ready cases");
+  assert((marketSync.body.cases || []).some((item) => item.insurer_package_readiness?.status === "draft_review" && item.insurer_package_readiness?.human_review_required), "complete case should move insurer package to reviewed draft status");
   assert((marketSync.body.crm_action_queue || []).some((item) => item.marker === "crm-action-queue-v1" && item.human_review_required), "crm action queue should expose supervised next actions");
+  assert((marketSync.body.crm_action_queue || []).some((item) => item.type === "pack-assureur-revue"), "crm action queue should prioritize insurer package review");
 
   const mail = DB.prepare("SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'client' LIMIT 1").bind(caseRow.id).first();
   const blockedSend = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "send_mail", mail_id: mail.id, reviewer: "smoke" }) }), env }));

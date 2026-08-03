@@ -30,6 +30,7 @@ const CLIENT_OFFER_MARKER = "client-offer-recommendation-v1";
 const CASE_ACTION_PLAN_MARKER = "case-action-plan-v1";
 const PARTNER_PERFORMANCE_MARKER = "partner-performance-v1";
 const CRM_ACTION_QUEUE_MARKER = "crm-action-queue-v1";
+const INSURER_PACKAGE_READINESS_MARKER = "insurer-package-readiness-v1";
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
@@ -300,6 +301,82 @@ function consultationOperationSummary(consultations = []) {
   };
 }
 
+function ratioPercent(part, total) {
+  if (!Number(total || 0)) return 0;
+  return Math.round((Number(part || 0) / Number(total || 1)) * 100);
+}
+
+function insurerPackageReadiness(row = {}, documents = [], mails = [], consultations = [], partners = []) {
+  const required = rowsOrEmpty(documents).filter((doc) => Number(doc.required || 0) === 1);
+  const acceptedStatuses = ["received", "validated", "waived"];
+  const receivedRequired = required.filter((doc) => acceptedStatuses.includes(clean(doc.status, 40)));
+  const missingRequired = required.filter((doc) => !acceptedStatuses.includes(clean(doc.status, 40)));
+  const consultationRows = rowsOrEmpty(consultations);
+  const mailRows = rowsOrEmpty(mails);
+  const activePartners = rowsOrEmpty(partners).filter((partner) => Number(partner.active || 0) === 1);
+  const partnerContacts = activePartners.filter((partner) => clean(partner.contact_email, 180));
+  const missingConsultationEmail = consultationRows.filter((item) => ["draft_review", "approved"].includes(clean(item.status, 40)) && !clean(item.recipient_email, 180));
+  const insurerDraft = mailRows.find((item) => clean(item.audience, 80) === "insurer" && clean(item.status, 40) === "draft_review");
+  const activeConsultations = consultationRows.filter((item) => ["sent", "answered", "quoted"].includes(clean(item.status, 40)));
+  const quotedConsultations = consultationRows.filter((item) => clean(item.status, 40) === "quoted");
+  const documentScore = ratioPercent(receivedRequired.length, required.length);
+  let score = Math.max(0, Math.min(100, Math.round((Number(row.readiness_score || 0) * 0.65) + (documentScore * 0.35))));
+  if (missingConsultationEmail.length) score = Math.max(0, score - 10);
+  if (activeConsultations.length) score = Math.min(100, score + 8);
+  if (quotedConsultations.length) score = Math.min(100, score + 8);
+  let status = "qualification";
+  let label = "Qualification";
+  let nextAction = "Qualifier le risque et demander les pieces prioritaires avant consultation assureur.";
+  const blockers = [];
+  if (missingRequired.length) {
+    status = "blocked_documents";
+    label = "Pieces a completer";
+    nextAction = "Relancer le client sur les pieces manquantes avant consultation assureur.";
+    blockers.push(...missingRequired.slice(0, 5).map((doc) => clean(doc.label, 160)));
+  } else if (missingConsultationEmail.length || (Number(row.readiness_score || 0) >= 70 && activePartners.length && !partnerContacts.length)) {
+    status = "blocked_partner_contact";
+    label = "Contact assureur a completer";
+    nextAction = "Renseigner l'email assureur ou choisir un partenaire joignable avant approbation.";
+    blockers.push(...missingConsultationEmail.slice(0, 4).map((item) => `${clean(item.insurer_name, 120)}: email manquant`));
+    if (!blockers.length) blockers.push("aucun partenaire actif avec email");
+  } else if (quotedConsultations.length) {
+    status = "quote_received";
+    label = "Offre assureur recue";
+    nextAction = "Comparer les conditions et preparer une proposition client sous revue humaine.";
+  } else if (activeConsultations.length) {
+    status = "market_active";
+    label = "Consultation en marche";
+    nextAction = "Suivre les SLA assureurs, tracer les retours et relancer par brouillon relu si necessaire.";
+  } else if (consultationRows.some((item) => clean(item.status, 40) === "draft_review") || insurerDraft) {
+    status = "draft_review";
+    label = "Pack en revue";
+    nextAction = "Relire le pack assureur, verifier les pieces et approuver humainement.";
+  } else if (Number(row.readiness_score || 0) >= 70) {
+    status = "ready_for_human_review";
+    label = "Pack pret";
+    nextAction = "Choisir les partenaires, relire le dossier et approuver la consultation.";
+  }
+  return {
+    marker: INSURER_PACKAGE_READINESS_MARKER,
+    status,
+    label,
+    score,
+    document_completion: documentScore,
+    required_documents: required.length,
+    received_required_documents: receivedRequired.length,
+    missing_required_documents: missingRequired.length,
+    missing_documents: missingRequired.slice(0, 8).map((doc) => clean(doc.label, 160)),
+    partner_contacts_ready: partnerContacts.length,
+    missing_consultation_email: missingConsultationEmail.length,
+    consultations: consultationRows.length,
+    active_consultations: activeConsultations.length,
+    quoted_consultations: quotedConsultations.length,
+    next_action: nextAction,
+    blockers,
+    proof_points: receivedRequired.slice(0, 6).map((doc) => clean(doc.label, 160)),
+    human_review_required: true
+  };
+}
 function latestByFields(rows = [], fields = ["updated_at", "created_at"]) {
   return rowsOrEmpty(rows).slice().sort((a, b) => {
     const at = Math.max(...fields.map((field) => new Date(a?.[field] || "").getTime()).filter(Number.isFinite), 0);
@@ -483,6 +560,25 @@ function buildCrmActionQueue(cases = [], mails = [], consultations = [], partner
       contact_channel: lead.phone ? "appel" : (lead.email ? "email" : "admin")
     };
     const plan = caseRow.action_plan || {};
+    const packageReadiness = caseRow.insurer_package_readiness || {};
+    if (["blocked_documents", "blocked_partner_contact"].includes(packageReadiness.status)) pushCrmAction(queue, {
+      ...base,
+      priority: packageReadiness.status === "blocked_documents" ? 99 : 94,
+      type: "pack-assureur-bloque",
+      signal: packageReadiness.label || "pack incomplet",
+      recommendation: packageReadiness.next_action || "Completer le pack assureur sous controle humain.",
+      human_review_required: true,
+      quick_action: packageReadiness.status === "blocked_documents" ? "review_client_mail" : "update_partner"
+    });
+    if (["ready_for_human_review", "draft_review"].includes(packageReadiness.status)) pushCrmAction(queue, {
+      ...base,
+      priority: packageReadiness.status === "ready_for_human_review" ? 97 : 92,
+      type: "pack-assureur-revue",
+      signal: `${packageReadiness.label || "pack"} - ${packageReadiness.score || 0}/100`,
+      recommendation: packageReadiness.next_action || "Relire le pack assureur avant consultation.",
+      human_review_required: true,
+      quick_action: "approve_consultation"
+    });
     if (plan.severity === "high" || plan.human_review_required) pushCrmAction(queue, {
       ...base,
       priority: plan.severity === "high" ? 106 : 86,
@@ -631,7 +727,28 @@ function crmActionQueueSummary(queue = []) {
     overdue: rows.filter((item) => Number.isFinite(new Date(item.due_at || "").getTime()) && new Date(item.due_at).getTime() < Date.now()).length
   };
 }
-function caseRowsWithChildren(cases, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env) {
+function insurerPackageReadinessSummary(cases = []) {
+  const rows = rowsOrEmpty(cases);
+  const summary = rows.reduce((acc, item) => {
+    const readiness = item.insurer_package_readiness || {};
+    const status = clean(readiness.status, 80) || "qualification";
+    acc.total += 1;
+    acc[status] = (acc[status] || 0) + 1;
+    acc.score_total += Number(readiness.score || 0);
+    if (["ready_for_human_review", "draft_review", "market_active", "quote_received"].includes(status)) acc.market_ready += 1;
+    if (["blocked_documents", "blocked_partner_contact"].includes(status)) acc.blocked += 1;
+    if (readiness.human_review_required) acc.human_review_required += 1;
+    acc.missing_required_documents += Number(readiness.missing_required_documents || 0);
+    acc.missing_consultation_email += Number(readiness.missing_consultation_email || 0);
+    return acc;
+  }, { marker: INSURER_PACKAGE_READINESS_MARKER, total: 0, market_ready: 0, blocked: 0, human_review_required: 0, missing_required_documents: 0, missing_consultation_email: 0, score_total: 0 });
+  summary.average_score = summary.total ? Math.round(summary.score_total / summary.total) : 0;
+  delete summary.score_total;
+  const top = rows.slice().sort((a, b) => Number(b.insurer_package_readiness?.score || 0) - Number(a.insurer_package_readiness?.score || 0))[0];
+  summary.top_case = clean(top?.case_reference, 120);
+  return summary;
+}
+function caseRowsWithChildren(cases, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, env) {
   const docsByCase = groupBy(documents, "case_id");
   const mailsByCase = groupBy(mails, "case_id");
   const consultationRows = rowsOrEmpty(consultations).map((item) => ({
@@ -649,6 +766,7 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
     const caseConsultations = consultationsByCase.get(row.id) || [];
     const caseOffers = offersByCase.get(row.id) || [];
     const caseContracts = contractsByCase.get(row.id) || [];
+    const packageReadiness = insurerPackageReadiness(row, docs, caseMails, caseConsultations, partners);
     const plan = caseActionPlan(row, docs, caseMails, caseConsultations, caseOffers, caseContracts);
     return {
       id: row.id,
@@ -660,6 +778,7 @@ function caseRowsWithChildren(cases, documents, mails, consultations, timelines,
       readiness_score: Number(row.readiness_score || 0),
       missing_required_documents: plan.missing_required_documents,
       action_plan: plan,
+      insurer_package_readiness: packageReadiness,
       client_portal_url: portalUrl(row.client_portal_token, clean(env.SITE_ORIGIN, 240) || "https://immeubleassur.com"),
       assigned_to: clean(row.assigned_to, 120),
       next_action: clean(row.next_action, 1000),
@@ -697,10 +816,14 @@ function buildActions(cases, mails, consultations, partners = []) {
   const hot = caseList.find((item) => item.priority === "hot" && !item.assigned_to);
   const missingDocs = caseList.find((item) => Number(item.missing_required_documents || 0) > 0);
   const plan = caseList.find((item) => item.action_plan?.severity === "high");
+  const packageBlocked = caseList.find((item) => ["blocked_documents", "blocked_partner_contact"].includes(item.insurer_package_readiness?.status));
+  const packageReady = caseList.find((item) => ["ready_for_human_review", "draft_review"].includes(item.insurer_package_readiness?.status));
   const consultation = rowsOrEmpty(consultations).find((item) => item.status === "draft_review");
   const partnerIssue = rowsOrEmpty(partners).find((item) => ["contact_missing", "overdue", "setup_required"].includes(item.performance?.status));
   if (plan) actions.push({ priority: 104, type: "plan-action-dossier", target: plan.case_reference, signal: plan.action_plan?.label || "plan action", recommendation: plan.action_plan?.next_action || "Executer la prochaine action humaine tracee." });
   if (partnerIssue) actions.push({ priority: 94, type: "relation-assureur", target: partnerIssue.name, signal: partnerIssue.performance?.status || "partenaire", recommendation: partnerIssue.performance?.next_action || "Mettre a jour le partenaire assureur." });
+  if (packageBlocked) actions.push({ priority: 98, type: "pack-assureur-bloque", target: packageBlocked.case_reference, signal: packageBlocked.insurer_package_readiness?.label || "pack incomplet", recommendation: packageBlocked.insurer_package_readiness?.next_action || "Completer le pack assureur sous controle humain." });
+  if (packageReady) actions.push({ priority: 93, type: "pack-assureur-revue", target: packageReady.case_reference, signal: `${packageReady.insurer_package_readiness?.score || 0}/100`, recommendation: packageReady.insurer_package_readiness?.next_action || "Relire le pack assureur avant consultation." });
   if (hot) actions.push({ priority: 100, type: "pilotage", target: hot.case_reference, signal: "dossier chaud sans pilote", recommendation: "Assigner un courtier et appeler avant automatisation." });
   if (missingDocs) actions.push({ priority: 96, type: "pieces-client", target: missingDocs.case_reference, signal: `${missingDocs.missing_required_documents} piece(s) requise(s)`, recommendation: "Valider le mail client et demander uniquement les pieces manquantes." });
   if (ready) actions.push({ priority: 92, type: "pret-marche", target: ready.case_reference, signal: `${ready.readiness_score}/100`, recommendation: "Relire le dossier puis choisir les assureurs a consulter." });
@@ -763,8 +886,9 @@ export async function onRequestGet({ request, env }) {
     safeFirst(env, `SELECT COUNT(*) AS offers, SUM(CASE WHEN status = 'draft_review' THEN 1 ELSE 0 END) AS review_offers, SUM(CASE WHEN status = 'presented' THEN 1 ELSE 0 END) AS presented_offers, SUM(CASE WHEN status = 'accepted' THEN 1 ELSE 0 END) AS accepted_offers FROM client_offer_recommendations`)
   ]);
 
-  const cases = caseRowsWithChildren(caseRows, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, env);
+  const cases = caseRowsWithChildren(caseRows, documents, mails, consultations, timelines, offers, contracts, contractRequests, contractPayments, contractReferrals, contractConsents, partners, env);
   const planSummary = actionPlanSummary(cases);
+  const packageSummary = insurerPackageReadinessSummary(cases);
   const partnerRows = partnerRowsWithPerformance(partners, consultations);
   const partnerSummary = partnerPerformanceSummary(partnerRows);
   const crmActionQueue = buildCrmActionQueue(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations), partnerRows);
@@ -779,6 +903,7 @@ export async function onRequestGet({ request, env }) {
     contract_marker: CLIENT_CONTRACT_MARKER,
     contract_operations: contractOperationSummary(contracts, contractRequests, contractPayments, contractReferrals),
     action_plan: planSummary,
+    insurer_package_readiness: packageSummary,
     partner_performance: partnerSummary,
     crm_action_queue: crmActionSummary,
     pipeline_value_label: valueLabel(summaryRow?.value_min_cents, summaryRow?.value_max_cents)
@@ -800,7 +925,7 @@ export async function onRequestGet({ request, env }) {
     crm_action_queue: crmActionQueue,
     actions: buildActions(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations), partnerRows),
     warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(offers), errorOf(contracts), errorOf(contractRequests), errorOf(contractPayments), errorOf(contractReferrals), errorOf(contractConsents), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary), errorOf(offerSummary)].filter(Boolean),
-    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1", "partner-performance-v1", "crm-action-queue-v1"]
+    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1", "partner-performance-v1", "crm-action-queue-v1", "insurer-package-readiness-v1"]
   });
 }
 

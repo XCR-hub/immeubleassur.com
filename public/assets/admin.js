@@ -1464,6 +1464,16 @@ function actionPlanSummary(caseRow = {}) {
   return `Plan: ${label}${review}${blockers}${next ? `\n${next}` : ""}`;
 }
 
+function packageReadinessSummary(caseRow = {}) {
+  const readiness = caseRow.insurer_package_readiness || {};
+  if (readiness.marker !== "insurer-package-readiness-v1") return "Pack assureur: non calcule";
+  const pieces = `${readiness.received_required_documents || 0}/${readiness.required_documents || 0} pieces`;
+  const score = `${readiness.score || 0}/100`;
+  const contacts = `${readiness.partner_contacts_ready || 0} contact(s) assureur`;
+  const blockers = Array.isArray(readiness.blockers) && readiness.blockers.length ? `\nBlocage: ${readiness.blockers.slice(0, 2).join(", ")}` : "";
+  const missing = readiness.missing_required_documents ? `\n${readiness.missing_required_documents} piece(s) requise(s) manquante(s)` : "";
+  return `Pack: ${readiness.label || readiness.status || "qualification"} - ${score}\n${pieces}, ${contacts}${missing}${blockers}`;
+}
 function consultationSummary(consultations = []) {
   const rows = Array.isArray(consultations) ? consultations : [];
   const draft = rows.filter((item) => item.status === "draft_review").length;
@@ -1743,7 +1753,7 @@ function renderCasesTable(cases = []) {
       cell(documentSummary(item.documents || [])),
       cell(`${mails.draft_review || 0} revue / ${mails.approved || 0} approuve(s) / ${mails.sent || 0} envoye(s)`),
       cell(communicationTraceSummary(item)),
-      cell(consultationSummary(item.consultations || [])),
+      cell(`${packageReadinessSummary(item)}\n${consultationSummary(item.consultations || [])}`),
       linkCell,
       renderCaseActionCell(item)
     );
@@ -1889,6 +1899,7 @@ async function loadCases() {
   const offers = summary.client_offers || {};
   const actionPlan = summary.action_plan || {};
   const partnerPerformance = summary.partner_performance || {};
+  const packageReadiness = summary.insurer_package_readiness || {};
   const crmQueueSummary = summary.crm_action_queue || {};
   const sync = result.sync?.counters || {};
   const followupDrafts = (Array.isArray(result.mail_queue) ? result.mail_queue : []).filter((item) => item.status === "draft_review" && /followup/.test(item.audience || "")).length;
@@ -1896,6 +1907,7 @@ async function loadCases() {
     casesSummary.replaceChildren(
       metricCard("Dossiers", String(summary.cases || 0), `${summary.open_cases || 0} ouvert(s)`),
       metricCard("Prets assureurs", String(summary.ready_cases || 0), `${summary.hot_cases || 0} chaud(s)`),
+      metricCard("Packs assureurs", String(packageReadiness.market_ready || 0), `${packageReadiness.blocked || 0} bloque(s), score ${packageReadiness.average_score || 0}`),
       metricCard("Plans action", String(actionPlan.high || 0), `${actionPlan.human_review_required || 0} revue humaine`),
       metricCard("Valeur pipeline", summary.pipeline_value_label || "0 EUR/an", "prime estimee"),
       metricCard("Pieces manquantes", String(documents.missing_required || 0), `${documents.received || 0}/${documents.requested || 0} recues`),

@@ -39,6 +39,11 @@ const REQUIRED = [
   ["functions/api/admin/cases.js", "crm-action-queue-v1"],
   ["functions/api/admin/cases.js", "buildCrmActionQueue"],
   ["functions/api/admin/cases.js", "crm_action_queue"],
+  ["functions/api/admin/cases.js", "insurer-package-readiness-v1"],
+  ["functions/api/admin/cases.js", "insurerPackageReadiness"],
+  ["functions/api/admin/cases.js", "insurerPackageReadinessSummary"],
+  ["functions/api/admin/cases.js", "insurer_package_readiness"],
+  ["functions/api/admin/cases.js", "pack-assureur-revue"],
   ["functions/api/admin/cases.js", "insurer-consultation-action-v1"],
   ["functions/api/admin/cases.js", "Validation humaine consultation requise avant envoi"],
   ["functions/api/admin/cases.js", "insurer-consultation-human-review"],
@@ -72,6 +77,8 @@ const REQUIRED = [
   ["public/assets/admin.js", "partnerPerformance"],
   ["public/assets/admin.js", "renderCrmActionQueue"],
   ["public/assets/admin.js", "File CRM"],
+  ["public/assets/admin.js", "packageReadinessSummary"],
+  ["public/assets/admin.js", "Packs assureurs"],
   ["public/admin.html", "cases-action-body"],
   ["public/espace-client.html", "Espace client"],
   ["public/espace-client.html", "portal-offers"],
@@ -90,6 +97,7 @@ const REQUIRED = [
   ["scripts/brokerage-case-workflow-smoke.js", "client offer followup should remain a human-reviewed draft"],
   ["scripts/brokerage-case-workflow-smoke.js", "case action plan should expose supervised next action"],
   ["scripts/brokerage-case-workflow-smoke.js", "partner performance summary should count configured insurers"],
+  ["scripts/brokerage-case-workflow-smoke.js", "insurer package readiness should expose market-ready cases"],
   ["scripts/brokerage-case-workflow-smoke.js", "crm action queue should expose supervised next actions"]
 ];
 
