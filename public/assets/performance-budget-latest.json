@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-03T00:35:26.312Z",
+  "generated_at": "2026-08-03T07:06:28.124Z",
   "status": "passed",
-  "pages_checked": 187,
+  "pages_checked": 188,
   "indexable_pages": 180,
-  "average_html_kb": 19.7,
+  "average_html_kb": 19.6,
   "largest_pages": [
     {
       "source": "index.html",
@@ -69,24 +69,24 @@
   "assets": [
     {
       "path": "assets/styles.css",
-      "bytes": 61443,
-      "kb": 60,
+      "bytes": 63811,
+      "kb": 62.3,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
     },
     {
       "path": "assets/app.js",
-      "bytes": 123849,
-      "kb": 120.9,
+      "bytes": 123906,
+      "kb": 121,
       "budget_bytes": 143360,
       "budget_kb": 140,
       "ok": true
     },
     {
       "path": "assets/admin.js",
-      "bytes": 96164,
-      "kb": 93.9,
+      "bytes": 103586,
+      "kb": 101.2,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true
@@ -115,8 +115,8 @@
     },
     {
       "path": "assets/conversion-intelligence-latest.json",
-      "bytes": 14515,
-      "kb": 14.2,
+      "bytes": 14653,
+      "kb": 14.3,
       "ok": true
     },
     {
@@ -169,7 +169,7 @@
     },
     {
       "path": "assets/performance-budget-latest.json",
-      "bytes": 4054,
+      "bytes": 4056,
       "kb": 4,
       "ok": true
     }

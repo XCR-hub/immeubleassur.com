@@ -36,6 +36,11 @@ let botSignalKeyboard = false;
 const botSignalLoadedAt = Date.now();
 const scrollDepthSent = new Set();
 
+function isPrivateAppPage() {
+  const path = window.location.pathname.toLowerCase();
+  return path.includes("/admin") || path.includes("/merci") || path.includes("/espace-client");
+}
+
 function getSessionId() {
   const existing = sessionStorage.getItem(sessionKey);
   if (existing) return existing;
@@ -565,7 +570,7 @@ function leadConversionRoutes() {
 }
 
 function mountLeadBar() {
-  if (document.querySelector(".lead-action-bar") || window.location.pathname.includes("/admin") || window.location.pathname.includes("/merci")) return;
+  if (document.querySelector(".lead-action-bar") || isPrivateAppPage()) return;
   document.body.dataset.intent = currentLeadIntent();
   const intent = document.body.dataset.intent;
   const label = intentLabel(intent);
@@ -1502,7 +1507,7 @@ function observeQuoteFastTrackNudge(shell, initial) {
 }
 
 function mountQuoteFastTrack() {
-  if (window.location.pathname.includes("/admin") || window.location.pathname.includes("/merci")) return;
+  if (isPrivateAppPage()) return;
   if (document.querySelector(".quote-fast-track")) return;
   const anchor = document.querySelector(".conversion-strip") || document.querySelector(".page-hero") || document.querySelector(".hero") || document.querySelector(".article-head");
   if (!anchor) return;
@@ -1573,7 +1578,7 @@ function contentLeadBridgeKind() {
 function contentLeadBridgeEligible() {
   const path = window.location.pathname.toLowerCase();
   if (contentLeadBridgeDismissed || contentLeadBridgeShown || formStarted || formSubmitted) return false;
-  if (path.includes("/admin") || path.includes("/merci") || path.startsWith("/devis-") || path.includes("contact") || path.includes("confidentialite") || path.includes("mentions-legales")) return false;
+  if (path.includes("/admin") || path.includes("/merci") || path.includes("/espace-client") || path.startsWith("/devis-") || path.includes("contact") || path.includes("confidentialite") || path.includes("mentions-legales")) return false;
   if (document.querySelector(".content-lead-bridge")) return false;
   return path.includes("/blog/") || path === "/faq.html" || path.startsWith("/faq/") || /^\/assurance-immeuble-[a-z0-9-]+\.html$/.test(path) || path.includes("guide") || path.includes("veille") || path.includes("/news/") || Boolean(document.querySelector(".rich-article, .article-layout, .faq-list, .city-depth-band, .content-expansion-band, .seo-opportunity-expansion"));
 }
@@ -2453,7 +2458,7 @@ function bindTrafficNoClickRescue() {
 }
 function bindGrowthTracking() {
   track("page_view", { target: document.title, label: currentLeadIntent() });
-  if (!experimentViewSent && !window.location.pathname.includes("/admin")) {
+  if (!experimentViewSent && !isPrivateAppPage()) {
     experimentViewSent = true;
     track("experiment_view", { target: ctaExperiment.id, label: ctaExperiment.variant });
   }

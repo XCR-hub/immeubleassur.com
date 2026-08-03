@@ -22,7 +22,8 @@ function versionedAsset(path) {
 const assets = {
   styles: versionedAsset("/assets/styles.css"),
   app: versionedAsset("/assets/app.js"),
-  admin: versionedAsset("/assets/admin.js")
+  admin: versionedAsset("/assets/admin.js"),
+  clientPortal: versionedAsset("/assets/client-portal.js")
 };
 
 const tagRules = [
@@ -40,6 +41,11 @@ const tagRules = [
     name: "admin",
     pattern: /<script\s+src="\/assets\/admin\.js(?:\?v=[^"]*)?"\s+type="module"><\/script>/g,
     replacement: `<script src="${assets.admin}" type="module"></script>`
+  },
+  {
+    name: "client-portal",
+    pattern: /<script\s+src="\/assets\/client-portal\.js(?:\?v=[^"]*)?"\s+type="module"><\/script>/g,
+    replacement: `<script src="${assets.clientPortal}" type="module"></script>`
   }
 ];
 

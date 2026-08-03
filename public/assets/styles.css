@@ -3452,3 +3452,140 @@ textarea:focus {
   }
 }
 /* quote-fast-track-2026-07:end */
+.admin-cases-panel {
+  border-top: 4px solid var(--teal);
+}
+
+.admin-cases-table td {
+  vertical-align: top;
+  white-space: pre-line;
+}
+
+.case-action-cell {
+  display: grid;
+  gap: 8px;
+  min-width: 150px;
+}
+
+.compact-action {
+  min-height: 36px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  font-size: .86rem;
+}
+
+.client-portal-main {
+  display: grid;
+  gap: 18px;
+}
+
+.portal-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  gap: 18px;
+  align-items: end;
+  padding: clamp(20px, 5vw, 42px) 0 10px;
+}
+
+.portal-hero h1 {
+  max-width: 760px;
+  margin-bottom: 0;
+  color: var(--ink);
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 1.02;
+}
+
+.portal-token-form {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+}
+
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.portal-panel {
+  display: grid;
+  gap: 10px;
+  min-height: 160px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow: 0 12px 34px rgba(13, 27, 30, .08);
+}
+
+.portal-panel > span {
+  color: var(--gold-dark);
+  font-size: .76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.portal-panel h2 {
+  margin-bottom: 0;
+  font-size: clamp(1.3rem, 2.4vw, 2rem);
+}
+
+.portal-progress {
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: #e8f0ed;
+}
+
+.portal-progress span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--teal), var(--gold));
+  transition: width .25s ease;
+}
+
+.portal-document-row,
+.portal-consultation-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.portal-document-row span,
+.portal-consultation-row {
+  min-width: 0;
+}
+
+.portal-document-row strong,
+.portal-consultation-row strong {
+  display: block;
+  line-height: 1.25;
+}
+
+.portal-document-row small,
+.portal-consultation-row small {
+  display: block;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+@media (max-width: 780px) {
+  .portal-hero,
+  .portal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-document-row,
+  .portal-consultation-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

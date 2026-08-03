@@ -322,3 +322,128 @@ CREATE INDEX IF NOT EXISTS idx_media_assets_run_id ON media_assets(run_id);
 CREATE INDEX IF NOT EXISTS idx_media_assets_provider ON media_assets(provider);
 CREATE INDEX IF NOT EXISTS idx_media_assets_topic ON media_assets(topic);
 CREATE INDEX IF NOT EXISTS idx_media_assets_created_at ON media_assets(created_at DESC);
+CREATE TABLE IF NOT EXISTS brokerage_cases (
+  id TEXT PRIMARY KEY,
+  lead_id TEXT NOT NULL UNIQUE REFERENCES leads(id) ON DELETE CASCADE,
+  case_reference TEXT NOT NULL UNIQUE,
+  stage TEXT NOT NULL DEFAULT 'qualification',
+  readiness_score INTEGER NOT NULL DEFAULT 0,
+  priority TEXT NOT NULL DEFAULT 'standard',
+  estimated_value_min_cents INTEGER NOT NULL DEFAULT 0,
+  estimated_value_max_cents INTEGER NOT NULL DEFAULT 0,
+  client_portal_token TEXT NOT NULL UNIQUE,
+  assigned_to TEXT,
+  next_action TEXT,
+  due_at TEXT,
+  human_review_required INTEGER NOT NULL DEFAULT 1,
+  consent_snapshot TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_brokerage_cases_stage ON brokerage_cases(stage);
+CREATE INDEX IF NOT EXISTS idx_brokerage_cases_priority ON brokerage_cases(priority);
+CREATE INDEX IF NOT EXISTS idx_brokerage_cases_due_at ON brokerage_cases(due_at);
+CREATE INDEX IF NOT EXISTS idx_brokerage_cases_updated_at ON brokerage_cases(updated_at DESC);
+
+CREATE TABLE IF NOT EXISTS case_documents (
+  id TEXT PRIMARY KEY,
+  case_id TEXT NOT NULL REFERENCES brokerage_cases(id) ON DELETE CASCADE,
+  document_type TEXT NOT NULL,
+  label TEXT NOT NULL,
+  required INTEGER NOT NULL DEFAULT 1,
+  status TEXT NOT NULL DEFAULT 'requested',
+  requested_at TEXT NOT NULL,
+  received_at TEXT,
+  validated_at TEXT,
+  notes TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE(case_id, document_type)
+);
+
+CREATE INDEX IF NOT EXISTS idx_case_documents_case_id ON case_documents(case_id);
+CREATE INDEX IF NOT EXISTS idx_case_documents_status ON case_documents(status);
+CREATE INDEX IF NOT EXISTS idx_case_documents_type ON case_documents(document_type);
+
+CREATE TABLE IF NOT EXISTS insurer_partners (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  contact_email TEXT,
+  appetite_profile TEXT,
+  service_level_hours INTEGER NOT NULL DEFAULT 48,
+  active INTEGER NOT NULL DEFAULT 1,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_insurer_partners_active ON insurer_partners(active);
+
+CREATE TABLE IF NOT EXISTS insurer_consultations (
+  id TEXT PRIMARY KEY,
+  case_id TEXT NOT NULL REFERENCES brokerage_cases(id) ON DELETE CASCADE,
+  partner_id TEXT REFERENCES insurer_partners(id) ON DELETE SET NULL,
+  insurer_name TEXT NOT NULL,
+  recipient_email TEXT,
+  status TEXT NOT NULL DEFAULT 'draft_review',
+  package_status TEXT NOT NULL DEFAULT 'incomplete',
+  response_due_at TEXT,
+  sent_at TEXT,
+  answered_at TEXT,
+  premium_amount_cents INTEGER,
+  deductible_cents INTEGER,
+  human_approved_at TEXT,
+  notes TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_insurer_consultations_case_id ON insurer_consultations(case_id);
+CREATE INDEX IF NOT EXISTS idx_insurer_consultations_status ON insurer_consultations(status);
+CREATE INDEX IF NOT EXISTS idx_insurer_consultations_due_at ON insurer_consultations(response_due_at);
+
+CREATE TABLE IF NOT EXISTS case_mail_queue (
+  id TEXT PRIMARY KEY,
+  case_id TEXT NOT NULL REFERENCES brokerage_cases(id) ON DELETE CASCADE,
+  audience TEXT NOT NULL,
+  recipient_email TEXT,
+  subject TEXT NOT NULL,
+  body TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'draft_review',
+  review_required INTEGER NOT NULL DEFAULT 1,
+  scheduled_at TEXT,
+  approved_at TEXT,
+  approved_by TEXT,
+  sent_at TEXT,
+  last_error TEXT,
+  payload TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_case_mail_queue_case_id ON case_mail_queue(case_id);
+CREATE INDEX IF NOT EXISTS idx_case_mail_queue_status ON case_mail_queue(status);
+CREATE INDEX IF NOT EXISTS idx_case_mail_queue_scheduled ON case_mail_queue(scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_case_mail_queue_audience ON case_mail_queue(audience);
+
+CREATE TABLE IF NOT EXISTS case_timeline (
+  id TEXT PRIMARY KEY,
+  case_id TEXT NOT NULL REFERENCES brokerage_cases(id) ON DELETE CASCADE,
+  event_type TEXT NOT NULL,
+  actor TEXT NOT NULL DEFAULT 'system',
+  payload TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_case_timeline_case_id ON case_timeline(case_id);
+CREATE INDEX IF NOT EXISTS idx_case_timeline_created_at ON case_timeline(created_at DESC);
+
+INSERT OR IGNORE INTO insurer_partners (id, name, contact_email, appetite_profile, service_level_hours, active, payload, created_at, updated_at)
+VALUES
+  ('partner-default-mri', 'Partenaire MRI a configurer', '', 'multirisque immeuble, copropriete, SCI, syndic', 48, 1, '{"setup":"contact_email_required_before_send"}', datetime('now'), datetime('now')),
+  ('partner-default-pno', 'Partenaire PNO CNO a configurer', '', 'PNO, CNO, lots copropriete, logements vacants', 48, 1, '{"setup":"contact_email_required_before_send"}', datetime('now'), datetime('now')),
+  ('partner-default-complex', 'Partenaire risques complexes a configurer', '', 'sinistres, resiliation, refus assureur, travaux', 72, 1, '{"setup":"contact_email_required_before_send"}', datetime('now'), datetime('now'));

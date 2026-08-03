@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Espace client securise ImmeubleAssur pour suivre un dossier courtage, transmettre les pieces et consulter les etapes assureur." />
+    <link rel="canonical" href="https://immeubleassur.com/espace-client" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/styles.css?v=5931a37d61" />
+    <title>Espace client - ImmeubleAssur</title>
+  </head>
+  <body class="plain-page client-portal-page">
+    <header class="site-header" data-elevate>
+      <a class="brand" href="/" aria-label="ImmeubleAssur accueil">
+        <span class="brand-mark" aria-hidden="true">IA</span>
+        <span><strong>ImmeubleAssur</strong><small>courtier immeuble</small></span>
+      </a>
+      <a class="header-phone" href="tel:+33180855786">01 80 85 57 86</a>
+    </header>
+    <main class="plain-main client-portal-main">
+      <section class="portal-hero">
+        <div>
+          <p class="eyebrow dark">Espace client</p>
+          <h1>Suivi de votre dossier assurance immeuble</h1>
+        </div>
+        <form class="portal-token-form" id="portal-token-form">
+          <label>Jeton dossier<input id="portal-token" name="token" autocomplete="one-time-code" placeholder="Collez votre jeton" /></label>
+          <button class="submit-button" type="submit">Ouvrir</button>
+        </form>
+      </section>
+      <p class="form-status" id="portal-status" role="status" aria-live="polite"></p>
+      <section class="portal-grid" id="portal-content" hidden>
+        <article class="portal-panel portal-status-panel">
+          <span>Dossier</span>
+          <h2 data-case-reference>-</h2>
+          <p data-case-stage>-</p>
+          <div class="portal-progress"><span data-case-progress></span></div>
+          <small data-case-next-action></small>
+        </article>
+        <article class="portal-panel">
+          <span>Bien</span>
+          <h2 data-case-city>-</h2>
+          <p data-case-need>-</p>
+        </article>
+        <article class="portal-panel portal-documents-panel">
+          <span>Pieces</span>
+          <h2 data-documents-count>-</h2>
+          <div id="portal-documents"></div>
+        </article>
+        <article class="portal-panel">
+          <span>Consultations</span>
+          <h2 data-consultations-count>-</h2>
+          <div id="portal-consultations"></div>
+        </article>
+      </section>
+    </main>
+    <script src="/assets/app.js?v=0668b86d0e" type="module"></script>
+    <script src="/assets/client-portal.js?v=05a18d2700" type="module"></script>
+  </body>
+</html>

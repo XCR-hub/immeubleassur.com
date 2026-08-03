@@ -24,6 +24,9 @@ const salesBody = document.querySelector("#sales-body");
 const attributionButton = document.querySelector("#load-attribution");
 const attributionSummary = document.querySelector("#attribution-summary");
 const attributionBody = document.querySelector("#attribution-body");
+const casesButton = document.querySelector("#load-cases");
+const casesSummary = document.querySelector("#cases-summary");
+const casesBody = document.querySelector("#cases-body");
 const leadSummary = document.querySelector("#lead-summary");
 const leadSearch = document.querySelector("#lead-search");
 const priorityFilter = document.querySelector("#lead-priority-filter");
@@ -1377,6 +1380,151 @@ async function loadSales() {
   }
   renderSalesTable(salesRows(result));
 }
+function mailStatusCounts(mails = []) {
+  return mails.reduce((acc, mail) => {
+    const key = mail.status || "draft_review";
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+}
+
+function consultationSummary(consultations = []) {
+  const draft = consultations.filter((item) => item.status === "draft_review").length;
+  const active = consultations.filter((item) => ["sent", "answered", "quoted"].includes(item.status)).length;
+  const names = consultations.slice(0, 3).map((item) => item.insurer_name).filter(Boolean).join(", ");
+  return `${draft} revue / ${active} active(s)${names ? `\n${names}` : ""}`;
+}
+
+function documentSummary(documents = []) {
+  const total = documents.length;
+  const missing = documents.filter((doc) => doc.required && !["received", "validated", "waived"].includes(doc.status)).length;
+  const received = documents.filter((doc) => ["received", "validated"].includes(doc.status)).length;
+  const next = documents.find((doc) => doc.required && !["received", "validated", "waived"].includes(doc.status));
+  return `${received}/${total} recues\n${missing} requise(s) manque(nt)${next ? `\n${next.label}` : ""}`;
+}
+
+function renderCaseActionCell(caseRow) {
+  const td = document.createElement("td");
+  td.className = "case-action-cell";
+  const mails = Array.isArray(caseRow.mail_queue) ? caseRow.mail_queue : [];
+  const draft = mails.find((mail) => mail.status === "draft_review");
+  const approved = mails.find((mail) => mail.status === "approved" && mail.recipient_email);
+  if (draft) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "button secondary compact-action";
+    button.dataset.caseMailAction = "approve_mail";
+    button.dataset.mailId = draft.id;
+    button.textContent = "Approuver mail";
+    td.append(button);
+  }
+  if (approved) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "submit-button compact-action";
+    button.dataset.caseMailAction = "send_mail";
+    button.dataset.mailId = approved.id;
+    button.textContent = "Envoyer approuve";
+    td.append(button);
+  }
+  if (!draft && !approved) td.textContent = caseRow.next_action || "Suivi manuel";
+  return td;
+}
+
+function renderCasesTable(cases = []) {
+  if (!casesBody) return;
+  casesBody.replaceChildren();
+  if (!cases.length) {
+    const tr = document.createElement("tr");
+    const td = cell("Aucun dossier courtage synchronise.");
+    td.colSpan = 8;
+    tr.append(td);
+    casesBody.append(tr);
+    return;
+  }
+  for (const item of cases.slice(0, 80)) {
+    const lead = item.lead || {};
+    const mails = mailStatusCounts(item.mail_queue || []);
+    const link = document.createElement("a");
+    link.href = item.client_portal_url || "/espace-client.html";
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = "Ouvrir";
+    const linkCell = document.createElement("td");
+    linkCell.append(link);
+    const tr = document.createElement("tr");
+    tr.dataset.priority = item.priority || "standard";
+    tr.append(
+      cell(`${item.case_reference}\n${item.value_label || "0 EUR/an"}`),
+      cell(`${lead.name || "-"}\n${lead.city || ""} ${lead.need || ""}`.trim()),
+      cell(`${item.stage_label || item.stage}\n${item.priority || "standard"} - ${item.readiness_score || 0}/100`),
+      cell(documentSummary(item.documents || [])),
+      cell(`${mails.draft_review || 0} revue / ${mails.approved || 0} approuve(s) / ${mails.sent || 0} envoye(s)`),
+      cell(consultationSummary(item.consultations || [])),
+      linkCell,
+      renderCaseActionCell(item)
+    );
+    casesBody.append(tr);
+  }
+}
+
+async function postCaseAction(action, mailId, button) {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (!token) return;
+  const previous = button?.textContent || "";
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Traitement...";
+  }
+  try {
+    const response = await fetch("/api/admin/cases", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ action, mail_id: mailId, reviewer: "admin" })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || "Action dossier impossible");
+    await loadCases();
+  } catch (error) {
+    if (casesSummary) casesSummary.replaceChildren(metricCard("Erreur dossier", action, error.message || "action impossible"));
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = previous;
+    }
+  }
+}
+
+async function loadCases() {
+  const token = tokenInput?.value.trim() || sessionStorage.getItem("immeubleassur_admin_token") || "";
+  if (tokenInput && token) sessionStorage.setItem("immeubleassur_admin_token", token);
+  if (!token) {
+    if (casesSummary) casesSummary.replaceChildren(metricCard("Token requis", "Admin", "charger les dossiers"));
+    return;
+  }
+  if (casesSummary) casesSummary.replaceChildren(metricCard("Chargement", "Dossiers", "synchronisation SQLite"));
+  const response = await fetch("/api/admin/cases?sync=1", { headers: { Authorization: `Bearer ${token}` } });
+  const result = await response.json();
+  if (!response.ok || !result.success) throw new Error(result.error || "Chargement dossiers impossible");
+  const summary = result.summary || {};
+  const documents = summary.documents || {};
+  const mail = summary.mail_queue || {};
+  const consultations = summary.consultations || {};
+  const sync = result.sync?.counters || {};
+  if (casesSummary) {
+    casesSummary.replaceChildren(
+      metricCard("Dossiers", String(summary.cases || 0), `${summary.open_cases || 0} ouvert(s)`),
+      metricCard("Prets assureurs", String(summary.ready_cases || 0), `${summary.hot_cases || 0} chaud(s)`),
+      metricCard("Valeur pipeline", summary.pipeline_value_label || "0 EUR/an", "prime estimee"),
+      metricCard("Pieces manquantes", String(documents.missing_required || 0), `${documents.received || 0}/${documents.requested || 0} recues`),
+      metricCard("Mails a valider", String(mail.review_drafts || 0), `${mail.approved || 0} approuve(s), ${mail.sent || 0} envoye(s)`),
+      metricCard("Consultations", String(consultations.consultations || 0), `${consultations.review_consultations || 0} en revue`),
+      metricCard("Synchronisation", `${sync.created || 0}+${sync.updated || 0}`, `${sync.mail_drafts || 0} brouillon(s)`),
+      metricCard("Actions", String((result.actions || []).length), (result.safeguards || []).slice(0, 2).join(", "))
+    );
+  }
+  renderCasesTable(result.cases || []);
+}
 function attributionRows(result = {}) {
   const rows = [];
   for (const item of Array.isArray(result.actions) ? result.actions : []) {
@@ -1727,6 +1875,7 @@ form?.addEventListener("submit", async (event) => {
     loadContent().catch(() => {});
     loadSpam().catch(() => {});
     loadSales().catch(() => {});
+    loadCases().catch(() => {});
     loadAttribution().catch(() => {});
   } catch (error) {
     setStatus(error.message || "Erreur de chargement", "error");
@@ -1790,6 +1939,18 @@ salesButton?.addEventListener("click", () => {
   loadSales().catch((error) => {
     if (salesSummary) salesSummary.replaceChildren(metricCard("Erreur", "Relances", error.message || "chargement impossible"));
   });
+});
+casesButton?.addEventListener("click", () => {
+  loadCases().catch((error) => {
+    if (casesSummary) casesSummary.replaceChildren(metricCard("Erreur", "Dossiers", error.message || "chargement impossible"));
+  });
+});
+casesBody?.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  const button = target.closest("[data-case-mail-action]");
+  if (!button) return;
+  postCaseAction(button.dataset.caseMailAction || "", button.dataset.mailId || "", button);
 });
 attributionButton?.addEventListener("click", () => {
   loadAttribution().catch((error) => {

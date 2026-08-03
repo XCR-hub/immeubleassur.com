@@ -33,6 +33,9 @@ npm run db:sqlite:restore
 npm run db:sqlite:import-reports
 npm run production:monitor
 npm run production:runtime-reports
+npm run brokerage:cases
+npm run brokerage:contract
+npm run brokerage:smoke
 npm run production:watchdog
 npm run production:watchdog:node
 npm run local:autarky:check
@@ -43,6 +46,14 @@ Le watchdog Node `scripts/local-site-watchdog.js` est utilise par la tache plani
 
 Le cycle `npm run production:runtime-reports` met a jour les rapports operationnels sans modifier Git: les sorties dynamiques publiques sont ecrites dans `data/runtime-assets/` et servies en priorite par `scripts/local-production-server.js` pour `/assets/*.json`. Le fichier suivi `public/assets/local-growth-ops-latest.json` reste un fallback de build; le serveur publie l'overlay runtime quand il existe.
 
+
+## Dossiers courtage et espace client
+
+Le workflow courtier synchronise les leads ouverts en dossiers exploitables avec `npm run brokerage:cases`. Chaque dossier stocke les pieces demandees, la readiness assureur, les brouillons de mails, les consultations assureurs, le lien d'espace client et une timeline d'audit. Les emails restent en `draft_review` jusqu'a validation humaine explicite; l'envoi SMTP est refuse tant qu'un brouillon n'est pas approuve.
+
+- Admin: `/admin.html`, section `Dossiers courtage` via `/api/admin/cases`.
+- Client mobile: `/espace-client.html?token=...` via `/api/client/case`.
+- Controle: `npm run brokerage:contract` verifie validation humaine, consentement, portail tokenise, timeline et absence d'automatisation marketing/cross-sell sans opt-in explicite. `npm run brokerage:smoke` teste le parcours lead -> dossier -> portail client -> validation mail -> timeline sur SQLite temporaire.
 ## Base de donnees
 
 La base se manage comme un fichier SQLite local:

@@ -1,0 +1,48 @@
+{
+  "generated_at": "2026-08-03T06:47:04.144Z",
+  "status": "passed",
+  "marker": "brokerage-case-orchestrator-v1",
+  "site_origin": "https://immeubleassur.com",
+  "counters": {
+    "scanned": 0,
+    "created": 0,
+    "updated": 0,
+    "documents_requested": 0,
+    "mail_drafts": 0,
+    "consultations_prepared": 0
+  },
+  "summary": {
+    "cases": 0,
+    "open_cases": null,
+    "hot_cases": null,
+    "ready_cases": null,
+    "human_review_required": null,
+    "value_min_cents": 0,
+    "value_max_cents": 0,
+    "documents": {
+      "requested": 0,
+      "received": null,
+      "missing_required": null
+    },
+    "mail_queue": {
+      "drafts": 0,
+      "review_drafts": null,
+      "approved": null,
+      "sent": null
+    },
+    "consultations": {
+      "consultations": 0,
+      "review_consultations": null,
+      "active_consultations": null
+    },
+    "pipeline_value_label": "0-0 EUR/an"
+  },
+  "touched_cases": [],
+  "safeguards": [
+    "human-review-before-send",
+    "explicit-case-consent-snapshot",
+    "client-portal-token",
+    "audit-timeline",
+    "local-sqlite-only"
+  ]
+}

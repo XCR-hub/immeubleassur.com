@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T00:35:57.180Z",
+  "generated_at": "2026-08-03T07:07:00.744Z",
   "checked_files": [
     "scripts/live-api-readiness-check.js",
     "scripts/google-readiness-unlock.js",

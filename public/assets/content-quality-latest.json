@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-03T00:35:49.933Z",
-  "pages_checked": 187,
+  "generated_at": "2026-08-03T07:06:51.926Z",
+  "pages_checked": 188,
   "status": "passed",
   "severe_issue_count": 0,
-  "warning_count": 2,
+  "warning_count": 4,
   "policy_alignment": [
     "people-first-content",
     "no-ai-evasion-language",
@@ -13,6 +13,16 @@
     "automation-supports-editorial-quality"
   ],
   "weakest_pages": [
+    {
+      "slug": "espace-client",
+      "url": "https://immeubleassur.com/espace-client",
+      "words": 34,
+      "issues": [],
+      "warnings": [
+        "thin-content-risk",
+        "weak-conversion-path"
+      ]
+    },
     {
       "slug": "newsletter-assurance-immeuble",
       "url": "https://immeubleassur.com/newsletter-assurance-immeuble",

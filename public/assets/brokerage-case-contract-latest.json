@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-08-03T07:07:04.114Z",
+  "status": "passed",
+  "required_markers": 22,
+  "forbidden_markers": 3,
+  "issue_count": 0,
+  "missing": [],
+  "forbidden": [],
+  "safeguards": [
+    "human-review-before-send",
+    "client-token-portal",
+    "consent-snapshot",
+    "audit-timeline",
+    "no-unsupervised-cross-sell"
+  ]
+}
