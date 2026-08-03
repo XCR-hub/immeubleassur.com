@@ -1767,7 +1767,20 @@ function renderCrmActionQueue(queue = []) {
       cell(`${crmUrgencyLabel(item.urgency)}\n${item.priority || 0}/100\n${item.contact_channel || "admin"}`),
       cell(`${item.case_reference || item.target || "-"}\n${item.lead_name || ""}${item.lead_city ? ` - ${item.lead_city}` : ""}`.trim()),
       cell(`${item.type || "action"}\n${item.signal || "signal"}${due}`),
-      cell(`${item.recommendation || "Traiter et tracer la prochaine action."}\n${item.human_review_required ? "Revue humaine obligatoire" : "Suivi"}`)
+      (() => {
+        const actionCell = document.createElement("td");
+        actionCell.append(cell(`${item.recommendation || "Traiter et tracer la prochaine action."}\n${item.human_review_required ? "Revue humaine obligatoire" : "Suivi"}`));
+        if (item.case_reference) {
+          const openButton = document.createElement("button");
+          openButton.type = "button";
+          openButton.className = "button secondary compact-action";
+          openButton.dataset.crmOpenCase = item.case_reference;
+          openButton.textContent = "Ouvrir dossier";
+          openButton.title = `Afficher ${item.case_reference} dans les dossiers courtage`;
+          actionCell.append(openButton);
+        }
+        return actionCell;
+      })()
     );
     casesActionBody.append(tr);
   }
@@ -1798,6 +1811,7 @@ function renderCasesTable(cases = []) {
     linkCell.append(link);
     const tr = document.createElement("tr");
     tr.dataset.priority = item.priority || "standard";
+    tr.dataset.caseReference = item.case_reference || "";
     tr.append(
       cell(`${item.case_reference}\n${item.value_label || "0 EUR/an"}`),
       cell(`${lead.name || "-"}\n${lead.city || ""} ${lead.need || ""}`.trim()),
@@ -2493,10 +2507,18 @@ inboxMailBody?.addEventListener("click", (event) => {
   if (!(target instanceof Element)) return;
   const button = target.closest("[data-inbox-action]");
   if (button) postInboxAttach(button);
-});casesBody?.addEventListener("click", (event) => {
+});document.querySelector(".admin-cases-panel")?.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
-  const documentButton = target.closest("[data-document-action]");
+  const crmOpenButton = target.closest("[data-crm-open-case]");
+  if (crmOpenButton) {
+    const reference = crmOpenButton.dataset.crmOpenCase || "";
+    const caseRow = casesBody?.querySelector(`[data-case-reference="${CSS.escape(reference)}"]`);
+    caseRow?.scrollIntoView({ behavior: "smooth", block: "center" });
+    caseRow?.classList.add("admin-row-focus");
+    window.setTimeout(() => caseRow?.classList.remove("admin-row-focus"), 1800);
+    return;
+  }  const documentButton = target.closest("[data-document-action]");
   if (documentButton) {
     postDocumentAction(documentButton);
     return;
