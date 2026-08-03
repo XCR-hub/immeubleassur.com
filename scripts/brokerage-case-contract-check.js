@@ -118,7 +118,7 @@ const REQUIRED = [
   ["public/assets/admin.js", "actionPlanSummary"],
   ["public/assets/admin.js", "Plans action"],
   ["public/assets/admin.js", "Partenaires"],
-  ["public/assets/admin.js", "partnerPerformance"],
+  ["public/assets/admin.js", "Partenaires"],
   ["public/assets/admin.js", "renderCrmActionQueue"],
   ["public/assets/admin.js", "File CRM"],
   ["public/assets/admin.js", "packageReadinessSummary"],
