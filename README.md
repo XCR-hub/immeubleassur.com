@@ -140,6 +140,8 @@ SITE_ORIGIN=https://immeubleassur.com
 
 Variables optionnelles pour l'optimisation continue: Google Search Console, PageSpeed, URL Inspection (`GOOGLE_URL_INSPECTION_LIMIT`), GA4, SerpApi, Pexels, OpenAI, Anthropic, Gemini, OpenRouter et HuggingFace. Les rapports live serveur peuvent etre sortis du depot avec `LOCAL_INTENT_CONVERSION_REPORT`, `LOCAL_INTENT_CONVERSION_PUBLIC_REPORT`, `LOCAL_SOURCE_QUALITY_REPORT`, `LOCAL_SOURCE_QUALITY_PUBLIC_REPORT` et `LOCAL_SQLITE_IMPORT_REPORT`, par exemple vers `F:\immeubleassur-monitor`.
 
+En cas de blocage des ports SMTP, EMAIL_TRANSPORT=resend active le relais HTTPS Resend si RESEND_API_KEY est renseignee; le controle de sante utilise l API sans envoyer de message.
+
 Pour retrouver la verification automatique Cloudflare sur les formulaires, renseigner aussi `TURNSTILE_SITE_KEY` et `TURNSTILE_SECRET_KEY`.
 
 Le runner `npm run live:ready` execute uniquement les connecteurs prets et respecte un cooldown SerpApi apres un 429, sans exposer les valeurs de secrets. La procedure d'activation sans exposition de secrets est documentee dans `docs/live-api-readiness.md`. Le controle `npm run live:api:readiness` publie les statuts et `npm run google:unlock` transforme les connecteurs Google/GA4 manquants ou degrades en actions techniques sans valeur de secret.

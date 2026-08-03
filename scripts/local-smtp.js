@@ -1,3 +1,4 @@
+import { sendResendMail } from "../functions/_shared/smtp.js";
 import net from "node:net";
 import tls from "node:tls";
 
@@ -168,6 +169,10 @@ export async function verifyNodeSmtpConnection(config) {
 }
 
 export async function sendNodeSmtpMail(config, message) {
+  const resendKey = String(process.env.RESEND_API_KEY || "").trim();
+  if (resendKey && String(process.env.EMAIL_TRANSPORT || "resend").trim() === "resend") {
+    return sendResendMail({ ...config, apiKey: resendKey, apiUrl: process.env.RESEND_API_URL }, message);
+  }
   const host = String(config.host || "").trim();
   const port = Number.parseInt(config.port || "587", 10);
   const username = String(config.username || "").trim();

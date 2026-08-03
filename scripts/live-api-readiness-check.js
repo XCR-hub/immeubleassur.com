@@ -140,10 +140,11 @@ function connectorStatus(connector) {
   const required = connector.required || [];
   const requiredAny = connector.requiredAny || [];
   const optional = connector.optional || [];
-  const missingRequired = required.filter((name) => !configured(name));
+  const resendMode = connector.id === "smtp" && configured("EMAIL_TRANSPORT") && String(process.env.EMAIL_TRANSPORT).toLowerCase() === "resend";
+  const missingRequired = resendMode ? [] : required.filter((name) => !configured(name));
   const anyConfigured = requiredAny.length ? requiredAny.some(configured) : true;
   const missingAny = requiredAny.length && !anyConfigured ? requiredAny : [];
-  const configuredReady = missingRequired.length === 0 && missingAny.length === 0;
+  const configuredReady = (resendMode ? configured("RESEND_API_KEY") : missingRequired.length === 0) && missingAny.length === 0;
   const smtpHealth = connector.id === "smtp" ? smtpHealthReport() : null;
   const smtpUnavailable = connector.id === "smtp" && (!smtpHealth?.available || smtpHealth.status !== "ready" || smtpHealth.authenticated !== true || Number(smtpHealth.age_minutes) > 180);
   const ready = configuredReady && !smtpUnavailable;
@@ -159,6 +160,7 @@ function connectorStatus(connector) {
     required_names: required,
     required_any_names: requiredAny,
     optional_names: optional,
+    transport: connector.id === "smtp" ? (resendMode ? "resend" : "smtp") : "",
     missing_required_names: missingRequired,
     missing_any_names: missingAny,
     last_report: connector.id === "smtp" ? { ...readReport(connector.report), health: smtpHealth } : readReport(connector.report),

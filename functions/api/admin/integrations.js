@@ -102,7 +102,7 @@ const connectorDefinitions = [
     scope: "Notifications leads et envoi newsletter.",
     runtime: "runtime",
     required: ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS", "SMTP_FROM", "SMTP_TO"],
-    optional: ["NEWSLETTER_SEND_LIMIT"]
+    optional: ["NEWSLETTER_SEND_LIMIT", "EMAIL_TRANSPORT", "RESEND_API_KEY", "RESEND_API_URL"]
   },
   {
     id: "imap",

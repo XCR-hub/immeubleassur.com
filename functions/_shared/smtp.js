@@ -96,11 +96,63 @@ function dotStuff(message) {
     .join("\r\n");
 }
 
+function parseRawMail(message) {
+  const raw = String(message || "").replace(/\r\n/g, "\n");
+  const split = raw.indexOf("\n\n");
+  const headerText = split >= 0 ? raw.slice(0, split) : raw;
+  const body = split >= 0 ? raw.slice(split + 2) : "";
+  const headers = {};
+  for (const line of headerText.split("\n")) {
+    const index = line.indexOf(":");
+    if (index <= 0) continue;
+    headers[line.slice(0, index).trim().toLowerCase()] = line.slice(index + 1).trim();
+  }
+  return {
+    from: clean(headers.from, 240),
+    to: clean(headers.to, 1000).split(/[;,]/).map((item) => item.trim()).filter(Boolean).slice(0, 20),
+    subject: clean(headers.subject, 500),
+    text: body.slice(0, 100000)
+  };
+}
+
+export async function verifyResendConnection(config) {
+  const apiKey = clean(config.apiKey, 300);
+  const endpoint = clean(config.apiUrl || "https://api.resend.com/emails", 500).replace(/\/emails\/?$/, "/domains");
+  if (!apiKey) throw new Error("Configuration Resend incomplete");
+  const response = await fetch(endpoint, { headers: { Authorization: "Bearer " + apiKey }, signal: AbortSignal.timeout(12000) });
+  const responseText = await response.text();
+  if (!response.ok) throw new Error("Resend HTTP " + response.status + ": " + responseText.slice(0, 240));
+  return { status: "ready", provider: "resend", authenticated: true };
+}
+
+export async function sendResendMail(config, message) {
+  const apiKey = clean(config.apiKey, 300);
+  const endpoint = clean(config.apiUrl || "https://api.resend.com/emails", 500);
+  if (!apiKey) throw new Error("Configuration Resend incomplete");
+  const parsed = parseRawMail(message);
+  if (!parsed.from || !parsed.to.length || !parsed.subject) throw new Error("Message email incomplet");
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: parsed.from, to: parsed.to, subject: parsed.subject, text: parsed.text }),
+    signal: AbortSignal.timeout(15000)
+  });
+  const responseText = await response.text();
+  if (!response.ok) throw new Error("Resend HTTP " + response.status + ": " + responseText.slice(0, 240));
+  let payload = {};
+  try { payload = responseText ? JSON.parse(responseText) : {}; } catch {}
+  return "resend:" + clean(payload.id || "accepted", 160);
+}
+
 async function sendRuntimeSmtpMail() {
   throw new Error("Adaptateur SMTP local indisponible");
 }
 
 export async function sendPortableSmtpMail(config, message, env = {}) {
+  const resendKey = clean(env.RESEND_API_KEY, 300);
+  if (resendKey && clean(env.EMAIL_TRANSPORT || "resend", 40) === "resend") {
+    return sendResendMail({ ...config, apiKey: resendKey, apiUrl: env.RESEND_API_URL }, message);
+  }
   if (typeof env.SEND_SMTP_MAIL === "function") {
     return env.SEND_SMTP_MAIL(config, message);
   }
