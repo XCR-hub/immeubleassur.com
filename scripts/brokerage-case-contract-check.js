@@ -41,9 +41,13 @@ const REQUIRED = [
   ["functions/api/admin/cases.js", "crm_action_queue"],
   ["functions/api/admin/cases.js", "insurer-package-readiness-v1"],
   ["functions/api/admin/cases.js", "insurer-package-send-guard-v1"],
+  ["functions/api/admin/cases.js", "insurer-followup-autopilot-v1"],
   ["functions/api/admin/cases.js", "insurerPackageSendGuard"],
+  ["functions/api/admin/cases.js", "materializeInsurerConsultationFollowups"],
   ["functions/api/admin/cases.js", "requireMailPackageSendable"],
   ["functions/api/admin/cases.js", "insurer_package_send_blocked"],
+  ["functions/api/admin/cases.js", "insurer_consultation_followup_autopilot"],
+  ["functions/api/admin/cases.js", "insurer_followup_drafts"],
   ["functions/api/admin/cases.js", "Pack assureur incomplet: pieces requises manquantes avant envoi"],
   ["functions/api/admin/cases.js", "insurerPackageReadiness"],
   ["functions/api/admin/cases.js", "insurerPackageReadinessSummary"],
@@ -84,6 +88,7 @@ const REQUIRED = [
   ["public/assets/admin.js", "File CRM"],
   ["public/assets/admin.js", "packageReadinessSummary"],
   ["public/assets/admin.js", "Pack assureur bloque"],
+  ["public/assets/admin.js", "Relance assureur auto"],
   ["public/assets/admin.js", "Packs assureurs"],
   ["public/admin.html", "cases-action-body"],
   ["public/espace-client.html", "Espace client"],
@@ -106,6 +111,7 @@ const REQUIRED = [
   ["scripts/brokerage-case-workflow-smoke.js", "insurer package readiness should expose market-ready cases"],
   ["scripts/brokerage-case-workflow-smoke.js", "insurer package send guard should block incomplete insurer mail approval"],
   ["scripts/brokerage-case-workflow-smoke.js", "insurer package send guard should block sending if required documents regress"],
+  ["scripts/brokerage-case-workflow-smoke.js", "admin sync should prepare one overdue insurer followup draft"],
   ["scripts/brokerage-case-workflow-smoke.js", "crm action queue should expose supervised next actions"]
 ];
 

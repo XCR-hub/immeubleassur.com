@@ -1421,6 +1421,7 @@ function eventTraceLabel(type = "") {
     insurer_consultation_sent: "Mail assureur envoye",
     insurer_package_send_blocked: "Pack assureur bloque",
     insurer_consultation_followup_draft: "Relance assureur",
+    insurer_consultation_followup_autopilot: "Relance assureur auto",
     insurer_consultation_response: "Retour assureur",
     client_offer_draft_prepared: "Offre client preparee",
     client_offer_approved: "Offre client publiee",
@@ -1919,7 +1920,7 @@ async function loadCases() {
       metricCard("Offres client", String(offers.offers || 0), `${offers.review_offers || 0} revue, ${offers.presented_offers || 0} presentee(s), ${offers.accepted_offers || 0} acceptee(s)`),
       metricCard("Contrats", String(contracts.contracts || 0), `${contracts.active_contracts || 0} actif(s)`),
       metricCard("Ops contrats", String(contractOps.open_requests || 0), `${contractOps.review_referrals || 0} parrainage(s), ${contractOps.pending_payments || 0} prime(s)`),
-      metricCard("Synchronisation", `${sync.created || 0}+${sync.updated || 0}`, `${sync.mail_drafts || 0} brouillon(s)`),
+      metricCard("Synchronisation", `${sync.created || 0}+${sync.updated || 0}`, `${sync.mail_drafts || 0} brouillon(s), ${sync.insurer_followup_drafts || 0} relance(s) auto`),
       metricCard("File CRM", String(crmQueueSummary.total || 0), `${crmQueueSummary.critical || 0} critique, ${crmQueueSummary.high || 0} haute`),
       metricCard("Actions", String((result.actions || []).length), (result.safeguards || []).slice(0, 2).join(", "))
     );

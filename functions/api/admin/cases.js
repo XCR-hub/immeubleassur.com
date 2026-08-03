@@ -32,6 +32,7 @@ const PARTNER_PERFORMANCE_MARKER = "partner-performance-v1";
 const CRM_ACTION_QUEUE_MARKER = "crm-action-queue-v1";
 const INSURER_PACKAGE_READINESS_MARKER = "insurer-package-readiness-v1";
 const INSURER_PACKAGE_SEND_GUARD_MARKER = "insurer-package-send-guard-v1";
+const INSURER_FOLLOWUP_AUTOPILOT_MARKER = "insurer-followup-autopilot-v1";
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
@@ -232,8 +233,46 @@ async function materializeClientOfferFollowups(env, counters) {
   return "";
 }
 
+async function materializeInsurerConsultationFollowups(env, counters) {
+  const consultationRows = await safeAll(env, `SELECT i.*, c.case_reference
+    FROM insurer_consultations i
+    JOIN brokerage_cases c ON c.id = i.case_id
+    WHERE i.status = 'sent'
+    ORDER BY i.response_due_at ASC, i.updated_at ASC
+    LIMIT 240`);
+  if (errorOf(consultationRows)) return errorOf(consultationRows);
+  const now = Date.now();
+  for (const consultation of rowsOrEmpty(consultationRows)) {
+    const dueAt = new Date(consultation.response_due_at || "").getTime();
+    if (!Number.isFinite(dueAt) || dueAt >= now) continue;
+    counters.insurer_followups_due += 1;
+    if (!validEmail(consultation.recipient_email)) {
+      counters.insurer_followups_missing_email += 1;
+      continue;
+    }
+    const existing = await safeFirst(env, "SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'insurer_followup' AND recipient_email = ? AND payload LIKE ? AND status IN ('draft_review', 'approved')", [consultation.case_id, consultation.recipient_email, `%${consultation.id}%`]);
+    if (existing?.id) continue;
+    const bundle = await consultationBundle(env, consultation.id);
+    if (bundle.error) {
+      counters.insurer_followups_errors += 1;
+      continue;
+    }
+    const access = await ensureConsultationToken(env, consultation.id, { insurer_name: bundle.row.insurer_name, case_id: bundle.row.case_id });
+    const draft = insurerDraft(bundle.row, bundle.documents, true, consultationPortalLink(env, access.token));
+    const mailId = crypto.randomUUID();
+    await safeRun(env, `INSERT INTO case_mail_queue (id, case_id, audience, recipient_email, subject, body, status, review_required, scheduled_at, payload, created_at, updated_at)
+      VALUES (?, ?, 'insurer_followup', ?, ?, ?, 'draft_review', 1, ?, ?, ?, ?)`, [mailId, bundle.row.case_id, bundle.row.recipient_email, draft.subject, draft.body, nowIso(), JSON.stringify({ marker: INSURER_FOLLOWUP_AUTOPILOT_MARKER, consultation_id: consultation.id, purpose: "insurer_followup_autopilot", human_review_required: true, previous_due_at: consultation.response_due_at || "" }), nowIso(), nowIso()]);
+    await safeRun(env, "UPDATE insurer_consultations SET response_due_at = ?, updated_at = ? WHERE id = ?", [new Date(Date.now() + 24 * 3600000).toISOString(), nowIso(), consultation.id]);
+    await safeRun(env, "UPDATE brokerage_cases SET next_action = ?, human_review_required = 1, updated_at = ? WHERE id = ?", ["Valider la relance assureur preparee automatiquement ou tracer une reponse partenaire avant envoi.", nowIso(), bundle.row.case_id]);
+    await logTimeline(env, bundle.row.case_id, "insurer_consultation_followup_autopilot", "system", { marker: INSURER_FOLLOWUP_AUTOPILOT_MARKER, consultation_id: consultation.id, mail_id: mailId, human_review_required: true, previous_due_at: consultation.response_due_at || "" });
+    counters.insurer_followup_drafts += 1;
+    counters.mail_drafts += 1;
+  }
+  return "";
+}
+
 async function ensureCasesForOpenLeads(env, limit = 160) {
-  const counters = { scanned: 0, created: 0, updated: 0, documents_requested: 0, mail_drafts: 0, consultations_prepared: 0, offer_followups_due: 0, offer_followup_drafts: 0, offer_followups_missing_email: 0 };
+  const counters = { scanned: 0, created: 0, updated: 0, documents_requested: 0, mail_drafts: 0, consultations_prepared: 0, offer_followups_due: 0, offer_followup_drafts: 0, offer_followups_missing_email: 0, insurer_followups_due: 0, insurer_followup_drafts: 0, insurer_followups_missing_email: 0, insurer_followups_errors: 0 };
   const leadRows = await safeAll(env, `SELECT * FROM leads WHERE status NOT IN ('lost', 'archived') ORDER BY created_at DESC LIMIT ?`, [limit]);
   const touched = [];
   for (const lead of rowsOrEmpty(leadRows)) {
@@ -242,7 +281,8 @@ async function ensureCasesForOpenLeads(env, limit = 160) {
     if (result) touched.push(result);
   }
   const followupWarning = await materializeClientOfferFollowups(env, counters);
-  return { counters, touched, warning: [errorOf(leadRows), followupWarning].filter(Boolean).join("; ") };
+  const insurerFollowupWarning = await materializeInsurerConsultationFollowups(env, counters);
+  return { counters, touched, warning: [errorOf(leadRows), followupWarning, insurerFollowupWarning].filter(Boolean).join("; ") };
 }
 
 function groupBy(rows, key) {
@@ -926,7 +966,7 @@ export async function onRequestGet({ request, env }) {
     crm_action_queue: crmActionQueue,
     actions: buildActions(cases, rowsOrEmpty(mails), rowsOrEmpty(consultations), partnerRows),
     warnings: [syncResult?.warning, errorOf(caseRows), errorOf(documents), errorOf(mails), errorOf(consultations), errorOf(offers), errorOf(contracts), errorOf(contractRequests), errorOf(contractPayments), errorOf(contractReferrals), errorOf(contractConsents), errorOf(partners), errorOf(summaryRow), errorOf(docSummary), errorOf(mailSummary), errorOf(consultSummary), errorOf(contractSummary), errorOf(offerSummary)].filter(Boolean),
-    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1", "partner-performance-v1", "crm-action-queue-v1", "insurer-package-readiness-v1", "insurer-package-send-guard-v1"]
+    safeguards: ["human-review-before-send", "mail-draft-review", "insurer-consultation-human-review", "client-portal-token", "consent-snapshot", "audit-timeline", "client-contract-workspace", "client-offer-human-review", "case-action-plan-v1", "partner-performance-v1", "crm-action-queue-v1", "insurer-package-readiness-v1", "insurer-package-send-guard-v1", "insurer-followup-autopilot-v1"]
   });
 }
 

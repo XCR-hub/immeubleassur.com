@@ -128,6 +128,14 @@ async function main() {
 
   const consultationSent = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "mark_consultation_sent", consultation_id: consultation.id, reviewer: "smoke" }) }), env }));
   assert(consultationSent.status === 200 && consultationSent.body.status === "sent", "admin should mark reviewed insurer consultation as sent");
+  const overdueAt = new Date(Date.now() - 3600000).toISOString();
+  DB.prepare("UPDATE insurer_consultations SET response_due_at = ?, updated_at = ? WHERE id = ?").bind(overdueAt, overdueAt, consultation.id).run();
+  const insurerFollowupSync = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=1`, { headers: { Authorization: `Bearer ${adminToken}` } }), env }));
+  assert(insurerFollowupSync.status === 200 && insurerFollowupSync.body.sync?.counters?.insurer_followup_drafts === 1, "admin sync should prepare one overdue insurer followup draft");
+  const autoFollowupMail = DB.prepare("SELECT status, body FROM case_mail_queue WHERE case_id = ? AND audience = 'insurer_followup' AND payload LIKE ? LIMIT 1").bind(caseRow.id, `%${consultation.id}%`).first();
+  assert(autoFollowupMail?.status === "draft_review" && /espace-assureur\.html\?token=/.test(autoFollowupMail.body || ""), "overdue insurer followup should remain a human-reviewed draft with partner portal link");
+  const insurerFollowupTimeline = DB.prepare("SELECT COUNT(*) AS count FROM case_timeline WHERE case_id = ? AND event_type = 'insurer_consultation_followup_autopilot'").bind(caseRow.id).first()?.count || 0;
+  assert(Number(insurerFollowupTimeline) === 1, "overdue insurer followup should be traced in timeline");
   const partnerQuestion = await readJson(await partnerPost({ request: new Request(`${siteOrigin}/api/partner/consultation?token=${tokenRow.token}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "question", notes: "Merci de confirmer la franchise toiture." }) }), env }));
   assert(partnerQuestion.status === 200 && partnerQuestion.body.status === "answered", "partner portal should trace an insurer question");
   const followupDraft = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "consultation_followup", consultation_id: consultation.id, reviewer: "smoke" }) }), env }));
@@ -171,7 +179,7 @@ async function main() {
 
   DB.close();
   cleanup();
-  console.log("Brokerage case workflow smoke passed: lead -> case -> client portal -> human mail review -> insurer portal -> client offer -> followup draft -> explicit acceptance -> timeline.");
+  console.log("Brokerage case workflow smoke passed: lead -> case -> client portal -> human mail review -> insurer portal -> autopilot followup draft -> client offer -> followup draft -> explicit acceptance -> timeline.");
 }
 
 main().catch((error) => {
