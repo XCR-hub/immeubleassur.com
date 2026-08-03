@@ -18,6 +18,8 @@ const logoutButton = document.querySelector("#portal-logout");
 
 let activeContractId = "";
 let latestPayload = null;
+const PORTAL_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
+let portalIdleTimer = 0;
 
 const consentTypes = [
   ["marketing_automation", "Emails et relances utiles", "Relances dossier, echeances et conseils lies au contrat."],
@@ -60,6 +62,25 @@ function storedToken() {
   return tokenFromUrl() || sessionStorage.getItem("immeubleassur_case_token") || "";
 }
 
+function closePortalSession(message = "Acces ferme sur cet appareil.", type = "success") {
+  window.clearTimeout(portalIdleTimer);
+  portalIdleTimer = 0;
+  sessionStorage.removeItem("immeubleassur_case_token");
+  if (tokenInput) tokenInput.value = "";
+  if (content) content.hidden = true;
+  latestPayload = null;
+  activeContractId = "";
+  clearTokenFromUrl();
+  setStatus(message, type);
+}
+
+function armPortalIdleTimeout() {
+  window.clearTimeout(portalIdleTimer);
+  if (!storedToken()) return;
+  portalIdleTimer = window.setTimeout(() => {
+    closePortalSession("Session fermee apres 30 minutes d'inactivite.", "error");
+  }, PORTAL_IDLE_TIMEOUT_MS);
+}
 function statusLabel(status) {
   return ({ requested: "Demandee", declared: "Declaration recue - fichier requis", received: "Transmise", validated: "Validee", waived: "Non requise", to_upload: "A transmettre", available: "Disponible" })[status] || "Demandee";
 }
@@ -533,6 +554,7 @@ async function loadCase(token) {
   if (!response.ok || !result.success) throw new Error(result.error || "Dossier introuvable");
   renderCase(result);
   clearTokenFromUrl();
+  armPortalIdleTimeout();
   setStatus("Dossier charge.", "success");
 }
 
@@ -732,14 +754,10 @@ assetForm?.addEventListener("submit", (event) => {
     .catch((error) => setStatus(error.message || "Mise a jour impossible", "error"));
 });
 
-logoutButton?.addEventListener("click", () => {
-  sessionStorage.removeItem("immeubleassur_case_token");
-  if (tokenInput) tokenInput.value = "";
-  if (content) content.hidden = true;
-  latestPayload = null;
-  activeContractId = "";
-  clearTokenFromUrl();
-  setStatus("Acces ferme sur cet appareil.", "success");
+logoutButton?.addEventListener("click", () => closePortalSession());
+
+["pointerdown", "keydown", "input"].forEach((eventName) => {
+  document.addEventListener(eventName, () => armPortalIdleTimeout(), { passive: true });
 });
 
 const initialToken = storedToken();
