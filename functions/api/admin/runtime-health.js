@@ -31,6 +31,34 @@ async function readLocalJson(file) {
   }
 }
 
+
+function sanitizeRuntimeCycle(report) {
+  if (!report || typeof report !== "object") return { available: false };
+  const generatedAt = report.generated_at || "";
+  const ageMinutes = generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null;
+  const steps = Array.isArray(report.steps) ? report.steps.slice(0, 24).map((step) => ({
+    name: step.name || "",
+    ok: step.ok === true,
+    status: step.status ?? null,
+    error: step.error || "",
+    stderr: step.stderr || ""
+  })) : [];
+  return {
+    available: true,
+    success: report.success === true,
+    generated_at: generatedAt,
+    age_minutes: ageMinutes,
+    summary: {
+      ok: Number(report.summary?.ok || 0),
+      failed: Number(report.summary?.failed || 0),
+      growth_status: report.summary?.growth_status || "",
+      growth_attention: Number(report.summary?.growth_attention || 0)
+    },
+    failed_steps: steps.filter((step) => !step.ok).map((step) => step.name).slice(0, 12),
+    steps
+  };
+}
+
 function sanitizeMonitorReport(report) {
   if (!report || typeof report !== "object") return { available: false };
   const generatedAt = report.generated_at || "";
@@ -470,6 +498,8 @@ export async function onRequestGet({ request, env }) {
   const databaseHealth = typeof env.DB?.health === "function" ? env.DB.health() : null;
   const monitorPath = env.LOCAL_PRODUCTION_MONITOR_REPORT || "reports/local-production-monitor-report.json";
   const monitorReport = await readLocalJson(monitorPath);
+  const runtimeCyclePath = env.LOCAL_RUNTIME_REPORT_CYCLE_REPORT || "data/runtime-reports/local-runtime-report-cycle.json";
+  const runtimeCycleReport = await readLocalJson(runtimeCyclePath);
   const leadSlaPath = env.LOCAL_LEAD_SLA_REPORT || "reports/local-lead-sla-report.json";
   const leadSlaReport = await readLocalJson(leadSlaPath);
   const leadQualityPath = env.LOCAL_LEAD_QUALITY_REPORT || "reports/local-lead-quality-report.json";
@@ -504,6 +534,7 @@ export async function onRequestGet({ request, env }) {
         },
     document_scanner: documentScanner,
     monitor: sanitizeMonitorReport(monitorReport),
+    runtime_cycle: sanitizeRuntimeCycle(runtimeCycleReport),
     lead_sla: sanitizeLeadSlaReport(leadSlaReport),
     lead_quality: sanitizeLeadQualityReport(leadQualityReport),
     conversion_funnel: sanitizeConversionFunnelReport(conversionFunnelReport),
