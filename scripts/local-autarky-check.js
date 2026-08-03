@@ -305,6 +305,7 @@ const required = [
   ["scripts/local-sqlite-db.js", "DatabaseSync"],
   ["scripts/local-sqlite-restore.js", "snapshot.json.gz"],
   ["scripts/local-smtp.js", "STARTTLS"],
+  ["scripts/local-smtp-health-check.js", "verifyNodeSmtpConnection"],
   ["README.md", "Production locale"],
   ["README.md", "Aucune dependance Supabase, Cloudflare D1, Cloudflare Pages ou Wrangler"],
   ["README.md", "leads:sla:monitor"],

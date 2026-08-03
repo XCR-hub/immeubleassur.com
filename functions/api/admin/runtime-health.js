@@ -32,7 +32,27 @@ async function readLocalJson(file) {
 }
 
 
+function sanitizeSmtpHealth(report) {
+  if (!report || typeof report !== "object") return { available: false };
+  const generatedAt = report.generated_at || "";
+  const ageMinutes = generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null;
+  return {
+    available: true,
+    status: report.status || "unknown",
+    generated_at: generatedAt,
+    age_minutes: ageMinutes,
+    host_configured: report.host === "configured",
+    port: Number(report.port || 0),
+    secure_transport: report.secure_transport || "",
+    authenticated: report.authenticated === true,
+    error: report.error || ""
+  };
+}
+
+
 function sanitizeRuntimeCycle(report) {
+
+
   if (!report || typeof report !== "object") return { available: false };
   const generatedAt = report.generated_at || "";
   const ageMinutes = generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null;
@@ -500,6 +520,8 @@ export async function onRequestGet({ request, env }) {
   const monitorReport = await readLocalJson(monitorPath);
   const runtimeCyclePath = env.LOCAL_RUNTIME_REPORT_CYCLE_REPORT || "data/runtime-reports/local-runtime-report-cycle.json";
   const runtimeCycleReport = await readLocalJson(runtimeCyclePath);
+  const smtpHealthPath = env.LOCAL_SMTP_HEALTH_REPORT || "data/runtime-reports/local-smtp-health-report.json";
+  const smtpHealthReport = await readLocalJson(smtpHealthPath);
   const leadSlaPath = env.LOCAL_LEAD_SLA_REPORT || "reports/local-lead-sla-report.json";
   const leadSlaReport = await readLocalJson(leadSlaPath);
   const leadQualityPath = env.LOCAL_LEAD_QUALITY_REPORT || "reports/local-lead-quality-report.json";
@@ -535,6 +557,7 @@ export async function onRequestGet({ request, env }) {
     document_scanner: documentScanner,
     monitor: sanitizeMonitorReport(monitorReport),
     runtime_cycle: sanitizeRuntimeCycle(runtimeCycleReport),
+    smtp_health: sanitizeSmtpHealth(smtpHealthReport),
     lead_sla: sanitizeLeadSlaReport(leadSlaReport),
     lead_quality: sanitizeLeadQualityReport(leadQualityReport),
     conversion_funnel: sanitizeConversionFunnelReport(conversionFunnelReport),

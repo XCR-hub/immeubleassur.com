@@ -144,6 +144,29 @@ function startTls(socket, host, rejectUnauthorized) {
   });
 }
 
+export async function verifyNodeSmtpConnection(config) {
+  const host = String(config.host || "").trim();
+  const port = Number.parseInt(config.port || "587", 10);
+  const username = String(config.username || "").trim();
+  const password = String(config.password || "");
+  if (!host || !port || !username || !password) throw new Error("Configuration SMTP locale incomplete");
+  let socket = await connectTcp({ host, port, secure: config.secureTransport === "on", rejectUnauthorized: config.rejectUnauthorized });
+  let client = createLineClient(socket);
+  let response = await readResponse(client);
+  assertSmtp(response, 220, "Accueil SMTP");
+  await smtpCommand(client, "EHLO immeubleassur.com", 250, "EHLO");
+  if (config.secureTransport === "starttls") {
+    await smtpCommand(client, "STARTTLS", 220, "STARTTLS");
+    socket = await startTls(socket, host, config.rejectUnauthorized);
+    client = createLineClient(socket);
+    await smtpCommand(client, "EHLO immeubleassur.com", 250, "EHLO TLS");
+  }
+  await smtpAuth(client, username, password);
+  await client.writeLine("QUIT").catch(() => {});
+  socket.end();
+  return { status: "ready", host, port, secure_transport: config.secureTransport === "on" ? "tls" : "starttls", authenticated: true };
+}
+
 export async function sendNodeSmtpMail(config, message) {
   const host = String(config.host || "").trim();
   const port = Number.parseInt(config.port || "587", 10);

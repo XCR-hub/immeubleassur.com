@@ -51,6 +51,7 @@ function run() {
   const commonRuntimeEnv = {
     LOCAL_RUNTIME_REPORTS_ROOT: runtimeReportsRoot,
     LOCAL_RUNTIME_ASSETS_ROOT: runtimeAssetsRoot,
+    LOCAL_SMTP_HEALTH_REPORT: join(runtimeReportsRoot, "local-smtp-health-report.json"),
     LOCAL_INTENT_CONVERSION_REPORT: runtimeIntentReport,
     LOCAL_INTENT_CONVERSION_PUBLIC_REPORT: runtimeIntentAsset,
     LOCAL_SOURCE_QUALITY_REPORT: runtimeSourceReport,
@@ -59,6 +60,7 @@ function run() {
   const steps = [
     runStep("live_api_readiness", ["scripts/live-api-readiness-check.js"], commonRuntimeEnv),
     runStep("google_readiness_unlock", ["scripts/google-readiness-unlock.js"], commonRuntimeEnv),
+    runStep("smtp_health", ["scripts/local-smtp-health-check.js"], commonRuntimeEnv),
     runStep("sqlite_backup", ["scripts/local-sqlite-backup.js"]),
     runStep("imap_sync", ["scripts/local-imap-sync.js"]),
     runStep("contract_renewal_monitor", ["scripts/local-contract-renewal-monitor.js"]),
