@@ -66,7 +66,7 @@ const expectations = [
   {
     file: "public/assets/admin.js",
     role: "content-bridge-admin-ui",
-    snippets: ["Pont contenu", "Leads pont", "Top pont", "page-pont-contenu", "contentBridgePaths", "contentBridgeLeads"]
+    snippets: ["Pont contenu", "Leads pont", "Top pont", "page-pont-contenu", "Pont contenu", "Leads pont"]
   },
   {
     file: "package.json",

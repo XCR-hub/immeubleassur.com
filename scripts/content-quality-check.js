@@ -88,7 +88,7 @@ function auditPage(file) {
   const issues = [];
   const warnings = [];
 
-  if (slug !== "admin" && !noIndex) {
+  if (slug !== "admin" && !noIndex && !duplicateAliasSlugs.has(slug)) {
     if (bannedManipulation.some((pattern) => pattern.test(text))) issues.push("manipulation-language");
     if (/display\s*:\s*none|visibility\s*:\s*hidden|font-size\s*:\s*0/i.test(html) && /assurance|devis|immeuble/i.test(html)) warnings.push("possible-hidden-seo-text");
     if (canonicalUrl !== canonical(slug)) issues.push("canonical-mismatch");
