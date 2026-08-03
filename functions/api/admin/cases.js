@@ -1273,9 +1273,10 @@ async function sendConsultation(env, body) {
   const draft = insurerDraft(bundle.row, bundle.documents, false, consultationPortalLink(env, access.token));
   const config = await smtpConfig(env, { recipient_email: bundle.row.recipient_email });
   if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return json({ success: false, error: "Configuration SMTP incomplete" }, 503);
+  const attachmentCount = mailAttachmentRows(bundle.documents).length;
   const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, { recipient_email: bundle.row.recipient_email, subject: draft.subject, body: draft.body, audience: "insurer" }, bundle.documents), env);
   const result = await markConsultationSent(env, body, "smtp");
-  await logTimeline(env, bundle.row.case_id, "insurer_consultation_sent", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, smtp: clean(smtpResult, 500) });
+  await logTimeline(env, bundle.row.case_id, "insurer_consultation_sent", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, attachment_count: attachmentCount, smtp: clean(smtpResult, 500) });
   return result;
 }
 
@@ -1468,11 +1469,12 @@ export async function onRequestPost({ request, env }) {
   if (!clean(mail.recipient_email, 180)) return json({ success: false, error: "Destinataire manquant" }, 409);
   const config = await smtpConfig(env, mail);
   const mailDocuments = clean(mail.audience, 80) === "insurer" ? rowsOrEmpty(await safeAll(env, "SELECT * FROM case_documents WHERE case_id = ? ORDER BY required DESC, label", [mail.case_id])) : [];
+  const attachmentCount = mailAttachmentRows(mailDocuments).length;
   if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return json({ success: false, error: "Configuration SMTP incomplete" }, 503);
   try {
     const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, mail, mailDocuments), env);
     await safeRun(env, "UPDATE case_mail_queue SET status = 'sent', sent_at = ?, last_error = '', updated_at = ? WHERE id = ?", [nowIso(), nowIso(), mailId]);
-    await logTimeline(env, mail.case_id, "mail_sent", reviewer, { mail_id: mailId, audience: mail.audience, smtp: clean(smtpResult, 500) });
+    await logTimeline(env, mail.case_id, "mail_sent", reviewer, { mail_id: mailId, audience: mail.audience, attachment_count: attachmentCount, smtp: clean(smtpResult, 500) });
     return json({ success: true, status: "sent" });
   } catch (error) {
     await safeRun(env, "UPDATE case_mail_queue SET last_error = ?, updated_at = ? WHERE id = ?", [clean(error.message, 500), nowIso(), mailId]);
