@@ -61,7 +61,9 @@ function run() {
     LOCAL_SOURCE_QUALITY_REPORT: runtimeSourceReport,
     LOCAL_SOURCE_QUALITY_PUBLIC_REPORT: runtimeSourceAsset,
     BROKERAGE_CASE_REPORT: join(runtimeReportsRoot, "brokerage-case-orchestrator-report.json"),
-    BROKERAGE_CASE_PUBLIC_REPORT: join(runtimeAssetsRoot, "assets", "brokerage-case-orchestrator-latest.json")
+    BROKERAGE_CASE_PUBLIC_REPORT: join(runtimeAssetsRoot, "assets", "brokerage-case-orchestrator-latest.json"),
+    CLIENT_CONTRACT_REPORT: join(runtimeReportsRoot, "client-contract-orchestrator-report.json"),
+    CLIENT_CONTRACT_PUBLIC_REPORT: join(runtimeAssetsRoot, "assets", "client-contract-orchestrator-latest.json")
   };
   const steps = [
     runStep("live_api_readiness", ["scripts/live-api-readiness-check.js"], commonRuntimeEnv),
@@ -69,6 +71,7 @@ function run() {
     runStep("smtp_health", ["scripts/local-smtp-health-check.js"], commonRuntimeEnv),
     runStep("sqlite_backup", ["scripts/local-sqlite-backup.js"]),
     runStep("brokerage_cases", ["scripts/brokerage-case-orchestrator.js"], commonRuntimeEnv),
+    runStep("client_contracts", ["scripts/client-contract-orchestrator.js"], commonRuntimeEnv),
     runStep("imap_sync", ["scripts/local-imap-sync.js"]),
     runStep("contract_renewal_monitor", ["scripts/local-contract-renewal-monitor.js"]),
     runStep("production_monitor", ["scripts/local-production-monitor.js"]),
