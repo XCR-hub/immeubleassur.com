@@ -1,5 +1,6 @@
 import { adminRequestAllowed } from "../../_shared/admin-auth.js";
 import { sendPortableSmtpMail } from "../../_shared/smtp.js";
+import { decryptDocumentBase64 } from "../../_shared/document-crypto.js";
 import {
   BROKERAGE_CASE_MARKER,
   CLIENT_OFFER_FOLLOWUP_MARKER,
@@ -840,7 +841,7 @@ function insurerPackageReadinessSummary(cases = []) {
 function adminDocumentRow(document = {}) {
   const payload = safeJson(document.payload, {});
   if (payload.attachment && typeof payload.attachment === "object") {
-    const { content_base64: _content, ...metadata } = payload.attachment;
+    const { content_base64: _content, ciphertext_base64: _ciphertext, iv_base64: _iv, ...metadata } = payload.attachment;
     payload.attachment = metadata;
   }
   const attachment = payload.attachment && typeof payload.attachment === "object" ? payload.attachment : null;
@@ -951,32 +952,34 @@ async function smtpConfig(env, mail) {
 }
 
 
-function mailAttachmentRows(documents = []) {
+async function mailAttachmentRows(documents = [], env = {}) {
   const maxTotalBytes = 18 * 1024 * 1024;
   let totalBytes = 0;
-  return rowsOrEmpty(documents).flatMap((document) => {
-    if (!["received", "validated"].includes(clean(document.status, 40))) return [];
+  const attachments = [];
+  for (const document of rowsOrEmpty(documents)) {
+    if (!["received", "validated"].includes(clean(document.status, 40))) continue;
     const attachment = safeJson(document.payload, {}).attachment;
-    if (attachment?.marker !== "client-document-upload-v1" || attachment.scan_status !== "validated_clean" || !attachment.content_base64) return [];
-    const encoded = String(attachment.content_base64).replace(/\s/g, "");
+    if (attachment?.marker !== "client-document-upload-v1" || attachment.scan_status !== "validated_clean") continue;
+    const encoded = String(await decryptDocumentBase64(attachment, env) || "").replace(/\s/g, "");
     const bytes = Number(attachment.size_bytes || 0);
-    if (!encoded || !Number.isFinite(bytes) || bytes <= 0 || totalBytes + bytes > maxTotalBytes) return [];
+    if (!encoded || !Number.isFinite(bytes) || bytes <= 0 || totalBytes + bytes > maxTotalBytes) continue;
     totalBytes += bytes;
-    return [{
+    attachments.push({
       fileName: clean(attachment.file_name || document.label || "document", 160).replace(/[\\"\r\n]/g, "-"),
       mimeType: clean(attachment.mime_type || "application/octet-stream", 100).replace(/[\r\n]/g, ""),
       contentBase64: encoded
-    }];
-  });
+    });
+  }
+  return attachments;
 }
 
 function wrapBase64(value) {
   return String(value).match(/.{1,76}/g)?.join("\r\n") || "";
 }
 
-export function mailMessage(config, mail, documents = []) {
+export async function mailMessage(config, mail, documents = [], env = {}) {
   const subject = clean(mail.subject, 240).replace(/[\r\n]+/g, " ");
-  const attachments = clean(mail.audience, 80) === "insurer" ? mailAttachmentRows(documents) : [];
+  const attachments = clean(mail.audience, 80) === "insurer" ? await mailAttachmentRows(documents, env) : [];
   const boundary = `=_immeubleassur_${crypto.randomUUID().replace(/-/g, "")}`;
   const bodyHeaders = attachments.length ? [`Content-Type: multipart/mixed; boundary="${boundary}"`] : ["Content-Type: text/plain; charset=utf-8"];
   const body = attachments.length ? [
@@ -1334,8 +1337,8 @@ async function sendConsultation(env, body) {
   const resendMode = String(env.EMAIL_TRANSPORT || "").toLowerCase() === "resend";
   const transportReady = resendMode ? Boolean(clean(env.RESEND_API_KEY, 300)) : Boolean(config.host && config.username && config.password);
   if (!transportReady || !config.from || !config.to.length) return json({ success: false, error: resendMode ? "Configuration Resend incomplete" : "Configuration SMTP incomplete" }, 503);
-  const attachmentCount = mailAttachmentRows(bundle.documents).length;
-  const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, { recipient_email: bundle.row.recipient_email, subject: draft.subject, body: draft.body, audience: "insurer" }, bundle.documents), env);
+  const attachmentCount = (await mailAttachmentRows(bundle.documents, env)).length;
+  const smtpResult = await sendPortableSmtpMail(config, await mailMessage(config, { recipient_email: bundle.row.recipient_email, subject: draft.subject, body: draft.body, audience: "insurer" }, bundle.documents, env), env);
   const result = await markConsultationSent(env, body, "smtp");
   await logTimeline(env, bundle.row.case_id, "insurer_consultation_sent", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, attachment_count: attachmentCount, smtp: clean(smtpResult, 500) });
   return result;
@@ -1532,12 +1535,12 @@ export async function onRequestPost({ request, env }) {
   if (!clean(mail.recipient_email, 180)) return json({ success: false, error: "Destinataire manquant" }, 409);
   const config = await smtpConfig(env, mail);
   const mailDocuments = clean(mail.audience, 80) === "insurer" ? rowsOrEmpty(await safeAll(env, "SELECT * FROM case_documents WHERE case_id = ? ORDER BY required DESC, label", [mail.case_id])) : [];
-  const attachmentCount = mailAttachmentRows(mailDocuments).length;
+  const attachmentCount = (await mailAttachmentRows(mailDocuments, env)).length;
   const resendMode = String(env.EMAIL_TRANSPORT || "").toLowerCase() === "resend";
   const transportReady = resendMode ? Boolean(clean(env.RESEND_API_KEY, 300)) : Boolean(config.host && config.username && config.password);
   if (!transportReady || !config.from || !config.to.length) return json({ success: false, error: resendMode ? "Configuration Resend incomplete" : "Configuration SMTP incomplete" }, 503);
   try {
-    const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, mail, mailDocuments), env);
+    const smtpResult = await sendPortableSmtpMail(config, await mailMessage(config, mail, mailDocuments, env), env);
     await safeRun(env, "UPDATE case_mail_queue SET status = 'sent', sent_at = ?, last_error = '', updated_at = ? WHERE id = ?", [nowIso(), nowIso(), mailId]);
     await logTimeline(env, mail.case_id, "mail_sent", reviewer, { mail_id: mailId, audience: mail.audience, attachment_count: attachmentCount, smtp: clean(smtpResult, 500) });
     return json({ success: true, status: "sent" });

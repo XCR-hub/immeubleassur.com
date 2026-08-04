@@ -103,7 +103,7 @@ async function main() {
   assert(validationResponse.status === 200 && validationResponse.body.status === "validated", "admin should validate an uploaded document before insurer use");
   DB.prepare("UPDATE case_documents SET status = 'validated', received_at = COALESCE(received_at, ?), validated_at = COALESCE(validated_at, ?), updated_at = ? WHERE case_id = ?").bind(now, now, now, caseRow.id).run();
   const uploadedDocuments = DB.prepare("SELECT * FROM case_documents WHERE case_id = ? ORDER BY required DESC, label").bind(caseRow.id).all().results;
-  const mimeMessage = mailMessage({ from: "courtier@immeubleassur.com" }, { recipient_email: "assureur-smoke@example.test", subject: "Dossier DOS-SMOKE", body: "Pack a relire", audience: "insurer" }, uploadedDocuments);
+  const mimeMessage = await mailMessage({ from: "courtier@immeubleassur.com" }, { recipient_email: "assureur-smoke@example.test", subject: "Dossier DOS-SMOKE", body: "Pack a relire", audience: "insurer" }, uploadedDocuments);
   assert(/multipart\/mixed/.test(mimeMessage) && /contrat-smoke\.pdf/.test(mimeMessage) && /Content-Transfer-Encoding: base64/.test(mimeMessage), "validated documents should be attached to insurer MIME mail");
   const marketSync = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=1`, { headers: { Authorization: `Bearer ${adminToken}` } }), env }));
   assert(marketSync.status === 200 && marketSync.body.success, "admin sync should refresh a complete market-ready case");

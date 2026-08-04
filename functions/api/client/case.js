@@ -1,4 +1,5 @@
 import { clean, safeJson, stageLabel } from "../../_shared/brokerage-cases.js";
+import { decryptDocumentBase64, encryptDocumentBase64 } from "../../_shared/document-crypto.js";
 import {
   CLIENT_CONTRACT_MARKER,
   applyConsent,
@@ -175,8 +176,9 @@ async function scanUploadedDocument(env, upload) {
   }
 }
 
-function uploadedPayload(documentRow, upload, scan = {}) {
+async function uploadedPayload(documentRow, upload, scan = {}, env = {}) {
   const current = safeJson(documentRow?.payload, {});
+  const encrypted = await encryptDocumentBase64(upload.encoded, env);
   return {
     ...current,
     marker: DOCUMENT_UPLOAD_MARKER,
@@ -185,7 +187,7 @@ function uploadedPayload(documentRow, upload, scan = {}) {
       file_name: upload.fileName,
       mime_type: upload.mimeType,
       size_bytes: upload.bytes.length,
-      content_base64: upload.encoded,
+      ...(encrypted ? { storage_marker: encrypted.marker, algorithm: encrypted.algorithm, iv_base64: encrypted.iv_base64, ciphertext_base64: encrypted.ciphertext_base64 } : { content_base64: upload.encoded, storage_marker: "legacy-plaintext" }),
       scan_status: scan.status === "clean" ? "clean_pending_human_validation" : "pending_antivirus",
       scan_provider: scan.provider || "clamav",
       uploaded_at: new Date().toISOString(),
@@ -443,7 +445,7 @@ async function uploadCaseDocument(env, row, body) {
   if (scan.status === "infected") return json({ success: false, error: "Fichier bloque par l antivirus", marker: DOCUMENT_UPLOAD_MARKER, scan_status: "infected" }, 422);
   if (scan.status !== "clean") return json({ success: false, error: "Analyse antivirus indisponible: fichier non accepte", marker: DOCUMENT_SCANNER_REQUIRED_MARKER, scan_status: scan.status || "unknown", scan_provider: scan.provider || "clamav" }, 503);
   const now = new Date().toISOString();
-  await safeRun(env, "UPDATE case_documents SET status = 'received', received_at = COALESCE(received_at, ?), notes = COALESCE(NULLIF(?, ''), notes), payload = ?, updated_at = ? WHERE id = ?", [now, clean(body.notes, 1000), JSON.stringify(uploadedPayload(documentRow, upload, scan)), now, documentRow.id]);
+  await safeRun(env, "UPDATE case_documents SET status = 'received', received_at = COALESCE(received_at, ?), notes = COALESCE(NULLIF(?, ''), notes), payload = ?, updated_at = ? WHERE id = ?", [now, clean(body.notes, 1000), JSON.stringify(await uploadedPayload(documentRow, upload, scan, env)), now, documentRow.id]);
   await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'client_document_uploaded', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ marker: DOCUMENT_UPLOAD_MARKER, document_id: documentRow.id, document_type: documentType, file_name: upload.fileName, mime_type: upload.mimeType, size_bytes: upload.bytes.length, scan_status: scan.status === "clean" ? "clean_pending_human_validation" : "pending_antivirus", scan_provider: scan.provider || "clamav" }), now]);
   return json({ success: true, status: scan.status === "clean" ? "received_pending_human_validation" : "received_pending_antivirus", document_id: documentRow.id, marker: DOCUMENT_UPLOAD_MARKER, scan_status: scan.status === "clean" ? "clean_pending_human_validation" : "pending_antivirus", scan_provider: scan.provider || "clamav" });
 }
@@ -458,7 +460,7 @@ async function uploadContractDocument(env, row, contract, body) {
   if (scan.status === "infected") return json({ success: false, error: "Fichier bloque par l antivirus", marker: DOCUMENT_UPLOAD_MARKER, scan_status: "infected" }, 422);
   if (scan.status !== "clean") return json({ success: false, error: "Analyse antivirus indisponible: fichier non accepte", marker: DOCUMENT_SCANNER_REQUIRED_MARKER, scan_status: scan.status || "unknown", scan_provider: scan.provider || "clamav" }, 503);
   const now = new Date().toISOString();
-  await safeRun(env, "UPDATE contract_documents SET status = 'received', received_at = COALESCE(received_at, ?), notes = COALESCE(NULLIF(?, ''), notes), payload = ?, updated_at = ? WHERE id = ?", [now, clean(body.notes, 1000), JSON.stringify(uploadedPayload(documentRow, upload, scan)), now, documentRow.id]);
+  await safeRun(env, "UPDATE contract_documents SET status = 'received', received_at = COALESCE(received_at, ?), notes = COALESCE(NULLIF(?, ''), notes), payload = ?, updated_at = ? WHERE id = ?", [now, clean(body.notes, 1000), JSON.stringify(await uploadedPayload(documentRow, upload, scan, env)), now, documentRow.id]);
   await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'contract_document_uploaded', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ marker: DOCUMENT_UPLOAD_MARKER, contract_id: contract.id, document_id: documentRow.id, document_type: documentType, file_name: upload.fileName, mime_type: upload.mimeType, size_bytes: upload.bytes.length, scan_status: scan.status === "clean" ? "clean_pending_human_validation" : "pending_antivirus", scan_provider: scan.provider || "clamav" }), now]);
   return json({ success: true, status: scan.status === "clean" ? "received_pending_human_validation" : "received_pending_antivirus", document_id: documentRow.id, marker: DOCUMENT_UPLOAD_MARKER, scan_status: scan.status === "clean" ? "clean_pending_human_validation" : "pending_antivirus", scan_provider: scan.provider || "clamav" });
 }async function downloadCaseDocument(env, row, request) {
@@ -469,11 +471,12 @@ async function uploadContractDocument(env, row, contract, body) {
     ? await safeFirst(env, "SELECT d.* FROM contract_documents d JOIN client_contracts cc ON cc.id = d.contract_id WHERE cc.case_id = ? AND d.id = ?", [row.id, contractDocumentId])
     : await safeFirst(env, "SELECT * FROM case_documents WHERE case_id = ? AND id = ?", [row.id, documentId]);
   const attachment = documentRow && !documentRow.error ? safeJson(documentRow.payload, {}).attachment : null;
-  if (!attachment?.content_base64 || !attachment?.mime_type) return json({ success: false, error: "Fichier introuvable" }, 404);
+  const contentBase64 = await decryptDocumentBase64(attachment, env);
+  if (!contentBase64 || !attachment?.mime_type) return json({ success: false, error: "Fichier introuvable" }, 404);
   const scanStatus = clean(attachment.scan_status, 60);
   if (!["clean_pending_human_validation", "clean", "validated"].includes(scanStatus)) return json({ success: false, error: "Fichier non disponible avant analyse antivirus validee", marker: DOCUMENT_SCANNER_REQUIRED_MARKER, scan_status: scanStatus || "unknown" }, 409);
   try {
-    const bytes = Uint8Array.from(atob(attachment.content_base64), (char) => char.charCodeAt(0));
+    const bytes = Uint8Array.from(atob(contentBase64), (char) => char.charCodeAt(0));
     await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'client_document_downloaded', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ marker: "client-document-download-v1", document_id: documentRow.id, contract_id: documentRow.contract_id || "", file_name: clean(attachment.file_name, 160), mime_type: clean(attachment.mime_type, 100), size_bytes: Number(bytes.length) }), new Date().toISOString()]);
     const safeName = clean(attachment.file_name, 160).replace(/[^A-Za-z0-9._ -]/g, "-").replace(/^-+|-+$/g, "") || "document";
     return new Response(bytes, { status: 200, headers: { "Content-Type": attachment.mime_type, "Content-Length": String(bytes.length), "Content-Disposition": "attachment; filename=\"" + safeName + "\"", "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });

@@ -57,7 +57,7 @@ Verifier les noms et les etats avec `npm run live:api:readiness`. Les valeurs ne
 
 ## Donnees sensibles
 
-Les documents sont prives, controles par token, soumis au scanner et non mis en cache. Leur contenu est encore stocke dans SQLite selon le schema actuel: activer un chiffrement du volume ou un chiffrement applicatif gere par secret avant d'augmenter le niveau de sensibilite des documents. Le secret de chiffrement ne doit jamais etre stocke dans Git.
+Les documents sont prives, controles par token, soumis au scanner et non mis en cache. Les nouveaux uploads sont chiffres en AES-256-GCM lorsque DOCUMENT_ENCRYPTION_REQUIRED=1. Pour migrer les anciens documents: executer d abord `node scripts/local-document-encryption-migrate.js` en dry-run, sauvegarder SQLite, puis relancer avec `--apply` et verifier le rapport. Le secret de chiffrement reste uniquement dans `.env.local` du serveur et ne doit jamais etre stocke dans Git.
 
 ## Deploiement
 
