@@ -299,6 +299,8 @@ const required = [
   ["public/assets/admin.js", "Anti-fraude local"],
   ["public/assets/admin.js", "Turnstile"],
   ["scripts/local-production-server.js", "__IMMEUBLEASSUR_SEND_SMTP_MAIL"],
+  ["scripts/local-production-server.js", "request-body-limit-v1"],
+  ["scripts/local-production-server.js", "MAX_REQUEST_BODY_BYTES"],
   ["functions/_shared/smtp.js", "__IMMEUBLEASSUR_SEND_SMTP_MAIL"],
   ["scripts/seo-autopilot.js", "intent_conversion_monitor"],
   ["scripts/seo-autopilot.js", "editorial_cluster_rescue"],

@@ -58,6 +58,8 @@ const contentTypes = {
   ".webmanifest": "application/manifest+json; charset=utf-8"
   };
 const SECURITY_HEADER_MARKER = "runtime-security-headers-v1";
+const REQUEST_BODY_LIMIT_MARKER = "request-body-limit-v1";
+const MAX_REQUEST_BODY_BYTES = Number.parseInt(env("LOCAL_MAX_REQUEST_BODY_BYTES", String(12 * 1024 * 1024)), 10) || 12 * 1024 * 1024;
 
 function contentSecurityPolicy() {
   return [
@@ -131,9 +133,22 @@ function envForRequest() {
   };
 }
 
+function payloadTooLarge() {
+  const error = new Error("Corps de requete trop volumineux");
+  error.code = "PAYLOAD_TOO_LARGE";
+  return error;
+}
+
 async function readBody(request) {
+  const declared = Number.parseInt(String(request.headers["content-length"] || ""), 10);
+  if (Number.isFinite(declared) && declared > MAX_REQUEST_BODY_BYTES) throw payloadTooLarge();
   const chunks = [];
-  for await (const chunk of request) chunks.push(chunk);
+  let total = 0;
+  for await (const chunk of request) {
+    total += chunk.length;
+    if (total > MAX_REQUEST_BODY_BYTES) throw payloadTooLarge();
+    chunks.push(chunk);
+  }
   return Buffer.concat(chunks);
 }
 
@@ -181,7 +196,13 @@ async function handleApi(request, response, pathname) {
   if (typeof handler !== "function") return json(response, 405, { success: false, error: "Methode non supportee" });
 
   const waitTasks = [];
-  const webRequest = await toWebRequest(request);
+  let webRequest;
+  try {
+    webRequest = await toWebRequest(request);
+  } catch (error) {
+    if (error?.code === "PAYLOAD_TOO_LARGE") return json(response, 413, { success: false, error: "Corps de requete trop volumineux", marker: REQUEST_BODY_LIMIT_MARKER, max_bytes: MAX_REQUEST_BODY_BYTES });
+    throw error;
+  }
   const webResponse = await handler({
     request: webRequest,
     env: envForRequest(),
