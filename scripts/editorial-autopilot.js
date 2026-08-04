@@ -401,10 +401,12 @@ async function run() {
   const issueBackfills = injectIssueBacklog();
   updateSitemap(["veille-assurance-immeuble", "newsletter-assurance-immeuble", issue.slug]);
   const draftReviewPath = aiRequiresReview ? join(REPORT_DIR, "editorial-drafts", issue.slug.replace(/\//g, "-") + ".json") : "";
+  const reportStatus = aiRequiresReview ? "draft_review" : synthesis.status === "fallback-after-ai-errors" ? "fallback" : "completed";
   if (aiRequiresReview) write(draftReviewPath, JSON.stringify({ marker: "editorial-ai-draft-review-v1", generated_at: new Date().toISOString(), publication_status: "draft_review", human_review_required: true, no_auto_publish: true, issue: { id: issue.id, slug: issue.slug, title: issue.title }, synthesis, source_items: items.slice(0, 18) }, null, 2));
   const report = {
     generated_at: new Date().toISOString(),
     mode,
+    status: reportStatus,
     fetch_enabled: ENABLE_FETCH,
     ai_enabled: ENABLE_AI,
     ai_provider: synthesis.provider,
