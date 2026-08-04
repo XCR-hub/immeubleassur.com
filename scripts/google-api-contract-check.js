@@ -46,7 +46,7 @@ const expectations = [
   },
   {
     file: "public/assets/admin.js",
-    snippets: ["Search Console", "URL Inspection", "Sitemap Google", "google_api_health", "search_intelligence", "Google unlock", "google-readiness-unlock-latest.json"]
+    snippets: ["Search Console", "URL Inspection", "Sitemap Google", "google_api_health", "search_intelligence", "Google unlock", "google-readiness-unlock-latest.json", "editorial-autopilot-latest.json", "Publication bloquee"]
   },
   {
     file: "package.json",
