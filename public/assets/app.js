@@ -508,13 +508,30 @@ function validationTelemetry(payload, details) {
   };
 }
 
-function localBackup(payload, result) {
-  const key = "immeubleassur_pending_leads";
-  const rows = JSON.parse(localStorage.getItem(key) || "[]");
-  rows.push({ payload, result, saved_at: new Date().toISOString() });
-  localStorage.setItem(key, JSON.stringify(rows.slice(-25)));
+const LOCAL_LEAD_FALLBACK_MARKER = "lead-local-fallback-privacy-v2";
+const LOCAL_LEAD_FALLBACK_TTL_MS = 24 * 60 * 60 * 1000;
+function purgeLocalLeadBackups() {
+  try {
+    const key = "immeubleassur_pending_leads";
+    const now = Date.now();
+    const rows = JSON.parse(localStorage.getItem(key) || "[]");
+    const valid = Array.isArray(rows) ? rows.filter((row) => Date.parse(row.expires_at || "") > now) : [];
+    if (valid.length) localStorage.setItem(key, JSON.stringify(valid.slice(-5)));
+    else localStorage.removeItem(key);
+  } catch {}
 }
-
+function localBackup(payload, result) {
+  try {
+    purgeLocalLeadBackups();
+    const key = "immeubleassur_pending_leads";
+    const now = Date.now();
+    const rows = JSON.parse(localStorage.getItem(key) || "[]");
+    const valid = Array.isArray(rows) ? rows : [];
+    valid.push({ payload, result, marker: LOCAL_LEAD_FALLBACK_MARKER, saved_at: new Date(now).toISOString(), expires_at: new Date(now + LOCAL_LEAD_FALLBACK_TTL_MS).toISOString() });
+    localStorage.setItem(key, JSON.stringify(valid.slice(-5)));
+  } catch {}
+}
+purgeLocalLeadBackups();
 function inferIntent() {
   const path = window.location.pathname.toLowerCase();
   if (path.includes("cno")) return "cno";
@@ -2215,7 +2232,7 @@ async function submitInstantCallback(event) {
     }
 
     formSubmitted = true;
-    localBackup(payload, result);
+
     if (result.duplicate) {
       instantCallbackStatus(formElement, `Demande deja recue. Reference ${result.reference}.`, "ok");
       track("lead_duplicate_returned", {
@@ -2525,7 +2542,7 @@ form?.addEventListener("submit", async (event) => {
     }
 
     formSubmitted = true;
-    localBackup(payload, result);
+
     form.reset();
     if (result.duplicate) {
       setStatus(`Demande deja recue. Reference ${result.reference}. Nous conservons le dossier prioritaire deja ouvert.`, "ok");
