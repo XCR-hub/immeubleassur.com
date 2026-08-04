@@ -170,7 +170,7 @@ export async function verifyNodeSmtpConnection(config) {
 
 export async function sendNodeSmtpMail(config, message) {
   const resendKey = String(process.env.RESEND_API_KEY || "").trim();
-  if (resendKey && String(process.env.EMAIL_TRANSPORT || "resend").trim() === "resend") {
+  if (resendKey && String(process.env.EMAIL_TRANSPORT || "resend").trim().toLowerCase() === "resend") {
     return sendResendMail({ ...config, apiKey: resendKey, apiUrl: process.env.RESEND_API_URL }, message);
   }
   const host = String(config.host || "").trim();

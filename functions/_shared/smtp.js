@@ -179,7 +179,7 @@ async function sendRuntimeSmtpMail() {
 
 export async function sendPortableSmtpMail(config, message, env = {}) {
   const resendKey = clean(env.RESEND_API_KEY, 300);
-  if (resendKey && clean(env.EMAIL_TRANSPORT || "resend", 40) === "resend") {
+  if (resendKey && clean(env.EMAIL_TRANSPORT || "resend", 40).toLowerCase() === "resend") {
     return sendResendMail({ ...config, apiKey: resendKey, apiUrl: env.RESEND_API_URL }, message);
   }
   if (typeof env.SEND_SMTP_MAIL === "function") {
