@@ -16,7 +16,8 @@ $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccou
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 72)
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
 $task = Get-ScheduledTask -TaskName $TaskName
-Write-Output ("task={0} state={1} principal={2} interval=15m wrapper={3}" -f $task.TaskName, $task.State, $task.Principal.UserId, $WrapperPath)
+if ($task.Principal.UserId -ne 'SYSTEM' -or $task.Principal.LogonType -ne 'ServiceAccount') { throw "Scheduled task principal invalide: $($task.Principal.UserId)/$($task.Principal.LogonType)" }
+Write-Output ("task={0} state={1} principal={2} logon={3} interval=15m wrapper={4}" -f $task.TaskName, $task.State, $task.Principal.UserId, $task.Principal.LogonType, $WrapperPath)
 if ($RunNow) {
   Start-ScheduledTask -TaskName $TaskName
   Write-Output ("started={0}" -f $TaskName)
