@@ -935,17 +935,21 @@ function buildActions(cases, mails, consultations, partners = []) {
 }
 
 async function smtpConfig(env, mail) {
-  const from = clean(env.SMTP_FROM || env.SMTP_USER, 180);
+  const resendMode = String(env.EMAIL_TRANSPORT || "").toLowerCase() === "resend";
+  const from = clean(env.SMTP_FROM || env.RESEND_FROM || env.SMTP_USER, 180);
+  const to = [clean(mail.recipient_email, 180)].filter(Boolean);
+  if (resendMode && clean(env.RESEND_API_KEY, 300) && from && to.length) return { host: "resend", port: 443, username: "", password: "", from, to, secureTransport: "https" };
   return {
     host: clean(env.SMTP_HOST, 160),
     port: Number.parseInt(env.SMTP_PORT || "587", 10),
     username: clean(env.SMTP_USER || from, 180),
     password: String(env.SMTP_PASS || ""),
     from,
-    to: [clean(mail.recipient_email, 180)].filter(Boolean),
+    to,
     secureTransport: Number.parseInt(env.SMTP_PORT || "587", 10) === 465 ? "on" : "starttls"
   };
 }
+
 
 function mailAttachmentRows(documents = []) {
   const maxTotalBytes = 18 * 1024 * 1024;
@@ -1327,7 +1331,9 @@ async function sendConsultation(env, body) {
   const access = await ensureConsultationToken(env, consultationId, { insurer_name: bundle.row.insurer_name, case_id: bundle.row.case_id });
   const draft = insurerDraft(bundle.row, bundle.documents, false, consultationPortalLink(env, access.token));
   const config = await smtpConfig(env, { recipient_email: bundle.row.recipient_email });
-  if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return json({ success: false, error: "Configuration SMTP incomplete" }, 503);
+  const resendMode = String(env.EMAIL_TRANSPORT || "").toLowerCase() === "resend";
+  const transportReady = resendMode ? Boolean(clean(env.RESEND_API_KEY, 300)) : Boolean(config.host && config.username && config.password);
+  if (!transportReady || !config.from || !config.to.length) return json({ success: false, error: resendMode ? "Configuration Resend incomplete" : "Configuration SMTP incomplete" }, 503);
   const attachmentCount = mailAttachmentRows(bundle.documents).length;
   const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, { recipient_email: bundle.row.recipient_email, subject: draft.subject, body: draft.body, audience: "insurer" }, bundle.documents), env);
   const result = await markConsultationSent(env, body, "smtp");

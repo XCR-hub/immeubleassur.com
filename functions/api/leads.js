@@ -668,12 +668,14 @@ function parseRecipients(value) {
 }
 
 function leadMailConfig(env) {
+  const resendMode = String(env.EMAIL_TRANSPORT || "").toLowerCase() === "resend";
   const host = clean(env.SMTP_HOST, 160);
   const port = Number.parseInt(env.SMTP_PORT || "587", 10);
   const username = clean(env.SMTP_USER || env.SMTP_FROM, 180);
   const password = String(env.SMTP_PASS || "");
-  const from = clean(env.SMTP_FROM || username, 180);
+  const from = clean(env.SMTP_FROM || env.RESEND_FROM || username, 180);
   const recipients = parseRecipients(env.SMTP_TO || env.CONTACT_EMAIL || from);
+  if (resendMode && clean(env.RESEND_API_KEY, 300) && from && recipients.length) return { host: "resend", port: 443, username: "", password: "", from, to: recipients, secureTransport: "https" };
   if (!host || !port || !username || !password || !from || recipients.length === 0) return null;
   return {
     host,
@@ -815,8 +817,8 @@ function buildLeadEmail({ id, reference, score, qualification, record, now }) {
   return { subject, text };
 }
 
-async function sendSmtpMail(config, message) {
-  return sendPortableSmtpMail(config, message);
+async function sendSmtpMail(config, message, env) {
+  return sendPortableSmtpMail(config, message, env);
 }
 
 function buildDuplicateLeadEmail({ duplicate, record, now }) {
@@ -868,7 +870,7 @@ async function notifyLeadByEmail({ id, reference, score, qualification, record, 
     "Content-Transfer-Encoding: 8bit"
   ];
 
-  const receipt = await sendSmtpMail(config, `${headers.join("\r\n")}\r\n\r\n${text}`);
+  const receipt = await sendSmtpMail(config, `${headers.join("\r\n")}\r\n\r\n${text}`, env);
   return { attempted: true, status: "sent", receipt };
 }
 
@@ -891,7 +893,7 @@ async function notifyDuplicateLeadByEmail({ duplicate, record, now }, env) {
     "Content-Transfer-Encoding: 8bit"
   ];
 
-  const receipt = await sendSmtpMail(config, `${headers.join("\r\n")}\r\n\r\n${text}`);
+  const receipt = await sendSmtpMail(config, `${headers.join("\r\n")}\r\n\r\n${text}`, env);
   return { attempted: true, status: "sent", receipt };
 }
 

@@ -132,19 +132,23 @@ function dotStuff(message) {
     .join("\r\n");
 }
 
-async function sendSmtpMail(config, message) {
-  return sendPortableSmtpMail(config, message);
+async function sendSmtpMail(config, message, env) {
+  return sendPortableSmtpMail(config, message, env);
 }
 
+
 function smtpConfig(env) {
+  const resendMode = String(env.EMAIL_TRANSPORT || "").toLowerCase() === "resend";
+  const from = clean(env.SMTP_FROM || env.RESEND_FROM || env.SMTP_USER, 180);
+  if (resendMode && clean(env.RESEND_API_KEY, 300) && from) return { host: "resend", port: 443, username: "", password: "", from, secureTransport: "https" };
   const host = clean(env.SMTP_HOST, 160);
   const port = Number.parseInt(env.SMTP_PORT || "587", 10);
-  const username = clean(env.SMTP_USER || env.SMTP_FROM, 180);
+  const username = clean(env.SMTP_USER || from, 180);
   const password = String(env.SMTP_PASS || "");
-  const from = clean(env.SMTP_FROM || username, 180);
   if (!host || !port || !username || !password || !from) return null;
   return { host, port, username, password, from, secureTransport: port === 465 ? "on" : "starttls" };
 }
+
 
 function issueText(issue, subscriber, requestUrl) {
   const site = new URL(requestUrl).origin;
@@ -200,7 +204,7 @@ async function sendLatestIssue(request, env) {
   const results = [];
   for (const subscriber of subscribers) {
     try {
-      const receipt = await sendSmtpMail({ ...config, to: parseRecipients(subscriber.email) }, buildMessage(config, issue, subscriber, request.url));
+      const receipt = await sendSmtpMail({ ...config, to: parseRecipients(subscriber.email) }, buildMessage(config, issue, subscriber, request.url), env);
       await recordNewsletterEvent(env, subscriber.id, issue.id, "sent", { receipt }, now);
       results.push({ email: subscriber.email, status: "sent" });
     } catch (error) {
