@@ -10,8 +10,15 @@ function writeJson(path, value) { ensureDir(dirname(path)); writeFileSync(path, 
 function clean(value, max = 2000) { return String(value || "").replace(/\r/g, "").trim().slice(0, max); }
 
 function sourceRevision() {
-  const result = spawnSync("git", ["rev-parse", "--short", "HEAD"], { cwd: process.cwd(), encoding: "utf8" });
-  return result.status === 0 ? clean(result.stdout, 40) : "";
+  try {
+    const gitDir = join(process.cwd(), ".git");
+    const head = readFileSync(join(gitDir, "HEAD"), "utf8").trim();
+    if (!head.startsWith("ref: ")) return head.slice(0, 40);
+    const refPath = join(gitDir, head.slice(5));
+    return readFileSync(refPath, "utf8").trim().slice(0, 40);
+  } catch {
+    return "";
+  }
 }
 
 const runtimeReportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", join("data", "runtime-reports")));
