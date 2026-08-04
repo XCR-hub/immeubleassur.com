@@ -140,32 +140,36 @@ function connectorStatus(connector) {
   const required = connector.required || [];
   const requiredAny = connector.requiredAny || [];
   const optional = connector.optional || [];
-  const resendMode = connector.id === "smtp" && configured("EMAIL_TRANSPORT") && String(process.env.EMAIL_TRANSPORT).toLowerCase() === "resend";
-  const missingRequired = resendMode ? [] : required.filter((name) => !configured(name));
-  const anyConfigured = requiredAny.length ? requiredAny.some(configured) : true;
-  const missingAny = requiredAny.length && !anyConfigured ? requiredAny : [];
-  const configuredReady = (resendMode ? configured("RESEND_API_KEY") : missingRequired.length === 0) && missingAny.length === 0;
-  const smtpHealth = connector.id === "smtp" ? smtpHealthReport() : null;
-  const smtpUnavailable = connector.id === "smtp" && (!smtpHealth?.available || smtpHealth.status !== "ready" || smtpHealth.authenticated !== true || Number(smtpHealth.age_minutes) > 180);
+  const resendMode = connector.id === "smtp" && String(process.env.EMAIL_TRANSPORT || "").toLowerCase() === "resend";
+  const activeRequired = resendMode ? ["RESEND_API_KEY"] : required;
+  const activeAny = resendMode ? ["RESEND_FROM", "SMTP_FROM", "SMTP_USER"] : requiredAny;
+  const missingRequired = activeRequired.filter((name) => !configured(name));
+  const anyConfigured = activeAny.length ? activeAny.some(configured) : true;
+  const missingAny = activeAny.length && !anyConfigured ? activeAny : [];
+  const configuredReady = missingRequired.length === 0 && missingAny.length === 0;
+  const smtpHealth = connector.id === "smtp" && !resendMode ? smtpHealthReport() : null;
+  const smtpUnavailable = connector.id === "smtp" && !resendMode && (!smtpHealth?.available || smtpHealth.status !== "ready" || smtpHealth.authenticated !== true || Number(smtpHealth.age_minutes) > 180);
   const ready = configuredReady && !smtpUnavailable;
   const runtimeReason = smtpUnavailable ? "SMTP health " + (smtpHealth?.available ? smtpHealth.status + (smtpHealth.error ? ": " + smtpHealth.error : "") : "report missing") : "";
+  const requiredCount = activeRequired.length + activeAny.length;
+  const configuredRequired = activeRequired.filter(configured).length + (activeAny.length && anyConfigured ? 1 : 0);
   return {
     ...connector,
     ready,
-    status: ready ? "ready" : "fallback",
-    required_count: required.length + (requiredAny.length ? 1 : 0),
-    configured_required: required.filter(configured).length + (requiredAny.length && anyConfigured ? 1 : 0),
+    status: ready ? (resendMode ? "configured" : "ready") : "fallback",
+    required_count: requiredCount,
+    configured_required: configuredRequired,
     optional_count: optional.length,
     configured_optional: optional.filter(configured).length,
-    required_names: required,
-    required_any_names: requiredAny,
+    required_names: activeRequired,
+    required_any_names: activeAny,
     optional_names: optional,
     transport: connector.id === "smtp" ? (resendMode ? "resend" : "smtp") : "",
     missing_required_names: missingRequired,
     missing_any_names: missingAny,
-    last_report: connector.id === "smtp" ? { ...readReport(connector.report), health: smtpHealth } : readReport(connector.report),
+    last_report: connector.id === "smtp" ? { ...readReport(connector.report), health: smtpHealth, transport: resendMode ? "resend" : "smtp" } : readReport(connector.report),
     runtime_reason: runtimeReason,
-    recommendation: ready ? `Executer ${connector.command} pour rafraichir le signal live.` : runtimeReason || `Configurer ${[...missingRequired, ...(missingAny.length ? ["une cle IA"] : [])].join(", ")} puis executer ${connector.command}.`
+    recommendation: ready ? "Executer " + connector.command + " pour rafraichir le signal live." : runtimeReason || "Configurer " + [...missingRequired, ...(missingAny.length ? ["une cle IA"] : [])].join(", ") + " puis executer " + connector.command + ".",
   };
 }
 
