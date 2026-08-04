@@ -173,6 +173,8 @@ const required = [
   ["public/.well-known/security.txt", "Contact: mailto:team@immeubleassur.com"],
   ["scripts/local-production-monitor.js", "sqlite_backup_age"],
   ["scripts/local-runtime-report-cycle.js", "runtime-assets"],
+  ["scripts/local-runtime-report-cycle.js", "brokerage_cases"],
+  ["scripts/local-runtime-report-cycle.js", "BROKERAGE_CASE_PUBLIC_REPORT"],
   ["scripts/live-ready-connectors-runner.js", "ready-connectors-only"],
   ["scripts/live-ready-connectors-runner.js", "serpapi-rate-limit-cooldown"],
   ["scripts/local-runtime-report-cycle.js", "local-sqlite-backup.js"],
