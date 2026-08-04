@@ -12,7 +12,7 @@ Set-Location -LiteralPath $SiteRoot
 $taskName = 'ImmeubleAssur Runtime Reports'
 try {
   $currentTask = Get-ScheduledTask -TaskName $taskName -ErrorAction Stop
-  if ($currentTask.Principal.UserId -eq 'SYSTEM' -and $currentTask.Principal.LogonType -ne 'ServiceAccount') {
+  if (@('SYSTEM', 'S-1-5-18') -contains [string]$currentTask.Principal.UserId -and $currentTask.Principal.LogonType -ne 'ServiceAccount') {
     $installer = Join-Path $SiteRoot 'scripts\install-local-runtime-task.ps1'
     & PowerShell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $installer -TaskName $taskName -SiteRoot $SiteRoot -WrapperPath $MyInvocation.MyCommand.Path -RunNow
     if ($LASTEXITCODE -ne 0) { throw "Runtime task self-heal failed with exit code $LASTEXITCODE" }
