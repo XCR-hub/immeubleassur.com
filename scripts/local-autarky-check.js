@@ -24,6 +24,8 @@ const required = [
   ["scripts/local-imap-sync.js", "read_only_headers"],
   ["schema.sql", "case_mail_inbox"],
   ["functions/api/admin/integrations.js", 'id: "imap"'],
+  ["functions/api/admin/integrations.js", 'resendRequired: ["RESEND_API_KEY"]'],
+  ["functions/api/admin/integrations.js", 'transport: resendMode ? "resend"'],
   ["functions/api/admin/cases.js", "inbox_mails"],
   ["functions/api/admin/cases.js", "attach_inbox_mail"],
   ["public/assets/admin.js", "postInboxAttach"],

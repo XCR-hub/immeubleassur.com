@@ -102,7 +102,9 @@ const connectorDefinitions = [
     scope: "Notifications leads et envoi newsletter.",
     runtime: "runtime",
     required: ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS", "SMTP_FROM", "SMTP_TO"],
-    optional: ["NEWSLETTER_SEND_LIMIT", "EMAIL_TRANSPORT", "RESEND_API_KEY", "RESEND_API_URL"]
+    optional: ["NEWSLETTER_SEND_LIMIT", "EMAIL_TRANSPORT", "RESEND_API_KEY", "RESEND_API_URL"],
+    resendRequired: ["RESEND_API_KEY"],
+    resendRequiredAny: ["RESEND_FROM", "SMTP_FROM", "SMTP_USER"]
   },
   {
     id: "imap",
@@ -153,9 +155,13 @@ function hasConfiguredValue(env, key) {
 }
 
 function connectorStatus(env, definition) {
-  const requiredStatus = definition.required.map((name) => ({ name, configured: hasConfiguredValue(env, name) }));
+  const resendMode = definition.id === "smtp" && String(env.EMAIL_TRANSPORT || "").toLowerCase() === "resend";
+  const activeRequired = resendMode && Array.isArray(definition.resendRequired) ? definition.resendRequired : definition.required;
+  const requiredStatus = activeRequired.map((name) => ({ name, configured: hasConfiguredValue(env, name) }));
+  const activeAny = resendMode && Array.isArray(definition.resendRequiredAny) ? definition.resendRequiredAny : [];
+  const anyConfigured = activeAny.length ? activeAny.some((name) => hasConfiguredValue(env, name)) : true;
   const optionalStatus = definition.optional.map((name) => ({ name, configured: hasConfiguredValue(env, name) }));
-  const configured = requiredStatus.every((item) => item.configured);
+  const configured = requiredStatus.every((item) => item.configured) && anyConfigured;
   return {
     id: definition.id,
     label: definition.label,
@@ -163,12 +169,13 @@ function connectorStatus(env, definition) {
     scope: definition.scope,
     runtime: definition.runtime,
     configured,
-    configured_required: requiredStatus.filter((item) => item.configured).length,
-    required_count: requiredStatus.length,
+    configured_required: requiredStatus.filter((item) => item.configured).length + (activeAny.length && anyConfigured ? 1 : 0),
+    required_count: requiredStatus.length + (activeAny.length ? 1 : 0),
     configured_optional: optionalStatus.filter((item) => item.configured).length,
     optional_count: optionalStatus.length,
-    secret_names: [...definition.required, ...definition.optional],
-    missing_secret_names: requiredStatus.filter((item) => !item.configured).map((item) => item.name)
+    transport: resendMode ? "resend" : definition.id === "smtp" ? "smtp" : "",
+    secret_names: [...new Set([...activeRequired, ...activeAny, ...definition.optional])],
+    missing_secret_names: [...requiredStatus.filter((item) => !item.configured).map((item) => item.name), ...(activeAny.length && !anyConfigured ? ["one-of:" + activeAny.join("|")] : [])]
   };
 }
 
