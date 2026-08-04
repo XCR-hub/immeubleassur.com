@@ -301,7 +301,7 @@ function buildIssue(items, synthesis) {
   return { id: `issue-${hash(slug)}`, slug, title, subject: `ImmeubleAssur - veille assurance immeuble ${day}`, summary, day, takeaways, plain_text, html_url: pathUrl(slug), status: "published" };
 }
 
-function veillePage(items, synthesis, issue) {
+function veillePage(items, publicSynthesis, issue) {
   const paragraphs = synthesis.text.split(/\n{2,}/).map((p) => `<p>${esc(p)}</p>`).join("");
   const body = `<section class="page-hero compact-hero editorial-hero"><div class="container"><p class="eyebrow">Veille assurance immeuble</p><h1>Actualites, signaux marche et alertes utiles pour immeubles.</h1><p>Une veille orientee action pour syndics, bailleurs, SCI, coproprietaires non occupants et administrateurs de biens.</p><div class="hero-actions"><a class="button primary" href="/newsletter-assurance-immeuble">Recevoir la veille</a><a class="button secondary" href="${pathUrl(issue.slug)}">Lire le dernier numero</a></div></div></section><section class="band editorial-intelligence-band"><div class="split"><div><p class="eyebrow dark">Synthese originale</p><h2>Ce qu'il faut surveiller avant devis ou renouvellement.</h2><div class="editorial-synthesis">${paragraphs}</div></div>${newsletterForm("veille-page")}</div></section><section class="band editorial-watch-band"><div class="section-head"><p class="eyebrow dark">Sources attribuees</p><h2>Signaux publics suivis par l'autopilote editorial.</h2></div><div class="watch-grid">${items.map(watchCard).join("")}</div><p class="seo-expansion-note">Le systeme exploite les flux et pages publiques avec attribution. Il ne recopie pas les articles sources et ne publie pas de contenu juridique sans prudence.</p></section><section class="band compare-band"><div class="container narrow"><h2>Transformation en leads qualifies.</h2><p class="large-copy">Chaque signal de veille est relie a une action: verifier un contrat, preparer un renouvellement, completer une fiche risque, comparer PNO/CNO ou demander un audit immeuble.</p><p><a class="button primary" href="/devis-assurance-immeuble?intent=sinistre">Demander un audit assurance immeuble</a></p></div></section>${intentExitBlock("veille-page")}${editorialFaqBlock("veille-page")}`;
   return layout({ slug: "veille-assurance-immeuble", title: "Veille assurance immeuble et copropriete", description: "Veille assurance immeuble: actualites, signaux regulatoires, copropriete, PNO, CNO, SCI et newsletter pour anticiper devis et renouvellement.", body });
@@ -312,7 +312,7 @@ function newsletterPage(issue) {
   return layout({ slug: "newsletter-assurance-immeuble", title: "Newsletter assurance immeuble", description: "Newsletter ImmeubleAssur: veille assurance immeuble, copropriete, PNO, CNO, SCI, sinistres et travaux pour clients et prospects.", body });
 }
 
-function issuePage(issue, items, synthesis) {
+function issuePage(issue, items, publicSynthesis) {
   const faqAnswers = [
     "Une actualite devient utile lorsqu'elle modifie une question a poser: garantie, franchise, responsabilite, delai ou document a fournir.",
     "La veille ne remplace pas l'audit du contrat. Elle aide a savoir quoi verifier avant de comparer des devis.",
@@ -389,13 +389,19 @@ async function run() {
   ensureDir(REPORT_DIR);
   const { items, errors, mode } = await collectWatchItems();
   const synthesis = await synthesize(items);
-  const issue = buildIssue(items, synthesis);
-  if (!RUNTIME_ONLY) write(join(OUT, "veille-assurance-immeuble.html"), veillePage(items, synthesis, issue));
+  const aiRequiresReview = synthesis.provider !== "deterministic";
+  const publicSynthesis = aiRequiresReview
+    ? { ...deterministicProvider(), status: "local-safe-public-fallback", text: fallbackSynthesis(items), attempts: synthesis.attempts || [] }
+    : synthesis;
+  const issue = buildIssue(items, publicSynthesis);
+  if (!RUNTIME_ONLY) write(join(OUT, "veille-assurance-immeuble.html"), veillePage(items, publicSynthesis, issue));
   if (!RUNTIME_ONLY) write(join(OUT, "newsletter-assurance-immeuble.html"), newsletterPage(issue));
-  if (!RUNTIME_ONLY) write(join(OUT, `${issue.slug}.html`), issuePage(issue, items, synthesis));
+  if (!RUNTIME_ONLY) write(join(OUT, `${issue.slug}.html`), issuePage(issue, items, publicSynthesis));
   injectHubs(issue);
   const issueBackfills = injectIssueBacklog();
   updateSitemap(["veille-assurance-immeuble", "newsletter-assurance-immeuble", issue.slug]);
+  const draftReviewPath = aiRequiresReview ? join(REPORT_DIR, "editorial-drafts", issue.slug.replace(/\//g, "-") + ".json") : "";
+  if (aiRequiresReview) write(draftReviewPath, JSON.stringify({ marker: "editorial-ai-draft-review-v1", generated_at: new Date().toISOString(), publication_status: "draft_review", human_review_required: true, no_auto_publish: true, issue: { id: issue.id, slug: issue.slug, title: issue.title }, synthesis, source_items: items.slice(0, 18) }, null, 2));
   const report = {
     generated_at: new Date().toISOString(),
     mode,
@@ -404,6 +410,10 @@ async function run() {
     ai_provider: synthesis.provider,
     ai_model: synthesis.model,
     ai_status: synthesis.status,
+    publication_status: aiRequiresReview ? "draft_review" : "published",
+    human_review_required: aiRequiresReview,
+    no_auto_publish: aiRequiresReview,
+    draft_review_path: draftReviewPath,
     ai_attempts: synthesis.attempts || [],
     quality_score: qualityScore(items, synthesis),
     source_count: SOURCES.length,
@@ -411,7 +421,7 @@ async function run() {
     issue: { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url },
     issue_backfills: issueBackfills,
     automation_plan: automationPlan(items),
-    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-reviewed-by-quality-guards"],
+    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending"],
     errors
   };
   write(join(REPORT_DIR, "editorial-autopilot-report.json"), JSON.stringify(report, null, 2));

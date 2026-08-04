@@ -21,7 +21,7 @@ const expectations = [
   },
   {
     file: "scripts/editorial-autopilot.js",
-    snippets: ["loadDefaultEnvFiles", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GEMINI_API_KEY", "--ai"]
+    snippets: ["loadDefaultEnvFiles", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GEMINI_API_KEY", "--ai", "editorial-ai-draft-review-v1", "human_review_required", "no_auto_publish", "local-safe-public-fallback"]
   },
   {
     file: "scripts/turnstile-hybrid-pass.js",
