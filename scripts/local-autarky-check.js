@@ -1,6 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 
 const required = [
+  ["scripts/editorial-autopilot.js", "editorial-multi-format-draft-packet-v1"],
+  ["scripts/editorial-autopilot.js", "draft_packet_path"],
+  ["scripts/editorial-autopilot.js", "article-faq-city-ai-seeds-held-for-human-review"],
   ["package.json", "serve:local"],
   ["package-lock.json", "lockfileVersion"],
   ["functions/_shared/admin-auth.js", "admin-auth-rate-limit-v1"],

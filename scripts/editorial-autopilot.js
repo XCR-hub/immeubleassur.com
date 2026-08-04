@@ -302,7 +302,7 @@ function buildIssue(items, synthesis) {
 }
 
 function veillePage(items, publicSynthesis, issue) {
-  const paragraphs = synthesis.text.split(/\n{2,}/).map((p) => `<p>${esc(p)}</p>`).join("");
+  const paragraphs = publicSynthesis.text.split(/\n{2,}/).map((p) => `<p>${esc(p)}</p>`).join("");
   const body = `<section class="page-hero compact-hero editorial-hero"><div class="container"><p class="eyebrow">Veille assurance immeuble</p><h1>Actualites, signaux marche et alertes utiles pour immeubles.</h1><p>Une veille orientee action pour syndics, bailleurs, SCI, coproprietaires non occupants et administrateurs de biens.</p><div class="hero-actions"><a class="button primary" href="/newsletter-assurance-immeuble">Recevoir la veille</a><a class="button secondary" href="${pathUrl(issue.slug)}">Lire le dernier numero</a></div></div></section><section class="band editorial-intelligence-band"><div class="split"><div><p class="eyebrow dark">Synthese originale</p><h2>Ce qu'il faut surveiller avant devis ou renouvellement.</h2><div class="editorial-synthesis">${paragraphs}</div></div>${newsletterForm("veille-page")}</div></section><section class="band editorial-watch-band"><div class="section-head"><p class="eyebrow dark">Sources attribuees</p><h2>Signaux publics suivis par l'autopilote editorial.</h2></div><div class="watch-grid">${items.map(watchCard).join("")}</div><p class="seo-expansion-note">Le systeme exploite les flux et pages publiques avec attribution. Il ne recopie pas les articles sources et ne publie pas de contenu juridique sans prudence.</p></section><section class="band compare-band"><div class="container narrow"><h2>Transformation en leads qualifies.</h2><p class="large-copy">Chaque signal de veille est relie a une action: verifier un contrat, preparer un renouvellement, completer une fiche risque, comparer PNO/CNO ou demander un audit immeuble.</p><p><a class="button primary" href="/devis-assurance-immeuble?intent=sinistre">Demander un audit assurance immeuble</a></p></div></section>${intentExitBlock("veille-page")}${editorialFaqBlock("veille-page")}`;
   return layout({ slug: "veille-assurance-immeuble", title: "Veille assurance immeuble et copropriete", description: "Veille assurance immeuble: actualites, signaux regulatoires, copropriete, PNO, CNO, SCI et newsletter pour anticiper devis et renouvellement.", body });
 }
@@ -319,7 +319,7 @@ function issuePage(issue, items, publicSynthesis) {
     "Avant AG ou renouvellement, elle sert a preparer les questions au syndic, au bailleur ou a l'assureur.",
     "Les signaux importants sont sinistres recurrents, travaux, vacance, hausse de prime et exclusions mal comprises."
   ];
-  const body = `<article class="article-layout rich-article newsletter-issue"><header class="article-head"><p class="eyebrow dark">Newsletter - ${esc(issue.day)}</p><h1>${esc(issue.title)}</h1><p>${esc(issue.summary)}</p></header><div class="article-body"><div class="article-summary"><strong>A retenir</strong><ul>${issue.takeaways.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></div><section><h2>Synthese de veille.</h2>${synthesis.text.split(/\n{2,}/).map((p) => `<p>${esc(p)}</p>`).join("")}</section><section><h2>Sources et signaux suivis.</h2><div class="watch-list-compact">${items.slice(0, 8).map((item) => `<article><strong><a href="${attr(item.url)}" rel="nofollow noopener">${esc(item.title)}</a></strong><span>${esc(item.source_name)} - ${esc(item.topic || "veille")}</span><p>${esc(item.summary || "Signal a surveiller pour l'assurance immeuble.")}</p></article>`).join("")}</div></section><section class="faq-list"><h2>FAQ de la veille</h2>${FAQS.map((q, index) => `<details><summary>${esc(q)}</summary><p>${esc(faqAnswers[index % faqAnswers.length])}</p></details>`).join("")}</section></div><aside class="article-cta">${newsletterForm("newsletter-issue")}<div class="source-box"><strong>Besoin concret ?</strong><a class="button primary" href="/devis-assurance-immeuble?intent=sinistre">Demander un audit ou devis immeuble</a><a href="/devis-pno-cno?intent=pno-cno">Comparer PNO/CNO</a></div></aside></article>`;
+  const body = `<article class="article-layout rich-article newsletter-issue"><header class="article-head"><p class="eyebrow dark">Newsletter - ${esc(issue.day)}</p><h1>${esc(issue.title)}</h1><p>${esc(issue.summary)}</p></header><div class="article-body"><div class="article-summary"><strong>A retenir</strong><ul>${issue.takeaways.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></div><section><h2>Synthese de veille.</h2>${publicSynthesis.text.split(/\n{2,}/).map((p) => `<p>${esc(p)}</p>`).join("")}</section><section><h2>Sources et signaux suivis.</h2><div class="watch-list-compact">${items.slice(0, 8).map((item) => `<article><strong><a href="${attr(item.url)}" rel="nofollow noopener">${esc(item.title)}</a></strong><span>${esc(item.source_name)} - ${esc(item.topic || "veille")}</span><p>${esc(item.summary || "Signal a surveiller pour l'assurance immeuble.")}</p></article>`).join("")}</div></section><section class="faq-list"><h2>FAQ de la veille</h2>${FAQS.map((q, index) => `<details><summary>${esc(q)}</summary><p>${esc(faqAnswers[index % faqAnswers.length])}</p></details>`).join("")}</section></div><aside class="article-cta">${newsletterForm("newsletter-issue")}<div class="source-box"><strong>Besoin concret ?</strong><a class="button primary" href="/devis-assurance-immeuble?intent=sinistre">Demander un audit ou devis immeuble</a><a href="/devis-pno-cno?intent=pno-cno">Comparer PNO/CNO</a></div></aside></article>`;
   return layout({ slug: issue.slug, title: issue.title, description: issue.summary, body });
 }
 
@@ -374,6 +374,16 @@ function qualityScore(items, synthesis) {
   return Math.min(100, score);
 }
 
+function contentDraftPacket(items, synthesis) {
+  const seed = String(synthesis.text || "").slice(0, 5000);
+  const cities = ["Paris", "Lyon", "Marseille", "Bordeaux", "Lille", "Nantes", "Nice", "Toulouse", "Rennes", "Strasbourg", "Montpellier", "Grenoble"];
+  return { marker: "editorial-multi-format-draft-packet-v1", generated_at: new Date().toISOString(), publication_status: "draft_review", human_review_required: true, no_auto_publish: true, ai_provider: synthesis.provider, ai_model: synthesis.model, ai_status: synthesis.status, source_context: items.slice(0,12).map((item)=>({title:item.title,summary:item.summary,source_name:item.source_name,url:item.url,topic:item.topic})), drafts: [
+    { type: "article", status: "draft_review", brief: "Article original assurance immeuble relie a une action devis.", seo_requirements: ["intention principale", "sources attribuees", "validation juridique humaine"], ai_seed: seed },
+    { type: "faq", status: "draft_review", brief: "Questions et reponses prudentes et sourcables.", seo_requirements: ["questions reelles", "reponses sourcables", "date de mise a jour"], ai_seed: seed },
+    ...cities.map((city)=>({ type: "city", city, status: "draft_review", brief: "Angle local assurance immeuble pour " + city + ".", seo_requirements: ["signal local verifiable", "contenu unique", "pas de doorway page"], ai_seed: seed }))
+  ] };
+  }
+
 function automationPlan(items) {
   return {
     blog_briefs: BRIEFS.map(([slug, title, keyword, audience, action]) => ({ slug, title, keyword, audience, action, status: "planned" })),
@@ -403,6 +413,9 @@ async function run() {
   const draftReviewPath = aiRequiresReview ? join(REPORT_DIR, "editorial-drafts", issue.slug.replace(/\//g, "-") + ".json") : "";
   const reportStatus = aiRequiresReview ? "draft_review" : synthesis.status === "fallback-after-ai-errors" ? "fallback" : "completed";
   if (aiRequiresReview) write(draftReviewPath, JSON.stringify({ marker: "editorial-ai-draft-review-v1", generated_at: new Date().toISOString(), publication_status: "draft_review", human_review_required: true, no_auto_publish: true, issue: { id: issue.id, slug: issue.slug, title: issue.title }, synthesis, source_items: items.slice(0, 18) }, null, 2));
+  const draftPacket = aiRequiresReview ? contentDraftPacket(items, synthesis) : null;
+  const draftPacketPath = aiRequiresReview ? join(REPORT_DIR, "editorial-drafts", "multi-format-" + todayIsoDate() + ".json") : "";
+  if (draftPacket) write(draftPacketPath, JSON.stringify(draftPacket, null, 2));
   const report = {
     generated_at: new Date().toISOString(),
     mode,
@@ -416,6 +429,8 @@ async function run() {
     human_review_required: aiRequiresReview,
     no_auto_publish: aiRequiresReview,
     draft_review_path: draftReviewPath,
+    draft_packet_path: draftPacketPath,
+    draft_packet_count: draftPacket?.drafts?.length || 0,
     ai_attempts: synthesis.attempts || [],
     quality_score: qualityScore(items, synthesis),
     source_count: SOURCES.length,
@@ -423,7 +438,7 @@ async function run() {
     issue: { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url },
     issue_backfills: issueBackfills,
     automation_plan: automationPlan(items),
-    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending"],
+    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review"],
     errors
   };
   write(join(REPORT_DIR, "editorial-autopilot-report.json"), JSON.stringify(report, null, 2));
