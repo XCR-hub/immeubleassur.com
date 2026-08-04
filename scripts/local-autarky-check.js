@@ -190,6 +190,8 @@ const required = [
   ["public/assets/app.js", "lead-local-fallback-privacy-v2"],
   ["scripts/local-runtime-report-cycle.js", "BROKERAGE_CASE_PUBLIC_REPORT"],
   ["scripts/live-ready-connectors-runner.js", "ready-connectors-only"],
+  ["scripts/live-ready-connectors-runner.js", "LOCAL_LIVE_CONNECTOR_TIMEOUT_MS"],
+  ["scripts/live-ready-connectors-runner.js", "timed_out"],
   ["scripts/live-ready-connectors-runner.js", "serpapi-rate-limit-cooldown"],
   ["scripts/local-runtime-report-cycle.js", "local-sqlite-backup.js"],
   ["scripts/local-runtime-report-cycle.js", "LOCAL_INTENT_CONVERSION_PUBLIC_REPORT"],

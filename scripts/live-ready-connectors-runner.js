@@ -49,11 +49,14 @@ function reportStatus(path) {
 }
 function runNode(name, command) {
   const started = Date.now();
+  const timeout = Math.max(15000, Number(env("LOCAL_LIVE_CONNECTOR_TIMEOUT_MS", "90000")) || 90000);
   const result = spawnSync(process.execPath, command, {
     cwd: process.cwd(),
     env: process.env,
     encoding: "utf8",
-    stdio: "pipe"
+    stdio: "pipe",
+    timeout,
+    killSignal: "SIGTERM"
   });
   return {
     name,
@@ -61,6 +64,7 @@ function runNode(name, command) {
     ok: result.status === 0,
     status: result.status,
     duration_ms: Date.now() - started,
+    timed_out: result.error?.code === "ETIMEDOUT",
     error: result.error?.message || ""
   };
 }
@@ -87,6 +91,7 @@ function safePublicStep(step) {
     ok: step.ok,
     status: step.status,
     duration_ms: step.duration_ms,
+    timed_out: step.timed_out === true,
     skipped: step.skipped === true,
     reason: step.reason || "",
     report: step.report || null,
