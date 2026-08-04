@@ -59,6 +59,7 @@ function sanitizeRuntimeCycle(report) {
   const steps = Array.isArray(report.steps) ? report.steps.slice(0, 24).map((step) => ({
     name: step.name || "",
     ok: step.ok === true,
+    attention: step.attention === true,
     status: step.status ?? null,
     error: step.error || "",
     stderr: step.stderr || ""
@@ -71,6 +72,7 @@ function sanitizeRuntimeCycle(report) {
     summary: {
       ok: Number(report.summary?.ok || 0),
       failed: Number(report.summary?.failed || 0),
+      attention: Number(report.summary?.attention || 0),
       growth_status: report.summary?.growth_status || "",
       growth_attention: Number(report.summary?.growth_attention || 0)
     },

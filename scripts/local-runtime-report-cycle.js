@@ -25,13 +25,17 @@ function runStep(name, args, extraEnv = {}) {
     encoding: "utf8",
     stdio: "pipe"
   });
+  const stdout = clean(result.stdout);
+  const stderr = clean(result.stderr);
+  const attention = result.status === 0 && /(failed|degraded|action-required|fallback-only|partial)/i.test(stdout + " " + stderr);
   return {
     name,
     command: `node ${args.join(" ")}`,
     ok: result.status === 0,
     status: result.status,
-    stdout: clean(result.stdout),
-    stderr: clean(result.stderr),
+    attention,
+    stdout,
+    stderr,
     error: result.error?.message || ""
   };
 }
@@ -101,6 +105,7 @@ function run() {
     summary: {
       ok: steps.filter((step) => step.ok).length,
       failed: steps.filter((step) => !step.ok).length,
+      attention: steps.filter((step) => step.attention).length,
       growth_status: growth?.status || "",
       growth_reports_available: Number(growth?.reports_available || 0),
       growth_reports_expected: Number(growth?.reports_expected || 0),
