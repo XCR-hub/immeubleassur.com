@@ -90,6 +90,7 @@ const REQUIRED = [
   ["scripts/brokerage-case-workflow-smoke.js", "client document download should be traced without exposing binary content"],
   ["functions/api/client/case.js", "pending_human_validation"],
   ["functions/api/client/case.js", "scanUploadedDocument"],
+  ["functions/api/client/case.js", "client-document-scanner-required-v1"],
   ["functions/api/client/case.js", "pending_antivirus"],
   ["functions/api/client/case.js", "clean_pending_human_validation"],
   ["functions/api/admin/cases.js", "Scan antivirus propre requis"],

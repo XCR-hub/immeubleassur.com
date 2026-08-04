@@ -42,6 +42,13 @@ async function post(token, body, DB) {
   }));
 }
 
+async function postWithoutScanner(token, body, DB) {
+  return readJson(await clientPost({
+    request: new Request(siteOrigin + "/api/client/case?token=" + token, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }),
+    env: { DB, SMTP_TO: "team@example.test" }
+  }));
+}
+
 async function getClient(token, DB) {
   return readJson(await clientGet({ request: new Request(`${siteOrigin}/api/client/case?token=${token}`), env: { DB, SMTP_TO: "team@example.test", SCAN_DOCUMENT: async () => ({ status: "clean", provider: "smoke-antivirus" }) } }));
 }
@@ -128,6 +135,8 @@ async function main() {
   assert(renewalSecondRun.created === 0 && renewalSecondRun.duplicates === 2, "renewal monitor should deduplicate the same contractual periods");
   const uploadTarget = contract.documents.find((item) => item.status === "requested");
   assert(uploadTarget?.document_type, "client contract should expose a requested document for upload");
+  const unscannedUpload = await postWithoutScanner(caseRow.client_portal_token, { action: "contract_document_upload", contract_id: contract.id, document_type: uploadTarget.document_type, file_name: "attestation-unscanned.pdf", mime_type: "application/pdf", content_base64: Buffer.from("%PDF-1.4 smoke").toString("base64") }, DB);
+  assert(unscannedUpload.status === 503 && unscannedUpload.body.marker === "client-document-scanner-required-v1", "client upload should fail closed when antivirus is unavailable");
   const contractUpload = await post(caseRow.client_portal_token, { action: "contract_document_upload", contract_id: contract.id, document_type: uploadTarget.document_type, file_name: "attestation-smoke.pdf", mime_type: "application/pdf", content_base64: Buffer.from("%PDF-1.4 smoke").toString("base64") }, DB);
   assert(contractUpload.status === 200 && contractUpload.body.status === "received_pending_human_validation", "client should upload a contract document under human validation");
   const contractDocAfterUpload = DB.prepare("SELECT * FROM contract_documents WHERE id = ?").bind(contractUpload.body.document_id).first();
