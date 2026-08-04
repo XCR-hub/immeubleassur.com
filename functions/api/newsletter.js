@@ -372,7 +372,7 @@ async function logSiteEvent(env, request, payload, eventType, now) {
         has_name: clean(payload.name, 160) ? "true" : "false",
         form_elapsed_ms: payload.anti_bot ? String(safeNumber(payload.anti_bot.form_elapsed_ms)) : ""
       }),
-      clean(request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "", 120),
+      clean((request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || request.headers.get("X-Real-IP") || "").split(",")[0].trim(), 120),
       clean(request.headers.get("User-Agent") || "", 500),
       now
     ).run();
@@ -418,7 +418,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   const now = new Date().toISOString();
-  const ip = clean(request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "", 120);
+  const ip = clean((request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || request.headers.get("X-Real-IP") || "").split(",")[0].trim(), 120);
   const userAgent = clean(request.headers.get("User-Agent") || "", 500);
 
   if (clean(payload.company_website)) {

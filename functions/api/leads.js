@@ -919,10 +919,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   }
 
   const now = new Date().toISOString();
-  const ip =
-    request.headers.get("CF-Connecting-IP") ||
-    request.headers.get("X-Forwarded-For") ||
-    "";
+  const ip = (request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || request.headers.get("X-Real-IP") || "").split(",")[0].trim().slice(0, 120);
   const userAgent = request.headers.get("User-Agent") || "";
 
   if (!env.DB) {

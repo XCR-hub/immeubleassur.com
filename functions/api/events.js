@@ -288,7 +288,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
   if (!allowedEvents.has(eventType)) return reply({ success: false, error: "Evenement invalide" }, 422);
 
   const now = new Date().toISOString();
-  const ip = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "";
+  const ip = (request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || request.headers.get("X-Real-IP") || "").split(",")[0].trim().slice(0, 120);
   const userAgent = request.headers.get("User-Agent") || "";
   const telemetryGuard = await shouldDropTelemetry(env, request, { eventType, payload, ip, userAgent });
   if (telemetryGuard.drop) return reply({ success: true, sampled: false, reason: "telemetry-filtered", filter: telemetryGuard.reason });
