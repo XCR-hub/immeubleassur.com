@@ -186,7 +186,7 @@ function aiProviders() {
   const providers = [];
   if (process.env.OPENAI_API_KEY) providers.push({ provider: "openai", model: process.env.OPENAI_MODEL || "gpt-4.1-mini" });
   if (process.env.ANTHROPIC_API_KEY) providers.push({ provider: "anthropic", model: process.env.ANTHROPIC_MODEL || "claude-3-5-sonnet-latest" });
-  if (process.env.GEMINI_API_KEY) providers.push({ provider: "gemini", model: process.env.GEMINI_MODEL || "gemini-1.5-pro" });
+  if (process.env.GEMINI_API_KEY) providers.push({ provider: "gemini", model: process.env.GEMINI_MODEL || "gemini-2.5-flash" });
   if (process.env.OPENROUTER_API_KEY) providers.push({ provider: "openrouter", model: process.env.OPENROUTER_MODEL || "~openai/gpt-latest" });
   if (process.env.HUGGINGFACE_API_KEY) providers.push({ provider: "huggingface", model: process.env.HUGGINGFACE_MODEL || "mistralai/Mistral-7B-Instruct-v0.3" });
   return providers;
