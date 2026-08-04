@@ -1533,7 +1533,9 @@ export async function onRequestPost({ request, env }) {
   const config = await smtpConfig(env, mail);
   const mailDocuments = clean(mail.audience, 80) === "insurer" ? rowsOrEmpty(await safeAll(env, "SELECT * FROM case_documents WHERE case_id = ? ORDER BY required DESC, label", [mail.case_id])) : [];
   const attachmentCount = mailAttachmentRows(mailDocuments).length;
-  if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return json({ success: false, error: "Configuration SMTP incomplete" }, 503);
+  const resendMode = String(env.EMAIL_TRANSPORT || "").toLowerCase() === "resend";
+  const transportReady = resendMode ? Boolean(clean(env.RESEND_API_KEY, 300)) : Boolean(config.host && config.username && config.password);
+  if (!transportReady || !config.from || !config.to.length) return json({ success: false, error: resendMode ? "Configuration Resend incomplete" : "Configuration SMTP incomplete" }, 503);
   try {
     const smtpResult = await sendPortableSmtpMail(config, mailMessage(config, mail, mailDocuments), env);
     await safeRun(env, "UPDATE case_mail_queue SET status = 'sent', sent_at = ?, last_error = '', updated_at = ? WHERE id = ?", [nowIso(), nowIso(), mailId]);

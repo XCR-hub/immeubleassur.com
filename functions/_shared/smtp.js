@@ -107,11 +107,40 @@ function parseRawMail(message) {
     if (index <= 0) continue;
     headers[line.slice(0, index).trim().toLowerCase()] = line.slice(index + 1).trim();
   }
+  const attachments = [];
+  let text = body;
+  const boundaryMatch = clean(headers["content-type"], 500).match(/boundary="([^"]+)"/i);
+  if (boundaryMatch) {
+    text = "";
+    const boundary = "--" + boundaryMatch[1];
+    for (const part of body.split(boundary).slice(1)) {
+      if (part.trim() === "--" || !part.trim()) continue;
+      const partSplit = part.replace(/^\n/, "").indexOf("\n\n");
+      if (partSplit < 0) continue;
+      const partHeaders = {};
+      const normalizedPart = part.replace(/^\n/, "");
+      const partHeaderText = normalizedPart.slice(0, partSplit);
+      const partBody = normalizedPart.slice(partSplit + 2).replace(/^\n/, "").replace(/\n--$/, "").trim();
+      for (const line of partHeaderText.split("\n")) {
+        const index = line.indexOf(":");
+        if (index > 0) partHeaders[line.slice(0, index).trim().toLowerCase()] = line.slice(index + 1).trim();
+      }
+      const disposition = clean(partHeaders["content-disposition"], 500);
+      if (/attachment/i.test(disposition)) {
+        const filename = disposition.match(/filename="([^"]+)"/i)?.[1] || "document.bin";
+        const content = clean(partBody, 24 * 1024 * 1024).replace(/\s/g, "");
+        if (content) attachments.push({ filename: clean(filename, 160), content, type: clean(partHeaders["content-type"], 120).split(";")[0] || "application/octet-stream" });
+      } else if (/text\/plain/i.test(clean(partHeaders["content-type"], 120))) {
+        text = partBody;
+      }
+    }
+  }
   return {
     from: clean(headers.from, 240),
     to: clean(headers.to, 1000).split(/[;,]/).map((item) => item.trim()).filter(Boolean).slice(0, 20),
     subject: clean(headers.subject, 500),
-    text: body.slice(0, 100000)
+    text: text.slice(0, 100000),
+    attachments
   };
 }
 
@@ -134,7 +163,7 @@ export async function sendResendMail(config, message) {
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: parsed.from, to: parsed.to, subject: parsed.subject, text: parsed.text }),
+    body: JSON.stringify({ from: parsed.from, to: parsed.to, subject: parsed.subject, text: parsed.text, ...(parsed.attachments.length ? { attachments: parsed.attachments } : {}) }),
     signal: AbortSignal.timeout(15000)
   });
   const responseText = await response.text();
