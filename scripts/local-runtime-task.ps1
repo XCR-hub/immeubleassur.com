@@ -10,7 +10,13 @@ Set-Location -LiteralPath $SiteRoot
 
 # Self-heal an older task registration that used an interactive token.
 $taskName = 'ImmeubleAssur Runtime Reports'
+$taskFile = Join-Path $env:windir ('System32\Tasks\' + $taskName)
 try {
+  $legacyXml = if (Test-Path -LiteralPath $taskFile) { Get-Content -LiteralPath $taskFile -Raw } else { '' }
+  if ($legacyXml -match '<LogonType>InteractiveToken</LogonType>') {
+    & schtasks.exe /Change /TN $taskName /RU SYSTEM /RL HIGHEST | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Runtime task self-heal failed with exit code $LASTEXITCODE" }
+  }
   $currentTask = Get-ScheduledTask -TaskName $taskName -ErrorAction Stop
   if (@('SYSTEM', 'S-1-5-18') -contains [string]$currentTask.Principal.UserId -and $currentTask.Principal.LogonType -ne 'ServiceAccount') {
     $installer = Join-Path $SiteRoot 'scripts\install-local-runtime-task.ps1'
