@@ -82,6 +82,7 @@ const REQUIRED = [
   ["public/assets/admin.js", "postOfferAction"],
   ["public/assets/admin.js", "data-consultation-action"],
   ["functions/api/client/case.js", "client-document-upload-v1"],
+  ["functions/api/client/case.js", "document-filename-header-safe-v1"],
   ["functions/api/client/case.js", "case_document_upload"],
   ["functions/api/client/case.js", "downloadCaseDocument"],
   ["functions/api/client/case.js", "client-document-download-v1"],

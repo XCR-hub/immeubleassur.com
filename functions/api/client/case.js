@@ -115,6 +115,7 @@ function internalNotificationRecipient(env = {}) {
 const consentReceiptTypes = ["marketing_automation", "cross_sell", "navigation_study"];
 const CONSENT_RECEIPT_MARKER = "consent-receipt-v1";
 const DOCUMENT_UPLOAD_MARKER = "client-document-upload-v1";
+const DOCUMENT_FILENAME_SAFETY_MARKER = "document-filename-header-safe-v1";
 const MAX_DOCUMENT_BYTES = 6 * 1024 * 1024;
 const uploadTypes = new Map([
   ["application/pdf", { extension: "pdf", signature: (bytes) => textPrefix(bytes, 4) === "%PDF" }],
@@ -148,7 +149,7 @@ function publicAttachment(payload = {}) {
 }
 
 function decodeUpload(body = {}) {
-  const fileName = clean(body.file_name, 160).replace(/[\\/\0]/g, "-");
+  const fileName = clean(body.file_name, 160).replace(/[\\/\0\r\n]/g, "-");
   const mimeType = clean(body.mime_type, 100).toLowerCase();
   const raw = clean(body.content_base64, MAX_DOCUMENT_BYTES * 2);
   const encoded = raw.includes(",") && raw.startsWith("data:") ? raw.slice(raw.indexOf(",") + 1) : raw;
@@ -469,7 +470,7 @@ async function uploadContractDocument(env, row, contract, body) {
   try {
     const bytes = Uint8Array.from(atob(attachment.content_base64), (char) => char.charCodeAt(0));
     await safeRun(env, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'client_document_downloaded', 'client', ?, ?)", [crypto.randomUUID(), row.id, JSON.stringify({ marker: "client-document-download-v1", document_id: documentRow.id, contract_id: documentRow.contract_id || "", file_name: clean(attachment.file_name, 160), mime_type: clean(attachment.mime_type, 100), size_bytes: Number(bytes.length) }), new Date().toISOString()]);
-    const safeName = clean(attachment.file_name, 160).replace(/"/g, "-");
+    const safeName = clean(attachment.file_name, 160).replace(/[^A-Za-z0-9._ -]/g, "-").replace(/^-+|-+$/g, "") || "document";
     return new Response(bytes, { status: 200, headers: { "Content-Type": attachment.mime_type, "Content-Length": String(bytes.length), "Content-Disposition": "attachment; filename=\"" + safeName + "\"", "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });
   } catch {
     return json({ success: false, error: "Fichier illisible" }, 500);
