@@ -177,6 +177,8 @@ const required = [
   ["scripts/local-runtime-report-cycle.js", "LOCAL_INTENT_CONVERSION_PUBLIC_REPORT"],
   ["scripts/local-runtime-report-cycle.js", "LOCAL_SOURCE_QUALITY_PUBLIC_REPORT"],
   ["scripts/local-production-monitor.js", "telemetry_filter"],
+  ["scripts/local-production-monitor.js", "missing-resend-config"],
+  ["scripts/local-production-monitor.js", "transport: config.transport"],
   ["scripts/local-lead-sla-monitor.js", "Lead SLA monitor"],
   ["scripts/local-lead-sla-monitor.js", "LOCAL_LEAD_SLA_ALERTS"],
   ["scripts/local-lead-sla-monitor.js", "missing-resend-config"],
