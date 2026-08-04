@@ -326,6 +326,8 @@ const required = [
   ["scripts/local-smtp.js", "STARTTLS"],
   ["scripts/local-smtp-health-check.js", "verifyNodeSmtpConnection"],
   ["scripts/local-smtp-health-check.js", "verifyResendConnection"],
+  ["functions/_shared/smtp.js", "toLowerCase() === \"resend\""],
+  ["scripts/local-smtp.js", "toLowerCase() === \"resend\""],
   ["functions/_shared/smtp.js", "sendResendMail"],
   [".env.example", "EMAIL_TRANSPORT"],
   ["README.md", "Production locale"],
