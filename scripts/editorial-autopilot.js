@@ -223,13 +223,24 @@ async function callAnthropic(text, model) {
 }
 
 async function callGemini(text, model) {
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`;
-  const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text }] }] }) });
+  const apiKey = process.env.GEMINI_API_KEY;
+  const request = (candidate) => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(candidate)}:generateContent?key=${encodeURIComponent(apiKey)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ parts: [{ text }] }] }) });
+  let activeModel = model;
+  let response = await request(activeModel);
+  if (response.status === 404) {
+    const catalog = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`);
+    if (catalog.ok) {
+      const data = await catalog.json();
+      const available = (data.models || []).filter((item) => Array.isArray(item.supportedGenerationMethods) && item.supportedGenerationMethods.includes("generateContent")).map((item) => String(item.baseModelId || item.name || "").replace(/^models\//, ""));
+      const preferred = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3.5-flash", "gemini-flash-latest"];
+      activeModel = preferred.find((candidate) => available.includes(candidate)) || available.find((candidate) => /gemini.*(flash|pro)/i.test(candidate)) || activeModel;
+      if (activeModel !== model) response = await request(activeModel);
+    }
+  }
   if (!response.ok) throw new Error(`Gemini HTTP ${response.status}`);
   const data = await response.json();
   return (data.candidates || []).flatMap((candidate) => candidate.content?.parts || []).map((part) => part.text || "").join("\n");
 }
-
 
 async function callOpenRouter(text, model) {
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`, "HTTP-Referer": SITE, "X-OpenRouter-Title": "ImmeubleAssur SEO Editorial Autopilot" }, body: JSON.stringify({ model, max_tokens: 900, messages: [{ role: "system", content: "Redaction assurance immeuble utile, originale, prudente." }, { role: "user", content: text }] }) });
