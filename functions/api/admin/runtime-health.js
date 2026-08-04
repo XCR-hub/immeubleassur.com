@@ -20,6 +20,20 @@ function publicRuntime() {
   };
 }
 
+async function currentSourceRevision() {
+  if (typeof process === "undefined") return "";
+  try {
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const gitDir = path.join(process.cwd(), ".git");
+    const head = fs.readFileSync(path.join(gitDir, "HEAD"), "utf8").trim();
+    if (!head.startsWith("ref: ")) return head.slice(0, 40);
+    return fs.readFileSync(path.join(gitDir, head.slice(5)), "utf8").trim().slice(0, 40);
+  } catch {
+    return "";
+  }
+}
+
 async function readLocalJson(file) {
   if (typeof process === "undefined" || !file) return null;
   try {
@@ -50,7 +64,7 @@ function sanitizeSmtpHealth(report) {
 }
 
 
-function sanitizeRuntimeCycle(report) {
+function sanitizeRuntimeCycle(report, expectedRevision = "") {
 
 
   if (!report || typeof report !== "object") return { available: false };
@@ -69,6 +83,9 @@ function sanitizeRuntimeCycle(report) {
     success: report.success === true,
     stale: ageMinutes === null || ageMinutes > 30,
     source_revision: String(report.source_revision || "").slice(0, 40),
+    source_revision_expected: String(expectedRevision || "").slice(0, 40),
+    source_revision_match: !expectedRevision || !report.source_revision || String(report.source_revision).slice(0, 40) === String(expectedRevision).slice(0, 40),
+    source_revision_mismatch: Boolean(expectedRevision && report.source_revision && String(report.source_revision).slice(0, 40) !== String(expectedRevision).slice(0, 40)),
     generated_at: generatedAt,
     age_minutes: ageMinutes,
     summary: {
@@ -538,6 +555,7 @@ export async function onRequestGet({ request, env }) {
   const sourceQualityReport = await readLocalJson(sourceQualityPath);
   const seoBacklogPath = env.LOCAL_SEO_BACKLOG_REPORT || "reports/local-seo-backlog-report.json";
   const seoBacklogReport = await readLocalJson(seoBacklogPath);
+  const expectedSourceRevision = await currentSourceRevision();
   const documentScanner = typeof env.DOCUMENT_SCANNER_STATUS === "function"
     ? await env.DOCUMENT_SCANNER_STATUS()
     : { available: false, configured: false, reason: "scanner_status_unavailable" };
@@ -560,7 +578,7 @@ export async function onRequestGet({ request, env }) {
         },
     document_scanner: documentScanner,
     monitor: sanitizeMonitorReport(monitorReport),
-    runtime_cycle: sanitizeRuntimeCycle(runtimeCycleReport),
+    runtime_cycle: sanitizeRuntimeCycle(runtimeCycleReport, expectedSourceRevision),
     smtp_health: sanitizeSmtpHealth(smtpHealthReport),
     lead_sla: sanitizeLeadSlaReport(leadSlaReport),
     lead_quality: sanitizeLeadQualityReport(leadQualityReport),
