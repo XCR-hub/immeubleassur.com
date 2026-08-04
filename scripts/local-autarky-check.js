@@ -176,6 +176,8 @@ const required = [
   ["scripts/local-runtime-report-cycle.js", "runtime-assets"],
   ["scripts/local-runtime-report-cycle.js", "sourceRevision"],
   ["functions/api/admin/runtime-health.js", "source_revision"],
+  ["functions/api/admin/runtime-health.js", "stale: ageMinutes"],
+  ["public/assets/admin.js", "runtime_cycle.stale"],
   ["scripts/local-runtime-report-cycle.js", "smtp_health"],
   ["scripts/local-runtime-report-cycle.js", "live_api_readiness"],
   ["scripts/local-runtime-report-cycle.js", "brokerage_cases"],

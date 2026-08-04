@@ -67,6 +67,7 @@ function sanitizeRuntimeCycle(report) {
   return {
     available: true,
     success: report.success === true,
+    stale: ageMinutes === null || ageMinutes > 30,
     source_revision: String(report.source_revision || "").slice(0, 40),
     generated_at: generatedAt,
     age_minutes: ageMinutes,
