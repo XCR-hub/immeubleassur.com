@@ -184,6 +184,7 @@ const required = [
   ["scripts/local-runtime-report-cycle.js", "attention: steps.filter((step) => step.attention).length"],
   ["functions/api/admin/runtime-health.js", "attention: step.attention === true"],
   ["public/assets/admin.js", "A surveiller"],
+  ["public/assets/admin.js", "source_revision"],
   ["public/assets/app.js", "lead-local-fallback-privacy-v2"],
   ["scripts/local-runtime-report-cycle.js", "BROKERAGE_CASE_PUBLIC_REPORT"],
   ["scripts/live-ready-connectors-runner.js", "ready-connectors-only"],
