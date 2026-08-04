@@ -215,16 +215,22 @@ function buildSummary(leads, counts) {
 }
 
 function mailConfig() {
-  const from = env("SMTP_FROM", env("SMTP_USER", ""));
+  const resendMode = env("EMAIL_TRANSPORT", "smtp").toLowerCase() === "resend";
+  const from = env("SMTP_FROM", env("RESEND_FROM", env("SMTP_USER", "")));
   const to = env("LOCAL_LEAD_SLA_ALERT_TO", env("SMTP_TO", from));
+  const recipients = String(to || "").split(/[;,]/).map((item) => item.trim()).filter(Boolean).slice(0, 6);
+  if (resendMode && env("RESEND_API_KEY", "") && from && recipients.length) {
+    return { host: "resend", port: 443, username: "", password: "", from, to: recipients, secureTransport: "https", transport: "resend" };
+  }
   return {
     host: env("SMTP_HOST", ""),
     port: numberEnv("SMTP_PORT", 587),
     username: env("SMTP_USER", from),
     password: env("SMTP_PASS", ""),
     from,
-    to: String(to || "").split(/[;,]/).map((item) => item.trim()).filter(Boolean).slice(0, 6),
-    secureTransport: numberEnv("SMTP_PORT", 587) === 465 ? "on" : "starttls"
+    to: recipients,
+    secureTransport: numberEnv("SMTP_PORT", 587) === 465 ? "on" : "starttls",
+    transport: "smtp"
   };
 }
 
@@ -263,8 +269,12 @@ async function maybeAlert(report, reportPath) {
   }
 
   const config = mailConfig();
-  if (!config.host || !config.username || !config.password || !config.from || !config.to.length) {
-    return { attempted: false, status: "missing-smtp-config" };
+  const resendMode = env("EMAIL_TRANSPORT", "smtp").toLowerCase() === "resend";
+  const transportReady = resendMode
+    ? Boolean(env("RESEND_API_KEY", "") && config.from && config.to.length)
+    : Boolean(config.host && config.username && config.password && config.from && config.to.length);
+  if (!transportReady) {
+    return { attempted: false, status: resendMode ? "missing-resend-config" : "missing-smtp-config", transport: config.transport };
   }
 
   const text = [
@@ -289,7 +299,7 @@ async function maybeAlert(report, reportPath) {
   ].join("\r\n");
   const receipt = await sendNodeSmtpMail(config, message);
   writeAlertState(statePath, signature);
-  return { attempted: true, status: "sent", receipt, cooldown_minutes: cooldownMinutes };
+  return { attempted: true, status: "sent", transport: config.transport, receipt, cooldown_minutes: cooldownMinutes };
 }
 
 async function run() {

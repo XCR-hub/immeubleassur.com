@@ -179,6 +179,8 @@ const required = [
   ["scripts/local-production-monitor.js", "telemetry_filter"],
   ["scripts/local-lead-sla-monitor.js", "Lead SLA monitor"],
   ["scripts/local-lead-sla-monitor.js", "LOCAL_LEAD_SLA_ALERTS"],
+  ["scripts/local-lead-sla-monitor.js", "missing-resend-config"],
+  ["scripts/local-lead-sla-monitor.js", "transport: config.transport"],
   ["scripts/local-lead-quality-monitor.js", "Lead quality monitor"],
   ["scripts/local-lead-quality-monitor.js", "LOCAL_LEAD_QUALITY_REPORT"],
   ["scripts/local-conversion-funnel-monitor.js", "Conversion funnel monitor"],
