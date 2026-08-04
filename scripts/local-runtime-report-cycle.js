@@ -66,9 +66,9 @@ function run() {
     CLIENT_CONTRACT_PUBLIC_REPORT: join(runtimeAssetsRoot, "assets", "client-contract-orchestrator-latest.json")
   };
   const steps = [
+    runStep("smtp_health", ["scripts/local-smtp-health-check.js"], commonRuntimeEnv),
     runStep("live_api_readiness", ["scripts/live-api-readiness-check.js"], commonRuntimeEnv),
     runStep("google_readiness_unlock", ["scripts/google-readiness-unlock.js"], commonRuntimeEnv),
-    runStep("smtp_health", ["scripts/local-smtp-health-check.js"], commonRuntimeEnv),
     runStep("sqlite_backup", ["scripts/local-sqlite-backup.js"]),
     runStep("brokerage_cases", ["scripts/brokerage-case-orchestrator.js"], commonRuntimeEnv),
     runStep("client_contracts", ["scripts/client-contract-orchestrator.js"], commonRuntimeEnv),
