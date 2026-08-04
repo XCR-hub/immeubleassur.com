@@ -9,6 +9,11 @@ function ensureDir(path) { mkdirSync(path, { recursive: true }); }
 function writeJson(path, value) { ensureDir(dirname(path)); writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, "utf8"); }
 function clean(value, max = 2000) { return String(value || "").replace(/\r/g, "").trim().slice(0, max); }
 
+function sourceRevision() {
+  const result = spawnSync("git", ["rev-parse", "--short", "HEAD"], { cwd: process.cwd(), encoding: "utf8" });
+  return result.status === 0 ? clean(result.stdout, 40) : "";
+}
+
 const runtimeReportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", join("data", "runtime-reports")));
 const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));
 const runtimeIntentReport = join(runtimeReportsRoot, "local-intent-conversion-report.json");
@@ -98,6 +103,7 @@ function run() {
   const report = {
     success: steps.every((step) => step.ok),
     generated_at: new Date().toISOString(),
+    source_revision: sourceRevision(),
     runtime_reports_root: runtimeReportsRoot,
     runtime_assets_root: runtimeAssetsRoot,
     public_runtime_assets: {

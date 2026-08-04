@@ -174,6 +174,8 @@ const required = [
   ["public/.well-known/security.txt", "Contact: mailto:team@immeubleassur.com"],
   ["scripts/local-production-monitor.js", "sqlite_backup_age"],
   ["scripts/local-runtime-report-cycle.js", "runtime-assets"],
+  ["scripts/local-runtime-report-cycle.js", "sourceRevision"],
+  ["functions/api/admin/runtime-health.js", "source_revision"],
   ["scripts/local-runtime-report-cycle.js", "smtp_health"],
   ["scripts/local-runtime-report-cycle.js", "live_api_readiness"],
   ["scripts/local-runtime-report-cycle.js", "brokerage_cases"],
