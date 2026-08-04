@@ -193,7 +193,7 @@ function reportDrivenFiles() {
 function routerBlock() {
   return `${ROUTER_START}
 <section class="band risk-router-band" aria-labelledby="risk-router-title">
-  <div class="risk-router" data-active-risk="cno">
+  <div class="risk-router" data-active-risk="copropriete">
     <div class="risk-router-copy">
       <p class="eyebrow dark">Orientation rapide</p>
       <h2 id="risk-router-title">Identifier le bon parcours assurance immeuble.</h2>
@@ -201,18 +201,18 @@ function routerBlock() {
     </div>
     <div class="risk-router-panel">
       <div class="risk-options" aria-label="Situations assurance immeuble">
-        <button class="risk-option is-active" type="button" data-risk="cno">CNO</button>
+        <button class="risk-option" type="button" data-risk="cno">CNO</button>
         <button class="risk-option" type="button" data-risk="pno">PNO</button>
-        <button class="risk-option" type="button" data-risk="copropriete">Copropriete</button>
+        <button class="risk-option is-active" type="button" data-risk="copropriete">Copropriete</button>
         <button class="risk-option" type="button" data-risk="sci">SCI</button>
         <button class="risk-option" type="button" data-risk="mixte">Immeuble mixte</button>
       </div>
       <div class="risk-result" aria-live="polite">
         <p class="risk-result-label">Parcours prioritaire</p>
-        <h3>Coproprietaire non occupant</h3>
-        <p>Verifier le lot, la vacance, le bail, le contrat immeuble et la responsabilite civile du coproprietaire.</p>
-        <ul><li>Adresse et usage du lot</li><li>Contrat occupant ou vacance</li><li>Echeance et sinistres recents</li></ul>
-        <a class="button primary" data-track="risk-router-devis" href="/devis-pno-cno?intent=cno">Demander le bon devis</a>
+        <h3>Syndic ou conseil syndical</h3>
+        <p>Presenter les lots, parties communes, sinistres, travaux et garanties RC du syndicat.</p>
+        <ul><li>Nombre de lots</li><li>PV d AG et contrat actuel</li><li>Historique sinistres 36 mois</li></ul>
+        <a class="button primary" data-track="risk-router-devis" href="/devis-assurance-immeuble?intent=copropriete">Pre-remplir mon devis</a>
       </div>
     </div>
   </div>
