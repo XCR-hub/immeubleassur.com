@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const SITE = "https://immeubleassur.com";
@@ -755,7 +755,13 @@ function servicePage(page) {
 
 function cityPage([slug, city, focus]) {
   const title = `Assurance immeuble ${city}`;
-  const description = `Devis assurance immeuble a ${city}: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour ${focus}.`;
+  const description = `Devis assurance immeuble a ${city}: copropriete, PNO, SCI et multirisque pour ${focus}.`;
+  const localSignals = [
+    `A ${city}, la demande doit distinguer l adresse, les usages et les lots avant de solliciter un assureur.`,
+    `${focus} a ${city} appellent une lecture attentive des franchises, des parties communes et des activites eventuelles.`,
+    `Pour un dossier situe a ${city}, les informations sur les sinistres, les travaux votes et l occupation accelerent la comparaison.`,
+    `Le bon interlocuteur depend du profil du bien a ${city}: syndic, coproprietaire, SCI, bailleur ou administrateur de biens.`
+  ];
   const body = `
     <section class="page-hero compact-hero">
       <div class="container">
@@ -771,16 +777,13 @@ function cityPage([slug, city, focus]) {
           <p class="eyebrow dark">Local</p>
           <h2>Un dossier adapte au marche immobilier de ${esc(city)}.</h2>
           <ul class="check-list">
-            <li>Coproprietes, syndics, SCI, bailleurs et administrateurs de biens.</li>
-            <li>Contrats multirisque immeuble, PNO et responsabilite civile.</li>
-            <li>Analyse des sinistres, travaux, lots, usage mixte et franchises.</li>
-            <li>Preparation d'une fiche risque pour solliciter les assureurs.</li>
+            ${localSignals.map((signal) => `<li>${esc(signal)}</li>`).join("")}
           </ul>
         </div>
         ${leadForm({ city, need: "multirisque-immeuble" })}
       </div>
     </section>
-    <section class="band seo-band"><div class="container narrow"><h2>Pourquoi passer par ImmeubleAssur a ${esc(city)} ?</h2><p class="large-copy">Un immeuble se decrit precisement: adresse, usage, nombre de lots, etat, travaux, sinistres et occupation. Notre role est de rendre ce risque lisible pour obtenir une proposition coherente, pas seulement un prix rapide.</p></div></section>`;
+    <section class="band seo-band"><div class="container narrow"><h2>Pourquoi passer par ImmeubleAssur a ${esc(city)} ?</h2><p class="large-copy">${esc(localSignals[0])} ${esc(localSignals[1])} ${esc(localSignals[2])}</p></div></section>`;
   return layout({ slug: `assurance-immeuble-${slug}`, title, description, body });
 }
 
@@ -992,7 +995,7 @@ function writeStatic() {
   write("merci", simplePage("merci", "Votre demande est enregistree", "Confirmation demande ImmeubleAssur.", `<p>Un conseiller ImmeubleAssur vous rappelle rapidement pour qualifier le risque et preparer la suite.</p><p><a class="button primary" href="/">Retour accueil</a></p>`));
   write("confidentialite", simplePage("confidentialite", "Politique de confidentialite", "Politique de confidentialite ImmeubleAssur.", `<p>Les donnees transmises via le formulaire sont utilisees pour qualifier la demande d'assurance immeuble, recontacter le demandeur et suivre le dossier commercial.</p><ul><li>Donnees formulaire: identite, coordonnees, profil, ville, type de bien, besoin et message.</li><li>Evenements de navigation: pages vues, clics CTA, demarrage et envoi de formulaire, sans revente publicitaire.</li><li>Mesure Google Analytics 4 si configuree: seuls des evenements techniques et commerciaux non nominaux sont transmis, sans nom, email, telephone ni message.</li><li>Conservation: duree limitee aux besoins de traitement commercial, suivi du dossier et amelioration du service.</li><li>Contact: ${EMAIL}.</li></ul>`));
   write("mentions-legales", simplePage("mentions-legales", "Mentions legales", "Mentions legales ImmeubleAssur.", `<p>ImmeubleAssur est une marque specialisee assurance immeuble. Les informations du site sont indicatives et ne remplacent pas l'analyse contractuelle d'un dossier.</p><p>Contact: ${EMAIL}. ORIAS: ${ORIAS}.</p>`));
-  write("admin", adminPage());
+  if (!existsSync(join(OUT, "admin.html"))) write("admin", adminPage());
   const urls = [
     "",
     ...servicePages.map((p) => pagePath(p.slug)),
