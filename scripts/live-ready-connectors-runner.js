@@ -14,14 +14,15 @@ const OUT_ASSET = join(ASSET_DIR, "live-ready-connectors-latest.json");
 const args = new Set(process.argv.slice(2));
 const strict = args.has("--strict");
 const forceSerp = args.has("--force-serp");
+const runtimeCycle = args.has("--runtime-cycle");
 const cooldownMinutes = Math.max(15, Number(env("SERP_RATE_LIMIT_COOLDOWN_MINUTES", "360")) || 360);
 
 const runnable = {
-  turnstile: { command: ["scripts/turnstile-hybrid-pass.js"], objective: "Rafraichir les widgets Turnstile et fallback anti-fraude local." },
-  pexels: { command: ["scripts/media-autopilot.js", "--fetch"], objective: "Rafraichir les visuels attribues lorsque Pexels est configure." },
-  "editorial-ai": { command: ["scripts/editorial-autopilot.js", "--fetch", "--ai"], objective: "Rafraichir la veille editoriale IA avec fallback local." },
+  turnstile: { command: ["scripts/turnstile-hybrid-pass.js"], objective: "Rafraichir les widgets Turnstile et fallback anti-fraude local.", minIntervalMinutes: 1440, report: "turnstile-hybrid-report.json" },
+  pexels: { command: ["scripts/media-autopilot.js", "--fetch"], objective: "Rafraichir les visuels attribues lorsque Pexels est configure.", minIntervalMinutes: 1440, report: "media-autopilot-report.json" },
+  "editorial-ai": { command: ["scripts/editorial-autopilot.js", "--fetch", "--ai"], objective: "Rafraichir la veille editoriale IA avec fallback local.", minIntervalMinutes: 360, report: "editorial-autopilot-report.json" },
   serpapi: { command: ["scripts/search-intelligence.js", "--serp"], objective: "Mesurer les positions Google via SerpApi sans scraping direct." },
-  "google-seo": { command: ["scripts/seo-autopilot.js", "--pagespeed", "--gsc-if-configured", "--url-inspection", "--submit-sitemap"], objective: "Rafraichir Search Console, PageSpeed et les signaux SEO Google lorsque les connecteurs sont prets.", readinessIds: ["google-search-console", "pagespeed"] }
+  "google-seo": { command: ["scripts/seo-autopilot.js", "--pagespeed", "--gsc-if-configured", "--url-inspection", "--submit-sitemap"], objective: "Rafraichir Search Console, PageSpeed et les signaux SEO Google lorsque les connecteurs sont prets.", readinessIds: ["google-search-console", "pagespeed"], minIntervalMinutes: 180, report: "seo-autopilot-report.json" }
 };
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
@@ -84,7 +85,19 @@ function shouldSkipSerp() {
     next_retry_after_minutes: Math.max(0, Math.ceil(cooldownMinutes - age))
   };
 }
-function safePublicStep(step) {
+function shouldSkipFreshConnector(config) {
+  if (!runtimeCycle || !config.report || !config.minIntervalMinutes) return null;
+  const report = readJson(join(REPORT_DIR, config.report));
+  if (!report) return null;
+  const age = minutesSince(report.generated_at || report.imported_at);
+  if (age >= config.minIntervalMinutes) return null;
+  return {
+    reason: "connector-freshness-cooldown",
+    age_minutes: Math.max(0, Math.round(age)),
+    cooldown_minutes: config.minIntervalMinutes,
+    next_retry_after_minutes: Math.max(0, Math.ceil(config.minIntervalMinutes - age))
+  };
+}function safePublicStep(step) {
   return {
     name: step.name,
     command: step.command,
@@ -118,7 +131,11 @@ for (const [id, config] of Object.entries(runnable)) {
       continue;
     }
   }
-  const step = runNode(id, config.command);
+  const freshnessSkip = shouldSkipFreshConnector(config);
+  if (freshnessSkip) {
+    steps.push({ name: id, command: `node ${config.command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, reason: freshnessSkip.reason, objective: config.objective, report: { ...reportStatus(join(REPORT_DIR, config.report)), ...freshnessSkip } });
+    continue;
+  }  const step = runNode(id, config.command);
   step.objective = config.objective;
   step.report = id === "serpapi" ? reportStatus(SEARCH_REPORT) : null;
   steps.push(step);

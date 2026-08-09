@@ -1,0 +1,28 @@
+# ImmeubleAssur
+
+> Courtier francais specialise dans l'assurance des immeubles, coproprietes, PNO/CNO, SCI, syndics benevoles et professionnels.
+
+Site principal: https://immeubleassur.com/
+Sitemap: https://immeubleassur.com/sitemap.xml
+Contact: team@immeubleassur.com
+Telephone: +33 1 80 85 57 86
+ORIAS: 11 061 425
+
+## Pages de reference
+
+- https://immeubleassur.com/assurance-immeuble
+- https://immeubleassur.com/assurance-copropriete
+- https://immeubleassur.com/assurance-immeuble-syndic-benevole
+- https://immeubleassur.com/rc-syndic
+- https://immeubleassur.com/assurance-pno-cno
+- https://immeubleassur.com/assurance-sci
+- https://immeubleassur.com/faq
+- https://immeubleassur.com/veille-assurance-immeuble
+- https://immeubleassur.com/newsletter-assurance-immeuble
+
+## Principes editoriaux
+
+- Les contenus sont informatifs et ne remplacent pas une analyse personnalisee du contrat et du risque.
+- Les actualites juridiques et reglementaires citent des sources officielles et sont validees humainement avant publication.
+- Les syntheses ne recopient pas les articles tiers.
+- Les donnees nominatives des formulaires ne sont jamais publiees ni transmises aux assistants IA.

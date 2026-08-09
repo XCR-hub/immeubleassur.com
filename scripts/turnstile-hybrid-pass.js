@@ -88,7 +88,9 @@ function countActionWidgets(html, action) {
 
 function inspectPage(file) {
   const original = readFileSync(file, "utf8");
-  const cleaned = cleanTurnstile(original);
+  // Preserve production widgets when this checkout has no replacement key.
+  // Otherwise a local validation could silently weaken the next deployment.
+  const cleaned = configured ? cleanTurnstile(original) : original;
   const detected = Object.fromEntries(formTargets.map((target) => [target.key, countPattern(cleaned, target.pattern)]));
   const formsDetected = Object.values(detected).reduce((sum, count) => sum + count, 0);
   let html = cleaned;
@@ -103,7 +105,7 @@ function inspectPage(file) {
   if (!RUNTIME_ONLY && html !== original) writeFileSync(file, html, "utf8");
 
   const instrumented = Object.fromEntries(
-    formTargets.map((target) => [target.key, configured ? Math.min(countActionWidgets(html, target.action), detected[target.key]) : 0])
+    formTargets.map((target) => [target.key, Math.min(countActionWidgets(html, target.action), detected[target.key])])
   );
   const formsInstrumented = Object.values(instrumented).reduce((sum, count) => sum + count, 0);
 
@@ -121,6 +123,9 @@ function inspectPage(file) {
 const pages = walk(PUBLIC_DIR).filter((file) => file.endsWith(".html") && !file.endsWith("admin.html"));
 const rows = pages.map(inspectPage);
 const formRows = rows.filter((row) => row.has_form);
+const preservedExistingWidgets = !configured
+  ? formRows.reduce((sum, row) => sum + row.forms_instrumented, 0)
+  : 0;
 const missingWidgets = configured
   ? formRows.filter((row) => row.forms_instrumented < row.forms_detected).map((row) => row.file)
   : [];
@@ -136,6 +141,7 @@ const report = {
   mode: configured ? "hybrid-turnstile-local-antifraud" : "fallback-local-antifraud",
   configured,
   site_key_configured: configured,
+  preserved_existing_widgets: preservedExistingWidgets,
   secret_variable: "TURNSTILE_SECRET_KEY",
   fail_open_variable: "TURNSTILE_FAIL_OPEN",
   fallback: "local-antifraud",
@@ -168,4 +174,4 @@ if (missingWidgets.length) {
 
 console.log(configured
   ? `Turnstile hybrid pass instrumented ${report.forms_instrumented}/${report.forms_detected} protected form(s): ${report.lead_forms_instrumented} lead, ${report.newsletter_forms_instrumented} newsletter.`
-  : `Turnstile hybrid pass kept local anti-fraud fallback for ${report.forms_detected} protected form(s).`);
+  : `Turnstile hybrid pass preserved ${preservedExistingWidgets} existing widget(s) and kept local anti-fraud fallback for ${report.forms_detected} protected form(s).`);

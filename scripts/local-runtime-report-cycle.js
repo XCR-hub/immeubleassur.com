@@ -65,6 +65,7 @@ function run() {
   ensureDir(runtimeReportsRoot);
   ensureDir(join(runtimeAssetsRoot, "assets"));
   const commonRuntimeEnv = {
+    LOCAL_RUNTIME_ONLY: "1",
     LOCAL_RUNTIME_REPORTS_ROOT: runtimeReportsRoot,
     LOCAL_RUNTIME_ASSETS_ROOT: runtimeAssetsRoot,
     LOCAL_SMTP_HEALTH_REPORT: join(runtimeReportsRoot, "local-smtp-health-report.json"),
@@ -81,6 +82,7 @@ function run() {
     runStep("smtp_health", ["scripts/local-smtp-health-check.js"], commonRuntimeEnv),
     runStep("live_api_readiness", ["scripts/live-api-readiness-check.js"], commonRuntimeEnv),
     runStep("google_readiness_unlock", ["scripts/google-readiness-unlock.js"], commonRuntimeEnv),
+    runStep("live_ready_connectors", ["scripts/live-ready-connectors-runner.js", "--runtime-cycle"], commonRuntimeEnv),
     runStep("sqlite_backup", ["scripts/local-sqlite-backup.js"]),
     runStep("brokerage_cases", ["scripts/brokerage-case-orchestrator.js"], commonRuntimeEnv),
     runStep("client_contracts", ["scripts/client-contract-orchestrator.js"], commonRuntimeEnv),
