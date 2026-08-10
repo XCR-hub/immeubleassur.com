@@ -79,6 +79,7 @@ function versionedAsset(path) { const file = join(OUT, ...path.replace(/^\//, ""
 function sql(value) { return value === null || value === undefined ? "NULL" : `'${String(value).replaceAll("'", "''")}'`; }
 const STYLES_URL = versionedAsset("/assets/styles.css");
 const APP_JS_URL = versionedAsset("/assets/app.js");
+const EDITORIAL_LIVE_JS_URL = versionedAsset("/assets/editorial-live.js");
 function siteUrl(slug) { return slug === "index" ? `${SITE}/` : `${SITE}/${String(slug || "").replace(/^\//, "").replace(/\.html$/, "")}`; }
 function pathUrl(slug) { return slug === "index" ? "/" : `/${String(slug || "").replace(/^\//, "").replace(/\.html$/, "")}`; }
 function nav() {
@@ -101,7 +102,8 @@ function layout({ slug, title, description, body }) {
   ];
   if (faqItems.length) graph.push({ "@type": "FAQPage", mainEntity: faqItems });
   const schema = { "@context": "https://schema.org", "@graph": graph };
-  return `<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="description" content="${attr(description)}" /><link rel="canonical" href="${canonical}" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="${STYLES_URL}" /><title>${esc(title)} | ImmeubleAssur</title><script type="application/ld+json">${JSON.stringify(schema)}</script></head><body><a class="skip-link" href="#main-content">Aller au contenu principal</a>${nav()}<main id="main-content">${body}</main>${footer()}<script src="${APP_JS_URL}" type="module"></script></body></html>`;
+  const liveEditorialScript = slug === "veille-assurance-immeuble" ? `<script src="${EDITORIAL_LIVE_JS_URL}" type="module"></script>` : "";
+  return `<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="description" content="${attr(description)}" /><link rel="canonical" href="${canonical}" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="${STYLES_URL}" /><title>${esc(title)} | ImmeubleAssur</title><script type="application/ld+json">${JSON.stringify(schema)}</script></head><body><a class="skip-link" href="#main-content">Aller au contenu principal</a>${nav()}<main id="main-content">${body}</main>${footer()}<script src="${APP_JS_URL}" type="module"></script>${liveEditorialScript}</body></html>`;
 }
 
 function newsletterForm(source = "editorial-autopilot") {
@@ -516,6 +518,7 @@ async function run() {
     watch_items: items.length,
     source_item_counts: Object.fromEntries(SOURCES.map((source) => [source.id, items.filter((item) => item.source_id === source.id).length])),
     watch_preview: items.slice(0, 8).map(({ source_id, title, url, topic, relevance_score }) => ({ source_id, title, url, topic, relevance_score })),
+    public_watch_items: items.slice(0, 18).map(({ source_id, source_name, title, url, topic, relevance_score, published_at }) => ({ source_id, source_name, title, url, topic, relevance_score, published_at })),
     issue: { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url },
     issue_backfills: issueBackfills,
     automation_plan: automationPlan(items),
