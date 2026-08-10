@@ -20,7 +20,10 @@ const out = join(reportDir, "ai-discoverability-contract-report.json");
 const checks = [
   ["oai-searchbot-explicit-allow", /User-agent: OAI-SearchBot\s+Allow: \//.test(robots)],
   ["chatgpt-user-explicit-allow", /User-agent: ChatGPT-User\s+Allow: \//.test(robots)],
+  ["perplexity-search-explicit-allow", /User-agent: PerplexityBot\s+Allow: \//.test(robots) && /User-agent: Perplexity-User\s+Allow: \//.test(robots)],
+  ["claude-search-explicit-allow", /User-agent: Claude-SearchBot\s+Allow: \//.test(robots) && /User-agent: Claude-User\s+Allow: \//.test(robots)],
   ["gptbot-training-opt-out", /User-agent: GPTBot\s+Disallow: \//.test(robots)],
+  ["claudebot-training-opt-out", /User-agent: ClaudeBot\s+Disallow: \//.test(robots)],
   ["admin-and-api-remain-protected", (robots.match(/Disallow: \/admin\.html/g) || []).length >= 3 && (robots.match(/Disallow: \/api\//g) || []).length >= 3],
   ["llms-links-methodology", llms.includes("https://immeubleassur.com/methodologie-editoriale")],
   ["methodology-is-indexable", methodology.includes('content="index, follow, max-image-preview:large"')],
@@ -37,10 +40,13 @@ const checks = [
   ["runtime-sanitizer-strips-sensitive-fields", !sanitizer.includes("draft_review_path") && !sanitizer.includes("draft_packet_path") && !sanitizer.includes("legal_review") && !sanitizer.includes("source_results")],
   ["monitor-exits-cleanly-on-windows", monitor.includes("process.exitCode = 1")],
   ["official-openai-guidance-recorded", monitor.includes("https://help.openai.com/en/articles/12627856-publishers-and-developers-faq")],
+  ["official-perplexity-guidance-recorded", monitor.includes("https://docs.perplexity.ai/docs/resources/perplexity-crawlers")],
+  ["official-anthropic-guidance-recorded", monitor.includes("https://support.anthropic.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler")],
+  ["live-monitor-verifies-multi-ai-access", monitor.includes("perplexitybot-can-read-watch") && monitor.includes("claude-searchbot-can-read-watch") && monitor.includes("claude-user-can-read-watch")],
   ["generation-pass-persists-artifacts", pass.includes('write(join(OUT, "robots.txt")') && pass.includes('write(join(OUT, "llms.txt")') && pass.includes('methodologie-editoriale.html')]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
-const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, claims: { chatgpt_search_eligible: true, chatgpt_citation_guaranteed: false, gptbot_training_allowed: false }, safeguards: ["explicit-crawler-policy", "indexable-methodology", "entity-schema", "active-edition-in-llms", "sanitized-public-editorial-metadata", "ai-referral-attribution"] };
+const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, claims: { search_eligible: ["chatgpt", "perplexity", "claude"], citation_guaranteed: false, training_bots_allowed: [] }, safeguards: ["explicit-multi-ai-crawler-policy", "training-bot-opt-out", "indexable-methodology", "entity-schema", "active-edition-in-llms", "sanitized-public-editorial-metadata", "ai-referral-attribution"] };
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 console.log(`AI discoverability contract: ${report.status} (${checks.filter(([, ok]) => ok).length}/${checks.length}).`);

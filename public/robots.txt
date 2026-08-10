@@ -8,7 +8,30 @@ Allow: /
 Disallow: /admin.html
 Disallow: /api/
 
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin.html
+Disallow: /api/
+
+User-agent: Perplexity-User
+Allow: /
+Disallow: /admin.html
+Disallow: /api/
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /admin.html
+Disallow: /api/
+
+User-agent: Claude-User
+Allow: /
+Disallow: /admin.html
+Disallow: /api/
+
 User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
 Disallow: /
 
 User-agent: *

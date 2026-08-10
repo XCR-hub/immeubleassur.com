@@ -29,4 +29,5 @@ ORIAS: 11 061 425
 - Les publications automatiques publiques sont deterministes, sourcees et soumises a un quorum de fraicheur.
 - Les syntheses ne recopient pas les articles tiers.
 - Les donnees nominatives des formulaires ne sont jamais publiees ni transmises aux assistants IA.
-- OAI-SearchBot et ChatGPT-User sont autorises; GPTBot est bloque pour l entrainement.
+- OAI-SearchBot, ChatGPT-User, PerplexityBot, Perplexity-User, Claude-SearchBot et Claude-User sont autorises sur les pages publiques.
+- GPTBot et ClaudeBot sont bloques pour l entrainement.

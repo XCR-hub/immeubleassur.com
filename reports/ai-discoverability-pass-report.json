@@ -1,13 +1,18 @@
 {
-  "generated_at": "2026-08-10T03:21:52.959Z",
+  "generated_at": "2026-08-10T08:48:17.601Z",
   "status": "passed",
-  "methodology_bytes": 8929,
-  "robots_sha256": "c3ac76f900410aee208ed3ca5e56e8aa72739d8f6cc32175983cf479df52e29f",
-  "llms_sha256": "6e13ccebd07ba45baf7faea3166872ff58a88e811ef0044527974216578a9ab8",
+  "methodology_bytes": 9091,
+  "robots_sha256": "819e44cd0a20899dc361a38a836762b763ae58017c454d9551ae6e58af1d5f6b",
+  "llms_sha256": "9d31c0597971c3feaa74ef2e6795e656d96c767af536d8c884ac1f076d3ed333",
   "policies": {
     "OAI_SearchBot": "allow-public",
     "ChatGPT_User": "allow-public",
+    "PerplexityBot": "allow-public",
+    "Perplexity_User": "allow-public",
+    "Claude_SearchBot": "allow-public",
+    "Claude_User": "allow-public",
     "GPTBot": "disallow-training",
+    "ClaudeBot": "disallow-training",
     "citation_guaranteed": false
   }
 }

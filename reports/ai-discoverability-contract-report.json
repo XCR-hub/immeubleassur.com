@@ -1,18 +1,24 @@
 {
-  "generated_at": "2026-08-10T03:22:21.392Z",
+  "generated_at": "2026-08-10T08:48:17.812Z",
   "status": "passed",
-  "checks": 13,
+  "checks": 26,
   "missing": [],
   "claims": {
-    "chatgpt_search_eligible": true,
-    "chatgpt_citation_guaranteed": false,
-    "gptbot_training_allowed": false
+    "search_eligible": [
+      "chatgpt",
+      "perplexity",
+      "claude"
+    ],
+    "citation_guaranteed": false,
+    "training_bots_allowed": []
   },
   "safeguards": [
-    "explicit-crawler-policy",
+    "explicit-multi-ai-crawler-policy",
+    "training-bot-opt-out",
     "indexable-methodology",
     "entity-schema",
     "active-edition-in-llms",
+    "sanitized-public-editorial-metadata",
     "ai-referral-attribution"
   ]
 }
