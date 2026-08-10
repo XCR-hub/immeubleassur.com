@@ -8,9 +8,15 @@ const PUBLIC_DIR = "public";
 const RUNTIME_ONLY = process.env.LOCAL_RUNTIME_ONLY === "1";
 const REPORT_DIR = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const ASSET_DIR = process.env.LOCAL_RUNTIME_ASSETS_ROOT ? join(process.env.LOCAL_RUNTIME_ASSETS_ROOT, "assets") : join(PUBLIC_DIR, "assets");
-const SITE_KEY = String(process.env.TURNSTILE_SITE_KEY || "").trim();
+// A Turnstile site key is intentionally public and may be embedded in HTML.
+// Keeping the production site key as a build fallback makes clean static builds
+// reproducible; TURNSTILE_SECRET_KEY remains server-only and is never emitted.
+const PUBLIC_SITE_KEY_FALLBACK = "0x4AAAAAAD_N1OIMC1z63HG2";
+const configuredSiteKey = String(process.env.TURNSTILE_SITE_KEY || "").trim();
+const SITE_KEY = configuredSiteKey || PUBLIC_SITE_KEY_FALLBACK;
 const THEME = ["light", "dark", "auto"].includes(String(process.env.TURNSTILE_THEME || "light").trim()) ? String(process.env.TURNSTILE_THEME || "light").trim() : "light";
 const configured = SITE_KEY.length > 0;
+const siteKeySource = configuredSiteKey ? "environment" : "public-build-fallback";
 const legacyBlockPattern = /\s*<!-- turnstile-protection:start -->[\s\S]*?<!-- turnstile-protection:end -->\s*/gi;
 const hybridBlockPattern = /\s*<!-- turnstile-hybrid:start -->[\s\S]*?<!-- turnstile-hybrid:end -->\s*/gi;
 const turnstileScriptPattern = /\s*<script\b[^>]*turnstile\/v0\/api\.js[^>]*><\/script>\s*/gi;
@@ -141,6 +147,7 @@ const report = {
   mode: configured ? "hybrid-turnstile-local-antifraud" : "fallback-local-antifraud",
   configured,
   site_key_configured: configured,
+  site_key_source: siteKeySource,
   preserved_existing_widgets: preservedExistingWidgets,
   secret_variable: "TURNSTILE_SECRET_KEY",
   fail_open_variable: "TURNSTILE_FAIL_OPEN",

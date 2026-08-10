@@ -25,7 +25,7 @@ const expectations = [
   },
   {
     file: "scripts/turnstile-hybrid-pass.js",
-    snippets: ["loadDefaultEnvFiles", "TURNSTILE_SITE_KEY", "turnstile-hybrid"]
+    snippets: ["loadDefaultEnvFiles", "TURNSTILE_SITE_KEY", "PUBLIC_SITE_KEY_FALLBACK", "public-build-fallback", "TURNSTILE_SECRET_KEY remains server-only", "site_key_source", "turnstile-hybrid"]
   },
   {
     file: "scripts/seo-autopilot.js",
