@@ -21,8 +21,9 @@ const runnable = {
   turnstile: { command: ["scripts/turnstile-hybrid-pass.js"], objective: "Rafraichir les widgets Turnstile et fallback anti-fraude local.", minIntervalMinutes: 1440, report: "turnstile-hybrid-report.json" },
   pexels: { command: ["scripts/media-autopilot.js", "--fetch"], objective: "Rafraichir les visuels attribues lorsque Pexels est configure.", minIntervalMinutes: 1440, report: "media-autopilot-report.json" },
   "editorial-ai": { command: ["scripts/editorial-autopilot.js", "--fetch", "--ai"], objective: "Rafraichir la veille editoriale IA avec fallback local.", minIntervalMinutes: 360, report: "editorial-autopilot-report.json" },
+  "pagespeed-local": { command: ["scripts/local-lighthouse-monitor.js"], objective: "Mesurer les performances mobiles avec Lighthouse et Chrome locaux.", readinessIds: ["pagespeed"], minIntervalMinutes: 360, report: "local-lighthouse-report.json", attentionStatuses: ["degraded", "failed"] },
   serpapi: { command: ["scripts/search-intelligence.js", "--serp"], objective: "Mesurer les positions Google via SerpApi sans scraping direct." },
-  "google-seo": { command: ["scripts/seo-autopilot.js", "--pagespeed", "--gsc-if-configured", "--url-inspection", "--submit-sitemap"], objective: "Rafraichir Search Console, PageSpeed et les signaux SEO Google lorsque les connecteurs sont prets.", readinessIds: ["google-search-console", "pagespeed"], minIntervalMinutes: 180, report: "seo-autopilot-report.json" }
+  "google-seo": { command: ["scripts/seo-autopilot.js", "--gsc-if-configured", "--url-inspection", "--submit-sitemap"], objective: "Rafraichir Search Console et les signaux SEO Google lorsque le connecteur est pret.", readinessIds: ["google-search-console"], minIntervalMinutes: 180, report: "seo-autopilot-report.json" }
 };
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
@@ -139,7 +140,7 @@ for (const [id, config] of Object.entries(runnable)) {
   const freshnessSkip = shouldSkipFreshConnector(config);
   if (freshnessSkip) {
     const freshReport = { ...reportStatus(join(REPORT_DIR, config.report)), ...freshnessSkip };
-    steps.push({ name: id, command: `node ${config.command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, attention: ["partial", "degraded"].includes(freshReport.collection_status), reason: freshnessSkip.reason, objective: config.objective, report: freshReport });
+    steps.push({ name: id, command: `node ${config.command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, attention: ["partial", "degraded"].includes(freshReport.collection_status) || (config.attentionStatuses || []).includes(freshReport.status), reason: freshnessSkip.reason, objective: config.objective, report: freshReport });
     continue;
   }  const step = runNode(id, config.command);
   step.objective = config.objective;
@@ -149,6 +150,7 @@ for (const [id, config] of Object.entries(runnable)) {
     step.attention = ["partial", "degraded"].includes(editorialReport?.collection_status);
     step.report = { ...step.report, collection_status: editorialReport?.collection_status || "unknown", healthy_source_count: Number(editorialReport?.healthy_source_count || 0), empty_source_count: Number(editorialReport?.empty_source_count || 0), failed_source_count: Number(editorialReport?.failed_source_count || 0) };
   }
+  if ((config.attentionStatuses || []).includes(step.report?.status)) step.attention = true;
   steps.push(step);
 }
 

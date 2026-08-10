@@ -25,14 +25,14 @@ const plans = {
   },
   pagespeed: {
     severity: "medium",
-    objective: "Mesurer les performances mobiles des pages money avec PageSpeed Insights.",
+    objective: "Mesurer les performances mobiles avec Lighthouse local; PageSpeed API reste optionnel.",
     variables: ["PAGESPEED_API_KEY"],
     command: "npm run seo:apis",
     steps: [
-      "Activer PageSpeed Insights API dans le projet Google Cloud choisi.",
-      "Renseigner PAGESPEED_API_KEY dans .env.local sur le serveur.",
-      "Relancer npm run seo:apis pour produire pagespeed.checked et les pages lentes.",
-      "Surveiller le budget avec npm run performance:budget."
+      "Executer npm run pagespeed:local pour mesurer une page money dans Chrome mobile.",
+      "Consulter local-lighthouse-report.json et son historique runtime.",
+      "Renseigner PAGESPEED_API_KEY uniquement pour completer avec API Google si necessaire.",
+      "Surveiller aussi le budget statique avec npm run performance:budget."
     ]
   },
   ga4: {
@@ -100,7 +100,7 @@ function lastStatus(row) {
 
 function degraded(row) {
   const status = lastStatus(row).toLowerCase();
-  return Boolean(row?.ready && /(fallback|unavailable|invalid|failed|error|local-only|rate-limited)/.test(status));
+  return Boolean(row?.ready && /(fallback|unavailable|invalid|failed|error|degraded|local-only|rate-limited)/.test(status));
 }
 
 function degradedReason(id, row) {

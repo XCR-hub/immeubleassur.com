@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
@@ -55,12 +55,13 @@ const connectors = [
   },
   {
     id: "pagespeed",
-    label: "PageSpeed Insights",
+    label: "Lighthouse local / PageSpeed Insights",
     family: "google",
-    required: ["PAGESPEED_API_KEY"],
-    command: "npm run seo:apis",
-    report: "reports/seo-autopilot-report.json",
-    objective: "Mesurer la performance mobile des pages money."
+    required: [],
+    optional: ["PAGESPEED_API_KEY"],
+    command: "npm run pagespeed:local",
+    report: "reports/local-lighthouse-report.json",
+    objective: "Mesurer localement dans Chrome la performance mobile des pages money; la cle API Google reste optionnelle."
   },
   {
     id: "ga4",
@@ -108,7 +109,7 @@ function readReport(file) {
         provider: parsed.provider || "",
         mode: parsed.mode || "",
         configured: Boolean(parsed.configured || parsed.serp_enabled || parsed.pexels_enabled),
-        pages_checked: parsed.pages_checked || parsed.keywords_checked || 0,
+        pages_checked: parsed.pages_checked || parsed.keywords_checked || parsed.checked || 0,
         forms_detected: parsed.forms_detected || 0,
         forms_instrumented: parsed.forms_instrumented || 0,
         serp_error_count: Number(parsed.serp_error_count || 0),
@@ -137,6 +138,7 @@ function smtpHealthReport() {
 }
 
 function connectorStatus(connector) {
+  const connectorReportPath = process.env.LOCAL_RUNTIME_REPORTS_ROOT && connector.report ? join(REPORT_DIR, basename(connector.report)) : connector.report;
   const required = connector.required || [];
   const requiredAny = connector.requiredAny || [];
   const optional = connector.optional || [];
@@ -167,7 +169,7 @@ function connectorStatus(connector) {
     transport: connector.id === "smtp" ? (resendMode ? "resend" : "smtp") : "",
     missing_required_names: missingRequired,
     missing_any_names: missingAny,
-    last_report: connector.id === "smtp" ? { ...readReport(connector.report), health: smtpHealth, transport: resendMode ? "resend" : "smtp" } : readReport(connector.report),
+    last_report: connector.id === "smtp" ? { ...readReport(connectorReportPath), health: smtpHealth, transport: resendMode ? "resend" : "smtp" } : readReport(connectorReportPath),
     runtime_reason: runtimeReason,
     recommendation: ready ? "Executer " + connector.command + " pour rafraichir le signal live." : runtimeReason || "Configurer " + [...missingRequired, ...(missingAny.length ? ["une cle IA"] : [])].join(", ") + " puis executer " + connector.command + ".",
   };
