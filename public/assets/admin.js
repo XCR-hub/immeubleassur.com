@@ -17,3 +17,5 @@ function armAdminIdleTimeout() {
 });
 form?.addEventListener("submit", () => window.setTimeout(armAdminIdleTimeout, 0), { capture: true });
 armAdminIdleTimeout();
+/* admin-editorial-review-autoload-v1 */
+if(location.hash==="#editorial-review"){const panel=document.querySelector("#editorial-review");queueMicrotask(()=>{panel?.focus({preventScroll:true});panel?.scrollIntoView({block:"start"});const token=tokenInput?.value.trim()||sessionStorage.getItem("immeubleassur_admin_token")||"";if(token)loadContent().catch(error=>{contentSummary?.replaceChildren(metricCard("Erreur","Revue editoriale",error.message||"chargement impossible"));});});}

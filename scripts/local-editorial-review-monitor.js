@@ -115,7 +115,7 @@ async function maybeAlert(report) {
   const subject = `Revue editoriale ImmeubleAssur - ${urgency}${draft.legal_sensitive ? "JURIDIQUE " : ""}${basename(draft.file, ".json")}`;
   const text = [
     "Des brouillons IA ImmeubleAssur attendent une revue humaine.",
-    "Il reste en quarantaine et ne peut pas etre publie automatiquement.",
+    "Ils restent en quarantaine et ne peuvent pas etre publies automatiquement.",
     "",
     `Sujet: ${draft.issue}`,
     `Date: ${draft.generated_at}`,
@@ -124,7 +124,7 @@ async function maybeAlert(report) {
     `Sources attribuees: ${draft.source_count}`,
     "Sources officielles/prioritaires:",
     ...(draft.source_urls.length ? draft.source_urls.map((url) => `- ${url}`) : ["- aucune URL exploitable"]),
-    "Revue securisee: https://immeubleassur.com/admin#content",
+    "Revue securisee: https://immeubleassur.com/admin#editorial-review",
     `Age de revue: ${draft.age_days} jour(s) - ${draft.review_severity}`,
     `Fichier de revue: ${draft.file}`,
     `Brouillons en attente: ${report.pending_count}`,
@@ -177,7 +177,7 @@ async function run() {
       critical_cooldown_minutes: numberEnv("LOCAL_EDITORIAL_REVIEW_CRITICAL_COOLDOWN_MINUTES", 360)
     },
     retention: { automatic_deletion: false, review_window_days: numberEnv("LOCAL_EDITORIAL_REVIEW_WINDOW_DAYS", 30), warning_days: warningDays, critical_days: criticalDays },
-    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "no-automatic-deletion", "age-based-review-sla", "oldest-critical-first", "actionable-source-links", "admin-review-link", "no-local-paths-in-report-or-alert", "smtp-diagnostics-redacted"]
+    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "no-automatic-deletion", "age-based-review-sla", "oldest-critical-first", "actionable-source-links", "admin-review-link", "admin-review-anchor-resolves", "no-local-paths-in-report-or-alert", "smtp-diagnostics-redacted"]
   };
   report.alert = await maybeAlert(report).catch((error) => ({ attempted: true, status: "failed", error: safeDiagnostic(error.message || "editorial review alert failed") }));
   mkdirSync(dirname(reportPath), { recursive: true });

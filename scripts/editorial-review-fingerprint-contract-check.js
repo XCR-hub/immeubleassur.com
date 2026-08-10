@@ -6,6 +6,8 @@ import { spawnSync } from "node:child_process";
 const root = resolve(import.meta.dirname, "..");
 const runtimeHealthApi = readFileSync(join(root, "functions", "api", "admin", "runtime-health.js"), "utf8");
 const admin = readFileSync(join(root, "public", "assets", "admin.js"), "utf8");
+const adminHtml = readFileSync(join(root, "public", "admin.html"), "utf8");
+const reviewMonitor = readFileSync(join(root, "scripts", "local-editorial-review-monitor.js"), "utf8");
 const fixture = mkdtempSync(join(tmpdir(), "immeubleassur-editorial-review-fingerprint-"));
 const drafts = join(fixture, "drafts");
 const report = join(fixture, "report.json");
@@ -55,6 +57,8 @@ try {
     ["review-alert-declares-actionable-links", sla.safeguards?.includes("actionable-source-links") && sla.safeguards?.includes("admin-review-link")],
     ["admin-api-sanitizes-editorial-review-metadata", runtimeHealthApi.includes("sanitizeEditorialReviewReport") && runtimeHealthApi.includes("LOCAL_EDITORIAL_REVIEW_REPORT") && runtimeHealthApi.includes("source_urls: (item.source_urls || []).map(safeUrl)") && runtimeHealthApi.includes("LOCAL_RUNTIME_REPORTS_ROOT") && runtimeHealthApi.includes("LOCAL_MONITOR_ROOT") && runtimeHealthApi.includes("reportAt(runtimeReportsRoot")],
     ["admin-renders-quarantined-review-with-safe-links", admin.includes("Revue IA quarantinee") && admin.includes("editorial_review.review_queue") && admin.includes("noopener noreferrer")],
+    ["admin-review-alert-anchor-resolves", reviewMonitor.includes("https://immeubleassur.com/admin#editorial-review") && reviewMonitor.includes("admin-review-anchor-resolves") && adminHtml.includes('id="editorial-review"')],
+    ["admin-review-link-autoloads-with-existing-session", admin.includes("admin-editorial-review-autoload-v1") && admin.includes('location.hash==="#editorial-review"') && admin.includes("sessionStorage.getItem") && admin.includes("loadContent().catch")],
     ["critical-alert-policy-is-faster-than-warning", Number(sla.alert_policy?.critical_cooldown_minutes) === 360 && Number(sla.alert_policy?.warning_cooldown_minutes) === 1440]
   ];
   const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
