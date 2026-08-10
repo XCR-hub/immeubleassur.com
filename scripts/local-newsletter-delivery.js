@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
@@ -17,6 +18,7 @@ const manifestPath = resolve(arg("--manifest", join(publicationsRoot, "current.j
 const reportPath = resolve(arg("--out", env("LOCAL_NEWSLETTER_DELIVERY_REPORT", join(env("LOCAL_RUNTIME_REPORTS_ROOT", "reports"), "local-newsletter-delivery-report.json"))));
 const dryRun = process.argv.includes("--dry-run");
 const autoSend = !dryRun && env("NEWSLETTER_AUTO_SEND", "0") === "1";
+const inMemoryCapture = env("LOCAL_NEWSLETTER_IN_MEMORY_CAPTURE", "0") === "1";
 const batchLimit = Math.max(1, Math.min(500, Number.parseInt(env("NEWSLETTER_SEND_LIMIT", "100"), 10) || 100));
 const generatedAt = new Date().toISOString();
 const report = { generated_at: generatedAt, status: "starting", dry_run: dryRun, auto_send: autoSend, batch_limit: batchLimit, issue_synced: false, active_subscribers: 0, pending: 0, attempted: 0, sent: 0, failed: 0, safeguards: ["published-gate-only", "deterministic-content-only", "no-ai-public-content", "one-send-per-subscriber-and-issue", "failure-retry-cooldown", "list-unsubscribe", "no-recipient-pii-in-report"] };
@@ -50,7 +52,12 @@ try {
     const unsubscribe = `https://immeubleassur.com/api/newsletter?unsubscribe=${encodeURIComponent(subscriber.unsubscribe_token)}`;
     const message = [`From: ImmeubleAssur <${config.from}>`, `To: ${subscriber.email}`, `Subject: ${subject}`, `Date: ${new Date().toUTCString()}`, `Message-ID: <newsletter.${clean(issue.id, 120)}.${clean(subscriber.id, 120)}@immeubleassur.com>`, `List-Unsubscribe: <${unsubscribe}>`, "MIME-Version: 1.0", "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: 8bit", "", `${plain}\n\nSe desinscrire: ${unsubscribe}`].join("\r\n");
     try {
-      const receipt = await sendNodeSmtpMail({ ...config, to: parseRecipients(subscriber.email) }, message);
+      const captureAllowed = inMemoryCapture && dbPath.startsWith(resolve(tmpdir())) && subscriber.email.endsWith("@example.test");
+      if (inMemoryCapture && !captureAllowed) throw new Error("newsletter-in-memory-capture-scope-invalid");
+      if (captureAllowed) {
+        report.capture = { transport: "in-memory", verified: message.includes(`To: ${subscriber.email}`) && message.includes("List-Unsubscribe:") && message.includes(`Subject: ${subject}`), recipient_synthetic: true, external_delivery: false };
+      }
+      const receipt = captureAllowed ? "in-memory-newsletter-capture:accepted" : await sendNodeSmtpMail({ ...config, to: parseRecipients(subscriber.email) }, message);
       database.prepare("INSERT INTO newsletter_events (id, subscriber_id, issue_id, event_type, payload, created_at) VALUES (?, ?, ?, 'sent', ?, ?)").run(crypto.randomUUID(), subscriber.id, issue.id, JSON.stringify({ receipt: clean(receipt, 500), manifest_version: manifest.version }), new Date().toISOString()); report.sent += 1;
     } catch (error) {
       database.prepare("INSERT INTO newsletter_events (id, subscriber_id, issue_id, event_type, payload, created_at) VALUES (?, ?, ?, 'send_failed', ?, ?)").run(crypto.randomUUID(), subscriber.id, issue.id, JSON.stringify({ error: clean(error.message || "SMTP failure", 500), manifest_version: manifest.version }), new Date().toISOString()); report.failed += 1;

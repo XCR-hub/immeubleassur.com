@@ -15,6 +15,8 @@ const security=readFileSync("scripts/local-security-surface-monitor.js","utf8");
 const smtp=readFileSync("scripts/local-smtp.js","utf8");
 const smtpHealth=readFileSync("scripts/local-smtp-health-check.js","utf8");
 const leadCanary=readFileSync("scripts/lead-dedupe-runtime-check.js","utf8");
+const newsletterCanary=readFileSync("scripts/newsletter-runtime-canary.js","utf8");
+const newsletterDelivery=readFileSync("scripts/local-newsletter-delivery.js","utf8");
 const smtpEnvelope=smtp.slice(smtp.indexOf("export async function verifyNodeSmtpRecipients"),smtp.indexOf("export async function sendNodeSmtpMail"));
 const inlineExecutableHtml=readdirSync("public",{recursive:true}).filter((file)=>String(file).endsWith(".html")).filter((file)=>/<script\b(?![^>]*\bsrc=)(?![^>]*type=["']application\/ld\+json["'])[^>]*>/i.test(readFileSync(join("public",String(file)),"utf8")));
 const checks=[
@@ -54,6 +56,9 @@ const checks=[
   ["monitor-covers-isolated-lead-submission-canary",monitor.includes('inspectJsonRuntime("lead_submission_canary"')&&monitor.includes("report.express?.placeholders_ok === true")],
   ["monitor-covers-tls",monitor.includes('inspectJsonRuntime("tls_certificate"')],
   ["monitor-covers-smtp",monitor.includes('inspectJsonRuntime("smtp_transport"')],
+  ["runtime-runs-isolated-newsletter-canary",runtime.includes('runStep("newsletter_runtime_canary"')&&newsletterCanary.includes("sqlite-temp-db")&&newsletterCanary.includes("in-memory-smtp-capture")],
+  ["newsletter-capture-is-temp-and-synthetic-only",newsletterDelivery.includes("dbPath.startsWith(resolve(tmpdir()))")&&newsletterDelivery.includes('endsWith("@example.test")')&&newsletterDelivery.includes("newsletter-in-memory-capture-scope-invalid")],
+  ["monitor-covers-isolated-newsletter-canary",monitor.includes('inspectJsonRuntime("newsletter_runtime_canary"')&&monitor.includes("report.delivery?.capture_verified === true")&&monitor.includes("report.delivery?.second_sent || 0")],
   ["monitor-covers-newsletter",monitor.includes('inspectJsonRuntime("newsletter_delivery"')],
   ["monitor-accepts-safe-manual-newsletter-sync",monitor.includes('"synced-awaiting-auto-send"')&&monitor.includes("report.issue_synced === true")&&monitor.includes("report.failed === 0")],
   ["monitor-covers-runtime-cycle",monitor.includes('inspectJsonRuntime("runtime_cycle_freshness"')],
