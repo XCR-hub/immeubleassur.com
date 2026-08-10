@@ -217,11 +217,14 @@ function trimPartialMarkup(value) {
 }
 
 function sanitizeEditorialSummary(value) {
-  return normalizeEditorialText(stripHtml(decodeHtml(trimPartialMarkup(value)))
+  const summary = normalizeEditorialText(stripHtml(decodeHtml(trimPartialMarkup(value)))
     .replace(/(?:^|\s)[^\s,<>]+\.(?:png|jpe?g|webp)(?:\s+\d+w)?(?:\s*,\s*[^\s,<>]+\.(?:png|jpe?g|webp)\s+\d+w)*/gi, " ")
     .replace(/\b(?:srcset|sizes|loading|width|height|alt|class)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, " ")
     .replace(/\s*(?:\/div>|!--|-->|@bdf_[^\s]*|components\/[^\s]*)\s*/gi, " ")
     .replace(/\s+/g, " "));
+  const navigationOnly = /^(?:(?:la |les |l['’])?(?:prévention au quotidien|démarches? en cas de sinistre|prévention pour les collectivités territoriales|assurance en pratique pour les particuliers|assurance pour les professionnels|assurance finance|assurance vie|risques climatiques et assurance|nos chiffres clés)\s*)+$/iu;
+  if (navigationOnly.test(summary)) return "";
+  return summary;
 }
 function parsePublicPage(html, source) {
   const cleaned = String(html || "").replace(/<(script|style|svg|nav|footer)\b[\s\S]*?<\/\1>/gi, " ");

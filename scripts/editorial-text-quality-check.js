@@ -10,6 +10,8 @@ const corruptedFixture = { title: "Actualite\u00c3\u00a9 assurance immeuble", su
 const cleanFixture = { title: decomposed, summary: "Signal public attribue", published_at: "10 aout 2026" };
 const artifactFixture = { title: "Actualite assurance immeuble attribuee", summary: '/fileadmin/image.jpg 992w,/fileadmin/image-large.jpg 2000w" sizes="100vw" loading="lazy" width="1200" height="800" alt=""> 03 aout 2026 Une mesure de prevention est publiee pour les immeubles&hellip;', published_at: "03 aout 2026" };
 const sanitizedArtifact = sanitizeEditorialSummary(artifactFixture.summary);
+const navigationSummaryFixture = "L’assurance vie";
+const navigationSequenceFixture = "La prévention au quotidien Les démarches en cas de sinistre";
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const editorialReportPath = join(reportDir, "editorial-autopilot-report.json");
 const out = join(reportDir, "editorial-text-quality-report.json");
@@ -34,7 +36,10 @@ const checks = [
   ["corrupted-fixture-detected", editorialTextQuality(corruptedFixture).clean === false],
   ["corrupted-fixture-excluded", qualityFiltered([cleanFixture, corruptedFixture]).length === 1],
   ["artifact-fixture-sanitized", sanitizedArtifact.includes("Une mesure de prevention") && sanitizedArtifact.includes("\u2026") && !corruptionPattern.test(sanitizedArtifact)],
-  ["sanitized-fixture-retained", qualityFiltered([artifactFixture]).length === 1]
+  ["sanitized-fixture-retained", qualityFiltered([artifactFixture]).length === 1],
+  ["navigation-summary-suppressed", sanitizeEditorialSummary(navigationSummaryFixture) === ""],
+  ["navigation-sequence-suppressed", sanitizeEditorialSummary(navigationSequenceFixture) === ""],
+  ["informative-short-summary-retained", sanitizeEditorialSummary("Communiqué de presse ACPR") === "Communiqué de presse ACPR"]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
 const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, runtime_report_available: Boolean(editorialReport), runtime_items_checked: editorialReport?.public_watch_items?.length || 0, corrupted_runtime_items: corrupted.map((item) => ({ source_id: item.source_id || "", title: item.title || "" })).slice(0, 8), safeguards: ["unicode-nfc", "control-character-removal", "mojibake-rejection", "source-rejection-accounting", "markup-artifact-sanitization", "runtime-summary-inspection"] };
