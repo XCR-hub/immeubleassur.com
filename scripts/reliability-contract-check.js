@@ -18,6 +18,7 @@ const checks=[
   ["monitor-covers-tls",monitor.includes('inspectJsonRuntime("tls_certificate"')],
   ["monitor-covers-smtp",monitor.includes('inspectJsonRuntime("smtp_transport"')],
   ["monitor-covers-newsletter",monitor.includes('inspectJsonRuntime("newsletter_delivery"')],
+  ["monitor-accepts-safe-manual-newsletter-sync",monitor.includes('"synced-awaiting-auto-send"')&&monitor.includes("report.issue_synced === true")&&monitor.includes("report.failed === 0")],
   ["monitor-covers-runtime-cycle",monitor.includes('inspectJsonRuntime("runtime_cycle_freshness"')],
   ["monitor-skips-cycle-self-reference-only-when-explicit",monitor.includes('LOCAL_PRODUCTION_MONITOR_SKIP_RUNTIME_CYCLE')&&monitor.includes('? [] : [inspectJsonRuntime("runtime_cycle_freshness"')],
   ["runtime-marks-in-cycle-monitor-call",runtime.includes('LOCAL_PRODUCTION_MONITOR_SKIP_RUNTIME_CYCLE: "1"')],
