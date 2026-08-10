@@ -19,6 +19,8 @@ const checks = [
   ["automatic-content-is-deterministic", publisher.includes('public_content_provider !== "deterministic"')],
   ["automatic-ai-publication-forbidden", publisher.includes('public_content_ai_generated !== false') && publisher.includes('ai_draft_allowed_publication !== false')],
   ["fresh-source-gate-required", publisher.includes("!editorialReport.publication_gate?.ready") && publisher.includes("!editorialReport.public_write_enabled")],
+  ["same-day-artifacts-trigger-repair", publisher.includes("const repairTriggered =") && publisher.includes('status: publicationStatus') && publisher.includes('"repaired-source-artifacts"')],
+  ["generated-artifacts-block-activation", publisher.includes("containsSourceSummaryArtifacts(html)") && publisher.includes("SOURCE_SUMMARY_ARTIFACT_PATTERN")],
   ["publisher-does-not-enable-ai", publisher.includes('["scripts/editorial-autopilot.js", "--fetch"]') && !publisher.includes('"--fetch", "--ai"')],
   ["runtime-output-is-versioned", publisher.includes('join(publicationsRoot, "versions", version)')],
   ["runtime-sitemap-includes-active-issue", publisher.includes('const runtimeSitemapPath = join(versionRoot, "sitemap.xml")') && publisher.includes('html.includes("<urlset")') && publisher.includes('"sitemap.xml"')],
@@ -32,7 +34,7 @@ const checks = [
   ["git-workflow-remains-read-only", /permissions:\s*\n\s*contents:\s*read/.test(workflow)]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
-const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, invariants: ["deterministic-public-content-only", "ai-drafts-never-promoted", "fresh-official-evidence-required", "atomic-manifest-activation", "last-valid-edition-preserved"] };
+const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, invariants: ["deterministic-public-content-only", "ai-drafts-never-promoted", "fresh-official-evidence-required", "atomic-manifest-activation", "last-valid-edition-preserved", "same-day-source-artifact-self-repair"] };
 mkdirSync(dirname(reportPath), { recursive: true });
 writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 if (missing.length) { console.error(`Editorial runtime publication contract failed: ${missing.join(", ")}`); process.exit(1); }

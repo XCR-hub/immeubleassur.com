@@ -16,6 +16,8 @@ function writeJson(path, value) {
 }
 function sha256(path) { return createHash("sha256").update(readFileSync(path)).digest("hex"); }
 function safeVersion(value) { return String(value || "").replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 100); }
+const SOURCE_SUMMARY_ARTIFACT_PATTERN = /\/div&gt;|&lt;!--|@bdf_|components\/|(?:png|jpe?g|webp)\s+\d+w|(?:srcset|sizes|loading|width|height|alt)=&quot;/i;
+function containsSourceSummaryArtifacts(value) { return SOURCE_SUMMARY_ARTIFACT_PATTERN.test(String(value || "")); }
 function esc(value) { return String(value || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
 function enrichStaticHub(relative, marker, block) {
   const source = join(staticPublicRoot, relative);
@@ -37,9 +39,11 @@ const current = readJson(manifestPath);
 const today = new Date().toISOString().slice(0, 10);
 const expectedSlug = `news/veille-assurance-immeuble-${today}`;
 const force = process.argv.includes("--force");
+const currentIssuePath = current?.version && current?.issue?.slug ? join(publicationsRoot, "versions", current.version, `${current.issue.slug}.html`) : "";
+const repairTriggered = Boolean(currentIssuePath && existsSync(currentIssuePath) && containsSourceSummaryArtifacts(readFileSync(currentIssuePath, "utf8")));
 
-if (!force && current?.issue?.slug === expectedSlug) {
-  const report = { success: true, status: "already-published-today", generated_at: new Date().toISOString(), manifest: manifestPath, active_version: current.version, issue: current.issue, preserved_previous: true };
+if (!force && current?.issue?.slug === expectedSlug && !repairTriggered) {
+  const report = { success: true, status: "already-published-today", generated_at: new Date().toISOString(), manifest: manifestPath, active_version: current.version, issue: current.issue, preserved_previous: true, source_artifact_repair_needed: false };
   writeJson(reportPath, report);
   console.log(`Editorial publisher: ${report.status} (${expectedSlug}).`);
   process.exit(0);
@@ -56,7 +60,7 @@ const child = spawnSync(process.execPath, ["scripts/editorial-autopilot.js", "--
   windowsHide: true
 });
 const editorialReport = readJson(join(reportsRoot, "editorial-autopilot-report.json"));
-const baseReport = { generated_at: new Date().toISOString(), version, version_root: versionRoot, manifest: manifestPath, child_status: child.status, child_stdout: String(child.stdout || "").trim().slice(0, 3000), child_stderr: String(child.stderr || "").trim().slice(0, 3000) };
+const baseReport = { generated_at: new Date().toISOString(), version, version_root: versionRoot, manifest: manifestPath, repair_triggered: repairTriggered, child_status: child.status, child_stdout: String(child.stdout || "").trim().slice(0, 3000), child_stderr: String(child.stderr || "").trim().slice(0, 3000) };
 
 if (child.status !== 0 || !editorialReport) {
   const report = { ...baseReport, success: false, status: "generation-failed", preserved_previous: Boolean(current), error: editorialReport ? "editorial child failed" : "editorial report missing" };
@@ -111,7 +115,7 @@ const files = allowedFiles.map((relative) => {
   const file = join(versionRoot, ...relative.split("/"));
   const html = existsSync(file) ? readFileSync(file, "utf8") : "";
   const expectedContent = relative === "sitemap.xml" ? html.includes("<urlset") && html.includes(`https://immeubleassur.com/${issue.slug}`) : html.includes("https://immeubleassur.com");
-  if (!relative || !existsSync(file) || statSync(file).size < 1000 || !expectedContent || /\uFFFD|ï¿½|Ã[\u0080-\u00BF]|Â[\u0080-\u00BF]|â(?:€|™|œ|ž)/.test(html)) invalid.push(relative || "missing-issue-slug");
+  if (!relative || !existsSync(file) || statSync(file).size < 1000 || !expectedContent || /\uFFFD|ï¿½|Ã[\u0080-\u00BF]|Â[\u0080-\u00BF]|â(?:€|™|œ|ž)/.test(html) || containsSourceSummaryArtifacts(html)) invalid.push(relative || "missing-issue-slug");
   return { path: relative, bytes: existsSync(file) ? statSync(file).size : 0, sha256: existsSync(file) ? sha256(file) : "" };
 });
 if (invalid.length) {
@@ -132,12 +136,14 @@ const manifest = {
   public_content_provider: editorialReport.public_content_provider,
   public_content_ai_generated: false,
   ai_draft_allowed_publication: false,
-  previous_version: current?.version || null
+  previous_version: current?.version || null,
+  repair_reason: repairTriggered ? "source-summary-artifacts" : null
 };
 mkdirSync(publicationsRoot, { recursive: true });
 const temporaryManifest = join(publicationsRoot, `current-${process.pid}-${Date.now()}.tmp`);
 writeJson(temporaryManifest, manifest);
 renameSync(temporaryManifest, manifestPath);
-const report = { ...baseReport, success: true, status: "published", preserved_previous: Boolean(current), active_version: version, previous_version: current?.version || null, issue: manifest.issue, files };
+const publicationStatus = repairTriggered ? "repaired-source-artifacts" : "published";
+const report = { ...baseReport, success: true, status: publicationStatus, preserved_previous: Boolean(current), active_version: version, previous_version: current?.version || null, issue: manifest.issue, files };
 writeJson(reportPath, report);
-console.log(`Editorial publisher: published ${issue.slug} as ${version}.`);
+console.log(`Editorial publisher: ${publicationStatus} ${issue.slug} as ${version}.`);
