@@ -73,7 +73,7 @@ function read(path, fallback = "") { return existsSync(path) ? readFileSync(path
 function write(path, value) { ensureDir(dirname(path)); writeFileSync(path, value, "utf8"); }
 function esc(value) { return String(value || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
 function attr(value) { return esc(value).replaceAll("'", "&#39;"); }
-function stripHtml(value) { return String(value || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim(); }
+function stripHtml(value) { return String(value || "").replace(/<!--[\s\S]*?-->/g, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim(); }
 function hash(value, size = 12) { return createHash("sha256").update(String(value || "")).digest("hex").slice(0, size); }
 function todayIsoDate() { return new Date().toISOString().slice(0, 10); }
 function versionedAsset(path) { const file = join(OUT, ...path.replace(/^\//, "").split("/")); return existsSync(file) ? `${path}?v=${createHash("sha256").update(readFileSync(file)).digest("hex").slice(0, 10)}` : path; }
@@ -133,12 +133,13 @@ function editorialTextQuality(item) {
   if (/\uFFFD|ï¿½/.test(corpus)) reasons.push("replacement-character");
   if (/Ã[\u0080-\u00BF]|Â[\u0080-\u00BF]|â(?:€|™|œ|ž)/.test(corpus)) reasons.push("probable-mojibake");
   if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(corpus)) reasons.push("control-character");
+  if (/(?:srcset|sizes|loading|width|height|alt)\s*=|(?:png|jpe?g|webp)\s+\d+w|\/div>|&(?:gt|lt|quot|hellip);|components\/|@bdf_/i.test(corpus)) reasons.push("markup-artifact");
   if (normalizeEditorialText(item.title).length < 12) reasons.push("title-too-short");
   return { clean: reasons.length === 0, reasons };
 }
 
 function qualityFiltered(items) {
-  const clean = items.map((item) => ({ ...item, title: normalizeEditorialText(item.title), summary: normalizeEditorialText(item.summary), published_at: normalizeEditorialText(item.published_at) })).filter((item) => editorialTextQuality(item).clean);
+  const clean = items.map((item) => ({ ...item, title: normalizeEditorialText(item.title), summary: sanitizeEditorialSummary(item.summary), published_at: normalizeEditorialText(item.published_at) })).filter((item) => editorialTextQuality(item).clean);
   clean.rejected_text_quality = items.length - clean.length;
   return clean;
 }
@@ -184,6 +185,7 @@ function parseRss(xml, source) {
 
 function decodeHtml(value) {
   const named = {
+    hellip: "\u2026",
     eacute: "é", egrave: "è", ecirc: "ê", euml: "ë", agrave: "à", acirc: "â",
     auml: "ä", ugrave: "ù", ucirc: "û", uuml: "ü", ocirc: "ô", ouml: "ö",
     icirc: "î", iuml: "ï", ccedil: "ç", oelig: "œ", laquo: "«", raquo: "»",
@@ -203,6 +205,24 @@ function decodeHtml(value) {
   return decoded;
 }
 
+function trimPartialMarkup(value) {
+  let fragment = String(value || "");
+  const firstOpen = fragment.indexOf("<");
+  const firstClose = fragment.indexOf(">");
+  if (firstClose >= 0 && (firstOpen < 0 || firstClose < firstOpen)) fragment = fragment.slice(firstClose + 1);
+  const lastOpen = fragment.lastIndexOf("<");
+  const lastClose = fragment.lastIndexOf(">");
+  if (lastOpen > lastClose) fragment = fragment.slice(0, lastOpen);
+  return fragment;
+}
+
+function sanitizeEditorialSummary(value) {
+  return normalizeEditorialText(stripHtml(decodeHtml(trimPartialMarkup(value)))
+    .replace(/(?:^|\s)[^\s,<>]+\.(?:png|jpe?g|webp)(?:\s+\d+w)?(?:\s*,\s*[^\s,<>]+\.(?:png|jpe?g|webp)\s+\d+w)*/gi, " ")
+    .replace(/\b(?:srcset|sizes|loading|width|height|alt|class)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, " ")
+    .replace(/\s*(?:\/div>|!--|-->|@bdf_[^\s]*|components\/[^\s]*)\s*/gi, " ")
+    .replace(/\s+/g, " "));
+}
 function parsePublicPage(html, source) {
   const cleaned = String(html || "").replace(/<(script|style|svg|nav|footer)\b[\s\S]*?<\/\1>/gi, " ");
   const sourceUrl = new URL(source.url);
@@ -215,9 +235,10 @@ function parsePublicPage(html, source) {
     try { url = new URL(decodeHtml(match[1]), source.url); } catch { continue; }
     if (!/^https?:$/.test(url.protocol) || url.hostname !== sourceUrl.hostname || url.href === sourceUrl.href) continue;
     const contextStart = Math.max(0, (match.index || 0) - 350);
-    const contextEnd = Math.min(cleaned.length, (match.index || 0) + match[0].length + 550);
-    const context = stripHtml(decodeHtml(cleaned.slice(contextStart, contextEnd)));
-    const summary = context.replace(title, "").replace(/\s+/g, " ").trim().slice(0, 500);
+    const contextEnd = Math.min(cleaned.length, (match.index || 0) + match[0].length + 700);
+    const context = sanitizeEditorialSummary(cleaned.slice(contextStart, contextEnd));
+    const afterAnchor = sanitizeEditorialSummary(cleaned.slice((match.index || 0) + match[0].length, (match.index || 0) + match[0].length + 700));
+    const summary = (afterAnchor || context).replace(title, "").replace(/\s+/g, " ").trim().slice(0, 500);
     const item = {
       source_id: source.id,
       source_name: source.name,
@@ -623,12 +644,12 @@ async function run() {
     watch_items: items.length,
     source_item_counts: Object.fromEntries(SOURCES.map((source) => [source.id, items.filter((item) => item.source_id === source.id).length])),
     watch_preview: items.slice(0, 8).map(({ source_id, title, url, topic, relevance_score }) => ({ source_id, title, url, topic, relevance_score })),
-    public_watch_items: items.slice(0, 18).map(({ source_id, source_name, title, url, topic, relevance_score, published_at }) => ({ source_id, source_name, title, url, topic, relevance_score, published_at })),
+    public_watch_items: items.slice(0, 18).map(({ source_id, source_name, title, url, summary, topic, relevance_score, published_at }) => ({ source_id, source_name, title, url, summary, topic, relevance_score, published_at })),
     candidate_issue: { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url },
     issue: publicWriteEnabled ? { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url } : null,
     issue_backfills: issueBackfills,
     automation_plan: automationPlan(items),
-    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review", "legal-sensitive-ai-drafts-quarantined", "public-content-provider-deterministic", "human-approval-required-before-ai-publication", "fresh-official-evidence-required", "last-valid-publication-preserved-on-source-failure", "unicode-nfc-normalized", "corrupted-source-text-excluded"],
+    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review", "legal-sensitive-ai-drafts-quarantined", "public-content-provider-deterministic", "human-approval-required-before-ai-publication", "fresh-official-evidence-required", "last-valid-publication-preserved-on-source-failure", "unicode-nfc-normalized", "corrupted-source-text-excluded", "source-markup-artifacts-sanitized"],
     errors
   };
   write(join(REPORT_DIR, "editorial-autopilot-report.json"), JSON.stringify(report, null, 2));
@@ -638,7 +659,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { normalizeEditorialText, editorialTextQuality, qualityFiltered, aiProviders };
+export { normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, aiProviders };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });
