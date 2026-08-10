@@ -56,6 +56,22 @@ function hashString(value) {
   return String(value || "").split("").reduce((sum, char) => ((sum << 5) - sum + char.charCodeAt(0)) | 0, 0);
 }
 
+async function leadSubmissionFingerprint(record, now) {
+  const parsedNow = Date.parse(now);
+  const dayBucket = Math.floor((Number.isFinite(parsedNow) ? parsedNow : Date.now()) / 86400000);
+  const exactIdentity = [
+    clean(record.email, 180).toLowerCase(),
+    phoneDigits(record.phone).slice(-15),
+    clean(record.city, 120).toLowerCase(),
+    clean(record.property_type, 80).toLowerCase(),
+    clean(record.need, 80).toLowerCase(),
+    clean(record.submission_mode, 80).toLowerCase(),
+    dayBucket
+  ].join("|");
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(exactIdentity));
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 function hostnameOf(value) {
   try {
     return new URL(clean(value, 500)).hostname.toLowerCase();
@@ -920,7 +936,7 @@ async function logLeadEvent(env, leadId, eventType, payload, createdAt) {
     .run();
 }
 
-export { validate as validateLeadPayload, buildLeadEmail, buildDuplicateLeadEmail };
+export { validate as validateLeadPayload, buildLeadEmail, buildDuplicateLeadEmail, leadSubmissionFingerprint };
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeadersFor(request, env) });
@@ -1063,15 +1079,13 @@ export async function onRequestPost({ request, env, waitUntil }) {
     });
   }
 
-  const id = crypto.randomUUID();
-  const reference = `IMB-${Date.now().toString(36).toUpperCase()}-${Math.random()
-    .toString(36)
-    .slice(2, 6)
-    .toUpperCase()}`;
+  const submissionFingerprint = await leadSubmissionFingerprint(record, now);
+  const id = `lead-${submissionFingerprint.slice(0, 32)}`;
+  const reference = `IMB-${now.slice(0, 10).replaceAll("-", "")}-${submissionFingerprint.slice(0, 8).toUpperCase()}`;
 
   try {
-    await env.DB.prepare(
-      `INSERT INTO leads (
+    const insertResult = await env.DB.prepare(
+      `INSERT OR IGNORE INTO leads (
         id, reference, name, phone, email, profile, property_type, city,
         units_count, need, message, lead_score, status, source, page_url,
         referrer, ip_address, user_agent, created_at, updated_at
@@ -1099,6 +1113,15 @@ export async function onRequestPost({ request, env, waitUntil }) {
         now
       )
       .run();
+
+    const insertChanges = insertResult?.meta?.changes;
+    if (insertChanges !== undefined && Number(insertChanges) === 0) {
+      const concurrent = await env.DB.prepare("SELECT id, reference, email, phone, city, need, property_type, lead_score, created_at FROM leads WHERE id = ? LIMIT 1").bind(id).first();
+      if (!concurrent) throw new Error("atomic lead insert ignored without existing row");
+      const duplicate = { ...concurrent, duplicate_reason: "simultaneous-exact-submission" };
+      await logDuplicateLead(env, request, payload, record, duplicate, now, ip, userAgent);
+      return reply({ success: true, duplicate: true, status: "duplicate_concurrent", id: duplicate.id, reference: duplicate.reference, score: Number(duplicate.lead_score || 0), duplicate_reason: duplicate.duplicate_reason, notification: "skipped" });
+    }
 
     await logLeadEvent(env, id, "lead_created", {
       reference,

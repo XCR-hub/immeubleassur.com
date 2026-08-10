@@ -103,15 +103,17 @@ async function run() {
   const DB = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
   try {
     const payload = buildPayload();
-    let capturedNotification = null;
+    const capturedNotifications = [];
     const fakeSmtpEnv = {
       SMTP_HOST: "127.0.0.1", SMTP_PORT: "2525", SMTP_USER: "canary@immeubleassur.test", SMTP_PASS: "canary-smtp-secret-value",
       SMTP_FROM: "canary@immeubleassur.test", SMTP_TO: "team@immeubleassur.com",
-      SEND_SMTP_MAIL: async (config, message) => { capturedNotification = { config, message }; return "canary:accepted"; }
+      SEND_SMTP_MAIL: async (config, message) => { capturedNotifications.push({ config, message }); return "canary:accepted"; }
     };
     const first = await submitLead(DB, payload, fakeSmtpEnv);
     const second = await submitLead(DB, payload);
     const express = await submitLead(DB, buildExpressPayload());
+    const racePayload = { ...buildPayload(), email: `race-${Date.now()}@example.com`, phone: "06 77 88 99 00", city: "Nantes", need: "concurrence-exacte" };
+    const [raceA, raceB] = await Promise.all([submitLead(DB, racePayload, fakeSmtpEnv), submitLead(DB, racePayload, fakeSmtpEnv)]);
     const leadCount = await DB.prepare("SELECT COUNT(*) AS count FROM leads").first("count");
     const duplicateEvents = await DB.prepare("SELECT COUNT(*) AS count FROM site_events WHERE event_type = ?").bind("lead_duplicate_filtered").first("count");
     const duplicateLeadEvents = await DB.prepare("SELECT COUNT(*) AS count FROM lead_events WHERE event_type = ?").bind("lead_duplicate_filtered").first("count");
@@ -133,17 +135,22 @@ async function run() {
     const adminSalesDuplicateFollowups = Number(adminSales.body?.summary?.duplicate_followups || 0);
     const adminSalesDuplicateRows = Array.isArray(adminSales.body?.duplicate_followups) ? adminSales.body.duplicate_followups.length : 0;
     const adminSalesLeadMarked = (adminSales.body?.relance_leads || []).some((lead) => lead.duplicate_followup && lead.reference === first.body?.reference);
+    const capturedNotification = capturedNotifications.find((item) => String(item.message || "").includes(`Subject: Nouveau lead ImmeubleAssur ${first.body?.reference}`));
     const capturedMessage = String(capturedNotification?.message || "");
+    const raceResults = [raceA, raceB];
+    const raceCreated = raceResults.filter((item) => item.status === 200 && item.body?.success === true && !item.body?.duplicate);
+    const raceDuplicates = raceResults.filter((item) => item.status === 200 && item.body?.duplicate === true && item.body?.status === "duplicate_concurrent" && item.body?.notification === "skipped");
+    const concurrencyVerified = raceCreated.length === 1 && raceDuplicates.length === 1 && raceA.body?.id === raceB.body?.id && raceA.body?.reference === raceB.body?.reference;
     const notificationVerified = first.body?.notification === "sent" && capturedNotification?.config?.to?.includes("team@immeubleassur.com") && capturedMessage.includes("To: team@immeubleassur.com") && capturedMessage.includes(`Subject: Nouveau lead ImmeubleAssur ${first.body?.reference}`) && capturedMessage.includes(`Reference: ${first.body?.reference}`) && !capturedMessage.includes(fakeSmtpEnv.SMTP_PASS);
-    const dedupeVerified = first.status === 200 && first.body?.success === true && !first.body?.duplicate && notificationVerified && emailNotificationEvents === 1 && second.status === 200 && second.body?.duplicate === true && second.body?.notification === "skipped" && leadCount === 2 && duplicateEvents === 1 && duplicateLeadEvents === 1 && duplicateNotificationEvents === 0;
-    const adminVerified = adminSpam.status === 200 && adminSeo.status === 200 && adminIntegrations.status === 200 && adminSales.status === 200 && adminSpamDuplicates === 1 && adminSeoDuplicates === 1 && adminIntegrationsDuplicates === 1 && adminSalesDuplicateFollowups === 1 && adminSalesDuplicateRows === 1 && adminSalesLeadMarked;
+    const dedupeVerified = first.status === 200 && first.body?.success === true && !first.body?.duplicate && notificationVerified && emailNotificationEvents === 2 && second.status === 200 && second.body?.duplicate === true && second.body?.notification === "skipped" && leadCount === 3 && duplicateEvents === 2 && duplicateLeadEvents === 2 && duplicateNotificationEvents === 0;
+    const adminVerified = adminSpam.status === 200 && adminSeo.status === 200 && adminIntegrations.status === 200 && adminSales.status === 200 && adminSpamDuplicates === 2 && adminSeoDuplicates === 2 && adminIntegrationsDuplicates === 2 && adminSalesDuplicateFollowups === 2 && adminSalesDuplicateRows === 2 && adminSalesLeadMarked;
     const expressVerified = express.status === 200 && express.body?.success === true && express.body?.submission_mode === "express-callback" && String(express.body?.next_action || "").includes("Rappeler") && expressRecord?.name === "A preciser" && expressRecord?.email === "" && expressRecord?.profile === "a-preciser" && expressRecord?.property_type === "a-preciser" && expressRecord?.city === "a-preciser" && String(expressRecord?.message || "").includes("Mode rappel express") && expressEvent?.submission_mode === "express-callback" && expressEvent?.contact_mode === "telephone";
 
     const report = {
       generated_at: new Date().toISOString(),
-      status: dedupeVerified && adminVerified && expressVerified ? "passed" : "failed",
-      success: dedupeVerified && adminVerified && expressVerified,
-      scenario: "repeated-lead-dedupe-and-express-callback",
+      status: dedupeVerified && adminVerified && expressVerified && concurrencyVerified ? "passed" : "failed",
+      success: dedupeVerified && adminVerified && expressVerified && concurrencyVerified,
+      scenario: "repeated-and-concurrent-lead-dedupe-with-express-callback",
       first: {
         status: first.status,
         success: first.body?.success === true,
@@ -158,6 +165,15 @@ async function run() {
         result_status: second.body?.status || "",
         duplicate_reason: second.body?.duplicate_reason || "",
         notification: second.body?.notification || ""
+      },
+      concurrent: {
+        verified: concurrencyVerified,
+        created: raceCreated.length,
+        duplicates: raceDuplicates.length,
+        same_id: raceA.body?.id === raceB.body?.id,
+        same_reference: raceA.body?.reference === raceB.body?.reference,
+        duplicate_reason: raceDuplicates[0]?.body?.duplicate_reason || "",
+        duplicate_notification: raceDuplicates[0]?.body?.notification || ""
       },
       express: {
         status: express.status,
@@ -178,6 +194,7 @@ async function run() {
       notification_capture: {
         verified: notificationVerified,
         transport: capturedNotification ? "in-memory" : "missing",
+        captured_messages: capturedNotifications.length,
         recipient_is_team: capturedNotification?.config?.to?.includes("team@immeubleassur.com") === true,
         subject_has_reference: capturedMessage.includes(`Subject: Nouveau lead ImmeubleAssur ${first.body?.reference}`),
         body_has_reference: capturedMessage.includes(`Reference: ${first.body?.reference}`),
@@ -207,7 +224,7 @@ async function run() {
           lead_marked: adminSalesLeadMarked
         }
       },
-      safeguards: ["sqlite-temp-db", "no-smtp-config", "no-real-lead-persisted", "duplicate-does-not-create-new-lead", "duplicate-email-skips-without-smtp", "admin-duplicate-metrics-verified", "sales-duplicate-followup-verified", "express-callback-minimal-contact-verified", "in-memory-smtp-capture", "no-external-email-delivery", "email-body-not-exported"]
+      safeguards: ["sqlite-temp-db", "no-smtp-config", "no-real-lead-persisted", "duplicate-does-not-create-new-lead", "duplicate-email-skips-without-smtp", "atomic-exact-concurrent-dedupe", "one-notification-for-concurrent-submissions", "admin-duplicate-metrics-verified", "sales-duplicate-followup-verified", "express-callback-minimal-contact-verified", "in-memory-smtp-capture", "no-external-email-delivery", "email-body-not-exported"]
     };
 
     mkdirSync(dirname(REPORT_PATH), { recursive: true });
@@ -217,7 +234,7 @@ async function run() {
       console.error(`Lead dedupe runtime failed: ${JSON.stringify(report.counts)}`);
       process.exit(1);
     }
-    console.log(`Lead dedupe runtime passed: ${leadCount} leads, ${duplicateEvents} duplicate event, express callback verified.`);
+    console.log(`Lead dedupe runtime passed: ${leadCount} leads, ${duplicateEvents} duplicate events, concurrent exact submission and express callback verified.`);
   } finally {
     DB.close();
     cleanup();

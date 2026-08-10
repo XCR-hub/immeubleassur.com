@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, extname, join } from "node:path";
-import { validateLeadPayload, buildLeadEmail, buildDuplicateLeadEmail } from "../functions/api/leads.js";
+import { validateLeadPayload, buildLeadEmail, buildDuplicateLeadEmail, leadSubmissionFingerprint } from "../functions/api/leads.js";
 
 function walk(dir) { return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => entry.isDirectory() ? walk(join(dir, entry.name)) : extname(entry.name) === ".html" ? [join(dir, entry.name)] : []); }
 const base = { name: "Jean Dupont", phone: "0612345678", email: "", profile: "syndic-benevole", property_type: "copropriete", city: "Lyon", consent: true };
@@ -9,6 +9,9 @@ const mailQualification = { priority: "high", value_estimate: {}, sla_hours: 4, 
 const phoneOnlyMail = buildLeadEmail({ id: "lead-test", reference: "IA-TEST", score: 80, qualification: mailQualification, record: mailRecord, now: "2026-08-10T00:00:00.000Z" });
 const phoneOnlyDuplicate = buildDuplicateLeadEmail({ duplicate: { reference: "IA-TEST", duplicate_reason: "telephone", lead_score: 80 }, record: mailRecord, now: "2026-08-10T00:00:00.000Z" });
 const emailMail = buildLeadEmail({ id: "lead-test", reference: "IA-TEST", score: 80, qualification: mailQualification, record: { ...mailRecord, email: "contact@example.fr" }, now: "2026-08-10T00:00:00.000Z" });
+const fingerprintA = await leadSubmissionFingerprint({ ...mailRecord, email: "contact@example.fr" }, "2026-08-10T10:00:00.000Z");
+const fingerprintSame = await leadSubmissionFingerprint({ ...mailRecord, email: "contact@example.fr" }, "2026-08-10T11:00:00.000Z");
+const fingerprintNextDay = await leadSubmissionFingerprint({ ...mailRecord, email: "contact@example.fr" }, "2026-08-11T10:00:00.000Z");
 const htmlFiles = walk("public");
 const leadForms = [];
 const invalidForms = [];
@@ -46,6 +49,9 @@ const checks = [
   ["phone-only-duplicate-labelled", phoneOnlyDuplicate.subject.includes("TELEPHONE SEUL") && phoneOnlyDuplicate.text.includes("non renseigne - contacter par telephone")],
   ["phone-only-retry-labelled", retry.includes('" - TELEPHONE SEUL"') && retry.includes('"non renseigne - contacter par telephone"')],
   ["retry-backlog-counted-independently", retry.includes("function backlog(") && retry.includes("pending_notifications")],
+  ["exact-submission-fingerprint-is-stable-per-day", /^[a-f0-9]{64}$/.test(fingerprintA) && fingerprintA === fingerprintSame],
+  ["submission-fingerprint-expires-next-day", fingerprintA !== fingerprintNextDay],
+  ["atomic-concurrent-insert-deduplicates", api.includes("INSERT OR IGNORE INTO leads") && api.includes("insertResult?.meta?.changes") && api.includes('status: "duplicate_concurrent"')],
   ["retry-exhaustion-remains-visible", retry.includes("backlogState.exhausted") && retry.includes('report.status === "degraded"')],
   ["retry-overdue-remains-visible", retry.includes("backlogState.overdue") && retry.includes("oldest_pending_hours")],
   ["email-notification-unchanged", emailMail.subject === "Nouveau lead ImmeubleAssur IA-TEST" && emailMail.text.includes("Email: contact@example.fr")],
@@ -61,7 +67,7 @@ const checks = [
   ["newsletter-generator-email-required", readFileSync("scripts/editorial-autopilot.js", "utf8").includes('Email *<input name="email" type="email" autocomplete="email" required')]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
-const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, lead_forms_checked: leadForms.length, invalid_forms: invalidForms, invalid_newsletters: invalidNewsletters, stale_generator_markers: staleGeneratorMarkers, safeguards: ["phone-still-required", "consent-still-required", "filled-email-validated", "express-mode-unchanged", "all-generated-forms-covered", "phone-only-notifications-explicit", "strict-contact-syntax", "header-injection-rejected", "smtp-diagnostics-redacted", "generic-public-errors"] };
+const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, lead_forms_checked: leadForms.length, invalid_forms: invalidForms, invalid_newsletters: invalidNewsletters, stale_generator_markers: staleGeneratorMarkers, safeguards: ["phone-still-required", "consent-still-required", "filled-email-validated", "express-mode-unchanged", "all-generated-forms-covered", "phone-only-notifications-explicit", "strict-contact-syntax", "header-injection-rejected", "smtp-diagnostics-redacted", "generic-public-errors", "atomic-concurrent-dedupe", "daily-idempotency-window"] };
 const out = process.env.LOCAL_LEAD_OPTIONAL_EMAIL_CONTRACT_REPORT || join(process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports", "lead-optional-email-contract-report.json");
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
