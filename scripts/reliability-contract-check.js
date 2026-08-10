@@ -66,6 +66,8 @@ const checks=[
   ["runtime-marks-in-cycle-monitor-call",runtime.includes('LOCAL_PRODUCTION_MONITOR_SKIP_RUNTIME_CYCLE: "1"')],
   ["monitor-covers-security-surface",monitor.includes('inspectJsonRuntime("security_surface"') && runtime.includes('runStep("security_surface_monitor"')],
   ["monitor-covers-editorial-review-sla",monitor.includes("inspectEditorialReview(editorialReviewPath)")&&monitor.includes('severity = fresh && report.success === true && critical === 0 && warning > 0 ? "warn" : "fail"')],
+  ["monitor-covers-fresh-google-search-console-readiness",monitor.includes("inspectGoogleReadiness(googleReadinessPath)")&&monitor.includes('item.id === "google-search-console"')&&monitor.includes("ageMinutes <= 90")],
+  ["missing-gsc-configuration-is-visible-warning",monitor.includes('gscAction?.reason === "missing-secret"')&&monitor.includes('fresh ? "warn" : "fail"')&&monitor.includes("secret_values_exported: false")],
   ["monitor-failure-exits-gracefully",monitor.includes("if (!report.success) process.exitCode = 1")&&!monitor.includes("if (!report.success) process.exit(1)")],
   ["monitor-covers-dependency-security",monitor.includes('inspectJsonRuntime("dependency_security"') && runtime.includes('runStep("dependency_security"')],
   ["monitor-covers-scheduled-task-health",monitor.includes('inspectJsonRuntime("scheduled_task_health"') && runtime.includes('runStep("scheduled_task_health"')],
