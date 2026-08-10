@@ -21,7 +21,7 @@ const runnable = {
   turnstile: { command: ["scripts/turnstile-hybrid-pass.js"], objective: "Rafraichir les widgets Turnstile et fallback anti-fraude local.", minIntervalMinutes: 1440, report: "turnstile-hybrid-report.json" },
   pexels: { command: ["scripts/media-autopilot.js", "--fetch"], objective: "Rafraichir les visuels attribues lorsque Pexels est configure.", minIntervalMinutes: 1440, report: "media-autopilot-report.json" },
   "editorial-ai": { command: ["scripts/editorial-autopilot.js", "--fetch", "--ai"], objective: "Rafraichir la veille editoriale IA avec fallback local.", minIntervalMinutes: 360, report: "editorial-autopilot-report.json" },
-  "pagespeed-local": { command: ["scripts/local-lighthouse-monitor.js"], objective: "Mesurer les performances mobiles avec Lighthouse et Chrome locaux.", readinessIds: ["pagespeed"], minIntervalMinutes: 360, report: "local-lighthouse-report.json", attentionStatuses: ["degraded", "failed"] },
+  "pagespeed-local": { command: ["scripts/local-lighthouse-monitor.js"], objective: "Mesurer les performances mobiles avec Lighthouse et Chrome locaux.", readinessIds: ["pagespeed"], minIntervalMinutes: 360, report: "local-lighthouse-report.json", attentionStatuses: ["degraded", "failed"], timeoutMs: 180000 },
   serpapi: { command: ["scripts/search-intelligence.js", "--serp"], objective: "Mesurer les positions Google via SerpApi sans scraping direct." },
   "google-seo": { command: ["scripts/seo-autopilot.js", "--gsc-if-configured", "--url-inspection", "--submit-sitemap"], objective: "Rafraichir Search Console et les signaux SEO Google lorsque le connecteur est pret.", readinessIds: ["google-search-console"], minIntervalMinutes: 180, report: "seo-autopilot-report.json" }
 };
@@ -53,9 +53,9 @@ function reportStatus(path) {
     failed_source_count: Number(report.failed_source_count || 0)
   };
 }
-function runNode(name, command) {
+function runNode(name, command, timeoutOverride = 0) {
   const started = Date.now();
-  const timeout = Math.max(15000, Number(env("LOCAL_LIVE_CONNECTOR_TIMEOUT_MS", "90000")) || 90000);
+  const timeout = Math.max(15000, Number(env("LOCAL_LIVE_CONNECTOR_TIMEOUT_MS", "90000")) || 90000, Number(timeoutOverride || 0));
   const result = spawnSync(process.execPath, command, {
     cwd: process.cwd(),
     env: process.env,
@@ -142,7 +142,7 @@ for (const [id, config] of Object.entries(runnable)) {
     const freshReport = { ...reportStatus(join(REPORT_DIR, config.report)), ...freshnessSkip };
     steps.push({ name: id, command: `node ${config.command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, attention: ["partial", "degraded"].includes(freshReport.collection_status) || (config.attentionStatuses || []).includes(freshReport.status), reason: freshnessSkip.reason, objective: config.objective, report: freshReport });
     continue;
-  }  const step = runNode(id, config.command);
+  }  const step = runNode(id, config.command, config.timeoutMs);
   step.objective = config.objective;
   step.report = id === "serpapi" ? reportStatus(SEARCH_REPORT) : config.report ? reportStatus(join(REPORT_DIR, config.report)) : null;
   if (id === "editorial-ai") {
