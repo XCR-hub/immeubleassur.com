@@ -10,6 +10,7 @@ const api = readFileSync("functions/api/admin/runtime-health.js", "utf8");
 const admin = readFileSync("public/assets/admin.js", "utf8");
 const review = readFileSync("scripts/local-editorial-review-monitor.js", "utf8");
 const growth = readFileSync("scripts/local-growth-ops-export.js", "utf8");
+const task = readFileSync("scripts/local-runtime-task.ps1", "utf8");
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const reportPath = join(reportDir, "editorial-health-contract-report.json");
 const checks = [
@@ -25,6 +26,8 @@ const checks = [
   ["review-queue-non-publishable-only", review.includes("data.no_auto_publish !== true") && review.includes("data.allowed_publication === true")],
   ["review-alert-metadata-only", review.includes('"metadata-alert-only"') && review.includes("Fichier de revue:")],
   ["review-alert-content-aware-deduplicated", review.includes("content-aware-cooldown") && review.includes("review_fingerprint") && review.includes("LOCAL_EDITORIAL_REVIEW_ALERT_COOLDOWN_MINUTES")],
+  ["review-alert-routes-explicitly-to-team", task.includes("LOCAL_EDITORIAL_REVIEW_ALERT_TO = 'team@immeubleassur.com'") && review.includes("recipient_is_team")],
+  ["critical-review-alerts-escalate-faster", review.includes("LOCAL_EDITORIAL_REVIEW_CRITICAL_COOLDOWN_MINUTES") && review.includes("report.critical_count > 0") && task.includes("LOCAL_EDITORIAL_REVIEW_CRITICAL_COOLDOWN_MINUTES = '360'")],
   ["runtime-runs-review-after-editorial", runtime.indexOf('runStep("editorial_review_monitor"') > runtime.indexOf('runStep("editorial_runtime_publisher"')],
   ["growth-ops-exposes-review-aggregate", growth.includes("sanitizeEditorialReview") && growth.includes("editorial-human-review")]
 ];

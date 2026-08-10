@@ -46,7 +46,8 @@ try {
     ["alerts-disabled-in-fixture", changed.alert?.status === "skipped" && changed.alert?.attempted === false],
     ["old-draft-escalates-status", sla.status === "review-overdue" && sla.critical_count === 1],
     ["old-critical-draft-prioritized", sla.priority_pending?.file === "news-old.json" && sla.priority_pending?.review_severity === "critical"],
-    ["queue-exports-age-without-content", sla.review_queue?.every((item) => Number.isFinite(item.age_days)) && !JSON.stringify(sla).includes("Texte officiel ancien")]
+    ["queue-exports-age-without-content", sla.review_queue?.every((item) => Number.isFinite(item.age_days)) && !JSON.stringify(sla).includes("Texte officiel ancien")],
+    ["critical-alert-policy-is-faster-than-warning", Number(sla.alert_policy?.critical_cooldown_minutes) === 360 && Number(sla.alert_policy?.warning_cooldown_minutes) === 1440]
   ];
   const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
   console.log(`Editorial review fingerprint contract: ${failed.length ? "failed" : "passed"} (${checks.length - failed.length}/${checks.length}).`);

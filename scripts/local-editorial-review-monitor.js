@@ -86,7 +86,11 @@ function recentAlert(signatureValue, cooldownMinutes) {
 
 async function maybeAlert(report) {
   if (env("LOCAL_EDITORIAL_REVIEW_ALERTS", "0") !== "1" || !report.newest_pending) return { attempted: false, status: "skipped" };
-  const cooldownMinutes = numberEnv("LOCAL_EDITORIAL_REVIEW_ALERT_COOLDOWN_MINUTES", 1440);
+  const cooldownMinutes = report.critical_count > 0
+    ? numberEnv("LOCAL_EDITORIAL_REVIEW_CRITICAL_COOLDOWN_MINUTES", 360)
+    : report.warning_count > 0
+      ? numberEnv("LOCAL_EDITORIAL_REVIEW_WARNING_COOLDOWN_MINUTES", 1440)
+      : numberEnv("LOCAL_EDITORIAL_REVIEW_ALERT_COOLDOWN_MINUTES", 1440);
   if (recentAlert(report.signature, cooldownMinutes)) return { attempted: false, status: "cooldown", cooldown_minutes: cooldownMinutes };
   const config = mailConfig();
   if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return { attempted: false, status: "missing-smtp-config" };
@@ -94,7 +98,7 @@ async function maybeAlert(report) {
   const urgency = draft.review_severity === "critical" ? "CRITIQUE " : draft.review_severity === "warning" ? "A TRAITER " : "";
   const subject = `Revue editoriale ImmeubleAssur - ${urgency}${draft.legal_sensitive ? "JURIDIQUE " : ""}${basename(draft.file, ".json")}`;
   const text = [
-    "Un nouveau brouillon IA ImmeubleAssur attend une revue humaine.",
+    "Des brouillons IA ImmeubleAssur attendent une revue humaine.",
     "Il reste en quarantaine et ne peut pas etre publie automatiquement.",
     "",
     `Sujet: ${draft.issue}`,
@@ -115,7 +119,7 @@ async function maybeAlert(report) {
   const receipt = await sendNodeSmtpMail(config, message);
   mkdirSync(dirname(statePath), { recursive: true });
   writeFileSync(statePath, `${JSON.stringify({ last_alert_at: new Date().toISOString(), signature: report.signature, file: draft.file }, null, 2)}\n`, "utf8");
-  return { attempted: true, status: "sent", transport: config.transport, receipt, cooldown_minutes: cooldownMinutes };
+  return { attempted: true, status: "sent", transport: config.transport, recipient_is_team: config.to.some((item) => item.toLowerCase() === "team@immeubleassur.com"), receipt, cooldown_minutes: cooldownMinutes };
 }
 
 async function run() {
@@ -147,6 +151,12 @@ async function run() {
     review_queue: reviewQueue.slice(0, 30),
     pending: drafts.slice(0, 30),
     signature: signature(drafts),
+    alert_policy: {
+      enabled: env("LOCAL_EDITORIAL_REVIEW_ALERTS", "0") === "1",
+      recipient_is_team: mailConfig().to.some((item) => item.toLowerCase() === "team@immeubleassur.com"),
+      warning_cooldown_minutes: numberEnv("LOCAL_EDITORIAL_REVIEW_WARNING_COOLDOWN_MINUTES", 1440),
+      critical_cooldown_minutes: numberEnv("LOCAL_EDITORIAL_REVIEW_CRITICAL_COOLDOWN_MINUTES", 360)
+    },
     retention: { automatic_deletion: false, review_window_days: numberEnv("LOCAL_EDITORIAL_REVIEW_WINDOW_DAYS", 30), warning_days: warningDays, critical_days: criticalDays },
     safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "no-automatic-deletion", "age-based-review-sla", "oldest-critical-first"]
   };

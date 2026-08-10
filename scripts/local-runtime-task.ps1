@@ -53,6 +53,10 @@ $env:LOCAL_CONTRACT_RENEWAL_REPORT = Join-Path $RuntimeRoot 'reports\local-contr
 $env:LOCAL_GROWTH_OPS_RUNTIME_ONLY = '1'
 $env:LOCAL_GROWTH_OPS_RUNTIME_ASSET = Join-Path $RuntimeRoot 'assets\local-growth-ops-latest.json'
 $env:LOCAL_MONITOR_ALERTS = '1'
+$env:LOCAL_EDITORIAL_REVIEW_ALERTS = '1'
+$env:LOCAL_EDITORIAL_REVIEW_ALERT_TO = 'team@immeubleassur.com'
+$env:LOCAL_EDITORIAL_REVIEW_WARNING_COOLDOWN_MINUTES = '1440'
+$env:LOCAL_EDITORIAL_REVIEW_CRITICAL_COOLDOWN_MINUTES = '360'
 $env:LOCAL_RUNTIME_ONLY = '1'
 $env:LOCAL_LEAD_SLA_ALERTS = '1'
 New-Item -ItemType Directory -Force -Path (Join-Path $RuntimeRoot 'assets'), (Join-Path $RuntimeRoot 'reports'), $BackupRoot | Out-Null
