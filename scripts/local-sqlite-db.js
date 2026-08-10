@@ -54,7 +54,8 @@ export function openLocalSqlite({ dbPath, schemaPath = "schema.sql" }) {
   const resolvedDbPath = resolve(dbPath);
   mkdirSync(dirname(resolvedDbPath), { recursive: true });
   const database = new DatabaseSync(resolvedDbPath);
-  database.exec("PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA busy_timeout = 5000;");
+  database.exec("PRAGMA busy_timeout = 5000;");
+  database.exec("PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;");
   if (schemaPath && existsSync(schemaPath)) {
     database.exec(readFileSync(schemaPath, "utf8"));
   }
