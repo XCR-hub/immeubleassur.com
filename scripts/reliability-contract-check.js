@@ -6,6 +6,8 @@ const backup=readFileSync("scripts/local-sqlite-backup.js","utf8");
 const monitor=readFileSync("scripts/local-production-monitor.js","utf8");
 const runtime=readFileSync("scripts/local-runtime-report-cycle.js","utf8");
 const task=readFileSync("scripts/local-runtime-task.ps1","utf8");
+const backupTask=readFileSync("scripts/local-sqlite-backup-task.ps1","utf8");
+const monitorTask=readFileSync("scripts/local-production-monitor-task.ps1","utf8");
 const lighthouse=readFileSync("scripts/local-lighthouse-monitor.js","utf8");
 const restoreDrill=readFileSync("scripts/local-sqlite-restore-drill.js","utf8");
 const server=readFileSync("scripts/local-production-server.js","utf8");
@@ -27,6 +29,8 @@ const checks=[
   ["monitor-verifies-backup-hash",monitor.includes("artifact_verified")&&monitor.includes("actualHash === manifest.sha256")],
   ["monitor-requires-verified-mirror",monitor.includes("LOCAL_SQLITE_BACKUP_MIRROR_REQUIRED")&&monitor.includes("mirror_verified")],
   ["runtime-configures-cross-volume-mirror",task.includes("LOCAL_SQLITE_BACKUP_MIRROR_DIR = 'C:\\Users\\Administrateur\\immeubleassur-backup-mirror'")&&task.includes("LOCAL_SQLITE_BACKUP_MIRROR_REQUIRED = '1'")],
+  ["dedicated-backup-task-requires-cross-volume-mirror",backupTask.includes("LOCAL_SQLITE_BACKUP_MIRROR_DIR = 'C:\\Users\\Administrateur\\immeubleassur-backup-mirror'")&&backupTask.includes("LOCAL_SQLITE_BACKUP_MIRROR_REQUIRED = '1'")],
+  ["dedicated-monitor-task-requires-verified-mirror",monitorTask.includes("LOCAL_SQLITE_BACKUP_MIRROR_REQUIRED = '1'")&&monitorTask.includes("LOCAL_RUNTIME_REPORTS_ROOT = 'F:\\immeubleassur-runtime\\reports'")],
   ["restore-drill-copies-backup",restoreDrill.includes("copyFileSync(sourcePath, restoredPath)")],
   ["restore-drill-verifies-hash",restoreDrill.includes("restoredHash !== expectedHash")],
   ["restore-drill-opens-read-only",restoreDrill.includes("{ readOnly: true }")],
