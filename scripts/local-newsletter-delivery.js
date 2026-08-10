@@ -8,7 +8,12 @@ import { sendNodeSmtpMail } from "./local-smtp.js";
 
 loadDefaultEnvFiles();
 const arg = (name, fallback = "") => { const i = process.argv.indexOf(name); return i < 0 ? fallback : process.argv[i + 1] || fallback; };
-const clean = (value, max = 500) => String(value || "").trim().slice(0, max);
+const clean = (value, max = 500) => String(value || "").replace(/[\r\n\0]+/g, " ").trim().slice(0, max);
+const safeDiagnostic = (value, max = 240) => clean(value, max * 2)
+  .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email-redacted]")
+  .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, "[ip-redacted]")
+  .replace(/\b(bearer|token|password|secret|api[-_ ]?key)\s*[:=]?\s*\S+/gi, "$1 [redacted]")
+  .slice(0, max);
 const hash = (value) => createHash("sha256").update(value || "").digest("hex");
 const parseRecipients = (value) => String(value || "").split(/[;,]/).map((row) => row.trim()).filter(Boolean);
 const htmlText = (html) => String(html || "").replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ").trim();
@@ -20,9 +25,38 @@ const dryRun = process.argv.includes("--dry-run");
 const autoSend = !dryRun && env("NEWSLETTER_AUTO_SEND", "0") === "1";
 const inMemoryCapture = env("LOCAL_NEWSLETTER_IN_MEMORY_CAPTURE", "0") === "1";
 const batchLimit = Math.max(1, Math.min(500, Number.parseInt(env("NEWSLETTER_SEND_LIMIT", "100"), 10) || 100));
+const claimLeaseMinutes = Math.max(5, Number.parseInt(env("NEWSLETTER_SEND_CLAIM_LEASE_MINUTES", "15"), 10) || 15);
 const generatedAt = new Date().toISOString();
-const report = { generated_at: generatedAt, status: "starting", dry_run: dryRun, auto_send: autoSend, batch_limit: batchLimit, issue_synced: false, active_subscribers: 0, pending: 0, attempted: 0, sent: 0, failed: 0, safeguards: ["published-gate-only", "deterministic-content-only", "no-ai-public-content", "one-send-per-subscriber-and-issue", "failure-retry-cooldown", "list-unsubscribe", "no-recipient-pii-in-report"] };
+const report = { generated_at: generatedAt, status: "starting", dry_run: dryRun, auto_send: autoSend, batch_limit: batchLimit, issue_synced: false, active_subscribers: 0, pending: 0, attempted: 0, sent: 0, failed: 0, skipped_claimed: 0, claim_lease_minutes: claimLeaseMinutes, safeguards: ["published-gate-only", "deterministic-content-only", "no-ai-public-content", "one-send-per-subscriber-and-issue", "atomic-send-claim", "last-moment-active-consent-check", "expiring-crash-lease", "smtp-diagnostics-redacted", "failure-retry-cooldown", "list-unsubscribe", "no-recipient-pii-in-report"] };
 function finish(status, extra = {}, exitCode = 0) { Object.assign(report, extra, { status }); mkdirSync(dirname(reportPath), { recursive: true }); writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8"); console.log(`Newsletter delivery ${status}: pending=${report.pending}, sent=${report.sent}, failed=${report.failed}, dry_run=${dryRun}.`); if (exitCode) process.exit(exitCode); }
+function claimDelivery(database, subscriberId, issueId) {
+  database.exec("BEGIN IMMEDIATE");
+  try {
+    const eligible = database.prepare(`
+      SELECT s.id
+      FROM newsletter_subscribers s
+      WHERE s.id = ? AND s.status = 'active'
+        AND NOT EXISTS (SELECT 1 FROM newsletter_events sent WHERE sent.subscriber_id = s.id AND sent.issue_id = ? AND sent.event_type = 'sent')
+        AND NOT EXISTS (
+          SELECT 1 FROM newsletter_events claim
+          WHERE claim.subscriber_id = s.id AND claim.issue_id = ? AND claim.event_type = 'send_claimed'
+            AND datetime(claim.created_at) > datetime('now', ?)
+        )
+    `).get(subscriberId, issueId, issueId, `-${claimLeaseMinutes} minutes`);
+    if (!eligible) {
+      database.exec("ROLLBACK");
+      return false;
+    }
+    database.prepare("INSERT INTO newsletter_events (id, subscriber_id, issue_id, event_type, payload, created_at) VALUES (?, ?, ?, 'send_claimed', ?, ?)")
+      .run(crypto.randomUUID(), subscriberId, issueId, JSON.stringify({ lease_minutes: claimLeaseMinutes }), new Date().toISOString());
+    database.exec("COMMIT");
+    return true;
+  } catch (error) {
+    database.exec("ROLLBACK");
+    throw error;
+  }
+}
+
 async function run() {
 if (!existsSync(dbPath) || !existsSync(manifestPath)) finish("not-ready", { error: "database-or-manifest-missing" }, 1);
 const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
@@ -41,13 +75,14 @@ try {
   report.issue_synced = !dryRun;
   const active = Number(database.prepare("SELECT COUNT(*) count FROM newsletter_subscribers WHERE status='active'").get().count || 0);
   report.active_subscribers = active;
-  const pending = database.prepare(`SELECT s.id, s.email, s.unsubscribe_token FROM newsletter_subscribers s WHERE s.status='active' AND NOT EXISTS (SELECT 1 FROM newsletter_events e WHERE e.subscriber_id=s.id AND e.issue_id=? AND e.event_type='sent') AND NOT EXISTS (SELECT 1 FROM newsletter_events f WHERE f.subscriber_id=s.id AND f.issue_id=? AND f.event_type='send_failed' AND f.created_at >= datetime('now', '-60 minutes')) ORDER BY s.created_at ASC LIMIT ?`).all(clean(issue.id, 160), clean(issue.id, 160), batchLimit);
+  const pending = database.prepare(`SELECT s.id, s.email, s.unsubscribe_token FROM newsletter_subscribers s WHERE s.status='active' AND NOT EXISTS (SELECT 1 FROM newsletter_events e WHERE e.subscriber_id=s.id AND e.issue_id=? AND e.event_type='sent') AND NOT EXISTS (SELECT 1 FROM newsletter_events f WHERE f.subscriber_id=s.id AND f.issue_id=? AND f.event_type='send_failed' AND f.created_at >= datetime('now', '-60 minutes')) AND NOT EXISTS (SELECT 1 FROM newsletter_events c WHERE c.subscriber_id=s.id AND c.issue_id=? AND c.event_type='send_claimed' AND datetime(c.created_at) > datetime('now', ?)) ORDER BY s.created_at ASC LIMIT ?`).all(clean(issue.id, 160), clean(issue.id, 160), clean(issue.id, 160), `-${claimLeaseMinutes} minutes`, batchLimit);
   report.pending = pending.length;
   if (dryRun) return finish("dry-run");
   if (!autoSend) return finish("synced-awaiting-auto-send");
   if (!pending.length) return finish(active ? "up-to-date" : "no-active-subscribers");
   const config = { host: env("SMTP_HOST"), port: env("SMTP_PORT", "587"), username: env("SMTP_USER"), password: env("SMTP_PASS"), from: env("SMTP_FROM", env("SMTP_USER")), to: [], secureTransport: env("SMTP_SECURE", "starttls") };
   for (const subscriber of pending) {
+    if (!claimDelivery(database, subscriber.id, issue.id)) { report.skipped_claimed += 1; continue; }
     report.attempted += 1;
     const unsubscribe = `https://immeubleassur.com/api/newsletter?unsubscribe=${encodeURIComponent(subscriber.unsubscribe_token)}`;
     const message = [`From: ImmeubleAssur <${config.from}>`, `To: ${subscriber.email}`, `Subject: ${subject}`, `Date: ${new Date().toUTCString()}`, `Message-ID: <newsletter.${clean(issue.id, 120)}.${clean(subscriber.id, 120)}@immeubleassur.com>`, `List-Unsubscribe: <${unsubscribe}>`, "MIME-Version: 1.0", "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: 8bit", "", `${plain}\n\nSe desinscrire: ${unsubscribe}`].join("\r\n");
@@ -58,9 +93,9 @@ try {
         report.capture = { transport: "in-memory", verified: message.includes(`To: ${subscriber.email}`) && message.includes("List-Unsubscribe:") && message.includes(`Subject: ${subject}`), recipient_synthetic: true, external_delivery: false };
       }
       const receipt = captureAllowed ? "in-memory-newsletter-capture:accepted" : await sendNodeSmtpMail({ ...config, to: parseRecipients(subscriber.email) }, message);
-      database.prepare("INSERT INTO newsletter_events (id, subscriber_id, issue_id, event_type, payload, created_at) VALUES (?, ?, ?, 'sent', ?, ?)").run(crypto.randomUUID(), subscriber.id, issue.id, JSON.stringify({ receipt: clean(receipt, 500), manifest_version: manifest.version }), new Date().toISOString()); report.sent += 1;
+      database.prepare("INSERT INTO newsletter_events (id, subscriber_id, issue_id, event_type, payload, created_at) VALUES (?, ?, ?, 'sent', ?, ?)").run(crypto.randomUUID(), subscriber.id, issue.id, JSON.stringify({ receipt: safeDiagnostic(receipt), manifest_version: manifest.version }), new Date().toISOString()); report.sent += 1;
     } catch (error) {
-      database.prepare("INSERT INTO newsletter_events (id, subscriber_id, issue_id, event_type, payload, created_at) VALUES (?, ?, ?, 'send_failed', ?, ?)").run(crypto.randomUUID(), subscriber.id, issue.id, JSON.stringify({ error: clean(error.message || "SMTP failure", 500), manifest_version: manifest.version }), new Date().toISOString()); report.failed += 1;
+      database.prepare("INSERT INTO newsletter_events (id, subscriber_id, issue_id, event_type, payload, created_at) VALUES (?, ?, ?, 'send_failed', ?, ?)").run(crypto.randomUUID(), subscriber.id, issue.id, JSON.stringify({ error: safeDiagnostic(error.message || "SMTP failure"), manifest_version: manifest.version }), new Date().toISOString()); report.failed += 1;
     }
   }
   const remaining = Number(database.prepare(`SELECT COUNT(*) count FROM newsletter_subscribers s WHERE s.status='active' AND NOT EXISTS (SELECT 1 FROM newsletter_events e WHERE e.subscriber_id=s.id AND e.issue_id=? AND e.event_type='sent')`).get(issue.id).count || 0);

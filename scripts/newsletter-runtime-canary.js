@@ -9,9 +9,10 @@ const reportPath = resolve(process.env.LOCAL_NEWSLETTER_CANARY_REPORT || join(pr
 const dbPath = join(tmpdir(), `immeubleassur-newsletter-canary-${process.pid}-${Date.now()}.sqlite`);
 const deliveryOnePath = join(tmpdir(), `immeubleassur-newsletter-delivery-one-${process.pid}.json`);
 const deliveryTwoPath = join(tmpdir(), `immeubleassur-newsletter-delivery-two-${process.pid}.json`);
+const deliveryThreePath = join(tmpdir(), `immeubleassur-newsletter-delivery-three-${process.pid}.json`);
 
 function cleanup() {
-  for (const file of [dbPath, `${dbPath}-wal`, `${dbPath}-shm`, deliveryOnePath, deliveryTwoPath]) {
+  for (const file of [dbPath, `${dbPath}-wal`, `${dbPath}-shm`, deliveryOnePath, deliveryTwoPath, deliveryThreePath]) {
     if (existsSync(file)) unlinkSync(file);
   }
 }
@@ -73,11 +74,19 @@ async function run() {
     const subscribers = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_subscribers").first("count") || 0);
     const active = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_subscribers WHERE status='active' AND consent_text<>'' AND confirmed_at IS NOT NULL").first("count") || 0);
     const subscribedEvents = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_events WHERE event_type='subscribed'").first("count") || 0);
+    const subscriberRow = await DB.prepare("SELECT id FROM newsletter_subscribers LIMIT 1").first();
+    const activeManifest = JSON.parse(readFileSync(join("data", "runtime-assets", "publications", "current.json"), "utf8"));
+    const activeIssue = activeManifest.issue;
+    await DB.prepare("INSERT INTO newsletter_issues (id, slug, title, subject, status, created_at) VALUES (?, ?, ?, ?, 'published', ?)").bind(activeIssue.id, activeIssue.slug, activeIssue.title, activeIssue.title, new Date().toISOString()).run();
+    await DB.prepare("INSERT INTO newsletter_events (id, subscriber_id, issue_id, event_type, payload, created_at) VALUES (?, ?, ?, 'send_claimed', ?, ?)").bind("canary-active-claim", subscriberRow.id, activeIssue.id, JSON.stringify({ lease_minutes: 15 }), new Date().toISOString()).run();
 
     const deliveryOneResult = deliver(deliveryOnePath);
     const deliveryOne = existsSync(deliveryOnePath) ? JSON.parse(readFileSync(deliveryOnePath, "utf8")) : {};
+    await DB.prepare("UPDATE newsletter_events SET created_at = datetime('now', '-20 minutes') WHERE id = 'canary-active-claim'").run();
     const deliveryTwoResult = deliver(deliveryTwoPath);
     const deliveryTwo = existsSync(deliveryTwoPath) ? JSON.parse(readFileSync(deliveryTwoPath, "utf8")) : {};
+    const deliveryThreeResult = deliver(deliveryThreePath);
+    const deliveryThree = existsSync(deliveryThreePath) ? JSON.parse(readFileSync(deliveryThreePath, "utf8")) : {};
     const sentEvents = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_events WHERE event_type='sent'").first("count") || 0);
     const issueSent = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_issues WHERE sent_at IS NOT NULL").first("count") || 0);
     const subscriber = await DB.prepare("SELECT unsubscribe_token FROM newsletter_subscribers LIMIT 1").first();
@@ -91,11 +100,12 @@ async function run() {
       first.status === 200 && first.body?.status === "active" &&
       duplicate.status === 200 && duplicate.body?.status === "active" &&
       subscribers === 1 && active === 1 && subscribedEvents === 2 &&
-      deliveryOneResult.status === 0 && deliveryOne.status === "completed" &&
-      deliveryOne.sent === 1 && deliveryOne.failed === 0 &&
-      deliveryOne.capture?.verified === true && deliveryOne.capture?.external_delivery === false &&
-      deliveryTwoResult.status === 0 && deliveryTwo.status === "up-to-date" &&
-      deliveryTwo.sent === 0 && sentEvents === 1 && issueSent === 1 &&
+      deliveryOneResult.status === 0 && deliveryOne.status === "up-to-date" &&
+      deliveryOne.sent === 0 && deliveryOne.failed === 0 &&
+      deliveryTwoResult.status === 0 && deliveryTwo.status === "completed" &&
+      deliveryTwo.sent === 1 && deliveryTwo.capture?.verified === true && deliveryTwo.capture?.external_delivery === false &&
+      deliveryThreeResult.status === 0 && deliveryThree.status === "up-to-date" &&
+      deliveryThree.sent === 0 && sentEvents === 1 && issueSent === 1 &&
       unsubscribeResult.status === 200 && unsubscribed === 1 && unsubscribeEvents === 1 && unsubscribePrivacy;
 
     const report = {
@@ -112,15 +122,15 @@ async function run() {
         subscribed_events: subscribedEvents
       },
       delivery: {
-        first_status: deliveryOne.status || "",
-        first_sent: Number(deliveryOne.sent || 0),
-        second_status: deliveryTwo.status || "",
-        second_sent: Number(deliveryTwo.sent || 0),
+        active_claim_blocked: deliveryOne.status === "up-to-date" && Number(deliveryOne.sent || 0) === 0,
+        expired_claim_recovered: deliveryTwo.status === "completed" && Number(deliveryTwo.sent || 0) === 1,
+        idempotent_status: deliveryThree.status || "",
+        idempotent_sent: Number(deliveryThree.sent || 0),
         sent_events: sentEvents,
         issue_marked_sent: issueSent === 1,
-        capture_verified: deliveryOne.capture?.verified === true,
-        transport: deliveryOne.capture?.transport || "",
-        recipient_synthetic: deliveryOne.capture?.recipient_synthetic === true,
+        capture_verified: deliveryTwo.capture?.verified === true,
+        transport: deliveryTwo.capture?.transport || "",
+        recipient_synthetic: deliveryTwo.capture?.recipient_synthetic === true,
         external_delivery: false
       },
       unsubscribe: {
@@ -131,7 +141,7 @@ async function run() {
         inactive_subscribers: unsubscribed,
         events: unsubscribeEvents
       },
-      safeguards: ["sqlite-temp-db", "synthetic-recipient-only", "in-memory-smtp-capture", "no-external-email-delivery", "consent-required", "one-subscriber-per-email", "one-send-per-issue", "unsubscribe-no-store", "unsubscribe-no-referrer", "unsubscribe-no-recipient-pii", "no-recipient-or-message-exported"]
+      safeguards: ["sqlite-temp-db", "synthetic-recipient-only", "in-memory-smtp-capture", "no-external-email-delivery", "consent-required", "one-subscriber-per-email", "one-send-per-issue", "active-claim-blocks-overlap", "expired-claim-recovers", "last-moment-active-consent-check", "unsubscribe-no-store", "unsubscribe-no-referrer", "unsubscribe-no-recipient-pii", "no-recipient-or-message-exported"]
     };
     mkdirSync(dirname(reportPath), { recursive: true });
     writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
