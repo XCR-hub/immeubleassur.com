@@ -118,6 +118,11 @@ const servicePages = [
     sections: [
       ["Syndic benevole", "Le syndic benevole doit eviter les zones grises: designation, mandat, declarations, archives, sinistres et contrats en cours."],
       ["Conseil syndical", "Nous aidons a distinguer ce qui releve du contrat immeuble, de la RC du syndic et de la responsabilite des coproprietaires."]
+    ],
+    faq: [
+      ["RC du syndicat et RC professionnelle du syndic: est-ce le meme contrat ?", "Non necessairement. Les garanties, les assures et le perimetre doivent etre rapproches des contrats et du statut du syndic, puis valides humainement."],
+      ["Quelles pieces reunir avant une revue RC syndic ?", "Mandat ou designation, reglement de copropriete, contrat immeuble, attestations disponibles, PV utiles et historique des reclamations permettent de cadrer la revue."],
+      ["Une IA peut-elle determiner seule la responsabilite ?", "Non. Elle peut aider a classer les pieces et questions, mais toute interpretation juridique ou recommandation contractuelle exige une validation humaine."]
     ]
   },
   {
@@ -724,6 +729,9 @@ function homePage() {
 }
 
 function servicePage(page) {
+  const faqRows = page.faq || [];
+  const faqBlock = faqRows.length ? `<section class="band faq-band"><div class="container narrow"><p class="eyebrow dark">Questions frequentes</p><h2>RC syndic: points a verifier avant toute conclusion.</h2><div class="faq-list">${faqRows.map(([question, answer]) => `<details><summary>${esc(question)}</summary><p>${esc(answer)}</p></details>`).join("")}</div><div class="source-box"><strong>Sources officielles a consulter</strong><a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/" rel="nofollow noopener">Legifrance - assurance de la copropriete</a><a href="https://www.service-public.fr/particuliers/vosdroits/F2608" rel="nofollow noopener">Service-Public.fr - syndic de copropriete</a></div></div></section>` : "";
+  const faqSchema = faqRows.length ? `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "@id": `${SITE}/${page.slug}#faq`, mainEntity: faqRows.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) })}</script>` : "";
   const body = `
     <section class="page-hero compact-hero">
       <div class="container">
@@ -744,13 +752,14 @@ function servicePage(page) {
       </div>
     </section>
     ${page.sections.map(([title, text]) => `<section class="band ${title.length % 2 ? "intro-band" : "compare-band"}"><div class="container narrow"><p class="eyebrow dark">${esc(page.title)}</p><h2>${esc(title)}</h2><p class="large-copy">${esc(text)}</p></div></section>`).join("")}
+    ${faqBlock}
     <section class="band faq-band">
       <div class="section-head"><p class="eyebrow dark">Pages liees</p><h2>Approfondir le sujet.</h2></div>
       <div class="card-grid">
         ${servicePages.filter((item) => item.slug !== page.slug).slice(0, 4).map((item) => `<article class="content-card"><h3><a href="/${item.slug}.html">${esc(item.title)}</a></h3><p>${esc(item.description)}</p></article>`).join("")}
       </div>
     </section>`;
-  return layout({ slug: page.slug, title: page.title, description: page.description, body });
+  return layout({ slug: page.slug, title: page.title, description: page.description, body, schema: faqSchema });
 }
 
 function cityPage([slug, city, focus]) {

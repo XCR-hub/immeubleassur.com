@@ -1,11 +1,12 @@
-﻿import { readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 
 const files = {
   factory: readFileSync("scripts/seo-content-factory.js", "utf8"),
   seo: readFileSync("scripts/seo-autopilot.js", "utf8"),
   professional: readFileSync("public/blog/syndic-copropriete-assurance-contrat.html", "utf8"),
   volunteer: readFileSync("public/blog/copropriete-petite-syndic-benevole.html", "utf8"),
-  rc: readFileSync("public/rc-syndic.html", "utf8")
+  rc: readFileSync("public/rc-syndic.html", "utf8"),
+  generator: readFileSync("scripts/generate-site.js", "utf8")
 };
 
 const checks = [
@@ -16,7 +17,10 @@ const checks = [
   ["professional-official-sources", files.professional.includes("legifrance.gouv.fr") && files.professional.includes("service-public.fr")],
   ["professional-lead-form", files.professional.includes('id="lead-form"') && files.professional.includes('value="syndic-professionnel"')],
   ["volunteer-page-remains-distinct", files.volunteer.includes("Syndic benevole - guide expert") && files.volunteer.includes("mandat du syndic benevole")],
-  ["rc-syndic-page-remains-covered", files.rc.includes("Responsabilite civile du syndic") || files.rc.includes("RC syndic")]
+  ["rc-syndic-page-remains-covered", files.rc.includes("Responsabilite civile du syndic") || files.rc.includes("RC syndic")],
+  ["rc-syndic-faq-visible-and-structured", files.rc.includes('id="faq-rc-syndic"') && files.rc.includes('"@type":"FAQPage"') && files.rc.includes("Une IA peut-elle determiner seule la responsabilite ?")],
+  ["rc-syndic-faq-safe-and-generated", files.generator.includes("RC du syndicat et RC professionnelle du syndic") && files.generator.includes("toute interpretation juridique ou recommandation contractuelle exige une validation humaine") && files.generator.includes("faqSchema")],
+  ["rc-syndic-official-sources", files.rc.includes("legifrance.gouv.fr") && files.rc.includes("service-public.fr")]
 ];
 
 const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
