@@ -34,6 +34,8 @@ const snippetChecks = [
       "currentLeadIntent",
       "leadSourceFromAttribution",
       "lead_intent_prefill",
+      "conversionFormSource",
+      "form_source",
       "source_path",
       "landing_path",
       "travaux: \"dommages-ouvrage\"",
@@ -49,12 +51,13 @@ const snippetChecks = [
       "intention SEO qualifiee",
       "Chemin source",
       "intent: record.intent",
+      "form_source: record.form_source",
       "source_path: record.source_path"
     ]
   },
   {
     file: "functions/api/events.js",
-    snippets: ["\"lead_intent_prefill\"", "ia_lead_intent_prefill"]
+    snippets: ["\"lead_intent_prefill\"", "ia_lead_intent_prefill", "form_source: clean(payload.form_source, 80)"]
   },
   {
     file: "functions/_shared/ga4.js",
@@ -111,7 +114,7 @@ const report = {
   missing,
   safeguards: [
     "query intent prefills form",
-    "lead payload persists intent/source_path",
+    "lead payload persists intent/source_path/form_source",
     "GA4 receives lead_intent",
     "visible bridge links remain present"
   ]

@@ -1,11 +1,14 @@
 {
-  "generated_at": "2026-08-03T22:14:48.292Z",
+  "generated_at": "2026-08-10T16:09:12.762Z",
   "status": "passed",
   "checked_files": [
     "public/assets/app.js",
     "functions/api/leads.js",
     "functions/api/events.js",
-    "functions/_shared/ga4.js"
+    "functions/_shared/ga4.js",
+    "public/recherches-assurance-immeuble.html",
+    "scripts/money-intent-factory.js",
+    "public/devis-assurance-immeuble.html"
   ],
   "required_intents": [
     "travaux",
@@ -32,11 +35,11 @@
     "local-commercial": 8,
     "prix": 16,
     "sinistre": 54,
-    "copropriete": 34,
+    "copropriete": 35,
     "sci": 18,
     "immeuble": 225,
     "pno": 9,
-    "cno": 91
+    "cno": 90
   },
   "missing_required_intent_links": [],
   "missing_money_intent_links": [],
@@ -45,7 +48,7 @@
   "missing": [],
   "safeguards": [
     "query intent prefills form",
-    "lead payload persists intent/source_path",
+    "lead payload persists intent/source_path/form_source",
     "GA4 receives lead_intent",
     "visible bridge links remain present"
   ]

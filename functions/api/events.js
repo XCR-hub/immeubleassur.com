@@ -301,6 +301,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     experiment_label: clean(payload.experiment_label, 120),
     path: clean(payload.path, 500),
     intent: clean(payload.intent, 80),
+    form_source: clean(payload.form_source, 80),
     source_path: clean(payload.source_path, 500),
     content_bridge: clean(payload.content_bridge, 20),
     content_kind: clean(payload.content_kind, 80),

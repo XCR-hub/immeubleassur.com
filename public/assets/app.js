@@ -295,6 +295,14 @@ function attributionPayload() {
   };
 }
 
+function conversionFormSource(formElement) {
+  return String(formElement?.dataset?.conversionSource || "lead-form")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9:_-]/g, "")
+    .slice(0, 80);
+}
+
 function noteBotInteraction(kind) {
   if (!botSignalFirstInteractionAt) botSignalFirstInteractionAt = Date.now();
   botSignalInteractionCount += 1;
@@ -446,6 +454,7 @@ function readForm(formElement) {
     turnstile_token: turnstileResponse,
     "cf-turnstile-response": turnstileResponse,
     source: attribution.source,
+    form_source: conversionFormSource(formElement),
     intent: attribution.intent,
     source_path: attribution.source_path,
     content_bridge: attribution.content_bridge,
@@ -2580,7 +2589,8 @@ function bindGrowthTracking() {
   form?.addEventListener("focusin", () => {
     if (formStarted) return;
     formStarted = true;
-    track("form_start", { target: "lead-form" });
+    const formSource = conversionFormSource(form);
+    track("form_start", { target: formSource, form_source: formSource });
   });
 }
 
