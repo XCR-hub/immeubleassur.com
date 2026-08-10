@@ -64,6 +64,29 @@ function sanitizeSmtpHealth(report) {
 }
 
 
+function sanitizeLeadNotificationBacklog(report) {
+  if (!report || typeof report !== "object") return { available: false };
+  const generatedAt = report.generated_at || "";
+  const ageMinutes = generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null;
+  return {
+    available: true,
+    healthy: report.status === "completed" && Number(report.failed || 0) === 0 && Number(report.overdue || 0) === 0 && Number(report.exhausted || 0) === 0,
+    status: report.status || "unknown",
+    generated_at: generatedAt,
+    age_minutes: ageMinutes,
+    pending: Number(report.pending || 0),
+    overdue: Number(report.overdue || 0),
+    exhausted: Number(report.exhausted || 0),
+    candidates: Number(report.candidates || 0),
+    sent: Number(report.sent || 0),
+    failed: Number(report.failed || 0),
+    oldest_pending_hours: Number(report.oldest_pending_hours || 0),
+    cooldown_minutes: Number(report.cooldown_minutes || 0),
+    max_attempts: Number(report.max_attempts || 0)
+  };
+}
+export { sanitizeLeadNotificationBacklog };
+
 function sanitizeRuntimeCycle(report, expectedRevision = "") {
 
 
@@ -622,6 +645,8 @@ export async function onRequestGet({ request, env }) {
   const runtimeCycleReport = await readLocalJson(runtimeCyclePath);
   const smtpHealthPath = env.LOCAL_SMTP_HEALTH_REPORT || reportAt(runtimeReportsRoot, "local-smtp-health-report.json");
   const smtpHealthReport = await readLocalJson(smtpHealthPath);
+  const notificationBacklogPath = env.LOCAL_NOTIFICATION_RETRY_REPORT || reportAt(runtimeReportsRoot, "local-lead-notification-retry-report.json");
+  const notificationBacklogReport = await readLocalJson(notificationBacklogPath);
   const leadSlaPath = env.LOCAL_LEAD_SLA_REPORT || reportAt(monitorRoot, "lead-sla-latest.json");
   const leadSlaReport = await readLocalJson(leadSlaPath);
   const leadQualityPath = env.LOCAL_LEAD_QUALITY_REPORT || reportAt(monitorRoot, "lead-quality-latest.json");
@@ -663,6 +688,7 @@ export async function onRequestGet({ request, env }) {
     monitor: sanitizeMonitorReport(monitorReport),
     runtime_cycle: sanitizeRuntimeCycle(runtimeCycleReport, expectedSourceRevision),
     smtp_health: sanitizeSmtpHealth(smtpHealthReport),
+    lead_notification_backlog: sanitizeLeadNotificationBacklog(notificationBacklogReport),
     lead_sla: sanitizeLeadSlaReport(leadSlaReport),
     lead_quality: sanitizeLeadQualityReport(leadQualityReport),
     conversion_funnel: sanitizeConversionFunnelReport(conversionFunnelReport),

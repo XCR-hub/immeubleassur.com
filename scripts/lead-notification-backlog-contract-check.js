@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { DatabaseSync } from "node:sqlite";
+import { sanitizeLeadNotificationBacklog } from "../functions/api/admin/runtime-health.js";
 
 const root = resolve(import.meta.dirname, "..");
 const fixture = mkdtempSync(join(tmpdir(), "immeubleassur-notification-backlog-"));
@@ -35,6 +36,8 @@ try {
   database.prepare("INSERT INTO lead_events VALUES (?,?,?,?,?)").run("sent-2", "lead-2", "email_notification_retry_sent", "{}", new Date().toISOString());
   const recoveredRun = runRetry();
   const recovered = JSON.parse(readFileSync(reportPath, "utf8"));
+  const sanitized = sanitizeLeadNotificationBacklog({ ...blocked, results: [{ email: "secret@example.test", phone: "0600000000", reference: "IA-SECRET" }] });
+  const adminSource = readFileSync(join(root, "public", "assets", "admin.js"), "utf8");
   const checks = [
     ["exhausted-backlog-exits-nonzero", blockedRun.status !== 0],
     ["exhausted-backlog-is-degraded", blocked.status === "degraded"],
@@ -45,7 +48,10 @@ try {
     ["privacy-safeguards-declared", blocked.safeguards?.includes("smtp-diagnostics-redacted") && blocked.safeguards?.includes("no-contact-data-in-report")],
     ["sent-event-clears-backlog", recovered.pending === 0 && recovered.exhausted === 0],
     ["recovered-status-completed", recovered.status === "completed"],
-    ["recovered-exits-zero", recoveredRun.status === 0]
+    ["recovered-exits-zero", recoveredRun.status === 0],
+    ["admin-aggregate-preserved", sanitized.pending === 2 && sanitized.exhausted === 1],
+    ["admin-pii-not-exposed", !Object.hasOwn(sanitized, "results") && !JSON.stringify(sanitized).includes("secret@example.test")],
+    ["admin-dashboard-card-visible", adminSource.includes('metricCard("Notifications leads"') && adminSource.includes("notificationBacklogSignal")]
   ];
   const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
   console.log(`Lead notification backlog contract: ${failed.length ? "failed" : "passed"} (${checks.length - failed.length}/${checks.length}).`);
