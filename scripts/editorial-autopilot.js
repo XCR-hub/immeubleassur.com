@@ -279,7 +279,7 @@ async function callAiProvider(provider, text) {
   return "";
 }
 function prompt(items) {
-  return `Tu es redacteur expert assurance immeuble en France. Produis une synthese originale, sans copier les sources, avec 5 points utiles pour syndics, bailleurs, SCI, PNO/CNO. Reste factuel et prudent. Donnees: ${JSON.stringify(items.slice(0, 8).map((item) => ({ title: item.title, summary: item.summary, source: item.source_name, url: item.url })))}`;
+  return `Tu prepares uniquement un brouillon interne soumis a validation humaine. Ne formule aucun conseil juridique ni interpretation definitive d une loi, d un decret, d une obligation ou d une decision. Produis une synthese originale, sans copier les sources, avec 5 points utiles pour syndics, bailleurs, SCI, PNO/CNO. Reste factuel, prudent et cite les sources a verifier. Donnees: ${JSON.stringify(items.slice(0, 8).map((item) => ({ title: item.title, summary: item.summary, source: item.source_name, url: item.url })))}`;
 }
 
 async function callOpenAi(text, model) {
@@ -459,10 +459,17 @@ function qualityScore(items, synthesis) {
   return Math.min(100, score);
 }
 
-function contentDraftPacket(items, synthesis) {
+function legalSensitivity(items, synthesis) {
+  const corpus = [synthesis?.text || "", ...items.flatMap((item) => [item.title || "", item.summary || "", item.topic || ""])].join(" ").toLowerCase();
+  const terms = ["loi", "decret", "arrete", "code civil", "code des assurances", "jurisprudence", "obligation", "obligatoire", "responsabilite", "reglementaire", "legifrance", "service-public"];
+  const matched_terms = terms.filter((term) => corpus.includes(term));
+  return { sensitive: matched_terms.length > 0, matched_terms, publication_gate: matched_terms.length ? "legal-human-approval" : "editorial-human-approval", human_review_required: true, allowed_publication: false, public_interpretation_allowed: false };
+}
+
+function contentDraftPacket(items, synthesis, legalReview) {
   const seed = String(synthesis.text || "").slice(0, 5000);
   const cities = ["Paris", "Lyon", "Marseille", "Bordeaux", "Lille", "Nantes", "Nice", "Toulouse", "Rennes", "Strasbourg", "Montpellier", "Grenoble"];
-  return { marker: "editorial-multi-format-draft-packet-v1", generated_at: new Date().toISOString(), publication_status: "draft_review", human_review_required: true, no_auto_publish: true, ai_provider: synthesis.provider, ai_model: synthesis.model, ai_status: synthesis.status, source_context: items.slice(0,12).map((item)=>({title:item.title,summary:item.summary,source_name:item.source_name,url:item.url,topic:item.topic})), drafts: [
+  return { marker: "editorial-multi-format-draft-packet-v1", generated_at: new Date().toISOString(), publication_status: "quarantined", human_review_required: true, no_auto_publish: true, allowed_publication: false, legal_review: legalReview, ai_provider: synthesis.provider, ai_model: synthesis.model, ai_status: synthesis.status, source_context: items.slice(0,12).map((item)=>({title:item.title,summary:item.summary,source_name:item.source_name,url:item.url,topic:item.topic})), drafts: [
     { type: "article", status: "draft_review", brief: "Article original assurance immeuble relie a une action devis.", seo_requirements: ["intention principale", "sources attribuees", "validation juridique humaine"], ai_seed: seed },
     { type: "faq", status: "draft_review", brief: "Questions et reponses prudentes et sourcables.", seo_requirements: ["questions reelles", "reponses sourcables", "date de mise a jour"], ai_seed: seed },
     ...cities.map((city)=>({ type: "city", city, status: "draft_review", brief: "Angle local assurance immeuble pour " + city + ".", seo_requirements: ["signal local verifiable", "contenu unique", "pas de doorway page"], ai_seed: seed }))
@@ -485,6 +492,7 @@ async function run() {
   const { items, errors, sourceResults, mode } = await collectWatchItems();
   const synthesis = await synthesize(items);
   const aiRequiresReview = synthesis.provider !== "deterministic";
+  const legalReview = legalSensitivity(items, synthesis);
   const publicSynthesis = aiRequiresReview
     ? { ...deterministicProvider(), status: "local-safe-public-fallback", text: fallbackSynthesis(items), attempts: synthesis.attempts || [] }
     : synthesis;
@@ -497,8 +505,8 @@ async function run() {
   updateSitemap(["veille-assurance-immeuble", "newsletter-assurance-immeuble", issue.slug]);
   const draftReviewPath = aiRequiresReview ? join(REPORT_DIR, "editorial-drafts", issue.slug.replace(/\//g, "-") + ".json") : "";
   const reportStatus = aiRequiresReview ? "draft_review" : synthesis.status === "fallback-after-ai-errors" ? "fallback" : "completed";
-  if (aiRequiresReview) write(draftReviewPath, JSON.stringify({ marker: "editorial-ai-draft-review-v1", generated_at: new Date().toISOString(), publication_status: "draft_review", human_review_required: true, no_auto_publish: true, issue: { id: issue.id, slug: issue.slug, title: issue.title }, synthesis, source_items: items.slice(0, 18) }, null, 2));
-  const draftPacket = aiRequiresReview ? contentDraftPacket(items, synthesis) : null;
+  if (aiRequiresReview) write(draftReviewPath, JSON.stringify({ marker: "editorial-ai-draft-review-v1", generated_at: new Date().toISOString(), publication_status: "quarantined", human_review_required: true, no_auto_publish: true, allowed_publication: false, legal_review: legalReview, issue: { id: issue.id, slug: issue.slug, title: issue.title }, synthesis, source_items: items.slice(0, 18) }, null, 2));
+  const draftPacket = aiRequiresReview ? contentDraftPacket(items, synthesis, legalReview) : null;
   const draftPacketPath = aiRequiresReview ? join(REPORT_DIR, "editorial-drafts", "multi-format-" + todayIsoDate() + ".json") : "";
   if (draftPacket) write(draftPacketPath, JSON.stringify(draftPacket, null, 2));
   const report = {
@@ -510,7 +518,14 @@ async function run() {
     ai_provider: synthesis.provider,
     ai_model: synthesis.model,
     ai_status: synthesis.status,
-    publication_status: aiRequiresReview ? "draft_review" : "published",
+    publication_status: RUNTIME_ONLY ? "runtime-preview-only" : aiRequiresReview ? "safe-fallback-published-ai-quarantined" : "published",
+    public_write_enabled: !RUNTIME_ONLY,
+    public_content_provider: publicSynthesis.provider,
+    public_content_ai_generated: false,
+    ai_draft_publication_status: aiRequiresReview ? "quarantined" : "not-created",
+    ai_draft_allowed_publication: false,
+    legal_sensitive_draft: aiRequiresReview && legalReview.sensitive,
+    legal_review: aiRequiresReview ? legalReview : null,
     human_review_required: aiRequiresReview,
     no_auto_publish: aiRequiresReview,
     draft_review_path: draftReviewPath,
@@ -533,13 +548,13 @@ async function run() {
     issue: { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url },
     issue_backfills: issueBackfills,
     automation_plan: automationPlan(items),
-    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review"],
+    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review", "legal-sensitive-ai-drafts-quarantined", "public-content-provider-deterministic", "human-approval-required-before-ai-publication"],
     errors
   };
   write(join(REPORT_DIR, "editorial-autopilot-report.json"), JSON.stringify(report, null, 2));
   write(join(ASSET_DIR, "editorial-autopilot-latest.json"), JSON.stringify(report, null, 2));
 
-  console.log(`Editorial autopilot wrote veille, newsletter and issue ${issue.slug} with ${items.length} watch items (${synthesis.provider}/${synthesis.status}).`);
+  console.log(`Editorial autopilot ${RUNTIME_ONLY ? "prepared runtime preview for" : "wrote veille, newsletter and"} issue ${issue.slug} with ${items.length} watch items (${synthesis.provider}/${synthesis.status}).`);
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 

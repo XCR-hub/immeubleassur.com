@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-08-10T02:27:55.542Z",
+  "status": "passed",
+  "checks": 11,
+  "missing": [],
+  "forbidden_checks": 4,
+  "forbidden_hits": [],
+  "policy": {
+    "ai_publication": "quarantined-until-human-approval",
+    "legal_sensitive_publication": "legal-human-approval-required",
+    "public_automatic_content": "deterministic-safe-fallback-only"
+  },
+  "safeguards": [
+    "static-dataflow-check",
+    "read-only-cron-permissions",
+    "private-review-artifacts",
+    "no-raw-ai-publication"
+  ]
+}

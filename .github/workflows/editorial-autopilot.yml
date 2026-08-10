@@ -46,6 +46,9 @@ jobs:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
         run: npm run media:autopilot -- --fetch
 
+      - name: Enforce AI legal quarantine
+        run: npm run editorial:legal:safety
+
       - name: Validate site and functions
         run: npm run check
 
@@ -55,6 +58,7 @@ jobs:
           name: immeubleassur-editorial-reports
           path: |
             reports/editorial-autopilot-report.json
+            reports/editorial-drafts/**/*.json
             public/assets/editorial-autopilot-latest.json
             reports/media-autopilot-report.json
             public/assets/media-autopilot-latest.json
