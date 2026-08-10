@@ -12,7 +12,8 @@ const checks = [
   ["post-registration-validation", installer.includes("Action watchdog invalide") && installer.includes("Declencheurs invalides")],
   ["watchdog-health-and-headers", watchdog.includes("runtimeCheck()") && watchdog.includes("requiredSecurityHeaders")],
   ["watchdog-targeted-process-discovery", watchdog.includes("WATCHDOG_PROCESS_MATCH_MARKER") && watchdog.includes("matchesSiteProcess")],
-  ["watchdog-bounded-readiness-poll", watchdog.includes("async function waitForRuntime") && watchdog.includes("elapsed_ms") && watchdog.includes("await sleep(250)")]
+  ["watchdog-bounded-readiness-poll", watchdog.includes("async function waitForRuntime") && watchdog.includes("elapsed_ms") && watchdog.includes("await sleep(250)")],
+  ["watchdog-empty-port-is-not-an-error", watchdog.includes("Get-NetTCPConnection") && watchdog.includes("-ErrorAction SilentlyContinue")]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
 const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, safeguards: ["system-service-account", "startup-plus-five-minute-recovery", "ignore-overlapping-runs", "health-and-security-header-gate", "site-scoped-process-restart", "bounded-readiness-poll"] };

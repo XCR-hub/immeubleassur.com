@@ -205,7 +205,7 @@ function queryProcessesByCim(names = ["node.exe", "cmd.exe"]) {
 
 function queryPortOwnerProcesses() {
   try {
-    const script = `$ErrorActionPreference='Stop'; $owners = Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction Stop | Select-Object -ExpandProperty OwningProcess -Unique; $owners | ForEach-Object { Get-CimInstance Win32_Process -Filter "ProcessId=$_" | Select-Object ProcessId,CommandLine } | ConvertTo-Json -Compress`;
+    const script = `$owners = @(Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique); $owners | ForEach-Object { Get-CimInstance Win32_Process -Filter "ProcessId=$_" | Select-Object ProcessId,CommandLine } | ConvertTo-Json -Compress`;
     const output = execFileSync("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script], {
       encoding: "utf8",
       windowsHide: true,
