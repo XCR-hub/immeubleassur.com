@@ -19,7 +19,8 @@ const budgets = {
 };
 
 const allowedExternalScripts = [
-  /^https:\/\/challenges\.cloudflare\.com\/turnstile\/v0\/api\.js$/i
+  /^https:\/\/challenges\.cloudflare\.com\/turnstile\/v0\/api\.js$/i,
+  /^https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=G-[A-Z0-9]+$/i
 ];
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
@@ -39,7 +40,7 @@ function walk(dir, predicate) {
 function rel(file) { return relative(PUBLIC_DIR, file).replace(/\\/g, "/"); }
 function isNoIndex(html) { return /<meta name="robots" content="[^"]*noindex/i.test(html); }
 function isVersionedAsset(value) { return /^\/assets\/[a-z0-9._/-]+\.(css|js)\?v=[a-f0-9]{8,}/i.test(value); }
-function isTurnstileScript(value) { return allowedExternalScripts.some((pattern) => pattern.test(value)); }
+function isAllowedExternalScript(value) { return allowedExternalScripts.some((pattern) => pattern.test(value)); }
 
 function extractAttrs(html, tag, attr) {
   const pattern = new RegExp(`<${tag}\\b[^>]*\\s${attr}=["']([^"']+)["'][^>]*>`, "gi");
@@ -75,7 +76,7 @@ function analyzePage(file) {
 
   for (const script of scripts) {
     if (/^https?:\/\//i.test(script.value)) {
-      if (!isTurnstileScript(script.value)) pushIssue(issues, "high", source, "external-script", `Script externe non autorise: ${script.value}`);
+      if (!isAllowedExternalScript(script.value)) pushIssue(issues, "high", source, "external-script", `Script externe non autorise: ${script.value}`);
       if (!/\sasync\b/i.test(script.tag) || !/\sdefer\b/i.test(script.tag)) pushIssue(issues, "medium", source, "async-external-script", `Script externe non asynchrone: ${script.value}`);
     }
   }
@@ -135,7 +136,7 @@ function build() {
     severe_issue_count: severeIssues.length,
     issues: allIssues.slice(0, 120),
     budgets,
-    safeguards: ["html-size-budget", "core-asset-budget", "versioned-css-js", "turnstile-on-demand", "local-hero-image-budget", "lcp-image-fetch-priority", "below-fold-render-containment", "lazy-images", "public-report"]
+    safeguards: ["html-size-budget", "core-asset-budget", "versioned-css-js", "turnstile-on-demand", "ga4-script-exact-allowlist", "local-hero-image-budget", "lcp-image-fetch-priority", "below-fold-render-containment", "lazy-images", "public-report"]
   };
 
   writeJson(REPORT_PATH, report);

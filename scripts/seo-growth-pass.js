@@ -211,8 +211,9 @@ function analyticsTagBlock() {
   if (!/^G-[A-Z0-9]+$/i.test(measurementId)) return "";
   const id = JSON.stringify(measurementId);
   return `<!-- analytics:start -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=${measurementId}"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config",${id},{send_page_view:false});</script>
+<meta name="ia-ga4-measurement-id" content=${id}>
+<script defer src="/assets/ga4-init.js?v=20260810"></script>
+<script async defer src="https://www.googletagmanager.com/gtag/js?id=${measurementId}"></script>
 <!-- analytics:end -->`;
 }
 function normalizeLinks(html) {

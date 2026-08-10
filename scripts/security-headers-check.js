@@ -5,7 +5,7 @@ const REPORT_PATH = join("reports", "security-headers-report.json");
 const ASSET_PATH = join("public", "assets", "security-headers-latest.json");
 const serverFiles = ["scripts/local-production-server.js", "scripts/local-static-server.js"];
 const requiredHeaders = ["Content-Security-Policy", "Strict-Transport-Security", "X-Content-Type-Options", "Referrer-Policy", "X-Frame-Options", "X-Permitted-Cross-Domain-Policies", "Permissions-Policy", "Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy"];
-const requiredCspDirectives = ["default-src 'self'", "base-uri 'self'", "object-src 'none'", "frame-ancestors 'none'", "form-action 'self'", "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com", "connect-src 'self' https://challenges.cloudflare.com https://region1.google-analytics.com https://www.google-analytics.com", "frame-src https://challenges.cloudflare.com", "upgrade-insecure-requests"];
+const requiredCspDirectives = ["default-src 'self'", "base-uri 'self'", "object-src 'none'", "frame-ancestors 'none'", "form-action 'self'", "script-src 'self' https://challenges.cloudflare.com https://www.googletagmanager.com", "connect-src 'self' https://challenges.cloudflare.com https://region1.google-analytics.com https://www.google-analytics.com", "frame-src https://challenges.cloudflare.com", "upgrade-insecure-requests"];
 const securityTxtRequirements = ["Contact: mailto:team@immeubleassur.com", "Expires:", "Preferred-Languages:", "Canonical: https://immeubleassur.com/.well-known/security.txt", "Policy: https://immeubleassur.com/confidentialite"];
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
@@ -36,12 +36,20 @@ const securityTxtPath = join("public", ".well-known", "security.txt");
 const securityTxt = read(securityTxtPath);
 if (!securityTxt) addIssue(issues, securityTxtPath, "missing-security-txt", "security.txt absent.");
 for (const requirement of securityTxtRequirements) if (!securityTxt.includes(requirement)) addIssue(issues, securityTxtPath, "security-txt-field", `${requirement} absent.`);
+const analyticsGenerator = read("scripts/seo-growth-pass.js");
+const ga4Client = read(join("public", "assets", "ga4-init.js"));
+if (!analyticsGenerator.includes('meta name="ia-ga4-measurement-id"') || analyticsGenerator.includes("<script>window.dataLayer")) addIssue(issues, "scripts/seo-growth-pass.js", "inline-ga4-bootstrap", "GA4 bootstrap must remain external to satisfy strict CSP.");
+if (!ga4Client.includes("function initializeGa4()") || !ga4Client.includes('meta[name="ia-ga4-measurement-id"]')) addIssue(issues, "public/assets/ga4-init.js", "missing-external-ga4-bootstrap", "External GA4 bootstrap missing.");
 const adminHtml = read(join("public", "admin.html"));
 const adminProfile = read(join("public", "assets", "admin-profile.js"));
+const adminNoStore = serverFiles.every((file) => {
+  const server = read(file);
+  return server.includes('"Cache-Control"') && server.includes('file.endsWith(join("public", "admin.html"))') && server.includes('"no-store"');
+});
 for (const [rule, ok, message] of [
   ["admin-no-referrer", adminHtml.includes('name="referrer" content="no-referrer"'), "Admin referrer policy missing."],
   ["invite-url-scrubbed", adminProfile.includes('history.replaceState(null, "", window.location.pathname + window.location.hash)'), "Invitation token remains in browser URL."],
-  ["admin-no-store", serverFiles.every((file) => read(file).includes('file.endsWith(join("public", "admin.html")) ? "no-store"')), "Admin HTML is publicly cacheable."]
+  ["admin-no-store", adminNoStore, "Admin HTML is publicly cacheable."]
 ]) if (!ok) addIssue(issues, "admin-security", rule, message);
 const packageText = read("package.json");
 if (!packageText.includes("security:headers")) addIssue(issues, "package.json", "missing-script", "Script security:headers absent.");
@@ -57,7 +65,7 @@ const report = {
   files: fileReports,
   issue_count: issues.length,
   issues,
-  safeguards: ["centralized-runtime-security-headers", "csp-allows-turnstile-and-ga4-only", "hsts-behind-https-proxy", "frame-ancestors-none", "cross-origin-resource-policy", "admin-no-store", "invite-url-scrubbing", "security-txt-contact"]
+  safeguards: ["centralized-runtime-security-headers", "csp-allows-turnstile-and-ga4-only", "ga4-bootstrap-external-to-strict-csp", "hsts-behind-https-proxy", "frame-ancestors-none", "cross-origin-resource-policy", "admin-no-store", "invite-url-scrubbing", "security-txt-contact"]
 };
 
 writeJson(REPORT_PATH, report);

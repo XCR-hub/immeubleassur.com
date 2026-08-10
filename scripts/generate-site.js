@@ -767,7 +767,9 @@ function homePage() {
 function servicePage(page) {
   const faqRows = page.faq || [];
   const faqSources = page.faqSources || [["https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/", "Legifrance - assurance de la copropriete"], ["https://www.service-public.fr/particuliers/vosdroits/F2608", "Service-Public.fr - syndic de copropriete"]];
-  const faqBlock = faqRows.length ? `<section class="band faq-band"><div class="container narrow"><p class="eyebrow dark">Questions frequentes</p><h2>${esc(page.title)}: points a verifier avant toute conclusion.</h2><div class="faq-list">${faqRows.map(([question, answer]) => `<details><summary>${esc(question)}</summary><p>${esc(answer)}</p></details>`).join("")}</div><div class="source-box"><strong>Sources officielles a consulter</strong>${faqSources.map(([url, label]) => `<a href="${esc(url)}" rel="nofollow noopener">${esc(label)}</a>`).join("")}</div></div></section>` : "";
+  const faqIds = { "rc-syndic": "faq-rc-syndic", "gestion-sinistres-immeuble": "faq-gestion-sinistres", "dommages-ouvrage-immeuble": "faq-dommages-ouvrage" };
+  const faqId = faqIds[page.slug] ? ` id="${faqIds[page.slug]}"` : "";
+  const faqBlock = faqRows.length ? `<section${faqId} class="band faq-band"><div class="container narrow"><p class="eyebrow dark">Questions frequentes</p><h2>${esc(page.title)}: points a verifier avant toute conclusion.</h2><div class="faq-list">${faqRows.map(([question, answer]) => `<details><summary>${esc(question)}</summary><p>${esc(answer)}</p></details>`).join("")}</div><div class="source-box"><strong>Sources officielles a consulter</strong>${faqSources.map(([url, label]) => `<a href="${esc(url)}" rel="nofollow noopener">${esc(label)}</a>`).join("")}</div></div></section>` : "";
   const faqSchema = faqRows.length ? `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "@id": `${SITE}/${page.slug}#faq`, mainEntity: faqRows.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) })}</script>` : "";
   const body = `
     <section class="page-hero compact-hero">
