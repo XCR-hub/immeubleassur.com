@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "no
 import { dirname, join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
-import { sendNodeSmtpMail } from "./local-smtp.js";
+import { requireOperationalTeamRecipient, sendNodeSmtpMail } from "./local-smtp.js";
 
 loadDefaultEnvFiles();
 
@@ -323,6 +323,7 @@ async function maybeAlert(report, reportPath) {
   }
 
   const config = mailConfig();
+  requireOperationalTeamRecipient(config);
   const resendMode = env("EMAIL_TRANSPORT", "smtp").toLowerCase() === "resend";
   const transportReady = resendMode
     ? Boolean(env("RESEND_API_KEY", "") && config.from && config.to.length)

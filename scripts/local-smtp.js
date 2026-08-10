@@ -14,6 +14,12 @@ function dotStuff(message) {
     .join("\r\n");
 }
 
+export function requireOperationalTeamRecipient(config) {
+  const recipients = Array.isArray(config?.to) ? config.to.map((item) => String(item || "").trim().toLowerCase()).filter(Boolean) : [];
+  if (!recipients.includes("team@immeubleassur.com")) throw new Error("Destinataire operationnel team@immeubleassur.com absent");
+  return config;
+}
+
 function createLineClient(socket) {
   let buffer = "";
   const waiters = [];
