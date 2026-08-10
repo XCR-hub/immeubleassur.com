@@ -6,6 +6,13 @@ import { loadDefaultEnvFiles, env } from "./local-env.js";
 loadDefaultEnvFiles();
 
 const SITE = "https://immeubleassur.com";
+const AI_SOURCE_PATTERNS = [
+  ["chatgpt", /chatgpt|openai/],
+  ["perplexity", /perplexity/],
+  ["claude", /claude|anthropic/],
+  ["copilot", /copilot/]
+];
+
 const ORGANIC_HOSTS = [
   "google.",
   "bing.",
@@ -76,12 +83,19 @@ function sourceFromPayload(row, payload = {}) {
   if (originSource && String(row.event_type || "").startsWith("traffic_without_click")) return originSource.startsWith("intent:") ? "intent-prefill" : originSource;
   const utmSource = normalizeSource(payload.utm_source || payload.utm?.utm_source);
   const medium = normalizeSource(payload.utm_medium || payload.utm?.utm_medium);
+  const aiUtm = AI_SOURCE_PATTERNS.find(([, pattern]) => pattern.test(utmSource));
+  if (aiUtm) return `ai-referral:${aiUtm[0]}`;
   if (utmSource && medium) return `utm:${utmSource}/${medium}`;
   if (utmSource) return `utm:${utmSource}`;
+  const earlyReferrer = hostOf(payload.first_referrer || payload.referrer || row.referrer);
+  const earlyAiReferrer = AI_SOURCE_PATTERNS.find(([, pattern]) => pattern.test(earlyReferrer));
+  if (earlyAiReferrer) return `ai-referral:${earlyAiReferrer[0]}`;
   const source = normalizeSource(payload.source || row.source);
   if (source) return source.startsWith("intent:") ? "intent-prefill" : source;
   const referrer = hostOf(payload.first_referrer || payload.referrer || row.referrer);
   if (referrer && !referrer.endsWith("immeubleassur.com")) {
+    const aiReferrer = AI_SOURCE_PATTERNS.find(([, pattern]) => pattern.test(referrer));
+    if (aiReferrer) return `ai-referral:${aiReferrer[0]}`;
     if (ORGANIC_HOSTS.some((host) => referrer.includes(host))) return "organic-search";
     return `referral:${referrer}`;
   }

@@ -91,6 +91,12 @@ const cityLinks = [...citiesHtml.matchAll(/href="\/(assurance-immeuble-[^"]+)(?:
 const cityActions = ["Verifier usages et nombre de lots", "Relire sinistres et mesures correctives", "Lister travaux votes ou prevus", "Qualifier commerces et locaux techniques", "Comparer franchises et plafonds", "Preparer contrat, prime et echeance"];
 const cityBlock = `<section class="band content-expansion-band runtime-editorial-hub" aria-labelledby="runtime-cities-${today}"><div class="section-head"><p class="eyebrow dark">Parcours villes mis a jour ${today}</p><h2 id="runtime-cities-${today}">Appliquer la veille validee a un dossier local concret.</h2><p>Le dernier numero ne cree pas une regle locale: il fournit une checklist a confronter au batiment, a son occupation et a ses pieces.</p></div><div class="card-grid">${cityLinks.map((city, index) => `<article class="content-card"><h3><a href="/${city.path}">${esc(city.label)}</a></h3><p>${esc(cityActions[index % cityActions.length])}, puis relier le dossier a <a href="/${issue.slug}">la veille du ${today}</a>.</p></article>`).join("")}</div><p class="seo-expansion-note">Aucune page locale nouvelle n est creee automatiquement: seuls les parcours existants et controles sont actualises.</p></section>`;
 enrichStaticHub("villes.html", "runtime-editorial-cities", cityBlock);
+const baseLlmsPath = join(staticPublicRoot, "llms.txt");
+if (existsSync(baseLlmsPath) && issue?.slug) {
+  const sourceLines = (editorialReport.public_watch_items || []).slice(0, 6).map((item) => `- ${item.source_name}: ${item.url}`).join("\n");
+  const activeLlms = `${readFileSync(baseLlmsPath, "utf8").trim()}\n\n## Edition active\n\nDate: ${today}\nURL: https://immeubleassur.com/${issue.slug}\nTitre: ${issue.title}\nFournisseur du contenu public: deterministic\nContenu public genere par IA: non\n\n### Sources attribuees de l edition\n\n${sourceLines}\n`;
+  writeFileSync(join(versionRoot, "llms.txt"), activeLlms, "utf8");
+}
 const baseSitemapPath = join(staticPublicRoot, "sitemap.xml");
 const runtimeSitemapPath = join(versionRoot, "sitemap.xml");
 if (existsSync(baseSitemapPath) && issue?.slug) {
@@ -99,7 +105,7 @@ if (existsSync(baseSitemapPath) && issue?.slug) {
   if (!sitemap.includes(`<loc>${loc}</loc>`)) sitemap = sitemap.replace("</urlset>", `  <url><loc>${loc}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>\n</urlset>`);
   writeFileSync(runtimeSitemapPath, sitemap, "utf8");
 }
-const allowedFiles = ["veille-assurance-immeuble.html", "newsletter-assurance-immeuble.html", `${issue?.slug || ""}.html`, "faq.html", "villes.html", "sitemap.xml"];
+const allowedFiles = ["veille-assurance-immeuble.html", "newsletter-assurance-immeuble.html", `${issue?.slug || ""}.html`, "faq.html", "villes.html", "llms.txt", "sitemap.xml"];
 const invalid = [];
 const files = allowedFiles.map((relative) => {
   const file = join(versionRoot, ...relative.split("/"));

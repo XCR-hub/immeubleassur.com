@@ -55,6 +55,9 @@ jobs:
       - name: Enforce editorial text quality
         run: npm run editorial:text:quality
 
+      - name: Enforce AI discoverability policy
+        run: npm run ai:discoverability:contract
+
       - name: Validate site and functions
         run: npm run check
 

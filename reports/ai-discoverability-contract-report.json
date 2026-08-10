@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-08-10T03:22:21.392Z",
+  "status": "passed",
+  "checks": 13,
+  "missing": [],
+  "claims": {
+    "chatgpt_search_eligible": true,
+    "chatgpt_citation_guaranteed": false,
+    "gptbot_training_allowed": false
+  },
+  "safeguards": [
+    "explicit-crawler-policy",
+    "indexable-methodology",
+    "entity-schema",
+    "active-edition-in-llms",
+    "ai-referral-attribution"
+  ]
+}

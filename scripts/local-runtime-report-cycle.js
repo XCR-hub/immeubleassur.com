@@ -95,6 +95,8 @@ function run() {
     runStep("editorial_runtime_publisher", ["scripts/local-editorial-publisher.js"], commonRuntimeEnv),
     runStep("editorial_hub_quality", ["scripts/local-editorial-hub-quality-check.js"], commonRuntimeEnv),
     runStep("editorial_publication_smoke", ["scripts/local-editorial-publication-smoke.js"], commonRuntimeEnv),
+    runStep("ai_discoverability_monitor", ["scripts/local-ai-discoverability-monitor.js"], commonRuntimeEnv),
+    runStep("ai_discoverability_contract", ["scripts/ai-discoverability-contract-check.js"], commonRuntimeEnv),
     runStep("editorial_health_monitor", ["scripts/local-editorial-health-monitor.js"], commonRuntimeEnv),
     runStep("editorial_text_quality", ["scripts/editorial-text-quality-check.js"], commonRuntimeEnv),
     runStep("editorial_publication_contract", ["scripts/editorial-runtime-publication-contract-check.js"], commonRuntimeEnv),

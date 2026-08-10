@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-08-10T03:21:52.959Z",
+  "status": "passed",
+  "methodology_bytes": 8929,
+  "robots_sha256": "c3ac76f900410aee208ed3ca5e56e8aa72739d8f6cc32175983cf479df52e29f",
+  "llms_sha256": "6e13ccebd07ba45baf7faea3166872ff58a88e811ef0044527974216578a9ab8",
+  "policies": {
+    "OAI_SearchBot": "allow-public",
+    "ChatGPT_User": "allow-public",
+    "GPTBot": "disallow-training",
+    "citation_guaranteed": false
+  }
+}
