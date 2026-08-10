@@ -1,4 +1,4 @@
-﻿const DEFAULT_CORS_ORIGIN = "https://immeubleassur.com";
+const DEFAULT_CORS_ORIGIN = "https://immeubleassur.com";
 const headers = {
   "Access-Control-Allow-Origin": DEFAULT_CORS_ORIGIN,
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -30,7 +30,11 @@ function html(body, status = 200) {
     status,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "no-store"
+      "Cache-Control": "no-store, max-age=0",
+      "Pragma": "no-cache",
+      "Referrer-Policy": "no-referrer",
+      "X-Robots-Tag": "noindex, nofollow, noarchive",
+      "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
     }
   });
 }
@@ -402,8 +406,8 @@ export async function onRequestGet({ request, env }) {
   await env.DB.prepare(
     `UPDATE newsletter_subscribers SET status = 'unsubscribed', unsubscribed_at = ?, updated_at = ? WHERE id = ?`
   ).bind(now, now, row.id).run();
-  await logNewsletterEvent(env, row.id, "unsubscribed", { email: row.email }, now);
-  return html(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Desinscription newsletter</title></head><body><main style="font-family:system-ui;max-width:720px;margin:48px auto;padding:24px"><h1>Desinscription prise en compte</h1><p>L'adresse ${esc(row.email)} ne recevra plus la veille ImmeubleAssur.</p><p><a href="/">Retour au site</a></p></main></body></html>`);
+  await logNewsletterEvent(env, row.id, "unsubscribed", { source: "unsubscribe-link" }, now);
+  return html(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><title>Desinscription newsletter</title></head><body><main style="font-family:system-ui;max-width:720px;margin:48px auto;padding:24px"><h1>Desinscription prise en compte</h1><p>Votre adresse ne recevra plus la veille ImmeubleAssur.</p><p><a href="/">Retour au site</a></p></main></body></html>`);
 }
 
 export async function onRequestPost({ request, env }) {

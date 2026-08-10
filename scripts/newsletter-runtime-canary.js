@@ -61,7 +61,7 @@ function deliver(out) {
 async function unsubscribe(DB, token) {
   const request = new Request(`https://immeubleassur.com/api/newsletter?unsubscribe=${encodeURIComponent(token)}`);
   const response = await onRequestGet({ request, env: { DB } });
-  return { status: response.status, body: await response.text() };
+  return { status: response.status, headers: Object.fromEntries(response.headers), body: await response.text() };
 }
 async function run() {
   cleanup();
@@ -84,6 +84,8 @@ async function run() {
     const unsubscribeResult = await unsubscribe(DB, subscriber?.unsubscribe_token || "");
     const unsubscribed = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_subscribers WHERE status='unsubscribed' AND unsubscribed_at IS NOT NULL").first("count") || 0);
     const unsubscribeEvents = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_events WHERE event_type='unsubscribed'").first("count") || 0);
+    const unsubscribeEvent = await DB.prepare("SELECT payload FROM newsletter_events WHERE event_type='unsubscribed' LIMIT 1").first();
+    const unsubscribePrivacy = unsubscribeResult.headers["cache-control"]?.includes("no-store") && unsubscribeResult.headers["referrer-policy"] === "no-referrer" && unsubscribeResult.headers["x-robots-tag"]?.includes("noindex") && !unsubscribeResult.body.includes("newsletter-runtime-canary@example.test") && !String(unsubscribeEvent?.payload || "").includes("@");
 
     const success = refused.status === 422 && refused.body?.success === false &&
       first.status === 200 && first.body?.status === "active" &&
@@ -94,7 +96,7 @@ async function run() {
       deliveryOne.capture?.verified === true && deliveryOne.capture?.external_delivery === false &&
       deliveryTwoResult.status === 0 && deliveryTwo.status === "up-to-date" &&
       deliveryTwo.sent === 0 && sentEvents === 1 && issueSent === 1 &&
-      unsubscribeResult.status === 200 && unsubscribed === 1 && unsubscribeEvents === 1;
+      unsubscribeResult.status === 200 && unsubscribed === 1 && unsubscribeEvents === 1 && unsubscribePrivacy;
 
     const report = {
       generated_at: new Date().toISOString(),
@@ -124,10 +126,12 @@ async function run() {
       unsubscribe: {
         status: unsubscribeResult.status,
         confirmed: unsubscribeResult.status === 200 && unsubscribeResult.body.includes("Desinscription prise en compte"),
+        privacy_protected: unsubscribePrivacy,
+        recipient_exposed: unsubscribeResult.body.includes("newsletter-runtime-canary@example.test") || String(unsubscribeEvent?.payload || "").includes("@"),
         inactive_subscribers: unsubscribed,
         events: unsubscribeEvents
       },
-      safeguards: ["sqlite-temp-db", "synthetic-recipient-only", "in-memory-smtp-capture", "no-external-email-delivery", "consent-required", "one-subscriber-per-email", "one-send-per-issue", "no-recipient-or-message-exported"]
+      safeguards: ["sqlite-temp-db", "synthetic-recipient-only", "in-memory-smtp-capture", "no-external-email-delivery", "consent-required", "one-subscriber-per-email", "one-send-per-issue", "unsubscribe-no-store", "unsubscribe-no-referrer", "unsubscribe-no-recipient-pii", "no-recipient-or-message-exported"]
     };
     mkdirSync(dirname(reportPath), { recursive: true });
     writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");

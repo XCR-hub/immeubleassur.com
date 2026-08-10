@@ -4,6 +4,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 loadDefaultEnvFiles();
 const delivery = readFileSync("scripts/local-newsletter-delivery.js", "utf8");
 const canary = readFileSync("scripts/newsletter-runtime-canary.js", "utf8");
+const newsletterApi = readFileSync("functions/api/newsletter.js", "utf8");
 const admin = readFileSync("functions/api/admin/newsletter.js", "utf8");
 const runtime = readFileSync("scripts/local-runtime-report-cycle.js", "utf8");
 const task = readFileSync("scripts/local-runtime-task.ps1", "utf8");
@@ -17,6 +18,8 @@ const checks = [
   ["idempotent-per-issue", delivery.includes("e.issue_id=? AND e.event_type='sent'")],
   ["failure-retry-cooldown", delivery.includes("f.created_at >= datetime('now', '-60 minutes')")],
   ["unsubscribe-header", delivery.includes("List-Unsubscribe")],
+  ["unsubscribe-response-is-private", newsletterApi.includes('"Referrer-Policy": "no-referrer"') && newsletterApi.includes('"X-Robots-Tag": "noindex, nofollow, noarchive"') && newsletterApi.includes('"Cache-Control": "no-store, max-age=0"')],
+  ["unsubscribe-does-not-expose-recipient", newsletterApi.includes('{ source: "unsubscribe-link" }') && !newsletterApi.includes("L'adresse ${esc(row.email)}") && canary.includes("unsubscribePrivacy")],
   ["recipient-pii-absent-from-report", delivery.includes("no-recipient-pii-in-report")],
   ["admin-never-sends-draft", admin.includes("status = 'published'") && !admin.includes("status IN ('published', 'draft')")],
   ["admin-excludes-already-sent", admin.includes("NOT EXISTS (SELECT 1 FROM newsletter_events")],
