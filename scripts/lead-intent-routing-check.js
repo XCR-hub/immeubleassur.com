@@ -59,6 +59,14 @@ const snippetChecks = [
   {
     file: "functions/_shared/ga4.js",
     snippets: ["lead_intent", "source_path", "landing_path"]
+  },
+  {
+    file: "public/recherches-assurance-immeuble.html",
+    snippets: ["/devis-assurance-immeuble?intent=immeuble#lead-form"]
+  },
+  {
+    file: "public/devis-assurance-immeuble.html",
+    snippets: ['id="lead-form"', '<select name="need">']
   }
 ];
 
