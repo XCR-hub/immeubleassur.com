@@ -296,6 +296,8 @@ async function run() {
   const newsletterReportPath = resolve(env("LOCAL_NEWSLETTER_DELIVERY_REPORT", join(runtimeReportsRoot, "local-newsletter-delivery-report.json")));
   const runtimeCyclePath = resolve(env("LOCAL_RUNTIME_CYCLE_REPORT", join(runtimeReportsRoot, "local-runtime-report-cycle.json")));
   const securitySurfacePath = resolve(env("LOCAL_SECURITY_SURFACE_REPORT", join(runtimeReportsRoot, "local-security-surface-report.json")));
+  const dependencySecurityPath = resolve(env("LOCAL_DEPENDENCY_SECURITY_REPORT", join(runtimeReportsRoot, "local-dependency-security-report.json")));
+  const scheduledTaskHealthPath = resolve(env("LOCAL_SCHEDULED_TASK_HEALTH_REPORT", join(runtimeReportsRoot, "local-scheduled-task-health-report.json")));
   const restoreDrillPath = resolve(env("LOCAL_SQLITE_RESTORE_DRILL_REPORT", join(runtimeReportsRoot, "local-sqlite-restore-drill-report.json")));
   const siteWatchdogPath = resolve(env("LOCAL_SITE_WATCHDOG_REPORT", join(runtimeReportsRoot, "local-site-watchdog-report.json")));
   const out = resolve(argValue("--out", env("LOCAL_PRODUCTION_MONITOR_REPORT", join("reports", "local-production-monitor-report.json"))));
@@ -314,6 +316,8 @@ async function run() {
     inspectJsonRuntime("newsletter_delivery", newsletterReportPath, 90, (report) => ["no-active-subscribers", "up-to-date", "completed", "batch-completed", "synced-awaiting-auto-send"].includes(report.status) && report.issue_synced === true && report.failed === 0, (report) => ({ issue_synced: report.issue_synced === true, auto_send: report.auto_send === true, active_subscribers: Number(report.active_subscribers || 0), failed: Number(report.failed || 0) })),
     ...(env("LOCAL_PRODUCTION_MONITOR_SKIP_RUNTIME_CYCLE", "0") === "1" ? [] : [inspectJsonRuntime("runtime_cycle_freshness", runtimeCyclePath, 90, (report) => report.success === true, (report) => ({ steps: Array.isArray(report.steps) ? report.steps.length : 0 }))]),
     inspectJsonRuntime("security_surface", securitySurfacePath, 90, (report) => report.success === true && report.summary?.failed === 0, (report) => ({ checks: Array.isArray(report.checks) ? report.checks.length : 0, failed: Number(report.summary?.failed || 0) })),
+    inspectJsonRuntime("dependency_security", dependencySecurityPath, 1560, (report) => report.success === true && Number(report.blocking || 0) === 0, (report) => ({ registry_checked: report.registry_checked === true, vulnerabilities: Number(report.summary?.total || 0), high: Number(report.summary?.high || 0), critical: Number(report.summary?.critical || 0) })),
+    inspectJsonRuntime("scheduled_task_health", scheduledTaskHealthPath, 90, (report) => report.success === true && Number(report.summary?.unhealthy || 0) === 0, (report) => ({ expected: Number(report.summary?.expected || 0), healthy: Number(report.summary?.healthy || 0), unhealthy: Number(report.summary?.unhealthy || 0) })),
     inspectJsonRuntime("site_watchdog", siteWatchdogPath, 20, (report) => ["healthy", "recovered"].includes(report.status) && (report.details?.health_before?.ok === true || report.details?.health_after?.ok === true), (report) => ({ action: report.details?.action || "", port: Number(report.port || 0), marker: report.marker || "" }))
   ];
 

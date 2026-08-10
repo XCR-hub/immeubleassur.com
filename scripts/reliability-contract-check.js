@@ -52,6 +52,8 @@ const checks=[
   ["monitor-skips-cycle-self-reference-only-when-explicit",monitor.includes('LOCAL_PRODUCTION_MONITOR_SKIP_RUNTIME_CYCLE')&&monitor.includes('? [] : [inspectJsonRuntime("runtime_cycle_freshness"')],
   ["runtime-marks-in-cycle-monitor-call",runtime.includes('LOCAL_PRODUCTION_MONITOR_SKIP_RUNTIME_CYCLE: "1"')],
   ["monitor-covers-security-surface",monitor.includes('inspectJsonRuntime("security_surface"') && runtime.includes('runStep("security_surface_monitor"')],
+  ["monitor-covers-dependency-security",monitor.includes('inspectJsonRuntime("dependency_security"') && runtime.includes('runStep("dependency_security"')],
+  ["monitor-covers-scheduled-task-health",monitor.includes('inspectJsonRuntime("scheduled_task_health"') && runtime.includes('runStep("scheduled_task_health"')],
   ["monitor-covers-site-watchdog",monitor.includes('inspectJsonRuntime("site_watchdog"')&&monitor.includes('LOCAL_SITE_WATCHDOG_REPORT')],
   ["production-alerts-enabled",task.includes("LOCAL_MONITOR_ALERTS = '1'")],
   ["lead-sla-alerts-enabled",task.includes("LOCAL_LEAD_SLA_ALERTS = '1'")],
