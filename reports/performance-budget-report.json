@@ -1,68 +1,68 @@
 {
-  "generated_at": "2026-08-10T01:27:15.757Z",
+  "generated_at": "2026-08-10T01:40:00.733Z",
   "status": "passed",
   "pages_checked": 203,
   "indexable_pages": 191,
-  "average_html_kb": 20.4,
+  "average_html_kb": 20.3,
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 38.1,
+      "kb": 37.9,
       "issue_count": 0
     },
     {
       "source": "assurance-immeuble.html",
-      "kb": 31.3,
+      "kb": 31.2,
       "issue_count": 0
     },
     {
       "source": "news/veille-assurance-immeuble-2026-08-01.html",
-      "kb": 28.4,
+      "kb": 28.3,
       "issue_count": 0
     },
     {
       "source": "prix-assurance-immeuble.html",
-      "kb": 27.7,
-      "issue_count": 0
-    },
-    {
-      "source": "news/veille-assurance-immeuble-2026-08-03.html",
       "kb": 27.6,
       "issue_count": 0
     },
     {
+      "source": "news/veille-assurance-immeuble-2026-08-03.html",
+      "kb": 27.5,
+      "issue_count": 0
+    },
+    {
       "source": "assurance-copropriete.html",
-      "kb": 27.1,
+      "kb": 27,
       "issue_count": 0
     },
     {
       "source": "devis-assurance-immeuble.html",
-      "kb": 26.8,
+      "kb": 26.7,
       "issue_count": 0
     },
     {
       "source": "blog/index.html",
-      "kb": 26.2,
+      "kb": 26.1,
       "issue_count": 0
     },
     {
       "source": "blog.html",
-      "kb": 26.1,
+      "kb": 26,
       "issue_count": 0
     },
     {
       "source": "assurance-immeuble-de-rapport.html",
-      "kb": 26.1,
+      "kb": 26,
       "issue_count": 0
     },
     {
       "source": "news/veille-assurance-immeuble-2026-07-31.html",
-      "kb": 26,
+      "kb": 25.9,
       "issue_count": 0
     },
     {
       "source": "assurance-sci.html",
-      "kb": 26,
+      "kb": 25.9,
       "issue_count": 0
     }
   ],
@@ -77,8 +77,8 @@
     },
     {
       "path": "assets/app.js",
-      "bytes": 127902,
-      "kb": 124.9,
+      "bytes": 131547,
+      "kb": 128.5,
       "budget_bytes": 143360,
       "budget_kb": 140,
       "ok": true

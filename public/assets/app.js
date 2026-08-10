@@ -328,7 +328,7 @@ function turnstileSiteKey() {
 
 function renderDynamicTurnstile(scope, retries = 8) {
   const root = scope || document;
-  const widget = root.querySelector?.(".cf-turnstile[data-sitekey]");
+  const widget = root.matches?.(".cf-turnstile[data-sitekey]") ? root : root.querySelector?.(".cf-turnstile[data-sitekey]");
   if (!widget || widget.dataset.dynamicRendered === "1") return;
   if (!window.turnstile?.render) {
     if (retries > 0) window.setTimeout(() => renderDynamicTurnstile(root, retries - 1), 500);
@@ -356,6 +356,67 @@ function turnstileResponseFromScope(scope) {
   } catch {
     return "";
   }
+}
+
+let turnstileLoadPromise = null;
+
+function loadTurnstileOnDemand() {
+  if (window.turnstile?.render) return Promise.resolve(window.turnstile);
+  if (turnstileLoadPromise) return turnstileLoadPromise;
+  turnstileLoadPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+    script.dataset.turnstileOnDemand = "1";
+    script.addEventListener("load", () => {
+      document.querySelectorAll(".cf-turnstile[data-sitekey]").forEach((widget) => renderDynamicTurnstile(widget));
+      resolve(window.turnstile);
+    }, { once: true });
+    script.addEventListener("error", () => {
+      turnstileLoadPromise = null;
+      reject(new Error("Turnstile indisponible"));
+    }, { once: true });
+    document.head.append(script);
+  });
+  return turnstileLoadPromise;
+}
+
+function waitForTurnstileToken(scope, timeoutMs = 10000) {
+  const startedAt = Date.now();
+  return new Promise((resolve) => {
+    const check = () => {
+      const token = turnstileResponseFromScope(scope);
+      if (token) return resolve(token);
+      if (Date.now() - startedAt >= timeoutMs) return resolve("");
+      window.setTimeout(check, 200);
+    };
+    check();
+  });
+}
+
+async function ensureTurnstileToken(scope) {
+  const widget = scope?.querySelector?.(".cf-turnstile[data-sitekey]");
+  if (!widget) return true;
+  if (turnstileResponseFromScope(scope)) return true;
+  try {
+    await loadTurnstileOnDemand();
+    renderDynamicTurnstile(widget);
+    return Boolean(await waitForTurnstileToken(scope));
+  } catch {
+    return false;
+  }
+}
+
+function bindTurnstileOnDemand() {
+  document.querySelectorAll(".cf-turnstile[data-sitekey]").forEach((widget) => {
+    const protectedForm = widget.closest("form");
+    if (!protectedForm || protectedForm.dataset.turnstileOnDemand === "1") return;
+    protectedForm.dataset.turnstileOnDemand = "1";
+    const prime = () => loadTurnstileOnDemand().catch(() => {});
+    protectedForm.addEventListener("focusin", prime, { once: true, passive: true });
+    protectedForm.addEventListener("pointerdown", prime, { once: true, passive: true });
+  });
 }
 
 function readForm(formElement) {
@@ -1683,7 +1744,7 @@ function bindContentLeadBridge() {
 
 function trackFormAbandonment(reason) {
   if (!form || !formStarted || formSubmitted || abandonEventSent) return;
-  const payload = readForm(form);
+  let payload = readForm(form);
   const hasContact = Boolean(payload.name || payload.phone || payload.email || payload.city || payload.message);
   if (!hasContact) return;
   const qualification = leadQualification(payload);
@@ -1723,7 +1784,7 @@ function formRescueTelemetry(payload, reason) {
 
 function showFormRescue(reason = "hesitation") {
   if (!form || formSubmitted || formRescueShown || formRescueDismissed) return;
-  const payload = readForm(form);
+  let payload = readForm(form);
   if ((!formStarted && reason !== "validation-error") || !formHasRescueSignal(payload)) return;
 
   const panel = document.createElement("div");
@@ -2197,7 +2258,7 @@ async function submitInstantCallback(event) {
   event.preventDefault();
   const formElement = event.currentTarget;
   const panel = instantCallbackContext(formElement);
-  const payload = instantCallbackPayload(formElement, panel);
+  let payload = instantCallbackPayload(formElement, panel);
   if (payload.company_website) {
     window.location.assign("/merci");
     return;
@@ -2213,6 +2274,13 @@ async function submitInstantCallback(event) {
 
   const submitButton = formElement.querySelector("button[type='submit']");
   submitButton.disabled = true;
+  instantCallbackStatus(formElement, "Verification anti-robot...");
+  if (!(await ensureTurnstileToken(formElement))) {
+    instantCallbackStatus(formElement, "Verification anti-robot indisponible. Verifiez votre connexion puis recommencez.", "error");
+    submitButton.disabled = false;
+    return;
+  }
+  payload = instantCallbackPayload(formElement, panel);
   instantCallbackStatus(formElement, "Envoi du rappel express...");
   const qualification = leadQualification(payload);
   track("form_submit_attempt", { target: payload.need, label: payload.profile, source: payload.source || "instant-callback", ...leadValueEventPayload(payload, qualification) });
@@ -2302,7 +2370,12 @@ function bindInstantCallbackForm(scope) {
   miniForm.addEventListener("pointerdown", () => noteBotInteraction("pointer"), { passive: true });
   miniForm.addEventListener("keydown", () => noteBotInteraction("keyboard"), { passive: true });
   miniForm.addEventListener("submit", submitInstantCallback);
-  renderDynamicTurnstile(miniForm);
+  const turnstileWidget = miniForm.querySelector(".cf-turnstile[data-sitekey]");
+  if (turnstileWidget) {
+    const prime = () => loadTurnstileOnDemand().catch(() => {});
+    miniForm.addEventListener("focusin", prime, { once: true, passive: true });
+    miniForm.addEventListener("pointerdown", prime, { once: true, passive: true });
+  }
 }
 
 function bindInstantCallbackForms(scope = document) {
@@ -2502,7 +2575,7 @@ form?.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (event.submitter?.matches?.("[data-form-rescue-express]")) form.dataset.submissionMode = "express-callback";
   else delete form.dataset.submissionMode;
-  const payload = readForm(form);
+  let payload = readForm(form);
 
   if (payload.company_website) {
     window.location.assign("/merci");
@@ -2522,6 +2595,13 @@ form?.addEventListener("submit", async (event) => {
   clearFormRescueTimer();
   const submitButton = form.querySelector("button[type='submit']");
   submitButton.disabled = true;
+  setStatus("Verification anti-robot...");
+  if (!(await ensureTurnstileToken(form))) {
+    setStatus("Verification anti-robot indisponible. Verifiez votre connexion puis recommencez.", "error");
+    submitButton.disabled = false;
+    return;
+  }
+  payload = readForm(form);
   setStatus("Transmission du dossier en cours...");
   const qualification = leadQualification(payload);
   track("form_submit_attempt", { target: payload.need, label: payload.profile, source: payload.submission_mode || "full-lead", ...leadValueEventPayload(payload, qualification) });
@@ -2634,7 +2714,7 @@ function bindNewsletterForms() {
     newsletterFormElement.dataset.bound = "true";
     newsletterFormElement.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const payload = readNewsletterForm(newsletterFormElement);
+      let payload = readNewsletterForm(newsletterFormElement);
       const button = newsletterFormElement.querySelector("button[type='submit']");
       if (payload.company_website) {
         newsletterStatus(newsletterFormElement, "Inscription prise en compte.", "ok");
@@ -2651,6 +2731,13 @@ function bindNewsletterForms() {
         return;
       }
       button.disabled = true;
+      newsletterStatus(newsletterFormElement, "Verification anti-robot...");
+      if (!(await ensureTurnstileToken(newsletterFormElement))) {
+        newsletterStatus(newsletterFormElement, "Verification anti-robot indisponible. Verifiez votre connexion puis recommencez.", "error");
+        button.disabled = false;
+        return;
+      }
+      payload = readNewsletterForm(newsletterFormElement);
       newsletterStatus(newsletterFormElement, "Inscription en cours...");
       track("newsletter_subscribe_attempt", { target: payload.audience, label: payload.source });
       try {
@@ -2687,6 +2774,7 @@ function bindNewsletterForms() {
   });
 }
 applyIntentPrefill();
+bindTurnstileOnDemand();
 mountLeadBar();
 mountFormAdvisor();
 mountFormProof();

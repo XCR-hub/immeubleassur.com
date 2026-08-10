@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-10T01:27:14.656Z",
+  "generated_at": "2026-08-10T01:39:59.603Z",
   "status": "passed",
-  "checks_required": 23,
+  "checks_required": 26,
   "checks_missing": [],
   "required_events": [
     "risk_router_select",
@@ -30,6 +30,7 @@
     "router-prefills-full-form",
     "express-callback-remains-visible",
     "turnstile-remains-on-homepage-forms",
+    "turnstile-loads-on-interaction-and-gates-submission",
     "telemetry-events-are-api-allowlisted",
     "no-secret-like-telemetry-labels"
   ]

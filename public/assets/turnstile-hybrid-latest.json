@@ -1,9 +1,10 @@
 {
-  "generated_at": "2026-08-03T22:15:00.318Z",
+  "generated_at": "2026-08-10T01:38:22.643Z",
   "provider": "cloudflare-turnstile",
   "mode": "hybrid-turnstile-local-antifraud",
   "configured": true,
   "site_key_configured": true,
+  "preserved_existing_widgets": 0,
   "secret_variable": "TURNSTILE_SECRET_KEY",
   "fail_open_variable": "TURNSTILE_FAIL_OPEN",
   "fallback": "local-antifraud",

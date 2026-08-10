@@ -69,10 +69,10 @@ function injectWidgetInForm(formHtml, action) {
 }
 
 function ensureApiScript(html) {
-  if (!configured || !html.includes("cf-turnstile")) return html;
-  const script = `<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>`;
-  if (/<\/head>/i.test(html)) return html.replace(/<\/head>/i, `  ${script}\n</head>`);
-  return `${html}\n${script}\n`;
+  // app.js loads the explicit API on first protected-form interaction. Keeping
+  // the third party out of the initial render substantially reduces main-thread
+  // blocking while submission still waits for a verified token.
+  return html;
 }
 
 function countPattern(html, pattern) {

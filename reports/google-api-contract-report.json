@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T22:14:59.271Z",
+  "generated_at": "2026-08-10T01:40:00.034Z",
   "checked_files": [
     "scripts/live-api-readiness-check.js",
     "scripts/google-readiness-unlock.js",
@@ -14,7 +14,7 @@
     "README.md",
     ".env.example"
   ],
-  "required_markers": 70,
+  "required_markers": 83,
   "missing": [],
   "status": "passed"
 }

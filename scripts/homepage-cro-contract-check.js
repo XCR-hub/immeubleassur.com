@@ -32,6 +32,9 @@ const checks = [
   ["home-inline-callback", "home", "hero-inline-callback"],
   ["home-instant-callback-form", "home", "data-instant-callback-form"],
   ["home-turnstile", "home", "cf-turnstile"],
+  ["app-turnstile-on-demand", "app", "function loadTurnstileOnDemand()"],
+  ["app-turnstile-explicit-api", "app", "turnstile/v0/api.js?render=explicit"],
+  ["app-turnstile-submit-gate", "app", "await ensureTurnstileToken("],
   ["app-router-mount", "app", "function mountRiskRouter()"],
   ["app-router-prefill-attribute", "app", "data-risk-router-prefill"],
   ["app-router-option-prefill", "app", "router-option-prefill"],
@@ -91,6 +94,7 @@ const report = {
     "router-prefills-full-form",
     "express-callback-remains-visible",
     "turnstile-remains-on-homepage-forms",
+    "turnstile-loads-on-interaction-and-gates-submission",
     "telemetry-events-are-api-allowlisted",
     "no-secret-like-telemetry-labels"
   ]
