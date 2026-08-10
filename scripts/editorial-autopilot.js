@@ -283,7 +283,15 @@ function aiProviders() {
   if (process.env.GEMINI_API_KEY) providers.push({ provider: "gemini", model: process.env.GEMINI_MODEL || "gemini-2.5-flash" });
   if (process.env.OPENROUTER_API_KEY) providers.push({ provider: "openrouter", model: process.env.OPENROUTER_MODEL || "~openai/gpt-latest" });
   if (process.env.HUGGINGFACE_API_KEY) providers.push({ provider: "huggingface", model: process.env.HUGGINGFACE_MODEL || "mistralai/Mistral-7B-Instruct-v0.3" });
-  return providers;
+  const explicit = String(process.env.EDITORIAL_AI_PROVIDER_PRIORITY || "").trim().toLowerCase();
+  let previous = "";
+  try {
+    const report = JSON.parse(readFileSync(join(REPORT_DIR, "editorial-autopilot-report.json"), "utf8"));
+    const age = Date.now() - Date.parse(report.generated_at || "");
+    if (report.ai_status === "completed" && Number.isFinite(age) && age >= 0 && age <= 7 * 86400000) previous = String(report.ai_provider || "").toLowerCase();
+  } catch {}
+  const preferred = explicit || previous;
+  return preferred ? providers.sort((a, b) => Number(b.provider === preferred) - Number(a.provider === preferred)) : providers;
 }
 
 function deterministicProvider() {
@@ -365,7 +373,8 @@ function fallbackSynthesis(items) {
 async function synthesize(items) {
   const attempts = [];
   const providers = ENABLE_AI ? aiProviders() : [];
-  if (!providers.length) return { ...deterministicProvider(), status: "skipped", text: fallbackSynthesis(items), error: "ai-disabled-or-missing-key", attempts };
+  const providerOrder = providers.map((item) => item.provider);
+  if (!providers.length) return { ...deterministicProvider(), status: "skipped", text: fallbackSynthesis(items), error: "ai-disabled-or-missing-key", attempts, provider_order: providerOrder };
   const input = prompt(items);
   for (const provider of providers) {
     try {
@@ -373,7 +382,7 @@ async function synthesize(items) {
       const text = String(raw || "").trim().slice(0, 5000);
       if (text) {
         attempts.push({ provider: provider.provider, model: provider.model, status: "completed" });
-        return { ...provider, status: "completed", text, attempts };
+        return { ...provider, status: "completed", text, attempts, provider_order: providerOrder };
       }
       attempts.push({ provider: provider.provider, model: provider.model, status: "empty" });
     } catch (error) {
@@ -381,7 +390,7 @@ async function synthesize(items) {
     }
   }
   const fallback = deterministicProvider();
-  return { ...fallback, status: "fallback-after-ai-errors", text: fallbackSynthesis(items), error: "all-ai-providers-failed", attempts };
+  return { ...fallback, status: "fallback-after-ai-errors", text: fallbackSynthesis(items), error: "all-ai-providers-failed", attempts, provider_order: providerOrder };
 }
 function watchCard(item) {
   return `<article class="watch-card"><p class="eyebrow dark">${esc(item.source_name)} - ${esc(item.topic || "veille")}</p><h3><a href="${attr(item.url)}" rel="nofollow noopener">${esc(item.title)}</a></h3><p>${esc(item.summary || "Signal public a transformer en question d'audit assurance immeuble.")}</p><span>Score pertinence ${Number(item.relevance_score || 0)}/100</span></article>`;
@@ -599,6 +608,7 @@ async function run() {
     draft_packet_path: draftPacketPath,
     draft_packet_count: draftPacket?.drafts?.length || 0,
     ai_attempts: synthesis.attempts || [],
+    ai_provider_order: synthesis.provider_order || [],
     quality_score: qualityScore(items, synthesis),
     source_count: SOURCES.length,
     fetchable_source_count: sourceResults.length,
@@ -628,7 +638,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { normalizeEditorialText, editorialTextQuality, qualityFiltered };
+export { normalizeEditorialText, editorialTextQuality, qualityFiltered, aiProviders };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });
