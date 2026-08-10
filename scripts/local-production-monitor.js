@@ -207,6 +207,20 @@ function inspectSearchIntelligence(reportPath) {
   }
 }
 
+function inspectSeoAutopilot(reportPath) {
+  return inspectJsonRuntime("seo_autopilot_public", reportPath, 90, (report) => {
+    const rankings = Array.isArray(report.search_intelligence?.rankings) ? report.search_intelligence.rankings : [];
+    const measuredQueries = new Set(rankings.filter((row) => row.measured === true && row.actionable === true && row.data_source === "serpapi" && row.confidence === "measured").map((row) => row.query));
+    const fallbackUnsafe = rankings.some((row) => row.measured !== true && (row.actionable === true || row.recommendation));
+    const rankingActions = (report.google_feedback_loop?.actions || []).filter((row) => row.source === "search-intelligence" && row.query);
+    return !fallbackUnsafe && rankingActions.every((row) => measuredQueries.has(row.query));
+  }, (report) => ({
+    measured_queries: Number(report.search_intelligence?.measured_count || 0),
+    fallback_queries: Number(report.search_intelligence?.fallback_count || 0),
+    ranking_actions: (report.google_feedback_loop?.actions || []).filter((row) => row.source === "search-intelligence" && row.query).length,
+    fallback_actions_blocked: true
+  }));
+}
 function inspectEditorialReview(reportPath) {
   if (!existsSync(reportPath)) return check("editorial_review_sla", false, { path: reportPath, error: "missing" });
   try {
@@ -356,6 +370,7 @@ async function run() {
   const newsletterReportPath = resolve(env("LOCAL_NEWSLETTER_DELIVERY_REPORT", join(runtimeReportsRoot, "local-newsletter-delivery-report.json")));
   const googleReadinessPath = resolve(env("LOCAL_GOOGLE_READINESS_REPORT", join(runtimeReportsRoot, "google-readiness-unlock-report.json")));
   const searchIntelligencePath = resolve(env("LOCAL_SEARCH_INTELLIGENCE_REPORT", join(runtimeReportsRoot, "search-intelligence-report.json")));
+  const seoAutopilotPublicPath = resolve(env("LOCAL_SEO_AUTOPILOT_PUBLIC_REPORT", join(env("LOCAL_RUNTIME_ASSETS_ROOT", join(runtimeReportsRoot, "..")), "assets", "seo-autopilot-latest.json")));
   const indexNowPath = resolve(env("LOCAL_INDEXNOW_REPORT", join(runtimeReportsRoot, "local-indexnow-report.json")));
   const privacyRetentionPath = resolve(env("LOCAL_PRIVACY_RETENTION_REPORT", join(runtimeReportsRoot, "local-privacy-retention-report.json")));
   const newsletterCanaryPath = resolve(env("LOCAL_NEWSLETTER_CANARY_REPORT", join(runtimeReportsRoot, "newsletter-runtime-canary-report.json")));
@@ -378,6 +393,7 @@ async function run() {
     inspectEditorialHealth(editorialHealthPath),
     inspectGoogleReadiness(googleReadinessPath),
     inspectSearchIntelligence(searchIntelligencePath),
+    inspectSeoAutopilot(seoAutopilotPublicPath),
     inspectIndexNow(indexNowPath),
     inspectJsonRuntime("privacy_retention", privacyRetentionPath, 90, (report) => report.success === true && report.status === "applied" && report.policy?.lead_contact_data_deleted === false && report.policy?.newsletter_suppression_data_deleted === false && report.safeguards?.includes("transactional") && report.safeguards?.includes("no-pii-in-report"), (report) => ({ mode: report.database?.mode || "", technical_identifiers_days: Number(report.policy?.technical_identifiers_days || 0), telemetry_days: Number(report.policy?.telemetry_days || 0), rows_changed: Object.values(report.changes || {}).reduce((sum, value) => sum + Number(value || 0), 0), lead_contact_data_deleted: report.policy?.lead_contact_data_deleted === true, newsletter_suppression_data_deleted: report.policy?.newsletter_suppression_data_deleted === true })),
     inspectEditorialReview(editorialReviewPath),

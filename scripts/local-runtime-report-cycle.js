@@ -29,6 +29,9 @@ const runtimeIntentAsset = join(runtimeAssetsRoot, "assets", "local-intent-conve
 const runtimeSourceReport = join(runtimeReportsRoot, "local-source-quality-report.json");
 const runtimeSourceAsset = join(runtimeAssetsRoot, "assets", "local-source-quality-latest.json");
 const runtimeGrowthAsset = join(runtimeAssetsRoot, "assets", "local-growth-ops-latest.json");
+const runtimeSeoReport = join(runtimeReportsRoot, "seo-autopilot-report.json");
+const runtimeSeoMarkdown = join(runtimeReportsRoot, "seo-autopilot-report.md");
+const runtimeSeoAsset = join(runtimeAssetsRoot, "assets", "seo-autopilot-latest.json");
 const cycleReportPath = resolve(env("LOCAL_RUNTIME_REPORT_CYCLE_REPORT", join(runtimeReportsRoot, "local-runtime-report-cycle.json")));
 
 function runStep(name, args, extraEnv = {}) {
@@ -102,7 +105,11 @@ function run() {
     BROKERAGE_CASE_REPORT: join(runtimeReportsRoot, "brokerage-case-orchestrator-report.json"),
     BROKERAGE_CASE_PUBLIC_REPORT: join(runtimeAssetsRoot, "assets", "brokerage-case-orchestrator-latest.json"),
     CLIENT_CONTRACT_REPORT: join(runtimeReportsRoot, "client-contract-orchestrator-report.json"),
-    CLIENT_CONTRACT_PUBLIC_REPORT: join(runtimeAssetsRoot, "assets", "client-contract-orchestrator-latest.json")
+    CLIENT_CONTRACT_PUBLIC_REPORT: join(runtimeAssetsRoot, "assets", "client-contract-orchestrator-latest.json"),
+    LOCAL_SEARCH_INTELLIGENCE_REPORT: join(runtimeReportsRoot, "search-intelligence-report.json"),
+    LOCAL_SEO_AUTOPILOT_REPORT: runtimeSeoReport,
+    LOCAL_SEO_AUTOPILOT_MARKDOWN: runtimeSeoMarkdown,
+    LOCAL_SEO_AUTOPILOT_PUBLIC_REPORT: runtimeSeoAsset
   };
   const steps = [
     runStep("smtp_health", ["scripts/local-smtp-health-check.js"], commonRuntimeEnv),
@@ -113,6 +120,7 @@ function run() {
     runStep("editorial_publication_gate", ["scripts/editorial-publication-gate-check.js"], commonRuntimeEnv),
     runStep("google_readiness_unlock", ["scripts/google-readiness-unlock.js"], commonRuntimeEnv),
     runStep("live_ready_connectors", ["scripts/live-ready-connectors-runner.js", "--runtime-cycle", "--strict"], commonRuntimeEnv),
+    runStep("seo_autopilot_runtime", ["scripts/seo-autopilot.js", "--local-only"], commonRuntimeEnv),
     runStep("editorial_public_metadata_sanitizer", ["scripts/local-editorial-public-metadata-sanitizer.js"], commonRuntimeEnv),
     runStep("editorial_runtime_publisher", ["scripts/local-editorial-publisher.js"], commonRuntimeEnv),
     runStep("editorial_draft_schema_migration", ["scripts/local-editorial-draft-schema-migrate.js"], commonRuntimeEnv),

@@ -64,6 +64,7 @@ const checks=[
   ["smtp-envelope-does-not-send-message",smtpEnvelope.includes('smtpCommand(client, "RSET"')&&!smtpEnvelope.includes('smtpCommand(client, "DATA"')&&smtpHealth.includes("message_sent: false")&&smtpHealth.includes("envelope_test_only")],
   ["smtp-health-requires-team-recipient",smtpHealth.includes("team@immeubleassur.com")&&smtpHealth.includes("team_recipient_configured")],
   ["production-monitor-requires-recipient-acceptance",monitor.includes("report.team_recipient_configured === true")&&monitor.includes("report.recipient_accepted === true")],
+  ["production-monitor-validates-fresh-public-seo",monitor.includes('inspectJsonRuntime("seo_autopilot_public"')&&monitor.includes("fallbackUnsafe")&&monitor.includes("measuredQueries.has(row.query)")],
   ["production-monitor-covers-notification-backlog",monitor.includes('inspectJsonRuntime("lead_notification_backlog"')&&monitor.includes("report.exhausted === 0")],
   ["runtime-runs-isolated-lead-submission-canary",runtime.includes('runStep("lead_submission_canary"')&&leadCanary.includes("sqlite-temp-db")&&leadCanary.includes("no-real-lead-persisted")],
   ["lead-canary-captures-smtp-without-delivery",leadCanary.includes("SEND_SMTP_MAIL")&&leadCanary.includes("in-memory-smtp-capture")&&leadCanary.includes("no-external-email-delivery")&&leadCanary.includes('SMTP_TO: "team@immeubleassur.com"')],

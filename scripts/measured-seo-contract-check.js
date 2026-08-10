@@ -45,7 +45,10 @@ const checks = [
   ["serp-recovery-requires-measured-serpapi-input", serpRecovery.includes('row.measured === true && row.data_source === "serpapi" && row.confidence === "measured"') && serpRecovery.includes("no-fallback-driven-pages") && serpRecovery.includes("legacy-fallback-claims-sanitized") && serpRecovery.includes("sanitizeLegacyFallbackPages")],
   ["seo-autopilot-recomputes-measured-rank-counts", seoAutopilot.includes("row.measured === true && Number.isFinite(row.position) && row.position <= 3") && seoAutopilot.includes("average_position: report.measured_average_position || null")],
   ["seo-autopilot-feedback-requires-measured-actionable-serp", seoAutopilot.includes('item.measured === true && item.actionable === true && item.data_source === "serpapi" && item.confidence === "measured"')],
-  ["seo-autopilot-feedback-does-not-invent-ranking-advice", !seoAutopilot.includes('row.recommendation || "Renforcer contenu, preuves, FAQ, maillage et CTA devis."')]
+  ["seo-autopilot-feedback-does-not-invent-ranking-advice", !seoAutopilot.includes('row.recommendation || "Renforcer contenu, preuves, FAQ, maillage et CTA devis."')],
+  ["seo-autopilot-supports-runtime-search-input", seoAutopilot.includes("LOCAL_SEARCH_INTELLIGENCE_REPORT") && seoAutopilot.includes("SEARCH_INTELLIGENCE_REPORT")],
+  ["seo-autopilot-supports-runtime-safe-outputs", seoAutopilot.includes("LOCAL_SEO_AUTOPILOT_REPORT") && seoAutopilot.includes("LOCAL_SEO_AUTOPILOT_PUBLIC_REPORT")],
+  ["runtime-refreshes-public-seo-report", runtime.includes('runStep("seo_autopilot_runtime", ["scripts/seo-autopilot.js", "--local-only"]') && runtime.includes("LOCAL_SEO_AUTOPILOT_PUBLIC_REPORT")]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
 const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, safeguards: ["raw-traffic-not-treated-as-commercial-intent", "minimum-sample-before-high-friction-alert", "first-party-events-only", "no-pii-in-seo-reports", "serp-primary-metrics-measured-only", "no-fallback-driven-content", "no-fallback-driven-actions", "measured-only-competitor-intelligence"] };

@@ -1,6 +1,6 @@
 import { createSign } from "node:crypto";
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { extname, join, relative } from "node:path";
+import { dirname, extname, join, relative } from "node:path";
 import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
@@ -8,6 +8,10 @@ loadDefaultEnvFiles();
 const SITE = "https://immeubleassur.com";
 const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
+const SEARCH_INTELLIGENCE_REPORT = process.env.LOCAL_SEARCH_INTELLIGENCE_REPORT || (process.env.LOCAL_RUNTIME_REPORTS_ROOT ? join(process.env.LOCAL_RUNTIME_REPORTS_ROOT, "search-intelligence-report.json") : join(REPORT_DIR, "search-intelligence-report.json"));
+const SEO_AUTOPILOT_REPORT = process.env.LOCAL_SEO_AUTOPILOT_REPORT || join(REPORT_DIR, "seo-autopilot-report.json");
+const SEO_AUTOPILOT_MARKDOWN = process.env.LOCAL_SEO_AUTOPILOT_MARKDOWN || join(REPORT_DIR, "seo-autopilot-report.md");
+const SEO_AUTOPILOT_PUBLIC_REPORT = process.env.LOCAL_SEO_AUTOPILOT_PUBLIC_REPORT || join(PUBLIC_DIR, "assets", "seo-autopilot-latest.json");
 const args = new Set(process.argv.slice(2));
 const localOnly = args.has("--local-only");
 const usePageSpeed = args.has("--pagespeed") && !localOnly;
@@ -545,7 +549,7 @@ function readIntentConversionMonitorReport() {
   };
 }
 function readSearchIntelligenceReport() {
-  const report = readJsonFile(join(REPORT_DIR, "search-intelligence-report.json"), null);
+  const report = readJsonFile(SEARCH_INTELLIGENCE_REPORT, null);
   if (!report) return { status: "missing", available: false, rankings: [], errors: [], priority_queries: [] };
   const rankings = Array.isArray(report.rankings) ? report.rankings : [];
   return {
@@ -760,10 +764,13 @@ async function run() {
   const opportunities = [...issueOpportunities, ...contentGaps, ...gscOpps].sort((a, b) => (b.score || 0) - (a.score || 0));
   const report = { generated_at: new Date().toISOString(), mode: localOnly ? "local-only" : "api", pages_checked: pages.length, average_score: Math.round(pages.reduce((sum, page) => sum + page.score, 0) / pages.length), weak_pages: pages.filter((page) => page.score < 80).sort((a, b) => a.score - b.score).slice(0, 25), opportunities, gsc, pagespeed, auto_fix: autoFix, opportunity_expansion: opportunityExpansion, content_quality: contentQuality, cannibalization, intent_differentiation: intentDifferentiation, angle_differentiation: angleDifferentiation, internal_link_equity: internalLinkEquity, cluster_conversion_bridge: clusterConversionBridge, editorial_cluster_rescue: editorialClusterRescue, conversion_intelligence: conversionIntelligence, cro_experiment: croExperiment, lead_friction: leadFriction, lead_intent_routing: leadIntentRouting, lead_urgency_feedback: leadUrgencyFeedback, intent_conversion_monitor: intentConversionMonitor, search_intelligence: searchIntelligence, google_feedback_loop: googleFeedbackLoop, google_api_health: googleApiHealth, api_connectors: { google_search_console: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL", pagespeed_insights: "PAGESPEED_API_KEY optional", serpapi_positions: "SERP_API_KEY via scripts/search-intelligence.js --serp", url_inspection: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --url-inspection", sitemaps_api: "GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_KEY + GOOGLE_SEARCH_CONSOLE_SITE_URL + --submit-sitemap", ga4_measurement_protocol: "GA4_MEASUREMENT_ID + GA4_API_SECRET cote serveur local; GA4_MEASUREMENT_ID au build pour le client gtag", indexing_api: "not used: reserved by Google for JobPosting/BroadcastEvent URLs" }, compliance: ["no automated Google SERP scraping", "no scaled duplicate doorway pages", "content factory uses quality gate and user-intent pages", "Search Console average position is the source for Google ranking signals",
     "SerpApi ranking feedback is labelled measured, mixed or fallback before use", "no AI-detection evasion content", "GA4 server-side generate_lead event when configured", "cannibalization watchlist protects primary search intents", "visible intent differentiation avoids hidden keyword stuffing", "angle differentiation uses visible content and noindex consolidation for duplicates", "internal link equity uses visible contextual links only", "cluster conversion bridges use visible CTAs only", "editorial_cluster_rescue uses visible first-party CTA blocks only", "lead intent routing keeps visible SEO CTAs measurable through form, API and GA4", "lead urgency feedback keeps urgent pages routed to visible quote paths", "intent conversion monitor uses first-party local SQLite events only"] };
-  writeFileSync(join(REPORT_DIR, "seo-autopilot-report.json"), JSON.stringify(report, null, 2), "utf8");
-  writeFileSync(join(REPORT_DIR, "seo-autopilot-report.md"), buildMarkdown(report), "utf8");
+  mkdirSync(dirname(SEO_AUTOPILOT_REPORT), { recursive: true });
+  mkdirSync(dirname(SEO_AUTOPILOT_MARKDOWN), { recursive: true });
+  mkdirSync(dirname(SEO_AUTOPILOT_PUBLIC_REPORT), { recursive: true });
+  writeFileSync(SEO_AUTOPILOT_REPORT, JSON.stringify(report, null, 2), "utf8");
+  writeFileSync(SEO_AUTOPILOT_MARKDOWN, buildMarkdown(report), "utf8");
   const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, average_score: report.average_score, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, opportunity_expansion: report.opportunity_expansion, content_quality: report.content_quality, cannibalization: report.cannibalization, intent_differentiation: report.intent_differentiation, angle_differentiation: report.angle_differentiation, internal_link_equity: report.internal_link_equity, cluster_conversion_bridge: report.cluster_conversion_bridge, editorial_cluster_rescue: report.editorial_cluster_rescue, conversion_intelligence: report.conversion_intelligence, cro_experiment: report.cro_experiment, lead_friction: report.lead_friction, lead_intent_routing: report.lead_intent_routing, lead_urgency_feedback: report.lead_urgency_feedback, intent_conversion_monitor: report.intent_conversion_monitor, search_intelligence: report.search_intelligence, google_feedback_loop: report.google_feedback_loop, google_api_health: report.google_api_health, connectors: report.api_connectors, compliance: report.compliance };
-  writeFileSync(join(PUBLIC_DIR, "assets", "seo-autopilot-latest.json"), JSON.stringify(publicReport, null, 2), "utf8");
+  writeFileSync(SEO_AUTOPILOT_PUBLIC_REPORT, JSON.stringify(publicReport, null, 2), "utf8");
   console.log(`SEO autopilot checked ${report.pages_checked} pages, average score ${report.average_score}, opportunities ${report.opportunities.length}.`);
 }
 
