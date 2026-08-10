@@ -140,7 +140,7 @@ textarea {
 }
 
 .hero-media {
-  background-image: url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1400&q=70");
+  background-image: url("/assets/hero-building.webp");
   background-size: cover;
   background-position: center;
   transform: scale(1.02);
@@ -746,7 +746,7 @@ address a {
   overflow: hidden;
   padding: 84px 0 68px;
   color: #fff;
-  background: linear-gradient(135deg, rgba(11, 79, 74, 0.96), rgba(13, 27, 30, 0.96)), url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1400&q=70") center/cover;
+  background: linear-gradient(135deg, rgba(11, 79, 74, 0.96), rgba(13, 27, 30, 0.96)), url("/assets/hero-building.webp") center/cover;
 }
 
 .compact-hero h1 {

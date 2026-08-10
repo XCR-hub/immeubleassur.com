@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-08-10T01:40:00.733Z",
+  "generated_at": "2026-08-10T01:46:36.159Z",
   "status": "passed",
   "pages_checked": 203,
   "indexable_pages": 191,
-  "average_html_kb": 20.3,
+  "average_html_kb": 20.2,
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 37.9,
+      "kb": 37.8,
       "issue_count": 0
     },
     {
       "source": "assurance-immeuble.html",
-      "kb": 31.2,
+      "kb": 31.1,
       "issue_count": 0
     },
     {
@@ -21,37 +21,27 @@
       "issue_count": 0
     },
     {
-      "source": "prix-assurance-immeuble.html",
-      "kb": 27.6,
-      "issue_count": 0
-    },
-    {
       "source": "news/veille-assurance-immeuble-2026-08-03.html",
       "kb": 27.5,
       "issue_count": 0
     },
     {
+      "source": "prix-assurance-immeuble.html",
+      "kb": 27.5,
+      "issue_count": 0
+    },
+    {
       "source": "assurance-copropriete.html",
-      "kb": 27,
+      "kb": 26.9,
       "issue_count": 0
     },
     {
       "source": "devis-assurance-immeuble.html",
-      "kb": 26.7,
+      "kb": 26.6,
       "issue_count": 0
     },
     {
       "source": "blog/index.html",
-      "kb": 26.1,
-      "issue_count": 0
-    },
-    {
-      "source": "blog.html",
-      "kb": 26,
-      "issue_count": 0
-    },
-    {
-      "source": "assurance-immeuble-de-rapport.html",
       "kb": 26,
       "issue_count": 0
     },
@@ -61,16 +51,26 @@
       "issue_count": 0
     },
     {
-      "source": "assurance-sci.html",
+      "source": "blog.html",
       "kb": 25.9,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-immeuble-de-rapport.html",
+      "kb": 25.8,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-sci.html",
+      "kb": 25.8,
       "issue_count": 0
     }
   ],
   "assets": [
     {
       "path": "assets/styles.css",
-      "bytes": 74665,
-      "kb": 72.9,
+      "bytes": 74531,
+      "kb": 72.8,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
@@ -81,6 +81,14 @@
       "kb": 128.5,
       "budget_bytes": 143360,
       "budget_kb": 140,
+      "ok": true
+    },
+    {
+      "path": "assets/hero-building.webp",
+      "bytes": 147440,
+      "kb": 144,
+      "budget_bytes": 184320,
+      "budget_kb": 180,
       "ok": true
     },
     {
@@ -182,6 +190,7 @@
     "averageHtmlBytes": 40960,
     "stylesBytes": 92160,
     "appBytes": 143360,
+    "heroImageBytes": 184320,
     "adminBytes": 133120,
     "searchIndexBytes": 92160,
     "publicReportBytes": 163840,
@@ -191,7 +200,8 @@
     "html-size-budget",
     "core-asset-budget",
     "versioned-css-js",
-    "async-turnstile-only",
+    "turnstile-on-demand",
+    "local-hero-image-budget",
     "lazy-images",
     "public-report"
   ]

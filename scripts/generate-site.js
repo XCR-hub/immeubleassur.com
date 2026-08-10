@@ -591,8 +591,8 @@ function layout({ slug, title, description, body, canonical, schema = "" }) {
     <link rel="canonical" href="${canonical || url}" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
-    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1400&q=70" crossorigin />
+    
+    <link rel="preload" as="image" href="/assets/hero-building.webp" type="image/webp" />
     <link rel="stylesheet" href="${STYLES_URL}" />
     <title>${esc(title)} | ImmeubleAssur</title>
 ${schemaMarkup}  </head>

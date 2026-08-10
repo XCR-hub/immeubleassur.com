@@ -11,6 +11,7 @@ const budgets = {
   averageHtmlBytes: 40 * 1024,
   stylesBytes: 90 * 1024,
   appBytes: 140 * 1024,
+  heroImageBytes: 180 * 1024,
   adminBytes: 130 * 1024,
   searchIndexBytes: 90 * 1024,
   publicReportBytes: 160 * 1024,
@@ -100,6 +101,7 @@ function build() {
   const assetRows = [
     assetRow("assets/styles.css", budgets.stylesBytes),
     assetRow("assets/app.js", budgets.appBytes),
+    assetRow("assets/hero-building.webp", budgets.heroImageBytes),
     assetRow("assets/admin.js", budgets.adminBytes),
     assetRow("assets/search-index.json", budgets.searchIndexBytes)
   ];
@@ -126,7 +128,7 @@ function build() {
     severe_issue_count: severeIssues.length,
     issues: allIssues.slice(0, 120),
     budgets,
-    safeguards: ["html-size-budget", "core-asset-budget", "versioned-css-js", "async-turnstile-only", "lazy-images", "public-report"]
+    safeguards: ["html-size-budget", "core-asset-budget", "versioned-css-js", "turnstile-on-demand", "local-hero-image-budget", "lazy-images", "public-report"]
   };
 
   writeJson(REPORT_PATH, report);
