@@ -24,11 +24,11 @@ const ENABLE_AI = args.has("--ai");
 const SOURCES = [
   ["service-public-particuliers", "Service-Public.fr particuliers", "https://www.service-public.fr/abonnements/rss/actu-actualites-particuliers.rss", "rss", "droit-logement", "official", "rss-summary-only"],
   ["service-public-professionnels", "Entreprendre.Service-Public.fr", "https://www.service-public.gouv.fr/abonnements/rss/actu-actu-pro.rss", "rss", "entreprises-immobilier", "official", "rss-summary-only"],
-  ["acpr-actualites", "ACPR Banque de France", "https://acpr.banque-france.fr/fr/actualites", "public-page", "regulateur-assurance", "regulator", "public-title-and-summary"],
-  ["acpr-communiques", "ACPR communiques", "https://acpr.banque-france.fr/fr/communiques-de-presse", "public-page", "regulateur-assurance", "regulator", "public-title-and-summary"],
+  ["acpr-actualites", "ACPR Banque de France", "https://acpr.banque-france.fr/fr/actualites", "public-page", "regulateur-assurance", "regulator", "public-title-summary-and-date-metadata"],
+  ["acpr-communiques", "ACPR communiques", "https://acpr.banque-france.fr/fr/communiques-de-presse", "public-page", "regulateur-assurance", "regulator", "public-title-summary-and-date-metadata"],
   ["anil-actualites", "ANIL", "https://www.anil.org/actualites-evenements/", "public-page", "logement-copropriete", "official", "public-title-and-summary"],
   ["adil57-syndic-actualites", "ADIL 57 - copropriete et syndic", "https://www.anil.org/adil-57/toutes-nos-actualites/", "public-page", "syndic-copropriete", "official", "public-title-and-summary"],
-  ["france-assureurs-actualites", "France Assureurs", "https://www.franceassureurs.fr/actualites", "public-page", "marche-assurance", "industry", "public-title-and-summary"],
+  ["france-assureurs-actualites", "France Assureurs", "https://www.franceassureurs.fr/actualites", "public-page", "marche-assurance", "industry", "public-title-summary-and-date-metadata"],
   ["legifrance", "Legifrance", "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/", "reference", "droit", "official", "reference-metadata-only"]
 ].map(([id, name, url, source_type, category, authority, crawl_policy]) => ({ id, name, url, source_type, category, authority, crawl_policy }));
 
@@ -320,7 +320,8 @@ function parsePublicPage(html, source) {
     try { url = new URL(decodeHtml(match[1]), source.url); } catch { continue; }
     if (!/^https?:$/.test(url.protocol) || url.hostname !== sourceUrl.hostname || url.href === sourceUrl.href) continue;
     if (!sourceUrlAllowed(source, url)) { rejectedUrlScope += 1; continue; }
-    const contextStart = Math.max(0, (match.index || 0) - 350);
+    const contextLookbehind = source?.id === "france-assureurs-actualites" ? 1800 : 350;
+    const contextStart = Math.max(0, (match.index || 0) - contextLookbehind);
     const contextEnd = Math.min(cleaned.length, (match.index || 0) + match[0].length + 700);
     const context = sanitizeEditorialSummary(cleaned.slice(contextStart, contextEnd));
     const afterAnchor = sanitizeEditorialSummary(cleaned.slice((match.index || 0) + match[0].length, (match.index || 0) + match[0].length + 700));
@@ -375,7 +376,36 @@ async function fetchWithTimeout(url, timeoutMs = 8000) {
   }
 }
 
-async function collectWatchItems() {
+function publicationDateMetadata(html) {
+  const raw = String(html || "");
+  const patterns = [
+    /<meta[^>]+property=["']article:published_time["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']article:published_time["']/i,
+    /"datePublished"\s*:\s*"([^"]+)"/i,
+    /<time[^>]+class=["'][^"']*\bpublished\b[^"']*["'][^>]+datetime=["']([^"']+)["']/i,
+    /<time[^>]+datetime=["']([^"']+)["'][^>]+class=["'][^"']*\bpublished\b/i
+  ];
+  for (const pattern of patterns) {
+    const value = normalizeEditorialText(decodeHtml(raw.match(pattern)?.[1] || ""));
+    if (publicationDate(value)) return value;
+  }
+  const visible = normalizeEditorialText(stripHtml(decodeHtml(raw)));
+  const french = visible.match(/(?:Mise en ligne|Publi[ée]e?)\s+le\s+(\d{1,2}\s+(?:janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[uû]t|septembre|octobre|novembre|d[ée]cembre)\s+20\d{2})/i);
+  return publicationDate(french?.[1]) ? normalizeEditorialText(french[1]) : "";
+}
+async function enrichPublicationDates(items, sourceResults, maximumFetches = 8) {
+  const allowed = new Set(["acpr-actualites", "acpr-communiques", "france-assureurs-actualites"]);
+  const candidates = items.filter((item) => !publicationDate(item.published_at) && allowed.has(item.source_id) && /^https?:\/\//i.test(item.url || "")).slice(0, maximumFetches);
+  const enrichedByUrl = new Map();
+  await Promise.all(candidates.map(async (item) => {
+    try {
+      const date = publicationDateMetadata(await fetchWithTimeout(item.url));
+      if (date) enrichedByUrl.set(item.url, date);
+    } catch {}
+  }));
+  for (const source of sourceResults) source.date_metadata_enriched_count = candidates.filter((item) => item.source_id === source.source_id && enrichedByUrl.has(item.url)).length;
+  return items.map((item) => enrichedByUrl.has(item.url) ? { ...item, published_at: enrichedByUrl.get(item.url), date_source: "article-metadata" } : item);
+}async function collectWatchItems() {
   const errors = [];
   const sourceResults = [];
   if (!ENABLE_FETCH) return { items: FALLBACK_ITEMS.map((item) => ({ ...item, fetched_at: new Date().toISOString() })), errors, sourceResults, mode: "local-fallback" };
@@ -410,7 +440,9 @@ async function collectWatchItems() {
     if (!deduplicated.has(key) || deduplicated.get(key).relevance_score < enriched.relevance_score) deduplicated.set(key, enriched);
   }
   const items = [...deduplicated.values()];
-  return { items: selectPublishedWatchItems(items.sort((a, b) => b.relevance_score - a.relevance_score), 18), errors, sourceResults, mode: fetched.length ? "fetched" : "fallback-after-fetch" };
+  const selectedItems = selectPublishedWatchItems(items.sort((a, b) => b.relevance_score - a.relevance_score), 18);
+  const enrichedItems = await enrichPublicationDates(selectedItems, sourceResults);
+  return { items: enrichedItems, errors, sourceResults, mode: fetched.length ? "fetched" : "fallback-after-fetch" };
 }
 
 function aiProviders() {
@@ -873,7 +905,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", no-relevant=" + report.no_relevant_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, selectPublishedWatchItems, editorialRecency, aiProviders, publicationDate, evaluatePublicationGate };
+export { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, selectPublishedWatchItems, editorialRecency, publicationDateMetadata, enrichPublicationDates, aiProviders, publicationDate, evaluatePublicationGate };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });
