@@ -115,7 +115,7 @@ function run() {
     runStep("imap_sync", ["scripts/local-imap-sync.js"], commonRuntimeEnv),
     runStep("contract_renewal_monitor", ["scripts/local-contract-renewal-monitor.js"]),
     runStep("security_surface_monitor", ["scripts/local-security-surface-monitor.js"], commonRuntimeEnv),
-    runStep("production_monitor", ["scripts/local-production-monitor.js"]),
+    runStep("production_monitor", ["scripts/local-production-monitor.js"], { ...commonRuntimeEnv, LOCAL_PRODUCTION_MONITOR_SKIP_RUNTIME_CYCLE: "1" }),
     runStep("reliability_contract", ["scripts/reliability-contract-check.js"], commonRuntimeEnv),
     runStep("tls_certificate_monitor", ["scripts/local-tls-certificate-monitor.js"], commonRuntimeEnv),
     runStep("lead_sla_monitor", ["scripts/local-lead-sla-monitor.js"]),
