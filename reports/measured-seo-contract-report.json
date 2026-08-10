@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-08-10T03:30:33.143Z",
+  "status": "passed",
+  "checks": 12,
+  "missing": [],
+  "safeguards": [
+    "raw-traffic-not-treated-as-commercial-intent",
+    "minimum-sample-before-high-friction-alert",
+    "first-party-events-only",
+    "no-pii-in-seo-reports"
+  ]
+}

@@ -111,8 +111,8 @@ function valueLabel(min, max) {
 
 function sourceSignalScore(row) {
   const score =
-    Number(row.sessions || 0) * 2 +
-    Number(row.page_views || 0) * 0.5 +
+    Number(row.engaged_sessions || 0) * 2 +
+    Math.min(Number(row.page_views || 0) * 0.1, 10) +
     Number(row.cta_clicks || 0) * 10 +
     Number(row.quote_router_continues || 0) * 12 +
     Number(row.bridge_clicks || 0) * 14 +
@@ -182,14 +182,14 @@ function sourceStage(row) {
   const formStarts = Number(row.form_starts || 0);
   const ctaSignals = Number(row.cta_clicks || 0) + Number(row.quote_router_continues || 0) + Number(row.bridge_clicks || 0);
   const urgencySelects = Number(row.urgency_selects || 0);
-  const sessions = Number(row.sessions || 0);
-  const pageViews = Number(row.page_views || 0);
+  const engagedSessions = Number(row.engaged_sessions || 0);
   if (leads > 0) return { key: "lead-growth", label: "Leads a amplifier", severity: "high" };
   if (submitAttempts > 0) return { key: "submit-without-lead", label: "Envois sans lead", severity: "critical" };
-  if (formStarts > 0) return { key: "start-without-submit", label: "Formulaire bloque", severity: "high" };
+  if (formStarts >= 3) return { key: "start-without-submit", label: "Formulaire bloque", severity: "high" };
+  if (formStarts > 0) return { key: "early-start-signal", label: "Premier demarrage sans envoi", severity: "low" };
   if (urgencySelects > 0) return { key: "urgency-without-start", label: "Urgence sans formulaire", severity: "high" };
   if (ctaSignals > 0) return { key: "click-without-start", label: "Clics sans formulaire", severity: "medium" };
-  if (sessions >= 20 || pageViews >= 20) return { key: "traffic-without-click", label: "Trafic sans clic", severity: "medium" };
+  if (engagedSessions >= 10) return { key: "engaged-without-click", label: "Sessions engagees sans clic", severity: "medium" };
   return { key: "signal-watch", label: "Signal a surveiller", severity: "low" };
 }
 
@@ -199,8 +199,10 @@ function sourceStageAction(row) {
   const stage = row.source_stage || sourceStage(row).key;
   if (stage === "lead-growth") return `Amplifier ${source}: creer des liens internes depuis les pages proches, renforcer la preuve locale et pousser un CTA devis sur ${need}.`;
   if (stage === "submit-without-lead") return `Corriger ${source}: tester l'envoi complet, verifier Turnstile/validation/API et simplifier le bloc formulaire pour ${need}.`;
+  if (stage === "early-start-signal") return `Surveiller ${source}: echantillon encore faible; verifier le prochain demarrage avant une modification lourde du formulaire ${need}.`;
   if (stage === "start-without-submit") return `Debloquer ${source}: reduire la friction formulaire, afficher les champs obligatoires restants et proposer l'appel direct sur ${need}.`;
   if (stage === "urgency-without-start") return `Transformer l'urgence de ${source}: rendre le bouton devis prioritaire apres choix urgence, conserver le pre-remplissage ${need} et proposer rappel express.`;
+  if (stage === "engaged-without-click") return `Transformer ${source}: analyser les interactions engagees et rapprocher le CTA principal du besoin ${need}.`;
   if (stage === "click-without-start") return `Transformer les clics de ${source}: aligner le bouton avec le formulaire, pre-remplir le besoin ${need} et rapprocher le module devis.`;
   if (stage === "traffic-without-click") return `Transformer le trafic de ${source}: remonter un CTA devis au premier ecran, ajouter une preuve metier et clarifier l'offre ${need}.`;
   return `Surveiller ${source}: accumuler plus de signaux avant d'ouvrir une action lourde.`;
@@ -334,6 +336,7 @@ function leadSourceQualityRows(database, limit) {
         value_max: row.value_max,
         value_label: valueLabel(row.value_min, row.value_max),
         sessions: 0,
+        engaged_sessions: 0,
         page_views: 0,
         cta_clicks: 0,
         quote_router_continues: 0,
@@ -372,6 +375,7 @@ function eventSourceQualityRows(database, limit) {
           ''
         ) AS intent,
         COUNT(DISTINCT COALESCE(NULLIF(session_id, ''), id)) AS sessions,
+        COUNT(DISTINCT CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click', 'traffic_without_click_urgency_select', 'traffic_without_click_quote_click', 'traffic_without_click_phone_click', 'quote_router_continue', 'form_start', 'form_submit_attempt', 'lead_created', 'content_lead_bridge_quote_click', 'content_lead_bridge_phone_click') THEN COALESCE(NULLIF(session_id, ''), id) END) AS engaged_sessions,
         SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END) AS page_views,
         SUM(CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click', 'traffic_without_click_quote_click', 'traffic_without_click_phone_click') THEN 1 ELSE 0 END) AS cta_clicks,
         SUM(CASE WHEN event_type = 'quote_router_continue' THEN 1 ELSE 0 END) AS quote_router_continues,
@@ -398,6 +402,7 @@ function eventSourceQualityRows(database, limit) {
     const current = map.get(source) || {
       source,
       sessions: 0,
+      engaged_sessions: 0,
       page_views: 0,
       cta_clicks: 0,
       quote_router_continues: 0,
@@ -412,6 +417,7 @@ function eventSourceQualityRows(database, limit) {
     };
     const intent = normalizedNeed(row.intent, source);
     current.sessions += Number(row.sessions || 0);
+    current.engaged_sessions += Number(row.engaged_sessions || 0);
     current.page_views += Number(row.page_views || 0);
     current.cta_clicks += Number(row.cta_clicks || 0);
     current.quote_router_continues += Number(row.quote_router_continues || 0);
@@ -422,7 +428,7 @@ function eventSourceQualityRows(database, limit) {
     current.leads_created += Number(row.leads_created || 0);
     current.bridge_clicks += Number(row.bridge_clicks || 0);
     current.urgency_selects += Number(row.urgency_selects || 0);
-    const intentWeight = Number(row.form_starts || 0) * 3 + Number(row.submit_attempts || 0) * 4 + Number(row.cta_clicks || 0) + Number(row.urgency_selects || 0) * 2 + Number(row.sessions || 0);
+    const intentWeight = Number(row.form_starts || 0) * 3 + Number(row.submit_attempts || 0) * 4 + Number(row.cta_clicks || 0) + Number(row.urgency_selects || 0) * 2 + Number(row.engaged_sessions || 0);
     current.needs.set(intent, (current.needs.get(intent) || 0) + Math.max(1, intentWeight));
     map.set(source, current);
   }
@@ -441,6 +447,7 @@ function eventSourceQualityRows(database, limit) {
         value_max: 0,
         value_label: "0 EUR/an",
         sessions: row.sessions,
+        engaged_sessions: row.engaged_sessions,
         page_views: row.page_views,
         cta_clicks: row.cta_clicks,
         quote_router_continues: row.quote_router_continues,
@@ -476,6 +483,7 @@ function mergeSourceQualityRows(leadRows, eventRows, limit) {
       value_min: 0,
       value_max: 0,
       sessions: 0,
+      engaged_sessions: 0,
       page_views: 0,
       cta_clicks: 0,
       quote_router_continues: 0,
@@ -499,6 +507,7 @@ function mergeSourceQualityRows(leadRows, eventRows, limit) {
     current.value_min += Number(row.value_min || 0);
     current.value_max += Number(row.value_max || 0);
     current.sessions += Number(row.sessions || 0);
+    current.engaged_sessions += Number(row.engaged_sessions || 0);
     current.page_views += Number(row.page_views || 0);
     current.cta_clicks += Number(row.cta_clicks || 0);
     current.quote_router_continues += Number(row.quote_router_continues || 0);
@@ -513,7 +522,7 @@ function mergeSourceQualityRows(leadRows, eventRows, limit) {
     const basis = clean(row.quality_basis || (leads ? "leads" : "event-signals"), 40);
     if (basis) current.bases.add(basis);
     const need = normalizedNeed(row.top_need, source);
-    const needWeight = leads * 5 + Number(row.form_starts || 0) * 3 + Number(row.submit_attempts || 0) * 4 + Number(row.cta_clicks || 0) + Number(row.urgency_selects || 0) * 2 + Number(row.sessions || 0);
+    const needWeight = leads * 5 + Number(row.form_starts || 0) * 3 + Number(row.submit_attempts || 0) * 4 + Number(row.cta_clicks || 0) + Number(row.urgency_selects || 0) * 2 + Number(row.engaged_sessions || 0);
     current.needs.set(need, (current.needs.get(need) || 0) + Math.max(1, needWeight));
     map.set(source, current);
   }
@@ -532,6 +541,7 @@ function mergeSourceQualityRows(leadRows, eventRows, limit) {
         value_max: row.value_max,
         value_label: valueLabel(row.value_min, row.value_max),
         sessions: row.sessions,
+        engaged_sessions: row.engaged_sessions,
         page_views: row.page_views,
         cta_clicks: row.cta_clicks,
         quote_router_continues: row.quote_router_continues,
@@ -594,6 +604,7 @@ function summaryFrom(statusRows, topRows, conversionRows, stale, sourceQuality) 
     top_qualified_source_score: Number(sourceQuality[0]?.quality_score || 0),
     top_qualified_source_leads: Number(sourceQuality[0]?.leads || 0),
     top_qualified_source_sessions: Number(sourceQuality[0]?.sessions || 0),
+    top_qualified_source_engaged_sessions: Number(sourceQuality[0]?.engaged_sessions || 0),
     top_qualified_source_urgency_selects: Number(sourceQuality[0]?.urgency_selects || 0),
     top_qualified_source_basis: sourceQuality[0]?.quality_basis || "",
     top_qualified_source_stage: sourceQuality[0]?.source_stage || "",
@@ -632,7 +643,7 @@ function recommendations(summary, topRows, staleRowsList, conversionRows, source
     const leads = Number(top?.leads || 0);
     const signal = leads > 0
       ? `${leads} lead(s), ${top?.hot_leads || 0} chaud(s), score ${top?.quality_score || 0}`
-      : `${top?.sessions || 0} session(s), ${top?.form_starts || 0} start(s), ${top?.cta_clicks || 0} clic(s), ${top?.urgency_selects || 0} urgence(s), score ${top?.quality_score || 0}`;
+      : `${top?.engaged_sessions || 0} session(s) engagee(s) / ${top?.sessions || 0} brute(s), ${top?.form_starts || 0} start(s), ${top?.cta_clicks || 0} clic(s), ${top?.urgency_selects || 0} urgence(s), score ${top?.quality_score || 0}`;
     const action = top?.source_stage_action || (leads > 0
       ? `Renforcer la source ${top?.source || "non precise"}: maillage interne, contenus satellites, preuve locale et CTA devis sur le besoin ${top?.top_need || "immeuble"}.`
       : `Transformer la source prometteuse ${top?.source || "non precise"}: clarifier l'offre, remonter le CTA devis et creer un contenu satellite sur le besoin ${top?.top_need || "immeuble"}.`);

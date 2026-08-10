@@ -13,6 +13,12 @@ const AI_SOURCE_PATTERNS = [
   ["copilot", /copilot/]
 ];
 
+const ENGAGEMENT_EVENTS = new Set([
+  "cta_click", "phone_click", "form_start", "form_submit_attempt", "lead_created",
+  "traffic_without_click_urgency_select", "traffic_without_click_quote_click",
+  "traffic_without_click_phone_click", "content_lead_bridge_quote_click",
+  "content_lead_bridge_phone_click"
+]);
 const ORGANIC_HOSTS = [
   "google.",
   "bing.",
@@ -106,6 +112,7 @@ function createBucket(source) {
   return {
     source,
     sessions: new Set(),
+    engaged_sessions: new Set(),
     landing_paths: new Map(),
     page_views: 0,
     cta_clicks: 0,
@@ -141,6 +148,7 @@ function addPath(bucket, path, row = {}, eventType = "") {
 function countEvent(bucket, row, payload) {
   const type = row.event_type;
   if (row.session_id) bucket.sessions.add(row.session_id);
+  if (row.session_id && ENGAGEMENT_EVENTS.has(type)) bucket.engaged_sessions.add(row.session_id);
   if (type === "page_view") bucket.page_views += 1;
   if (["cta_click", "traffic_without_click_quote_click", "content_lead_bridge_quote_click"].includes(type)) bucket.cta_clicks += 1;
   if (["phone_click", "traffic_without_click_phone_click", "content_lead_bridge_phone_click"].includes(type)) {
@@ -177,10 +185,12 @@ function countLead(bucket, row) {
 
 function finalize(bucket) {
   const sessions = bucket.sessions.size;
+  const engagedSessions = bucket.engaged_sessions.size;
   const leads = Math.max(bucket.leads_db, bucket.leads_event);
   return {
     source: bucket.source,
     sessions,
+    engaged_sessions: engagedSessions,
     page_views: bucket.page_views,
     cta_clicks: bucket.cta_clicks,
     phone_clicks: bucket.phone_clicks,
@@ -201,6 +211,7 @@ function finalize(bucket) {
     hot_leads_db: bucket.hot_leads_db,
     average_lead_score: bucket.leads_db ? Math.round(bucket.score_sum / bucket.leads_db) : 0,
     session_to_start_rate: pct(bucket.form_starts, sessions),
+    engaged_session_to_start_rate: pct(bucket.form_starts, engagedSessions),
     start_to_lead_rate: pct(leads, bucket.form_starts),
     session_to_lead_rate: pct(leads, sessions),
     submit_error_rate: pct(bucket.submit_errors, bucket.submit_attempts),
@@ -220,12 +231,12 @@ function finalize(bucket) {
 }
 
 function recommendationFor(row) {
-  if (row.sessions >= 20 && row.form_starts === 0 && row.traffic_rescue_shown === 0) {
+  if (row.engaged_sessions >= 10 && row.form_starts === 0 && row.traffic_rescue_shown === 0) {
     return {
       type: "source-sans-rattrapage",
       severity: "high",
       source: row.source,
-      signal: `${row.sessions} session(s), 0 demarrage formulaire`,
+      signal: `${row.engaged_sessions} session(s) engagee(s), 0 demarrage formulaire`,
       action: "Declencher le rattrapage homepage plus tot et verifier que le rappel express reste visible pour cette source.",
       score: 90
     };
@@ -355,6 +366,7 @@ function run() {
     .slice(0, 12);
   const totals = sourceRows.reduce((sum, row) => ({
     sessions: sum.sessions + row.sessions,
+    engaged_sessions: sum.engaged_sessions + row.engaged_sessions,
     page_views: sum.page_views + row.page_views,
     form_starts: sum.form_starts + row.form_starts,
     submit_attempts: sum.submit_attempts + row.submit_attempts,
@@ -363,7 +375,7 @@ function run() {
     spam_blocks: sum.spam_blocks + row.spam_blocks,
     traffic_rescue_direct_shown: sum.traffic_rescue_direct_shown + row.traffic_rescue_direct_shown,
     traffic_rescue_direct_clicks: sum.traffic_rescue_direct_clicks + row.traffic_rescue_direct_clicks
-  }), { sessions: 0, page_views: 0, form_starts: 0, submit_attempts: 0, leads_db: 0, hot_leads_db: 0, spam_blocks: 0, traffic_rescue_direct_shown: 0, traffic_rescue_direct_clicks: 0 });
+  }), { sessions: 0, engaged_sessions: 0, page_views: 0, form_starts: 0, submit_attempts: 0, leads_db: 0, hot_leads_db: 0, spam_blocks: 0, traffic_rescue_direct_shown: 0, traffic_rescue_direct_clicks: 0 });
   const report = {
     generated_at: new Date().toISOString(),
     status: recommendations.some((item) => item.severity === "high") ? "action-required" : "passed",
@@ -373,6 +385,7 @@ function run() {
     summary: {
       sources: sourceRows.length,
       sessions: totals.sessions,
+      engaged_sessions: totals.engaged_sessions,
       page_views: totals.page_views,
       form_starts: totals.form_starts,
       submit_attempts: totals.submit_attempts,
@@ -383,6 +396,7 @@ function run() {
       traffic_rescue_direct_clicks: totals.traffic_rescue_direct_clicks,
       traffic_rescue_direct_click_rate: pct(totals.traffic_rescue_direct_clicks, totals.traffic_rescue_direct_shown),
       session_to_lead_rate: pct(totals.leads_db, totals.sessions),
+      engaged_session_to_lead_rate: pct(totals.leads_db, totals.engaged_sessions),
       start_to_lead_rate: pct(totals.leads_db, totals.form_starts)
     },
     sources: sourceRows,
