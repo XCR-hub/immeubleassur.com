@@ -94,6 +94,35 @@ function normalizeOpportunity(item, report, runId, now) {
   };
 }
 
+function normalizeIntentOpportunity(item, report, runId, now) {
+  const type = clean(item.type || "intent", 90).replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
+  const target = clean(item.target || "intentions", 240) || "intentions";
+  const isFormPlacement = type.startsWith("formulaire-");
+  const url = target === "recherches-hub" ? siteUrl("/recherches-assurance-immeuble") : sourceUrl(target);
+  return {
+    id: "intent-" + stableHash(type + "|" + target),
+    run_id: runId,
+    url,
+    query: clean(item.signal || type, 240),
+    opportunity_type: "conversion-intent-" + type,
+    score: scoreFor(item),
+    status: "open",
+    recommendation: clean(item.action || "Verifier le parcours de conversion mesure pour cette intention.", 900),
+    payload: JSON.stringify({
+      source: "local-intent-conversion-monitor",
+      severity: item.severity || "",
+      target,
+      intent: isFormPlacement ? "" : target,
+      form_source: isFormPlacement ? target : "",
+      signal: item.signal || "",
+      report_generated_at: report.generated_at || "",
+      lookback_days: Number(report.summary?.lookback_days || 0)
+    }),
+    created_at: now,
+    updated_at: now
+  };
+}
+
 function normalizeSourceQualityOpportunity(item, report, runId, now) {
   const source = clean(item.source || "non precise", 700) || "non precise";
   const topNeed = clean(item.top_need || "immeuble", 140) || "immeuble";
@@ -276,21 +305,26 @@ function run() {
   const dbPath = argValue("--db", env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite")));
   const reportPath = resolve(argValue("--report", env("LOCAL_CONVERSION_FUNNEL_REPORT", join("reports", "local-conversion-funnel-report.json"))));
   const backlogReportPath = resolve(argValue("--backlog-report", env("LOCAL_SEO_BACKLOG_REPORT", join("reports", "local-seo-backlog-report.json"))));
+  const intentReportPath = resolve(argValue("--intent-report", env("LOCAL_INTENT_CONVERSION_REPORT", join("reports", "local-intent-conversion-report.json"))));
   const out = resolve(argValue("--out", env("LOCAL_CONVERSION_ACTION_SYNC_REPORT", join("reports", "local-conversion-action-sync-report.json"))));
   const report = readJson(reportPath);
   const backlogReport = readOptionalJson(backlogReportPath);
+  const intentReport = readOptionalJson(intentReportPath);
   const recommendations = Array.isArray(report.recommendations) ? report.recommendations : [];
+  const intentRecommendations = Array.isArray(intentReport?.recommendations) ? intentReport.recommendations : [];
   const now = new Date().toISOString();
   const runId = runIdFor(report);
   const funnelOpportunities = recommendations.map((item) => normalizeOpportunity(item, report, runId, now));
+  const intentOpportunities = intentRecommendations.map((item) => normalizeIntentOpportunity(item, intentReport, runId, now));
   const qualifiedSourceOpportunities = sourceQualityOpportunities(backlogReport, runId, now);
-  const opportunities = [...funnelOpportunities, ...qualifiedSourceOpportunities];
+  const opportunities = [...funnelOpportunities, ...intentOpportunities, ...qualifiedSourceOpportunities];
   const db = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
   try {
     upsertRun(db, runId, report, opportunities.length, now);
     for (const metric of metricRows(report, runId, now)) upsertMetric(db, metric);
     for (const opportunity of opportunities) upsertOpportunity(db, opportunity);
     const staleConversionMarked = markStaleByType(db, "conversion-funnel-%", funnelOpportunities.map((item) => item.id), now);
+    const staleIntentMarked = markStaleByType(db, "conversion-intent-%", intentOpportunities.map((item) => item.id), now);
     const staleQualifiedSourceMarked = markStaleByType(db, "qualified-source-growth", qualifiedSourceOpportunities.map((item) => item.id), now);
     const result = {
       success: true,
@@ -298,20 +332,24 @@ function run() {
       source_report: reportPath,
       backlog_report: backlogReportPath,
       backlog_report_loaded: Boolean(backlogReport),
+      intent_report: intentReportPath,
+      intent_report_loaded: Boolean(intentReport),
       database: db.path,
       run_id: runId,
       opportunities_opened: opportunities.length,
       conversion_opportunities_opened: funnelOpportunities.length,
+      intent_opportunities_opened: intentOpportunities.length,
       qualified_source_opportunities_opened: qualifiedSourceOpportunities.length,
-      opportunities_stale_marked: staleConversionMarked + staleQualifiedSourceMarked,
+      opportunities_stale_marked: staleConversionMarked + staleIntentMarked + staleQualifiedSourceMarked,
       conversion_opportunities_stale_marked: staleConversionMarked,
+      intent_opportunities_stale_marked: staleIntentMarked,
       qualified_source_opportunities_stale_marked: staleQualifiedSourceMarked,
       metrics_written: metricRows(report, runId, now).length,
       top_opportunity: opportunities[0] || null
     };
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, `${JSON.stringify(result, null, 2)}\n`, "utf8");
-    console.log(`Conversion action sync: ${opportunities.length} opportunity(s), ${staleConversionMarked + staleQualifiedSourceMarked} stale, ${qualifiedSourceOpportunities.length} qualified source(s), run ${runId}`);
+    console.log(`Conversion action sync: ${opportunities.length} opportunity(s), ${staleConversionMarked + staleIntentMarked + staleQualifiedSourceMarked} stale, ${qualifiedSourceOpportunities.length} qualified source(s), run ${runId}`);
     console.log(`Report: ${out}`);
   } finally {
     db.close();
