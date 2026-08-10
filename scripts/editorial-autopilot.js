@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { loadDefaultEnvFiles } from "./local-env.js";
+import { sanitizePublicWatchItems } from "./editorial-public-metadata-policy.js";
 
 loadDefaultEnvFiles();
 
@@ -721,8 +722,8 @@ async function run() {
     empty_source_count: report.empty_source_count,
     failed_source_count: report.failed_source_count,
     collection_status: report.collection_status,
-    public_watch_items: report.public_watch_items.map(({ source_id, source_name, title, url, topic, relevance_score, published_at }) => ({ source_id, source_name, title, url, topic, relevance_score, published_at })),
-    safeguards: ["no-ai-draft-content", "no-internal-paths", "no-provider-errors", "no-source-summaries", "deterministic-public-content-only"]
+    public_watch_items: sanitizePublicWatchItems(report.public_watch_items),
+    safeguards: ["no-ai-draft-content", "no-internal-paths", "no-provider-errors", "no-source-summaries", "no-future-publication-dates", "deterministic-public-content-only"]
   };
   write(join(REPORT_DIR, "editorial-autopilot-report.json"), JSON.stringify(report, null, 2));
   write(join(ASSET_DIR, "editorial-autopilot-latest.json"), JSON.stringify(publicReport, null, 2));

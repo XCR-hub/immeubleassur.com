@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
+import { sanitizePublicWatchItems } from "./editorial-public-metadata-policy.js";
 
 loadDefaultEnvFiles();
 
@@ -27,8 +28,8 @@ if (!existsSync(sourcePath)) {
     empty_source_count: Number(report.empty_source_count || 0),
     failed_source_count: Number(report.failed_source_count || 0),
     collection_status: report.collection_status || "unknown",
-    public_watch_items: (Array.isArray(report.public_watch_items) ? report.public_watch_items : []).map(({ source_id, source_name, title, url, topic, relevance_score, published_at }) => ({ source_id, source_name, title, url, topic, relevance_score, published_at })),
-    safeguards: ["no-ai-draft-content", "no-internal-paths", "no-provider-errors", "no-source-summaries", "deterministic-public-content-only"]
+    public_watch_items: sanitizePublicWatchItems(report.public_watch_items),
+    safeguards: ["no-ai-draft-content", "no-internal-paths", "no-provider-errors", "no-source-summaries", "no-future-publication-dates", "deterministic-public-content-only"]
   };
   mkdirSync(dirname(outputPath), { recursive: true });
   const temporaryPath = `${outputPath}.${process.pid}.tmp`;
