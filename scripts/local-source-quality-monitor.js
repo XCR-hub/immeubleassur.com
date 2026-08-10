@@ -119,6 +119,7 @@ function createBucket(source) {
     source,
     sessions: new Set(),
     engaged_sessions: new Set(),
+    page_views_by_session: new Map(),
     landing_paths: new Map(),
     page_views: 0,
     cta_clicks: 0,
@@ -154,9 +155,17 @@ function addPath(bucket, path, row = {}, eventType = "") {
 
 function countEvent(bucket, row, payload) {
   const type = row.event_type;
+  if (type === "lead_spam_blocked") {
+    if (isSyntheticSecurityCheck(row, payload)) bucket.synthetic_security_checks += 1;
+    else bucket.spam_blocks += 1;
+    return;
+  }
   if (row.session_id) bucket.sessions.add(row.session_id);
   if (row.session_id && ENGAGEMENT_EVENTS.has(type)) bucket.engaged_sessions.add(row.session_id);
-  if (type === "page_view") bucket.page_views += 1;
+  if (type === "page_view") {
+    bucket.page_views += 1;
+    if (row.session_id) bucket.page_views_by_session.set(row.session_id, (bucket.page_views_by_session.get(row.session_id) || 0) + 1);
+  }
   if (["cta_click", "traffic_without_click_quote_click", "content_lead_bridge_quote_click"].includes(type)) bucket.cta_clicks += 1;
   if (["phone_click", "traffic_without_click_phone_click", "content_lead_bridge_phone_click"].includes(type)) {
     bucket.cta_clicks += 1;
@@ -166,8 +175,6 @@ function countEvent(bucket, row, payload) {
   if (type === "form_submit_attempt") bucket.submit_attempts += 1;
   if (type === "lead_submit_error" || type === "lead_submit_rejected") bucket.submit_errors += 1;
   if (type === "lead_form_abandoned") bucket.abandoned_forms += 1;
-  if (type === "lead_spam_blocked" && isSyntheticSecurityCheck(row, payload)) bucket.synthetic_security_checks += 1;
-  else if (type === "lead_spam_blocked") bucket.spam_blocks += 1;
   const rescueVariant = normalizeSource(payload.rescue_variant);
   const directRescue = rescueVariant === "source-quality-direct";
   if (type === "traffic_without_click_shown") bucket.traffic_rescue_shown += 1;
@@ -192,6 +199,9 @@ function countLead(bucket, row) {
 }
 
 function finalize(bucket) {
+  for (const [session, pageViews] of bucket.page_views_by_session) {
+    if (pageViews >= 2) bucket.engaged_sessions.add(session);
+  }
   const sessions = bucket.sessions.size;
   const engagedSessions = bucket.engaged_sessions.size;
   const leads = Math.max(bucket.leads_db, bucket.leads_event);
@@ -419,6 +429,8 @@ function run() {
       "sqlite-read-only",
       "seo-cro-actions-derived-from-first-party-events",
       "synthetic-security-checks-excluded-from-acquisition-alerts",
+      "spam-probes-excluded-from-acquisition-sessions",
+      "multi-page-sessions-counted-as-engaged",
       "external-spam-pressure-preserved"
     ]
   };

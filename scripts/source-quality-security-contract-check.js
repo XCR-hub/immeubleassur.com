@@ -27,6 +27,8 @@ blocked("external-curl", "website", "curl/8.13.0");
 blocked("external-1", "attack-source");
 blocked("external-2", "attack-source");
 blocked("external-3", "attack-source");
+insert.run("page-1", "page_view", "https://immeubleassur.com/", "page", "human-multipage", JSON.stringify({ source: "organic-search" }), "Mozilla/5.0");
+insert.run("page-2", "page_view", "https://immeubleassur.com/assurance-immeuble", "page", "human-multipage", JSON.stringify({ source: "organic-search" }), "Mozilla/5.0");
 
 try {
   const result = spawnSync(process.execPath, [join(root, "scripts", "local-source-quality-monitor.js"), "--db", dbPath, "--out", out, "--public-out", publicOut], { cwd: root, encoding: "utf8" });
@@ -39,9 +41,11 @@ try {
   const checks = [
     ["synthetic-checks-separated", website?.synthetic_security_checks === 3 && website?.spam_blocks === 1],
     ["synthetic-checks-no-acquisition-alert", !report.recommendations.some((item) => item.source === "website")],
+    ["spam-probes-not-counted-as-sessions", website?.sessions === 0 && attack?.sessions === 0],
     ["external-pressure-preserved", attack?.spam_blocks === 3 && attack?.synthetic_security_checks === 0],
     ["external-pressure-alerted", recommendation?.type === "source-pression-spam"],
     ["aggregate-counts-exact", report.summary?.spam_blocks === 4 && report.summary?.synthetic_security_checks === 3],
+    ["multi-page-session-is-engaged", report.sources.find((row) => row.source === "organic-search")?.engaged_sessions === 1],
     ["public-export-aggregate-only", publicReport.summary?.synthetic_security_checks === 3 && !JSON.stringify(publicReport).includes("fixture-block")]
   ];
   const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
