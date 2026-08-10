@@ -12,8 +12,11 @@ const root = mkdtempSync(join(tmpdir(), "immeubleassur-notification-retry-"));
 const dbPath = join(root, "leads.sqlite");
 const reportPath = join(root, "retry-report.json");
 const database = new DatabaseSync(dbPath);
+const retrySource = readFileSync("scripts/local-lead-notification-retry.js", "utf8");
 
 try {
+  assert(retrySource.includes('item.toLowerCase() === "team@immeubleassur.com"'), "retry transport must require the operational team recipient");
+  assert(retrySource.includes("Destinataire operationnel team@immeubleassur.com absent"), "retry transport must fail closed when the team recipient is absent");
   database.exec(readFileSync("schema.sql", "utf8"));
   const createdAt = new Date(Date.now() - 40 * 60000).toISOString();
   database.prepare(`INSERT INTO leads (id, reference, name, phone, email, profile, property_type, city, lead_score, status, source, created_at, updated_at)
@@ -24,9 +27,16 @@ try {
 
   const runDry = () => spawnSync(process.execPath, ["scripts/local-lead-notification-retry.js", "--dry-run"], {
     cwd: process.cwd(),
-    env: { ...process.env, LOCAL_SQLITE_DB: dbPath, LOCAL_NOTIFICATION_RETRY_REPORT: reportPath, LOCAL_NOTIFICATION_RETRY_COOLDOWN_MINUTES: "5" },
+    env: { ...process.env, SMTP_TO: "team@immeubleassur.com", LOCAL_SQLITE_DB: dbPath, LOCAL_NOTIFICATION_RETRY_REPORT: reportPath, LOCAL_NOTIFICATION_RETRY_COOLDOWN_MINUTES: "5" },
     encoding: "utf8"
   });
+
+  const rejectedRecipient = spawnSync(process.execPath, ["scripts/local-lead-notification-retry.js", "--dry-run"], {
+    cwd: process.cwd(),
+    env: { ...process.env, SMTP_TO: "wrong-recipient@example.invalid", LOCAL_SQLITE_DB: dbPath, LOCAL_NOTIFICATION_RETRY_REPORT: reportPath },
+    encoding: "utf8"
+  });
+  assert(rejectedRecipient.status !== 0 && rejectedRecipient.stderr.includes("team@immeubleassur.com absent"), "retry transport must reject a non-team recipient at runtime");
 
   let result = runDry();
   assert(result.status !== 0, "pending notification dry-run must keep monitoring degraded");

@@ -33,13 +33,17 @@ function recipients(value) {
 
 function mailConfig() {
   const from = env("SMTP_FROM", env("RESEND_FROM", env("SMTP_USER", "")));
+  const to = recipients(env("SMTP_TO", env("CONTACT_EMAIL", from)));
+  if (!to.some((item) => item.toLowerCase() === "team@immeubleassur.com")) {
+    throw new Error("Destinataire operationnel team@immeubleassur.com absent");
+  }
   return {
     host: env("SMTP_HOST", ""),
     port: numberEnv("SMTP_PORT", 587),
     username: env("SMTP_USER", from),
     password: env("SMTP_PASS", ""),
     from,
-    to: recipients(env("SMTP_TO", env("CONTACT_EMAIL", from))),
+    to,
     secureTransport: numberEnv("SMTP_PORT", 587) === 465 ? "on" : "starttls"
   };
 }

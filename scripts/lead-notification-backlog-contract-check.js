@@ -22,7 +22,7 @@ database.prepare("INSERT INTO lead_events VALUES (?,?,?,?,?)").run("failed-lease
 database.prepare("INSERT INTO lead_events VALUES (?,?,?,?,?)").run("claim-active", "lead-2", "email_notification_retry_claimed", "{}", new Date().toISOString());
 
 function runRetry() {
-  return spawnSync(process.execPath, [join(root, "scripts", "local-lead-notification-retry.js"), "--dry-run"], { cwd: root, encoding: "utf8", env: { ...process.env, LOCAL_SQLITE_DB: dbPath, LOCAL_NOTIFICATION_RETRY_REPORT: reportPath } });
+  return spawnSync(process.execPath, [join(root, "scripts", "local-lead-notification-retry.js"), "--dry-run"], { cwd: root, encoding: "utf8", env: { ...process.env, SMTP_TO: "team@immeubleassur.com", LOCAL_SQLITE_DB: dbPath, LOCAL_NOTIFICATION_RETRY_REPORT: reportPath } });
 }
 
 try {
