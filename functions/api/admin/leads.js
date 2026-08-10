@@ -286,6 +286,7 @@ function summarizeLeads(leads) {
   const needs = new Map();
   const cities = new Map();
   const sourcePaths = new Map();
+  const formSources = new Map();
   const sourceQuality = new Map();
   let contentBridgeCount = 0;
   let scoreTotal = 0;
@@ -316,6 +317,7 @@ function summarizeLeads(leads) {
     increment(needs, lead.need);
     increment(cities, lead.city);
     if (clean(lead.source_path, 500)) increment(sourcePaths, lead.source_path);
+    if (clean(lead.form_source, 80)) increment(formSources, lead.form_source);
     addSourceQuality(sourceQuality, lead, q, valueEstimate);
     if (clean(lead.content_bridge, 20) === "1") contentBridgeCount += 1;
     if (priority === "hot" && lead.status === "new") {
@@ -337,6 +339,7 @@ function summarizeLeads(leads) {
     top_needs: topFromMap(needs),
     top_cities: topFromMap(cities),
     top_source_paths: topFromMap(sourcePaths),
+    top_form_sources: topFromMap(formSources),
     top_source_quality: topSourceQuality(sourceQuality),
     content_bridge_count: contentBridgeCount,
     oldest_hot_created_at: oldestHot,
@@ -363,6 +366,7 @@ export async function onRequestGet({ request, env }) {
             l.units_count, l.need, l.message, l.lead_score, l.status, l.assigned_to, l.notes,
             l.source, l.page_url, l.referrer, l.created_at, l.updated_at,
             COALESCE(NULLIF(json_extract(le.payload, '$.source_path'), ''), '') AS source_path,
+            COALESCE(NULLIF(json_extract(le.payload, '$.form_source'), ''), '') AS form_source,
             COALESCE(NULLIF(json_extract(le.payload, '$.landing_path'), ''), '') AS landing_path,
             COALESCE(NULLIF(json_extract(le.payload, '$.content_bridge'), ''), '') AS content_bridge,
             COALESCE(NULLIF(json_extract(le.payload, '$.content_kind'), ''), '') AS content_kind,
