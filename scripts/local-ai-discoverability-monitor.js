@@ -74,7 +74,7 @@ const checks = [
   ["active-edition-canonical-is-current", !activeIssue || activeEdition.text.includes(`<link rel="canonical" href="${canonicalOrigin}/${activeIssue}"`)],
   ["active-edition-has-newsarticle-schema", activeEdition.text.includes('"@type":"NewsArticle"') && activeEdition.text.includes('"datePublished"') && activeEdition.text.includes('"mainEntityOfPage"')],
   ["active-edition-declares-utf8", /charset=utf-8/i.test(activeEdition.content_type)],
-  ["active-edition-has-no-mojibake", !/(?:Ã.|Â.|â.|�)/u.test(activeEdition.text)],
+  ["active-edition-has-no-mojibake", !/(?:\u00c3[\u0080-\u00bf]|\u00c2[\u0080-\u00bf]|\u00e2\u20ac(?:[\u0080-\u00bf]|\u0153|\u2122)|\ufffd)/u.test(activeEdition.text)],
   ["chatgpt-user-can-read-watch", watch.status === 200 && watch.text.includes("Veille assurance immeuble")],
   ["perplexitybot-can-read-watch", perplexityWatch.status === 200 && perplexityWatch.text.includes("Veille assurance immeuble")],
   ["claude-searchbot-can-read-watch", claudeSearchWatch.status === 200 && claudeSearchWatch.text.includes("Veille assurance immeuble")],
