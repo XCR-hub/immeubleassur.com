@@ -29,7 +29,7 @@ try {
   });
 
   let result = runDry();
-  assert(result.status === 0, `dry-run failed: ${result.stderr || result.stdout}`);
+  assert(result.status !== 0, "pending notification dry-run must keep monitoring degraded");
   let report = JSON.parse(readFileSync(reportPath, "utf8"));
   assert(report.candidates === 1, "failed notification must become a retry candidate");
   assert(report.results[0]?.status === "dry-run", "dry-run must not send or mutate retry state");
@@ -41,7 +41,7 @@ try {
       .run("event-retry-" + attempt, "lead-retry-test", "email_notification_retry_failed", JSON.stringify({ attempt }), probeAt);
   }
   result = runDry();
-  assert(result.status === 0, "recovery probe dry-run failed");
+  assert(result.status !== 0, "exhausted recovery probe must keep monitoring degraded");
   report = JSON.parse(readFileSync(reportPath, "utf8"));
   assert(report.candidates === 1 && report.results[0]?.recovery_probe === true, "exhausted burst must remain eligible for a spaced recovery probe");
 

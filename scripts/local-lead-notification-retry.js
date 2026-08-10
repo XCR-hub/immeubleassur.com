@@ -19,6 +19,14 @@ function clean(value, max = 500) {
   return String(value || "").replace(/[\r\n]+/g, " ").trim().slice(0, max);
 }
 
+function safeDiagnostic(value, max = 300) {
+  return clean(value, max * 2)
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email-redacted]")
+    .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, "[ip-redacted]")
+    .replace(/\b(bearer|token|password|secret|api[-_ ]?key)\s*[:=]?\s*\S+/gi, "$1 [redacted]")
+    .slice(0, max);
+}
+
 function recipients(value) {
   return String(value || "").split(/[;,]/).map((item) => item.trim()).filter(Boolean).slice(0, 6);
 }
@@ -36,7 +44,7 @@ function mailConfig() {
   };
 }
 
-function candidates(database, cooldownMinutes, maxAttempts, recoveryProbeMinutes, limit) {
+function candidates(database, cooldownMinutes, maxAttempts, recoveryProbeMinutes, leaseMinutes, limit) {
   return database.prepare(`
     SELECT l.*, MAX(f.created_at) AS failed_at,
       (SELECT COUNT(*) FROM lead_events r WHERE r.lead_id = l.id AND r.event_type = 'email_notification_retry_failed') AS retry_failures,
@@ -47,6 +55,11 @@ function candidates(database, cooldownMinutes, maxAttempts, recoveryProbeMinutes
       SELECT 1 FROM lead_events ok
       WHERE ok.lead_id = l.id AND ok.event_type IN ('email_notification_sent', 'email_notification_retry_sent')
     )
+      AND NOT EXISTS (
+        SELECT 1 FROM lead_events claim
+        WHERE claim.lead_id = l.id AND claim.event_type = 'email_notification_retry_claimed'
+          AND datetime(claim.created_at) > datetime('now', ?)
+      )
     GROUP BY l.id
     HAVING (
       retry_failures < ? AND datetime(COALESCE(last_retry_at, failed_at)) <= datetime('now', ?)
@@ -55,7 +68,7 @@ function candidates(database, cooldownMinutes, maxAttempts, recoveryProbeMinutes
     )
     ORDER BY datetime(failed_at) ASC
     LIMIT ?
-  `).all(maxAttempts, `-${cooldownMinutes} minutes`, maxAttempts, `-${recoveryProbeMinutes} minutes`, limit);
+  `).all(`-${leaseMinutes} minutes`, maxAttempts, `-${cooldownMinutes} minutes`, maxAttempts, `-${recoveryProbeMinutes} minutes`, limit);
 }
 
 function backlog(database, maxAttempts, overdueMinutes) {
@@ -75,6 +88,31 @@ function backlog(database, maxAttempts, overdueMinutes) {
     ) pending_notifications
   `).get(maxAttempts, maxAttempts, `-${overdueMinutes} minutes`);
 }
+function claimLead(database, lead, leaseMinutes, now) {
+  database.exec("BEGIN IMMEDIATE");
+  try {
+    const unavailable = database.prepare(`
+      SELECT 1
+      FROM lead_events
+      WHERE lead_id = ? AND (
+        event_type IN ('email_notification_sent', 'email_notification_retry_sent')
+        OR (event_type = 'email_notification_retry_claimed' AND datetime(created_at) > datetime('now', ?))
+      )
+      LIMIT 1
+    `).get(lead.id, `-${leaseMinutes} minutes`);
+    if (unavailable) {
+      database.exec("ROLLBACK");
+      return false;
+    }
+    logEvent(database, lead, "email_notification_retry_claimed", { attempt: Number(lead.retry_failures || 0) + 1, lease_minutes: leaseMinutes }, now);
+    database.exec("COMMIT");
+    return true;
+  } catch (error) {
+    database.exec("ROLLBACK");
+    throw error;
+  }
+}
+
 function messageFor(lead, attempt, now, config) {
   const reference = clean(lead.reference, 80);
   const subject = `Reprise notification lead ${reference}${lead.email ? "" : " - TELEPHONE SEUL"} - ${clean(lead.city || "ville non precisee", 120)}`;
@@ -124,12 +162,13 @@ async function run() {
   const maxAttempts = Math.max(1, numberEnv("LOCAL_NOTIFICATION_RETRY_MAX_ATTEMPTS", 5));
   const recoveryProbeMinutes = Math.max(60, numberEnv("LOCAL_NOTIFICATION_RETRY_RECOVERY_PROBE_MINUTES", 360));
   const overdueMinutes = Math.max(cooldownMinutes * 2, numberEnv("LOCAL_NOTIFICATION_RETRY_OVERDUE_MINUTES", 30));
+  const leaseMinutes = Math.max(5, numberEnv("LOCAL_NOTIFICATION_RETRY_LEASE_MINUTES", 10));
   const limit = Math.max(1, numberEnv("LOCAL_NOTIFICATION_RETRY_BATCH_SIZE", 20));
   if (!existsSync(dbPath)) throw new Error(`Base SQLite introuvable: ${dbPath}`);
 
   const database = new DatabaseSync(dbPath);
   const config = mailConfig();
-  const rows = candidates(database, cooldownMinutes, maxAttempts, recoveryProbeMinutes, limit);
+  const rows = candidates(database, cooldownMinutes, maxAttempts, recoveryProbeMinutes, leaseMinutes, limit);
   const results = [];
   let backlogState = { pending: 0, exhausted: 0, overdue: 0, oldest_failed_at: null };
   try {
@@ -140,13 +179,17 @@ async function run() {
         continue;
       }
       const now = new Date().toISOString();
+      if (!claimLead(database, lead, leaseMinutes, now)) {
+        results.push({ reference: clean(lead.reference, 80), status: "skipped-claimed", attempt });
+        continue;
+      }
       try {
         const receipt = await sendNodeSmtpMail(config, messageFor(lead, attempt, now, config));
-        logEvent(database, lead, "email_notification_retry_sent", { reference: lead.reference, attempt, receipt: clean(receipt, 500) }, now);
+        logEvent(database, lead, "email_notification_retry_sent", { reference: lead.reference, attempt, receipt: safeDiagnostic(receipt, 300) }, now);
         results.push({ reference: clean(lead.reference, 80), status: "sent", attempt, recovery_probe: attempt > maxAttempts });
       } catch (error) {
-        logEvent(database, lead, "email_notification_retry_failed", { reference: lead.reference, attempt, error: clean(error.message || "Erreur SMTP", 500) }, now);
-        results.push({ reference: clean(lead.reference, 80), status: "failed", attempt, recovery_probe: attempt > maxAttempts, error: clean(error.message || "Erreur SMTP", 300) });
+        logEvent(database, lead, "email_notification_retry_failed", { reference: lead.reference, attempt, error: safeDiagnostic(error.message || "Erreur SMTP", 300) }, now);
+        results.push({ reference: clean(lead.reference, 80), status: "failed", attempt, recovery_probe: attempt > maxAttempts, error: safeDiagnostic(error.message || "Erreur SMTP", 200) });
       }
     }
     backlogState = backlog(database, maxAttempts, overdueMinutes);
@@ -162,6 +205,8 @@ async function run() {
     max_attempts: maxAttempts,
     recovery_probe_minutes: recoveryProbeMinutes,
     overdue_minutes: overdueMinutes,
+    lease_minutes: leaseMinutes,
+    safeguards: ["atomic-retry-claim", "expiring-crash-lease", "smtp-diagnostics-redacted", "no-contact-data-in-report"],
     pending: Number(backlogState.pending || 0),
     overdue: Number(backlogState.overdue || 0),
     exhausted: Number(backlogState.exhausted || 0),
