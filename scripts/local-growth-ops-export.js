@@ -197,6 +197,25 @@ function sanitizeIntentConversion(report) {
   });
   return {
     ...state,
+    observation: report.observation ? {
+      intervention_id: clean(report.observation.intervention_id, 120),
+      analysis_started_at: clean(report.observation.analysis_started_at, 80),
+      metric: clean(report.observation.metric, 120),
+      minimum_engaged_sessions: number(report.observation.minimum_engaged_sessions),
+      engaged_sessions: number(report.observation.engaged_sessions),
+      remaining_engaged_sessions: number(report.observation.remaining_engaged_sessions),
+      status: clean(report.observation.status, 40)
+    } : null,
+    historical_context: report.historical_context ? {
+      lookback_days: number(report.historical_context.lookback_days),
+      tracked_events: number(report.historical_context.tracked_events),
+      tracked_sessions: number(report.historical_context.tracked_sessions),
+      form_starts: number(report.historical_context.form_starts),
+      submit_attempts: number(report.historical_context.submit_attempts),
+      leads_db: number(report.historical_context.leads_db),
+      pre_intervention_events: number(report.historical_context.pre_intervention_events),
+      pre_intervention_leads: number(report.historical_context.pre_intervention_leads)
+    } : null,
     summary: {
       lookback_days: number(summary.lookback_days),
       tracked_events: number(summary.tracked_events),

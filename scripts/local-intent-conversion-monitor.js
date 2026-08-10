@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
@@ -91,6 +91,25 @@ function parseJson(value) {
   }
 }
 
+function timestampMs(value) {
+  const raw = clean(value, 80);
+  if (!raw) return Number.NaN;
+  return Date.parse(/[zZ]|[+-]\d\d:\d\d$/.test(raw) ? raw : `${raw}Z`);
+}
+
+function latestIntentIntervention(path) {
+  if (!existsSync(path)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(path, "utf8"));
+    return (Array.isArray(parsed.interventions) ? parsed.interventions : [])
+      .filter((item) => Array.isArray(item.scope) && (item.scope.includes("intent-conversion") || item.scope.includes("all")))
+      .map((item) => ({ ...item, timestamp_ms: timestampMs(item.deployed_at) }))
+      .filter((item) => Number.isFinite(item.timestamp_ms))
+      .sort((a, b) => b.timestamp_ms - a.timestamp_ms)[0] || null;
+  } catch {
+    return null;
+  }
+}
 function normalizeLeadIntent(value) {
   const key = clean(value, 120).toLowerCase().replace(/_/g, "-").replace(/\s+/g, "-");
   const aliases = {
@@ -489,6 +508,8 @@ function writeReports(report, out, publicOut) {
     status: report.status,
     attention_required: report.attention_required,
     summary: report.summary,
+    observation: report.observation,
+    historical_context: report.historical_context,
     intent_funnels: report.intent_funnels.slice(0, 12),
     urgency_funnels: report.urgency_funnels.slice(0, 8),
     lead_segments: report.lead_segments.slice(0, 8),
@@ -518,6 +539,8 @@ function run() {
   const dbPath = resolve(argValue("--db", env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite"))));
   const out = resolve(argValue("--out", env("LOCAL_INTENT_CONVERSION_REPORT", join("reports", "local-intent-conversion-report.json"))));
   const publicOut = resolve(argValue("--public-out", env("LOCAL_INTENT_CONVERSION_PUBLIC_REPORT", join("public", "assets", "local-intent-conversion-latest.json"))));
+  const interventionPath = resolve(argValue("--interventions", env("LOCAL_CONVERSION_INTERVENTIONS_FILE", join("config", "conversion-interventions.json"))));
+  const minimumEngagedSessions = numberValue(argValue("--minimum-engaged-sessions", env("LOCAL_INTENT_MINIMUM_ENGAGED_SESSIONS", "5")), 5);
   const days = numberValue(argValue("--days", env("LOCAL_INTENT_CONVERSION_LOOKBACK_DAYS", "30")), 30);
   const maxEvents = numberValue(argValue("--max-events", env("LOCAL_INTENT_CONVERSION_MAX_EVENTS", "120000")), 120000);
   const maxLeads = numberValue(argValue("--max-leads", env("LOCAL_INTENT_CONVERSION_MAX_LEADS", "5000")), 5000);
@@ -541,12 +564,16 @@ function run() {
 
     const events = readEvents(database, sinceSql, maxEvents);
     const leads = readLeads(database, sinceSql, maxLeads);
+    const intervention = latestIntentIntervention(interventionPath);
+    const analysisEvents = intervention ? events.filter((row) => timestampMs(row.created_at) >= intervention.timestamp_ms) : events;
+    const analysisLeads = intervention ? leads.filter((row) => timestampMs(row.created_at) >= intervention.timestamp_ms) : leads;
+    const historicalSessions = new Set(events.map((row) => clean(row.session_id || parseJson(row.payload).session_id || row.id, 160)).filter(Boolean));
     const intentBuckets = new Map();
     const urgencyBuckets = new Map();
     const allSessions = new Set();
     const engagedSessions = new Set();
 
-    for (const row of events) {
+    for (const row of analysisEvents) {
       const payload = parseJson(row.payload);
       const intent = eventIntent(row, payload);
       const urgency = normalizeUrgency(payload.lead_urgency || (row.event_type === "lead_urgency_detected" ? payload.label : "unknown"));
@@ -564,7 +591,7 @@ function run() {
       countEvent(urgencyBucket, row, path, session);
     }
 
-    for (const row of leads) {
+    for (const row of analysisLeads) {
       const payload = parseJson(row.event_payload);
       const intent = leadIntent(row, payload);
       const urgency = normalizeUrgency(payload.lead_urgency || payload.urgency?.level || "unknown");
@@ -588,7 +615,7 @@ function run() {
     }, { page_views: 0, form_starts: 0, submit_attempts: 0, submit_errors: 0, leads_event: 0, leads_db: 0, hot_leads_db: 0, lead_urgency_events: 0, spam_blocks: 0 });
     const rawSummary = {
       lookback_days: days,
-      tracked_events: events.length,
+      tracked_events: analysisEvents.length,
       tracked_sessions: allSessions.size,
       engaged_sessions: engagedSessions.size,
       leads_db: total.leads_db,
@@ -612,18 +639,40 @@ function run() {
     };
     const actions = recommendations(rawSummary, intentFunnels, urgencyFunnels);
     const summary = { ...rawSummary, attention_count: actions.filter((item) => ["critical", "high"].includes(item.severity)).length };
+    const observing = Boolean(intervention) && summary.attention_count === 0 && engagedSessions.size < minimumEngagedSessions;
+    const observation = intervention ? {
+      intervention_id: clean(intervention.id, 120),
+      analysis_started_at: new Date(intervention.timestamp_ms).toISOString(),
+      metric: clean(intervention.metric, 120),
+      minimum_engaged_sessions: minimumEngagedSessions,
+      engaged_sessions: engagedSessions.size,
+      remaining_engaged_sessions: Math.max(0, minimumEngagedSessions - engagedSessions.size),
+      status: observing ? "collecting" : "measured"
+    } : null;
+    const historicalContext = {
+      lookback_days: days,
+      tracked_events: events.length,
+      tracked_sessions: historicalSessions.size,
+      form_starts: events.filter((row) => row.event_type === "form_start").length,
+      submit_attempts: events.filter((row) => row.event_type === "form_submit_attempt").length,
+      leads_db: leads.length,
+      pre_intervention_events: intervention ? events.length - analysisEvents.length : 0,
+      pre_intervention_leads: intervention ? leads.length - analysisLeads.length : 0
+    };
     const report = {
       success: true,
-      status: events.length || leads.length ? (summary.attention_count ? "action-required" : "passed") : "no-data",
+      status: observing ? "observing" : analysisEvents.length || analysisLeads.length ? (summary.attention_count ? "action-required" : "passed") : "no-data",
       attention_required: summary.attention_count > 0,
       generated_at: new Date().toISOString(),
       database: { engine: "sqlite", file: basename(dbPath), mode: "readonly" },
       summary,
+      observation,
+      historical_context: historicalContext,
       intent_funnels: intentFunnels.slice(0, 30),
       urgency_funnels: urgencyFunnels.slice(0, 12),
-      lead_segments: leadSegments(leads),
+      lead_segments: leadSegments(analysisLeads),
       recommendations: actions,
-      safeguards: ["no-pii-public-export", "sqlite-readonly", "first-party-events-only", "no-google-scraping", "intent-data-from-local-events-and-lead-events", "recommendations-require-engaged-sessions"]
+      safeguards: ["no-pii-public-export", "sqlite-readonly", "first-party-events-only", "no-google-scraping", "intent-data-from-local-events-and-lead-events", "recommendations-require-engaged-sessions", "post-intervention-cohort", "historical-context-preserved"]
     };
     writeReports(report, out, publicOut);
     console.log(`Intent conversion monitor: ${summary.intent_count} intent(s), ${summary.leads_db} lead(s), ${summary.attention_count} action(s)`);

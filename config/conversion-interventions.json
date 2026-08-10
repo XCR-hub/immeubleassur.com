@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "interventions": [
+    {
+      "id": "lead-email-optional-v1",
+      "deployed_at": "2026-08-10T05:45:21.000Z",
+      "scope": ["intent-conversion"],
+      "metric": "form-start-to-submit",
+      "description": "Email rendu facultatif sur les formulaires complets; telephone et consentement conserves."
+    }
+  ]
+}
