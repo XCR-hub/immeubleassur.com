@@ -41,6 +41,7 @@
                     "lead:friction":  "node scripts/lead-friction-pass.js",
                     "spam:shield":  "node scripts/spam-shield-check.js",
                     "turnstile:hybrid":  "node scripts/turnstile-hybrid-pass.js",
+                    "turnstile:browser:smoke":  "node scripts/local-turnstile-browser-smoke.js",
                     "live:api:readiness":  "node scripts/live-api-readiness-check.js \u0026\u0026 node scripts/google-readiness-unlock.js",
                     "live:ready":  "node scripts/live-ready-connectors-runner.js",
                     "google:apis":  "node scripts/google-api-contract-check.js",
@@ -96,6 +97,7 @@
                     "admin:profiles:smoke":  "node scripts/admin-profile-workflow-smoke.js"
                 },
     "devDependencies": {
-        "lighthouse": "^13.4.1"
+        "lighthouse": "^13.4.1",
+        "puppeteer-core": "^25.5.0"
     }
 }

@@ -1,0 +1,74 @@
+{
+  "generated_at": "2026-08-10T02:17:32.514Z",
+  "status": "healthy",
+  "site": "https://immeubleassur.com",
+  "chrome_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "destructive": false,
+  "submitted_forms": 0,
+  "scenarios_checked": 2,
+  "scenarios_passed": 2,
+  "rows": [
+    {
+      "name": "lead",
+      "ok": true,
+      "network_ok": true,
+      "checks": {
+        "absent_before_interaction": true,
+        "explicit_api_loaded": true,
+        "widget_rendered": true,
+        "no_form_submission": true,
+        "api_request_succeeded": true
+      },
+      "before": {
+        "script": false,
+        "iframe": false,
+        "api": false
+      },
+      "after": {
+        "script": "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit",
+        "iframe_count": 0,
+        "dynamic_widget_count": 2,
+        "api": true,
+        "protected_forms": 2
+      },
+      "turnstile_request_count": 2,
+      "form_post_count": 0,
+      "relevant_failures": [],
+      "challenge_failures": []
+    },
+    {
+      "name": "newsletter",
+      "ok": true,
+      "network_ok": true,
+      "checks": {
+        "absent_before_interaction": true,
+        "explicit_api_loaded": true,
+        "widget_rendered": true,
+        "no_form_submission": true,
+        "api_request_succeeded": true
+      },
+      "before": {
+        "script": false,
+        "iframe": false,
+        "api": false
+      },
+      "after": {
+        "script": "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit",
+        "iframe_count": 0,
+        "dynamic_widget_count": 2,
+        "api": true,
+        "protected_forms": 2
+      },
+      "turnstile_request_count": 2,
+      "form_post_count": 0,
+      "relevant_failures": [],
+      "challenge_failures": []
+    }
+  ],
+  "safeguards": [
+    "no-lead-created",
+    "no-newsletter-created",
+    "turnstile-absent-before-interaction",
+    "turnstile-present-after-interaction"
+  ]
+}
