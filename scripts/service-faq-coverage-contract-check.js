@@ -1,8 +1,9 @@
-﻿import { readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 
 const generator = readFileSync("scripts/generate-site.js", "utf8");
 const rc = readFileSync("public/rc-syndic.html", "utf8");
 const claims = readFileSync("public/gestion-sinistres-immeuble.html", "utf8");
+const works = readFileSync("public/dommages-ouvrage-immeuble.html", "utf8");
 
 const checks = [
   ["generator-supports-page-specific-faq", generator.includes("const faqRows = page.faq || []") && generator.includes("const faqSources = page.faqSources ||")],
@@ -12,7 +13,10 @@ const checks = [
   ["claims-faq-structured", claims.includes('"@id":"https://immeubleassur.com/gestion-sinistres-immeuble#faq"') && claims.includes('"@type":"FAQPage"')],
   ["claims-human-validation-required", claims.includes("Une IA peut-elle confirmer qu un sinistre est garanti ?") && claims.includes("validation humaine des professionnels competents")],
   ["claims-official-sources", claims.includes("LEGIARTI000035731302") && claims.includes("service-public.fr/particuliers/vosdroits/N44")],
-  ["claims-source-configuration-persistent", generator.includes("LEGIARTI000035731302") && generator.includes("service-public.fr/particuliers/vosdroits/N44")]
+  ["claims-source-configuration-persistent", generator.includes("LEGIARTI000035731302") && generator.includes("service-public.fr/particuliers/vosdroits/N44")],
+  ["works-faq-visible-and-structured", works.includes('id="faq-dommages-ouvrage"') && works.includes('"@id":"https://immeubleassur.com/dommages-ouvrage-immeuble#faq"')],
+  ["works-human-legal-validation", works.includes("Une IA peut-elle decider si la dommages-ouvrage est obligatoire ?") && works.includes("qualification juridique") && works.includes("validation humaine")],
+  ["works-official-sources-persistent", works.includes("LEGIARTI000019265425") && works.includes("service-public.fr/particuliers/vosdroits/F2608") && generator.includes("LEGIARTI000019265425")]
 ];
 
 const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);

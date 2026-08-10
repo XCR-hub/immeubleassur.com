@@ -164,6 +164,15 @@ const servicePages = [
     sections: [
       ["Avant de consulter", "Un dossier DO incomplet ralentit fortement les reponses. Nous structurons les pieces pour eviter les allers-retours inutiles."],
       ["Copropriete", "Les travaux votes en AG doivent etre presentes avec un niveau de detail suffisant pour les assureurs."]
+    ],
+    faq: [
+      ["Quand preparer le dossier dommages-ouvrage ?", "Le dossier doit etre anticipe avant l ouverture du chantier. Le calendrier exact et l applicabilite au projet doivent etre verifies humainement a partir des travaux et des textes en vigueur."],
+      ["Quelles pieces facilitent l etude du projet ?", "Descriptif et cout des travaux, planning, plans, permis si applicable, controle technique, missions de maitrise d oeuvre et attestations decennales des entreprises structurent la consultation."],
+      ["Une IA peut-elle decider si la dommages-ouvrage est obligatoire ?", "Non. Elle peut classer le projet et signaler les pieces manquantes, mais la qualification juridique et la recommandation d assurance exigent une validation humaine."]
+    ],
+    faqSources: [
+      ["https://www.legifrance.gouv.fr/codes/id/LEGIARTI000019265425/", "Legifrance - article L242-1 du Code des assurances"],
+      ["https://www.service-public.fr/particuliers/vosdroits/F2608", "Service-Public.fr - syndic de copropriete"]
     ]
   },
   {
