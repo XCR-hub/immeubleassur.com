@@ -256,6 +256,7 @@ function sanitizeSourceQuality(report) {
       leads_db: number(summary.leads_db),
       hot_leads_db: number(summary.hot_leads_db),
       spam_blocks: number(summary.spam_blocks),
+      synthetic_security_checks: number(summary.synthetic_security_checks),
       traffic_rescue_direct_shown: number(summary.traffic_rescue_direct_shown),
       traffic_rescue_direct_clicks: number(summary.traffic_rescue_direct_clicks),
       traffic_rescue_direct_click_rate: number(summary.traffic_rescue_direct_click_rate),
@@ -280,6 +281,8 @@ function sanitizeSourceQuality(report) {
           traffic_rescue_direct_shown: number(item.traffic_rescue_direct_shown),
           traffic_rescue_direct_clicks: number(item.traffic_rescue_direct_clicks),
           traffic_rescue_direct_click_rate: number(item.traffic_rescue_direct_click_rate),
+          spam_blocks: number(item.spam_blocks),
+          synthetic_security_checks: number(item.synthetic_security_checks),
           spam_pressure_rate: number(item.spam_pressure_rate)
         }))
       : [],

@@ -84,6 +84,12 @@ function normalizeSource(value) {
   return clean(value, 120).toLowerCase().replace(/[^a-z0-9:_-]+/g, "-").replace(/^-+|-+$/g, "") || "";
 }
 
+function isSyntheticSecurityCheck(row, payload = {}) {
+  if (row.event_type !== "lead_spam_blocked") return false;
+  const session = clean(row.session_id || payload.session_id, 160).toLowerCase();
+  const source = normalizeSource(payload.source || row.source);
+  return /^(qa-|turnstile-test|spam-test|spam-smoke)/.test(session) || /^(qa-|spam-smoke)/.test(source);
+}
 function sourceFromPayload(row, payload = {}) {
   const originSource = normalizeSource(payload.source_origin);
   if (originSource && String(row.event_type || "").startsWith("traffic_without_click")) return originSource.startsWith("intent:") ? "intent-prefill" : originSource;
@@ -122,6 +128,7 @@ function createBucket(source) {
     submit_errors: 0,
     abandoned_forms: 0,
     spam_blocks: 0,
+    synthetic_security_checks: 0,
     traffic_rescue_shown: 0,
     traffic_rescue_urgency_selects: 0,
     traffic_rescue_clicks: 0,
@@ -159,7 +166,8 @@ function countEvent(bucket, row, payload) {
   if (type === "form_submit_attempt") bucket.submit_attempts += 1;
   if (type === "lead_submit_error" || type === "lead_submit_rejected") bucket.submit_errors += 1;
   if (type === "lead_form_abandoned") bucket.abandoned_forms += 1;
-  if (type === "lead_spam_blocked") bucket.spam_blocks += 1;
+  if (type === "lead_spam_blocked" && isSyntheticSecurityCheck(row, payload)) bucket.synthetic_security_checks += 1;
+  else if (type === "lead_spam_blocked") bucket.spam_blocks += 1;
   const rescueVariant = normalizeSource(payload.rescue_variant);
   const directRescue = rescueVariant === "source-quality-direct";
   if (type === "traffic_without_click_shown") bucket.traffic_rescue_shown += 1;
@@ -199,6 +207,7 @@ function finalize(bucket) {
     submit_errors: bucket.submit_errors,
     abandoned_forms: bucket.abandoned_forms,
     spam_blocks: bucket.spam_blocks,
+    synthetic_security_checks: bucket.synthetic_security_checks,
     traffic_rescue_shown: bucket.traffic_rescue_shown,
     traffic_rescue_urgency_selects: bucket.traffic_rescue_urgency_selects,
     traffic_rescue_clicks: bucket.traffic_rescue_clicks,
@@ -306,7 +315,7 @@ function recommendationFor(row) {
 
 function readEvents(database, sinceSql) {
   return database.prepare(`
-    SELECT event_type, page_url, target, session_id, lead_reference, payload, created_at
+    SELECT event_type, page_url, target, session_id, lead_reference, payload, user_agent, created_at
     FROM site_events
     WHERE created_at >= datetime('now', ?)
       AND event_type IN (
@@ -373,9 +382,10 @@ function run() {
     leads_db: sum.leads_db + row.leads_db,
     hot_leads_db: sum.hot_leads_db + row.hot_leads_db,
     spam_blocks: sum.spam_blocks + row.spam_blocks,
+    synthetic_security_checks: sum.synthetic_security_checks + row.synthetic_security_checks,
     traffic_rescue_direct_shown: sum.traffic_rescue_direct_shown + row.traffic_rescue_direct_shown,
     traffic_rescue_direct_clicks: sum.traffic_rescue_direct_clicks + row.traffic_rescue_direct_clicks
-  }), { sessions: 0, engaged_sessions: 0, page_views: 0, form_starts: 0, submit_attempts: 0, leads_db: 0, hot_leads_db: 0, spam_blocks: 0, traffic_rescue_direct_shown: 0, traffic_rescue_direct_clicks: 0 });
+  }), { sessions: 0, engaged_sessions: 0, page_views: 0, form_starts: 0, submit_attempts: 0, leads_db: 0, hot_leads_db: 0, spam_blocks: 0, synthetic_security_checks: 0, traffic_rescue_direct_shown: 0, traffic_rescue_direct_clicks: 0 });
   const report = {
     generated_at: new Date().toISOString(),
     status: recommendations.some((item) => item.severity === "high") ? "action-required" : "passed",
@@ -392,6 +402,7 @@ function run() {
       leads_db: totals.leads_db,
       hot_leads_db: totals.hot_leads_db,
       spam_blocks: totals.spam_blocks,
+      synthetic_security_checks: totals.synthetic_security_checks,
       traffic_rescue_direct_shown: totals.traffic_rescue_direct_shown,
       traffic_rescue_direct_clicks: totals.traffic_rescue_direct_clicks,
       traffic_rescue_direct_click_rate: pct(totals.traffic_rescue_direct_clicks, totals.traffic_rescue_direct_shown),
@@ -406,7 +417,9 @@ function run() {
       "aggregate-source-metrics-only",
       "no-email-phone-name-fields",
       "sqlite-read-only",
-      "seo-cro-actions-derived-from-first-party-events"
+      "seo-cro-actions-derived-from-first-party-events",
+      "synthetic-security-checks-excluded-from-acquisition-alerts",
+      "external-spam-pressure-preserved"
     ]
   };
 
