@@ -357,6 +357,7 @@ async function run() {
   const googleReadinessPath = resolve(env("LOCAL_GOOGLE_READINESS_REPORT", join(runtimeReportsRoot, "google-readiness-unlock-report.json")));
   const searchIntelligencePath = resolve(env("LOCAL_SEARCH_INTELLIGENCE_REPORT", join(runtimeReportsRoot, "search-intelligence-report.json")));
   const indexNowPath = resolve(env("LOCAL_INDEXNOW_REPORT", join(runtimeReportsRoot, "local-indexnow-report.json")));
+  const privacyRetentionPath = resolve(env("LOCAL_PRIVACY_RETENTION_REPORT", join(runtimeReportsRoot, "local-privacy-retention-report.json")));
   const newsletterCanaryPath = resolve(env("LOCAL_NEWSLETTER_CANARY_REPORT", join(runtimeReportsRoot, "newsletter-runtime-canary-report.json")));
   const runtimeCyclePath = resolve(env("LOCAL_RUNTIME_CYCLE_REPORT", join(runtimeReportsRoot, "local-runtime-report-cycle.json")));
   const securitySurfacePath = resolve(env("LOCAL_SECURITY_SURFACE_REPORT", join(runtimeReportsRoot, "local-security-surface-report.json")));
@@ -378,6 +379,7 @@ async function run() {
     inspectGoogleReadiness(googleReadinessPath),
     inspectSearchIntelligence(searchIntelligencePath),
     inspectIndexNow(indexNowPath),
+    inspectJsonRuntime("privacy_retention", privacyRetentionPath, 90, (report) => report.success === true && report.status === "applied" && report.policy?.lead_contact_data_deleted === false && report.policy?.newsletter_suppression_data_deleted === false && report.safeguards?.includes("transactional") && report.safeguards?.includes("no-pii-in-report"), (report) => ({ mode: report.database?.mode || "", technical_identifiers_days: Number(report.policy?.technical_identifiers_days || 0), telemetry_days: Number(report.policy?.telemetry_days || 0), rows_changed: Object.values(report.changes || {}).reduce((sum, value) => sum + Number(value || 0), 0), lead_contact_data_deleted: report.policy?.lead_contact_data_deleted === true, newsletter_suppression_data_deleted: report.policy?.newsletter_suppression_data_deleted === true })),
     inspectEditorialReview(editorialReviewPath),
     inspectJsonRuntime("tls_certificate", tlsReportPath, 90, (report) => report.ok === true && ["healthy", "warning"].includes(report.status), (report) => ({ days_remaining: report.days_remaining })),
     inspectJsonRuntime("smtp_transport", smtpReportPath, 90, (report) => report.status === "ready" && report.authenticated === true && report.team_recipient_configured === true && (report.transport === "resend" || report.recipient_accepted === true), (report) => ({ authenticated: report.authenticated === true, transport: report.transport || report.provider || "smtp", team_recipient_configured: report.team_recipient_configured === true, recipient_accepted: report.recipient_accepted === true, message_sent: report.message_sent === true })),

@@ -24,6 +24,8 @@ const sourceQuality=readFileSync("scripts/local-source-quality-monitor.js","utf8
 const intentConversion=readFileSync("scripts/local-intent-conversion-monitor.js","utf8");
 const turnstileBrowser=readFileSync("scripts/local-turnstile-browser-smoke.js","utf8");
 const indexNow=readFileSync("scripts/local-indexnow-submit.js","utf8");
+const privacyRetention=readFileSync("scripts/local-privacy-retention.js","utf8");
+const privacyRetentionContract=readFileSync("scripts/privacy-retention-contract-check.js","utf8");
 const smtpEnvelope=smtp.slice(smtp.indexOf("export async function verifyNodeSmtpRecipients"),smtp.indexOf("export async function sendNodeSmtpMail"));
 const inlineExecutableHtml=readdirSync("public",{recursive:true}).filter((file)=>String(file).endsWith(".html")).filter((file)=>/<script\b(?![^>]*\bsrc=)(?![^>]*type=["']application\/ld\+json["'])[^>]*>/i.test(readFileSync(join("public",String(file)),"utf8")));
 const checks=[
@@ -89,6 +91,9 @@ const checks=[
   ["monitor-covers-site-watchdog",monitor.includes('inspectJsonRuntime("site_watchdog"')&&monitor.includes('LOCAL_SITE_WATCHDOG_REPORT')],
   ["runtime-submits-indexnow-with-deduplicated-state",runtime.includes('runStep("indexnow_submit"')&&task.includes("INDEXNOW_SUBMIT = '1'")&&indexNow.includes("indexnow-state.json")],
   ["monitor-covers-fresh-indexnow-report",monitor.includes("inspectIndexNow(indexNowPath)")&&monitor.includes('check("indexnow"')&&monitor.includes('"network-degraded", "provider-degraded"')&&monitor.includes("activeSitemapVerified")&&monitor.includes("sitemap_manifest_verified")],
+  ["runtime-applies-transactional-privacy-retention-before-backup",runtime.includes('runStep("privacy_retention_contract"')&&runtime.indexOf('runStep("privacy_retention"')<runtime.indexOf('runStep("sqlite_backup"')&&task.includes("LOCAL_PRIVACY_RETENTION_APPLY = '1'")&&privacyRetention.includes('db.exec("BEGIN IMMEDIATE")')&&privacyRetention.includes('db.exec("ROLLBACK")')],
+  ["privacy-retention-preserves-business-and-suppression-data",privacyRetention.includes("lead_contact_data_deleted: false")&&privacyRetention.includes("newsletter_suppression_data_deleted: false")&&privacyRetentionContract.includes("lead-contact-data-preserved")&&privacyRetentionContract.includes("newsletter-suppression-data-preserved")],
+  ["monitor-covers-fresh-privacy-retention",monitor.includes('inspectJsonRuntime("privacy_retention"')&&monitor.includes("report.policy?.lead_contact_data_deleted === false")&&monitor.includes('report.safeguards?.includes("no-pii-in-report")')],
   ["production-alerts-enabled",task.includes("LOCAL_MONITOR_ALERTS = '1'")],
   ["lead-sla-alerts-enabled",task.includes("LOCAL_LEAD_SLA_ALERTS = '1'")],
   ["runtime-runs-monitor",runtime.includes('runStep("production_monitor"')],
