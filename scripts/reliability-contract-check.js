@@ -64,7 +64,7 @@ const checks=[
   ["production-monitor-covers-notification-backlog",monitor.includes('inspectJsonRuntime("lead_notification_backlog"')&&monitor.includes("report.exhausted === 0")],
   ["runtime-runs-isolated-lead-submission-canary",runtime.includes('runStep("lead_submission_canary"')&&leadCanary.includes("sqlite-temp-db")&&leadCanary.includes("no-real-lead-persisted")],
   ["lead-canary-captures-smtp-without-delivery",leadCanary.includes("SEND_SMTP_MAIL")&&leadCanary.includes("in-memory-smtp-capture")&&leadCanary.includes("no-external-email-delivery")&&leadCanary.includes('SMTP_TO: "team@immeubleassur.com"')],
-  ["monitor-covers-isolated-lead-submission-canary",monitor.includes('inspectJsonRuntime("lead_submission_canary"')&&monitor.includes("report.express?.placeholders_ok === true")],
+  ["monitor-covers-isolated-lead-submission-canary",monitor.includes('inspectJsonRuntime("lead_submission_canary"')&&monitor.includes("report.express?.placeholders_ok === true")&&monitor.includes("report.concurrent?.verified === true")&&monitor.includes("report.concurrent?.duplicate_notification === \"skipped\"")&&monitor.includes("report.counts?.email_notification_events")],
   ["monitor-covers-tls",monitor.includes('inspectJsonRuntime("tls_certificate"')],
   ["monitor-covers-smtp",monitor.includes('inspectJsonRuntime("smtp_transport"')],
   ["runtime-runs-isolated-newsletter-canary",runtime.includes('runStep("newsletter_runtime_canary"')&&newsletterCanary.includes("sqlite-temp-db")&&newsletterCanary.includes("in-memory-smtp-capture")],
