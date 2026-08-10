@@ -129,6 +129,7 @@ ADMIN_API_TOKEN=
 LOCAL_SQLITE_DB=F:\immeubleassur-data\immeubleassur.sqlite
 LOCAL_RUNTIME_ASSETS_ROOT=F:\immeubleassur-runtime
 LOCAL_RUNTIME_REPORTS_ROOT=F:\immeubleassur-runtime\reports
+LOCAL_MONITOR_ROOT=F:\immeubleassur-monitor
 SMTP_HOST=mail.xcr.fr
 SMTP_PORT=587
 SMTP_USER=team@immeubleassur.com
