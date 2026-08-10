@@ -1,8 +1,9 @@
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { extname, join, relative } from "node:path";
+import { dirname, extname, join, relative, resolve } from "node:path";
 
 const PUBLIC_DIR = "public";
-const REPORT_DIR = "reports";
+const REPORT_PATH = resolve(process.env.LOCAL_CONVERSION_INTELLIGENCE_REPORT || join("reports", "conversion-intelligence-report.json"));
+const PUBLIC_REPORT_PATH = resolve(process.env.LOCAL_CONVERSION_INTELLIGENCE_PUBLIC_REPORT || join("public", "assets", "conversion-intelligence-latest.json"));
 const SITE = "https://immeubleassur.com";
 
 const nonLocalImmeubleSlugs = new Set([
@@ -234,10 +235,10 @@ const report = {
   safeguards: ["conversion-score-does-not-replace-lead-quality", "money-pages-need-clear-user-intent", "no-hidden-cta-or-hidden-seo-text", "prioritize-measured-leads-over-raw-traffic"]
 };
 
-mkdirSync(REPORT_DIR, { recursive: true });
-mkdirSync(join(PUBLIC_DIR, "assets"), { recursive: true });
-writeFileSync(join(REPORT_DIR, "conversion-intelligence-report.json"), JSON.stringify(report, null, 2), "utf8");
-writeFileSync(join(PUBLIC_DIR, "assets", "conversion-intelligence-latest.json"), JSON.stringify({
+mkdirSync(dirname(REPORT_PATH), { recursive: true });
+mkdirSync(dirname(PUBLIC_REPORT_PATH), { recursive: true });
+writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2), "utf8");
+writeFileSync(PUBLIC_REPORT_PATH, JSON.stringify({
   generated_at: report.generated_at,
   pages_checked: report.pages_checked,
   money_pages_checked: report.money_pages_checked,

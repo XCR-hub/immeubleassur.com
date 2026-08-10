@@ -6,6 +6,7 @@ loadDefaultEnvFiles();
 const source = readFileSync("scripts/local-source-quality-monitor.js", "utf8");
 const backlog = readFileSync("scripts/local-seo-backlog-monitor.js", "utf8");
 const funnel = readFileSync("scripts/local-conversion-funnel-monitor.js", "utf8");
+const reconciliation = readFileSync("scripts/local-seo-opportunity-reconcile.js", "utf8");
 const admin = readFileSync("public/assets/admin.js", "utf8");
 const runtime = readFileSync("scripts/local-runtime-report-cycle.js", "utf8");
 const checks = [
@@ -25,7 +26,10 @@ const checks = [
   ["funnel-requires-minimum-samples", funnel.includes("row.engaged_sessions >= 3") && funnel.includes("summary.form_starts >= 3")],
   ["admin-shows-engaged-versus-raw", admin.includes("session(s) engagee(s)")],
   ["runtime-runs-source-quality", runtime.includes('runStep("source_quality_monitor"')],
-  ["runtime-runs-backlog-after-sync", runtime.includes('runStep("seo_backlog_monitor_after_sync"')]
+  ["runtime-runs-backlog-after-sync", runtime.includes('runStep("seo_backlog_monitor_after_sync"')],
+  ["runtime-refreshes-conversion-before-reconciliation", runtime.includes('runStep("conversion_intelligence_runtime"') && runtime.includes('runStep("seo_opportunity_reconciliation"')],
+  ["reconciliation-is-transactional", reconciliation.includes('BEGIN IMMEDIATE') && reconciliation.includes('ROLLBACK') && reconciliation.includes('COMMIT')],
+  ["reconciliation-preserves-history", reconciliation.includes("status = 'resolved'") && reconciliation.includes("no-content-publication")]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
 const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, safeguards: ["raw-traffic-not-treated-as-commercial-intent", "minimum-sample-before-high-friction-alert", "first-party-events-only", "no-pii-in-seo-reports"] };

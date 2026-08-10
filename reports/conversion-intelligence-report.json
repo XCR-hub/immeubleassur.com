@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-03T22:14:56.506Z",
-  "pages_checked": 199,
+  "generated_at": "2026-08-10T04:38:31.637Z",
+  "pages_checked": 200,
   "money_pages_checked": 128,
   "cluster_count": 11,
   "cluster_detection": {
@@ -382,9 +382,9 @@
     },
     {
       "cluster": "assurance-immeuble",
-      "pages": 14,
+      "pages": 15,
       "money_pages": 0,
-      "average_score": 52,
+      "average_score": 50,
       "top_pages": [
         {
           "slug": "faq/index",
