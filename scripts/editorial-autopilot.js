@@ -410,7 +410,7 @@ async function collectWatchItems() {
     if (!deduplicated.has(key) || deduplicated.get(key).relevance_score < enriched.relevance_score) deduplicated.set(key, enriched);
   }
   const items = [...deduplicated.values()];
-  return { items: items.sort((a, b) => b.relevance_score - a.relevance_score).slice(0, 18), errors, sourceResults, mode: fetched.length ? "fetched" : "fallback-after-fetch" };
+  return { items: selectPublishedWatchItems(items.sort((a, b) => b.relevance_score - a.relevance_score), 18), errors, sourceResults, mode: fetched.length ? "fetched" : "fallback-after-fetch" };
 }
 
 function aiProviders() {
@@ -529,8 +529,45 @@ async function synthesize(items) {
   const fallback = deterministicProvider();
   return { ...fallback, status: "fallback-after-ai-errors", text: fallbackSynthesis(items), error: "all-ai-providers-failed", attempts, provider_order: providerOrder };
 }
-function watchCard(item) {
-  return `<article class="watch-card"><p class="eyebrow dark">${esc(item.source_name)} - ${esc(item.topic || "veille")}</p><h3><a href="${attr(item.url)}" rel="nofollow noopener">${esc(item.title)}</a></h3><p>${esc(item.summary || "Signal public a transformer en question d'audit assurance immeuble.")}</p><span>Score pertinence ${Number(item.relevance_score || 0)}/100</span></article>`;
+function selectPublishedWatchItems(items, limit = 12) {
+  const selected = [];
+  const seenUrls = new Set();
+  const seenSources = new Set();
+  const add = (item) => {
+    const key = String(item?.url || item?.title || "").replace(/[?#].*$/, "").replace(/\/$/, "").toLowerCase();
+    if (!key || seenUrls.has(key) || selected.length >= limit) return;
+    seenUrls.add(key);
+    if (item?.source_id) seenSources.add(item.source_id);
+    selected.push(item);
+  };
+  const explicitDimensions = [
+    /assurance|assureur|contrat|garantie|prime|franchise/i,
+    /copropri|immeuble|logement|habitat/i,
+    /syndic|conseil syndical|assemblee generale/i,
+    /obligation|obligatoire|reglement|decret|loi|jurisprudence|responsabilite/i
+  ];
+  for (const pattern of explicitDimensions) add(items.find((item) => pattern.test(editorialSearchText(item?.title))));
+  for (const item of items) {
+    if (seenSources.has(item.source_id)) continue;
+    add(item);
+  }
+  for (const item of items) add(item);
+  return selected;
+}function editorialRecency(item, now = new Date(), maximumAgeDays = 45) {
+  const date = publicationDate(item?.published_at);
+  if (!date) return { status: "undated", date: "", label: "Date non fournie par la source" };
+  const ageDays = (now.getTime() - date.getTime()) / 86400000;
+  const isoDate = date.toISOString().slice(0, 10);
+  if (ageDays < -0.25) return { status: "future", date: isoDate, label: `Date source à vérifier: ${item.published_at}` };
+  if (ageDays <= maximumAgeDays) return { status: "fresh", date: isoDate, label: `Signal récent - source datée du ${item.published_at}` };
+  return { status: "reference", date: isoDate, label: `Référence de fond - source datée du ${item.published_at}` };
+}
+function watchRecencyMarkup(item) {
+  const recency = editorialRecency(item);
+  const value = recency.date ? `<time datetime="${attr(recency.date)}">${esc(recency.label)}</time>` : esc(recency.label);
+  return `<span class="watch-recency ${attr(recency.status)}">${value}</span>`;
+}function watchCard(item) {
+  return `<article class="watch-card"><p class="eyebrow dark">${esc(item.source_name)} - ${esc(item.topic || "veille")}</p><h3><a href="${attr(item.url)}" rel="nofollow noopener">${esc(item.title)}</a></h3>${watchRecencyMarkup(item)}<p>${esc(item.summary || "Signal public a transformer en question d'audit assurance immeuble.")}</p><span>Score pertinence ${Number(item.relevance_score || 0)}/100</span></article>`;
 }
 
 function buildIssue(items, synthesis) {
@@ -564,13 +601,14 @@ function newsletterPage(issue) {
 }
 
 function issuePage(issue, items, publicSynthesis) {
+  const publishedItems = selectPublishedWatchItems(items);
   const faqAnswers = [
     "Une actualite devient utile lorsqu'elle modifie une question a poser: garantie, franchise, responsabilite, delai ou document a fournir.",
     "La veille ne remplace pas l'audit du contrat. Elle aide a savoir quoi verifier avant de comparer des devis.",
     "Avant AG ou renouvellement, elle sert a preparer les questions au syndic, au bailleur ou a l'assureur.",
     "Les signaux importants sont sinistres recurrents, travaux, vacance, hausse de prime et exclusions mal comprises."
   ];
-  const body = `<article class="article-layout rich-article newsletter-issue"><header class="article-head"><p class="eyebrow dark">Newsletter - ${esc(issue.day)}</p><h1>${esc(issue.title)}</h1><p>${esc(issue.summary)}</p></header><div class="article-body"><div class="article-summary"><strong>A retenir</strong><ul>${issue.takeaways.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></div><section><h2>Synthese de veille.</h2>${publicSynthesis.text.split(/\n{2,}/).map((p) => `<p>${esc(p)}</p>`).join("")}</section><section><h2>Sources et signaux suivis.</h2><div class="watch-list-compact">${items.slice(0, 8).map((item) => `<article><strong><a href="${attr(item.url)}" rel="nofollow noopener">${esc(item.title)}</a></strong><span>${esc(item.source_name)} - ${esc(item.topic || "veille")}</span><p>${esc(item.summary || "Signal a surveiller pour l'assurance immeuble.")}</p></article>`).join("")}</div></section><section class="faq-list"><h2>FAQ de la veille</h2>${FAQS.map((q, index) => `<details><summary>${esc(q)}</summary><p>${esc(faqAnswers[index % faqAnswers.length])}</p></details>`).join("")}</section></div><aside class="article-cta">${newsletterForm("newsletter-issue")}<div class="source-box"><strong>Besoin concret ?</strong><a class="button primary" href="/devis-assurance-immeuble?intent=sinistre">Demander un audit ou devis immeuble</a><a href="/devis-pno-cno?intent=pno-cno">Comparer PNO/CNO</a></div></aside></article>`;
+  const body = `<article class="article-layout rich-article newsletter-issue"><header class="article-head"><p class="eyebrow dark">Newsletter - ${esc(issue.day)}</p><h1>${esc(issue.title)}</h1><p>${esc(issue.summary)}</p></header><div class="article-body"><div class="article-summary"><strong>A retenir</strong><ul>${issue.takeaways.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></div><section><h2>Synthese de veille.</h2>${publicSynthesis.text.split(/\n{2,}/).map((p) => `<p>${esc(p)}</p>`).join("")}</section><section><h2>Sources et signaux suivis.</h2><div class="watch-list-compact">${publishedItems.map((item) => `<article><strong><a href="${attr(item.url)}" rel="nofollow noopener">${esc(item.title)}</a></strong><span>${esc(item.source_name)} - ${esc(item.topic || "veille")}</span>${watchRecencyMarkup(item)}<p>${esc(item.summary || "Signal a surveiller pour l'assurance immeuble.")}</p></article>`).join("")}</div></section><section class="faq-list"><h2>FAQ de la veille</h2>${FAQS.map((q, index) => `<details><summary>${esc(q)}</summary><p>${esc(faqAnswers[index % faqAnswers.length])}</p></details>`).join("")}</section></div><aside class="article-cta">${newsletterForm("newsletter-issue")}<div class="source-box"><strong>Besoin concret ?</strong><a class="button primary" href="/devis-assurance-immeuble?intent=sinistre">Demander un audit ou devis immeuble</a><a href="/devis-pno-cno?intent=pno-cno">Comparer PNO/CNO</a></div></aside></article>`;
   return layout({ slug: issue.slug, title: issue.title, description: issue.summary, body, publishedDate: issue.day });
 }
 
@@ -713,6 +751,7 @@ async function run() {
   ensureDir(join(OUT, "news"));
   ensureDir(REPORT_DIR);
   const { items, errors, sourceResults, mode } = await collectWatchItems();
+  const publishedItems = selectPublishedWatchItems(items);
   const draftsRoot = join(REPORT_DIR, "editorial-drafts");
   const equivalentPendingDraft = findEquivalentPendingDraft(draftsRoot, items);
   const synthesis = equivalentPendingDraft
@@ -731,7 +770,7 @@ async function run() {
   if (publicWriteEnabled) {
     write(join(OUT, "veille-assurance-immeuble.html"), veillePage(items, publicSynthesis, issue));
     write(join(OUT, "newsletter-assurance-immeuble.html"), newsletterPage(issue));
-    write(join(OUT, `${issue.slug}.html`), issuePage(issue, items, publicSynthesis));
+    write(join(OUT, `${issue.slug}.html`), issuePage(issue, publishedItems, publicSynthesis));
     injectHubs(issue);
     issueBackfills = injectIssueBacklog();
     updateSitemap(["veille-assurance-immeuble", "newsletter-assurance-immeuble", issue.slug]);
@@ -793,7 +832,10 @@ async function run() {
     source_results: sourceResults,
     watch_items: items.length,
     source_item_counts: Object.fromEntries(SOURCES.map((source) => [source.id, items.filter((item) => item.source_id === source.id).length])),
-    business_coverage: editorialBusinessCoverage(items),
+    business_coverage: editorialBusinessCoverage(publishedItems),
+    published_watch_item_count: publishedItems.length,
+    published_source_count: new Set(publishedItems.map((item) => item.source_id).filter(Boolean)).size,
+    published_source_item_counts: Object.fromEntries(SOURCES.map((source) => [source.id, publishedItems.filter((item) => item.source_id === source.id).length])),
     watch_preview: items.slice(0, 8).map(({ source_id, title, url, topic, relevance_score }) => ({ source_id, title, url, topic, relevance_score })),
     public_watch_items: items.slice(0, 18).map(({ source_id, source_name, title, url, summary, topic, relevance_score, published_at }) => ({ source_id, source_name, title, url, summary, topic, relevance_score, published_at })),
     candidate_issue: { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url },
@@ -831,7 +873,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", no-relevant=" + report.no_relevant_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, aiProviders, publicationDate, evaluatePublicationGate };
+export { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, selectPublishedWatchItems, editorialRecency, aiProviders, publicationDate, evaluatePublicationGate };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });

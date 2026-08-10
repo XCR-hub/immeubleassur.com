@@ -4,7 +4,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
 const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
-const { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage } = await import("./editorial-autopilot.js");
+const { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, selectPublishedWatchItems, editorialRecency } = await import("./editorial-autopilot.js");
 const decomposed = "Assurance proprie\u0301taire";
 const corruptedFixture = { title: "Actualite\uFFFD assurance immeuble", summary: "Signal public", published_at: "10 aout 2026" };
 const repairableFixtures = [
@@ -21,6 +21,15 @@ const coverageFixture = [
 const coverageComplete = editorialBusinessCoverage(coverageFixture, coverageReferenceNow);
 const coverageGap = editorialBusinessCoverage(coverageFixture.slice(0, 1), coverageReferenceNow);
 const staleCoverage = editorialBusinessCoverage(coverageFixture.map((item) => ({ ...item, published_at: "2026-01-01" })), coverageReferenceNow);
+const dominantSourceItems = [
+  ...Array.from({ length: 10 }, (_, index) => ({ source_id: "dominant", title: `Assurance immeuble signal ${index}`, url: `https://example.com/dominant-${index}`, relevance_score: 100 - index })),
+  { source_id: "syndic-official", title: "Syndic benevole et copropriete", url: "https://example.com/syndic", relevance_score: 50 },
+  { source_id: "regulator", title: "Assurance et regulation", url: "https://example.com/regulator", relevance_score: 40 }
+];
+const representativeSelection = selectPublishedWatchItems(dominantSourceItems, 6);
+const freshRecency = editorialRecency({ published_at: "2026-08-08" }, coverageReferenceNow);
+const referenceRecency = editorialRecency({ published_at: "2026-06-04" }, coverageReferenceNow);
+const undatedRecency = editorialRecency({}, coverageReferenceNow);
 const artifactFixture = { title: "Actualite assurance immeuble attribuee", summary: '/fileadmin/image.jpg 992w,/fileadmin/image-large.jpg 2000w" sizes="100vw" loading="lazy" width="1200" height="800" alt=""> 03 aout 2026 Une mesure de prevention est publiee pour les immeubles&hellip;', published_at: "03 aout 2026" };
 const sanitizedArtifact = sanitizeEditorialSummary(artifactFixture.summary);
 const navigationSummaryFixture = "L’assurance vie";
@@ -76,13 +85,17 @@ const checks = [
   ["business-coverage-gap-detected", coverageGap.status === "gaps-detected" && coverageGap.missing_dimensions.includes("syndic") && coverageGap.missing_dimensions.includes("obligations")],
   ["business-coverage-freshness-reported", coverageComplete.freshness_status === "fresh" && coverageComplete.dimensions.syndic.fresh_item_count === 1 && coverageComplete.dimensions.syndic.latest_published_at === "2026-08-08T00:00:00.000Z"],
   ["stale-business-coverage-not-labelled-fresh", staleCoverage.status === "covered" && staleCoverage.freshness_status === "freshness-gaps-detected" && staleCoverage.missing_fresh_dimensions.length === 4],
+  ["published-selection-preserves-source-diversity", representativeSelection.length === 6 && representativeSelection.some((item) => item.source_id === "syndic-official") && representativeSelection.some((item) => item.source_id === "regulator")],
+  ["published-selection-drives-business-coverage", editorial.includes("business_coverage: editorialBusinessCoverage(publishedItems)") && editorial.includes("published_source_item_counts:")],
+  ["public-cards-label-recency", editorial.includes("watchRecencyMarkup(item)") && freshRecency.status === "fresh" && referenceRecency.status === "reference" && undatedRecency.status === "undated"],
+  ["daily-edition-uses-representative-items", editorial.includes("issuePage(issue, publishedItems, publicSynthesis)") && editorial.includes("const publishedItems = selectPublishedWatchItems(items)")],
   ["reference-sources-distinguished", editorial.includes("reference_source_count") && editorial.includes('status: "monitored-reference"')],
   ["legifrance-exact-reference-monitored", editorial.includes("LEGIARTI000028779136") && editorial.includes('"reference-metadata-only"')],
   ["legifrance-in-force-metadata-verified", verifiedLegifranceFixture.verified === true && verifiedLegifranceFixture.identifier === "LEGIARTI000028779136" && verifiedLegifranceFixture.status_marker === "in-force"],
   ["legifrance-stale-metadata-rejected", staleLegifranceFixture.verified === false && staleLegifranceFixture.status_marker === "unknown"],
   ["legifrance-access-restriction-distinguished", referenceFetchStatus({ http_status: 403 }) === "reference-access-restricted" && referenceFetchStatus({ http_status: 429 }) === "reference-access-restricted"],
   ["legifrance-real-failure-remains-unverified", referenceFetchStatus({ http_status: 500 }) === "reference-unverified" && referenceFetchStatus(new Error("timeout")) === "reference-unverified"],
-  ["reference-verification-counts-exported", editorial.includes("reference_verified_count") && editorial.includes("reference_unverified_count") && editorial.includes("reference_access_restricted_count")],  ["business-coverage-exported", editorial.includes("business_coverage: editorialBusinessCoverage(items)")],
+  ["reference-verification-counts-exported", editorial.includes("reference_verified_count") && editorial.includes("reference_unverified_count") && editorial.includes("reference_access_restricted_count")],  ["business-coverage-exported", editorial.includes("business_coverage: editorialBusinessCoverage(publishedItems)")],
   ["corrupted-fixture-detected", editorialTextQuality(corruptedFixture).clean === false],
   ["corrupted-fixture-excluded", qualityFiltered([cleanFixture, corruptedFixture]).length === 1],
   ["artifact-fixture-sanitized", sanitizedArtifact.includes("Une mesure de prevention") && sanitizedArtifact.includes("\u2026") && !corruptionPattern.test(sanitizedArtifact)],

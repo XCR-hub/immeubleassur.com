@@ -3205,6 +3205,28 @@ textarea:focus {
   font-size: .82rem;
   font-weight: 800;
 }
+.watch-recency {
+  display: inline-flex;
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.watch-recency.fresh {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.watch-recency.reference {
+  color: #7c2d12;
+  background: #ffedd5;
+}
+
+.watch-recency.undated,
+.watch-recency.future {
+  color: #713f12;
+  background: #fef3c7;
+}
 
 .watch-list-compact {
   display: grid;
