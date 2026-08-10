@@ -27,6 +27,9 @@ if (!existsSync(sourcePath)) {
     healthy_source_count: Number(report.healthy_source_count || 0),
     empty_source_count: Number(report.empty_source_count || 0),
     no_relevant_source_count: Number(report.no_relevant_source_count || 0),
+    reference_verified_count: Number(report.reference_verified_count || 0),
+    reference_unverified_count: Number(report.reference_unverified_count || 0),
+    reference_access_restricted_count: Number(report.reference_access_restricted_count || 0),
 
     failed_source_count: Number(report.failed_source_count || 0),
     collection_status: report.collection_status || "unknown",

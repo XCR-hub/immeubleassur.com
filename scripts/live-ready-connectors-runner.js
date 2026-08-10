@@ -53,6 +53,9 @@ function reportStatus(path) {
     healthy_source_count: Number(report.healthy_source_count || 0),
     empty_source_count: Number(report.empty_source_count || 0),
     no_relevant_source_count: Number(report.no_relevant_source_count || 0),
+    reference_verified_count: Number(report.reference_verified_count || 0),
+    reference_unverified_count: Number(report.reference_unverified_count || 0),
+    reference_access_restricted_count: Number(report.reference_access_restricted_count || 0),
 
     failed_source_count: Number(report.failed_source_count || 0)
   };
@@ -142,7 +145,7 @@ for (const [id, config] of Object.entries(runnable)) {
   if (id === "editorial-ai") {
     const editorialReport = readJson(join(REPORT_DIR, config.report));
     step.attention = ["partial", "degraded"].includes(editorialReport?.collection_status);
-    step.report = { ...step.report, collection_status: editorialReport?.collection_status || "unknown", healthy_source_count: Number(editorialReport?.healthy_source_count || 0), empty_source_count: Number(editorialReport?.empty_source_count || 0), no_relevant_source_count: Number(editorialReport?.no_relevant_source_count || 0), failed_source_count: Number(editorialReport?.failed_source_count || 0) };
+    step.report = { ...step.report, collection_status: editorialReport?.collection_status || "unknown", healthy_source_count: Number(editorialReport?.healthy_source_count || 0), empty_source_count: Number(editorialReport?.empty_source_count || 0), no_relevant_source_count: Number(editorialReport?.no_relevant_source_count || 0), reference_verified_count: Number(editorialReport?.reference_verified_count || 0), reference_unverified_count: Number(editorialReport?.reference_unverified_count || 0), reference_access_restricted_count: Number(editorialReport?.reference_access_restricted_count || 0), failed_source_count: Number(editorialReport?.failed_source_count || 0) };
   }
   if ((config.attentionStatuses || []).includes(step.report?.status)) step.attention = true;
   steps.push(step);

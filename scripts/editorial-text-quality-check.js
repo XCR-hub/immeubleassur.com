@@ -4,7 +4,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
 const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
-const { parseRss, parsePublicPage, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage } = await import("./editorial-autopilot.js");
+const { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage } = await import("./editorial-autopilot.js");
 const decomposed = "Assurance proprie\u0301taire";
 const corruptedFixture = { title: "Actualite\uFFFD assurance immeuble", summary: "Signal public", published_at: "10 aout 2026" };
 const repairableFixtures = [
@@ -29,7 +29,9 @@ const parsedAcprFixture = parsePublicPage(
   '<main><a href="/fr/actualites/indemnisation-multirisques-habitation">Indemnisation assurance multirisques habitation</a><p>Actualite assurance logement et sinistres.</p><a href="/fr/professionnels/vos-outils-et-services/esurfi-banque-assurance">Registre des agents financiers et organismes assurance</a></main>',
   { ...acprNewsSource, name: "ACPR", url: "https://acpr.banque-france.fr/fr/actualites" }
 );
-const servicePublicProSource = { id: "service-public-professionnels", name: "Entreprendre.Service-Public.fr", url: "https://www.service-public.gouv.fr/abonnements/rss/actu-actu-pro.rss" };
+const legifranceReferenceSource = { id: "legifrance", url: "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/" };
+const verifiedLegifranceFixture = verifyReferencePage(legifranceReferenceSource, "<main><h1>Loi n° 65-557 du 10 juillet 1965</h1><h2>Article 9-1</h2><p>Version en vigueur depuis le 27 mars 2014</p><p>Corps non exporte dans le rapport.</p></main>");
+const staleLegifranceFixture = verifyReferencePage(legifranceReferenceSource, "<main><h1>Article 9-1</h1><p>Version abrogee</p></main>");const servicePublicProSource = { id: "service-public-professionnels", name: "Entreprendre.Service-Public.fr", url: "https://www.service-public.gouv.fr/abonnements/rss/actu-actu-pro.rss" };
 const servicePublicProRssFixture = `<rss><channel>${Array.from({ length: 61 }, (_, index) => `<item><title>Formalites sociales entreprise numero ${index + 1}</title><description>Declaration administrative generale</description><link>https://entreprendre.service-public.gouv.fr/actualites/A${18000 + index}</link><dc:date>2026-06-01T00:00:00+02:00</dc:date></item>`).join("")}<item><title>Bail commercial : ce qui change</title><description>La loi comporte de nouvelles obligations relatives au bail commercial.</description><link>https://entreprendre.service-public.gouv.fr/actualites/A18929</link><dc:date>2026-05-29T00:00:00+02:00</dc:date></item></channel></rss>`;
 const parsedServicePublicProFixture = parseRss(servicePublicProRssFixture, servicePublicProSource);
 const noRelevantRssFixture = parseRss('<rss><channel><item><title>Formalites administratives generales</title><description>Declaration annuelle</description><link>https://www.service-public.gouv.fr/particuliers/actualites/A10000</link><dc:date>2026-08-10T00:00:00+02:00</dc:date></item></channel></rss>', { id: "service-public-particuliers", name: "Service Public", url: "https://www.service-public.gouv.fr/abonnements/rss/actu-actualites-particuliers.rss" });
@@ -65,8 +67,13 @@ const checks = [
   ["normalization-applies-mojibake-repair", repairableFixtures.every(([input, expected]) => normalizeEditorialText(input) === expected)],
   ["business-coverage-dimensions-reported", coverageComplete.status === "covered" && coverageComplete.required_dimensions.length === 4],
   ["business-coverage-gap-detected", coverageGap.status === "gaps-detected" && coverageGap.missing_dimensions.includes("syndic") && coverageGap.missing_dimensions.includes("obligations")],
-  ["reference-sources-distinguished", editorial.includes("reference_source_count") && editorial.includes('status: "reference-only"')],
-  ["business-coverage-exported", editorial.includes("business_coverage: editorialBusinessCoverage(items)")],
+  ["reference-sources-distinguished", editorial.includes("reference_source_count") && editorial.includes('status: "monitored-reference"')],
+  ["legifrance-exact-reference-monitored", editorial.includes("LEGIARTI000028779136") && editorial.includes('"reference-metadata-only"')],
+  ["legifrance-in-force-metadata-verified", verifiedLegifranceFixture.verified === true && verifiedLegifranceFixture.identifier === "LEGIARTI000028779136" && verifiedLegifranceFixture.status_marker === "in-force"],
+  ["legifrance-stale-metadata-rejected", staleLegifranceFixture.verified === false && staleLegifranceFixture.status_marker === "unknown"],
+  ["legifrance-access-restriction-distinguished", referenceFetchStatus({ http_status: 403 }) === "reference-access-restricted" && referenceFetchStatus({ http_status: 429 }) === "reference-access-restricted"],
+  ["legifrance-real-failure-remains-unverified", referenceFetchStatus({ http_status: 500 }) === "reference-unverified" && referenceFetchStatus(new Error("timeout")) === "reference-unverified"],
+  ["reference-verification-counts-exported", editorial.includes("reference_verified_count") && editorial.includes("reference_unverified_count") && editorial.includes("reference_access_restricted_count")],  ["business-coverage-exported", editorial.includes("business_coverage: editorialBusinessCoverage(items)")],
   ["corrupted-fixture-detected", editorialTextQuality(corruptedFixture).clean === false],
   ["corrupted-fixture-excluded", qualityFiltered([cleanFixture, corruptedFixture]).length === 1],
   ["artifact-fixture-sanitized", sanitizedArtifact.includes("Une mesure de prevention") && sanitizedArtifact.includes("\u2026") && !corruptionPattern.test(sanitizedArtifact)],

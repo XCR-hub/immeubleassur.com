@@ -28,7 +28,7 @@ const SOURCES = [
   ["acpr-communiques", "ACPR communiques", "https://acpr.banque-france.fr/fr/communiques-de-presse", "public-page", "regulateur-assurance", "regulator", "public-title-and-summary"],
   ["anil-actualites", "ANIL", "https://www.anil.org/actualites-evenements/", "public-page", "logement-copropriete", "official", "public-title-and-summary"],
   ["france-assureurs-actualites", "France Assureurs", "https://www.franceassureurs.fr/actualites", "public-page", "marche-assurance", "industry", "public-title-and-summary"],
-  ["legifrance", "Legifrance", "https://www.legifrance.gouv.fr/", "reference", "droit", "official", "reference-link-only"]
+  ["legifrance", "Legifrance", "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/", "reference", "droit", "official", "reference-metadata-only"]
 ].map(([id, name, url, source_type, category, authority, crawl_policy]) => ({ id, name, url, source_type, category, authority, crawl_policy }));
 
 const FALLBACK_ITEMS = [
@@ -337,12 +337,26 @@ function parsePublicPage(html, source) {
   return filtered;
 }
 
+function verifyReferencePage(source, html) {
+  const identifier = String(source?.url || "").match(/LEGIARTI\d+/)?.[0] || "";
+  if (source?.id !== "legifrance") return { verified: false, identifier, title_marker: "", status_marker: "unknown" };
+  const text = normalizeEditorialText(stripHtml(decodeHtml(html)));
+  const articleMarker = /Article\s+9-1\b/i.test(text);
+  const lawMarker = /Loi\s+n[^\s]*\s*65-557\s+du\s+10\s+juillet\s+1965/i.test(text);
+  const inForceMarker = /Version\s+en\s+vigueur/i.test(text);
+  return { verified: Boolean(identifier && articleMarker && lawMarker && inForceMarker), identifier, title_marker: articleMarker && lawMarker ? "article-9-1-loi-65-557" : "unknown", status_marker: inForceMarker ? "in-force" : "unknown" };
+}
+
+function referenceFetchStatus(error) {
+  return [401, 403, 429].includes(Number(error?.http_status || 0)) ? "reference-access-restricted" : "reference-unverified";
+}
+
 async function fetchWithTimeout(url, timeoutMs = 8000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(url, { signal: controller.signal, headers: { "User-Agent": "ImmeubleAssur editorial watch (+https://immeubleassur.com)" } });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) { const error = new Error(`HTTP ${response.status}`); error.http_status = response.status; throw error; }
     return await response.text();
   } finally {
     clearTimeout(timer);
@@ -359,10 +373,22 @@ async function collectWatchItems() {
       const payload = await fetchWithTimeout(source.url);
       const parsed = source.source_type === "rss" ? parseRss(payload, source) : parsePublicPage(payload, source);
       fetched.push(...parsed);
-      sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: parsed.length ? "healthy" : Number(parsed.raw_item_count || 0) > 0 ? "no-relevant-items" : "empty", item_count: parsed.length, raw_item_count: Number(parsed.raw_item_count || parsed.length || 0), text_quality_rejected_count: Number(parsed.rejected_text_quality || 0), url_scope_rejected_count: Number(parsed.rejected_url_scope || 0), content_scope_rejected_count: Number(parsed.rejected_content_scope || 0) });
+      sourceResults.push({ source_id: source.id, source_name: source.name, source_type: source.source_type, authority: source.authority, status: parsed.length ? "healthy" : Number(parsed.raw_item_count || 0) > 0 ? "no-relevant-items" : "empty", item_count: parsed.length, raw_item_count: Number(parsed.raw_item_count || parsed.length || 0), text_quality_rejected_count: Number(parsed.rejected_text_quality || 0), url_scope_rejected_count: Number(parsed.rejected_url_scope || 0), content_scope_rejected_count: Number(parsed.rejected_content_scope || 0) });
     } catch (error) {
       errors.push({ source: source.id, error: error.message || "fetch failed" });
-      sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: "failed", item_count: 0, error: error.message || "fetch failed" });
+      sourceResults.push({ source_id: source.id, source_name: source.name, source_type: source.source_type, authority: source.authority, status: "failed", item_count: 0, error: error.message || "fetch failed" });
+    }
+  }
+  for (const source of SOURCES.filter((item) => item.source_type === "reference")) {
+    try {
+      const payload = await fetchWithTimeout(source.url);
+      const reference = verifyReferencePage(source, payload);
+      sourceResults.push({ source_id: source.id, source_name: source.name, source_type: source.source_type, authority: source.authority, status: reference.verified ? "reference-verified" : "reference-unverified", item_count: 0, reference });
+      if (!reference.verified) errors.push({ source: source.id, error: "reference metadata unverified" });
+    } catch (error) {
+      const status = referenceFetchStatus(error);
+      if (status === "reference-unverified") errors.push({ source: source.id, error: error.message || "reference fetch failed" });
+      sourceResults.push({ source_id: source.id, source_name: source.name, source_type: source.source_type, authority: source.authority, status, item_count: 0, reference: { verified: false, identifier: String(source.url || "").match(/LEGIARTI\d+/)?.[0] || "", title_marker: "unknown", status_marker: status === "reference-access-restricted" ? "access-restricted" : "unknown" }, ...(status === "reference-unverified" ? { error: error.message || "reference fetch failed" } : {}) });
     }
   }
   const deduplicated = new Map();
@@ -736,8 +762,12 @@ async function run() {
     quality_score: qualityScore(items, synthesis),
     source_count: SOURCES.length,
     reference_source_count: SOURCES.filter((source) => source.source_type === "reference").length,
-    reference_sources: SOURCES.filter((source) => source.source_type === "reference").map(({ id, name, url, authority, crawl_policy }) => ({ id, name, url, authority, crawl_policy, status: "reference-only" })),
-    fetchable_source_count: sourceResults.length,
+    reference_sources: SOURCES.filter((source) => source.source_type === "reference").map(({ id, name, url, authority, crawl_policy }) => ({ id, name, url, authority, crawl_policy, status: "monitored-reference" })),
+    monitored_source_count: sourceResults.length,
+    fetchable_source_count: sourceResults.filter((source) => source.source_type !== "reference").length,
+    reference_verified_count: sourceResults.filter((source) => source.status === "reference-verified").length,
+    reference_unverified_count: sourceResults.filter((source) => source.status === "reference-unverified").length,
+    reference_access_restricted_count: sourceResults.filter((source) => source.status === "reference-access-restricted").length,
     healthy_source_count: sourceResults.filter((source) => source.status === "healthy").length,
     empty_source_count: sourceResults.filter((source) => source.status === "empty").length,
     no_relevant_source_count: sourceResults.filter((source) => source.status === "no-relevant-items").length,
@@ -747,7 +777,7 @@ async function run() {
     content_scope_rejected_count: sourceResults.reduce((sum, source) => sum + Number(source.content_scope_rejected_count || 0), 0),
     text_quality_status: sourceResults.some((source) => Number(source.text_quality_rejected_count || 0) > 0) ? "filtered" : "clean",
     minimum_healthy_sources: 3,
-    collection_status: sourceResults.some((source) => source.status === "failed") ? "degraded" : sourceResults.filter((source) => source.status === "healthy").length < 3 ? "partial" : "healthy",
+    collection_status: sourceResults.some((source) => source.status === "failed" || source.status === "reference-unverified") ? "degraded" : sourceResults.filter((source) => source.status === "healthy").length < 3 ? "partial" : "healthy",
     source_results: sourceResults,
     watch_items: items.length,
     source_item_counts: Object.fromEntries(SOURCES.map((source) => [source.id, items.filter((item) => item.source_id === source.id).length])),
@@ -773,6 +803,9 @@ async function run() {
     healthy_source_count: report.healthy_source_count,
     empty_source_count: report.empty_source_count,
     no_relevant_source_count: report.no_relevant_source_count,
+    reference_verified_count: report.reference_verified_count,
+    reference_unverified_count: report.reference_unverified_count,
+    reference_access_restricted_count: report.reference_access_restricted_count,
 
     failed_source_count: report.failed_source_count,
     collection_status: report.collection_status,
@@ -786,7 +819,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", no-relevant=" + report.no_relevant_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { parseRss, parsePublicPage, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, aiProviders, publicationDate, evaluatePublicationGate };
+export { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, aiProviders, publicationDate, evaluatePublicationGate };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });
