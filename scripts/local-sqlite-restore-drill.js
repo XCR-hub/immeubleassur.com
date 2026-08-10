@@ -6,6 +6,8 @@ import { loadDefaultEnvFiles, env } from "./local-env.js";
 
 loadDefaultEnvFiles();
 
+const REQUIRED_BUSINESS_TABLES = ["leads", "lead_events", "site_events", "newsletter_subscribers", "newsletter_events", "brokerage_cases", "case_documents", "client_contracts", "contract_documents", "client_assets"];
+
 function sha256(path) { return createHash("sha256").update(readFileSync(path)).digest("hex"); }
 function quoteIdentifier(value) { return `"${String(value).replaceAll('"', '""')}"`; }
 function writeReport(path, report) {
@@ -44,8 +46,10 @@ function run() {
       const tables = database.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all().map((row) => row.name);
       let totalRows = 0;
       for (const table of tables) totalRows += Number(database.prepare(`SELECT COUNT(*) AS count FROM ${quoteIdentifier(table)}`).get()?.count || 0);
-      if (integrity !== "ok" || foreignKeyViolations !== 0 || tables.length < 10) throw new Error(`Restauration invalide: integrity=${integrity}, foreign_keys=${foreignKeyViolations}, tables=${tables.length}`);
-      Object.assign(report, { status: "passed", source_type: useMirror ? "mirror" : "primary", source_file: sourcePath, restored_file: restoredPath, source_hash_verified: true, sha256: restoredHash, size_bytes: statSync(restoredPath).size, integrity, foreign_key_violations: foreignKeyViolations, table_count: tables.length, total_rows: totalRows });
+      const missingRequiredTables = REQUIRED_BUSINESS_TABLES.filter((table) => !tables.includes(table));
+      Object.assign(report, { source_type: useMirror ? "mirror" : "primary", source_file: sourcePath, restored_file: restoredPath, source_hash_verified: true, sha256: restoredHash, size_bytes: statSync(restoredPath).size, integrity, foreign_key_violations: foreignKeyViolations, table_count: tables.length, total_rows: totalRows, required_table_count: REQUIRED_BUSINESS_TABLES.length, missing_required_tables: missingRequiredTables });
+      if (integrity !== "ok" || foreignKeyViolations !== 0 || tables.length < 10 || missingRequiredTables.length) throw new Error(`Restauration invalide: integrity=${integrity}, foreign_keys=${foreignKeyViolations}, tables=${tables.length}, missing_required=${missingRequiredTables.join(",") || "none"}`);
+      report.status = "passed";
     } finally {
       database.close();
     }
