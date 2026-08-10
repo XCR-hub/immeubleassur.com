@@ -462,7 +462,7 @@ function pagePath(slug) {
 function nav() {
   return `
     <header class="site-header" data-elevate>
-      <a class="brand" href="/" aria-label="ImmeubleAssur accueil">
+      <a class="brand" href="/" aria-label="IA ImmeubleAssur courtier immeuble - accueil">
         <span class="brand-mark" aria-hidden="true">IA</span>
         <span><strong>ImmeubleAssur</strong><small>courtier immeuble</small></span>
       </a>
@@ -591,7 +591,7 @@ function layout({ slug, title, description, body, canonical, schema = "" }) {
     <link rel="canonical" href="${canonical || url}" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    
+
     <link rel="preload" as="image" href="/assets/hero-building.webp" type="image/webp" fetchpriority="high" />
     <link rel="stylesheet" href="${STYLES_URL}" />
     <title>${esc(title)} | ImmeubleAssur</title>

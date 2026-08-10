@@ -306,7 +306,7 @@ function versionedAsset(path) { const file = join(OUT, ...path.replace(/^\//, ""
 function normalizeTarget(targetUrl) { return String(targetUrl || "").split("?")[0].replace(/^https?:\/\/[^/]+/i, "").replace(/^\/+|\/+$/g, "") || "index"; }
 
 function nav() {
-  return `<header class="site-header" data-elevate><a class="brand" href="/" aria-label="ImmeubleAssur accueil"><span class="brand-mark" aria-hidden="true">IA</span><span><strong>ImmeubleAssur</strong><small>courtier immeuble</small></span></a><nav class="nav" aria-label="Navigation principale"><a href="/assurance-immeuble">Immeuble</a><a href="/recherches-assurance-immeuble">Recherches</a><a href="/assurance-copropriete">Copropriete</a><a href="/assurance-pno-cno">PNO/CNO</a><a href="/villes">Villes</a><a href="/blog">Blog</a><a href="/devis-assurance-immeuble">Devis</a></nav><a class="header-phone" href="tel:${PHONE_HREF}">${PHONE}</a></header>`;
+  return `<header class="site-header" data-elevate><a class="brand" href="/" aria-label="IA ImmeubleAssur courtier immeuble - accueil"><span class="brand-mark" aria-hidden="true">IA</span><span><strong>ImmeubleAssur</strong><small>courtier immeuble</small></span></a><nav class="nav" aria-label="Navigation principale"><a href="/assurance-immeuble">Immeuble</a><a href="/recherches-assurance-immeuble">Recherches</a><a href="/assurance-copropriete">Copropriete</a><a href="/assurance-pno-cno">PNO/CNO</a><a href="/villes">Villes</a><a href="/blog">Blog</a><a href="/devis-assurance-immeuble">Devis</a></nav><a class="header-phone" href="tel:${PHONE_HREF}">${PHONE}</a></header>`;
 }
 
 function footer() {
