@@ -255,6 +255,7 @@ function inspectEditorialHealth(reportPath) {
   try {
     const report = JSON.parse(readFileSync(reportPath, "utf8"));
     const issue = Array.isArray(report.issues) ? report.issues[0] : null;
+    const coverageWarning = issue?.type === "editorial-business-coverage-gap";
     return check("editorial_health", report.success === true && report.attention_required !== true, {
       path: reportPath,
       status: report.status || "unknown",
@@ -264,7 +265,7 @@ function inspectEditorialHealth(reportPath) {
       latest_edition_age_days: report.latest_valid_edition?.age_days ?? null,
       reason: issue?.type || "",
       gate_reasons: report.publication_gate?.reasons || []
-    });
+    }, coverageWarning ? "warn" : "fail");
   } catch (error) {
     return check("editorial_health", false, { path: reportPath, error: error.message || "editorial health unreadable" });
   }
