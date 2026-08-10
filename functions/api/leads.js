@@ -698,7 +698,7 @@ function parseRecipients(value) {
     .slice(0, 10);
 }
 
-function leadMailConfig(env) {
+export function leadMailConfig(env) {
   const resendMode = String(env.EMAIL_TRANSPORT || "").toLowerCase() === "resend";
   const host = clean(env.SMTP_HOST, 160);
   const port = Number.parseInt(env.SMTP_PORT || "587", 10);
@@ -706,6 +706,8 @@ function leadMailConfig(env) {
   const password = String(env.SMTP_PASS || "");
   const from = clean(env.SMTP_FROM || env.RESEND_FROM || username, 180);
   const recipients = parseRecipients(env.SMTP_TO || env.CONTACT_EMAIL || from);
+  const mailConfigured = Boolean(resendMode || host || username || password || from || env.SMTP_TO || env.CONTACT_EMAIL);
+  if (mailConfigured && !recipients.some((item) => item.toLowerCase() === "team@immeubleassur.com")) throw new Error("Destinataire operationnel team@immeubleassur.com absent");
   if (resendMode && clean(env.RESEND_API_KEY, 300) && from && recipients.length) return { host: "resend", port: 443, username: "", password: "", from, to: recipients, secureTransport: "https" };
   if (!host || !port || !username || !password || !from || recipients.length === 0) return null;
   return {

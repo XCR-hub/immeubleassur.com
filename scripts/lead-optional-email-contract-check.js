@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, extname, join } from "node:path";
-import { validateLeadPayload, buildLeadEmail, buildDuplicateLeadEmail, leadSubmissionFingerprint } from "../functions/api/leads.js";
+import { validateLeadPayload, buildLeadEmail, buildDuplicateLeadEmail, leadSubmissionFingerprint, leadMailConfig } from "../functions/api/leads.js";
 
 function walk(dir) { return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => entry.isDirectory() ? walk(join(dir, entry.name)) : extname(entry.name) === ".html" ? [join(dir, entry.name)] : []); }
 const base = { name: "Jean Dupont", phone: "0612345678", email: "", profile: "syndic-benevole", property_type: "copropriete", city: "Lyon", consent: true };
@@ -12,6 +12,10 @@ const emailMail = buildLeadEmail({ id: "lead-test", reference: "IA-TEST", score:
 const fingerprintA = await leadSubmissionFingerprint({ ...mailRecord, email: "contact@example.fr" }, "2026-08-10T10:00:00.000Z");
 const fingerprintSame = await leadSubmissionFingerprint({ ...mailRecord, email: "contact@example.fr" }, "2026-08-10T11:00:00.000Z");
 const fingerprintNextDay = await leadSubmissionFingerprint({ ...mailRecord, email: "contact@example.fr" }, "2026-08-11T10:00:00.000Z");
+let wrongRecipientRejected = false;
+try { leadMailConfig({ SMTP_HOST: "smtp.example.test", SMTP_PORT: "587", SMTP_USER: "sender@example.test", SMTP_PASS: "secret", SMTP_FROM: "sender@example.test", SMTP_TO: "wrong@example.test" }); }
+catch (error) { wrongRecipientRejected = String(error.message || "").includes("team@immeubleassur.com absent"); }
+const teamMailConfig = leadMailConfig({ SMTP_HOST: "smtp.example.test", SMTP_PORT: "587", SMTP_USER: "sender@example.test", SMTP_PASS: "secret", SMTP_FROM: "sender@example.test", SMTP_TO: "team@immeubleassur.com" });
 const htmlFiles = walk("public");
 const leadForms = [];
 const invalidForms = [];
@@ -57,6 +61,8 @@ const checks = [
   ["email-notification-unchanged", emailMail.subject === "Nouveau lead ImmeubleAssur IA-TEST" && emailMail.text.includes("Email: contact@example.fr")],
   ["reply-to-remains-conditional", api.includes('...(record.email ? [`Reply-To: ${headerSafe(record.email)}`] : [])')],
   ["smtp-events-redact-diagnostics", api.includes("receipt: safeDiagnostic(notification.receipt)") && api.includes("error: safeDiagnostic(error.message")],
+  ["initial-notification-rejects-non-team-recipient", wrongRecipientRejected],
+  ["initial-notification-accepts-team-recipient", teamMailConfig?.to?.includes("team@immeubleassur.com") === true],
   ["lead-database-errors-are-generic", api.includes('code: "lead-persistence-failed"') && !api.includes('reply({ success: false, error: error.message')],
   ["local-api-errors-are-generic", server.includes('code: "api-handler-failed"') && !server.includes('error: error.message || "Erreur serveur local"')],
   ["all-rendered-lead-forms-covered", leadForms.length >= 180 && invalidForms.length === 0],
