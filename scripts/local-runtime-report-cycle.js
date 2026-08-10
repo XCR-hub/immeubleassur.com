@@ -3,12 +3,13 @@ import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { outputNeedsAttention } from "./runtime-attention.js";
+import { redactLocalPaths, reportFileName } from "./runtime-report-redaction.js";
 
 loadDefaultEnvFiles();
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
 function writeJson(path, value) { ensureDir(dirname(path)); writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, "utf8"); }
-function clean(value, max = 2000) { return String(value || "").replace(/\r/g, "").trim().slice(0, max); }
+function clean(value, max = 2000) { return redactLocalPaths(value).replace(/\r/g, "").trim().slice(0, max); }
 
 function sourceRevision() {
   try {
@@ -46,13 +47,13 @@ function runStep(name, args, extraEnv = {}) {
   const attention = result.status === 0 && outputNeedsAttention(stdout, stderr);
   return {
     name,
-    command: `node ${args.join(" ")}`,
+    command: clean(`node ${args.join(" ")}`),
     ok: result.status === 0,
     status: result.status,
     attention,
     stdout,
     stderr,
-    error: result.error?.message || ""
+    error: clean(result.error?.message || "")
   };
 }
 
@@ -176,13 +177,13 @@ function run() {
     success: steps.every((step) => step.ok),
     generated_at: new Date().toISOString(),
     source_revision: sourceRevision(),
-    runtime_reports_root: runtimeReportsRoot,
-    runtime_assets_root: runtimeAssetsRoot,
+    runtime_storage: { reports: "isolated", assets: "isolated" },
     public_runtime_assets: {
-      growth_ops: runtimeGrowthAsset,
-      intent_conversion: runtimeIntentAsset,
-      source_quality: runtimeSourceAsset
+      growth_ops: reportFileName(runtimeGrowthAsset),
+      intent_conversion: reportFileName(runtimeIntentAsset),
+      source_quality: reportFileName(runtimeSourceAsset)
     },
+    safeguards: ["no-local-paths-in-report", "stdout-stderr-path-redaction", "storage-roots-not-exported"],
     summary: {
       ok: steps.filter((step) => step.ok).length,
       failed: steps.filter((step) => !step.ok).length,
