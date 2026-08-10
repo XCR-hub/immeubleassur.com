@@ -86,7 +86,7 @@ const checks=[
   ["aggregate-monitors-ignore-unqualified-abandonment",conversionFunnel.includes("$.qualified_abandonment")&&seoBacklog.includes("$.qualified_abandonment")&&sourceQuality.includes("payload.qualified_abandonment === true")&&intentConversion.includes("payload.qualified_abandonment === true")],
   ["monitor-covers-site-watchdog",monitor.includes('inspectJsonRuntime("site_watchdog"')&&monitor.includes('LOCAL_SITE_WATCHDOG_REPORT')],
   ["runtime-submits-indexnow-with-deduplicated-state",runtime.includes('runStep("indexnow_submit"')&&task.includes("INDEXNOW_SUBMIT = '1'")&&indexNow.includes("indexnow-state.json")],
-  ["monitor-covers-fresh-indexnow-report",monitor.includes("inspectIndexNow(indexNowPath)")&&monitor.includes('check("indexnow"')&&monitor.includes('"network-degraded", "provider-degraded"')],
+  ["monitor-covers-fresh-indexnow-report",monitor.includes("inspectIndexNow(indexNowPath)")&&monitor.includes('check("indexnow"')&&monitor.includes('"network-degraded", "provider-degraded"')&&monitor.includes("activeSitemapVerified")&&monitor.includes("sitemap_manifest_verified")],
   ["production-alerts-enabled",task.includes("LOCAL_MONITOR_ALERTS = '1'")],
   ["lead-sla-alerts-enabled",task.includes("LOCAL_LEAD_SLA_ALERTS = '1'")],
   ["runtime-runs-monitor",runtime.includes('runStep("production_monitor"')],

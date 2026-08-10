@@ -48,6 +48,7 @@ const checks = [
   ["generation-pass-persists-artifacts", pass.includes('write(join(OUT, "robots.txt")') && pass.includes('write(join(OUT, "llms.txt")') && pass.includes('methodologie-editoriale.html')],
   ["indexnow-key-is-public-and-valid", /^[a-f0-9]{64}$/.test(indexNowKey) && indexNow.includes("key_publicly_verifiable: true")],
   ["indexnow-submits-only-changed-same-host-urls", indexNow.includes("previous[row.url] !== row.lastmod") && indexNow.includes("new URL(row.url).host === siteUrl.host") && indexNow.includes("state-not-advanced-on-failure")],
+  ["indexnow-prefers-verified-runtime-sitemap", indexNow.includes('source: "active-runtime-publication"') && indexNow.includes("actualHash === sitemapArtifact.sha256") && indexNow.includes('source: "static-fallback"')],
   ["indexnow-never-claims-ranking", indexNow.includes("citation_or_ranking_guaranteed: false") && indexNow.includes('"no-ranking-claim"')]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);

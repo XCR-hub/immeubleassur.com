@@ -228,9 +228,10 @@ function inspectIndexNow(reportPath) {
     const report = JSON.parse(readFileSync(reportPath, "utf8"));
     const ageMinutes = reportAgeMinutes(report);
     const fresh = Number.isFinite(ageMinutes) && ageMinutes <= 390;
-    const healthy = fresh && report.success === true && ["submitted", "no-changes"].includes(report.status) && report.key_publicly_verifiable === true;
-    const degraded = fresh && ["network-degraded", "provider-degraded"].includes(report.status);
-    return check("indexnow", healthy, { path: reportPath, status: report.status || "unknown", age_minutes: ageMinutes, max_age_minutes: 390, sitemap_urls: Number(report.sitemap_urls || 0), changed_urls: Number(report.changed_urls || 0), submitted_urls: Number(report.submitted_urls || 0), http_status: Number(report.http_status || 0), ranking_guaranteed: false }, degraded ? "warn" : "fail");
+    const activeSitemapVerified = report.sitemap_source === "active-runtime-publication" && report.sitemap_manifest_verified === true;
+    const healthy = fresh && report.success === true && ["submitted", "no-changes"].includes(report.status) && report.key_publicly_verifiable === true && activeSitemapVerified;
+    const degraded = fresh && (["network-degraded", "provider-degraded"].includes(report.status) || (report.success === true && !activeSitemapVerified));
+    return check("indexnow", healthy, { path: reportPath, status: report.status || "unknown", age_minutes: ageMinutes, max_age_minutes: 390, sitemap_source: report.sitemap_source || "unknown", sitemap_manifest_verified: report.sitemap_manifest_verified === true, sitemap_urls: Number(report.sitemap_urls || 0), changed_urls: Number(report.changed_urls || 0), submitted_urls: Number(report.submitted_urls || 0), http_status: Number(report.http_status || 0), ranking_guaranteed: false }, degraded ? "warn" : "fail");
   } catch (error) {
     return check("indexnow", false, { path: reportPath, error: error.message || "indexnow report unreadable" });
   }
