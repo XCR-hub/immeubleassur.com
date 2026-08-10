@@ -570,6 +570,35 @@ function sanitizeEditorialHealthReport(report) {
     issues: Array.isArray(report.issues) ? report.issues.slice(0, 8).map((item) => ({ type: item.type || "", severity: item.severity || "", signal: item.signal || "", threshold: item.threshold || "" })) : []
   };
 }
+function sanitizeEditorialReviewReport(report) {
+  if (!report || typeof report !== "object") return { available: false };
+  const generatedAt = report.generated_at || "";
+  const safeUrl = (value) => {
+    try { const parsed = new URL(String(value || "")); return ["https:", "http:"].includes(parsed.protocol) ? parsed.toString() : ""; }
+    catch { return ""; }
+  };
+  return {
+    available: true,
+    status: report.status || "unknown",
+    generated_at: generatedAt,
+    age_minutes: generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null,
+    pending_count: Number(report.pending_count || 0),
+    legal_sensitive_count: Number(report.legal_sensitive_count || 0),
+    warning_count: Number(report.warning_count || 0),
+    critical_count: Number(report.critical_count || 0),
+    oldest_age_days: Number(report.oldest_age_days || 0),
+    recipient_is_team: report.alert_policy?.recipient_is_team === true,
+    review_queue: (report.review_queue || []).slice(0, 12).map((item) => ({
+      issue: item.issue || "",
+      review_severity: item.review_severity || "pending",
+      age_days: Number(item.age_days || 0),
+      legal_sensitive: item.legal_sensitive === true,
+      matched_terms: Array.isArray(item.matched_terms) ? item.matched_terms.slice(0, 12) : [],
+      source_count: Number(item.source_count || 0),
+      source_urls: (item.source_urls || []).map(safeUrl).filter(Boolean).slice(0, 7)
+    }))
+  };
+}
 export async function onRequestGet({ request, env }) {
   if (!isAuthorized(request, env)) return json({ success: false, error: "Non autorise" }, 401);
 
@@ -594,6 +623,8 @@ export async function onRequestGet({ request, env }) {
   const seoBacklogReport = await readLocalJson(seoBacklogPath);
   const editorialHealthPath = env.LOCAL_EDITORIAL_HEALTH_REPORT || "reports/local-editorial-health-report.json";
   const editorialHealthReport = await readLocalJson(editorialHealthPath);
+  const editorialReviewPath = env.LOCAL_EDITORIAL_REVIEW_REPORT || "reports/local-editorial-review-report.json";
+  const editorialReviewReport = await readLocalJson(editorialReviewPath);
   const expectedSourceRevision = await currentSourceRevision();
   const documentScanner = typeof env.DOCUMENT_SCANNER_STATUS === "function"
     ? await env.DOCUMENT_SCANNER_STATUS()
@@ -625,6 +656,7 @@ export async function onRequestGet({ request, env }) {
     intent_conversion: sanitizeIntentConversionReport(intentConversionReport),
     source_quality: sanitizeSourceQualityReport(sourceQualityReport),
     seo_backlog: sanitizeSeoBacklogReport(seoBacklogReport),
-    editorial_health: sanitizeEditorialHealthReport(editorialHealthReport)
+    editorial_health: sanitizeEditorialHealthReport(editorialHealthReport),
+    editorial_review: sanitizeEditorialReviewReport(editorialReviewReport)
   });
 }

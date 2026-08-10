@@ -4,6 +4,8 @@ import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
 const root = resolve(import.meta.dirname, "..");
+const runtimeHealthApi = readFileSync(join(root, "functions", "api", "admin", "runtime-health.js"), "utf8");
+const admin = readFileSync(join(root, "public", "assets", "admin.js"), "utf8");
 const fixture = mkdtempSync(join(tmpdir(), "immeubleassur-editorial-review-fingerprint-"));
 const drafts = join(fixture, "drafts");
 const report = join(fixture, "report.json");
@@ -51,6 +53,8 @@ try {
     ["report-does-not-export-local-draft-paths", !JSON.stringify(sla).includes(drafts) && sla.review_queue?.every((item) => !("path" in item))],
     ["operational-diagnostics-privacy-declared", sla.safeguards?.includes("no-local-paths-in-report-or-alert") && sla.safeguards?.includes("smtp-diagnostics-redacted")],
     ["review-alert-declares-actionable-links", sla.safeguards?.includes("actionable-source-links") && sla.safeguards?.includes("admin-review-link")],
+    ["admin-api-sanitizes-editorial-review-metadata", runtimeHealthApi.includes("sanitizeEditorialReviewReport") && runtimeHealthApi.includes("LOCAL_EDITORIAL_REVIEW_REPORT") && runtimeHealthApi.includes("source_urls: (item.source_urls || []).map(safeUrl)")],
+    ["admin-renders-quarantined-review-with-safe-links", admin.includes("Revue IA quarantinee") && admin.includes("editorial_review.review_queue") && admin.includes("noopener noreferrer")],
     ["critical-alert-policy-is-faster-than-warning", Number(sla.alert_policy?.critical_cooldown_minutes) === 360 && Number(sla.alert_policy?.warning_cooldown_minutes) === 1440]
   ];
   const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
