@@ -48,9 +48,9 @@ $env:LOCAL_TLS_REPORT = Join-Path $RuntimeRoot 'reports\local-tls-certificate-re
 $env:LOCAL_CONTRACT_RENEWAL_REPORT = Join-Path $RuntimeRoot 'reports\local-contract-renewal-report.json'
 $env:LOCAL_GROWTH_OPS_RUNTIME_ONLY = '1'
 $env:LOCAL_GROWTH_OPS_RUNTIME_ASSET = Join-Path $RuntimeRoot 'assets\local-growth-ops-latest.json'
-$env:LOCAL_MONITOR_ALERTS = '0'
+$env:LOCAL_MONITOR_ALERTS = '1'
 $env:LOCAL_RUNTIME_ONLY = '1'
-$env:LOCAL_LEAD_SLA_ALERTS = '0'
+$env:LOCAL_LEAD_SLA_ALERTS = '1'
 New-Item -ItemType Directory -Force -Path (Join-Path $RuntimeRoot 'assets'), (Join-Path $RuntimeRoot 'reports'), $BackupRoot | Out-Null
 & 'C:\Program Files\nodejs\node.exe' 'scripts\local-runtime-report-cycle.js'
 $reportExitCode = $LASTEXITCODE

@@ -35,14 +35,35 @@ function backupFiles(directory) {
     .sort((a, b) => b.mtimeMs - a.mtimeMs);
 }
 
-function pruneBackups(directory, keep) {
+function weekKey(timestamp) {
+  const date = new Date(timestamp);
+  const year = date.getUTCFullYear();
+  const day = Math.floor((Date.UTC(year, date.getUTCMonth(), date.getUTCDate()) - Date.UTC(year, 0, 1)) / 86400000);
+  return `${year}-w${Math.floor(day / 7)}`;
+}
+
+function pruneBackups(directory, { recent, dailyDays, weeklyWeeks }) {
   const files = backupFiles(directory);
-  const pruned = [];
-  for (const file of files.slice(keep)) {
-    rmSync(file.file, { force: true });
-    pruned.push(file.name);
+  const keepNames = new Set(files.slice(0, recent).map((file) => file.name));
+  const daily = new Set();
+  const weekly = new Set();
+  const now = Date.now();
+  for (const file of files.slice(recent)) {
+    const ageDays = Math.max(0, (now - file.mtimeMs) / 86400000);
+    const dayKey = new Date(file.mtimeMs).toISOString().slice(0, 10);
+    const week = weekKey(file.mtimeMs);
+    if (ageDays <= dailyDays && !daily.has(dayKey)) {
+      daily.add(dayKey);
+      keepNames.add(file.name);
+    } else if (ageDays <= weeklyWeeks * 7 && !weekly.has(week)) {
+      weekly.add(week);
+      keepNames.add(file.name);
+    }
   }
-  return { retained: files.slice(0, keep).map((file) => file.name), pruned };
+  const retained = files.filter((file) => keepNames.has(file.name));
+  const expired = files.filter((file) => !keepNames.has(file.name));
+  for (const file of expired) rmSync(file.file, { force: true });
+  return { retained: retained.map((file) => file.name), pruned: expired.map((file) => file.name), tiers: { recent, daily_days: dailyDays, weekly_weeks: weeklyWeeks, daily_snapshots: daily.size, weekly_snapshots: weekly.size } };
 }
 
 function inspectBackup(file) {
@@ -62,7 +83,9 @@ function inspectBackup(file) {
 function run() {
   const dbPath = resolve(argValue("--db", env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite"))));
   const backupDir = resolve(argValue("--out", env("LOCAL_SQLITE_BACKUP_DIR", join("backups", "sqlite"))));
-  const keep = Number.parseInt(argValue("--keep", env("LOCAL_SQLITE_BACKUP_KEEP", "30")), 10) || 30;
+  const keep = Math.max(8, Number.parseInt(argValue("--keep", env("LOCAL_SQLITE_BACKUP_KEEP", "32")), 10) || 32);
+  const dailyDays = Math.max(7, Number.parseInt(argValue("--daily-days", env("LOCAL_SQLITE_BACKUP_DAILY_DAYS", "14")), 10) || 14);
+  const weeklyWeeks = Math.max(4, Number.parseInt(argValue("--weekly-weeks", env("LOCAL_SQLITE_BACKUP_WEEKLY_WEEKS", "8")), 10) || 8);
 
   if (!existsSync(dbPath)) throw new Error(`Base SQLite introuvable: ${dbPath}`);
   mkdirSync(backupDir, { recursive: true });
@@ -81,7 +104,7 @@ function run() {
   const inspection = inspectBackup(backupPath);
   if (inspection.integrity !== "ok") throw new Error(`Sauvegarde SQLite invalide: ${inspection.integrity}`);
 
-  const retention = pruneBackups(backupDir, keep);
+  const retention = pruneBackups(backupDir, { recent: keep, dailyDays, weeklyWeeks });
   const report = {
     success: true,
     generated_at: new Date().toISOString(),
@@ -90,6 +113,7 @@ function run() {
     size_bytes: statSync(backupPath).size,
     sha256: sha256(backupPath),
     keep,
+    retention_policy: retention.tiers,
     retained: retention.retained,
     pruned: retention.pruned,
     integrity: inspection.integrity,

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
@@ -132,19 +133,42 @@ function inspectBackup(manifestPath, maxAgeHours) {
     const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
     const generated = new Date(manifest.generated_at).getTime();
     const ageHours = generated ? Math.round(((Date.now() - generated) / 3600000) * 10) / 10 : 9999;
-    return check("sqlite_backup_age", manifest.integrity === "ok" && ageHours <= maxAgeHours, {
+    const backupFile = resolve(manifest.backup_file || "");
+    const fileExists = Boolean(manifest.backup_file && existsSync(backupFile));
+    const actualSize = fileExists ? statSync(backupFile).size : 0;
+    const actualHash = fileExists ? createHash("sha256").update(readFileSync(backupFile)).digest("hex") : "";
+    const artifactVerified = fileExists && actualSize === Number(manifest.size_bytes || 0) && actualHash === manifest.sha256;
+    return check("sqlite_backup_age", manifest.integrity === "ok" && ageHours <= maxAgeHours && artifactVerified, {
       manifest: manifestPath,
       backup_file: manifest.backup_file || "",
       integrity: manifest.integrity || "",
       table_count: manifest.table_count || 0,
       age_hours: ageHours,
-      max_age_hours: maxAgeHours
+      max_age_hours: maxAgeHours,
+      artifact_exists: fileExists,
+      artifact_verified: artifactVerified,
+      size_bytes: actualSize
     });
   } catch (error) {
     return check("sqlite_backup_age", false, { manifest: manifestPath, error: error.message || "backup manifest unreadable" });
   }
 }
 
+function reportAgeMinutes(report) {
+  const timestamp = Date.parse(report?.generated_at || "");
+  return Number.isFinite(timestamp) ? Math.round(((Date.now() - timestamp) / 60000) * 10) / 10 : 999999;
+}
+
+function inspectJsonRuntime(name, reportPath, maxAgeMinutes, validate, details = () => ({})) {
+  if (!existsSync(reportPath)) return check(name, false, { path: reportPath, error: "missing" });
+  try {
+    const report = JSON.parse(readFileSync(reportPath, "utf8"));
+    const ageMinutes = reportAgeMinutes(report);
+    return check(name, ageMinutes <= maxAgeMinutes && validate(report), { path: reportPath, status: report.status || "", age_minutes: ageMinutes, max_age_minutes: maxAgeMinutes, ...details(report) });
+  } catch (error) {
+    return check(name, false, { path: reportPath, error: error.message || "runtime report unreadable" });
+  }
+}
 function inspectEditorialHealth(reportPath) {
   if (!existsSync(reportPath)) return check("editorial_health", false, { path: reportPath, error: "missing" });
   try {
@@ -257,6 +281,10 @@ async function run() {
   const maxBackupAgeHours = numberEnv("LOCAL_SQLITE_BACKUP_MAX_AGE_HOURS", 8);
   const runtimeReportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", "reports"));
   const editorialHealthPath = resolve(env("LOCAL_EDITORIAL_HEALTH_REPORT", join(runtimeReportsRoot, "local-editorial-health-report.json")));
+  const tlsReportPath = resolve(env("LOCAL_TLS_REPORT", join(runtimeReportsRoot, "local-tls-certificate-report.json")));
+  const smtpReportPath = resolve(env("LOCAL_SMTP_HEALTH_REPORT", join(runtimeReportsRoot, "local-smtp-health-report.json")));
+  const newsletterReportPath = resolve(env("LOCAL_NEWSLETTER_DELIVERY_REPORT", join(runtimeReportsRoot, "local-newsletter-delivery-report.json")));
+  const runtimeCyclePath = resolve(env("LOCAL_RUNTIME_CYCLE_REPORT", join(runtimeReportsRoot, "local-runtime-report-cycle.json")));
   const out = resolve(argValue("--out", env("LOCAL_PRODUCTION_MONITOR_REPORT", join("reports", "local-production-monitor-report.json"))));
 
   const checks = [
@@ -265,7 +293,11 @@ async function run() {
     await checkTelemetryFilter(origin),
     inspectSqlite(dbPath),
     inspectBackup(backupManifest, maxBackupAgeHours),
-    inspectEditorialHealth(editorialHealthPath)
+    inspectEditorialHealth(editorialHealthPath),
+    inspectJsonRuntime("tls_certificate", tlsReportPath, 90, (report) => report.ok === true && ["healthy", "warning"].includes(report.status), (report) => ({ days_remaining: report.days_remaining })),
+    inspectJsonRuntime("smtp_transport", smtpReportPath, 90, (report) => report.status === "ready" && report.authenticated === true, (report) => ({ authenticated: report.authenticated === true, transport: report.transport || report.provider || "smtp" })),
+    inspectJsonRuntime("newsletter_delivery", newsletterReportPath, 90, (report) => ["no-active-subscribers", "up-to-date", "completed", "batch-completed"].includes(report.status) && report.failed === 0, (report) => ({ issue_synced: report.issue_synced === true, active_subscribers: Number(report.active_subscribers || 0), failed: Number(report.failed || 0) })),
+    inspectJsonRuntime("runtime_cycle_freshness", runtimeCyclePath, 90, (report) => report.success === true, (report) => ({ steps: Array.isArray(report.steps) ? report.steps.length : 0 }))
   ];
 
   const report = {
