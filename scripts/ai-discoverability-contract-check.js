@@ -12,6 +12,7 @@ const robots = readFileSync("public/robots.txt", "utf8");
 const llms = readFileSync("public/llms.txt", "utf8");
 const methodology = readFileSync("public/methodologie-editoriale.html", "utf8");
 const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
+const sanitizer = readFileSync("scripts/local-editorial-public-metadata-sanitizer.js", "utf8");
 const publicEditorial = JSON.parse(readFileSync("public/assets/editorial-autopilot-latest.json", "utf8"));
 const forbiddenPublicFields = ["draft_review_path", "draft_packet_path", "legal_review", "source_results", "watch_preview", "errors", "ai_attempts", "ai_provider_order"].filter((field) => Object.hasOwn(publicEditorial, field));
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
@@ -32,6 +33,9 @@ const checks = [
   ["static-public-editorial-asset-is-sanitized", publicEditorial.status === "safe-public-metadata" && publicEditorial.public_content_ai_generated === false && forbiddenPublicFields.length === 0 && Array.isArray(publicEditorial.public_watch_items) && publicEditorial.public_watch_items.every((item) => !Object.hasOwn(item, "summary"))],
   ["public-editorial-export-declares-safeguards", editorial.includes('"no-ai-draft-content"') && editorial.includes('"no-internal-paths"') && editorial.includes('"no-provider-errors"') && editorial.includes('"no-source-summaries"')],
   ["live-monitor-checks-public-editorial-redaction", monitor.includes("public-editorial-metadata-is-sanitized") && monitor.includes("forbiddenPublicEditorialFields")],
+  ["runtime-sanitizer-is-atomic", sanitizer.includes("renameSync(temporaryPath, outputPath)") && sanitizer.includes('status: "safe-public-metadata"')],
+  ["runtime-sanitizer-strips-sensitive-fields", !sanitizer.includes("draft_review_path") && !sanitizer.includes("draft_packet_path") && !sanitizer.includes("legal_review") && !sanitizer.includes("source_results")],
+  ["monitor-exits-cleanly-on-windows", monitor.includes("process.exitCode = 1")],
   ["official-openai-guidance-recorded", monitor.includes("https://help.openai.com/en/articles/12627856-publishers-and-developers-faq")],
   ["generation-pass-persists-artifacts", pass.includes('write(join(OUT, "robots.txt")') && pass.includes('write(join(OUT, "llms.txt")') && pass.includes('methodologie-editoriale.html')]
 ];

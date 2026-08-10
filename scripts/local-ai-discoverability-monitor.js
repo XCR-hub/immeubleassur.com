@@ -64,4 +64,4 @@ const report = { success: missing.length === 0, status: missing.length ? "degrad
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 console.log(`AI discoverability monitor: ${report.status} (${checks.filter(([, ok]) => ok).length}/${checks.length}).`);
-if (!report.success) process.exit(1);
+if (!report.success) process.exitCode = 1;
