@@ -52,6 +52,9 @@ jobs:
       - name: Enforce fresh official evidence gate
         run: npm run editorial:publication:gate
 
+      - name: Enforce editorial text quality
+        run: npm run editorial:text:quality
+
       - name: Validate site and functions
         run: npm run check
 

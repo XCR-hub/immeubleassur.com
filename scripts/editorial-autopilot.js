@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
@@ -122,6 +123,25 @@ function decodeXml(value) {
   return String(value || "").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 }
 
+function normalizeEditorialText(value) {
+  return String(value || "").normalize("NFC").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").replace(/\s+/g, " ").trim();
+}
+
+function editorialTextQuality(item) {
+  const corpus = `${item.title || ""} ${item.summary || ""} ${item.published_at || ""}`;
+  const reasons = [];
+  if (/\uFFFD|ï¿½/.test(corpus)) reasons.push("replacement-character");
+  if (/Ã[\u0080-\u00BF]|Â[\u0080-\u00BF]|â(?:€|™|œ|ž)/.test(corpus)) reasons.push("probable-mojibake");
+  if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(corpus)) reasons.push("control-character");
+  if (normalizeEditorialText(item.title).length < 12) reasons.push("title-too-short");
+  return { clean: reasons.length === 0, reasons };
+}
+
+function qualityFiltered(items) {
+  const clean = items.map((item) => ({ ...item, title: normalizeEditorialText(item.title), summary: normalizeEditorialText(item.summary), published_at: normalizeEditorialText(item.published_at) })).filter((item) => editorialTextQuality(item).clean);
+  clean.rejected_text_quality = items.length - clean.length;
+  return clean;
+}
 function rssTag(block, name) {
   const match = block.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)<\\/${name}>`, "i"));
   return decodeXml(match?.[1] || "");
@@ -147,7 +167,7 @@ function topicFor(item) {
 }
 
 function parseRss(xml, source) {
-  return [...String(xml || "").matchAll(/<item[\s\S]*?<\/item>/gi)].slice(0, 20).map((match) => {
+  return qualityFiltered([...String(xml || "").matchAll(/<item[\s\S]*?<\/item>/gi)].slice(0, 20).map((match) => {
     const block = match[0];
     const item = {
       source_id: source.id,
@@ -159,7 +179,7 @@ function parseRss(xml, source) {
       published_at: stripHtml(rssTag(block, "pubDate"))
     };
     return { ...item, topic: topicFor(item), relevance_score: relevanceFor(item) };
-  }).filter((item) => item.title && item.url);
+  }).filter((item) => item.title && item.url));
 }
 
 function decodeHtml(value) {
@@ -215,7 +235,7 @@ function parsePublicPage(html, source) {
     const key = item.url.replace(/[?#].*$/, "").replace(/\/$/, "");
     if (!unique.has(key) || unique.get(key).summary.length < item.summary.length) unique.set(key, item);
   }
-  return [...unique.values()].sort((a, b) => b.relevance_score - a.relevance_score).slice(0, 12);
+  return qualityFiltered([...unique.values()].sort((a, b) => b.relevance_score - a.relevance_score).slice(0, 12));
 }
 
 async function fetchWithTimeout(url, timeoutMs = 8000) {
@@ -240,7 +260,7 @@ async function collectWatchItems() {
       const payload = await fetchWithTimeout(source.url);
       const parsed = source.source_type === "rss" ? parseRss(payload, source) : parsePublicPage(payload, source);
       fetched.push(...parsed);
-      sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: parsed.length ? "healthy" : "empty", item_count: parsed.length });
+      sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: parsed.length ? "healthy" : "empty", item_count: parsed.length, text_quality_rejected_count: Number(parsed.rejected_text_quality || 0) });
     } catch (error) {
       errors.push({ source: source.id, error: error.message || "fetch failed" });
       sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: "failed", item_count: 0, error: error.message || "fetch failed" });
@@ -495,7 +515,7 @@ function evaluatePublicationGate(items, sourceResults, now = new Date()) {
     decision: reasons.length ? "hold-last-valid-publication" : "publish-new-safe-edition",
     reasons,
     minimums,
-    observed: { healthy_sources: healthy.length, authoritative_sources: authoritative.length, attributable_items: attributable.length, fresh_dated_items: freshDated.length },
+    observed: { healthy_sources: healthy.length, authoritative_sources: authoritative.length, attributable_items: attributable.length, fresh_dated_items: freshDated.length, text_quality_rejected_items: sourceResults.reduce((sum, source) => sum + Number(source.text_quality_rejected_count || 0), 0) },
     fresh_evidence: freshDated.slice(0, 8).map((item) => ({ source_id: item.source_id, title: item.title, url: item.url, published_at: item.published_at }))
   };
 }
@@ -585,6 +605,8 @@ async function run() {
     healthy_source_count: sourceResults.filter((source) => source.status === "healthy").length,
     empty_source_count: sourceResults.filter((source) => source.status === "empty").length,
     failed_source_count: sourceResults.filter((source) => source.status === "failed").length,
+    text_quality_rejected_count: sourceResults.reduce((sum, source) => sum + Number(source.text_quality_rejected_count || 0), 0),
+    text_quality_status: sourceResults.some((source) => Number(source.text_quality_rejected_count || 0) > 0) ? "filtered" : "clean",
     minimum_healthy_sources: 3,
     collection_status: sourceResults.some((source) => source.status === "failed") ? "degraded" : sourceResults.filter((source) => source.status === "healthy").length < 3 ? "partial" : "healthy",
     source_results: sourceResults,
@@ -596,7 +618,7 @@ async function run() {
     issue: publicWriteEnabled ? { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url } : null,
     issue_backfills: issueBackfills,
     automation_plan: automationPlan(items),
-    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review", "legal-sensitive-ai-drafts-quarantined", "public-content-provider-deterministic", "human-approval-required-before-ai-publication", "fresh-official-evidence-required", "last-valid-publication-preserved-on-source-failure"],
+    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review", "legal-sensitive-ai-drafts-quarantined", "public-content-provider-deterministic", "human-approval-required-before-ai-publication", "fresh-official-evidence-required", "last-valid-publication-preserved-on-source-failure", "unicode-nfc-normalized", "corrupted-source-text-excluded"],
     errors
   };
   write(join(REPORT_DIR, "editorial-autopilot-report.json"), JSON.stringify(report, null, 2));
@@ -606,4 +628,8 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-run().catch((error) => { console.error(error); process.exit(1); });
+export { normalizeEditorialText, editorialTextQuality, qualityFiltered };
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  run().catch((error) => { console.error(error); process.exit(1); });
+}

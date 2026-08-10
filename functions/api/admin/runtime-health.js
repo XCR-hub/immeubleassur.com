@@ -553,7 +553,8 @@ function sanitizeEditorialHealthReport(report) {
       healthy_sources: Number(report.publication_gate?.observed?.healthy_sources || 0),
       authoritative_sources: Number(report.publication_gate?.observed?.authoritative_sources || 0),
       attributable_items: Number(report.publication_gate?.observed?.attributable_items || 0),
-      fresh_dated_items: Number(report.publication_gate?.observed?.fresh_dated_items || 0)
+      fresh_dated_items: Number(report.publication_gate?.observed?.fresh_dated_items || 0),
+      text_quality_rejected_items: Number(report.publication_gate?.observed?.text_quality_rejected_items || 0)
     },
     held_this_cycle: report.held_this_cycle === true,
     consecutive_holds: Number(report.consecutive_holds || 0),
