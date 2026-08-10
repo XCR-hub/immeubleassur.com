@@ -233,6 +233,8 @@ function isInside(base, file) {
 function resolveRuntimeStaticPath(requestUrlValue) {
   const cleanUrl = decodeURIComponent((requestUrlValue || "/").split("?")[0]);
   if (!cleanUrl.startsWith("/assets/")) return "";
+  const assetRelative = cleanUrl.slice("/assets/".length);
+  if (!assetRelative || assetRelative.includes("/") || assetRelative.includes("\\")) return "";
   const direct = normalize(join(runtimeAssetsRoot, cleanUrl.replace(/^\/+/, "")));
   if (!isInside(runtimeAssetsRoot, direct)) return "";
   return existsSync(direct) ? direct : "";

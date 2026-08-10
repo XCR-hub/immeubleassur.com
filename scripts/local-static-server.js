@@ -69,6 +69,8 @@ function isInside(base, file) {
 function resolveRuntimePath(requestUrl) {
   const cleanUrl = decodeURIComponent((requestUrl || "/").split("?")[0]);
   if (!cleanUrl.startsWith("/assets/")) return "";
+  const assetRelative = cleanUrl.slice("/assets/".length);
+  if (!assetRelative || assetRelative.includes("/") || assetRelative.includes("\\")) return "";
   const direct = normalize(join(runtimeAssetsRoot, cleanUrl.replace(/^\/+/, "")));
   if (!isInside(runtimeAssetsRoot, direct)) return "";
   return existsSync(direct) ? direct : "";
