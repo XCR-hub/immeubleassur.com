@@ -186,6 +186,7 @@ function sanitizeIntentConversion(report) {
     key: clean(item.key, 80),
     label: clean(item.label || item.key, 160),
     sessions: number(item.sessions),
+    engaged_sessions: number(item.engaged_sessions),
     page_views: number(item.page_views),
     form_starts: number(item.form_starts),
     submit_attempts: number(item.submit_attempts),
@@ -200,6 +201,7 @@ function sanitizeIntentConversion(report) {
       lookback_days: number(summary.lookback_days),
       tracked_events: number(summary.tracked_events),
       tracked_sessions: number(summary.tracked_sessions),
+      engaged_sessions: number(summary.engaged_sessions),
       leads_db: number(summary.leads_db),
       hot_leads_db: number(summary.hot_leads_db),
       page_views: number(summary.page_views),
@@ -245,6 +247,7 @@ function sanitizeSourceQuality(report) {
       ? report.sources.slice(0, 10).map((item) => ({
           source: clean(item.source, 160),
           sessions: number(item.sessions),
+    engaged_sessions: number(item.engaged_sessions),
           form_starts: number(item.form_starts),
           submit_attempts: number(item.submit_attempts),
           leads_db: number(item.leads_db),

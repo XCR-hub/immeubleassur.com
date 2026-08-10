@@ -9,6 +9,7 @@ const fixture = mkdtempSync(join(tmpdir(), "immeubleassur-intent-engagement-"));
 const dbPath = join(fixture, "fixture.sqlite");
 const out = join(fixture, "report.json");
 const publicOut = join(fixture, "public.json");
+const growthOut = join(fixture, "growth.json");
 const db = new DatabaseSync(dbPath);
 db.exec(`
   CREATE TABLE site_events (id TEXT PRIMARY KEY, event_type TEXT NOT NULL, page_url TEXT, target TEXT, session_id TEXT, lead_reference TEXT, payload TEXT, ip_address TEXT, user_agent TEXT, created_at TEXT NOT NULL);
@@ -41,13 +42,17 @@ try {
   const engaged = runMonitor();
   const engagedWebsite = engaged.intent_funnels.find((row) => row.key === "website");
   const engagedTypes = engaged.recommendations.map((item) => item.type);
+  const growthResult = spawnSync(process.execPath, [join(root, "scripts", "local-growth-ops-export.js"), "--runtime-only", "--runtime-out", growthOut], { cwd: root, encoding: "utf8", env: { ...process.env, LOCAL_INTENT_CONVERSION_REPORT: out } });
+  if (growthResult.status !== 0) throw new Error(growthResult.stderr || growthResult.stdout || `growth export exit ${growthResult.status}`);
+  const growth = JSON.parse(readFileSync(growthOut, "utf8"));
   const checks = [
     ["automatic-loads-not-engaged", automaticWebsite?.sessions === 30 && automaticWebsite?.engaged_sessions === 0],
     ["automatic-loads-no-false-intent-action", !automaticTypes.includes("intent-sans-start")],
     ["automatic-router-views-no-false-action", !automaticTypes.includes("routeur-intention-bloque")],
     ["real-interactions-counted", engagedWebsite?.engaged_sessions === 5],
     ["engaged-traffic-can-trigger-action", engagedTypes.includes("intent-sans-start")],
-    ["router-selection-can-trigger-action", engagedTypes.includes("routeur-intention-bloque")]
+    ["router-selection-can-trigger-action", engagedTypes.includes("routeur-intention-bloque")],
+    ["growth-ops-preserves-engagement", growth.reports?.intent_conversion?.summary?.engaged_sessions === 5 && growth.reports?.intent_conversion?.intent_funnels?.find((row) => row.key === "website")?.engaged_sessions === 5]
   ];
   const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
   console.log(`Intent engagement contract: ${failed.length ? "failed" : "passed"} (${checks.length - failed.length}/${checks.length}).`);
