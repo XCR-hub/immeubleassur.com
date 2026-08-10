@@ -232,6 +232,13 @@ function leadIntent(row, payload) {
   ]);
 }
 
+function formSource(row, payload) {
+  const explicit = clean(payload.form_source || payload.utm?.form_source, 80);
+  if (explicit) return explicit;
+  if (row.event_type === "form_start") return clean(row.target, 80) || "lead-form";
+  return "";
+}
+
 function createMetricBucket(key, label = key) {
   return {
     key,
@@ -512,6 +519,7 @@ function writeReports(report, out, publicOut) {
     historical_context: report.historical_context,
     intent_funnels: report.intent_funnels.slice(0, 12),
     urgency_funnels: report.urgency_funnels.slice(0, 8),
+    form_source_funnels: report.form_source_funnels.slice(0, 12),
     lead_segments: report.lead_segments.slice(0, 8),
     recommendations: report.recommendations.slice(0, 10),
     safeguards: report.safeguards
@@ -529,6 +537,7 @@ function unavailableReport(status, dbPath, reason) {
     summary: { lookback_days: 0, tracked_events: 0, tracked_sessions: 0, leads_db: 0, hot_leads_db: 0, intent_count: 0, urgency_count: 0, attention_count: 0, reason },
     intent_funnels: [],
     urgency_funnels: [],
+    form_source_funnels: [],
     lead_segments: [],
     recommendations: [],
     safeguards: ["no-pii-public-export", "sqlite-readonly", "first-party-events-only", "no-google-scraping"]
@@ -570,6 +579,7 @@ function run() {
     const historicalSessions = new Set(events.map((row) => clean(row.session_id || parseJson(row.payload).session_id || row.id, 160)).filter(Boolean));
     const intentBuckets = new Map();
     const urgencyBuckets = new Map();
+    const formSourceBuckets = new Map();
     const allSessions = new Set();
     const engagedSessions = new Set();
 
@@ -578,6 +588,7 @@ function run() {
       const intent = eventIntent(row, payload);
       const urgency = normalizeUrgency(payload.lead_urgency || (row.event_type === "lead_urgency_detected" ? payload.label : "unknown"));
       const path = pathOf(payload.source_path || payload.path || row.page_url);
+      const placement = formSource(row, payload);
       const session = clean(row.session_id || payload.session_id || row.id, 160);
       if (session) allSessions.add(session);
       if (session && ENGAGEMENT_EVENTS.has(row.event_type)) engagedSessions.add(session);
@@ -589,6 +600,7 @@ function run() {
       }
       countEvent(intentBucket, row, payload, path, session);
       countEvent(urgencyBucket, row, payload, path, session);
+      if (placement) countEvent(ensureBucket(formSourceBuckets, placement, placement), row, payload, path, session);
     }
 
     for (const row of analysisLeads) {
@@ -597,10 +609,13 @@ function run() {
       const urgency = normalizeUrgency(payload.lead_urgency || payload.urgency?.level || "unknown");
       addLead(ensureBucket(intentBuckets, intent, INTENT_LABELS[intent] || intent), row, payload);
       addLead(ensureBucket(urgencyBuckets, urgency, URGENCY_LABELS[urgency] || urgency), row, payload);
+      const placement = formSource({ event_type: "lead_created", target: "" }, payload);
+      if (placement) addLead(ensureBucket(formSourceBuckets, placement, placement), row, payload);
     }
 
     const intentFunnels = [...intentBuckets.values()].map(finalizeBucket).sort((a, b) => b.leads_db - a.leads_db || b.form_starts - a.form_starts || b.page_views - a.page_views);
     const urgencyFunnels = [...urgencyBuckets.values()].map(finalizeBucket).sort((a, b) => b.leads_db - a.leads_db || b.form_starts - a.form_starts || b.lead_urgency_events - a.lead_urgency_events);
+    const formSourceFunnels = [...formSourceBuckets.values()].map(finalizeBucket).sort((a, b) => b.leads_db - a.leads_db || b.form_starts - a.form_starts || b.submit_attempts - a.submit_attempts);
     const total = intentFunnels.reduce((acc, row) => {
       acc.page_views += row.page_views;
       acc.form_starts += row.form_starts;
@@ -629,6 +644,7 @@ function run() {
       spam_blocks: total.spam_blocks,
       intent_count: intentFunnels.length,
       urgency_count: urgencyFunnels.length,
+      form_source_count: formSourceFunnels.length,
       intents_with_leads: intentFunnels.filter((row) => row.leads_db > 0).length,
       intents_with_traffic_no_leads: intentFunnels.filter((row) => row.page_views > 0 && row.leads_db === 0).length,
       urgent_starts_without_leads: urgencyFunnels.filter((row) => ["immediate", "fast"].includes(row.key) && row.form_starts > 0 && row.leads_db === 0).length,
@@ -670,6 +686,7 @@ function run() {
       historical_context: historicalContext,
       intent_funnels: intentFunnels.slice(0, 30),
       urgency_funnels: urgencyFunnels.slice(0, 12),
+      form_source_funnels: formSourceFunnels.slice(0, 20),
       lead_segments: leadSegments(analysisLeads),
       recommendations: actions,
       safeguards: ["no-pii-public-export", "sqlite-readonly", "first-party-events-only", "no-google-scraping", "intent-data-from-local-events-and-lead-events", "recommendations-require-engaged-sessions", "post-intervention-cohort", "historical-context-preserved"]

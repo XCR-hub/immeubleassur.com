@@ -237,6 +237,7 @@ function sanitizeIntentConversion(report) {
     },
     intent_funnels: Array.isArray(report.intent_funnels) ? report.intent_funnels.slice(0, 10).map(sanitizeFunnel) : [],
     urgency_funnels: Array.isArray(report.urgency_funnels) ? report.urgency_funnels.slice(0, 6).map(sanitizeFunnel) : [],
+    form_source_funnels: Array.isArray(report.form_source_funnels) ? report.form_source_funnels.slice(0, 10).map(sanitizeFunnel) : [],
     recommendations: sanitizeRecommendations(report.recommendations, "target")
   };
 }

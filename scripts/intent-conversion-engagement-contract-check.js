@@ -20,9 +20,9 @@ db.exec(`
 `);
 const insert = db.prepare("INSERT INTO site_events (id,event_type,page_url,target,session_id,payload,created_at) VALUES (?,?,?,?,?,?,?)");
 let sequence = 0;
-function event(type, session, target = "", createdAt = "2026-08-10 06:00:00") {
+function event(type, session, target = "", createdAt = "2026-08-10 06:00:00", extra = {}) {
   sequence += 1;
-  insert.run(`event-${sequence}`, type, "https://immeubleassur.com/", target, session, JSON.stringify({ path: "/", source: "website", intent: "website" }), createdAt);
+  insert.run(`event-${sequence}`, type, "https://immeubleassur.com/", target, session, JSON.stringify({ path: "/", source: "website", intent: "website", ...extra }), createdAt);
 }
 for (let index = 0; index < 2; index += 1) {
   event("page_view", `historical-${index}`, "", "2026-08-10 04:00:00");
@@ -49,6 +49,14 @@ try {
   const engaged = runMonitor();
   const engagedWebsite = engaged.intent_funnels.find((row) => row.key === "website");
   const engagedTypes = engaged.recommendations.map((item) => item.type);
+  event("form_start", "hub-conversion", "recherches-hub", "2026-08-10 06:10:00", { form_source: "recherches-hub" });
+  event("form_submit_attempt", "hub-conversion", "recherches-hub", "2026-08-10 06:11:00", { form_source: "recherches-hub" });
+  event("lead_created", "hub-conversion", "recherches-hub", "2026-08-10 06:12:00", { form_source: "recherches-hub" });
+  db.prepare("INSERT INTO leads (id,reference,source,page_url,need,property_type,city,units_count,lead_score,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)").run("lead-hub", "IMB-HUB", "website", "https://immeubleassur.com/recherches-assurance-immeuble", "multirisque-immeuble", "copropriete", "Paris", "20", 88, "2026-08-10 06:12:00");
+  db.prepare("INSERT INTO lead_events (lead_id,event_type,payload) VALUES (?,?,?)").run("lead-hub", "lead_created", JSON.stringify({ intent: "website", form_source: "recherches-hub", lead_value_max: 4200 }));
+  const attributed = runMonitor();
+  const attributedPublic = JSON.parse(readFileSync(publicOut, "utf8"));
+  const hubFunnel = attributed.form_source_funnels.find((row) => row.key === "recherches-hub");
   const growthResult = spawnSync(process.execPath, [join(root, "scripts", "local-growth-ops-export.js"), "--runtime-only", "--runtime-out", growthOut], { cwd: root, encoding: "utf8", env: { ...process.env, LOCAL_INTENT_CONVERSION_REPORT: out } });
   if (growthResult.status !== 0) throw new Error(growthResult.stderr || growthResult.stdout || `growth export exit ${growthResult.status}`);
   const growth = JSON.parse(readFileSync(growthOut, "utf8"));
@@ -66,11 +74,14 @@ try {
     ["real-interactions-counted", engagedWebsite?.engaged_sessions === 5],
     ["engaged-traffic-can-trigger-action", engagedTypes.includes("intent-sans-start")],
     ["router-selection-can-trigger-action", engagedTypes.includes("routeur-intention-bloque")],
-    ["growth-ops-preserves-cohort", growth.reports?.intent_conversion?.summary?.engaged_sessions === 5 && growth.reports?.intent_conversion?.observation?.intervention_id === "fixture-cro-change" && growth.reports?.intent_conversion?.historical_context?.form_starts === 2]
+    ["form-source-funnel-complete", hubFunnel?.form_starts === 1 && hubFunnel?.submit_attempts === 1 && hubFunnel?.leads_db === 1 && hubFunnel?.start_to_lead_rate === 100],
+    ["form-source-public-export", attributedPublic.form_source_funnels?.[0]?.key === "recherches-hub"],
+    ["growth-ops-preserves-cohort", growth.reports?.intent_conversion?.summary?.engaged_sessions >= 5 && growth.reports?.intent_conversion?.observation?.intervention_id === "fixture-cro-change" && growth.reports?.intent_conversion?.historical_context?.form_starts === 3],
+    ["growth-ops-exports-form-source", growth.reports?.intent_conversion?.form_source_funnels?.[0]?.key === "recherches-hub"]
   ];
   const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
   console.log(`Intent engagement contract: ${failed.length ? "failed" : "passed"} (${checks.length - failed.length}/${checks.length}).`);
-  if (failed.length) { console.error(failed.join(", ")); process.exitCode = 1; }
+  if (failed.length) { console.error(failed.join(", ")); console.error(JSON.stringify({ intent_conversion: growth.reports?.intent_conversion }, null, 2)); process.exitCode = 1; }
 } finally {
   db.close();
   rmSync(fixture, { recursive: true, force: true });
