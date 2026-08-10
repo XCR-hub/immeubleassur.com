@@ -23,7 +23,7 @@ const ENABLE_AI = args.has("--ai");
 
 const SOURCES = [
   ["service-public-particuliers", "Service-Public.fr particuliers", "https://www.service-public.fr/abonnements/rss/actu-actualites-particuliers.rss", "rss", "droit-logement", "official", "rss-summary-only"],
-  ["service-public-professionnels", "Entreprendre.Service-Public.fr", "https://entreprendre.service-public.fr/actualites", "public-page", "entreprises-immobilier", "official", "public-title-and-summary"],
+  ["service-public-professionnels", "Entreprendre.Service-Public.fr", "https://www.service-public.gouv.fr/abonnements/rss/actu-actu-pro.rss", "rss", "entreprises-immobilier", "official", "rss-summary-only"],
   ["acpr-actualites", "ACPR Banque de France", "https://acpr.banque-france.fr/fr/actualites", "public-page", "regulateur-assurance", "regulator", "public-title-and-summary"],
   ["acpr-communiques", "ACPR communiques", "https://acpr.banque-france.fr/fr/communiques-de-presse", "public-page", "regulateur-assurance", "regulator", "public-title-and-summary"],
   ["anil-actualites", "ANIL", "https://www.anil.org/actualites-evenements/", "public-page", "logement-copropriete", "official", "public-title-and-summary"],
@@ -195,10 +195,10 @@ function editorialSearchText(...values) {
 }
 function relevanceFor(item) {
   const text = editorialSearchText(item.title, item.summary);
-  const terms = ["assurance", "assureur", "immeuble", "copro", "logement", "location", "bail", "proprietaire", "syndic", "sinistre", "incendie", "inondation", "catastrophe", "degat", "dommage", "travaux", "renovation", "climat", "habitation", "responsabilite", "pno", "cno"];
+  const terms = ["assurance", "assureur", "immeuble", "copro", "logement", "location", "locataire", "bail", "loyer", "proprietaire", "syndic", "sinistre", "incendie", "inondation", "catastrophe", "degat", "dommage", "travaux", "batiment", "renovation", "energie", "diagnostic", "climat", "habitation", "responsabilite", "obligation", "loi", "reglement", "pno", "cno"];
   let score = 15;
   for (const term of terms) if (text.includes(term)) score += 7;
-  if (/assurance|logement|copro|immeuble/.test(text)) score += 20;
+  if (/assurance|logement|copro|immeuble|bail|loyer|syndic|sinistre|habitation/.test(text)) score += 20;
   return Math.min(100, score);
 }
 function topicFor(item) {
@@ -212,7 +212,8 @@ function topicFor(item) {
 }
 
 function parseRss(xml, source) {
-  return qualityFiltered([...String(xml || "").matchAll(/<item[\s\S]*?<\/item>/gi)].slice(0, 20).map((match) => {
+  const itemLimit = source?.id === "service-public-professionnels" ? 100 : 20;
+  const parsed = [...String(xml || "").matchAll(/<item[\s\S]*?<\/item>/gi)].slice(0, itemLimit).map((match) => {
     const block = match[0];
     const item = {
       source_id: source.id,
@@ -221,12 +222,15 @@ function parseRss(xml, source) {
       title: stripHtml(rssTag(block, "title")),
       url: stripHtml(rssTag(block, "link")),
       summary: stripHtml(rssTag(block, "description")).slice(0, 500),
-      published_at: stripHtml(rssTag(block, "pubDate"))
+      published_at: stripHtml(rssTag(block, "pubDate") || rssTag(block, "dc:date"))
     };
     return { ...item, topic: topicFor(item), relevance_score: relevanceFor(item) };
-  }).filter((item) => item.title && item.url));
+  }).filter((item) => item.title && item.url);
+  const relevant = parsed.filter((item) => sourceContentAllowed(source, item) && item.relevance_score >= 35);
+  const filtered = qualityFiltered(relevant);
+  filtered.rejected_content_scope = parsed.length - relevant.length;
+  return filtered;
 }
-
 function decodeHtml(value) {
   const named = {
     hellip: "\u2026",
@@ -278,6 +282,10 @@ function sourceUrlAllowed(source, candidateUrl) {
   return true;
 }
 function sourceContentAllowed(source, item) {
+  if (source?.id === "service-public-professionnels") {
+    const text = editorialSearchText(item?.title, item?.summary);
+    return /bail|loyer|local commercial|immeuble|immobilier|copro|logement|location|locataire|proprietaire|bailleur|diagnostic immobilier|batiment tertiaire/.test(text);
+  }
   if (source?.id !== "france-assureurs-actualites") return true;
   const title = editorialSearchText(item?.title);
   const propertySignal = /habitation|logement|immeuble|immobilier|copro|propri[ée]taire|location|sinistre|incendie|inondation|temp[êe]te|catastrophe|climat|d[ée]g[âa]t|dommage|responsabilit[ée]/i.test(title);
@@ -774,7 +782,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { parsePublicPage, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, aiProviders, publicationDate, evaluatePublicationGate };
+export { parseRss, parsePublicPage, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, aiProviders, publicationDate, evaluatePublicationGate };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });

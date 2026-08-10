@@ -4,7 +4,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
 const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
-const { parsePublicPage, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage } = await import("./editorial-autopilot.js");
+const { parseRss, parsePublicPage, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage } = await import("./editorial-autopilot.js");
 const decomposed = "Assurance proprie\u0301taire";
 const corruptedFixture = { title: "Actualite\uFFFD assurance immeuble", summary: "Signal public", published_at: "10 aout 2026" };
 const repairableFixtures = [
@@ -29,6 +29,9 @@ const parsedAcprFixture = parsePublicPage(
   '<main><a href="/fr/actualites/indemnisation-multirisques-habitation">Indemnisation assurance multirisques habitation</a><p>Actualite assurance logement et sinistres.</p><a href="/fr/professionnels/vos-outils-et-services/esurfi-banque-assurance">Registre des agents financiers et organismes assurance</a></main>',
   { ...acprNewsSource, name: "ACPR", url: "https://acpr.banque-france.fr/fr/actualites" }
 );
+const servicePublicProSource = { id: "service-public-professionnels", name: "Entreprendre.Service-Public.fr", url: "https://www.service-public.gouv.fr/abonnements/rss/actu-actu-pro.rss" };
+const servicePublicProRssFixture = `<rss><channel>${Array.from({ length: 61 }, (_, index) => `<item><title>Formalites sociales entreprise numero ${index + 1}</title><description>Declaration administrative generale</description><link>https://entreprendre.service-public.gouv.fr/actualites/A${18000 + index}</link><dc:date>2026-06-01T00:00:00+02:00</dc:date></item>`).join("")}<item><title>Bail commercial : ce qui change</title><description>La loi comporte de nouvelles obligations relatives au bail commercial.</description><link>https://entreprendre.service-public.gouv.fr/actualites/A18929</link><dc:date>2026-05-29T00:00:00+02:00</dc:date></item></channel></rss>`;
+const parsedServicePublicProFixture = parseRss(servicePublicProRssFixture, servicePublicProSource);
 const franceAssureursSource = { id: "france-assureurs-actualites", name: "France Assureurs", url: "https://www.franceassureurs.fr/actualites" };
 const parsedFranceAssureursFixture = parsePublicPage(
   '<main><a href="/nos-positions/lassurance-qui-emploie/livre-blanc-emploi/">Livre blanc apprentissage et reconversion dans l assurance</a><a href="/actualites/incendie-immeuble/"><span>Lire l article</span><span class="screen-reader-text">Assurance habitation : incendie dans un immeuble</span></a><a href="/actualites/cyber-ados/"><span class="screen-reader-text">Campagne cyber pour les adolescents</span></a></main>',
@@ -50,7 +53,7 @@ const checks = [
   ["markup-artifacts-rejected", editorial.includes('reasons.push("markup-artifact")')],
   ["partial-markup-boundaries-trimmed", editorial.includes("function trimPartialMarkup")],
   ["summary-sanitizer-applied", editorial.includes("summary: sanitizeEditorialSummary(item.summary)")],
-  ["rss-items-quality-filtered", /function parseRss[\s\S]*return qualityFiltered/.test(editorial)],
+  ["rss-items-quality-filtered", /function parseRss[\s\S]*qualityFiltered\(relevant\)[\s\S]*return filtered/.test(editorial)],
   ["public-page-items-quality-filtered", /function parsePublicPage[\s\S]*qualityFiltered[\s\S]*return filtered/.test(editorial)],
   ["rejections-counted-per-source", editorial.includes("text_quality_rejected_count: Number(parsed.rejected_text_quality || 0)")],
   ["gate-observes-rejections", editorial.includes("text_quality_rejected_items:")],
@@ -76,6 +79,12 @@ const checks = [
   ["acpr-taxonomy-url-rejected", !sourceUrlAllowed(acprNewsSource, new URL("https://acpr.banque-france.fr/fr/taxonomy/term/assurance"))],
   ["url-scope-rejections-reported", editorial.includes("url_scope_rejected_count") && editorial.includes("regulator-url-scope-filtered")],
   ["acpr-parser-retains-news-and-rejects-navigation", parsedAcprFixture.length === 1 && parsedAcprFixture[0].url.includes("/fr/actualites/") && Number(parsedAcprFixture.rejected_url_scope) === 1],
+  ["service-public-pro-canonical-rss-configured", editorial.includes('"https://www.service-public.gouv.fr/abonnements/rss/actu-actu-pro.rss", "rss"')],
+  ["service-public-pro-rss-scans-beyond-first-20", parsedServicePublicProFixture.length === 1 && parsedServicePublicProFixture[0].title === "Bail commercial : ce qui change"],
+  ["service-public-pro-rss-dc-date-retained", parsedServicePublicProFixture[0]?.published_at === "2026-05-29T00:00:00+02:00"],
+  ["service-public-pro-rss-offtopic-counted", Number(parsedServicePublicProFixture.rejected_content_scope) === 61],
+  ["service-public-pro-sector-obligation-rejected", !sourceContentAllowed(servicePublicProSource, { title: "Des nouvelles obligations pour les transporteurs sanitaires", summary: "Assurance maladie" })],
+  ["service-public-pro-property-obligation-retained", sourceContentAllowed(servicePublicProSource, { title: "Bail commercial : ce qui change", summary: "Nouvelles obligations du bailleur" })],
   ["france-assureurs-article-scope-enforced", sourceUrlAllowed(franceAssureursSource, new URL("https://www.franceassureurs.fr/actualites/incendie-immeuble/")) && !sourceUrlAllowed(franceAssureursSource, new URL("https://www.franceassureurs.fr/nos-positions/emploi/"))],
   ["france-assureurs-offtopic-content-rejected", !sourceContentAllowed(franceAssureursSource, { title: "Campagne cyber pour les adolescents" }) && !sourceContentAllowed(franceAssureursSource, { title: "Les metiers de l assurance" })],
   ["france-assureurs-property-content-retained", sourceContentAllowed(franceAssureursSource, { title: "Assurance habitation : incendie dans un immeuble" })],
