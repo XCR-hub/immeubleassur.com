@@ -29,13 +29,17 @@ const publicationManifestPath = resolve(env("LOCAL_RUNTIME_PUBLICATIONS_ROOT", j
 let manifest = null;
 try { manifest = JSON.parse(read(publicationManifestPath)); } catch {}
 const activeIssue = manifest?.issue?.slug || "";
-const [robots, llms, methodology, sitemap, watch] = await Promise.all([
+const [robots, llms, methodology, sitemap, watch, editorialMetadata] = await Promise.all([
   fetchText(`${origin}/robots.txt`, "OAI-SearchBot/1.0; +https://openai.com/searchbot"),
   fetchText(`${origin}/llms.txt`, "OAI-SearchBot/1.0; +https://openai.com/searchbot"),
   fetchText(`${origin}/methodologie-editoriale`, "OAI-SearchBot/1.0; +https://openai.com/searchbot"),
   fetchText(`${origin}/sitemap.xml`, "OAI-SearchBot/1.0; +https://openai.com/searchbot"),
-  fetchText(`${origin}/veille-assurance-immeuble`, "ChatGPT-User/1.0; +https://openai.com/bot")
+  fetchText(`${origin}/veille-assurance-immeuble`, "ChatGPT-User/1.0; +https://openai.com/bot"),
+  fetchText(`${origin}/assets/editorial-autopilot-latest.json`, "OAI-SearchBot/1.0; +https://openai.com/searchbot")
 ]);
+let publicEditorial = null;
+try { publicEditorial = JSON.parse(editorialMetadata.text); } catch {}
+const forbiddenPublicEditorialFields = ["draft_review_path", "draft_packet_path", "legal_review", "source_results", "watch_preview", "errors", "ai_attempts", "ai_provider_order"].filter((field) => Object.hasOwn(publicEditorial || {}, field));
 const attribution = read("functions/api/admin/attribution.js");
 const sourceMonitor = read("scripts/local-source-quality-monitor.js");
 const checks = [
@@ -52,10 +56,11 @@ const checks = [
   ["sitemap-links-methodology", sitemap.status === 200 && sitemap.text.includes(`${canonicalOrigin}/methodologie-editoriale`)],
   ["sitemap-links-active-edition", !activeIssue || sitemap.text.includes(`${canonicalOrigin}/${activeIssue}`)],
   ["chatgpt-user-can-read-watch", watch.status === 200 && watch.text.includes("Veille assurance immeuble")],
+  ["public-editorial-metadata-is-sanitized", editorialMetadata.status === 200 && publicEditorial?.status === "safe-public-metadata" && publicEditorial?.public_content_ai_generated === false && forbiddenPublicEditorialFields.length === 0],
   ["chatgpt-attribution-is-distinct", attribution.includes('"chatgpt / ai-referral"') && sourceMonitor.includes('`ai-referral:${aiUtm[0]}`')]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
-const report = { success: missing.length === 0, status: missing.length ? "degraded" : "ready", generated_at: new Date().toISOString(), origin, checks: checks.length, missing, active_issue: activeIssue, crawler_http: { robots: robots.status, llms: llms.status, methodology: methodology.status, sitemap: sitemap.status, watch_as_chatgpt_user: watch.status }, policies: { search_discovery: "OAI-SearchBot-allowed", user_navigation: "ChatGPT-User-allowed", model_training: "GPTBot-disallowed", citation_guaranteed: false }, measurement: { source_key: "chatgpt / ai-referral", expected_utm_source: "chatgpt.com" }, official_guidance: "https://help.openai.com/en/articles/12627856-publishers-and-developers-faq" };
+const report = { success: missing.length === 0, status: missing.length ? "degraded" : "ready", generated_at: new Date().toISOString(), origin, checks: checks.length, missing, active_issue: activeIssue, crawler_http: { robots: robots.status, llms: llms.status, methodology: methodology.status, sitemap: sitemap.status, watch_as_chatgpt_user: watch.status, editorial_metadata: editorialMetadata.status }, public_editorial_metadata: { status: publicEditorial?.status || "unavailable", sanitized: forbiddenPublicEditorialFields.length === 0, forbidden_fields: forbiddenPublicEditorialFields, ai_generated: publicEditorial?.public_content_ai_generated ?? null }, policies: { search_discovery: "OAI-SearchBot-allowed", user_navigation: "ChatGPT-User-allowed", model_training: "GPTBot-disallowed", citation_guaranteed: false }, measurement: { source_key: "chatgpt / ai-referral", expected_utm_source: "chatgpt.com" }, official_guidance: "https://help.openai.com/en/articles/12627856-publishers-and-developers-faq" };
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 console.log(`AI discoverability monitor: ${report.status} (${checks.filter(([, ok]) => ok).length}/${checks.length}).`);

@@ -619,7 +619,7 @@ async function run() {
     publication_status: RUNTIME_ONLY ? "runtime-preview-only" : !publicationGate.ready ? "held-insufficient-official-evidence" : aiRequiresReview ? "safe-fallback-published-ai-quarantined" : "published",
     public_write_enabled: publicWriteEnabled,
     publication_gate: publicationGate,
-    published_issue: publicWriteEnabled,
+    published_issue: publicWriteEnabled ? { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url } : null,
     public_content_provider: publicSynthesis.provider,
     public_content_ai_generated: false,
     ai_draft_publication_status: aiRequiresReview ? "quarantined" : "not-created",
@@ -655,8 +655,24 @@ async function run() {
     compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review", "legal-sensitive-ai-drafts-quarantined", "public-content-provider-deterministic", "human-approval-required-before-ai-publication", "fresh-official-evidence-required", "last-valid-publication-preserved-on-source-failure", "unicode-nfc-normalized", "corrupted-source-text-excluded", "source-markup-artifacts-sanitized"],
     errors
   };
+  const publicReport = {
+    generated_at: report.generated_at,
+    status: "safe-public-metadata",
+    publication_status: report.publication_status,
+    public_content_provider: report.public_content_provider,
+    public_content_ai_generated: false,
+    ai_draft_review_pending: report.human_review_required === true,
+    legal_sensitive_draft_pending: report.legal_sensitive_draft === true,
+    source_count: report.source_count,
+    healthy_source_count: report.healthy_source_count,
+    empty_source_count: report.empty_source_count,
+    failed_source_count: report.failed_source_count,
+    collection_status: report.collection_status,
+    public_watch_items: report.public_watch_items.map(({ source_id, source_name, title, url, topic, relevance_score, published_at }) => ({ source_id, source_name, title, url, topic, relevance_score, published_at })),
+    safeguards: ["no-ai-draft-content", "no-internal-paths", "no-provider-errors", "no-source-summaries", "deterministic-public-content-only"]
+  };
   write(join(REPORT_DIR, "editorial-autopilot-report.json"), JSON.stringify(report, null, 2));
-  write(join(ASSET_DIR, "editorial-autopilot-latest.json"), JSON.stringify(report, null, 2));
+  write(join(ASSET_DIR, "editorial-autopilot-latest.json"), JSON.stringify(publicReport, null, 2));
 
   console.log(`Editorial autopilot ${publicWriteEnabled ? "published" : "held"} candidate ${issue.slug} with ${items.length} watch items (${synthesis.provider}/${synthesis.status}); gate=${publicationGate.decision}.`);
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");

@@ -11,6 +11,9 @@ const sourceQuality = readFileSync("scripts/local-source-quality-monitor.js", "u
 const robots = readFileSync("public/robots.txt", "utf8");
 const llms = readFileSync("public/llms.txt", "utf8");
 const methodology = readFileSync("public/methodologie-editoriale.html", "utf8");
+const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
+const publicEditorial = JSON.parse(readFileSync("public/assets/editorial-autopilot-latest.json", "utf8"));
+const forbiddenPublicFields = ["draft_review_path", "draft_packet_path", "legal_review", "source_results", "watch_preview", "errors", "ai_attempts", "ai_provider_order"].filter((field) => Object.hasOwn(publicEditorial, field));
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const out = join(reportDir, "ai-discoverability-contract-report.json");
 const checks = [
@@ -25,11 +28,15 @@ const checks = [
   ["runtime-llms-includes-active-edition", publisher.includes('## Edition active') && publisher.includes('Contenu public genere par IA: non')],
   ["chatgpt-referrals-measured", attribution.includes('"chatgpt / ai-referral"') && sourceQuality.includes('ai-referral:')],
   ["live-monitor-does-not-promise-citations", monitor.includes("citation_guaranteed: false")],
+  ["public-editorial-export-is-distinct", editorial.includes("const publicReport =") && editorial.includes("JSON.stringify(publicReport, null, 2)")],
+  ["static-public-editorial-asset-is-sanitized", publicEditorial.status === "safe-public-metadata" && publicEditorial.public_content_ai_generated === false && forbiddenPublicFields.length === 0 && Array.isArray(publicEditorial.public_watch_items) && publicEditorial.public_watch_items.every((item) => !Object.hasOwn(item, "summary"))],
+  ["public-editorial-export-declares-safeguards", editorial.includes('"no-ai-draft-content"') && editorial.includes('"no-internal-paths"') && editorial.includes('"no-provider-errors"') && editorial.includes('"no-source-summaries"')],
+  ["live-monitor-checks-public-editorial-redaction", monitor.includes("public-editorial-metadata-is-sanitized") && monitor.includes("forbiddenPublicEditorialFields")],
   ["official-openai-guidance-recorded", monitor.includes("https://help.openai.com/en/articles/12627856-publishers-and-developers-faq")],
   ["generation-pass-persists-artifacts", pass.includes('write(join(OUT, "robots.txt")') && pass.includes('write(join(OUT, "llms.txt")') && pass.includes('methodologie-editoriale.html')]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
-const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, claims: { chatgpt_search_eligible: true, chatgpt_citation_guaranteed: false, gptbot_training_allowed: false }, safeguards: ["explicit-crawler-policy", "indexable-methodology", "entity-schema", "active-edition-in-llms", "ai-referral-attribution"] };
+const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, claims: { chatgpt_search_eligible: true, chatgpt_citation_guaranteed: false, gptbot_training_allowed: false }, safeguards: ["explicit-crawler-policy", "indexable-methodology", "entity-schema", "active-edition-in-llms", "sanitized-public-editorial-metadata", "ai-referral-attribution"] };
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 console.log(`AI discoverability contract: ${report.status} (${checks.filter(([, ok]) => ok).length}/${checks.length}).`);
