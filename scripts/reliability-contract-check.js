@@ -14,6 +14,7 @@ const server=readFileSync("scripts/local-production-server.js","utf8");
 const security=readFileSync("scripts/local-security-surface-monitor.js","utf8");
 const smtp=readFileSync("scripts/local-smtp.js","utf8");
 const smtpHealth=readFileSync("scripts/local-smtp-health-check.js","utf8");
+const leadCanary=readFileSync("scripts/lead-dedupe-runtime-check.js","utf8");
 const smtpEnvelope=smtp.slice(smtp.indexOf("export async function verifyNodeSmtpRecipients"),smtp.indexOf("export async function sendNodeSmtpMail"));
 const inlineExecutableHtml=readdirSync("public",{recursive:true}).filter((file)=>String(file).endsWith(".html")).filter((file)=>/<script\b(?![^>]*\bsrc=)(?![^>]*type=["']application\/ld\+json["'])[^>]*>/i.test(readFileSync(join("public",String(file)),"utf8")));
 const checks=[
@@ -48,6 +49,8 @@ const checks=[
   ["smtp-health-requires-team-recipient",smtpHealth.includes("team@immeubleassur.com")&&smtpHealth.includes("team_recipient_configured")],
   ["production-monitor-requires-recipient-acceptance",monitor.includes("report.team_recipient_configured === true")&&monitor.includes("report.recipient_accepted === true")],
   ["production-monitor-covers-notification-backlog",monitor.includes('inspectJsonRuntime("lead_notification_backlog"')&&monitor.includes("report.exhausted === 0")],
+  ["runtime-runs-isolated-lead-submission-canary",runtime.includes('runStep("lead_submission_canary"')&&leadCanary.includes("sqlite-temp-db")&&leadCanary.includes("no-smtp-config")],
+  ["monitor-covers-isolated-lead-submission-canary",monitor.includes('inspectJsonRuntime("lead_submission_canary"')&&monitor.includes("report.express?.placeholders_ok === true")],
   ["monitor-covers-tls",monitor.includes('inspectJsonRuntime("tls_certificate"')],
   ["monitor-covers-smtp",monitor.includes('inspectJsonRuntime("smtp_transport"')],
   ["monitor-covers-newsletter",monitor.includes('inspectJsonRuntime("newsletter_delivery"')],

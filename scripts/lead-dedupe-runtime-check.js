@@ -8,7 +8,7 @@ import { onRequestGet as getAdminSales } from "../functions/api/admin/sales.js";
 import { onRequestGet as getAdminSeo } from "../functions/api/admin/seo.js";
 import { onRequestGet as getAdminSpam } from "../functions/api/admin/spam.js";
 
-const REPORT_PATH = join("reports", "lead-dedupe-runtime-report.json");
+const REPORT_PATH = process.env.LOCAL_LEAD_CANARY_REPORT || join(process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports", "lead-dedupe-runtime-report.json");
 const dbPath = join(tmpdir(), `immeubleassur-dedupe-${process.pid}-${Date.now()}.sqlite`);
 
 function cleanup() {
@@ -131,6 +131,8 @@ async function run() {
     const expressVerified = express.status === 200 && express.body?.success === true && express.body?.submission_mode === "express-callback" && String(express.body?.next_action || "").includes("Rappeler") && expressRecord?.name === "A preciser" && expressRecord?.email === "" && expressRecord?.profile === "a-preciser" && expressRecord?.property_type === "a-preciser" && expressRecord?.city === "a-preciser" && String(expressRecord?.message || "").includes("Mode rappel express") && expressEvent?.submission_mode === "express-callback" && expressEvent?.contact_mode === "telephone";
 
     const report = {
+      generated_at: new Date().toISOString(),
+      status: dedupeVerified && adminVerified && expressVerified ? "passed" : "failed",
       success: dedupeVerified && adminVerified && expressVerified,
       scenario: "repeated-lead-dedupe-and-express-callback",
       first: {

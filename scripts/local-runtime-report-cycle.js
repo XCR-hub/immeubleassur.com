@@ -71,6 +71,7 @@ function run() {
     LOCAL_RUNTIME_ASSETS_ROOT: runtimeAssetsRoot,
     LOCAL_SMTP_HEALTH_REPORT: join(runtimeReportsRoot, "local-smtp-health-report.json"),
     LOCAL_NOTIFICATION_RETRY_REPORT: join(runtimeReportsRoot, "local-lead-notification-retry-report.json"),
+    LOCAL_LEAD_CANARY_REPORT: join(runtimeReportsRoot, "lead-dedupe-runtime-report.json"),
     LOCAL_NEWSLETTER_DELIVERY_REPORT: join(runtimeReportsRoot, "local-newsletter-delivery-report.json"),
     LOCAL_NEWSLETTER_DELIVERY_CONTRACT_REPORT: join(runtimeReportsRoot, "newsletter-delivery-contract-report.json"),
     LOCAL_IMAP_REPORT: join(runtimeReportsRoot, "local-imap-sync-report.json"),
@@ -102,6 +103,7 @@ function run() {
   const steps = [
     runStep("smtp_health", ["scripts/local-smtp-health-check.js"], commonRuntimeEnv),
     runStep("lead_notification_retry", ["scripts/local-lead-notification-retry.js"], commonRuntimeEnv),
+    runStep("lead_submission_canary", ["scripts/lead-dedupe-runtime-check.js"], commonRuntimeEnv),
     runStep("live_api_readiness", ["scripts/live-api-readiness-check.js"], commonRuntimeEnv),
     runStep("editorial_legal_safety", ["scripts/editorial-legal-safety-check.js"], commonRuntimeEnv),
     runStep("editorial_publication_gate", ["scripts/editorial-publication-gate-check.js"], commonRuntimeEnv),
