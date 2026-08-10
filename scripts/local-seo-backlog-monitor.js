@@ -83,6 +83,29 @@ function tableExists(database, name) {
   return Boolean(row?.name);
 }
 
+function installEffectiveOpportunityView(database) {
+  database.exec(`
+    CREATE TEMP VIEW seo_opportunities_effective AS
+    SELECT id, run_id, url, query, opportunity_type, score, status, recommendation, payload, created_at, updated_at
+    FROM (
+      SELECT seo_opportunities.*,
+        ROW_NUMBER() OVER (
+          PARTITION BY
+            COALESCE(NULLIF(TRIM(url), ''), '/'),
+            COALESCE(TRIM(query), ''),
+            COALESCE(TRIM(opportunity_type), ''),
+            COALESCE(TRIM(recommendation), '')
+          ORDER BY updated_at DESC, created_at DESC, id DESC
+        ) AS logical_rank
+      FROM seo_opportunities
+    )
+    WHERE logical_rank = 1
+  `);
+  const raw = Number(database.prepare("SELECT COUNT(*) AS count FROM seo_opportunities").get()?.count || 0);
+  const effective = Number(database.prepare("SELECT COUNT(*) AS count FROM seo_opportunities_effective").get()?.count || 0);
+  return { raw, effective, suppressed: Math.max(0, raw - effective) };
+}
+
 function unitCount(value) {
   return Number.parseInt(String(value || "0").replace(/\D/g, ""), 10) || 0;
 }
@@ -224,7 +247,7 @@ function rowsByStatus(database) {
         COALESCE(AVG(score), 0) AS average_score,
         MIN(created_at) AS oldest_created_at,
         MAX(updated_at) AS latest_updated_at
-      FROM seo_opportunities
+      FROM seo_opportunities_effective
       GROUP BY status
       ORDER BY count DESC
     `)
@@ -240,7 +263,7 @@ function rowsByType(database) {
         SUM(CASE WHEN status = 'open' THEN 1 ELSE 0 END) AS open_count,
         MAX(score) AS max_score,
         MAX(updated_at) AS latest_updated_at
-      FROM seo_opportunities
+      FROM seo_opportunities_effective
       GROUP BY opportunity_type
       ORDER BY open_count DESC, max_score DESC
       LIMIT 20
@@ -252,7 +275,7 @@ function topOpen(database, limit) {
   return database
     .prepare(`
       SELECT id, url, query, opportunity_type, score, status, recommendation, payload, created_at, updated_at
-      FROM seo_opportunities
+      FROM seo_opportunities_effective
       WHERE status = 'open'
       ORDER BY score DESC, updated_at ASC
       LIMIT ?
@@ -265,7 +288,7 @@ function conversionOpen(database, limit) {
   return database
     .prepare(`
       SELECT id, url, query, opportunity_type, score, status, recommendation, payload, created_at, updated_at
-      FROM seo_opportunities
+      FROM seo_opportunities_effective
       WHERE status = 'open' AND opportunity_type LIKE 'conversion-funnel-%'
       ORDER BY score DESC, updated_at ASC
       LIMIT ?
@@ -571,7 +594,7 @@ function staleRows(database, days, limit) {
   return database
     .prepare(`
       SELECT id, url, query, opportunity_type, score, status, recommendation, payload, created_at, updated_at
-      FROM seo_opportunities
+      FROM seo_opportunities_effective
       WHERE status = 'open' AND created_at <= datetime('now', ?)
       ORDER BY score DESC, created_at ASC
       LIMIT ?
@@ -689,6 +712,7 @@ function run() {
   if (!existsSync(dbPath)) throw new Error(`Base SQLite introuvable: ${dbPath}`);
   const database = new DatabaseSync(dbPath, { readOnly: true });
   try {
+    const deduplication = installEffectiveOpportunityView(database);
     const statusRows = rowsByStatus(database);
     const typeRows = rowsByType(database);
     const topRows = topOpen(database, maxRows);
@@ -700,7 +724,7 @@ function run() {
       success: true,
       attention_required: summary.critical_open > 0 || summary.conversion_open > 0 || summary.old_open > 0 || summary.top_qualified_source_score >= 80,
       generated_at: new Date().toISOString(),
-      database: { path: dbPath, mode: "sqlite-readonly" },
+      database: { path: dbPath, mode: "sqlite-readonly-deduplicated", deduplication },
       thresholds: { stale_days: staleDays, max_rows: maxRows },
       summary,
       status_breakdown: statusRows.map((row) => ({

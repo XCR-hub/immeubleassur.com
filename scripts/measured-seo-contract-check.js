@@ -17,6 +17,8 @@ const checks = [
   ["single-start-is-low-confidence", backlog.includes('key: "early-start-signal"') && backlog.includes('severity: "low"')],
   ["blocked-form-requires-sample", backlog.includes("formStarts >= 3")],
   ["backlog-exports-engaged-summary", backlog.includes("top_qualified_source_engaged_sessions")],
+  ["backlog-deduplicates-logical-actions", backlog.includes("CREATE TEMP VIEW seo_opportunities_effective") && backlog.includes("ROW_NUMBER() OVER")],
+  ["backlog-reports-suppressed-duplicates", backlog.includes("suppressed: Math.max(0, raw - effective)") && backlog.includes('mode: "sqlite-readonly-deduplicated"')],
   ["admin-shows-engaged-versus-raw", admin.includes("session(s) engagee(s)")],
   ["runtime-runs-source-quality", runtime.includes('runStep("source_quality_monitor"')],
   ["runtime-runs-backlog-after-sync", runtime.includes('runStep("seo_backlog_monitor_after_sync"')]
