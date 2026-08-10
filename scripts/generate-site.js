@@ -225,6 +225,15 @@ const servicePages = [
     sections: [
       ["Apres sinistre", "La qualite des elements transmis influence fortement les delais. Nous aidons a constituer un dossier lisible."],
       ["Avant renouvellement", "Un historique sinistre mal presente peut degrader la consultation. Nous le contextualisons."]
+    ],
+    faq: [
+      ["Quelles pieces reunir des le premier signalement ?", "Contrat, chronologie factuelle, photos, constats, mesures conservatoires, factures et coordonnees des intervenants permettent de structurer le dossier."],
+      ["Comment presenter plusieurs sinistres sans fragiliser le dossier ?", "Pour chaque evenement, distinguer date, cause identifiee, dommages, montant, issue et mesure corrective, sans masquer les informations demandees par l assureur."],
+      ["Une IA peut-elle confirmer qu un sinistre est garanti ?", "Non. Elle peut classer les pieces et relever les questions, mais la garantie depend du contrat, des faits et de la validation humaine des professionnels competents."]
+    ],
+    faqSources: [
+      ["https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000035731302/", "Legifrance - article L113-2 du Code des assurances"],
+      ["https://www.service-public.fr/particuliers/vosdroits/N44", "Service-Public.fr - assurance habitation"]
     ]
   },
   {
@@ -730,7 +739,8 @@ function homePage() {
 
 function servicePage(page) {
   const faqRows = page.faq || [];
-  const faqBlock = faqRows.length ? `<section class="band faq-band"><div class="container narrow"><p class="eyebrow dark">Questions frequentes</p><h2>RC syndic: points a verifier avant toute conclusion.</h2><div class="faq-list">${faqRows.map(([question, answer]) => `<details><summary>${esc(question)}</summary><p>${esc(answer)}</p></details>`).join("")}</div><div class="source-box"><strong>Sources officielles a consulter</strong><a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/" rel="nofollow noopener">Legifrance - assurance de la copropriete</a><a href="https://www.service-public.fr/particuliers/vosdroits/F2608" rel="nofollow noopener">Service-Public.fr - syndic de copropriete</a></div></div></section>` : "";
+  const faqSources = page.faqSources || [["https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/", "Legifrance - assurance de la copropriete"], ["https://www.service-public.fr/particuliers/vosdroits/F2608", "Service-Public.fr - syndic de copropriete"]];
+  const faqBlock = faqRows.length ? `<section class="band faq-band"><div class="container narrow"><p class="eyebrow dark">Questions frequentes</p><h2>${esc(page.title)}: points a verifier avant toute conclusion.</h2><div class="faq-list">${faqRows.map(([question, answer]) => `<details><summary>${esc(question)}</summary><p>${esc(answer)}</p></details>`).join("")}</div><div class="source-box"><strong>Sources officielles a consulter</strong>${faqSources.map(([url, label]) => `<a href="${esc(url)}" rel="nofollow noopener">${esc(label)}</a>`).join("")}</div></div></section>` : "";
   const faqSchema = faqRows.length ? `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "@id": `${SITE}/${page.slug}#faq`, mainEntity: faqRows.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) })}</script>` : "";
   const body = `
     <section class="page-hero compact-hero">
