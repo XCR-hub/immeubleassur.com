@@ -34,6 +34,12 @@ function pendingDrafts() {
       const pendingStatus = data?.publication_status === "quarantined" || data?.publication_status === "draft_review";
       if (data?.marker !== "editorial-ai-draft-review-v1" || !pendingStatus || data.human_review_required !== true || data.no_auto_publish !== true || data.allowed_publication === true) return null;
       const generatedAt = data.generated_at || statSync(path).mtime.toISOString();
+      const reviewFingerprint = createHash("sha256").update(JSON.stringify({
+        issue: { slug: data.issue?.slug || "", title: data.issue?.title || "" },
+        legal_review: { sensitive: data.legal_review?.sensitive === true, matched_terms: data.legal_review?.matched_terms || [] },
+        sources: (data.source_items || []).map((item) => ({ source_id: item.source_id || "", title: item.title || "", url: item.url || "" })),
+        synthesis: { provider: data.synthesis?.provider || "", model: data.synthesis?.model || "", status: data.synthesis?.status || "", text: data.synthesis?.text || "" }
+      })).digest("hex").slice(0, 20);
       return {
         file: name,
         path,
@@ -45,7 +51,8 @@ function pendingDrafts() {
         matched_terms: (data.legal_review?.matched_terms || []).map((item) => clean(item, 80)).filter(Boolean).slice(0, 12),
         source_count: Array.isArray(data.source_items) ? data.source_items.length : 0,
         provider: clean(data.synthesis?.provider, 80),
-        model: clean(data.synthesis?.model, 120)
+        model: clean(data.synthesis?.model, 120),
+        review_fingerprint: reviewFingerprint
       };
     })
     .filter(Boolean)
@@ -53,7 +60,7 @@ function pendingDrafts() {
 }
 
 function signature(drafts) {
-  return createHash("sha256").update(drafts.map((draft) => `${draft.file}:${draft.legal_sensitive}`).sort().join("|")).digest("hex").slice(0, 20);
+  return createHash("sha256").update(drafts.map((draft) => `${draft.file}:${draft.legal_sensitive}:${draft.review_fingerprint}`).sort().join("|")).digest("hex").slice(0, 20);
 }
 
 function mailConfig() {
@@ -120,7 +127,7 @@ async function run() {
     pending: drafts.slice(0, 30),
     signature: signature(drafts),
     retention: { automatic_deletion: false, review_window_days: numberEnv("LOCAL_EDITORIAL_REVIEW_WINDOW_DAYS", 30) },
-    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "daily-signature-cooldown", "no-automatic-deletion"]
+    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "no-automatic-deletion"]
   };
   report.alert = await maybeAlert(report).catch((error) => ({ attempted: true, status: "failed", error: clean(error.message || "editorial review alert failed", 500) }));
   mkdirSync(dirname(reportPath), { recursive: true });

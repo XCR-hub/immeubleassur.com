@@ -24,7 +24,7 @@ const checks = [
   ["admin-dashboard-shows-editorial-health", admin.includes("editorialHealthStatusLabel") && admin.includes('label:"Veille editoriale"')],
   ["review-queue-non-publishable-only", review.includes("data.no_auto_publish !== true") && review.includes("data.allowed_publication === true")],
   ["review-alert-metadata-only", review.includes('"metadata-alert-only"') && review.includes("Fichier de revue:")],
-  ["review-alert-deduplicated", review.includes("daily-signature-cooldown") && review.includes("LOCAL_EDITORIAL_REVIEW_ALERT_COOLDOWN_MINUTES")],
+  ["review-alert-content-aware-deduplicated", review.includes("content-aware-cooldown") && review.includes("review_fingerprint") && review.includes("LOCAL_EDITORIAL_REVIEW_ALERT_COOLDOWN_MINUTES")],
   ["runtime-runs-review-after-editorial", runtime.indexOf('runStep("editorial_review_monitor"') > runtime.indexOf('runStep("editorial_runtime_publisher"')],
   ["growth-ops-exposes-review-aggregate", growth.includes("sanitizeEditorialReview") && growth.includes("editorial-human-review")]
 ];
