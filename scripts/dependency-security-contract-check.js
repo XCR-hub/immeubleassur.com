@@ -1,4 +1,5 @@
-import { summarizeDependencyAudit } from "./dependency-security.js";
+import { readFileSync } from "node:fs";
+import { dependencyAuditCacheDecision, summarizeDependencyAudit } from "./dependency-security.js";
 
 function audit(vulnerabilities) { return { metadata: { vulnerabilities } }; }
 const fixtures = [
@@ -9,8 +10,28 @@ const fixtures = [
   [audit({ critical: 2, total: 2 }), "failed", 2]
 ];
 const failures = fixtures.filter(([input, status, blocking]) => { const result = summarizeDependencyAudit(input); return result.status !== status || result.blocking !== blocking; });
-if (failures.length) {
-  console.error(`Dependency security contract failed: ${failures.length}/${fixtures.length}.`);
+const now = Date.parse("2026-08-10T20:00:00.000Z");
+const previous = { generated_at: "2026-08-10T19:00:00.000Z", last_successful_audit_at: "2026-08-10T19:00:00.000Z", registry_checked: true, lockfile_sha256: "hash-a" };
+const same = dependencyAuditCacheDecision(previous, "hash-a", 24, now);
+const changed = dependencyAuditCacheDecision(previous, "hash-b", 24, now);
+const stale = dependencyAuditCacheDecision(previous, "hash-a", 0.5, now);
+const legacy = dependencyAuditCacheDecision({ ...previous, lockfile_sha256: undefined }, "hash-a", 24, now);
+const monitor = readFileSync("scripts/local-dependency-security-monitor.js", "utf8");
+const checks = [
+  ["severity-classification", failures.length === 0],
+  ["same-fresh-lockfile-cache-reusable", same.reusable === true && same.lockfile_matches === true],
+  ["changed-lockfile-invalidates-cache", changed.reusable === false && changed.trusted_previous === true && changed.lockfile_matches === false],
+  ["stale-cache-invalidated", stale.reusable === false && stale.lockfile_matches === true],
+  ["legacy-unbound-cache-untrusted", legacy.reusable === false && legacy.trusted_previous === false],
+  ["all-dependencies-audited", monitor.includes('[npmCli, "audit", "--json"]') && !monitor.includes('"--omit=dev"') && monitor.includes('scope: "all"')],
+  ["lockfile-hash-persisted", monitor.includes("lockfile_sha256: lockfileSha256") && monitor.includes("lockfile-bound-cache")],
+  ["new-lockfile-registry-failure-fails-closed", monitor.includes("const unsafeWithoutFreshAudit = !cache.trusted_previous || !cache.lockfile_matches") && monitor.includes('status: unsafeWithoutFreshAudit ? "failed" : "degraded"')],
+  ["same-lockfile-last-known-result-retained", monitor.includes("last_success_applies_to_lockfile: cache.lockfile_matches")],
+  ["audit-errors-redact-local-paths", monitor.includes("redactLocalPaths") && monitor.includes("no-local-paths-in-report")]
+];
+const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
+if (missing.length) {
+  console.error(`Dependency security contract failed: ${missing.join(", ")}.`);
   process.exit(1);
 }
-console.log(`Dependency security contract: passed (${fixtures.length}/${fixtures.length}).`);
+console.log(`Dependency security contract: passed (${checks.length}/${checks.length}).`);
