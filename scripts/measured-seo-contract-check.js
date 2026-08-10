@@ -29,6 +29,8 @@ const checks = [
   ["funnel-keeps-raw-traffic-separate", funnel.includes("raw-traffic-kept-separate")],
   ["funnel-requires-minimum-samples", funnel.includes("row.engaged_sessions >= 3") && funnel.includes("summary.form_starts >= 3")],
   ["admin-shows-engaged-versus-raw", admin.includes("session(s) engagee(s)")],
+  ["admin-consumes-measured-actionable-serp-only", admin.includes('!0===e.measured&&e.actionable===!0&&"serpapi"===e.data_source&&"measured"===e.confidence')],
+  ["admin-does-not-invent-serp-recommendations", !admin.includes('recommendation:e.recommendation||"Renforcer contenu, preuves, FAQ, maillage et CTA devis."')],
   ["runtime-runs-source-quality", runtime.includes('runStep("source_quality_monitor"')],
   ["runtime-runs-backlog-after-sync", runtime.includes('runStep("seo_backlog_monitor_after_sync"')],
   ["runtime-refreshes-conversion-before-reconciliation", runtime.includes('runStep("conversion_intelligence_runtime"') && runtime.includes('runStep("seo_opportunity_reconciliation"')],
