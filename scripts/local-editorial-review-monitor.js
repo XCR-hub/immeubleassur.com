@@ -1,0 +1,131 @@
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { basename, dirname, join, resolve } from "node:path";
+import { loadDefaultEnvFiles, env } from "./local-env.js";
+import { sendNodeSmtpMail } from "./local-smtp.js";
+
+loadDefaultEnvFiles();
+
+const reportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", "reports"));
+const draftsRoot = resolve(env("LOCAL_EDITORIAL_DRAFT_ROOT", join(reportsRoot, "editorial-drafts")));
+const reportPath = resolve(env("LOCAL_EDITORIAL_REVIEW_REPORT", join(reportsRoot, "local-editorial-review-report.json")));
+const statePath = resolve(env("LOCAL_EDITORIAL_REVIEW_ALERT_STATE", join(reportsRoot, "editorial-review-alert-state.json")));
+
+function numberEnv(name, fallback) {
+  const value = Number(env(name, String(fallback)));
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function clean(value, limit = 300) {
+  return String(value || "").replace(/[\r\n\0]+/g, " ").trim().slice(0, limit);
+}
+
+function readJson(path) {
+  try { return JSON.parse(readFileSync(path, "utf8")); } catch { return null; }
+}
+
+function pendingDrafts() {
+  if (!existsSync(draftsRoot)) return [];
+  return readdirSync(draftsRoot)
+    .filter((name) => /^news-.*\.json$/i.test(name))
+    .map((name) => {
+      const path = join(draftsRoot, name);
+      const data = readJson(path);
+      const pendingStatus = data?.publication_status === "quarantined" || data?.publication_status === "draft_review";
+      if (data?.marker !== "editorial-ai-draft-review-v1" || !pendingStatus || data.human_review_required !== true || data.no_auto_publish !== true || data.allowed_publication === true) return null;
+      const generatedAt = data.generated_at || statSync(path).mtime.toISOString();
+      return {
+        file: name,
+        path,
+        generated_at: generatedAt,
+        publication_status: data.publication_status,
+        legacy_format: data.publication_status === "draft_review",
+        issue: clean(data.issue?.title || data.issue?.slug || name, 180),
+        legal_sensitive: data.legal_review?.sensitive === true,
+        matched_terms: (data.legal_review?.matched_terms || []).map((item) => clean(item, 80)).filter(Boolean).slice(0, 12),
+        source_count: Array.isArray(data.source_items) ? data.source_items.length : 0,
+        provider: clean(data.synthesis?.provider, 80),
+        model: clean(data.synthesis?.model, 120)
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => Date.parse(b.generated_at) - Date.parse(a.generated_at));
+}
+
+function signature(drafts) {
+  return createHash("sha256").update(drafts.map((draft) => `${draft.file}:${draft.legal_sensitive}`).sort().join("|")).digest("hex").slice(0, 20);
+}
+
+function mailConfig() {
+  const from = env("SMTP_FROM", env("SMTP_USER", ""));
+  const to = env("LOCAL_EDITORIAL_REVIEW_ALERT_TO", env("SMTP_TO", from));
+  return {
+    host: env("SMTP_HOST", ""),
+    port: numberEnv("SMTP_PORT", 587),
+    username: env("SMTP_USER", from),
+    password: env("SMTP_PASS", ""),
+    from,
+    to: String(to || "").split(/[;,]/).map((item) => item.trim()).filter(Boolean).slice(0, 6),
+    secureTransport: numberEnv("SMTP_PORT", 587) === 465 ? "on" : "starttls",
+    transport: "smtp"
+  };
+}
+
+function recentAlert(signatureValue, cooldownMinutes) {
+  const state = existsSync(statePath) ? readJson(statePath) : null;
+  const lastAt = Date.parse(state?.last_alert_at || "");
+  return state?.signature === signatureValue && Number.isFinite(lastAt) && Date.now() - lastAt < cooldownMinutes * 60000;
+}
+
+async function maybeAlert(report) {
+  if (env("LOCAL_EDITORIAL_REVIEW_ALERTS", "0") !== "1" || !report.newest_pending) return { attempted: false, status: "skipped" };
+  const cooldownMinutes = numberEnv("LOCAL_EDITORIAL_REVIEW_ALERT_COOLDOWN_MINUTES", 1440);
+  if (recentAlert(report.signature, cooldownMinutes)) return { attempted: false, status: "cooldown", cooldown_minutes: cooldownMinutes };
+  const config = mailConfig();
+  if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return { attempted: false, status: "missing-smtp-config" };
+  const draft = report.newest_pending;
+  const subject = `Revue editoriale ImmeubleAssur - ${draft.legal_sensitive ? "JURIDIQUE " : ""}${basename(draft.file, ".json")}`;
+  const text = [
+    "Un nouveau brouillon IA ImmeubleAssur attend une revue humaine.",
+    "Il reste en quarantaine et ne peut pas etre publie automatiquement.",
+    "",
+    `Sujet: ${draft.issue}`,
+    `Date: ${draft.generated_at}`,
+    `Sensibilite juridique: ${draft.legal_sensitive ? "oui" : "non"}`,
+    `Termes sensibles: ${draft.matched_terms.join(", ") || "aucun"}`,
+    `Sources attribuees: ${draft.source_count}`,
+    `Fichier de revue: ${draft.path}`,
+    `Brouillons en attente: ${report.pending_count}`
+  ].join("\n");
+  const message = [`From: ImmeubleAssur Editorial <${config.from}>`, `To: ${config.to.join(", ")}`, `Subject: ${subject}`, `Date: ${new Date(report.generated_at).toUTCString()}`, "MIME-Version: 1.0", "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: 8bit", "", text].join("\r\n");
+  const receipt = await sendNodeSmtpMail(config, message);
+  mkdirSync(dirname(statePath), { recursive: true });
+  writeFileSync(statePath, `${JSON.stringify({ last_alert_at: new Date().toISOString(), signature: report.signature, file: draft.file }, null, 2)}\n`, "utf8");
+  return { attempted: true, status: "sent", transport: config.transport, receipt, cooldown_minutes: cooldownMinutes };
+}
+
+async function run() {
+  const drafts = pendingDrafts();
+  const now = Date.now();
+  const report = {
+    success: true,
+    status: drafts.length ? "review-pending" : "clear",
+    attention_required: drafts.length > 0,
+    generated_at: new Date().toISOString(),
+    pending_count: drafts.length,
+    legal_sensitive_count: drafts.filter((draft) => draft.legal_sensitive).length,
+    legacy_format_count: drafts.filter((draft) => draft.legacy_format).length,
+    oldest_age_days: drafts.length ? Math.round(((now - Math.min(...drafts.map((draft) => Date.parse(draft.generated_at)))) / 86400000) * 10) / 10 : 0,
+    newest_pending: drafts[0] || null,
+    pending: drafts.slice(0, 30),
+    signature: signature(drafts),
+    retention: { automatic_deletion: false, review_window_days: numberEnv("LOCAL_EDITORIAL_REVIEW_WINDOW_DAYS", 30) },
+    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "daily-signature-cooldown", "no-automatic-deletion"]
+  };
+  report.alert = await maybeAlert(report).catch((error) => ({ attempted: true, status: "failed", error: clean(error.message || "editorial review alert failed", 500) }));
+  mkdirSync(dirname(reportPath), { recursive: true });
+  writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  console.log(`Editorial review monitor: ${report.status}, pending=${report.pending_count}, legal=${report.legal_sensitive_count}, alert=${report.alert.status}.`);
+}
+
+run().catch((error) => { console.error(error); process.exit(1); });

@@ -16,7 +16,8 @@ const inputs = {
   conversion_funnel: env("LOCAL_CONVERSION_FUNNEL_REPORT", join(REPORT_DIR, "local-conversion-funnel-report.json")),
   intent_conversion: env("LOCAL_INTENT_CONVERSION_REPORT", join(REPORT_DIR, "local-intent-conversion-report.json")),
   source_quality: env("LOCAL_SOURCE_QUALITY_REPORT", join(REPORT_DIR, "local-source-quality-report.json")),
-  seo_backlog: env("LOCAL_SEO_BACKLOG_REPORT", join(REPORT_DIR, "local-seo-backlog-report.json"))
+  seo_backlog: env("LOCAL_SEO_BACKLOG_REPORT", join(REPORT_DIR, "local-seo-backlog-report.json")),
+  editorial_review: env("LOCAL_EDITORIAL_REVIEW_REPORT", join(REPORT_DIR, "local-editorial-review-report.json"))
 };
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
@@ -324,6 +325,26 @@ function sanitizeSeoBacklog(report) {
   };
 }
 
+function sanitizeEditorialReview(report) {
+  const state = reportState(report);
+  if (!state.available) return state;
+  return {
+    ...state,
+    pending_count: number(report.pending_count),
+    legal_sensitive_count: number(report.legal_sensitive_count),
+    legacy_format_count: number(report.legacy_format_count),
+    oldest_age_days: number(report.oldest_age_days),
+    newest_pending: report.newest_pending ? {
+      file: clean(report.newest_pending.file, 180),
+      generated_at: clean(report.newest_pending.generated_at, 80),
+      issue: clean(report.newest_pending.issue, 240),
+      legal_sensitive: bool(report.newest_pending.legal_sensitive),
+      source_count: number(report.newest_pending.source_count)
+    } : null,
+    alert_status: clean(report.alert?.status, 60)
+  };
+}
+
 function sanitizeRecommendations(items = [], targetKey = "target") {
   return Array.isArray(items)
     ? items.slice(0, 8).map((item) => ({
@@ -374,6 +395,10 @@ function buildPriorityActions(reports) {
     pushAction(actions, `seo-${item.type || "action"}`, item.severity || "medium", item.signal || "backlog SEO/CRO", item.action || "Traiter le backlog SEO/CRO prioritaire.", item.target || "seo", Math.max(66, number(item.score)));
   }
 
+  if (number(reports.editorial_review.pending_count) > 0) {
+    const legal = number(reports.editorial_review.legal_sensitive_count);
+    pushAction(actions, "editorial-human-review", legal > 0 ? "high" : "medium", `${reports.editorial_review.pending_count} brouillon(s) en quarantaine, ${legal} sensible(s)`, "Effectuer une revue humaine; ne jamais promouvoir automatiquement une interpretation juridique IA.", "editorial-review", legal > 0 ? 92 : 72);
+  }
   return actions
     .sort((a, b) => severityScore(b.severity) - severityScore(a.severity) || number(b.score) - number(a.score))
     .slice(0, 12);
@@ -388,7 +413,8 @@ function build() {
     conversion_funnel: sanitizeConversionFunnel(raw.conversion_funnel),
     intent_conversion: sanitizeIntentConversion(raw.intent_conversion),
     source_quality: sanitizeSourceQuality(raw.source_quality),
-    seo_backlog: sanitizeSeoBacklog(raw.seo_backlog)
+    seo_backlog: sanitizeSeoBacklog(raw.seo_backlog),
+    editorial_review: sanitizeEditorialReview(raw.editorial_review)
   };
   const priorityActions = buildPriorityActions(reports);
   const availableCount = Object.values(reports).filter((item) => item.available).length;
@@ -411,6 +437,7 @@ function build() {
       "no-email-phone-name-fields",
       "sqlite-reports-only",
       "aggregate-source-quality",
+      "aggregate-editorial-review-only",
       "public-aggregate-observability"
     ]
   };
