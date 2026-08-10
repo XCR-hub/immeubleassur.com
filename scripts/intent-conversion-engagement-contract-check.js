@@ -49,6 +49,7 @@ try {
   const engaged = runMonitor();
   const engagedWebsite = engaged.intent_funnels.find((row) => row.key === "website");
   const engagedTypes = engaged.recommendations.map((item) => item.type);
+  for (let index = 0; index < 5; index += 1) event("form_start", "friction-" + index, "friction-form", "2026-08-10 06:09:00", { form_source: "friction-form" });
   event("form_start", "hub-conversion", "recherches-hub", "2026-08-10 06:10:00", { form_source: "recherches-hub" });
   event("form_submit_attempt", "hub-conversion", "recherches-hub", "2026-08-10 06:11:00", { form_source: "recherches-hub" });
   event("lead_created", "hub-conversion", "recherches-hub", "2026-08-10 06:12:00", { form_source: "recherches-hub" });
@@ -57,6 +58,7 @@ try {
   const attributed = runMonitor();
   const attributedPublic = JSON.parse(readFileSync(publicOut, "utf8"));
   const hubFunnel = attributed.form_source_funnels.find((row) => row.key === "recherches-hub");
+  const attributedTypes = attributed.recommendations.map((item) => item.type);
   const growthResult = spawnSync(process.execPath, [join(root, "scripts", "local-growth-ops-export.js"), "--runtime-only", "--runtime-out", growthOut], { cwd: root, encoding: "utf8", env: { ...process.env, LOCAL_INTENT_CONVERSION_REPORT: out } });
   if (growthResult.status !== 0) throw new Error(growthResult.stderr || growthResult.stdout || `growth export exit ${growthResult.status}`);
   const growth = JSON.parse(readFileSync(growthOut, "utf8"));
@@ -76,7 +78,8 @@ try {
     ["router-selection-can-trigger-action", engagedTypes.includes("routeur-intention-bloque")],
     ["form-source-funnel-complete", hubFunnel?.form_starts === 1 && hubFunnel?.submit_attempts === 1 && hubFunnel?.leads_db === 1 && hubFunnel?.start_to_lead_rate === 100],
     ["form-source-public-export", attributedPublic.form_source_funnels?.[0]?.key === "recherches-hub"],
-    ["growth-ops-preserves-cohort", growth.reports?.intent_conversion?.summary?.engaged_sessions >= 5 && growth.reports?.intent_conversion?.observation?.intervention_id === "fixture-cro-change" && growth.reports?.intent_conversion?.historical_context?.form_starts === 3],
+    ["form-source-friction-action", attributedTypes.includes("formulaire-start-sans-submit")],
+    ["growth-ops-preserves-cohort", growth.reports?.intent_conversion?.summary?.engaged_sessions >= 5 && growth.reports?.intent_conversion?.observation?.intervention_id === "fixture-cro-change" && growth.reports?.intent_conversion?.historical_context?.form_starts === 8],
     ["growth-ops-exports-form-source", growth.reports?.intent_conversion?.form_source_funnels?.[0]?.key === "recherches-hub"]
   ];
   const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);

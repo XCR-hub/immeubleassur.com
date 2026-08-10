@@ -466,7 +466,7 @@ function addRecommendation(items, type, severity, target, signal, action, score)
   items.push({ type, severity, target, signal, action, score });
 }
 
-function recommendations(summary, intentFunnels, urgencyFunnels) {
+function recommendations(summary, intentFunnels, urgencyFunnels, formSourceFunnels) {
   const items = [];
   for (const row of intentFunnels) {
     if (row.page_views >= 20 && row.engaged_sessions >= 5 && row.form_starts === 0) {
@@ -486,6 +486,14 @@ function recommendations(summary, intentFunnels, urgencyFunnels) {
     }
     if (row.quote_router_selects >= 3 && row.quote_router_continues === 0) {
       addRecommendation(items, "routeur-intention-bloque", "medium", row.key, `${row.quote_router_selects} choix routeur, 0 suite`, "Clarifier le libelle du choix et envoyer vers le formulaire pre-rempli.", 70);
+    }
+  }
+  for (const row of formSourceFunnels) {
+    if (row.form_starts >= 5 && row.submit_attempts === 0) {
+      addRecommendation(items, "formulaire-start-sans-submit", "high", row.key, row.form_starts + " demarrages, 0 tentative", "Reduire les champs et renforcer la reassurance sur cet emplacement avant toute extension.", 91);
+    }
+    if (row.submit_attempts >= 3 && row.leads_db === 0 && row.leads_event === 0) {
+      addRecommendation(items, "formulaire-submit-sans-lead", "critical", row.key, row.submit_attempts + " tentatives, 0 lead", "Tester cet emplacement jusqu au stockage et verifier validation, Turnstile et notification.", 98);
     }
   }
   for (const row of urgencyFunnels) {
@@ -653,7 +661,7 @@ function run() {
       submit_to_lead_rate: pct(Math.max(total.leads_db, total.leads_event), total.submit_attempts),
       start_to_lead_rate: pct(Math.max(total.leads_db, total.leads_event), total.form_starts)
     };
-    const actions = recommendations(rawSummary, intentFunnels, urgencyFunnels);
+    const actions = recommendations(rawSummary, intentFunnels, urgencyFunnels, formSourceFunnels);
     const summary = { ...rawSummary, attention_count: actions.filter((item) => ["critical", "high"].includes(item.severity)).length };
     const observing = Boolean(intervention) && summary.attention_count === 0 && engagedSessions.size < minimumEngagedSessions;
     const observation = intervention ? {
