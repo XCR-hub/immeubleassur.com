@@ -90,8 +90,9 @@ async function maybeAlert(report) {
   if (recentAlert(report.signature, cooldownMinutes)) return { attempted: false, status: "cooldown", cooldown_minutes: cooldownMinutes };
   const config = mailConfig();
   if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return { attempted: false, status: "missing-smtp-config" };
-  const draft = report.newest_pending;
-  const subject = `Revue editoriale ImmeubleAssur - ${draft.legal_sensitive ? "JURIDIQUE " : ""}${basename(draft.file, ".json")}`;
+  const draft = report.priority_pending || report.newest_pending;
+  const urgency = draft.review_severity === "critical" ? "CRITIQUE " : draft.review_severity === "warning" ? "A TRAITER " : "";
+  const subject = `Revue editoriale ImmeubleAssur - ${urgency}${draft.legal_sensitive ? "JURIDIQUE " : ""}${basename(draft.file, ".json")}`;
   const text = [
     "Un nouveau brouillon IA ImmeubleAssur attend une revue humaine.",
     "Il reste en quarantaine et ne peut pas etre publie automatiquement.",
@@ -101,8 +102,14 @@ async function maybeAlert(report) {
     `Sensibilite juridique: ${draft.legal_sensitive ? "oui" : "non"}`,
     `Termes sensibles: ${draft.matched_terms.join(", ") || "aucun"}`,
     `Sources attribuees: ${draft.source_count}`,
+    `Age de revue: ${draft.age_days} jour(s) - ${draft.review_severity}`,
     `Fichier de revue: ${draft.path}`,
-    `Brouillons en attente: ${report.pending_count}`
+    `Brouillons en attente: ${report.pending_count}`,
+    `En avertissement: ${report.warning_count}`,
+    `Critiques: ${report.critical_count}`,
+    "",
+    "File prioritaire:",
+    ...report.review_queue.slice(0, 7).map((item) => `- ${item.review_severity.toUpperCase()} | ${item.age_days}j | ${item.legal_sensitive ? "juridique" : "editorial"} | ${item.file}`)
   ].join("\n");
   const message = [`From: ImmeubleAssur Editorial <${config.from}>`, `To: ${config.to.join(", ")}`, `Subject: ${subject}`, `Date: ${new Date(report.generated_at).toUTCString()}`, "MIME-Version: 1.0", "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: 8bit", "", text].join("\r\n");
   const receipt = await sendNodeSmtpMail(config, message);
@@ -112,22 +119,36 @@ async function maybeAlert(report) {
 }
 
 async function run() {
-  const drafts = pendingDrafts();
+  const rawDrafts = pendingDrafts();
   const now = Date.now();
+  const warningDays = numberEnv("LOCAL_EDITORIAL_REVIEW_WARNING_DAYS", 3);
+  const criticalDays = numberEnv("LOCAL_EDITORIAL_REVIEW_CRITICAL_DAYS", 7);
+  const drafts = rawDrafts.map((draft) => {
+    const ageDays = Math.max(0, Math.round(((now - Date.parse(draft.generated_at)) / 86400000) * 10) / 10);
+    return { ...draft, age_days: ageDays, review_severity: ageDays >= criticalDays ? "critical" : ageDays >= warningDays ? "warning" : "pending" };
+  });
+  const severityRank = { critical: 3, warning: 2, pending: 1 };
+  const reviewQueue = [...drafts].sort((a, b) => severityRank[b.review_severity] - severityRank[a.review_severity] || Number(b.legal_sensitive) - Number(a.legal_sensitive) || Date.parse(a.generated_at) - Date.parse(b.generated_at));
+  const criticalCount = drafts.filter((draft) => draft.review_severity === "critical").length;
+  const warningCount = drafts.filter((draft) => draft.review_severity === "warning").length;
   const report = {
     success: true,
-    status: drafts.length ? "review-pending" : "clear",
+    status: criticalCount ? "review-overdue" : warningCount ? "review-aging" : drafts.length ? "review-pending" : "clear",
     attention_required: drafts.length > 0,
     generated_at: new Date().toISOString(),
     pending_count: drafts.length,
     legal_sensitive_count: drafts.filter((draft) => draft.legal_sensitive).length,
     legacy_format_count: drafts.filter((draft) => draft.legacy_format).length,
+    warning_count: warningCount,
+    critical_count: criticalCount,
     oldest_age_days: drafts.length ? Math.round(((now - Math.min(...drafts.map((draft) => Date.parse(draft.generated_at)))) / 86400000) * 10) / 10 : 0,
     newest_pending: drafts[0] || null,
+    priority_pending: reviewQueue[0] || null,
+    review_queue: reviewQueue.slice(0, 30),
     pending: drafts.slice(0, 30),
     signature: signature(drafts),
-    retention: { automatic_deletion: false, review_window_days: numberEnv("LOCAL_EDITORIAL_REVIEW_WINDOW_DAYS", 30) },
-    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "no-automatic-deletion"]
+    retention: { automatic_deletion: false, review_window_days: numberEnv("LOCAL_EDITORIAL_REVIEW_WINDOW_DAYS", 30), warning_days: warningDays, critical_days: criticalDays },
+    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "no-automatic-deletion", "age-based-review-sla", "oldest-critical-first"]
   };
   report.alert = await maybeAlert(report).catch((error) => ({ attempted: true, status: "failed", error: clean(error.message || "editorial review alert failed", 500) }));
   mkdirSync(dirname(reportPath), { recursive: true });

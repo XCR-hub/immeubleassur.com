@@ -36,12 +36,17 @@ try {
   const timestampOnly = run();
   writeFileSync(draftPath, JSON.stringify(draft("2026-08-10T09:00:00.000Z", "Texte officiel B")), "utf8");
   const changed = run();
+  writeFileSync(join(drafts, "news-old.json"), JSON.stringify(draft("2026-07-20T08:00:00.000Z", "Texte officiel ancien")), "utf8");
+  const sla = run();
   const checks = [
     ["same-content-stable-across-timestamp", first.signature === timestampOnly.signature],
     ["material-content-change-detected", changed.signature !== first.signature],
     ["legal-draft-remains-quarantined", changed.newest_pending?.legal_sensitive === true && changed.newest_pending?.publication_status === "quarantined"],
     ["fingerprint-exported-without-content", /^[a-f0-9]{20}$/.test(changed.newest_pending?.review_fingerprint || "") && !JSON.stringify(changed).includes("Texte officiel B")],
-    ["alerts-disabled-in-fixture", changed.alert?.status === "skipped" && changed.alert?.attempted === false]
+    ["alerts-disabled-in-fixture", changed.alert?.status === "skipped" && changed.alert?.attempted === false],
+    ["old-draft-escalates-status", sla.status === "review-overdue" && sla.critical_count === 1],
+    ["old-critical-draft-prioritized", sla.priority_pending?.file === "news-old.json" && sla.priority_pending?.review_severity === "critical"],
+    ["queue-exports-age-without-content", sla.review_queue?.every((item) => Number.isFinite(item.age_days)) && !JSON.stringify(sla).includes("Texte officiel ancien")]
   ];
   const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
   console.log(`Editorial review fingerprint contract: ${failed.length ? "failed" : "passed"} (${checks.length - failed.length}/${checks.length}).`);
