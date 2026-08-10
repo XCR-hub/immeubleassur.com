@@ -28,6 +28,7 @@ const checks = [
   ["runtime-cycle-runs-health-after-connectors", runtime.indexOf('runStep("editorial_health_monitor"') > runtime.indexOf('runStep("live_ready_connectors"')],
   ["production-monitor-consumes-health", production.includes('inspectEditorialHealth(editorialHealthPath)') && production.includes('check("editorial_health"')],
   ["coverage-gap-is-warning-not-runtime-failure", production.includes('coverageWarning = issue?.type === "editorial-business-coverage-gap"') && production.includes('coverageWarning ? "warn" : "fail"')],
+  ["persistent-coverage-warning-triggers-team-alert", production.includes("const alertableWarnings =") && production.includes('item.name === "editorial_health"') && production.includes('item.reason === "editorial-business-coverage-gap"') && production.includes("report.success && alertableWarnings.length === 0")],
   ["existing-deduplicated-alert-path-reused", production.includes("recentlyAlerted(statePath, signature, cooldownMinutes)")],
   ["admin-api-sanitizes-editorial-health", api.includes("sanitizeEditorialHealthReport") && api.includes("editorial_health:")],
   ["admin-api-exposes-bounded-coverage-aggregates", api.includes("missingCoverage") && api.includes(".slice(0, 8)") && api.includes("coverage_gaps:") && api.includes("coverage_gap_alert_cycles:")],

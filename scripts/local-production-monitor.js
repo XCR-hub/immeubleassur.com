@@ -264,6 +264,7 @@ function inspectEditorialHealth(reportPath) {
       latest_edition: report.latest_valid_edition?.date || "",
       latest_edition_age_days: report.latest_valid_edition?.age_days ?? null,
       reason: issue?.type || "",
+      freshness_gaps: Array.isArray(issue?.freshness_gaps) ? issue.freshness_gaps.slice(0, 8) : [],
       gate_reasons: report.publication_gate?.reasons || []
     }, coverageWarning ? "warn" : "fail");
   } catch (error) {
@@ -315,7 +316,8 @@ function writeAlertState(statePath, signature) {
 }
 
 async function maybeAlert(report, reportPath) {
-  if (env("LOCAL_MONITOR_ALERTS", "0") !== "1" || report.success) return { attempted: false, status: "skipped" };
+  const alertableWarnings = report.checks.filter((item) => !item.ok && item.severity === "warn" && item.name === "editorial_health" && item.reason === "editorial-business-coverage-gap");
+  if (env("LOCAL_MONITOR_ALERTS", "0") !== "1" || (report.success && alertableWarnings.length === 0)) return { attempted: false, status: "skipped" };
   const signature = alertSignature(report);
   const statePath = alertStatePath(reportPath);
   const cooldownMinutes = numberEnv("LOCAL_MONITOR_ALERT_COOLDOWN_MINUTES", 60);
