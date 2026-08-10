@@ -1,4 +1,10 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { loadDefaultEnvFiles } from "./local-env.js";
+
+loadDefaultEnvFiles();
+
+const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 
 const monitor = readFileSync("scripts/local-lighthouse-monitor.js", "utf8");
 const runner = readFileSync("scripts/live-ready-connectors-runner.js", "utf8");
@@ -21,8 +27,8 @@ const report = {
   safeguards: ["median-not-single-run", "raw-sample-evidence", "bounded-runtime", "partial-failure-visible"]
 };
 
-mkdirSync("reports", { recursive: true });
-writeFileSync("reports/local-lighthouse-contract-report.json", `${JSON.stringify(report, null, 2)}\n`, "utf8");
+mkdirSync(reportDir, { recursive: true });
+writeFileSync(join(reportDir, "local-lighthouse-contract-report.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8");
 
 if (missing.length) {
   console.error(`Local Lighthouse contract failed: ${missing.join(", ")}`);
