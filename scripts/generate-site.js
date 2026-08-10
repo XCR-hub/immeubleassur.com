@@ -592,7 +592,7 @@ function layout({ slug, title, description, body, canonical, schema = "" }) {
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
     
-    <link rel="preload" as="image" href="/assets/hero-building.webp" type="image/webp" />
+    <link rel="preload" as="image" href="/assets/hero-building.webp" type="image/webp" fetchpriority="high" />
     <link rel="stylesheet" href="${STYLES_URL}" />
     <title>${esc(title)} | ImmeubleAssur</title>
 ${schemaMarkup}  </head>

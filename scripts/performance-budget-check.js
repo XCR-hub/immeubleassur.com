@@ -62,6 +62,9 @@ function analyzePage(file) {
   if (size > budgets.htmlBytes) pushIssue(issues, "high", source, "html-size", `HTML ${kb(size)} Ko > budget ${kb(budgets.htmlBytes)} Ko`, { bytes: size });
   if (!/<meta name="viewport" content="width=device-width, initial-scale=1"/i.test(html)) pushIssue(issues, "high", source, "viewport", "Viewport mobile absent ou non standard.");
   if (!stylesheets.some((item) => isVersionedAsset(item.value))) pushIssue(issues, "high", source, "versioned-css", "CSS principal absent ou non versionne.");
+  if (source === "index.html" && !/<link\b[^>]*rel=["']preload["'][^>]*href=["']\/assets\/hero-building\.webp["'][^>]*fetchpriority=["']high["'][^>]*>/i.test(html)) {
+    pushIssue(issues, "high", source, "lcp-image-priority", "Le preload de l image LCP doit declarer fetchpriority=high.");
+  }
 
   if (source !== "admin.html" && !scripts.some((item) => /^\/assets\/app\.js\?v=[a-f0-9]{8,}/i.test(item.value))) {
     pushIssue(issues, "high", source, "versioned-app-js", "Script applicatif public absent ou non versionne.");
@@ -132,7 +135,7 @@ function build() {
     severe_issue_count: severeIssues.length,
     issues: allIssues.slice(0, 120),
     budgets,
-    safeguards: ["html-size-budget", "core-asset-budget", "versioned-css-js", "turnstile-on-demand", "local-hero-image-budget", "below-fold-render-containment", "lazy-images", "public-report"]
+    safeguards: ["html-size-budget", "core-asset-budget", "versioned-css-js", "turnstile-on-demand", "local-hero-image-budget", "lcp-image-fetch-priority", "below-fold-render-containment", "lazy-images", "public-report"]
   };
 
   writeJson(REPORT_PATH, report);

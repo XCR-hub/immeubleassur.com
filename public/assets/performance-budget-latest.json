@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T04:21:12.204Z",
+  "generated_at": "2026-08-10T08:52:50.110Z",
   "status": "passed",
   "pages_checked": 204,
   "indexable_pages": 192,
@@ -7,7 +7,7 @@
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 37.8,
+      "kb": 37.9,
       "issue_count": 0
     },
     {
@@ -37,12 +37,17 @@
     },
     {
       "source": "devis-assurance-immeuble.html",
-      "kb": 26.6,
+      "kb": 26.7,
       "issue_count": 0
     },
     {
       "source": "blog/index.html",
       "kb": 26,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-immeuble-de-rapport.html",
+      "kb": 25.9,
       "issue_count": 0
     },
     {
@@ -56,12 +61,7 @@
       "issue_count": 0
     },
     {
-      "source": "assurance-immeuble-de-rapport.html",
-      "kb": 25.8,
-      "issue_count": 0
-    },
-    {
-      "source": "assurance-sci.html",
+      "source": "assurance-immeuble-obligatoire.html",
       "kb": 25.8,
       "issue_count": 0
     }
@@ -77,7 +77,7 @@
     },
     {
       "path": "assets/app.js",
-      "bytes": 132019,
+      "bytes": 131997,
       "kb": 128.9,
       "budget_bytes": 143360,
       "budget_kb": 140,
@@ -129,8 +129,8 @@
     },
     {
       "path": "assets/conversion-intelligence-latest.json",
-      "bytes": 15540,
-      "kb": 15.2,
+      "bytes": 15037,
+      "kb": 14.7,
       "ok": true
     },
     {
@@ -164,21 +164,21 @@
       "ok": true
     },
     {
-      "path": "assets/editorial-autopilot-latest.json",
-      "bytes": 5819,
-      "kb": 5.7,
-      "ok": true
-    },
-    {
       "path": "assets/google-readiness-unlock-latest.json",
       "bytes": 5091,
       "kb": 5,
       "ok": true
     },
     {
+      "path": "assets/internal-link-equity-latest.json",
+      "bytes": 4405,
+      "kb": 4.3,
+      "ok": true
+    },
+    {
       "path": "assets/performance-budget-latest.json",
-      "bytes": 4513,
-      "kb": 4.4,
+      "bytes": 4303,
+      "kb": 4.2,
       "ok": true
     }
   ],
@@ -202,6 +202,7 @@
     "versioned-css-js",
     "turnstile-on-demand",
     "local-hero-image-budget",
+    "lcp-image-fetch-priority",
     "below-fold-render-containment",
     "lazy-images",
     "public-report"
