@@ -43,12 +43,14 @@ try {
     ["material-content-change-detected", changed.signature !== first.signature],
     ["legal-draft-remains-quarantined", changed.newest_pending?.legal_sensitive === true && changed.newest_pending?.publication_status === "quarantined"],
     ["fingerprint-exported-without-content", /^[a-f0-9]{20}$/.test(changed.newest_pending?.review_fingerprint || "") && !JSON.stringify(changed).includes("Texte officiel B")],
+    ["official-source-url-exported-without-source-text", changed.newest_pending?.source_urls?.includes("https://example.test/official") && !JSON.stringify(changed).includes("Texte officiel B")],
     ["alerts-disabled-in-fixture", changed.alert?.status === "skipped" && changed.alert?.attempted === false],
     ["old-draft-escalates-status", sla.status === "review-overdue" && sla.critical_count === 1],
     ["old-critical-draft-prioritized", sla.priority_pending?.file === "news-old.json" && sla.priority_pending?.review_severity === "critical"],
     ["queue-exports-age-without-content", sla.review_queue?.every((item) => Number.isFinite(item.age_days)) && !JSON.stringify(sla).includes("Texte officiel ancien")],
     ["report-does-not-export-local-draft-paths", !JSON.stringify(sla).includes(drafts) && sla.review_queue?.every((item) => !("path" in item))],
     ["operational-diagnostics-privacy-declared", sla.safeguards?.includes("no-local-paths-in-report-or-alert") && sla.safeguards?.includes("smtp-diagnostics-redacted")],
+    ["review-alert-declares-actionable-links", sla.safeguards?.includes("actionable-source-links") && sla.safeguards?.includes("admin-review-link")],
     ["critical-alert-policy-is-faster-than-warning", Number(sla.alert_policy?.critical_cooldown_minutes) === 360 && Number(sla.alert_policy?.warning_cooldown_minutes) === 1440]
   ];
   const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);

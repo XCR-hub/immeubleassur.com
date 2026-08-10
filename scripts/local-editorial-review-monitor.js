@@ -28,6 +28,14 @@ function safeDiagnostic(value, limit = 240) {
     .slice(0, limit);
 }
 
+function safeSourceUrl(value) {
+  try {
+    const parsed = new URL(String(value || ""));
+    return ["https:", "http:"].includes(parsed.protocol) ? clean(parsed.toString(), 500) : "";
+  } catch {
+    return "";
+  }
+}
 function readJson(path) {
   try { return JSON.parse(readFileSync(path, "utf8")); } catch { return null; }
 }
@@ -57,6 +65,7 @@ function pendingDrafts() {
         legal_sensitive: data.legal_review?.sensitive === true,
         matched_terms: (data.legal_review?.matched_terms || []).map((item) => clean(item, 80)).filter(Boolean).slice(0, 12),
         source_count: Array.isArray(data.source_items) ? data.source_items.length : 0,
+        source_urls: [...new Set((data.source_items || []).map((item) => safeSourceUrl(item.url)).filter(Boolean))].slice(0, 7),
         provider: clean(data.synthesis?.provider, 80),
         model: clean(data.synthesis?.model, 120),
         review_fingerprint: reviewFingerprint
@@ -113,6 +122,9 @@ async function maybeAlert(report) {
     `Sensibilite juridique: ${draft.legal_sensitive ? "oui" : "non"}`,
     `Termes sensibles: ${draft.matched_terms.join(", ") || "aucun"}`,
     `Sources attribuees: ${draft.source_count}`,
+    "Sources officielles/prioritaires:",
+    ...(draft.source_urls.length ? draft.source_urls.map((url) => `- ${url}`) : ["- aucune URL exploitable"]),
+    "Revue securisee: https://immeubleassur.com/admin#content",
     `Age de revue: ${draft.age_days} jour(s) - ${draft.review_severity}`,
     `Fichier de revue: ${draft.file}`,
     `Brouillons en attente: ${report.pending_count}`,
@@ -165,7 +177,7 @@ async function run() {
       critical_cooldown_minutes: numberEnv("LOCAL_EDITORIAL_REVIEW_CRITICAL_COOLDOWN_MINUTES", 360)
     },
     retention: { automatic_deletion: false, review_window_days: numberEnv("LOCAL_EDITORIAL_REVIEW_WINDOW_DAYS", 30), warning_days: warningDays, critical_days: criticalDays },
-    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "no-automatic-deletion", "age-based-review-sla", "oldest-critical-first", "no-local-paths-in-report-or-alert", "smtp-diagnostics-redacted"]
+    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "no-automatic-deletion", "age-based-review-sla", "oldest-critical-first", "actionable-source-links", "admin-review-link", "no-local-paths-in-report-or-alert", "smtp-diagnostics-redacted"]
   };
   report.alert = await maybeAlert(report).catch((error) => ({ attempted: true, status: "failed", error: safeDiagnostic(error.message || "editorial review alert failed") }));
   mkdirSync(dirname(reportPath), { recursive: true });
