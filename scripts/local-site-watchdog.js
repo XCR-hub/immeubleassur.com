@@ -28,6 +28,19 @@ function sleep(ms) {
   return new Promise((resolveSleep) => setTimeout(resolveSleep, ms));
 }
 
+async function waitForRuntime(timeoutSeconds) {
+  const startedAt = Date.now();
+  const deadline = startedAt + Math.max(1, timeoutSeconds) * 1000;
+  let attempts = 0;
+  let health = { ok: false, status_code: 0, body: null, error: "startup pending", security_headers: null };
+  do {
+    await sleep(250);
+    attempts += 1;
+    health = await runtimeCheck();
+  } while (!health.ok && Date.now() < deadline);
+  return { health, attempts, elapsed_ms: Date.now() - startedAt };
+}
+
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const defaultSiteDir = resolve(scriptDir, "..");
 const siteDir = resolve(argValue("--site-dir", process.env.LOCAL_SITE_DIR || defaultSiteDir));
@@ -273,14 +286,15 @@ async function main() {
 
   const stopped = stopSiteProcesses();
   const started = startSite();
-  await sleep(startupWaitSeconds * 1000);
-  const after = await runtimeCheck();
+  const recovery = await waitForRuntime(startupWaitSeconds);
+  const after = recovery.health;
   writeReport(after.ok ? "recovered" : "failed", {
     action: "restart",
     health_before: before,
     health_after: after,
     stopped,
-    started
+    started,
+    recovery
   });
 
   if (!after.ok) {
