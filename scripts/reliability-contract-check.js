@@ -7,6 +7,7 @@ const monitor=readFileSync("scripts/local-production-monitor.js","utf8");
 const runtime=readFileSync("scripts/local-runtime-report-cycle.js","utf8");
 const task=readFileSync("scripts/local-runtime-task.ps1","utf8");
 const lighthouse=readFileSync("scripts/local-lighthouse-monitor.js","utf8");
+const restoreDrill=readFileSync("scripts/local-sqlite-restore-drill.js","utf8");
 const checks=[
   ["backup-vacuum-atomic-copy",backup.includes("VACUUM INTO")],
   ["backup-integrity-check",backup.includes("PRAGMA integrity_check")],
@@ -20,6 +21,13 @@ const checks=[
   ["monitor-verifies-backup-hash",monitor.includes("artifact_verified")&&monitor.includes("actualHash === manifest.sha256")],
   ["monitor-requires-verified-mirror",monitor.includes("LOCAL_SQLITE_BACKUP_MIRROR_REQUIRED")&&monitor.includes("mirror_verified")],
   ["runtime-configures-cross-volume-mirror",task.includes("LOCAL_SQLITE_BACKUP_MIRROR_DIR = 'C:\\Users\\Administrateur\\immeubleassur-backup-mirror'")&&task.includes("LOCAL_SQLITE_BACKUP_MIRROR_REQUIRED = '1'")],
+  ["restore-drill-copies-backup",restoreDrill.includes("copyFileSync(sourcePath, restoredPath)")],
+  ["restore-drill-verifies-hash",restoreDrill.includes("restoredHash !== expectedHash")],
+  ["restore-drill-opens-read-only",restoreDrill.includes("{ readOnly: true }")],
+  ["restore-drill-checks-integrity-and-foreign-keys",restoreDrill.includes("PRAGMA integrity_check")&&restoreDrill.includes("PRAGMA foreign_key_check")],
+  ["restore-drill-cleans-temporary-copy",restoreDrill.includes("rmSync(restoredPath, { force: true })")],
+  ["production-monitor-requires-fresh-restore-drill",monitor.includes('inspectJsonRuntime("sqlite_restore_drill"')],
+  ["runtime-runs-restore-drill",runtime.includes('runStep("sqlite_restore_drill"')],
   ["monitor-covers-tls",monitor.includes('inspectJsonRuntime("tls_certificate"')],
   ["monitor-covers-smtp",monitor.includes('inspectJsonRuntime("smtp_transport"')],
   ["monitor-covers-newsletter",monitor.includes('inspectJsonRuntime("newsletter_delivery"')],
@@ -37,5 +45,5 @@ const checks=[
   ["lighthouse-reports-unused-javascript",lighthouse.includes('"unused-javascript"')&&lighthouse.includes("unused_javascript")]
 ];
 const missing=checks.filter(([,ok])=>!ok).map(([name])=>name);
-const report={generated_at:new Date().toISOString(),status:missing.length?"failed":"passed",checks:checks.length,missing,safeguards:["tiered-backup-retention","backup-artifact-hash-verification","cross-volume-mirror-verification","cross-system-freshness","email-alert-cooldown","lead-sla-alerts","actionable-lighthouse-diagnostics"]};
+const report={generated_at:new Date().toISOString(),status:missing.length?"failed":"passed",checks:checks.length,missing,safeguards:["tiered-backup-retention","backup-artifact-hash-verification","cross-volume-mirror-verification","non-destructive-restore-drill","cross-system-freshness","email-alert-cooldown","lead-sla-alerts","actionable-lighthouse-diagnostics"]};
 const out=process.env.LOCAL_RELIABILITY_CONTRACT_REPORT||join(process.env.LOCAL_RUNTIME_REPORTS_ROOT||"reports","reliability-contract-report.json"); mkdirSync(dirname(out),{recursive:true}); writeFileSync(out,`${JSON.stringify(report,null,2)}\n`,`utf8`); console.log(`Reliability contract: ${report.status} (${checks.filter(([,ok])=>ok).length}/${checks.length}).`); if(missing.length)process.exit(1);

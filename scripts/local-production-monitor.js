@@ -295,6 +295,7 @@ async function run() {
   const newsletterReportPath = resolve(env("LOCAL_NEWSLETTER_DELIVERY_REPORT", join(runtimeReportsRoot, "local-newsletter-delivery-report.json")));
   const runtimeCyclePath = resolve(env("LOCAL_RUNTIME_CYCLE_REPORT", join(runtimeReportsRoot, "local-runtime-report-cycle.json")));
   const securitySurfacePath = resolve(env("LOCAL_SECURITY_SURFACE_REPORT", join(runtimeReportsRoot, "local-security-surface-report.json")));
+  const restoreDrillPath = resolve(env("LOCAL_SQLITE_RESTORE_DRILL_REPORT", join(runtimeReportsRoot, "local-sqlite-restore-drill-report.json")));
   const siteWatchdogPath = resolve(env("LOCAL_SITE_WATCHDOG_REPORT", join(runtimeReportsRoot, "local-site-watchdog-report.json")));
   const out = resolve(argValue("--out", env("LOCAL_PRODUCTION_MONITOR_REPORT", join("reports", "local-production-monitor-report.json"))));
 
@@ -304,6 +305,7 @@ async function run() {
     await checkTelemetryFilter(origin),
     inspectSqlite(dbPath),
     inspectBackup(backupManifest, maxBackupAgeHours),
+    inspectJsonRuntime("sqlite_restore_drill", restoreDrillPath, 90, (report) => report.status === "passed" && report.source_hash_verified === true && report.integrity === "ok" && report.foreign_key_violations === 0 && report.table_count >= 10, (report) => ({ source_type: report.source_type || "", integrity: report.integrity || "", table_count: Number(report.table_count || 0), total_rows: Number(report.total_rows || 0) })),
     inspectEditorialHealth(editorialHealthPath),
     inspectJsonRuntime("tls_certificate", tlsReportPath, 90, (report) => report.ok === true && ["healthy", "warning"].includes(report.status), (report) => ({ days_remaining: report.days_remaining })),
     inspectJsonRuntime("smtp_transport", smtpReportPath, 90, (report) => report.status === "ready" && report.authenticated === true, (report) => ({ authenticated: report.authenticated === true, transport: report.transport || report.provider || "smtp" })),
