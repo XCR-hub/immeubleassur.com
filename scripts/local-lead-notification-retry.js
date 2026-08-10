@@ -60,7 +60,7 @@ function candidates(database, cooldownMinutes, maxAttempts, recoveryProbeMinutes
 
 function messageFor(lead, attempt, now, config) {
   const reference = clean(lead.reference, 80);
-  const subject = `Reprise notification lead ${reference} - ${clean(lead.city || "ville non precisee", 120)}`;
+  const subject = `Reprise notification lead ${reference}${lead.email ? "" : " - TELEPHONE SEUL"} - ${clean(lead.city || "ville non precisee", 120)}`;
   const body = [
     "Notification ImmeubleAssur reprise automatiquement après un échec temporaire.",
     `Référence: ${reference}`,
@@ -69,7 +69,7 @@ function messageFor(lead, attempt, now, config) {
     "",
     `Nom: ${clean(lead.name, 160)}`,
     `Téléphone: ${clean(lead.phone, 80)}`,
-    `Email: ${clean(lead.email, 180)}`,
+    `Email: ${clean(lead.email, 180) || "non renseigne - contacter par telephone"}`,
     `Profil: ${clean(lead.profile, 100)}`,
     `Type de bien: ${clean(lead.property_type, 100)}`,
     `Ville: ${clean(lead.city, 120)}`,

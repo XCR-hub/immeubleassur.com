@@ -1,9 +1,14 @@
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, extname, join } from "node:path";
-import { validateLeadPayload } from "../functions/api/leads.js";
+import { validateLeadPayload, buildLeadEmail, buildDuplicateLeadEmail } from "../functions/api/leads.js";
 
 function walk(dir) { return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => entry.isDirectory() ? walk(join(dir, entry.name)) : extname(entry.name) === ".html" ? [join(dir, entry.name)] : []); }
 const base = { name: "Jean Dupont", phone: "0612345678", email: "", profile: "syndic-benevole", property_type: "copropriete", city: "Lyon", consent: true };
+const mailRecord = { ...base, submission_mode: "complet", utm: {} };
+const mailQualification = { priority: "high", value_estimate: {}, sla_hours: 4, next_action: "Rappeler", reasons: [], urgency: {} };
+const phoneOnlyMail = buildLeadEmail({ id: "lead-test", reference: "IA-TEST", score: 80, qualification: mailQualification, record: mailRecord, now: "2026-08-10T00:00:00.000Z" });
+const phoneOnlyDuplicate = buildDuplicateLeadEmail({ duplicate: { reference: "IA-TEST", duplicate_reason: "telephone", lead_score: 80 }, record: mailRecord, now: "2026-08-10T00:00:00.000Z" });
+const emailMail = buildLeadEmail({ id: "lead-test", reference: "IA-TEST", score: 80, qualification: mailQualification, record: { ...mailRecord, email: "contact@example.fr" }, now: "2026-08-10T00:00:00.000Z" });
 const htmlFiles = walk("public");
 const leadForms = [];
 const invalidForms = [];
@@ -25,6 +30,7 @@ for (const file of htmlFiles) {
 }
 const app = readFileSync("public/assets/app.js", "utf8");
 const api = readFileSync("functions/api/leads.js", "utf8");
+const retry = readFileSync("scripts/local-lead-notification-retry.js", "utf8");
 const generatorFiles = ["scripts/generate-site.js", "scripts/lead-growth-factory.js", "scripts/money-intent-factory.js", "scripts/seo-content-factory.js", "scripts/serp-recovery-factory.js"];
 const staleGeneratorMarkers = generatorFiles.filter((file) => readFileSync(file, "utf8").includes('Email *<input name="email" type="email" autocomplete="email" required'));
 const checks = [
@@ -32,6 +38,11 @@ const checks = [
   ["optional-email-still-validated", validateLeadPayload({ ...base, email: "invalide" }) === "Email invalide"],
   ["phone-remains-required", validateLeadPayload({ ...base, phone: "" }) === "Champ manquant: phone"],
   ["express-phone-only-valid", validateLeadPayload({ phone: "0612345678", email: "", consent: true, submission_mode: "express-callback" }) === ""],
+  ["phone-only-notification-labelled", phoneOnlyMail.subject.includes("TELEPHONE SEUL") && phoneOnlyMail.text.includes("non renseigne - contacter par telephone")],
+  ["phone-only-duplicate-labelled", phoneOnlyDuplicate.subject.includes("TELEPHONE SEUL") && phoneOnlyDuplicate.text.includes("non renseigne - contacter par telephone")],
+  ["phone-only-retry-labelled", retry.includes('" - TELEPHONE SEUL"') && retry.includes('"non renseigne - contacter par telephone"')],
+  ["email-notification-unchanged", emailMail.subject === "Nouveau lead ImmeubleAssur IA-TEST" && emailMail.text.includes("Email: contact@example.fr")],
+  ["reply-to-remains-conditional", api.includes('...(record.email ? [`Reply-To: ${headerSafe(record.email)}`] : [])')],
   ["all-rendered-lead-forms-covered", leadForms.length >= 180 && invalidForms.length === 0],
   ["newsletter-email-still-required", invalidNewsletters.length === 0],
   ["client-validation-email-optional", app.includes('const requiredFields = ["name", "phone", "profile", "property_type", "city"]') && app.includes('if (payload.email && !emailLooksValid(payload.email))')],
@@ -40,7 +51,7 @@ const checks = [
   ["newsletter-generator-email-required", readFileSync("scripts/editorial-autopilot.js", "utf8").includes('Email *<input name="email" type="email" autocomplete="email" required')]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
-const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, lead_forms_checked: leadForms.length, invalid_forms: invalidForms, invalid_newsletters: invalidNewsletters, stale_generator_markers: staleGeneratorMarkers, safeguards: ["phone-still-required", "consent-still-required", "filled-email-validated", "express-mode-unchanged", "all-generated-forms-covered"] };
+const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, lead_forms_checked: leadForms.length, invalid_forms: invalidForms, invalid_newsletters: invalidNewsletters, stale_generator_markers: staleGeneratorMarkers, safeguards: ["phone-still-required", "consent-still-required", "filled-email-validated", "express-mode-unchanged", "all-generated-forms-covered", "phone-only-notifications-explicit"] };
 const out = process.env.LOCAL_LEAD_OPTIONAL_EMAIL_CONTRACT_REPORT || join(process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports", "lead-optional-email-contract-report.json");
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");

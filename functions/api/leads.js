@@ -777,7 +777,7 @@ function dotStuff(message) {
 }
 
 function buildLeadEmail({ id, reference, score, qualification, record, now }) {
-  const subject = `Nouveau lead ImmeubleAssur ${reference}`;
+  const subject = record.email ? `Nouveau lead ImmeubleAssur ${reference}` : `Nouveau lead ImmeubleAssur ${reference} - TELEPHONE SEUL`;
   const text = [
     `Reference: ${reference}`,
     `Mode: ${record.submission_mode || "complet"}`,
@@ -791,7 +791,7 @@ function buildLeadEmail({ id, reference, score, qualification, record, now }) {
     "",
     `Nom: ${record.name}`,
     `Telephone: ${record.phone}`,
-    `Email: ${record.email}`,
+    `Email: ${record.email || "non renseigne - contacter par telephone"}`,
     `Profil: ${record.profile}`,
     `Type de bien: ${record.property_type}`,
     `Ville: ${record.city}`,
@@ -822,7 +822,7 @@ async function sendSmtpMail(config, message, env) {
 }
 
 function buildDuplicateLeadEmail({ duplicate, record, now }) {
-  const subject = `Retour prospect ImmeubleAssur ${duplicate.reference}`;
+  const subject = record.email ? `Retour prospect ImmeubleAssur ${duplicate.reference}` : `Retour prospect ImmeubleAssur ${duplicate.reference} - TELEPHONE SEUL`;
   const text = [
     `Reference existante: ${duplicate.reference}`,
     `Motif doublon: ${duplicate.duplicate_reason || "doublon-contact"}`,
@@ -835,7 +835,7 @@ function buildDuplicateLeadEmail({ duplicate, record, now }) {
     "",
     `Nom: ${record.name}`,
     `Telephone: ${record.phone}`,
-    `Email: ${record.email}`,
+    `Email: ${record.email || "non renseigne - contacter par telephone"}`,
     `Profil: ${record.profile}`,
     `Type de bien: ${record.property_type}`,
     `Ville: ${record.city}`,
@@ -906,7 +906,7 @@ async function logLeadEvent(env, leadId, eventType, payload, createdAt) {
     .run();
 }
 
-export { validate as validateLeadPayload };
+export { validate as validateLeadPayload, buildLeadEmail, buildDuplicateLeadEmail };
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeadersFor(request, env) });
