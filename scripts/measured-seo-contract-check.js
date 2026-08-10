@@ -49,6 +49,7 @@ const checks = [
   ["seo-autopilot-supports-runtime-search-input", seoAutopilot.includes("LOCAL_SEARCH_INTELLIGENCE_REPORT") && seoAutopilot.includes("SEARCH_INTELLIGENCE_REPORT")],
   ["seo-autopilot-supports-runtime-safe-outputs", seoAutopilot.includes("LOCAL_SEO_AUTOPILOT_REPORT") && seoAutopilot.includes("LOCAL_SEO_AUTOPILOT_PUBLIC_REPORT")],
   ["seo-autopilot-skips-noindex-opportunities", seoAutopilot.includes("const noindex =") && seoAutopilot.includes("const indexablePages = pages.filter((page) => !page.noindex)") && seoAutopilot.includes("noindex_pages_skipped")],
+  ["seo-autopilot-recognizes-jsonld-graphs", seoAutopilot.includes("const hasPageSchema =") && seoAutopilot.includes("!hasPageSchema") && !seoAutopilot.includes("jsonLd < 2")],
   ["runtime-refreshes-public-seo-report", runtime.includes('runStep("seo_autopilot_runtime", ["scripts/seo-autopilot.js", "--local-only"]') && runtime.includes("LOCAL_SEO_AUTOPILOT_PUBLIC_REPORT")]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);

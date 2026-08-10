@@ -85,6 +85,7 @@ function auditPage(file) {
   const h2 = [...html.matchAll(/<h2[^>]*>/gi)].length;
   const details = [...html.matchAll(/<details>/gi)].length;
   const jsonLd = [...html.matchAll(/type="application\/ld\+json"/gi)].length;
+  const hasPageSchema = /"@type"\s*:\s*(?:\[[^\]]*)?"(?:Article|WebPage|AboutPage|FAQPage|Service|CollectionPage|ItemList|InsuranceAgency|FinancialService)"/i.test(html);
   const canonical = readMeta(html, /<link rel="canonical" href="([^"]*)"/i);
   const robots = readMeta(html, /<meta name="robots" content="([^"]*)"/i);
   const noindex = /(?:^|[,\s])noindex(?:[,\s]|$)/i.test(robots);
@@ -100,11 +101,11 @@ function auditPage(file) {
   if (!canonical || canonical.includes(".html")) add("high", "canonical", "Canonical absent ou non propre", "Utiliser une URL canonique propre sans extension.");
   if (words < 450 && slug !== "admin" && !nonCommercialSlugs.has(slug)) add("medium", "content-depth", `${words} mots`, "Renforcer la page avec exemples, FAQ et checklist utile.");
   if (details < 2 && slug !== "admin" && !nonCommercialSlugs.has(slug)) add("low", "faq", "Peu de FAQ visibles", "Ajouter des questions reelles et reponses courtes quand pertinent.");
-  if (jsonLd < 2 && slug !== "admin") add("medium", "schema", `${jsonLd} blocs JSON-LD`, "Verifier BreadcrumbList, WebPage/Article, FAQ ou Service selon la page.");
+  if (!hasPageSchema && slug !== "admin") add("medium", "schema", `${jsonLd} blocs JSON-LD sans type de page reconnu`, "Verifier WebPage, Article, FAQ, Service ou type metier pertinent.");
   if (!hasLeadForm && !hasCta && slug !== "admin" && !nonCommercialSlugs.has(slug)) add("medium", "conversion", "CTA faible ou absent", "Ajouter une action claire vers devis, audit ou contact.");
 
   const penalty = issues.reduce((sum, issue) => sum + (issue.severity === "high" ? 18 : issue.severity === "medium" ? 10 : 5), 0);
-  return { slug: slug || "index", url: pageUrl(slug), title, description, words, h1, h2, details, jsonLd, hasLeadForm, noindex, issues, score: Math.max(0, 100 - penalty) };
+  return { slug: slug || "index", url: pageUrl(slug), title, description, words, h1, h2, details, jsonLd, hasPageSchema, hasLeadForm, noindex, issues, score: Math.max(0, 100 - penalty) };
 }
 
 function detectIntentGaps(pages) {
