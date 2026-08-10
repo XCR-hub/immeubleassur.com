@@ -8,6 +8,7 @@ const server = readFileSync("scripts/local-production-server.js", "utf8");
 const cycle = readFileSync("scripts/local-runtime-report-cycle.js", "utf8");
 const health = readFileSync("scripts/local-editorial-health-monitor.js", "utf8");
 const smoke = readFileSync("scripts/local-editorial-publication-smoke.js", "utf8");
+const hubQuality = readFileSync("scripts/local-editorial-hub-quality-check.js", "utf8");
 const workflow = readFileSync(".github/workflows/editorial-autopilot.yml", "utf8");
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const reportPath = join(reportDir, "editorial-runtime-publication-contract-report.json");
@@ -26,6 +27,8 @@ const checks = [
   ["publisher-runs-after-connectors-before-health", connectorsIndex >= 0 && publisherIndex > connectorsIndex && healthIndex > publisherIndex],
   ["health-reads-active-runtime-manifest", health.includes('source: "runtime-manifest"') && health.includes('readJson(join(publicationsRoot, "current.json"))')],
   ["public-smoke-compares-active-file-hashes", smoke.includes("remote.sha256 === localHash") && smoke.includes("manifest.allowed_files")],
+  ["faq-and-city-hubs-are-enriched", publisher.includes('enrichStaticHub("faq.html"') && publisher.includes('enrichStaticHub("villes.html"')],
+  ["hub-quality-blocks-doorway-pages", hubQuality.includes('no-automatic-city-doorway-pages') && hubQuality.includes('automatically_created_city_pages')],
   ["git-workflow-remains-read-only", /permissions:\s*\n\s*contents:\s*read/.test(workflow)]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);

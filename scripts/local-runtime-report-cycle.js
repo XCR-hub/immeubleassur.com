@@ -93,6 +93,7 @@ function run() {
     runStep("google_readiness_unlock", ["scripts/google-readiness-unlock.js"], commonRuntimeEnv),
     runStep("live_ready_connectors", ["scripts/live-ready-connectors-runner.js", "--runtime-cycle"], commonRuntimeEnv),
     runStep("editorial_runtime_publisher", ["scripts/local-editorial-publisher.js"], commonRuntimeEnv),
+    runStep("editorial_hub_quality", ["scripts/local-editorial-hub-quality-check.js"], commonRuntimeEnv),
     runStep("editorial_publication_smoke", ["scripts/local-editorial-publication-smoke.js"], commonRuntimeEnv),
     runStep("editorial_health_monitor", ["scripts/local-editorial-health-monitor.js"], commonRuntimeEnv),
     runStep("editorial_text_quality", ["scripts/editorial-text-quality-check.js"], commonRuntimeEnv),

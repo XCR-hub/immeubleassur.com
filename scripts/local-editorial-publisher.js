@@ -16,6 +16,16 @@ function writeJson(path, value) {
 }
 function sha256(path) { return createHash("sha256").update(readFileSync(path)).digest("hex"); }
 function safeVersion(value) { return String(value || "").replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 100); }
+function esc(value) { return String(value || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
+function enrichStaticHub(relative, marker, block) {
+  const source = join(staticPublicRoot, relative);
+  const destination = join(versionRoot, relative);
+  if (!existsSync(source)) return false;
+  let html = readFileSync(source, "utf8").replace(new RegExp(`\\n?<!-- ${marker}:start -->[\\s\\S]*?<!-- ${marker}:end -->`, "g"), "");
+  html = html.replace("</main>", `\n<!-- ${marker}:start -->\n${block}\n<!-- ${marker}:end -->\n</main>`);
+  writeFileSync(destination, html, "utf8");
+  return true;
+}
 
 const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));
 const reportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", join("data", "runtime-reports")));
@@ -68,6 +78,19 @@ if (editorialReport.public_content_ai_generated !== false || editorialReport.pub
 }
 
 const issue = editorialReport.issue;
+const topTopics = [...new Set((editorialReport.public_watch_items || []).map((item) => item.topic || "veille"))].slice(0, 3);
+const faqQuestions = [
+  ["Un signal de veille change-t-il automatiquement mon contrat ?", "Non. Une actualite sert a identifier une clause, une franchise, une echeance ou une piece a verifier; le contrat et la situation de l immeuble restent les references du dossier."],
+  ["La preparation differe-t-elle entre syndic benevole et syndic professionnel ?", "Le role differe, mais la base documentaire reste proche: contrat, appel de prime, historique des sinistres, travaux, lots, usages et echeance. La validation finale demeure humaine."],
+  ["Comment utiliser une actualite pour un immeuble situe dans une ville precise ?", "La ville seule ne suffit pas. Il faut relier le signal a l occupation, aux commerces, aux travaux, aux sinistres et aux caracteristiques du batiment avant toute consultation."]
+];
+const faqBlock = `<section class="band content-expansion-band runtime-editorial-hub" aria-labelledby="runtime-faq-${today}"><div class="section-head"><p class="eyebrow dark">FAQ mise a jour ${today}</p><h2 id="runtime-faq-${today}">Questions pratiques issues de la derniere veille validee.</h2><p>Edition source: <a href="/${issue.slug}">${esc(issue.title)}</a>. Themes suivis: ${esc(topTopics.join(", ") || "assurance immeuble")}.</p></div><div class="card-grid">${faqQuestions.map(([question, answer]) => `<article class="content-card"><h3>${esc(question)}</h3><p>${esc(answer)}</p></article>`).join("")}</div><p class="seo-expansion-note">Ces reponses organisent les verifications utiles et ne constituent ni une interpretation juridique ni une recommandation contractuelle personnalisee.</p></section>`;
+enrichStaticHub("faq.html", "runtime-editorial-faq", faqBlock);
+const citiesHtml = existsSync(join(staticPublicRoot, "villes.html")) ? readFileSync(join(staticPublicRoot, "villes.html"), "utf8") : "";
+const cityLinks = [...citiesHtml.matchAll(/href="\/(assurance-immeuble-[^"]+)(?:\.html)?"[^>]*>([^<]+)<\/a>/g)].map((match) => ({ path: match[1].replace(/\.html$/, ""), label: match[2].trim() })).filter((item, index, all) => item.label && all.findIndex((candidate) => candidate.path === item.path) === index).slice(0, 6);
+const cityActions = ["Verifier usages et nombre de lots", "Relire sinistres et mesures correctives", "Lister travaux votes ou prevus", "Qualifier commerces et locaux techniques", "Comparer franchises et plafonds", "Preparer contrat, prime et echeance"];
+const cityBlock = `<section class="band content-expansion-band runtime-editorial-hub" aria-labelledby="runtime-cities-${today}"><div class="section-head"><p class="eyebrow dark">Parcours villes mis a jour ${today}</p><h2 id="runtime-cities-${today}">Appliquer la veille validee a un dossier local concret.</h2><p>Le dernier numero ne cree pas une regle locale: il fournit une checklist a confronter au batiment, a son occupation et a ses pieces.</p></div><div class="card-grid">${cityLinks.map((city, index) => `<article class="content-card"><h3><a href="/${city.path}">${esc(city.label)}</a></h3><p>${esc(cityActions[index % cityActions.length])}, puis relier le dossier a <a href="/${issue.slug}">la veille du ${today}</a>.</p></article>`).join("")}</div><p class="seo-expansion-note">Aucune page locale nouvelle n est creee automatiquement: seuls les parcours existants et controles sont actualises.</p></section>`;
+enrichStaticHub("villes.html", "runtime-editorial-cities", cityBlock);
 const baseSitemapPath = join(staticPublicRoot, "sitemap.xml");
 const runtimeSitemapPath = join(versionRoot, "sitemap.xml");
 if (existsSync(baseSitemapPath) && issue?.slug) {
@@ -76,7 +99,7 @@ if (existsSync(baseSitemapPath) && issue?.slug) {
   if (!sitemap.includes(`<loc>${loc}</loc>`)) sitemap = sitemap.replace("</urlset>", `  <url><loc>${loc}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>\n</urlset>`);
   writeFileSync(runtimeSitemapPath, sitemap, "utf8");
 }
-const allowedFiles = ["veille-assurance-immeuble.html", "newsletter-assurance-immeuble.html", `${issue?.slug || ""}.html`, "sitemap.xml"];
+const allowedFiles = ["veille-assurance-immeuble.html", "newsletter-assurance-immeuble.html", `${issue?.slug || ""}.html`, "faq.html", "villes.html", "sitemap.xml"];
 const invalid = [];
 const files = allowedFiles.map((relative) => {
   const file = join(versionRoot, ...relative.split("/"));
