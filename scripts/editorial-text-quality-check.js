@@ -4,7 +4,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
 const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
-const { parsePublicPage, sourceUrlAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered } = await import("./editorial-autopilot.js");
+const { parsePublicPage, sourceUrlAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage } = await import("./editorial-autopilot.js");
 const decomposed = "Assurance proprie\u0301taire";
 const corruptedFixture = { title: "Actualite\uFFFD assurance immeuble", summary: "Signal public", published_at: "10 aout 2026" };
 const repairableFixtures = [
@@ -13,6 +13,12 @@ const repairableFixtures = [
   ["propri\u00c3\u00a9taire", "propri\u00e9taire"]
 ];
 const cleanFixture = { title: decomposed, summary: "Signal public attribue", published_at: "10 aout 2026" };
+const coverageFixture = [
+  { source_id: "regulator", title: "Assurance immeuble : garanties et franchise", summary: "Contrat copropriete" },
+  { source_id: "official", title: "Syndic et assemblee generale", summary: "Obligation et responsabilite" }
+];
+const coverageComplete = editorialBusinessCoverage(coverageFixture);
+const coverageGap = editorialBusinessCoverage(coverageFixture.slice(0, 1));
 const artifactFixture = { title: "Actualite assurance immeuble attribuee", summary: '/fileadmin/image.jpg 992w,/fileadmin/image-large.jpg 2000w" sizes="100vw" loading="lazy" width="1200" height="800" alt=""> 03 aout 2026 Une mesure de prevention est publiee pour les immeubles&hellip;', published_at: "03 aout 2026" };
 const sanitizedArtifact = sanitizeEditorialSummary(artifactFixture.summary);
 const navigationSummaryFixture = "L’assurance vie";
@@ -49,6 +55,10 @@ const checks = [
   ["decomposed-unicode-normalized", normalizeEditorialText(decomposed) === decomposed.normalize("NFC")],
   ["windows-1252-mojibake-repaired", repairableFixtures.every(([input, expected]) => repairMojibake(input) === expected)],
   ["normalization-applies-mojibake-repair", repairableFixtures.every(([input, expected]) => normalizeEditorialText(input) === expected)],
+  ["business-coverage-dimensions-reported", coverageComplete.status === "covered" && coverageComplete.required_dimensions.length === 4],
+  ["business-coverage-gap-detected", coverageGap.status === "gaps-detected" && coverageGap.missing_dimensions.includes("syndic") && coverageGap.missing_dimensions.includes("obligations")],
+  ["reference-sources-distinguished", editorial.includes("reference_source_count") && editorial.includes('status: "reference-only"')],
+  ["business-coverage-exported", editorial.includes("business_coverage: editorialBusinessCoverage(items)")],
   ["corrupted-fixture-detected", editorialTextQuality(corruptedFixture).clean === false],
   ["corrupted-fixture-excluded", qualityFiltered([cleanFixture, corruptedFixture]).length === 1],
   ["artifact-fixture-sanitized", sanitizedArtifact.includes("Une mesure de prevention") && sanitizedArtifact.includes("\u2026") && !corruptionPattern.test(sanitizedArtifact)],

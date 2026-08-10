@@ -170,6 +170,21 @@ function qualityFiltered(items) {
   clean.rejected_text_quality = items.length - clean.length;
   return clean;
 }
+function editorialBusinessCoverage(items) {
+  const dimensions = [
+    ["assurance", /assurance|assureur|contrat|garantie|prime|franchise/i],
+    ["copropriete", /copropri|immeuble|logement|habitat/i],
+    ["syndic", /syndic|conseil syndical|assembl[ée]e g[ée]n[ée]rale/i],
+    ["obligations", /obligation|obligatoire|r[ée]glement|d[ée]cret|loi|jurisprudence|responsabilit[ée]/i]
+  ];
+  const dimensionsReport = Object.fromEntries(dimensions.map(([id, pattern]) => {
+    const matching = items.filter((item) => pattern.test(`${item.title || ""} ${item.summary || ""}`));
+    return [id, { item_count: matching.length, source_count: new Set(matching.map((item) => item.source_id).filter(Boolean)).size, covered: matching.length > 0 }];
+  }));
+  const missing = Object.entries(dimensionsReport).filter(([, value]) => !value.covered).map(([id]) => id);
+  return { status: missing.length ? "gaps-detected" : "covered", required_dimensions: dimensions.map(([id]) => id), missing_dimensions: missing, dimensions: dimensionsReport };
+}
+
 function rssTag(block, name) {
   const match = block.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)<\\/${name}>`, "i"));
   return decodeXml(match?.[1] || "");
@@ -697,6 +712,8 @@ async function run() {
     ai_provider_order: synthesis.provider_order || [],
     quality_score: qualityScore(items, synthesis),
     source_count: SOURCES.length,
+    reference_source_count: SOURCES.filter((source) => source.source_type === "reference").length,
+    reference_sources: SOURCES.filter((source) => source.source_type === "reference").map(({ id, name, url, authority, crawl_policy }) => ({ id, name, url, authority, crawl_policy, status: "reference-only" })),
     fetchable_source_count: sourceResults.length,
     healthy_source_count: sourceResults.filter((source) => source.status === "healthy").length,
     empty_source_count: sourceResults.filter((source) => source.status === "empty").length,
@@ -709,6 +726,7 @@ async function run() {
     source_results: sourceResults,
     watch_items: items.length,
     source_item_counts: Object.fromEntries(SOURCES.map((source) => [source.id, items.filter((item) => item.source_id === source.id).length])),
+    business_coverage: editorialBusinessCoverage(items),
     watch_preview: items.slice(0, 8).map(({ source_id, title, url, topic, relevance_score }) => ({ source_id, title, url, topic, relevance_score })),
     public_watch_items: items.slice(0, 18).map(({ source_id, source_name, title, url, summary, topic, relevance_score, published_at }) => ({ source_id, source_name, title, url, summary, topic, relevance_score, published_at })),
     candidate_issue: { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url },
@@ -741,7 +759,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { parsePublicPage, sourceUrlAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, aiProviders, publicationDate, evaluatePublicationGate };
+export { parsePublicPage, sourceUrlAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, aiProviders, publicationDate, evaluatePublicationGate };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });
