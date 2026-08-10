@@ -261,6 +261,7 @@ function parsePublicPage(html, source) {
   const cleaned = String(html || "").replace(/<(script|style|svg|nav|footer)\b[\s\S]*?<\/\1>/gi, " ");
   const sourceUrl = new URL(source.url);
   const candidates = [];
+  let rejectedUrlScope = 0;
   const anchorPattern = /<a\b[^>]*href\s*=\s*["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
   for (const match of cleaned.matchAll(anchorPattern)) {
     const title = stripHtml(decodeHtml(match[2])).replace(/\s+/g, " ").trim();
@@ -730,7 +731,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { sourceUrlAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, aiProviders, publicationDate, evaluatePublicationGate };
+export { parsePublicPage, sourceUrlAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, aiProviders, publicationDate, evaluatePublicationGate };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });

@@ -4,7 +4,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
 const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
-const { sourceUrlAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered } = await import("./editorial-autopilot.js");
+const { parsePublicPage, sourceUrlAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered } = await import("./editorial-autopilot.js");
 const decomposed = "Assurance proprie\u0301taire";
 const corruptedFixture = { title: "Actualite\uFFFD assurance immeuble", summary: "Signal public", published_at: "10 aout 2026" };
 const repairableFixtures = [
@@ -19,6 +19,10 @@ const navigationSummaryFixture = "L’assurance vie";
 const navigationSequenceFixture = "La prévention au quotidien Les démarches en cas de sinistre";
 const acprNewsSource = { id: "acpr-actualites" };
 const acprPressSource = { id: "acpr-communiques" };
+const parsedAcprFixture = parsePublicPage(
+  '<main><a href="/fr/actualites/indemnisation-multirisques-habitation">Indemnisation assurance multirisques habitation</a><p>Actualite assurance logement et sinistres.</p><a href="/fr/professionnels/vos-outils-et-services/esurfi-banque-assurance">Registre des agents financiers et organismes assurance</a></main>',
+  { ...acprNewsSource, name: "ACPR", url: "https://acpr.banque-france.fr/fr/actualites" }
+);
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const editorialReportPath = join(reportDir, "editorial-autopilot-report.json");
 const out = join(reportDir, "editorial-text-quality-report.json");
@@ -56,7 +60,8 @@ const checks = [
   ["acpr-navigation-url-rejected", !sourceUrlAllowed(acprNewsSource, new URL("https://acpr.banque-france.fr/fr/professionnels/vos-outils-et-services/esurfi-banque-assurance"))],
   ["acpr-press-url-retained", sourceUrlAllowed(acprPressSource, new URL("https://acpr.banque-france.fr/fr/communiques-de-presse/mesure-assurance"))],
   ["acpr-taxonomy-url-rejected", !sourceUrlAllowed(acprNewsSource, new URL("https://acpr.banque-france.fr/fr/taxonomy/term/assurance"))],
-  ["url-scope-rejections-reported", editorial.includes("url_scope_rejected_count") && editorial.includes("regulator-url-scope-filtered")]
+  ["url-scope-rejections-reported", editorial.includes("url_scope_rejected_count") && editorial.includes("regulator-url-scope-filtered")],
+  ["acpr-parser-retains-news-and-rejects-navigation", parsedAcprFixture.length === 1 && parsedAcprFixture[0].url.includes("/fr/actualites/") && Number(parsedAcprFixture.rejected_url_scope) === 1]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
 const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, runtime_report_available: Boolean(editorialReport), runtime_items_checked: editorialReport?.public_watch_items?.length || 0, corrupted_runtime_items: corrupted.map((item) => ({ source_id: item.source_id || "", title: item.title || "" })).slice(0, 8), safeguards: ["unicode-nfc", "control-character-removal", "mojibake-rejection", "source-rejection-accounting", "markup-artifact-sanitization", "runtime-summary-inspection"] };
