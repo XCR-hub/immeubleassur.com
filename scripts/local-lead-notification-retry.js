@@ -58,6 +58,23 @@ function candidates(database, cooldownMinutes, maxAttempts, recoveryProbeMinutes
   `).all(maxAttempts, `-${cooldownMinutes} minutes`, maxAttempts, `-${recoveryProbeMinutes} minutes`, limit);
 }
 
+function backlog(database, maxAttempts, overdueMinutes) {
+  return database.prepare(`
+    SELECT COUNT(*) AS pending,
+      SUM(CASE WHEN retry_failures >= ? THEN 1 ELSE 0 END) AS exhausted,
+      SUM(CASE WHEN retry_failures < ? AND datetime(last_activity_at) <= datetime('now', ?) THEN 1 ELSE 0 END) AS overdue,
+      MIN(failed_at) AS oldest_failed_at
+    FROM (
+      SELECT l.id, MAX(f.created_at) AS failed_at,
+        (SELECT COUNT(*) FROM lead_events r WHERE r.lead_id = l.id AND r.event_type = 'email_notification_retry_failed') AS retry_failures,
+        COALESCE((SELECT MAX(r.created_at) FROM lead_events r WHERE r.lead_id = l.id AND r.event_type IN ('email_notification_retry_failed', 'email_notification_retry_sent')), MAX(f.created_at)) AS last_activity_at
+      FROM leads l
+      JOIN lead_events f ON f.lead_id = l.id AND f.event_type = 'email_notification_failed'
+      WHERE NOT EXISTS (SELECT 1 FROM lead_events ok WHERE ok.lead_id = l.id AND ok.event_type IN ('email_notification_sent', 'email_notification_retry_sent'))
+      GROUP BY l.id
+    ) pending_notifications
+  `).get(maxAttempts, maxAttempts, `-${overdueMinutes} minutes`);
+}
 function messageFor(lead, attempt, now, config) {
   const reference = clean(lead.reference, 80);
   const subject = `Reprise notification lead ${reference}${lead.email ? "" : " - TELEPHONE SEUL"} - ${clean(lead.city || "ville non precisee", 120)}`;
@@ -106,6 +123,7 @@ async function run() {
   const cooldownMinutes = Math.max(5, numberEnv("LOCAL_NOTIFICATION_RETRY_COOLDOWN_MINUTES", 15));
   const maxAttempts = Math.max(1, numberEnv("LOCAL_NOTIFICATION_RETRY_MAX_ATTEMPTS", 5));
   const recoveryProbeMinutes = Math.max(60, numberEnv("LOCAL_NOTIFICATION_RETRY_RECOVERY_PROBE_MINUTES", 360));
+  const overdueMinutes = Math.max(cooldownMinutes * 2, numberEnv("LOCAL_NOTIFICATION_RETRY_OVERDUE_MINUTES", 30));
   const limit = Math.max(1, numberEnv("LOCAL_NOTIFICATION_RETRY_BATCH_SIZE", 20));
   if (!existsSync(dbPath)) throw new Error(`Base SQLite introuvable: ${dbPath}`);
 
@@ -113,6 +131,7 @@ async function run() {
   const config = mailConfig();
   const rows = candidates(database, cooldownMinutes, maxAttempts, recoveryProbeMinutes, limit);
   const results = [];
+  let backlogState = { pending: 0, exhausted: 0, overdue: 0, oldest_failed_at: null };
   try {
     for (const lead of rows) {
       const attempt = Number(lead.retry_failures || 0) + 1;
@@ -130,17 +149,23 @@ async function run() {
         results.push({ reference: clean(lead.reference, 80), status: "failed", attempt, recovery_probe: attempt > maxAttempts, error: clean(error.message || "Erreur SMTP", 300) });
       }
     }
+    backlogState = backlog(database, maxAttempts, overdueMinutes);
   } finally {
     database.close();
   }
 
   const report = {
     generated_at: new Date().toISOString(),
-    status: results.some((item) => item.status === "failed") ? "degraded" : "completed",
+    status: results.some((item) => item.status === "failed") || Number(backlogState.overdue || 0) > 0 || Number(backlogState.exhausted || 0) > 0 ? "degraded" : "completed",
     dry_run: DRY_RUN,
     cooldown_minutes: cooldownMinutes,
     max_attempts: maxAttempts,
     recovery_probe_minutes: recoveryProbeMinutes,
+    overdue_minutes: overdueMinutes,
+    pending: Number(backlogState.pending || 0),
+    overdue: Number(backlogState.overdue || 0),
+    exhausted: Number(backlogState.exhausted || 0),
+    oldest_pending_hours: backlogState.oldest_failed_at ? Math.round(((Date.now() - Date.parse(backlogState.oldest_failed_at)) / 3600000) * 10) / 10 : 0,
     candidates: rows.length,
     sent: results.filter((item) => item.status === "sent").length,
     failed: results.filter((item) => item.status === "failed").length,
@@ -149,7 +174,7 @@ async function run() {
   mkdirSync(dirname(reportPath), { recursive: true });
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(`Lead notification retry ${report.status}: candidates=${report.candidates}, sent=${report.sent}, failed=${report.failed}, dry_run=${report.dry_run}.`);
-  if (report.failed) process.exitCode = 1;
+  if (report.status === "degraded") process.exitCode = 1;
 }
 
 run().catch((error) => {

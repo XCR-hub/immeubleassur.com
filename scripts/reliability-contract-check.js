@@ -43,6 +43,7 @@ const checks=[
   ["smtp-envelope-does-not-send-message",smtpEnvelope.includes('smtpCommand(client, "RSET"')&&!smtpEnvelope.includes('smtpCommand(client, "DATA"')&&smtpHealth.includes("message_sent: false")&&smtpHealth.includes("envelope_test_only")],
   ["smtp-health-requires-team-recipient",smtpHealth.includes("team@immeubleassur.com")&&smtpHealth.includes("team_recipient_configured")],
   ["production-monitor-requires-recipient-acceptance",monitor.includes("report.team_recipient_configured === true")&&monitor.includes("report.recipient_accepted === true")],
+  ["production-monitor-covers-notification-backlog",monitor.includes('inspectJsonRuntime("lead_notification_backlog"')&&monitor.includes("report.exhausted === 0")],
   ["monitor-covers-tls",monitor.includes('inspectJsonRuntime("tls_certificate"')],
   ["monitor-covers-smtp",monitor.includes('inspectJsonRuntime("smtp_transport"')],
   ["monitor-covers-newsletter",monitor.includes('inspectJsonRuntime("newsletter_delivery"')],
