@@ -20,7 +20,8 @@ const byName = new Map(discovered.map((task) => [task.task_name, task]));
 const rows = Object.keys(EXPECTED_SCHEDULED_TASKS).map((taskName) => {
   const task = byName.get(taskName);
   if (!task) return { task_name: taskName, healthy: false, issues: ["missing"], age_minutes: null, max_age_minutes: EXPECTED_SCHEDULED_TASKS[taskName] };
-  return { ...task, ...classifyScheduledTask(task) };
+  const ignoreLastResult = taskName === "ImmeubleAssur Production Monitor";
+  return { ...task, ...classifyScheduledTask(task, Date.now(), { ignoreLastResult }), last_result_ignored_for_cycle_dependency: ignoreLastResult };
 });
 const unhealthy = rows.filter((row) => !row.healthy);
 const report = { generated_at: new Date().toISOString(), status: unhealthy.length ? "degraded" : "healthy", success: unhealthy.length === 0, summary: { expected: rows.length, healthy: rows.length - unhealthy.length, unhealthy: unhealthy.length }, rows };

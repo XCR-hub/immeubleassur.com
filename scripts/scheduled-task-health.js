@@ -11,7 +11,7 @@ export const EXPECTED_SCHEDULED_TASKS = {
   "ImmeubleAssur SQLite Backup": 420
 };
 
-export function classifyScheduledTask(task, now = Date.now()) {
+export function classifyScheduledTask(task, now = Date.now(), options = {}) {
   const maxAgeMinutes = EXPECTED_SCHEDULED_TASKS[task?.task_name];
   if (!maxAgeMinutes) return { healthy: true, issues: [] };
   const issues = [];
@@ -21,7 +21,7 @@ export function classifyScheduledTask(task, now = Date.now()) {
   const ageMinutes = Number.isFinite(lastRunMs) ? Math.max(0, (now - lastRunMs) / 60000) : null;
   if (task.enabled !== true) issues.push("disabled");
   if (!["ready", "running"].includes(state)) issues.push(`state-${state || "unknown"}`);
-  if (![0, 0x41301].includes(result)) issues.push(`last-result-${result}`);
+  if (!options.ignoreLastResult && ![0, 0x41301].includes(result)) issues.push(`last-result-${result}`);
   if (ageMinutes === null) issues.push("never-ran");
   else if (ageMinutes > maxAgeMinutes) issues.push("stale");
   return { healthy: issues.length === 0, issues, age_minutes: ageMinutes === null ? null : Math.round(ageMinutes * 10) / 10, max_age_minutes: maxAgeMinutes };

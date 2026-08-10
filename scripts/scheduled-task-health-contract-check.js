@@ -11,9 +11,15 @@ const fixtures = [
   [{ ...base, last_run: "2026-08-10T07:00:00.000Z" }, false],
   [{ ...base, last_run: "" }, false]
 ];
+const productionMonitorFailure = { ...base, task_name: "ImmeubleAssur Production Monitor", last_result: 1 };
+fixtures.push([productionMonitorFailure, false]);
+const circularDependencyChecks = [
+  classifyScheduledTask(productionMonitorFailure, now, { ignoreLastResult: true }).healthy === true,
+  classifyScheduledTask({ ...productionMonitorFailure, enabled: false }, now, { ignoreLastResult: true }).healthy === false
+];
 const failures = fixtures.filter(([task, expected]) => classifyScheduledTask(task, now).healthy !== expected);
-if (failures.length) {
-  console.error(`Scheduled task health contract failed: ${failures.length}/${fixtures.length}.`);
+if (failures.length || circularDependencyChecks.includes(false)) {
+  console.error(`Scheduled task health contract failed: ${failures.length + circularDependencyChecks.filter((ok) => !ok).length}/${fixtures.length + circularDependencyChecks.length}.`);
   process.exit(1);
 }
-console.log(`Scheduled task health contract: passed (${fixtures.length}/${fixtures.length}).`);
+console.log(`Scheduled task health contract: passed (${fixtures.length + circularDependencyChecks.length}/${fixtures.length + circularDependencyChecks.length}).`);
