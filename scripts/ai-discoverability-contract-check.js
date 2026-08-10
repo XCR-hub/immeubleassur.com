@@ -13,6 +13,8 @@ const llms = readFileSync("public/llms.txt", "utf8");
 const methodology = readFileSync("public/methodologie-editoriale.html", "utf8");
 const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
 const sanitizer = readFileSync("scripts/local-editorial-public-metadata-sanitizer.js", "utf8");
+const indexNow = readFileSync("scripts/local-indexnow-submit.js", "utf8");
+const indexNowKey = readFileSync("public/d169136979c0451ea899c65ee7ee337d5ba8a445f2544bcbb89a3b055692177e.txt", "utf8").trim();
 const publicEditorial = JSON.parse(readFileSync("public/assets/editorial-autopilot-latest.json", "utf8"));
 const forbiddenPublicFields = ["draft_review_path", "draft_packet_path", "legal_review", "source_results", "watch_preview", "errors", "ai_attempts", "ai_provider_order"].filter((field) => Object.hasOwn(publicEditorial, field));
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
@@ -43,7 +45,10 @@ const checks = [
   ["official-perplexity-guidance-recorded", monitor.includes("https://docs.perplexity.ai/docs/resources/perplexity-crawlers")],
   ["official-anthropic-guidance-recorded", monitor.includes("https://support.anthropic.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler")],
   ["live-monitor-verifies-multi-ai-access", monitor.includes("perplexitybot-can-read-watch") && monitor.includes("claude-searchbot-can-read-watch") && monitor.includes("claude-user-can-read-watch")],
-  ["generation-pass-persists-artifacts", pass.includes('write(join(OUT, "robots.txt")') && pass.includes('write(join(OUT, "llms.txt")') && pass.includes('methodologie-editoriale.html')]
+  ["generation-pass-persists-artifacts", pass.includes('write(join(OUT, "robots.txt")') && pass.includes('write(join(OUT, "llms.txt")') && pass.includes('methodologie-editoriale.html')],
+  ["indexnow-key-is-public-and-valid", /^[a-f0-9]{64}$/.test(indexNowKey) && indexNow.includes("key_publicly_verifiable: true")],
+  ["indexnow-submits-only-changed-same-host-urls", indexNow.includes("previous[row.url] !== row.lastmod") && indexNow.includes("new URL(row.url).host === siteUrl.host") && indexNow.includes("state-not-advanced-on-failure")],
+  ["indexnow-never-claims-ranking", indexNow.includes("citation_or_ranking_guaranteed: false") && indexNow.includes('"no-ranking-claim"')]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
 const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, claims: { search_eligible: ["chatgpt", "perplexity", "claude"], citation_guaranteed: false, training_bots_allowed: [] }, safeguards: ["explicit-multi-ai-crawler-policy", "training-bot-opt-out", "indexable-methodology", "entity-schema", "active-edition-in-llms", "sanitized-public-editorial-metadata", "ai-referral-attribution"] };

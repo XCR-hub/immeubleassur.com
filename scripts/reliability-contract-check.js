@@ -23,6 +23,7 @@ const seoBacklog=readFileSync("scripts/local-seo-backlog-monitor.js","utf8");
 const sourceQuality=readFileSync("scripts/local-source-quality-monitor.js","utf8");
 const intentConversion=readFileSync("scripts/local-intent-conversion-monitor.js","utf8");
 const turnstileBrowser=readFileSync("scripts/local-turnstile-browser-smoke.js","utf8");
+const indexNow=readFileSync("scripts/local-indexnow-submit.js","utf8");
 const smtpEnvelope=smtp.slice(smtp.indexOf("export async function verifyNodeSmtpRecipients"),smtp.indexOf("export async function sendNodeSmtpMail"));
 const inlineExecutableHtml=readdirSync("public",{recursive:true}).filter((file)=>String(file).endsWith(".html")).filter((file)=>/<script\b(?![^>]*\bsrc=)(?![^>]*type=["']application\/ld\+json["'])[^>]*>/i.test(readFileSync(join("public",String(file)),"utf8")));
 const checks=[
@@ -84,6 +85,8 @@ const checks=[
   ["abandonment-requires-qualified-engagement",client.includes("engagementMs < 3000 || interactions < 2 || completedFields < 2")&&client.includes("qualified_abandonment: true")],
   ["aggregate-monitors-ignore-unqualified-abandonment",conversionFunnel.includes("$.qualified_abandonment")&&seoBacklog.includes("$.qualified_abandonment")&&sourceQuality.includes("payload.qualified_abandonment === true")&&intentConversion.includes("payload.qualified_abandonment === true")],
   ["monitor-covers-site-watchdog",monitor.includes('inspectJsonRuntime("site_watchdog"')&&monitor.includes('LOCAL_SITE_WATCHDOG_REPORT')],
+  ["runtime-submits-indexnow-with-deduplicated-state",runtime.includes('runStep("indexnow_submit"')&&task.includes("INDEXNOW_SUBMIT = '1'")&&indexNow.includes("indexnow-state.json")],
+  ["monitor-covers-fresh-indexnow-report",monitor.includes("inspectIndexNow(indexNowPath)")&&monitor.includes('check("indexnow"')&&monitor.includes('"network-degraded", "provider-degraded"')],
   ["production-alerts-enabled",task.includes("LOCAL_MONITOR_ALERTS = '1'")],
   ["lead-sla-alerts-enabled",task.includes("LOCAL_LEAD_SLA_ALERTS = '1'")],
   ["runtime-runs-monitor",runtime.includes('runStep("production_monitor"')],

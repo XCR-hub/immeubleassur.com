@@ -222,6 +222,19 @@ function inspectEditorialReview(reportPath) {
     return check("editorial_review_sla", false, { path: reportPath, error: error.message || "editorial review unreadable" });
   }
 }
+function inspectIndexNow(reportPath) {
+  if (!existsSync(reportPath)) return check("indexnow", false, { path: reportPath, error: "missing" });
+  try {
+    const report = JSON.parse(readFileSync(reportPath, "utf8"));
+    const ageMinutes = reportAgeMinutes(report);
+    const fresh = Number.isFinite(ageMinutes) && ageMinutes <= 390;
+    const healthy = fresh && report.success === true && ["submitted", "no-changes"].includes(report.status) && report.key_publicly_verifiable === true;
+    const degraded = fresh && ["network-degraded", "provider-degraded"].includes(report.status);
+    return check("indexnow", healthy, { path: reportPath, status: report.status || "unknown", age_minutes: ageMinutes, max_age_minutes: 390, sitemap_urls: Number(report.sitemap_urls || 0), changed_urls: Number(report.changed_urls || 0), submitted_urls: Number(report.submitted_urls || 0), http_status: Number(report.http_status || 0), ranking_guaranteed: false }, degraded ? "warn" : "fail");
+  } catch (error) {
+    return check("indexnow", false, { path: reportPath, error: error.message || "indexnow report unreadable" });
+  }
+}
 function inspectEditorialHealth(reportPath) {
   if (!existsSync(reportPath)) return check("editorial_health", false, { path: reportPath, error: "missing" });
   try {
@@ -342,6 +355,7 @@ async function run() {
   const newsletterReportPath = resolve(env("LOCAL_NEWSLETTER_DELIVERY_REPORT", join(runtimeReportsRoot, "local-newsletter-delivery-report.json")));
   const googleReadinessPath = resolve(env("LOCAL_GOOGLE_READINESS_REPORT", join(runtimeReportsRoot, "google-readiness-unlock-report.json")));
   const searchIntelligencePath = resolve(env("LOCAL_SEARCH_INTELLIGENCE_REPORT", join(runtimeReportsRoot, "search-intelligence-report.json")));
+  const indexNowPath = resolve(env("LOCAL_INDEXNOW_REPORT", join(runtimeReportsRoot, "local-indexnow-report.json")));
   const newsletterCanaryPath = resolve(env("LOCAL_NEWSLETTER_CANARY_REPORT", join(runtimeReportsRoot, "newsletter-runtime-canary-report.json")));
   const runtimeCyclePath = resolve(env("LOCAL_RUNTIME_CYCLE_REPORT", join(runtimeReportsRoot, "local-runtime-report-cycle.json")));
   const securitySurfacePath = resolve(env("LOCAL_SECURITY_SURFACE_REPORT", join(runtimeReportsRoot, "local-security-surface-report.json")));
@@ -362,6 +376,7 @@ async function run() {
     inspectEditorialHealth(editorialHealthPath),
     inspectGoogleReadiness(googleReadinessPath),
     inspectSearchIntelligence(searchIntelligencePath),
+    inspectIndexNow(indexNowPath),
     inspectEditorialReview(editorialReviewPath),
     inspectJsonRuntime("tls_certificate", tlsReportPath, 90, (report) => report.ok === true && ["healthy", "warning"].includes(report.status), (report) => ({ days_remaining: report.days_remaining })),
     inspectJsonRuntime("smtp_transport", smtpReportPath, 90, (report) => report.status === "ready" && report.authenticated === true && report.team_recipient_configured === true && (report.transport === "resend" || report.recipient_accepted === true), (report) => ({ authenticated: report.authenticated === true, transport: report.transport || report.provider || "smtp", team_recipient_configured: report.team_recipient_configured === true, recipient_accepted: report.recipient_accepted === true, message_sent: report.message_sent === true })),

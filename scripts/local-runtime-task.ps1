@@ -57,6 +57,7 @@ $env:LOCAL_EDITORIAL_REVIEW_ALERTS = '1'
 $env:LOCAL_EDITORIAL_REVIEW_ALERT_TO = 'team@immeubleassur.com'
 $env:LOCAL_EDITORIAL_REVIEW_WARNING_COOLDOWN_MINUTES = '1440'
 $env:LOCAL_EDITORIAL_REVIEW_CRITICAL_COOLDOWN_MINUTES = '360'
+$env:INDEXNOW_SUBMIT = '1'
 $env:LOCAL_RUNTIME_ONLY = '1'
 $env:LOCAL_LEAD_SLA_ALERTS = '1'
 New-Item -ItemType Directory -Force -Path (Join-Path $RuntimeRoot 'assets'), (Join-Path $RuntimeRoot 'reports'), $BackupRoot | Out-Null
