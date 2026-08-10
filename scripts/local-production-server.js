@@ -99,6 +99,16 @@ function applySecurityHeaders(response, request) {
   if (isHttpsRequest(request)) response.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 }
 
+function safeServerDiagnostic(value, max = 240) {
+  return String(value || "server failure")
+    .replace(/[\r\n\0]+/g, " ")
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email-redacted]")
+    .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, "[ip-redacted]")
+    .replace(/\b(bearer|token|password|secret|api[-_ ]?key)\s*[:=]?\s*\S+/gi, "$1 [redacted]")
+    .trim()
+    .slice(0, max);
+}
+
 function json(response, status, body, options = {}) {
   response.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
@@ -335,7 +345,8 @@ const server = createServer((request, response) => {
   }
   if (pathname) {
     handleApi(request, response, pathname).catch((error) => {
-      json(response, 500, { success: false, error: error.message || "Erreur serveur local" });
+      console.error("api-handler-failed", safeServerDiagnostic(error.message));
+      json(response, 500, { success: false, error: "Erreur interne du service.", code: "api-handler-failed" });
     });
     return;
   }

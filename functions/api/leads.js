@@ -22,6 +22,19 @@ function headerSafe(value, max = 240) {
   return clean(value, max).replace(/[\r\n]+/g, " ");
 }
 
+function safeDiagnostic(value, max = 240) {
+  return headerSafe(value, max * 2)
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email-redacted]")
+    .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, "[ip-redacted]")
+    .replace(/\b(bearer|token|password|secret|api[-_ ]?key)\s*[:=]?\s*\S+/gi, "$1 [redacted]")
+    .slice(0, max);
+}
+
+function validContactEmail(value) {
+  const email = clean(value, 180).toLowerCase();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
+
 function addReason(reasons, label) {
   if (!reasons.includes(label) && reasons.length < 8) reasons.push(label);
 }
@@ -618,8 +631,9 @@ function validate(payload) {
   const express = clean(payload.submission_mode, 80) === "express-callback";
   const email = clean(payload.email, 180);
   const phone = clean(payload.phone, 80);
-  const validEmail = email.includes("@") && email.length >= 6;
-  const validPhone = phone.replace(/\D/g, "").length >= 9;
+  const validEmail = validContactEmail(email);
+  const phoneLength = phone.replace(/\D/g, "").length;
+  const validPhone = phoneLength >= 9 && phoneLength <= 15;
   if (express) {
     if (payload.consent !== true) return "Consentement requis";
     if (email && !validEmail) return "Email invalide";
@@ -662,8 +676,8 @@ function cleanUtm(raw = {}) {
 function parseRecipients(value) {
   return String(value || "")
     .split(/[;,]/)
-    .map((item) => item.trim())
-    .filter(Boolean)
+    .map((item) => headerSafe(item.trim(), 180))
+    .filter((item) => validContactEmail(item))
     .slice(0, 10);
 }
 
@@ -1031,11 +1045,11 @@ export async function onRequestPost({ request, env, waitUntil }) {
     try {
       notification = await notifyDuplicateLeadByEmail({ duplicate: duplicateLead, record, now }, env);
       if (notification.attempted) {
-        await logLeadEvent(env, duplicateLead.id, "duplicate_email_notification_sent", { reference: duplicateLead.reference, duplicate_reason: duplicateLead.duplicate_reason, receipt: notification.receipt }, now);
+        await logLeadEvent(env, duplicateLead.id, "duplicate_email_notification_sent", { reference: duplicateLead.reference, duplicate_reason: duplicateLead.duplicate_reason, receipt: safeDiagnostic(notification.receipt) }, now);
       }
     } catch (error) {
       notification = { attempted: true, status: "failed" };
-      await logLeadEvent(env, duplicateLead.id, "duplicate_email_notification_failed", { reference: duplicateLead.reference, duplicate_reason: duplicateLead.duplicate_reason, error: error.message || "Erreur SMTP" }, now);
+      await logLeadEvent(env, duplicateLead.id, "duplicate_email_notification_failed", { reference: duplicateLead.reference, duplicate_reason: duplicateLead.duplicate_reason, error: safeDiagnostic(error.message || "Erreur SMTP") }, now);
     }
     return reply({
       success: true,
@@ -1129,16 +1143,17 @@ export async function onRequestPost({ request, env, waitUntil }) {
     try {
       notification = await notifyLeadByEmail({ id, reference, score, qualification, record, now }, env);
       if (notification.attempted) {
-        await logLeadEvent(env, id, "email_notification_sent", { reference, receipt: notification.receipt }, now);
+        await logLeadEvent(env, id, "email_notification_sent", { reference, receipt: safeDiagnostic(notification.receipt) }, now);
       }
     } catch (error) {
       notification = { attempted: true, status: "failed" };
-      await logLeadEvent(env, id, "email_notification_failed", { reference, error: error.message || "Erreur SMTP" }, now);
+      await logLeadEvent(env, id, "email_notification_failed", { reference, error: safeDiagnostic(error.message || "Erreur SMTP") }, now);
     }
 
     return reply({ success: true, id, reference, score, priority: qualification.priority, reasons: qualification.reasons, value_estimate: qualification.value_estimate, sla_hours: qualification.sla_hours, lead_urgency: record.lead_urgency, lead_urgency_reason: record.lead_urgency_reason, next_action: qualification.next_action, submission_mode: record.submission_mode, notification: notification.status });
   } catch (error) {
-    return reply({ success: false, error: error.message || "Erreur base de donnees" }, 500);
+    console.error("lead-persistence-failed", safeDiagnostic(error.message || "database failure"));
+    return reply({ success: false, error: "Erreur interne. La demande n'a pas pu etre enregistree.", code: "lead-persistence-failed" }, 500);
   }
 }
 

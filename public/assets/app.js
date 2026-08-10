@@ -482,11 +482,12 @@ const fieldLabels = {
 
 function emailLooksValid(value) {
   const email = String(value || "").trim();
-  return email.includes("@") && email.length >= 6;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
 function phoneLooksValid(value) {
-  return String(value || "").replace(/\D/g, "").length >= 9;
+  const length = String(value || "").replace(/\D/g, "").length;
+  return length >= 9 && length <= 15;
 }
 
 function isExpressCallback(payload) {
