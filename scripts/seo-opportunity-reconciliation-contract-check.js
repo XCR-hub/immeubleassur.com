@@ -10,9 +10,10 @@ const auditPath = join(root, "conversion.json");
 const reportPath = join(root, "reconciliation.json");
 const publicRoot = join(root, "public");
 mkdirSync(publicRoot, { recursive: true });
-const healthyHtml = `<!doctype html><html><head><title>Assurance immeuble complete pour coproprietaires</title><meta name="description" content="Une description suffisamment detaillee pour informer clairement les coproprietaires, syndics et bailleurs sur cette assurance immeuble utile."></head><body>${"contenu utile ".repeat(460)}</body></html>`;
+const healthyHtml = `<!doctype html><html><head><title>Assurance immeuble complete pour coproprietaires</title><meta name="description" content="Une description suffisamment detaillee pour informer clairement les coproprietaires, syndics et bailleurs sur cette assurance immeuble utile."></head><body>${"contenu utile ".repeat(460)}<a class="button primary">Devis</a></body></html>`;
 writeFileSync(join(publicRoot, "pno-cno.html"), healthyHtml, "utf8");
 writeFileSync(join(publicRoot, "static-ok.html"), healthyHtml, "utf8");
+writeFileSync(join(publicRoot, "confidentialite.html"), "<title>Politique de confidentialite ImmeubleAssur</title><meta name=\"description\" content=\"Description legale suffisamment claire pour informer les visiteurs sur le traitement des demandes et des donnees transmises au site.\"><body>information legale</body>", "utf8");
 writeFileSync(join(publicRoot, "static-ko.html"), "<title>Court</title><meta name=\"description\" content=\"Breve\"><body>peu</body>", "utf8");
 const database = new DatabaseSync(dbPath);
 database.exec(`CREATE TABLE seo_opportunities (id TEXT PRIMARY KEY, run_id TEXT, url TEXT, query TEXT, opportunity_type TEXT, score INTEGER, status TEXT, recommendation TEXT, payload TEXT, created_at TEXT, updated_at TEXT)`);
@@ -23,6 +24,10 @@ insert.run("title-ok", "https://immeubleassur.com/static-ok", "title");
 insert.run("description-ok", "https://immeubleassur.com/static-ok", "description");
 insert.run("depth-ok", "https://immeubleassur.com/static-ok", "content-depth");
 insert.run("title-ko", "https://immeubleassur.com/static-ko", "title");
+insert.run("conversion-ok", "https://immeubleassur.com/static-ok", "conversion");
+insert.run("conversion-ko", "https://immeubleassur.com/static-ko", "conversion");
+insert.run("legal-depth-excluded", "https://immeubleassur.com/confidentialite", "content-depth");
+insert.run("legal-conversion-excluded", "https://immeubleassur.com/confidentialite", "conversion");
 database.close();
 writeFileSync(auditPath, JSON.stringify({ generated_at: new Date().toISOString(), pages_checked: 200, weak_money_pages: [], actions: [] }), "utf8");
 
@@ -37,6 +42,8 @@ const resolved = verify.prepare("SELECT status, payload FROM seo_opportunities W
 const retained = verify.prepare("SELECT status FROM seo_opportunities WHERE id = 'missing-page'").get();
 const staticResolved = verify.prepare("SELECT id, status, payload FROM seo_opportunities WHERE id IN ('title-ok', 'description-ok', 'depth-ok') ORDER BY id").all();
 const staticRetained = verify.prepare("SELECT status FROM seo_opportunities WHERE id = 'title-ko'").get();
+const conversionResolved = verify.prepare("SELECT id, status, payload FROM seo_opportunities WHERE id IN ('conversion-ok', 'legal-depth-excluded', 'legal-conversion-excluded') ORDER BY id").all();
+const conversionRetained = verify.prepare("SELECT status FROM seo_opportunities WHERE id = 'conversion-ko'").get();
 verify.close();
 const second = run();
 const secondReport = JSON.parse(readFileSync(reportPath, "utf8"));
@@ -46,8 +53,10 @@ const checks = [
   ["missing-page-retained", retained?.status === "open" && firstReport.retained?.[0]?.reason === "page-missing"],
   ["static-thresholds-resolve-with-evidence", staticResolved.length === 3 && staticResolved.every((row) => row.status === "resolved" && JSON.parse(row.payload).resolution?.reason === "current-page-meets-audit-threshold")],
   ["unmet-static-threshold-retained", staticRetained?.status === "open" && firstReport.retained?.some((row) => row.id === "title-ko" && row.reason === "threshold-not-met")],
-  ["transaction-counts", firstReport.resolved_count === 4 && firstReport.retained_count === 2],
-  ["second-run-idempotent", second.status === 0 && secondReport.resolved_count === 0 && secondReport.retained_count === 2],
+  ["current-conversion-and-legal-policy-resolved", conversionResolved.length === 3 && conversionResolved.every((row) => row.status === "resolved") && JSON.parse(conversionResolved.find((row) => row.id === "legal-depth-excluded").payload).resolution?.reason === "excluded-by-current-audit-policy"],
+  ["missing-conversion-signal-retained", conversionRetained?.status === "open" && firstReport.retained?.some((row) => row.id === "conversion-ko" && row.reason === "threshold-not-met")],
+  ["transaction-counts", firstReport.resolved_count === 7 && firstReport.retained_count === 3],
+  ["second-run-idempotent", second.status === 0 && secondReport.resolved_count === 0 && secondReport.retained_count === 3],
   ["safeguards-reported", firstReport.safeguards?.includes("transactional-update") && firstReport.safeguards?.includes("no-content-publication")]
 ];
 rmSync(root, { recursive: true, force: true });

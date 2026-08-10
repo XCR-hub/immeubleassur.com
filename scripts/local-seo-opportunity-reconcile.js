@@ -26,12 +26,15 @@ function pageMetrics(pagePath) {
   const title = stripHtml((html.match(/<title>(.*?)<\/title>/is) || [])[1] || "");
   const description = ((html.match(/<meta name="description" content="([^"]*)"/i) || [])[1] || "").trim();
   const words = stripHtml(html).split(/\s+/).filter(Boolean).length;
-  return { title_length: title.length, description_length: description.length, words };
+  return { title_length: title.length, description_length: description.length, words, has_lead_form: html.includes('id="lead-form"'), has_cta: html.includes('class="button primary"') || html.includes("submit-button") };
 }
-function staticResolution(type, metrics) {
+const nonCommercialSlugs = new Set(["admin", "mentions-legales", "confidentialite", "merci"]);
+function staticResolution(type, metrics, url) {
+  const slug = new URL(url).pathname.replace(/^\//, "").replace(/\/$/, "");
   if (type === "title") return { resolved: metrics.title_length >= 35 && metrics.title_length <= 72, metric: metrics.title_length, expected: "35-72" };
   if (type === "description") return { resolved: metrics.description_length >= 110 && metrics.description_length <= 170, metric: metrics.description_length, expected: "110-170" };
-  if (type === "content-depth") return { resolved: metrics.words >= 450, metric: metrics.words, expected: ">=450" };
+  if (type === "content-depth") return nonCommercialSlugs.has(slug) ? { resolved: true, metric: metrics.words, expected: "excluded-non-commercial-page", reason: "excluded-by-current-audit-policy" } : { resolved: metrics.words >= 450, metric: metrics.words, expected: ">=450" };
+  if (type === "conversion") return nonCommercialSlugs.has(slug) ? { resolved: true, metric: false, expected: "excluded-non-commercial-page", reason: "excluded-by-current-audit-policy" } : { resolved: metrics.has_lead_form || metrics.has_cta, metric: metrics.has_lead_form || metrics.has_cta, expected: "lead-form-or-primary-cta" };
   return null;
 }
 
@@ -49,7 +52,7 @@ if (!Number.isFinite(auditAgeMs) || auditAgeMs < 0 || auditAgeMs > 72 * 60 * 60 
 const unresolved = new Set([...audit.actions.map((item) => normalizeUrl(item.url)), ...audit.weak_money_pages.map((item) => normalizeUrl(item.url))].filter(Boolean));
 const database = new DatabaseSync(dbPath);
 const now = new Date().toISOString();
-const rows = database.prepare(`SELECT id, url, query, opportunity_type, score, status, recommendation, payload, created_at, updated_at FROM seo_opportunities WHERE status = 'open' AND opportunity_type IN ('google-conversion-intelligence', 'title', 'description', 'content-depth') ORDER BY score DESC, created_at ASC`).all();
+const rows = database.prepare(`SELECT id, url, query, opportunity_type, score, status, recommendation, payload, created_at, updated_at FROM seo_opportunities WHERE status = 'open' AND opportunity_type IN ('google-conversion-intelligence', 'title', 'description', 'content-depth', 'conversion') ORDER BY score DESC, created_at ASC`).all();
 const resolved = [];
 const retained = [];
 try {
@@ -60,16 +63,16 @@ try {
     const pagePath = localPagePath(url);
     const pageExists = Boolean(pagePath && existsSync(pagePath));
     const metrics = pageExists ? pageMetrics(pagePath) : null;
-    const staticCheck = metrics ? staticResolution(row.opportunity_type, metrics) : null;
+    const staticCheck = metrics ? staticResolution(row.opportunity_type, metrics, url) : null;
     const stillOpen = row.opportunity_type === "google-conversion-intelligence" ? unresolved.has(url) : !staticCheck?.resolved;
     if (!url || !pageExists || stillOpen) {
       retained.push({ id: row.id, url, opportunity_type: row.opportunity_type, reason: !pageExists ? "page-missing" : row.opportunity_type === "google-conversion-intelligence" ? "still-present-in-current-audit" : "threshold-not-met", score: Number(row.score || 0), metrics, expected: staticCheck?.expected });
       continue;
     }
-    const reason = row.opportunity_type === "google-conversion-intelligence" ? "absent-from-current-conversion-audit" : "current-page-meets-audit-threshold";
+    const reason = row.opportunity_type === "google-conversion-intelligence" ? "absent-from-current-conversion-audit" : staticCheck?.reason || "current-page-meets-audit-threshold";
     const payload = { ...parsePayload(row.payload), resolution: { status: "resolved", reason, audit_generated_at: audit.generated_at, reconciled_at: now, page_path: pagePath, opportunity_type: row.opportunity_type, metrics, expected: staticCheck?.expected } };
     if (!dryRun) update.run(JSON.stringify(payload), now, row.id);
-    resolved.push({ id: row.id, url, opportunity_type: row.opportunity_type, previous_score: Number(row.score || 0), recommendation: clean(row.recommendation, 500) });
+    resolved.push({ id: row.id, url, opportunity_type: row.opportunity_type, reason, previous_score: Number(row.score || 0), recommendation: clean(row.recommendation, 500) });
   }
   if (dryRun) database.exec("ROLLBACK"); else database.exec("COMMIT");
 } catch (error) {
