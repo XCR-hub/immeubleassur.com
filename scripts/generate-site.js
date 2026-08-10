@@ -355,6 +355,15 @@ const articles = [
       "Le degat des eaux est l'un des sinistres les plus frequents en immeuble. Le montant de franchise, les conditions de recherche de fuite et les exclusions peuvent changer radicalement le resultat.",
       "Un audit avant renouvellement doit relire les franchises par evenement, les plafonds de recherche de fuite, les obligations d'entretien et les modalites de declaration.",
       "ImmeubleAssur aide a presenter l'historique sinistres de facon lisible afin de ne pas penaliser inutilement le dossier."
+    ],
+    faq: [
+      ["Ou trouver la franchise degat des eaux ?", "Elle figure dans les conditions particulieres et generales, parfois avec des montants differents selon la cause, le recours ou la recherche de fuite."],
+      ["Comment comparer deux franchises ?", "Comparer le montant, son application par evenement ou par sinistre, les plafonds associes, la recherche de fuite et les exclusions, puis faire valider la lecture du contrat."],
+      ["Une IA peut-elle calculer seule le reste a charge ?", "Non. Elle peut extraire des montants, mais leur application depend des clauses, des faits et d une validation humaine du dossier."]
+    ],
+    faqSources: [
+      ["https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000035731302/", "Legifrance - article L113-2 du Code des assurances"],
+      ["https://www.service-public.fr/particuliers/vosdroits/N44", "Service-Public.fr - assurance habitation"]
     ]
   },
   {
@@ -403,6 +412,15 @@ const articles = [
       "Une SCI peut cumuler des contrats PNO, multirisque immeuble, protection juridique et contrats occupants. Sans vision globale, les doublons et trous de garantie apparaissent vite.",
       "Un audit portfolio permet de verifier la coherence entre les biens, leur usage et les garanties en place.",
       "La consultation assureur gagne en qualite lorsque le patrimoine est presente avec une fiche claire par bien."
+    ],
+    faq: [
+      ["Quels contrats cartographier pour une SCI ?", "Pour chaque adresse, recenser contrat immeuble ou PNO, assurance occupant, protection juridique, echeance, prime, franchise, sinistres et travaux permet une vue portefeuille."],
+      ["Faut-il regrouper tous les biens dans un seul contrat ?", "Pas automatiquement. Le regroupement doit etre compare aux contrats separes selon les usages, sinistres, garanties et conditions proposees par les assureurs."],
+      ["Une IA peut-elle valider la coherence du portefeuille ?", "Elle peut classer les contrats et reperer des ecarts documentaires, mais la recommandation d assurance et l interpretation des clauses restent validees humainement."]
+    ],
+    faqSources: [
+      ["https://www.service-public.fr/particuliers/vosdroits/F2608", "Service-Public.fr - syndic de copropriete"],
+      ["https://www.orias.fr/", "ORIAS - registre des intermediaires en assurance"]
     ]
   },
   {
@@ -816,6 +834,10 @@ function cityPage([slug, city, focus]) {
 }
 
 function articlePage(article) {
+  const faqRows = article.faq || [];
+  const faqSources = article.faqSources || [];
+  const faqBlock = faqRows.length ? `<section id="faq" class="faq-list"><h2>Questions frequentes</h2>${faqRows.map(([question, answer]) => `<details><summary>${esc(question)}</summary><p>${esc(answer)}</p></details>`).join("")}</section>` : "";
+  const faqSchema = faqRows.length ? `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "@id": `${SITE}/blog/${article.slug}#faq`, mainEntity: faqRows.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) })}</script>` : "";
   const body = `
     <article class="article-layout">
       <header class="article-head">
@@ -825,15 +847,15 @@ function articlePage(article) {
       </header>
       <div class="article-body">
         ${article.body.map((p) => `<p>${esc(p)}</p>`).join("")}
+        ${faqBlock}
         <div class="source-box">
           <strong>Sources utiles</strong>
-          <a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/" rel="nofollow">Legifrance - article 9-1 loi copropriete</a>
-          <a href="https://www.service-public.fr/particuliers/vosdroits/F2608" rel="nofollow">Service-Public.fr - syndic de copropriete</a>
+          ${faqSources.length ? faqSources.map(([url, label]) => `<a href="${esc(url)}" rel="nofollow noopener">${esc(label)}</a>`).join("") : `<a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/" rel="nofollow">Legifrance - article 9-1 loi copropriete</a><a href="https://www.service-public.fr/particuliers/vosdroits/F2608" rel="nofollow">Service-Public.fr - syndic de copropriete</a>`}
         </div>
       </div>
       <aside class="article-cta">${leadForm({ need: "audit-contrat" })}</aside>
     </article>`;
-  return layout({ slug: `blog/${article.slug}`, title: article.title, description: article.description, body });
+  return layout({ slug: `blog/${article.slug}`, title: article.title, description: article.description, body, schema: faqSchema });
 }
 
 function guideDetailBlock(guide) {

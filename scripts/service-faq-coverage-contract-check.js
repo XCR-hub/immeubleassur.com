@@ -4,6 +4,8 @@ const generator = readFileSync("scripts/generate-site.js", "utf8");
 const rc = readFileSync("public/rc-syndic.html", "utf8");
 const claims = readFileSync("public/gestion-sinistres-immeuble.html", "utf8");
 const works = readFileSync("public/dommages-ouvrage-immeuble.html", "utf8");
+const sci = readFileSync("public/blog/assurance-sci-patrimoine-locatif.html", "utf8");
+const franchise = readFileSync("public/blog/franchise-degat-des-eaux-immeuble.html", "utf8");
 
 const checks = [
   ["generator-supports-page-specific-faq", generator.includes("const faqRows = page.faq || []") && generator.includes("const faqSources = page.faqSources ||")],
@@ -16,7 +18,13 @@ const checks = [
   ["claims-source-configuration-persistent", generator.includes("LEGIARTI000035731302") && generator.includes("service-public.fr/particuliers/vosdroits/N44")],
   ["works-faq-visible-and-structured", works.includes('id="faq-dommages-ouvrage"') && works.includes('"@id":"https://immeubleassur.com/dommages-ouvrage-immeuble#faq"')],
   ["works-human-legal-validation", works.includes("Une IA peut-elle decider si la dommages-ouvrage est obligatoire ?") && works.includes("qualification juridique") && works.includes("validation humaine")],
-  ["works-official-sources-persistent", works.includes("LEGIARTI000019265425") && works.includes("service-public.fr/particuliers/vosdroits/F2608") && generator.includes("LEGIARTI000019265425")]
+  ["works-official-sources-persistent", works.includes("LEGIARTI000019265425") && works.includes("service-public.fr/particuliers/vosdroits/F2608") && generator.includes("LEGIARTI000019265425")],
+  ["article-generator-supports-specific-faq", generator.includes("const faqRows = article.faq || []") && generator.includes("const faqSchema = faqRows.length") && generator.includes("faqSources.length")],
+  ["sci-faq-visible-and-structured", sci.includes('"@id":"https://immeubleassur.com/blog/assurance-sci-patrimoine-locatif#faq"') && sci.includes("Quels contrats cartographier pour une SCI ?")],
+  ["sci-faq-human-validation", sci.includes("interpretation des clauses restent validees humainement") && generator.includes("Une IA peut-elle valider la coherence du portefeuille ?")],
+  ["franchise-faq-visible-and-structured", franchise.includes('"@id":"https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble#faq"') && franchise.includes("Comment comparer deux franchises ?")],
+  ["franchise-faq-human-validation", franchise.includes("validation humaine du dossier") && generator.includes("Une IA peut-elle calculer seule le reste a charge ?")],
+  ["article-faq-sources-persistent", sci.includes("orias.fr") && franchise.includes("LEGIARTI000035731302") && generator.includes("LEGIARTI000035731302")]
 ];
 
 const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
