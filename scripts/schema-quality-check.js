@@ -84,7 +84,7 @@ function hasType(types, type) {
 
 function shouldHaveService(slug) {
   if (nonServiceSlugs.has(slug)) return false;
-  if (slug.startsWith("blog/") || slug.startsWith("faq/")) return false;
+  if (slug.startsWith("blog/") || slug.startsWith("faq/") || slug.startsWith("news/")) return false;
   return true;
 }
 

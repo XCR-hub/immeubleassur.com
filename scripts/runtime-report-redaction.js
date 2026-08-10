@@ -7,5 +7,5 @@ export function redactLocalPaths(value) {
 }
 
 export function reportFileName(value) {
-  return basename(String(value || ""));
+  return basename(String(value || "").replace(/\\/g, "/"));
 }
