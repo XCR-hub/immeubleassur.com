@@ -48,10 +48,11 @@ const checks = [
   ["seo-autopilot-feedback-does-not-invent-ranking-advice", !seoAutopilot.includes('row.recommendation || "Renforcer contenu, preuves, FAQ, maillage et CTA devis."')],
   ["seo-autopilot-supports-runtime-search-input", seoAutopilot.includes("LOCAL_SEARCH_INTELLIGENCE_REPORT") && seoAutopilot.includes("SEARCH_INTELLIGENCE_REPORT")],
   ["seo-autopilot-supports-runtime-safe-outputs", seoAutopilot.includes("LOCAL_SEO_AUTOPILOT_REPORT") && seoAutopilot.includes("LOCAL_SEO_AUTOPILOT_PUBLIC_REPORT")],
+  ["seo-autopilot-skips-noindex-opportunities", seoAutopilot.includes("const noindex =") && seoAutopilot.includes("const indexablePages = pages.filter((page) => !page.noindex)") && seoAutopilot.includes("noindex_pages_skipped")],
   ["runtime-refreshes-public-seo-report", runtime.includes('runStep("seo_autopilot_runtime", ["scripts/seo-autopilot.js", "--local-only"]') && runtime.includes("LOCAL_SEO_AUTOPILOT_PUBLIC_REPORT")]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
-const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, safeguards: ["raw-traffic-not-treated-as-commercial-intent", "minimum-sample-before-high-friction-alert", "first-party-events-only", "no-pii-in-seo-reports", "serp-primary-metrics-measured-only", "no-fallback-driven-content", "no-fallback-driven-actions", "measured-only-competitor-intelligence"] };
+const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, safeguards: ["raw-traffic-not-treated-as-commercial-intent", "minimum-sample-before-high-friction-alert", "first-party-events-only", "no-pii-in-seo-reports", "serp-primary-metrics-measured-only", "no-fallback-driven-content", "no-fallback-driven-actions", "measured-only-competitor-intelligence", "noindex-pages-excluded-from-seo-actions"] };
 const out = process.env.LOCAL_MEASURED_SEO_CONTRACT_REPORT || join(process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports", "measured-seo-contract-report.json");
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
