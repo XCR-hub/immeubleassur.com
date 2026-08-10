@@ -22,8 +22,17 @@ const profile=await probe("/assets/admin-profile.js");
 add("invite-token-url-scrub",profile.response?.status===200&&profile.text.includes("history.replaceState")&&profile.text.includes("window.location.pathname"),{status:profile.response?.status||0});
 for(const path of ["/api/admin/leads","/api/admin/runtime-health","/api/admin/auth?events=1"]){const result=await probe(path);add(`anonymous-denied:${path}`,result.response?.status===401&&!/token|password_hash|password_salt|smtp_pass|api_key/i.test(result.text),{status:result.response?.status||0,cache_control:result.response?.headers.get("cache-control")||""});}
 const leads=await probe("/api/leads"); add("lead-api-method-closed",leads.response?.status===405,{status:leads.response?.status||0});
+const events=await probe("/api/events"); add("events-api-method-closed",events.response?.status===405,{status:events.response?.status||0});
+const sensitivePaths=["/.env","/.env.production","/.git/config","/data/immeubleassur.sqlite","/backups/sqlite/latest.json","/package-lock.json"];
+const sensitiveResults=[];
+for(const path of sensitivePaths){const result=await probe(path);sensitiveResults.push({path,status:result.response?.status||0});}
+add("sensitive-files-not-public",sensitiveResults.every((row)=>row.status===404),{paths:sensitiveResults});
+const evilOrigin="https://evil.example";
+const corsResults=[];
+for(const path of ["/api/leads","/api/newsletter","/api/events"]){const result=await probe(path,{method:"OPTIONS",headers:{Origin:evilOrigin,"Access-Control-Request-Method":"POST"}});corsResults.push({path,status:result.response?.status||0,allow_origin:result.response?.headers.get("access-control-allow-origin")||""});}
+add("cross-site-cors-origin-rejected",corsResults.every((row)=>row.status===204&&row.allow_origin!==evilOrigin),{apis:corsResults});
 const health=await probe("/health"); add("health-minimal",health.response?.status===200&&/"success":true/.test(health.text)&&!/token|password|secret|smtp|api_key|[a-z]:\\\\|\\\\users\\\\/i.test(health.text),{status:health.response?.status||0,bytes:health.text.length});
 const securityTxt=await probe("/.well-known/security.txt"); add("security-txt",securityTxt.response?.status===200&&securityTxt.text.includes("mailto:team@immeubleassur.com")&&securityTxt.text.includes("Canonical:"),{status:securityTxt.response?.status||0});
 const failed=checks.filter((row)=>!row.ok);
-const report={generated_at:new Date().toISOString(),status:failed.length?"failed":"passed",success:failed.length===0,origin,checks,summary:{ok:checks.length-failed.length,failed:failed.length},safeguards:["live-header-verification","csp-inline-script-blocking","admin-no-store","admin-no-referrer","anonymous-admin-denial","minimal-health-response","security-contact"]};
+const report={generated_at:new Date().toISOString(),status:failed.length?"failed":"passed",success:failed.length===0,origin,checks,summary:{ok:checks.length-failed.length,failed:failed.length},safeguards:["live-header-verification","csp-inline-script-blocking","admin-no-store","admin-no-referrer","anonymous-admin-denial","sensitive-files-not-public","cross-site-cors-rejected","minimal-health-response","security-contact"]};
 mkdirSync(dirname(out),{recursive:true}); writeFileSync(out,`${JSON.stringify(report,null,2)}\n`,`utf8`); console.log(`Security surface monitor: ${report.status} (${report.summary.ok}/${checks.length}).`); if(failed.length)process.exitCode=1;
