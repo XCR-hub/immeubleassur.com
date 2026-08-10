@@ -29,6 +29,7 @@ const intentBacklog = [
   ["assurance immeuble prix", "blog/prix-assurance-immeuble-au-m2"],
   ["assurance immeuble ancien", "blog/assurance-immeuble-ancien"],
   ["assurance copropriete syndic benevole", "blog/copropriete-petite-syndic-benevole"],
+  ["syndic professionnel assurance copropriete", "blog/syndic-copropriete-assurance-contrat"],
   ["PNO copropriete", "faq/pno"],
   ["sinistre degat des eaux immeuble", "blog/checklist-sinistre-degat-des-eaux"],
   ["dommages ouvrage copropriete", "blog/dommages-ouvrage-copropriete-travaux"],

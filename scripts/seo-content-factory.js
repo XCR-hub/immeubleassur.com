@@ -106,7 +106,7 @@ refus-assureur-apres-sinistre-immeuble|Refus assureur apres sinistre immeuble: c
 renouvellement-apres-sinistre-immeuble|Renouvellement apres sinistres: preparer une consultation utile|Sinistres|Historique, travaux correctifs, franchise et echeance: les elements a reunir avant de consulter le marche.|renouvellement assurance apres sinistre|syndics et administrateurs de biens|Transformer l historique en fiche risque lisible.
 sinistre-recurrent-assurance-immeuble|Sinistre recurrent assurance immeuble: mesurer le risque et les corrections|Sinistres|La recurrence appelle une analyse des causes, de la prevention et du reste a charge avant toute nouvelle proposition.|sinistre recurrent assurance immeuble|coproprietes et bailleurs|Documenter la recurrence et les mesures de prevention.
 prix-assurance-immeuble-franchise|Prix assurance immeuble et franchise: calculer le reste a charge|Prix et reste a charge|Comparer une cotisation exige aussi de simuler franchise par evenement, plafond, sous-limite et budget de copropriete.|reste a charge franchise par evenement|syndics et bailleurs qui arbitrent le budget|Simuler dommages, franchise, plafond et cotisation annuelle.
-syndic-copropriete-assurance-contrat|Syndic et assurance copropriete: preparer la decision du conseil syndical|Syndic benevole|Contrat, sinistres, franchises et vote en AG: une grille simple pour rendre la decision collective exploitable.|syndic assurance copropriete contrat|syndics et conseils syndicaux|Clarifier les options avant l assemblee generale.
+syndic-copropriete-assurance-contrat|Syndic professionnel et assurance copropriete: piloter le contrat|Syndic professionnel|Portefeuille, mandats, echeances, sinistres et conseil syndical: organiser une assurance copropriete tracable.|syndic professionnel assurance copropriete|syndics professionnels et gestionnaires de copropriete|Industrialiser le suivi sans remplacer la validation humaine du gestionnaire.
 devis-assurance-immeuble-complet|Devis assurance immeuble complet: quelles informations transmettre|Devis courtier|Adresse, lots, occupation, echeance, sinistres et travaux: constituer un dossier exploitable des le premier contact.|devis assurance immeuble complet|syndics, SCI et bailleurs|Limiter les aller retours avec une fiche risque structuree.
 devis-courtier-assurance-immeuble|Devis courtier assurance immeuble: placement et validation humaine|Courtage|Le courtier qualifie l appetit des partenaires, trace les consultations et fait valider une recommandation avant presentation client.|placement courtage validation humaine|syndics et bailleurs qui veulent des offres tracees|Comparer appetit, garanties, exclusions, service et validation humaine.
 devis-assurance-immeuble-refus|Devis assurance immeuble apres refus: lettre et pieces de resouscription|Devis apres refus|La lettre de refus, le questionnaire, les attestations et les justificatifs de securisation forment le dossier de resouscription.|lettre refus pieces resouscription|bailleurs et SCI apres refus de souscription|Classer motif, reserve, justificatif et partenaire a consulter.
@@ -222,6 +222,19 @@ const mediumRiskArticleAngles = {
     methodTitle: "La methode ImmeubleAssur petite copropriete.",
     method: "Nous remettons de l'ordre dans les acteurs, les documents et les garanties pour que le dossier ne soit pas penalise par une gestion benevole.",
     ctaNeed: "copropriete"
+  },
+  "syndic-copropriete-assurance-contrat": {
+    summary: ["Centraliser mandats, contrats et echeances par copropriete.", "Comparer sinistres, franchises et mesures correctives avec une trace exploitable.", "Preparer le conseil syndical sans automatiser une interpretation juridique."],
+    contextTitle: "Quand un syndic professionnel pilote plusieurs contrats immeuble.",
+    context: "Cette page traite le portefeuille gere: mandats, echeances, appels de prime, sinistres, travaux et interlocuteurs. Le but est de fiabiliser le suivi de chaque copropriete sans confondre automatisation documentaire et decision du gestionnaire.",
+    documentsTitle: "Le dossier standard a conserver par copropriete.",
+    documents: "Mandat, contrat et avenants, dernier appel de prime, historique des sinistres, mesures correctives, travaux votes, surfaces, lots et usages permettent de preparer une consultation tracable.",
+    contractTitle: "Comparer avec une grille commune, puis valider humainement.",
+    contract: "Prime, franchises, plafonds, exclusions, obligations declaratives et service sinistre sont rapproches dans une grille commune. Toute conclusion contractuelle ou reglementaire reste soumise au gestionnaire et aux professionnels competents.",
+    methodTitle: "La methode ImmeubleAssur pour syndic professionnel.",
+    method: "Nous structurons les pieces, les echeances et les ecarts entre coproprietes pour reduire les relances, documenter l arbitrage et presenter une synthese claire au conseil syndical.",
+    ctaNeed: "audit-contrat",
+    faq: [["Comment suivre plusieurs echeances assurance ?", "Un registre par copropriete relie contrat, echeance, prime, sinistres, travaux et responsable du prochain geste."], ["Quels documents standardiser ?", "Mandat, contrat, appel de prime, sinistres, lots, surfaces, usages et travaux votes forment le socle du dossier."], ["Une IA peut-elle valider le contrat ?", "Non. Elle peut aider a classer des informations, mais toute interpretation juridique, recommandation contractuelle et decision restent validees humainement."]]
   },
   "dommages-ouvrage-copropriete-travaux": {
     summary: ["Identifier si la dommage ouvrage est necessaire avant signature.", "Relier decennale, reception, financement et vote d'AG.", "Eviter de chercher une solution une fois le chantier lance."],
