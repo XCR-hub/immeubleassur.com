@@ -6,8 +6,19 @@ const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
 const BRAND = "ImmeubleAssur";
 const TITLE_SUFFIX = ` | ${BRAND}`;
+const args = new Set(process.argv.slice(2));
+const metadataOutliersOnly = args.has("--metadata-outliers-only");
 const skipSlugs = new Set(["admin"]);
 const legalSlugs = new Set(["mentions-legales", "confidentialite"]);
+
+const descriptionOverrides = new Map([
+  ["confidentialite", "Decouvrez comment ImmeubleAssur traite et protege les informations transmises pour une demande de contact ou une etude en assurance immeuble."],
+  ["mentions-legales", "Consultez les mentions legales ImmeubleAssur, les coordonnees de contact, l editeur du site et les informations relatives au service de courtage."],
+  ["contact", "Contactez ImmeubleAssur pour une demande concernant un immeuble, une copropriete, une SCI ou une PNO, avec rappel par un courtier specialise."],
+  ["espace-client", "Accedez a votre espace client ImmeubleAssur pour retrouver les informations et documents utiles au suivi de votre dossier d assurance immeuble."],
+  ["espace-assureur", "Espace assureur ImmeubleAssur consacre aux echanges de dossiers, aux pieces utiles et au suivi des consultations en assurance immeuble."],
+  ["merci", "Votre demande a bien ete transmise a ImmeubleAssur. Retrouvez les prochaines etapes et les coordonnees utiles pour completer votre dossier."]
+]);
 
 const titleOverrides = new Map([
   ["mentions-legales", "Mentions legales courtier immeuble"],
@@ -47,10 +58,16 @@ function walk(dir) {
 
 function esc(value) {
   return String(value || "")
-    .replace(/&/g, "&amp;")
+    .replace(/&(?!(?:amp|lt|gt|quot|#39|#x27);)/gi, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+function normalizeKnownEntities(value) {
+  let clean = String(value || "");
+  while (/&amp;(amp|lt|gt|quot|#39|#x27);/i.test(clean)) clean = clean.replace(/&amp;(amp|lt|gt|quot|#39|#x27);/gi, "&$1;");
+  return clean;
 }
 
 function stripHtml(value) {
@@ -144,18 +161,14 @@ function normalizeTitle(rawTitle, slug) {
 }
 
 function normalizeDescription(rawDescription, slug, title) {
+  if (descriptionOverrides.has(slug)) return descriptionOverrides.get(slug);
   const topic = humanTopic(slug, title);
   let description = stripHtml(rawDescription).replace(/\s+/g, " ").trim();
   if (!description) description = `${BRAND} accompagne les demandes de ${topic}.`;
-  if (description.length < 120) {
-    const suffix = " Analyse des garanties, franchises, sinistres, documents utiles et rappel pour obtenir un devis specialise.";
-    description = `${description.replace(/[.\s]*$/, ".")}${suffix}`;
-  }
-  if (description.length < 120) description = `${description} Service dedie aux syndics, SCI, bailleurs et coproprietaires non occupants.`;
-  if (description.length > 170) description = trimWords(description, 162).replace(/[,:;\s]+$/, "") + ".";
-  return description;
+  if (description.length < 120) description = `${description.replace(/[.\s]*$/, ".")} Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.`;
+  if (description.length > 170) description = trimWords(description, 166).replace(/[,:;\s]+$/, "") + ".";
+  return closeMetaSentence(description);
 }
-
 function setHeadMeta(html, { title, description, slug }) {
   let next = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${esc(title)}</title>`);
   if (/<meta name="description" content="[^"]*" \/>/i.test(next)) {
@@ -290,16 +303,24 @@ function enhanceFile(file) {
   const slug = slugFromFile(file);
   if (skipSlugs.has(slug)) return null;
   const original = readFileSync(file, "utf8");
-  let html = removeAutoBlocks(original);
+  let html = metadataOutliersOnly ? original : removeAutoBlocks(original);
   const fixes = [];
-  const currentTitle = readMeta(html, /<title>([\s\S]*?)<\/title>/i, BRAND);
-  const normalizedTitle = normalizeTitle(currentTitle, slug);
-  const currentDescription = readMeta(html, /<meta name="description" content="([^"]*)"/i, "");
-  const normalizedDescription = normalizeDescription(currentDescription, slug, normalizedTitle);
+  const rawCurrentTitle = readMeta(html, /<title>([\s\S]*?)<\/title>/i, BRAND);
+  const currentTitle = normalizeKnownEntities(rawCurrentTitle);
+  const titleLength = stripHtml(currentTitle).length;
+  const normalizedTitle = metadataOutliersOnly && titleLength >= 35 && titleLength <= 72 ? stripHtml(currentTitle) : normalizeTitle(currentTitle, slug);
+  const rawCurrentDescription = readMeta(html, /<meta name="description" content="([^"]*)"/i, "");
+  const currentDescription = normalizeKnownEntities(rawCurrentDescription);
+  const normalizedDescription = metadataOutliersOnly && currentDescription.length >= 110 && currentDescription.length <= 170 ? currentDescription : normalizeDescription(currentDescription, slug, normalizedTitle);
 
-  if (stripHtml(currentTitle) !== normalizedTitle) fixes.push("title-normalized");
-  if (currentDescription !== normalizedDescription) fixes.push("description-normalized");
+  if (stripHtml(rawCurrentTitle) !== normalizedTitle) fixes.push("title-normalized");
+  if (rawCurrentDescription !== normalizedDescription) fixes.push("description-normalized");
   html = setHeadMeta(html, { title: normalizedTitle, description: normalizedDescription, slug });
+
+  if (metadataOutliersOnly) {
+    if (html !== original) writeFileSync(file, html, "utf8");
+    return { slug: slug || "index", url: urlFor(slug), fixes, title: normalizedTitle, description: normalizedDescription, changed: html !== original };
+  }
 
   const words = stripHtml(html).split(/\s+/).filter(Boolean).length;
   const faqCount = [...html.matchAll(/<details>/gi)].length;
@@ -334,7 +355,8 @@ const report = {
   pages_checked: pages.length,
   pages_changed: changed.length,
   fixes_applied: fixesApplied,
-  safeguards: ["idempotent-markers", "legal-pages-no-commercial-panel", "no-serp-scraping", "people-first-depth-sections"],
+  mode: metadataOutliersOnly ? "metadata-outliers-only" : "full",
+  safeguards: ["idempotent-markers", "legal-pages-no-commercial-panel", "no-serp-scraping", "people-first-depth-sections", ...(metadataOutliersOnly ? ["no-content-block-changes", "threshold-bounded-metadata"] : [])],
   pages: changed
 };
 writeFileSync(join(REPORT_DIR, "seo-auto-fix-report.json"), JSON.stringify(report, null, 2), "utf8");
