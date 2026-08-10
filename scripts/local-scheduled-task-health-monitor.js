@@ -6,7 +6,7 @@ import { EXPECTED_SCHEDULED_TASKS, classifyScheduledTask } from "./scheduled-tas
 
 loadDefaultEnvFiles();
 const reportPath = resolve(env("LOCAL_SCHEDULED_TASK_HEALTH_REPORT", join(env("LOCAL_RUNTIME_REPORTS_ROOT", "reports"), "local-scheduled-task-health-report.json")));
-const command = `$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'; $rows = Get-ScheduledTask | Where-Object { $_.TaskName -like 'ImmeubleAssur*' } | ForEach-Object { $info=Get-ScheduledTaskInfo -TaskName $_.TaskName -TaskPath $_.TaskPath; [pscustomobject]@{task_name=$_.TaskName;state=[string]$_.State;enabled=[bool]$_.Settings.Enabled;last_run=$info.LastRunTime.ToString('o');last_result=[long]$info.LastTaskResult;next_run=[string]$info.NextRunTime} }; $rows | ConvertTo-Json -Compress`;
+const command = `$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'; $rows = Get-ScheduledTask | Where-Object { $_.TaskName -like 'ImmeubleAssur*' } | ForEach-Object { $info=Get-ScheduledTaskInfo -TaskName $_.TaskName -TaskPath $_.TaskPath; $sid=([System.Security.Principal.NTAccount]$_.Principal.UserId).Translate([System.Security.Principal.SecurityIdentifier]).Value; [pscustomobject]@{task_name=$_.TaskName;state=[string]$_.State;enabled=[bool]$_.Settings.Enabled;last_run=$info.LastRunTime.ToString('o');last_result=[long]$info.LastTaskResult;next_run=[string]$info.NextRunTime;principal_sid=[string]$sid;principal_user=[string]$_.Principal.UserId;logon_type=[string]$_.Principal.LogonType;run_level=[string]$_.Principal.RunLevel;execute=[string]$_.Actions[0].Execute;arguments=[string]$_.Actions[0].Arguments} }; $rows | ConvertTo-Json -Compress`;
 const encodedCommand = Buffer.from(command, "utf16le").toString("base64");
 const result = spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-EncodedCommand", encodedCommand], { encoding: "utf8", windowsHide: true, timeout: 30000 });
 if (result.status !== 0) {
@@ -21,10 +21,12 @@ const rows = Object.keys(EXPECTED_SCHEDULED_TASKS).map((taskName) => {
   const task = byName.get(taskName);
   if (!task) return { task_name: taskName, healthy: false, issues: ["missing"], age_minutes: null, max_age_minutes: EXPECTED_SCHEDULED_TASKS[taskName] };
   const ignoreLastResult = ["ImmeubleAssur Production Monitor", "ImmeubleAssur Runtime Reports"].includes(taskName);
-  return { ...task, ...classifyScheduledTask(task, Date.now(), { ignoreLastResult }), last_result_ignored_for_cycle_dependency: ignoreLastResult };
+  const classification = classifyScheduledTask(task, Date.now(), { ignoreLastResult });
+  const { principal_sid, principal_user, logon_type, run_level, execute, arguments: _actionArguments, ...safeTask } = task;
+  return { ...safeTask, ...classification, last_result_ignored_for_cycle_dependency: ignoreLastResult };
 });
 const unhealthy = rows.filter((row) => !row.healthy);
-const report = { generated_at: new Date().toISOString(), status: unhealthy.length ? "degraded" : "healthy", success: unhealthy.length === 0, summary: { expected: rows.length, healthy: rows.length - unhealthy.length, unhealthy: unhealthy.length }, rows };
+const report = { safeguards: ["system-service-account-required", "highest-run-level-required", "expected-action-marker-required", "action-paths-not-exported"], generated_at: new Date().toISOString(), status: unhealthy.length ? "degraded" : "healthy", success: unhealthy.length === 0, summary: { expected: rows.length, healthy: rows.length - unhealthy.length, unhealthy: unhealthy.length }, rows };
 mkdirSync(dirname(reportPath), { recursive: true });
 writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 console.log(`Scheduled task health ${report.status}: ${report.summary.healthy}/${report.summary.expected} healthy, ${report.summary.unhealthy} unhealthy.`);

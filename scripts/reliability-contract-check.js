@@ -27,6 +27,8 @@ const turnstileBrowser=readFileSync("scripts/local-turnstile-browser-smoke.js","
 const indexNow=readFileSync("scripts/local-indexnow-submit.js","utf8");
 const privacyRetention=readFileSync("scripts/local-privacy-retention.js","utf8");
 const privacyRetentionContract=readFileSync("scripts/privacy-retention-contract-check.js","utf8");
+const scheduledTaskHealth=readFileSync("scripts/scheduled-task-health.js","utf8");
+const scheduledTaskMonitor=readFileSync("scripts/local-scheduled-task-health-monitor.js","utf8");
 const smtpEnvelope=smtp.slice(smtp.indexOf("export async function verifyNodeSmtpRecipients"),smtp.indexOf("export async function sendNodeSmtpMail"));
 const inlineExecutableHtml=readdirSync("public",{recursive:true}).filter((file)=>String(file).endsWith(".html")).filter((file)=>/<script\b(?![^>]*\bsrc=)(?![^>]*type=["']application\/ld\+json["'])[^>]*>/i.test(readFileSync(join("public",String(file)),"utf8")));
 const checks=[
@@ -88,6 +90,9 @@ const checks=[
   ["monitor-failure-exits-gracefully",monitor.includes("if (!report.success) process.exitCode = 1")&&!monitor.includes("if (!report.success) process.exit(1)")],
   ["monitor-covers-dependency-security",monitor.includes('inspectJsonRuntime("dependency_security"') && runtime.includes('runStep("dependency_security"')],
   ["monitor-covers-scheduled-task-health",monitor.includes('inspectJsonRuntime("scheduled_task_health"') && runtime.includes('runStep("scheduled_task_health"')],
+  ["scheduled-task-health-validates-system-identity",scheduledTaskHealth.includes('principalSid === "s-1-5-18"')&&scheduledTaskHealth.includes('"serviceaccount"')&&scheduledTaskHealth.includes('"highest"')],
+  ["scheduled-task-health-validates-expected-actions",scheduledTaskHealth.includes("EXPECTED_SCHEDULED_TASK_ACTIONS")&&scheduledTaskHealth.includes("action-invalid")],
+  ["scheduled-task-health-does-not-export-action-paths",scheduledTaskMonitor.includes("principal_sid, principal_user, logon_type, run_level, execute")&&scheduledTaskMonitor.includes("action-paths-not-exported")],
   ["monitor-covers-nondestructive-turnstile-browser",monitor.includes('inspectJsonRuntime("turnstile_browser"')&&monitor.includes("report.destructive === false")&&monitor.includes("report.submitted_forms || 0")],
   ["turnstile-browser-isolates-production-telemetry",turnstileBrowser.includes("setRequestInterception(true)")&&turnstileBrowser.includes('/\\/api\\/events')&&turnstileBrowser.includes('request.abort("blockedbyclient")')&&turnstileBrowser.includes("telemetry_isolated: true")&&monitor.includes("report.telemetry_isolated === true")],
   ["abandonment-requires-qualified-engagement",client.includes("engagementMs < 3000 || interactions < 2 || completedFields < 2")&&client.includes("qualified_abandonment: true")],
