@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T01:46:36.159Z",
+  "generated_at": "2026-08-10T02:04:21.103Z",
   "status": "passed",
   "pages_checked": 203,
   "indexable_pages": 191,
@@ -69,8 +69,8 @@
   "assets": [
     {
       "path": "assets/styles.css",
-      "bytes": 74531,
-      "kb": 72.8,
+      "bytes": 74835,
+      "kb": 73.1,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
@@ -202,6 +202,7 @@
     "versioned-css-js",
     "turnstile-on-demand",
     "local-hero-image-budget",
+    "below-fold-render-containment",
     "lazy-images",
     "public-report"
   ]

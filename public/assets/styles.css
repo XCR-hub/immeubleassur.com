@@ -518,6 +518,19 @@ textarea:focus {
   padding: clamp(52px, 8vw, 92px) clamp(18px, 4vw, 56px);
 }
 
+@supports (content-visibility: auto) {
+  main > section:not(.hero):not(.page-hero):not(:first-child),
+  main > .band:not(:first-child) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
+  }
+
+  .site-footer {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 260px;
+  }
+}
+
 .section-head,
 .split,
 .city-copy {

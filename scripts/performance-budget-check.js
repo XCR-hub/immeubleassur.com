@@ -111,6 +111,10 @@ function build() {
   const reportAssetIssues = reportAssetRows.filter((row) => !row.ok).map((row) => ({ severity: "medium", source: row.path, rule: "report-asset-size", message: `${row.path} ${row.kb} Ko > budget ${kb(budgets.publicReportBytes)} Ko`, bytes: row.bytes }));
   const averageHtml = pageRows.reduce((sum, row) => sum + row.bytes, 0) / Math.max(1, pageRows.length);
   const aggregateIssues = [];
+  const styles = read(join(PUBLIC_DIR, "assets", "styles.css"));
+  if (!styles.includes("content-visibility: auto") || !styles.includes("contain-intrinsic-size: auto 720px")) {
+    pushIssue(aggregateIssues, "high", "assets/styles.css", "below-fold-render-containment", "Le rendu hors ecran doit rester differe avec une taille intrinseque stable.");
+  }
   if (averageHtml > budgets.averageHtmlBytes) pushIssue(aggregateIssues, "high", "public", "average-html-size", `HTML moyen ${kb(averageHtml)} Ko > budget ${kb(budgets.averageHtmlBytes)} Ko`, { bytes: Math.round(averageHtml) });
 
   const allIssues = pageIssues.concat(assetIssues, reportAssetIssues, aggregateIssues);
@@ -128,7 +132,7 @@ function build() {
     severe_issue_count: severeIssues.length,
     issues: allIssues.slice(0, 120),
     budgets,
-    safeguards: ["html-size-budget", "core-asset-budget", "versioned-css-js", "turnstile-on-demand", "local-hero-image-budget", "lazy-images", "public-report"]
+    safeguards: ["html-size-budget", "core-asset-budget", "versioned-css-js", "turnstile-on-demand", "local-hero-image-budget", "below-fold-render-containment", "lazy-images", "public-report"]
   };
 
   writeJson(REPORT_PATH, report);
