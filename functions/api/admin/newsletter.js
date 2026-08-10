@@ -194,10 +194,10 @@ async function sendLatestIssue(request, env) {
   if (!config) return json({ success: false, error: "Configuration SMTP manquante" }, 503);
 
   const limit = Math.max(1, Math.min(500, Number.parseInt(env.NEWSLETTER_SEND_LIMIT || "100", 10) || 100));
-  const issue = await safeFirst(env, `SELECT * FROM newsletter_issues WHERE status IN ('published', 'draft') ORDER BY created_at DESC LIMIT 1`);
+  const issue = await safeFirst(env, `SELECT * FROM newsletter_issues WHERE status = 'published' AND json_extract(payload, '$.provider') = 'deterministic' AND COALESCE(json_extract(payload, '$.ai_generated'), 1) = 0 ORDER BY published_at DESC, created_at DESC LIMIT 1`);
   if (!issue || issue.error) return json({ success: false, error: issue?.error || "Aucune newsletter disponible" }, 404);
 
-  const subscribers = await safeAll(env, `SELECT id, email, unsubscribe_token FROM newsletter_subscribers WHERE status = 'active' ORDER BY created_at ASC LIMIT ?`, [limit]);
+  const subscribers = await safeAll(env, `SELECT s.id, s.email, s.unsubscribe_token FROM newsletter_subscribers s WHERE s.status = 'active' AND NOT EXISTS (SELECT 1 FROM newsletter_events e WHERE e.subscriber_id = s.id AND e.issue_id = ? AND e.event_type = 'sent') ORDER BY s.created_at ASC LIMIT ?`, [issue.id, limit]);
   if (!Array.isArray(subscribers)) return json({ success: false, error: subscribers.error || "Lecture abonnes impossible" }, 500);
 
   const now = new Date().toISOString();
@@ -213,9 +213,9 @@ async function sendLatestIssue(request, env) {
     }
   }
 
-  await env.DB.prepare(`UPDATE newsletter_issues SET sent_at = ?, status = 'published' WHERE id = ?`).bind(now, issue.id).run();
   const sent = results.filter((row) => row.status === "sent").length;
   const failed = results.filter((row) => row.status === "failed").length;
+  if (results.length > 0 && failed === 0) await env.DB.prepare(`UPDATE newsletter_issues SET sent_at = ?, status = 'published' WHERE id = ?`).bind(now, issue.id).run();
   return json({ success: true, issue: { id: issue.id, slug: issue.slug, subject: issue.subject }, sent, failed, limit, attempted: results.length });
 }
 

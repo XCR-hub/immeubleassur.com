@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-08-10T03:39:44.155Z",
+  "status": "passed",
+  "checks": 15,
+  "missing": [],
+  "safeguards": [
+    "validated-editions-only",
+    "idempotent-delivery",
+    "subscriber-consent-status",
+    "unsubscribe",
+    "no-draft-send",
+    "no-ai-legal-publication"
+  ]
+}
