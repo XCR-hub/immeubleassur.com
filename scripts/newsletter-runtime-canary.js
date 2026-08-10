@@ -6,6 +6,7 @@ import { openLocalSqlite } from "./local-sqlite-db.js";
 import { onRequestGet, onRequestPost } from "../functions/api/newsletter.js";
 
 const reportPath = resolve(process.env.LOCAL_NEWSLETTER_CANARY_REPORT || join(process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports", "newsletter-runtime-canary-report.json"));
+const publicationsRoot = resolve(process.env.LOCAL_RUNTIME_PUBLICATIONS_ROOT || join("data", "runtime-assets", "publications"));
 const dbPath = join(tmpdir(), `immeubleassur-newsletter-canary-${process.pid}-${Date.now()}.sqlite`);
 const deliveryOnePath = join(tmpdir(), `immeubleassur-newsletter-delivery-one-${process.pid}.json`);
 const deliveryTwoPath = join(tmpdir(), `immeubleassur-newsletter-delivery-two-${process.pid}.json`);
@@ -75,7 +76,7 @@ async function run() {
     const active = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_subscribers WHERE status='active' AND consent_text<>'' AND confirmed_at IS NOT NULL").first("count") || 0);
     const subscribedEvents = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_events WHERE event_type='subscribed'").first("count") || 0);
     const subscriberRow = await DB.prepare("SELECT id FROM newsletter_subscribers LIMIT 1").first();
-    const activeManifest = JSON.parse(readFileSync(join("data", "runtime-assets", "publications", "current.json"), "utf8"));
+    const activeManifest = JSON.parse(readFileSync(join(publicationsRoot, "current.json"), "utf8"));
     const activeIssue = activeManifest.issue;
     await DB.prepare("INSERT INTO newsletter_issues (id, slug, title, subject, status, created_at) VALUES (?, ?, ?, ?, 'published', ?)").bind(activeIssue.id, activeIssue.slug, activeIssue.title, activeIssue.title, new Date().toISOString()).run();
     await DB.prepare("INSERT INTO newsletter_events (id, subscriber_id, issue_id, event_type, payload, created_at) VALUES (?, ?, ?, 'send_claimed', ?, ?)").bind("canary-active-claim", subscriberRow.id, activeIssue.id, JSON.stringify({ lease_minutes: 15 }), new Date().toISOString()).run();
