@@ -59,6 +59,8 @@
                     "production:tls":  "node scripts/local-tls-certificate-monitor.js",
                     "production:runtime-reports":  "node scripts/local-runtime-report-cycle.js",
                     "mail:health":  "node scripts/local-smtp-health-check.js",
+                    "leads:notifications:retry":  "node scripts/local-lead-notification-retry.js",
+                    "leads:notifications:retry:check":  "node scripts/lead-notification-retry-contract-check.js",
                     "mail:sync":  "node scripts/local-imap-sync.js",
                     "contracts:renewals":  "node scripts/local-contract-renewal-monitor.js",
                     "production:watchdog":  "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows-local-site-watchdog.ps1",

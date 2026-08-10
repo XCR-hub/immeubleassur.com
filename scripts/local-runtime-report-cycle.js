@@ -69,6 +69,7 @@ function run() {
     LOCAL_RUNTIME_REPORTS_ROOT: runtimeReportsRoot,
     LOCAL_RUNTIME_ASSETS_ROOT: runtimeAssetsRoot,
     LOCAL_SMTP_HEALTH_REPORT: join(runtimeReportsRoot, "local-smtp-health-report.json"),
+    LOCAL_NOTIFICATION_RETRY_REPORT: join(runtimeReportsRoot, "local-lead-notification-retry-report.json"),
     LOCAL_INTENT_CONVERSION_REPORT: runtimeIntentReport,
     LOCAL_INTENT_CONVERSION_PUBLIC_REPORT: runtimeIntentAsset,
     LOCAL_SOURCE_QUALITY_REPORT: runtimeSourceReport,
@@ -80,6 +81,7 @@ function run() {
   };
   const steps = [
     runStep("smtp_health", ["scripts/local-smtp-health-check.js"], commonRuntimeEnv),
+    runStep("lead_notification_retry", ["scripts/local-lead-notification-retry.js"], commonRuntimeEnv),
     runStep("live_api_readiness", ["scripts/live-api-readiness-check.js"], commonRuntimeEnv),
     runStep("google_readiness_unlock", ["scripts/google-readiness-unlock.js"], commonRuntimeEnv),
     runStep("live_ready_connectors", ["scripts/live-ready-connectors-runner.js", "--runtime-cycle"], commonRuntimeEnv),
