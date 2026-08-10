@@ -45,7 +45,11 @@ function reportStatus(path) {
     status: report.status || report.mode || report.provider || "present",
     rate_limited: report.rate_limited === true,
     serp_request_count: Number(report.serp_request_count || 0),
-    rate_limited_skipped_count: Number(report.rate_limited_skipped_count || 0)
+    rate_limited_skipped_count: Number(report.rate_limited_skipped_count || 0),
+    collection_status: report.collection_status || "",
+    healthy_source_count: Number(report.healthy_source_count || 0),
+    empty_source_count: Number(report.empty_source_count || 0),
+    failed_source_count: Number(report.failed_source_count || 0)
   };
 }
 function runNode(name, command) {
@@ -106,6 +110,7 @@ function shouldSkipFreshConnector(config) {
     duration_ms: step.duration_ms,
     timed_out: step.timed_out === true,
     skipped: step.skipped === true,
+    attention: step.attention === true,
     reason: step.reason || "",
     report: step.report || null,
     objective: step.objective || ""
@@ -133,11 +138,17 @@ for (const [id, config] of Object.entries(runnable)) {
   }
   const freshnessSkip = shouldSkipFreshConnector(config);
   if (freshnessSkip) {
-    steps.push({ name: id, command: `node ${config.command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, reason: freshnessSkip.reason, objective: config.objective, report: { ...reportStatus(join(REPORT_DIR, config.report)), ...freshnessSkip } });
+    const freshReport = { ...reportStatus(join(REPORT_DIR, config.report)), ...freshnessSkip };
+    steps.push({ name: id, command: `node ${config.command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, attention: ["partial", "degraded"].includes(freshReport.collection_status), reason: freshnessSkip.reason, objective: config.objective, report: freshReport });
     continue;
   }  const step = runNode(id, config.command);
   step.objective = config.objective;
-  step.report = id === "serpapi" ? reportStatus(SEARCH_REPORT) : null;
+  step.report = id === "serpapi" ? reportStatus(SEARCH_REPORT) : config.report ? reportStatus(join(REPORT_DIR, config.report)) : null;
+  if (id === "editorial-ai") {
+    const editorialReport = readJson(join(REPORT_DIR, config.report));
+    step.attention = ["partial", "degraded"].includes(editorialReport?.collection_status);
+    step.report = { ...step.report, collection_status: editorialReport?.collection_status || "unknown", healthy_source_count: Number(editorialReport?.healthy_source_count || 0), empty_source_count: Number(editorialReport?.empty_source_count || 0), failed_source_count: Number(editorialReport?.failed_source_count || 0) };
+  }
   steps.push(step);
 }
 
@@ -148,9 +159,10 @@ const finalReadiness = readJson(READINESS_REPORT);
 const googleUnlock = readJson(join(REPORT_DIR, "google-readiness-unlock-report.json"));
 const failed = steps.filter((step) => !step.ok);
 const skipped = steps.filter((step) => step.skipped);
+const attention = steps.filter((step) => step.attention);
 const report = {
   generated_at: new Date().toISOString(),
-  status: failed.length ? "degraded" : "completed",
+  status: failed.length || attention.length ? "degraded" : "completed",
   strict,
   cooldown_minutes: cooldownMinutes,
   ready_count: finalReadiness?.ready_count || 0,
@@ -160,7 +172,8 @@ const report = {
   summary: {
     executed: steps.filter((step) => !step.skipped && !step.name.includes("readiness") && !step.name.includes("unlock")).length,
     skipped: skipped.length,
-    failed: failed.length
+    failed: failed.length,
+    attention: attention.length
   },
   steps: steps.map(safePublicStep),
   safeguards: ["ready-connectors-only", "secret-values-never-exported", "serpapi-rate-limit-cooldown", "fallbacks-remain-operational"]
@@ -168,5 +181,5 @@ const report = {
 
 writeJson(OUT_REPORT, report);
 writeJson(OUT_ASSET, report);
-console.log(`Live ready connectors ${report.status}: executed=${report.summary.executed}, skipped=${report.summary.skipped}, failed=${report.summary.failed}.`);
+console.log(`Live ready connectors ${report.status}: executed=${report.summary.executed}, skipped=${report.summary.skipped}, failed=${report.summary.failed}, attention=${report.summary.attention}.`);
 if (strict && failed.length) process.exit(1);

@@ -232,14 +232,18 @@ async function fetchWithTimeout(url, timeoutMs = 8000) {
 
 async function collectWatchItems() {
   const errors = [];
-  if (!ENABLE_FETCH) return { items: FALLBACK_ITEMS.map((item) => ({ ...item, fetched_at: new Date().toISOString() })), errors, mode: "local-fallback" };
+  const sourceResults = [];
+  if (!ENABLE_FETCH) return { items: FALLBACK_ITEMS.map((item) => ({ ...item, fetched_at: new Date().toISOString() })), errors, sourceResults, mode: "local-fallback" };
   const fetched = [];
   for (const source of SOURCES.filter((item) => item.source_type === "rss" || item.source_type === "public-page")) {
     try {
       const payload = await fetchWithTimeout(source.url);
-      fetched.push(...(source.source_type === "rss" ? parseRss(payload, source) : parsePublicPage(payload, source)));
+      const parsed = source.source_type === "rss" ? parseRss(payload, source) : parsePublicPage(payload, source);
+      fetched.push(...parsed);
+      sourceResults.push({ source_id: source.id, source_name: source.name, status: parsed.length ? "healthy" : "empty", item_count: parsed.length });
     } catch (error) {
       errors.push({ source: source.id, error: error.message || "fetch failed" });
+      sourceResults.push({ source_id: source.id, source_name: source.name, status: "failed", item_count: 0, error: error.message || "fetch failed" });
     }
   }
   const deduplicated = new Map();
@@ -249,7 +253,7 @@ async function collectWatchItems() {
     if (!deduplicated.has(key) || deduplicated.get(key).relevance_score < enriched.relevance_score) deduplicated.set(key, enriched);
   }
   const items = [...deduplicated.values()];
-  return { items: items.sort((a, b) => b.relevance_score - a.relevance_score).slice(0, 18), errors, mode: fetched.length ? "fetched" : "fallback-after-fetch" };
+  return { items: items.sort((a, b) => b.relevance_score - a.relevance_score).slice(0, 18), errors, sourceResults, mode: fetched.length ? "fetched" : "fallback-after-fetch" };
 }
 
 function aiProviders() {
@@ -478,7 +482,7 @@ async function run() {
   ensureDir(OUT);
   ensureDir(join(OUT, "news"));
   ensureDir(REPORT_DIR);
-  const { items, errors, mode } = await collectWatchItems();
+  const { items, errors, sourceResults, mode } = await collectWatchItems();
   const synthesis = await synthesize(items);
   const aiRequiresReview = synthesis.provider !== "deterministic";
   const publicSynthesis = aiRequiresReview
@@ -515,6 +519,13 @@ async function run() {
     ai_attempts: synthesis.attempts || [],
     quality_score: qualityScore(items, synthesis),
     source_count: SOURCES.length,
+    fetchable_source_count: sourceResults.length,
+    healthy_source_count: sourceResults.filter((source) => source.status === "healthy").length,
+    empty_source_count: sourceResults.filter((source) => source.status === "empty").length,
+    failed_source_count: sourceResults.filter((source) => source.status === "failed").length,
+    minimum_healthy_sources: 3,
+    collection_status: sourceResults.some((source) => source.status === "failed") ? "degraded" : sourceResults.filter((source) => source.status === "healthy").length < 3 ? "partial" : "healthy",
+    source_results: sourceResults,
     watch_items: items.length,
     source_item_counts: Object.fromEntries(SOURCES.map((source) => [source.id, items.filter((item) => item.source_id === source.id).length])),
     watch_preview: items.slice(0, 8).map(({ source_id, title, url, topic, relevance_score }) => ({ source_id, title, url, topic, relevance_score })),
@@ -529,6 +540,7 @@ async function run() {
   write(join(ASSET_DIR, "editorial-autopilot-latest.json"), JSON.stringify(report, null, 2));
 
   console.log(`Editorial autopilot wrote veille, newsletter and issue ${issue.slug} with ${items.length} watch items (${synthesis.provider}/${synthesis.status}).`);
+  console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
 run().catch((error) => { console.error(error); process.exit(1); });
