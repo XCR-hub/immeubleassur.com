@@ -190,17 +190,19 @@ function rssTag(block, name) {
   return decodeXml(match?.[1] || "");
 }
 
+function editorialSearchText(...values) {
+  return normalizeEditorialText(values.join(" ")).normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+}
 function relevanceFor(item) {
-  const text = `${item.title || ""} ${item.summary || ""}`.toLowerCase();
-  const terms = ["assurance", "immeuble", "copro", "logement", "bail", "proprietaire", "syndic", "sinistre", "travaux", "renovation", "climat", "habitation", "responsabilite", "pno", "cno"];
+  const text = editorialSearchText(item.title, item.summary);
+  const terms = ["assurance", "assureur", "immeuble", "copro", "logement", "location", "bail", "proprietaire", "syndic", "sinistre", "incendie", "inondation", "catastrophe", "degat", "dommage", "travaux", "renovation", "climat", "habitation", "responsabilite", "pno", "cno"];
   let score = 15;
   for (const term of terms) if (text.includes(term)) score += 7;
   if (/assurance|logement|copro|immeuble/.test(text)) score += 20;
   return Math.min(100, score);
 }
-
 function topicFor(item) {
-  const text = `${item.title || ""} ${item.summary || ""}`.toLowerCase();
+  const text = editorialSearchText(item.title, item.summary);
   if (/copro|syndic|assemblee/.test(text)) return "copropriete";
   if (/pno|cno|non occupant|bailleur/.test(text)) return "pno-cno";
   if (/sinistre|degat|fuite|incendie/.test(text)) return "sinistres";
@@ -272,16 +274,26 @@ function sourceUrlAllowed(source, candidateUrl) {
   const path = String(candidateUrl?.pathname || "").replace(/\/+$/, "").toLowerCase();
   if (source?.id === "acpr-actualites") return /^\/fr\/actualites\/[^/]+$/.test(path);
   if (source?.id === "acpr-communiques") return /^\/fr\/communiques-de-presse\/[^/]+$/.test(path);
+  if (source?.id === "france-assureurs-actualites") return /^\/actualites\/[^/]+$/.test(path);
   return true;
+}
+function sourceContentAllowed(source, item) {
+  if (source?.id !== "france-assureurs-actualites") return true;
+  const title = editorialSearchText(item?.title);
+  const propertySignal = /habitation|logement|immeuble|immobilier|copro|propri[ée]taire|location|sinistre|incendie|inondation|temp[êe]te|catastrophe|climat|d[ée]g[âa]t|dommage|responsabilit[ée]/i.test(title);
+  if (/assurance vie|sant[ée]|pr[ée]voyance|retraite|emploi|m[ée]tier|cyber|num[ée]rique|v[ée]hicule|automobile|agricol/i.test(title) && !propertySignal) return false;
+  return propertySignal || /assurance|assureur|risque|pr[ée]vention|garantie/i.test(title);
 }
 function parsePublicPage(html, source) {
   const cleaned = String(html || "").replace(/<(script|style|svg|nav|footer)\b[\s\S]*?<\/\1>/gi, " ");
   const sourceUrl = new URL(source.url);
   const candidates = [];
   let rejectedUrlScope = 0;
+  let rejectedContentScope = 0;
   const anchorPattern = /<a\b[^>]*href\s*=\s*["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
   for (const match of cleaned.matchAll(anchorPattern)) {
-    const title = stripHtml(decodeHtml(match[2])).replace(/\s+/g, " ").trim();
+    const accessibleTitle = source?.id === "france-assureurs-actualites" ? match[2].match(/<span\b[^>]*class\s*=\s*["'][^"']*screen-reader-text[^"']*["'][^>]*>([\s\S]*?)<\/span>/i)?.[1] || "" : "";
+    const title = stripHtml(decodeHtml(accessibleTitle || match[2])).replace(/\s+/g, " ").trim();
     if (title.length < 24 || title.length > 220 || /^(lire|voir|en savoir|accueil|actualit|suivant|pr.c.dent)/i.test(title)) continue;
     let url;
     try { url = new URL(decodeHtml(match[1]), source.url); } catch { continue; }
@@ -302,6 +314,7 @@ function parsePublicPage(html, source) {
       published_at: (context.match(/\b(?:0?[1-9]|[12]\d|3[01])\s+(?:janvier|f.vrier|mars|avril|mai|juin|juillet|ao.t|septembre|octobre|novembre|d.cembre)\s+20\d{2}\b/i) || [""])[0]
     };
     const enriched = { ...item, topic: topicFor(item), relevance_score: relevanceFor(item) };
+    if (!sourceContentAllowed(source, enriched)) { rejectedContentScope += 1; continue; }
     if (enriched.relevance_score >= 35) candidates.push(enriched);
   }
   const unique = new Map();
@@ -311,6 +324,7 @@ function parsePublicPage(html, source) {
   }
   const filtered = qualityFiltered([...unique.values()].sort((a, b) => b.relevance_score - a.relevance_score).slice(0, 12));
   filtered.rejected_url_scope = rejectedUrlScope;
+  filtered.rejected_content_scope = rejectedContentScope;
   return filtered;
 }
 
@@ -336,7 +350,7 @@ async function collectWatchItems() {
       const payload = await fetchWithTimeout(source.url);
       const parsed = source.source_type === "rss" ? parseRss(payload, source) : parsePublicPage(payload, source);
       fetched.push(...parsed);
-      sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: parsed.length ? "healthy" : "empty", item_count: parsed.length, text_quality_rejected_count: Number(parsed.rejected_text_quality || 0), url_scope_rejected_count: Number(parsed.rejected_url_scope || 0) });
+      sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: parsed.length ? "healthy" : "empty", item_count: parsed.length, text_quality_rejected_count: Number(parsed.rejected_text_quality || 0), url_scope_rejected_count: Number(parsed.rejected_url_scope || 0), content_scope_rejected_count: Number(parsed.rejected_content_scope || 0) });
     } catch (error) {
       errors.push({ source: source.id, error: error.message || "fetch failed" });
       sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: "failed", item_count: 0, error: error.message || "fetch failed" });
@@ -720,6 +734,7 @@ async function run() {
     failed_source_count: sourceResults.filter((source) => source.status === "failed").length,
     url_scope_rejected_count: sourceResults.reduce((sum, source) => sum + Number(source.url_scope_rejected_count || 0), 0),
     text_quality_rejected_count: sourceResults.reduce((sum, source) => sum + Number(source.text_quality_rejected_count || 0), 0),
+    content_scope_rejected_count: sourceResults.reduce((sum, source) => sum + Number(source.content_scope_rejected_count || 0), 0),
     text_quality_status: sourceResults.some((source) => Number(source.text_quality_rejected_count || 0) > 0) ? "filtered" : "clean",
     minimum_healthy_sources: 3,
     collection_status: sourceResults.some((source) => source.status === "failed") ? "degraded" : sourceResults.filter((source) => source.status === "healthy").length < 3 ? "partial" : "healthy",
@@ -759,7 +774,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { parsePublicPage, sourceUrlAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, aiProviders, publicationDate, evaluatePublicationGate };
+export { parsePublicPage, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, aiProviders, publicationDate, evaluatePublicationGate };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });

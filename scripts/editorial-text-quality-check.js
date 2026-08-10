@@ -4,7 +4,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
 const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
-const { parsePublicPage, sourceUrlAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage } = await import("./editorial-autopilot.js");
+const { parsePublicPage, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage } = await import("./editorial-autopilot.js");
 const decomposed = "Assurance proprie\u0301taire";
 const corruptedFixture = { title: "Actualite\uFFFD assurance immeuble", summary: "Signal public", published_at: "10 aout 2026" };
 const repairableFixtures = [
@@ -29,7 +29,11 @@ const parsedAcprFixture = parsePublicPage(
   '<main><a href="/fr/actualites/indemnisation-multirisques-habitation">Indemnisation assurance multirisques habitation</a><p>Actualite assurance logement et sinistres.</p><a href="/fr/professionnels/vos-outils-et-services/esurfi-banque-assurance">Registre des agents financiers et organismes assurance</a></main>',
   { ...acprNewsSource, name: "ACPR", url: "https://acpr.banque-france.fr/fr/actualites" }
 );
-const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
+const franceAssureursSource = { id: "france-assureurs-actualites", name: "France Assureurs", url: "https://www.franceassureurs.fr/actualites" };
+const parsedFranceAssureursFixture = parsePublicPage(
+  '<main><a href="/nos-positions/lassurance-qui-emploie/livre-blanc-emploi/">Livre blanc apprentissage et reconversion dans l assurance</a><a href="/actualites/incendie-immeuble/"><span>Lire l article</span><span class="screen-reader-text">Assurance habitation : incendie dans un immeuble</span></a><a href="/actualites/cyber-ados/"><span class="screen-reader-text">Campagne cyber pour les adolescents</span></a></main>',
+  franceAssureursSource
+);const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const editorialReportPath = join(reportDir, "editorial-autopilot-report.json");
 const out = join(reportDir, "editorial-text-quality-report.json");
 const editorialReport = existsSync(editorialReportPath) ? JSON.parse(readFileSync(editorialReportPath, "utf8")) : null;
@@ -71,7 +75,12 @@ const checks = [
   ["acpr-press-url-retained", sourceUrlAllowed(acprPressSource, new URL("https://acpr.banque-france.fr/fr/communiques-de-presse/mesure-assurance"))],
   ["acpr-taxonomy-url-rejected", !sourceUrlAllowed(acprNewsSource, new URL("https://acpr.banque-france.fr/fr/taxonomy/term/assurance"))],
   ["url-scope-rejections-reported", editorial.includes("url_scope_rejected_count") && editorial.includes("regulator-url-scope-filtered")],
-  ["acpr-parser-retains-news-and-rejects-navigation", parsedAcprFixture.length === 1 && parsedAcprFixture[0].url.includes("/fr/actualites/") && Number(parsedAcprFixture.rejected_url_scope) === 1]
+  ["acpr-parser-retains-news-and-rejects-navigation", parsedAcprFixture.length === 1 && parsedAcprFixture[0].url.includes("/fr/actualites/") && Number(parsedAcprFixture.rejected_url_scope) === 1],
+  ["france-assureurs-article-scope-enforced", sourceUrlAllowed(franceAssureursSource, new URL("https://www.franceassureurs.fr/actualites/incendie-immeuble/")) && !sourceUrlAllowed(franceAssureursSource, new URL("https://www.franceassureurs.fr/nos-positions/emploi/"))],
+  ["france-assureurs-offtopic-content-rejected", !sourceContentAllowed(franceAssureursSource, { title: "Campagne cyber pour les adolescents" }) && !sourceContentAllowed(franceAssureursSource, { title: "Les metiers de l assurance" })],
+  ["france-assureurs-property-content-retained", sourceContentAllowed(franceAssureursSource, { title: "Assurance habitation : incendie dans un immeuble" })],
+  ["france-assureurs-accessible-card-title-parsed", parsedFranceAssureursFixture.length === 1 && parsedFranceAssureursFixture[0].title === "Assurance habitation : incendie dans un immeuble"],
+  ["france-assureurs-rejections-counted", Number(parsedFranceAssureursFixture.rejected_url_scope) === 1 && Number(parsedFranceAssureursFixture.rejected_content_scope) === 1]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
 const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, runtime_report_available: Boolean(editorialReport), runtime_items_checked: editorialReport?.public_watch_items?.length || 0, corrupted_runtime_items: corrupted.map((item) => ({ source_id: item.source_id || "", title: item.title || "" })).slice(0, 8), safeguards: ["unicode-nfc", "control-character-removal", "mojibake-rejection", "source-rejection-accounting", "markup-artifact-sanitization", "runtime-summary-inspection"] };
