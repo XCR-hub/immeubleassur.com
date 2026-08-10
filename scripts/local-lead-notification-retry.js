@@ -50,26 +50,28 @@ function mailConfig() {
 
 function candidates(database, cooldownMinutes, maxAttempts, recoveryProbeMinutes, leaseMinutes, limit) {
   return database.prepare(`
-    SELECT l.*, MAX(f.created_at) AS failed_at,
-      (SELECT COUNT(*) FROM lead_events r WHERE r.lead_id = l.id AND r.event_type = 'email_notification_retry_failed') AS retry_failures,
-      (SELECT MAX(r.created_at) FROM lead_events r WHERE r.lead_id = l.id AND r.event_type IN ('email_notification_retry_failed', 'email_notification_retry_sent')) AS last_retry_at
-    FROM leads l
-    JOIN lead_events f ON f.lead_id = l.id AND f.event_type = 'email_notification_failed'
-    WHERE NOT EXISTS (
-      SELECT 1 FROM lead_events ok
-      WHERE ok.lead_id = l.id AND ok.event_type IN ('email_notification_sent', 'email_notification_retry_sent')
-    )
-      AND NOT EXISTS (
-        SELECT 1 FROM lead_events claim
-        WHERE claim.lead_id = l.id AND claim.event_type = 'email_notification_retry_claimed'
-          AND datetime(claim.created_at) > datetime('now', ?)
+    SELECT * FROM (
+      SELECT l.*, f.failed_at, f.failure_type,
+        (SELECT COUNT(*) FROM lead_events r WHERE r.lead_id = l.id AND r.event_type = 'email_notification_retry_failed' AND datetime(r.created_at) >= datetime(f.failed_at)) AS retry_failures,
+        (SELECT MAX(r.created_at) FROM lead_events r WHERE r.lead_id = l.id AND r.event_type IN ('email_notification_retry_failed', 'email_notification_retry_sent') AND datetime(r.created_at) >= datetime(f.failed_at)) AS last_retry_at
+      FROM leads l
+      JOIN (
+        SELECT e.lead_id, e.event_type AS failure_type, e.created_at AS failed_at
+        FROM lead_events e
+        WHERE e.event_type IN ('email_notification_failed', 'duplicate_email_notification_failed')
+          AND e.id = (SELECT e2.id FROM lead_events e2 WHERE e2.lead_id = e.lead_id AND e2.event_type IN ('email_notification_failed', 'duplicate_email_notification_failed') ORDER BY datetime(e2.created_at) DESC, e2.id DESC LIMIT 1)
+      ) f ON f.lead_id = l.id
+      WHERE NOT EXISTS (
+        SELECT 1 FROM lead_events ok
+        WHERE ok.lead_id = l.id AND ok.event_type IN ('email_notification_sent', 'duplicate_email_notification_sent', 'email_notification_retry_sent') AND datetime(ok.created_at) >= datetime(f.failed_at)
       )
-    GROUP BY l.id
-    HAVING (
-      retry_failures < ? AND datetime(COALESCE(last_retry_at, failed_at)) <= datetime('now', ?)
-    ) OR (
-      retry_failures >= ? AND datetime(COALESCE(last_retry_at, failed_at)) <= datetime('now', ?)
-    )
+        AND NOT EXISTS (
+          SELECT 1 FROM lead_events claim
+          WHERE claim.lead_id = l.id AND claim.event_type = 'email_notification_retry_claimed' AND datetime(claim.created_at) >= datetime(f.failed_at) AND datetime(claim.created_at) > datetime('now', ?)
+        )
+    ) pending_notifications
+    WHERE (retry_failures < ? AND datetime(COALESCE(last_retry_at, failed_at)) <= datetime('now', ?))
+       OR (retry_failures >= ? AND datetime(COALESCE(last_retry_at, failed_at)) <= datetime('now', ?))
     ORDER BY datetime(failed_at) ASC
     LIMIT ?
   `).all(`-${leaseMinutes} minutes`, maxAttempts, `-${cooldownMinutes} minutes`, maxAttempts, `-${recoveryProbeMinutes} minutes`, limit);
@@ -82,13 +84,20 @@ function backlog(database, maxAttempts, overdueMinutes) {
       SUM(CASE WHEN retry_failures < ? AND datetime(last_activity_at) <= datetime('now', ?) THEN 1 ELSE 0 END) AS overdue,
       MIN(failed_at) AS oldest_failed_at
     FROM (
-      SELECT l.id, MAX(f.created_at) AS failed_at,
-        (SELECT COUNT(*) FROM lead_events r WHERE r.lead_id = l.id AND r.event_type = 'email_notification_retry_failed') AS retry_failures,
-        COALESCE((SELECT MAX(r.created_at) FROM lead_events r WHERE r.lead_id = l.id AND r.event_type IN ('email_notification_retry_failed', 'email_notification_retry_sent')), MAX(f.created_at)) AS last_activity_at
+      SELECT l.id, f.failed_at,
+        (SELECT COUNT(*) FROM lead_events r WHERE r.lead_id = l.id AND r.event_type = 'email_notification_retry_failed' AND datetime(r.created_at) >= datetime(f.failed_at)) AS retry_failures,
+        COALESCE((SELECT MAX(r.created_at) FROM lead_events r WHERE r.lead_id = l.id AND r.event_type IN ('email_notification_retry_failed', 'email_notification_retry_sent') AND datetime(r.created_at) >= datetime(f.failed_at)), f.failed_at) AS last_activity_at
       FROM leads l
-      JOIN lead_events f ON f.lead_id = l.id AND f.event_type = 'email_notification_failed'
-      WHERE NOT EXISTS (SELECT 1 FROM lead_events ok WHERE ok.lead_id = l.id AND ok.event_type IN ('email_notification_sent', 'email_notification_retry_sent'))
-      GROUP BY l.id
+      JOIN (
+        SELECT e.lead_id, e.created_at AS failed_at
+        FROM lead_events e
+        WHERE e.event_type IN ('email_notification_failed', 'duplicate_email_notification_failed')
+          AND e.id = (SELECT e2.id FROM lead_events e2 WHERE e2.lead_id = e.lead_id AND e2.event_type IN ('email_notification_failed', 'duplicate_email_notification_failed') ORDER BY datetime(e2.created_at) DESC, e2.id DESC LIMIT 1)
+      ) f ON f.lead_id = l.id
+      WHERE NOT EXISTS (
+        SELECT 1 FROM lead_events ok
+        WHERE ok.lead_id = l.id AND ok.event_type IN ('email_notification_sent', 'duplicate_email_notification_sent', 'email_notification_retry_sent') AND datetime(ok.created_at) >= datetime(f.failed_at)
+      )
     ) pending_notifications
   `).get(maxAttempts, maxAttempts, `-${overdueMinutes} minutes`);
 }
@@ -98,12 +107,12 @@ function claimLead(database, lead, leaseMinutes, now) {
     const unavailable = database.prepare(`
       SELECT 1
       FROM lead_events
-      WHERE lead_id = ? AND (
-        event_type IN ('email_notification_sent', 'email_notification_retry_sent')
+      WHERE lead_id = ? AND datetime(created_at) >= datetime(?) AND (
+        event_type IN ('email_notification_sent', 'duplicate_email_notification_sent', 'email_notification_retry_sent')
         OR (event_type = 'email_notification_retry_claimed' AND datetime(created_at) > datetime('now', ?))
       )
       LIMIT 1
-    `).get(lead.id, `-${leaseMinutes} minutes`);
+    `).get(lead.id, lead.failed_at, `-${leaseMinutes} minutes`);
     if (unavailable) {
       database.exec("ROLLBACK");
       return false;
@@ -119,9 +128,11 @@ function claimLead(database, lead, leaseMinutes, now) {
 
 function messageFor(lead, attempt, now, config) {
   const reference = clean(lead.reference, 80);
-  const subject = `Reprise notification lead ${reference}${lead.email ? "" : " - TELEPHONE SEUL"} - ${clean(lead.city || "ville non precisee", 120)}`;
+  const duplicateReturn = lead.failure_type === "duplicate_email_notification_failed";
+  const subject = `${duplicateReturn ? "Reprise alerte retour prospect" : "Reprise notification lead"} ${reference}${lead.email ? "" : " - TELEPHONE SEUL"} - ${clean(lead.city || "ville non precisee", 120)}`;
   const body = [
     "Notification ImmeubleAssur reprise automatiquement après un échec temporaire.",
+    ...(duplicateReturn ? ["Le prospect a renvoye une demande sur ce dossier deja ouvert.", "Action: rappeler rapidement le dossier existant."] : []),
     `Référence: ${reference}`,
     `Tentative de reprise: ${attempt}`,
     `Créé le: ${clean(lead.created_at, 80)}`,
@@ -179,7 +190,7 @@ async function run() {
     for (const lead of rows) {
       const attempt = Number(lead.retry_failures || 0) + 1;
       if (DRY_RUN) {
-        results.push({ reference: clean(lead.reference, 80), status: "dry-run", attempt, recovery_probe: attempt > maxAttempts });
+        results.push({ reference: clean(lead.reference, 80), status: "dry-run", notification_kind: lead.failure_type === "duplicate_email_notification_failed" ? "duplicate-return" : "initial-lead", attempt, recovery_probe: attempt > maxAttempts });
         continue;
       }
       const now = new Date().toISOString();
@@ -190,10 +201,10 @@ async function run() {
       try {
         const receipt = await sendNodeSmtpMail(config, messageFor(lead, attempt, now, config));
         logEvent(database, lead, "email_notification_retry_sent", { reference: lead.reference, attempt, receipt: safeDiagnostic(receipt, 300) }, now);
-        results.push({ reference: clean(lead.reference, 80), status: "sent", attempt, recovery_probe: attempt > maxAttempts });
+        results.push({ reference: clean(lead.reference, 80), status: "sent", notification_kind: lead.failure_type === "duplicate_email_notification_failed" ? "duplicate-return" : "initial-lead", attempt, recovery_probe: attempt > maxAttempts });
       } catch (error) {
         logEvent(database, lead, "email_notification_retry_failed", { reference: lead.reference, attempt, error: safeDiagnostic(error.message || "Erreur SMTP", 300) }, now);
-        results.push({ reference: clean(lead.reference, 80), status: "failed", attempt, recovery_probe: attempt > maxAttempts, error: safeDiagnostic(error.message || "Erreur SMTP", 200) });
+        results.push({ reference: clean(lead.reference, 80), status: "failed", notification_kind: lead.failure_type === "duplicate_email_notification_failed" ? "duplicate-return" : "initial-lead", attempt, recovery_probe: attempt > maxAttempts, error: safeDiagnostic(error.message || "Erreur SMTP", 200) });
       }
     }
     backlogState = backlog(database, maxAttempts, overdueMinutes);
@@ -210,7 +221,7 @@ async function run() {
     recovery_probe_minutes: recoveryProbeMinutes,
     overdue_minutes: overdueMinutes,
     lease_minutes: leaseMinutes,
-    safeguards: ["atomic-retry-claim", "expiring-crash-lease", "smtp-diagnostics-redacted", "no-contact-data-in-report"],
+    safeguards: ["atomic-retry-claim", "expiring-crash-lease", "smtp-diagnostics-redacted", "no-contact-data-in-report", "duplicate-return-failures-retried", "success-must-postdate-failure"],
     pending: Number(backlogState.pending || 0),
     overdue: Number(backlogState.overdue || 0),
     exhausted: Number(backlogState.exhausted || 0),
