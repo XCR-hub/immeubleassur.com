@@ -22,7 +22,10 @@ const editorialReportPath = join(reportDir, "editorial-autopilot-report.json");
 const out = join(reportDir, "editorial-text-quality-report.json");
 const editorialReport = existsSync(editorialReportPath) ? JSON.parse(readFileSync(editorialReportPath, "utf8")) : null;
 const corruptionPattern = /\uFFFD|ï¿½|Ã[\u0080-\u00BF]|Â[\u0080-\u00BF]|â(?:€|™|œ|ž)|(?:srcset|sizes|loading|width|height|alt)\s*=|(?:png|jpe?g|webp)\s+\d+w|\/div>|&(?:gt|lt|quot|hellip);|components\/|@bdf_|[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/i;
-const corrupted = (editorialReport?.public_watch_items || []).filter((item) => corruptionPattern.test(`${item.title || ""} ${item.summary || ""} ${item.source_name || ""} ${item.published_at || ""}`));
+const corrupted = (editorialReport?.public_watch_items || []).filter((item) => {
+  const corpus = `${item.title || ""} ${item.summary || ""} ${item.source_name || ""} ${item.published_at || ""}`;
+  return corruptionPattern.test(corpus) || repairMojibake(corpus) !== corpus;
+});
 const checks = [
   ["unicode-normalization", editorial.includes('.normalize("NFC")')],
   ["control-characters-removed", editorial.includes("\\u0000-\\u0008")],
