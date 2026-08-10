@@ -20,6 +20,14 @@ function clean(value, limit = 300) {
   return String(value || "").replace(/[\r\n\0]+/g, " ").trim().slice(0, limit);
 }
 
+function safeDiagnostic(value, limit = 240) {
+  return clean(value, limit * 2)
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email-redacted]")
+    .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, "[ip-redacted]")
+    .replace(/\b(bearer|token|password|secret|api[-_ ]?key)\s*[:=]?\s*\S+/gi, "$1 [redacted]")
+    .slice(0, limit);
+}
+
 function readJson(path) {
   try { return JSON.parse(readFileSync(path, "utf8")); } catch { return null; }
 }
@@ -42,7 +50,6 @@ function pendingDrafts() {
       })).digest("hex").slice(0, 20);
       return {
         file: name,
-        path,
         generated_at: generatedAt,
         publication_status: data.publication_status,
         legacy_format: data.publication_status === "draft_review",
@@ -107,7 +114,7 @@ async function maybeAlert(report) {
     `Termes sensibles: ${draft.matched_terms.join(", ") || "aucun"}`,
     `Sources attribuees: ${draft.source_count}`,
     `Age de revue: ${draft.age_days} jour(s) - ${draft.review_severity}`,
-    `Fichier de revue: ${draft.path}`,
+    `Fichier de revue: ${draft.file}`,
     `Brouillons en attente: ${report.pending_count}`,
     `En avertissement: ${report.warning_count}`,
     `Critiques: ${report.critical_count}`,
@@ -119,7 +126,7 @@ async function maybeAlert(report) {
   const receipt = await sendNodeSmtpMail(config, message);
   mkdirSync(dirname(statePath), { recursive: true });
   writeFileSync(statePath, `${JSON.stringify({ last_alert_at: new Date().toISOString(), signature: report.signature, file: draft.file }, null, 2)}\n`, "utf8");
-  return { attempted: true, status: "sent", transport: config.transport, recipient_is_team: config.to.some((item) => item.toLowerCase() === "team@immeubleassur.com"), receipt, cooldown_minutes: cooldownMinutes };
+  return { attempted: true, status: "sent", transport: config.transport, recipient_is_team: config.to.some((item) => item.toLowerCase() === "team@immeubleassur.com"), receipt: safeDiagnostic(receipt), cooldown_minutes: cooldownMinutes };
 }
 
 async function run() {
@@ -158,9 +165,9 @@ async function run() {
       critical_cooldown_minutes: numberEnv("LOCAL_EDITORIAL_REVIEW_CRITICAL_COOLDOWN_MINUTES", 360)
     },
     retention: { automatic_deletion: false, review_window_days: numberEnv("LOCAL_EDITORIAL_REVIEW_WINDOW_DAYS", 30), warning_days: warningDays, critical_days: criticalDays },
-    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "no-automatic-deletion", "age-based-review-sla", "oldest-critical-first"]
+    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "no-automatic-deletion", "age-based-review-sla", "oldest-critical-first", "no-local-paths-in-report-or-alert", "smtp-diagnostics-redacted"]
   };
-  report.alert = await maybeAlert(report).catch((error) => ({ attempted: true, status: "failed", error: clean(error.message || "editorial review alert failed", 500) }));
+  report.alert = await maybeAlert(report).catch((error) => ({ attempted: true, status: "failed", error: safeDiagnostic(error.message || "editorial review alert failed") }));
   mkdirSync(dirname(reportPath), { recursive: true });
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(`Editorial review monitor: ${report.status}, pending=${report.pending_count}, legal=${report.legal_sensitive_count}, alert=${report.alert.status}.`);
