@@ -251,6 +251,12 @@ function sanitizeEditorialSummary(value) {
   if (navigationOnly.test(summary)) return "";
   return summary;
 }
+function sourceUrlAllowed(source, candidateUrl) {
+  const path = String(candidateUrl?.pathname || "").replace(/\/+$/, "").toLowerCase();
+  if (source?.id === "acpr-actualites") return /^\/fr\/actualites\/[^/]+$/.test(path);
+  if (source?.id === "acpr-communiques") return /^\/fr\/communiques-de-presse\/[^/]+$/.test(path);
+  return true;
+}
 function parsePublicPage(html, source) {
   const cleaned = String(html || "").replace(/<(script|style|svg|nav|footer)\b[\s\S]*?<\/\1>/gi, " ");
   const sourceUrl = new URL(source.url);
@@ -262,6 +268,7 @@ function parsePublicPage(html, source) {
     let url;
     try { url = new URL(decodeHtml(match[1]), source.url); } catch { continue; }
     if (!/^https?:$/.test(url.protocol) || url.hostname !== sourceUrl.hostname || url.href === sourceUrl.href) continue;
+    if (!sourceUrlAllowed(source, url)) { rejectedUrlScope += 1; continue; }
     const contextStart = Math.max(0, (match.index || 0) - 350);
     const contextEnd = Math.min(cleaned.length, (match.index || 0) + match[0].length + 700);
     const context = sanitizeEditorialSummary(cleaned.slice(contextStart, contextEnd));
@@ -284,7 +291,9 @@ function parsePublicPage(html, source) {
     const key = item.url.replace(/[?#].*$/, "").replace(/\/$/, "");
     if (!unique.has(key) || unique.get(key).summary.length < item.summary.length) unique.set(key, item);
   }
-  return qualityFiltered([...unique.values()].sort((a, b) => b.relevance_score - a.relevance_score).slice(0, 12));
+  const filtered = qualityFiltered([...unique.values()].sort((a, b) => b.relevance_score - a.relevance_score).slice(0, 12));
+  filtered.rejected_url_scope = rejectedUrlScope;
+  return filtered;
 }
 
 async function fetchWithTimeout(url, timeoutMs = 8000) {
@@ -309,7 +318,7 @@ async function collectWatchItems() {
       const payload = await fetchWithTimeout(source.url);
       const parsed = source.source_type === "rss" ? parseRss(payload, source) : parsePublicPage(payload, source);
       fetched.push(...parsed);
-      sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: parsed.length ? "healthy" : "empty", item_count: parsed.length, text_quality_rejected_count: Number(parsed.rejected_text_quality || 0) });
+      sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: parsed.length ? "healthy" : "empty", item_count: parsed.length, text_quality_rejected_count: Number(parsed.rejected_text_quality || 0), url_scope_rejected_count: Number(parsed.rejected_url_scope || 0) });
     } catch (error) {
       errors.push({ source: source.id, error: error.message || "fetch failed" });
       sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: "failed", item_count: 0, error: error.message || "fetch failed" });
@@ -681,6 +690,7 @@ async function run() {
     healthy_source_count: sourceResults.filter((source) => source.status === "healthy").length,
     empty_source_count: sourceResults.filter((source) => source.status === "empty").length,
     failed_source_count: sourceResults.filter((source) => source.status === "failed").length,
+    url_scope_rejected_count: sourceResults.reduce((sum, source) => sum + Number(source.url_scope_rejected_count || 0), 0),
     text_quality_rejected_count: sourceResults.reduce((sum, source) => sum + Number(source.text_quality_rejected_count || 0), 0),
     text_quality_status: sourceResults.some((source) => Number(source.text_quality_rejected_count || 0) > 0) ? "filtered" : "clean",
     minimum_healthy_sources: 3,
@@ -694,7 +704,7 @@ async function run() {
     issue: publicWriteEnabled ? { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url } : null,
     issue_backfills: issueBackfills,
     automation_plan: automationPlan(items),
-    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review", "legal-sensitive-ai-drafts-quarantined", "public-content-provider-deterministic", "human-approval-required-before-ai-publication", "fresh-official-evidence-required", "last-valid-publication-preserved-on-source-failure", "unicode-nfc-normalized", "corrupted-source-text-excluded", "source-markup-artifacts-sanitized"],
+    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review", "legal-sensitive-ai-drafts-quarantined", "public-content-provider-deterministic", "human-approval-required-before-ai-publication", "fresh-official-evidence-required", "last-valid-publication-preserved-on-source-failure", "unicode-nfc-normalized", "corrupted-source-text-excluded", "source-markup-artifacts-sanitized", "regulator-url-scope-filtered"],
     errors
   };
   const publicReport = {
@@ -720,7 +730,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, aiProviders, publicationDate, evaluatePublicationGate };
+export { sourceUrlAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, aiProviders, publicationDate, evaluatePublicationGate };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });

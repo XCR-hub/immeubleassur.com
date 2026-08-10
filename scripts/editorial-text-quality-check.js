@@ -4,7 +4,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
 const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
-const { repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered } = await import("./editorial-autopilot.js");
+const { sourceUrlAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered } = await import("./editorial-autopilot.js");
 const decomposed = "Assurance proprie\u0301taire";
 const corruptedFixture = { title: "Actualite\uFFFD assurance immeuble", summary: "Signal public", published_at: "10 aout 2026" };
 const repairableFixtures = [
@@ -17,6 +17,8 @@ const artifactFixture = { title: "Actualite assurance immeuble attribuee", summa
 const sanitizedArtifact = sanitizeEditorialSummary(artifactFixture.summary);
 const navigationSummaryFixture = "L’assurance vie";
 const navigationSequenceFixture = "La prévention au quotidien Les démarches en cas de sinistre";
+const acprNewsSource = { id: "acpr-actualites" };
+const acprPressSource = { id: "acpr-communiques" };
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const editorialReportPath = join(reportDir, "editorial-autopilot-report.json");
 const out = join(reportDir, "editorial-text-quality-report.json");
@@ -35,7 +37,7 @@ const checks = [
   ["partial-markup-boundaries-trimmed", editorial.includes("function trimPartialMarkup")],
   ["summary-sanitizer-applied", editorial.includes("summary: sanitizeEditorialSummary(item.summary)")],
   ["rss-items-quality-filtered", /function parseRss[\s\S]*return qualityFiltered/.test(editorial)],
-  ["public-page-items-quality-filtered", /function parsePublicPage[\s\S]*return qualityFiltered/.test(editorial)],
+  ["public-page-items-quality-filtered", /function parsePublicPage[\s\S]*qualityFiltered[\s\S]*return filtered/.test(editorial)],
   ["rejections-counted-per-source", editorial.includes("text_quality_rejected_count: Number(parsed.rejected_text_quality || 0)")],
   ["gate-observes-rejections", editorial.includes("text_quality_rejected_items:")],
   ["runtime-summaries-exported", editorial.includes("title, url, summary, topic")],
@@ -49,7 +51,12 @@ const checks = [
   ["sanitized-fixture-retained", qualityFiltered([artifactFixture]).length === 1],
   ["navigation-summary-suppressed", sanitizeEditorialSummary(navigationSummaryFixture) === ""],
   ["navigation-sequence-suppressed", sanitizeEditorialSummary(navigationSequenceFixture) === ""],
-  ["informative-short-summary-retained", sanitizeEditorialSummary("Communiqué de presse ACPR") === "Communiqué de presse ACPR"]
+  ["informative-short-summary-retained", sanitizeEditorialSummary("Communiqué de presse ACPR") === "Communiqué de presse ACPR"],
+  ["acpr-news-article-url-retained", sourceUrlAllowed(acprNewsSource, new URL("https://acpr.banque-france.fr/fr/actualites/indemnisation-multirisques-habitation"))],
+  ["acpr-navigation-url-rejected", !sourceUrlAllowed(acprNewsSource, new URL("https://acpr.banque-france.fr/fr/professionnels/vos-outils-et-services/esurfi-banque-assurance"))],
+  ["acpr-press-url-retained", sourceUrlAllowed(acprPressSource, new URL("https://acpr.banque-france.fr/fr/communiques-de-presse/mesure-assurance"))],
+  ["acpr-taxonomy-url-rejected", !sourceUrlAllowed(acprNewsSource, new URL("https://acpr.banque-france.fr/fr/taxonomy/term/assurance"))],
+  ["url-scope-rejections-reported", editorial.includes("url_scope_rejected_count") && editorial.includes("regulator-url-scope-filtered")]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
 const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, runtime_report_available: Boolean(editorialReport), runtime_items_checked: editorialReport?.public_watch_items?.length || 0, corrupted_runtime_items: corrupted.map((item) => ({ source_id: item.source_id || "", title: item.title || "" })).slice(0, 8), safeguards: ["unicode-nfc", "control-character-removal", "mojibake-rejection", "source-rejection-accounting", "markup-artifact-sanitization", "runtime-summary-inspection"] };
