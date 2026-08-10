@@ -48,6 +48,8 @@ const checks = [
   ["official-anthropic-guidance-recorded", monitor.includes("https://support.anthropic.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler")],
   ["live-monitor-verifies-multi-ai-access", monitor.includes("perplexitybot-can-read-watch") && monitor.includes("claude-searchbot-can-read-watch") && monitor.includes("claude-user-can-read-watch") && monitor.includes("googlebot-can-read-watch") && monitor.includes("bingbot-can-read-watch")],
   ["live-monitor-verifies-active-edition-utf8", monitor.includes("active-edition-declares-utf8") && monitor.includes("active-edition-has-no-mojibake") && monitor.includes("active_edition_content_type")],
+  ["active-edition-generated-as-indexable-newsarticle", editorial.includes('publishedDate: issue.day') && editorial.includes('"@type": "NewsArticle"') && editorial.includes('<meta name="robots" content="index, follow, max-image-preview:large"')],
+  ["live-monitor-verifies-active-edition-search-metadata", monitor.includes("active-edition-is-indexable") && monitor.includes("active-edition-canonical-is-current") && monitor.includes("active-edition-has-newsarticle-schema")],
   ["generation-pass-persists-artifacts", pass.includes('write(join(OUT, "robots.txt")') && pass.includes('write(join(OUT, "llms.txt")') && pass.includes('methodologie-editoriale.html')],
   ["indexnow-key-is-public-and-valid", /^[a-f0-9]{64}$/.test(indexNowKey) && indexNow.includes("key_publicly_verifiable: true")],
   ["indexnow-submits-only-changed-same-host-urls", indexNow.includes("previous[row.url] !== row.lastmod") && indexNow.includes("new URL(row.url).host === siteUrl.host") && indexNow.includes("state-not-advanced-on-failure")],

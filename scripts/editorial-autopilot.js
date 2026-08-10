@@ -93,7 +93,7 @@ function footer() {
   return `<footer class="site-footer" id="contact"><div><strong>ImmeubleAssur</strong><p>Courtier specialiste immeuble, copropriete, PNO, CNO, SCI et syndic.</p></div><address><a href="tel:${PHONE_HREF}">${PHONE}</a><a href="mailto:${EMAIL}">${EMAIL}</a><a href="/confidentialite">Confidentialite</a><span>ORIAS ${ORIAS}</span></address></footer>`;
 }
 
-function layout({ slug, title, description, body }) {
+function layout({ slug, title, description, body, publishedDate = "" }) {
   const canonical = siteUrl(slug);
   const faqItems = [...body.matchAll(/<details><summary>([\s\S]*?)<\/summary><p>([\s\S]*?)<\/p><\/details>/gi)].map((match) => ({ "@type": "Question", name: stripHtml(match[1]), acceptedAnswer: { "@type": "Answer", text: stripHtml(match[2]) } }));
   const graph = [
@@ -101,12 +101,14 @@ function layout({ slug, title, description, body }) {
     { "@type": "WebSite", "@id": `${SITE}/#website`, url: SITE, name: "ImmeubleAssur", publisher: { "@id": `${SITE}/#organization` } },
     { "@type": "WebPage", "@id": `${canonical}#webpage`, url: canonical, name: title, description, isPartOf: { "@id": `${SITE}/#website` }, publisher: { "@id": `${SITE}/#organization` } },
     { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Accueil", item: `${SITE}/` }, { "@type": "ListItem", position: 2, name: title, item: canonical }] },
-    { "@type": "Service", name: title, serviceType: "Assurance immeuble", provider: { "@id": `${SITE}/#organization` }, areaServed: "France", url: canonical }
+    publishedDate
+      ? { "@type": "NewsArticle", "@id": `${canonical}#article`, headline: title, description, datePublished: publishedDate, dateModified: publishedDate, inLanguage: "fr-FR", mainEntityOfPage: { "@id": `${canonical}#webpage` }, author: { "@id": `${SITE}/#organization` }, publisher: { "@id": `${SITE}/#organization` } }
+      : { "@type": "Service", name: title, serviceType: "Assurance immeuble", provider: { "@id": `${SITE}/#organization` }, areaServed: "France", url: canonical }
   ];
   if (faqItems.length) graph.push({ "@type": "FAQPage", mainEntity: faqItems });
   const schema = { "@context": "https://schema.org", "@graph": graph };
   const liveEditorialScript = slug === "veille-assurance-immeuble" ? `<script src="${EDITORIAL_LIVE_JS_URL}" type="module"></script>` : "";
-  return `<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="description" content="${attr(description)}" /><link rel="canonical" href="${canonical}" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="${STYLES_URL}" /><title>${esc(title)} | ImmeubleAssur</title><script type="application/ld+json">${JSON.stringify(schema)}</script></head><body><a class="skip-link" href="#main-content">Aller au contenu principal</a>${nav()}<main id="main-content">${body}</main>${footer()}<script src="${APP_JS_URL}" type="module"></script>${liveEditorialScript}</body></html>`;
+  return `<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="robots" content="index, follow, max-image-preview:large" /><meta name="description" content="${attr(description)}" /><link rel="canonical" href="${canonical}" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="${STYLES_URL}" /><title>${esc(title)} | ImmeubleAssur</title><script type="application/ld+json">${JSON.stringify(schema)}</script></head><body><a class="skip-link" href="#main-content">Aller au contenu principal</a>${nav()}<main id="main-content">${body}</main>${footer()}<script src="${APP_JS_URL}" type="module"></script>${liveEditorialScript}</body></html>`;
 }
 
 function newsletterForm(source = "editorial-autopilot") {
@@ -559,7 +561,7 @@ function issuePage(issue, items, publicSynthesis) {
     "Les signaux importants sont sinistres recurrents, travaux, vacance, hausse de prime et exclusions mal comprises."
   ];
   const body = `<article class="article-layout rich-article newsletter-issue"><header class="article-head"><p class="eyebrow dark">Newsletter - ${esc(issue.day)}</p><h1>${esc(issue.title)}</h1><p>${esc(issue.summary)}</p></header><div class="article-body"><div class="article-summary"><strong>A retenir</strong><ul>${issue.takeaways.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></div><section><h2>Synthese de veille.</h2>${publicSynthesis.text.split(/\n{2,}/).map((p) => `<p>${esc(p)}</p>`).join("")}</section><section><h2>Sources et signaux suivis.</h2><div class="watch-list-compact">${items.slice(0, 8).map((item) => `<article><strong><a href="${attr(item.url)}" rel="nofollow noopener">${esc(item.title)}</a></strong><span>${esc(item.source_name)} - ${esc(item.topic || "veille")}</span><p>${esc(item.summary || "Signal a surveiller pour l'assurance immeuble.")}</p></article>`).join("")}</div></section><section class="faq-list"><h2>FAQ de la veille</h2>${FAQS.map((q, index) => `<details><summary>${esc(q)}</summary><p>${esc(faqAnswers[index % faqAnswers.length])}</p></details>`).join("")}</section></div><aside class="article-cta">${newsletterForm("newsletter-issue")}<div class="source-box"><strong>Besoin concret ?</strong><a class="button primary" href="/devis-assurance-immeuble?intent=sinistre">Demander un audit ou devis immeuble</a><a href="/devis-pno-cno?intent=pno-cno">Comparer PNO/CNO</a></div></aside></article>`;
-  return layout({ slug: issue.slug, title: issue.title, description: issue.summary, body });
+  return layout({ slug: issue.slug, title: issue.title, description: issue.summary, body, publishedDate: issue.day });
 }
 
 function injectBlock(file, marker, block) {
