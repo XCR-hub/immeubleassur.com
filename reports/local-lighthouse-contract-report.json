@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-08-10T01:59:30.296Z",
+  "status": "passed",
+  "checks": 7,
+  "missing": [],
+  "safeguards": [
+    "median-not-single-run",
+    "raw-sample-evidence",
+    "bounded-runtime",
+    "partial-failure-visible"
+  ]
+}

@@ -20,6 +20,9 @@ function numberEnv(name, fallback) {
   return Number.isFinite(value) ? value : fallback;
 }
 
+const requestedSamples = process.argv.includes("--samples") ? Number(process.argv[process.argv.indexOf("--samples") + 1]) : numberEnv("LOCAL_LIGHTHOUSE_SAMPLES", 3);
+const samplesPerUrl = Math.max(1, Math.min(5, Number.isFinite(requestedSamples) ? Math.round(requestedSamples) : 3));
+
 const thresholds = {
   performance: numberEnv("LOCAL_LIGHTHOUSE_MIN_PERFORMANCE", 80),
   seo: numberEnv("LOCAL_LIGHTHOUSE_MIN_SEO", 95),
@@ -36,6 +39,15 @@ function score(category) {
 function metric(audits, id, precision = 0) {
   const value = Number(audits?.[id]?.numericValue);
   if (!Number.isFinite(value)) return null;
+  const factor = 10 ** precision;
+  return Math.round(value * factor) / factor;
+}
+
+function median(values, precision = 0) {
+  const valid = values.map(Number).filter(Number.isFinite).sort((a, b) => a - b);
+  if (!valid.length) return null;
+  const middle = Math.floor(valid.length / 2);
+  const value = valid.length % 2 ? valid[middle] : (valid[middle - 1] + valid[middle]) / 2;
   const factor = 10 ** precision;
   return Math.round(value * factor) / factor;
 }
@@ -69,29 +81,45 @@ async function run() {
   try {
     for (const url of urls) {
       try {
-        let result;
-        for (let attempt = 1; attempt <= 2; attempt += 1) {
-          result = await lighthouse(url, { port: chrome.port, logLevel: "error", output: "json", onlyCategories: ["performance", "seo", "accessibility"], formFactor: "mobile", maxWaitForLoad: 45000 });
-          if (!result?.lhr?.runtimeError || result.lhr.runtimeError.code !== "NO_NAVSTART") break;
+        const samples = [];
+        const sampleErrors = [];
+        for (let sample = 1; sample <= samplesPerUrl; sample += 1) {
+          try {
+            let result;
+            for (let attempt = 1; attempt <= 2; attempt += 1) {
+              result = await lighthouse(url, { port: chrome.port, logLevel: "error", output: "json", onlyCategories: ["performance", "seo", "accessibility"], formFactor: "mobile", maxWaitForLoad: 45000 });
+              if (!result?.lhr?.runtimeError || result.lhr.runtimeError.code !== "NO_NAVSTART") break;
+            }
+            if (result?.lhr?.runtimeError) throw new Error((result.lhr.runtimeError.code || "runtime-error") + ": " + (result.lhr.runtimeError.message || "Lighthouse runtime error"));
+            const categories = result?.lhr?.categories || {};
+            const audits = result?.lhr?.audits || {};
+            samples.push({ sample, final_url: result?.lhr?.finalUrl || url, lighthouse_version: result?.lhr?.lighthouseVersion || "", performance: score(categories.performance), seo: score(categories.seo), accessibility: score(categories.accessibility), fcp_ms: metric(audits, "first-contentful-paint"), lcp_ms: metric(audits, "largest-contentful-paint"), cls: metric(audits, "cumulative-layout-shift", 3), tbt_ms: metric(audits, "total-blocking-time"), speed_index_ms: metric(audits, "speed-index") });
+          } catch (error) {
+            sampleErrors.push({ sample, error: String(error.message || "Lighthouse sample failed").slice(0, 500) });
+          }
         }
-        if (result?.lhr?.runtimeError) throw new Error((result.lhr.runtimeError.code || "runtime-error") + ": " + (result.lhr.runtimeError.message || "Lighthouse runtime error"));
-        const categories = result?.lhr?.categories || {};
-        const audits = result?.lhr?.audits || {};
+        if (!samples.length) throw new Error(sampleErrors.map((item) => item.error).join(" | ") || "All Lighthouse samples failed");
         const row = {
           url,
-          final_url: result?.lhr?.finalUrl || url,
+          final_url: samples.at(-1)?.final_url || url,
           ok: true,
-          lighthouse_version: result?.lhr?.lighthouseVersion || "",
-          performance: score(categories.performance),
-          seo: score(categories.seo),
-          accessibility: score(categories.accessibility),
-          fcp_ms: metric(audits, "first-contentful-paint"),
-          lcp_ms: metric(audits, "largest-contentful-paint"),
-          cls: metric(audits, "cumulative-layout-shift", 3),
-          tbt_ms: metric(audits, "total-blocking-time"),
-          speed_index_ms: metric(audits, "speed-index")
+          lighthouse_version: samples[0]?.lighthouse_version || "",
+          sample_count: samples.length,
+          samples_requested: samplesPerUrl,
+          aggregation: "median",
+          performance: median(samples.map((item) => item.performance)),
+          seo: median(samples.map((item) => item.seo)),
+          accessibility: median(samples.map((item) => item.accessibility)),
+          fcp_ms: median(samples.map((item) => item.fcp_ms)),
+          lcp_ms: median(samples.map((item) => item.lcp_ms)),
+          cls: median(samples.map((item) => item.cls), 3),
+          tbt_ms: median(samples.map((item) => item.tbt_ms)),
+          speed_index_ms: median(samples.map((item) => item.speed_index_ms)),
+          samples,
+          sample_errors: sampleErrors
         };
         row.issues = evaluate(row);
+        if (samples.length < samplesPerUrl) row.issues.push(`samples<${samplesPerUrl}`);
         rows.push(row);
       } catch (error) {
         rows.push({ url, ok: false, error: String(error.message || "Lighthouse failed").slice(0, 500), issues: ["audit-failed"] });
@@ -109,6 +137,8 @@ async function run() {
     lighthouse_version: valid[0]?.lighthouse_version || "",
     chrome_path: chromePath,
     chrome_profile: chromeProfile,
+    samples_per_url: samplesPerUrl,
+    aggregation: "median",
     checked: rows.length,
     rotation_slot: requestedUrl ? null : rotationSlot,
     successful: valid.length,

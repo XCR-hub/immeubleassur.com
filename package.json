@@ -82,6 +82,7 @@
                     "links:contract":  "node scripts/internal-link-contract-check.js",
                     "performance:budget":  "node scripts/performance-budget-check.js",
                     "pagespeed:local":  "node scripts/local-lighthouse-monitor.js",
+                    "pagespeed:local:contract":  "node scripts/local-lighthouse-contract-check.js",
                     "conversion:clusters":  "node scripts/cluster-conversion-contract-check.js",
                     "google:unlock":  "node scripts/google-readiness-unlock.js",
                     "security:headers":  "node scripts/security-headers-check.js",

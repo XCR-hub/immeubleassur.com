@@ -21,7 +21,7 @@ const runnable = {
   turnstile: { command: ["scripts/turnstile-hybrid-pass.js"], objective: "Rafraichir les widgets Turnstile et fallback anti-fraude local.", minIntervalMinutes: 1440, report: "turnstile-hybrid-report.json" },
   pexels: { command: ["scripts/media-autopilot.js", "--fetch"], objective: "Rafraichir les visuels attribues lorsque Pexels est configure.", minIntervalMinutes: 1440, report: "media-autopilot-report.json" },
   "editorial-ai": { command: ["scripts/editorial-autopilot.js", "--fetch", "--ai"], objective: "Rafraichir la veille editoriale IA avec fallback local.", minIntervalMinutes: 360, report: "editorial-autopilot-report.json" },
-  "pagespeed-local": { command: ["scripts/local-lighthouse-monitor.js"], objective: "Mesurer les performances mobiles avec Lighthouse et Chrome locaux.", readinessIds: ["pagespeed"], minIntervalMinutes: 360, report: "local-lighthouse-report.json", attentionStatuses: ["degraded", "failed"], timeoutMs: 180000 },
+  "pagespeed-local": { command: ["scripts/local-lighthouse-monitor.js"], objective: "Mesurer les performances mobiles avec Lighthouse et Chrome locaux.", readinessIds: ["pagespeed"], minIntervalMinutes: 360, report: "local-lighthouse-report.json", attentionStatuses: ["degraded", "failed"], timeoutMs: 240000 },
   serpapi: { command: ["scripts/search-intelligence.js", "--serp"], objective: "Mesurer les positions Google via SerpApi sans scraping direct." },
   "google-seo": { command: ["scripts/seo-autopilot.js", "--gsc-if-configured", "--url-inspection", "--submit-sitemap"], objective: "Rafraichir Search Console et les signaux SEO Google lorsque le connecteur est pret.", readinessIds: ["google-search-console"], minIntervalMinutes: 180, report: "seo-autopilot-report.json" }
 };
