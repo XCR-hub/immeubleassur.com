@@ -26,6 +26,8 @@ if (!existsSync(sourcePath)) {
     source_count: Number(report.source_count || 0),
     healthy_source_count: Number(report.healthy_source_count || 0),
     empty_source_count: Number(report.empty_source_count || 0),
+    no_relevant_source_count: Number(report.no_relevant_source_count || 0),
+
     failed_source_count: Number(report.failed_source_count || 0),
     collection_status: report.collection_status || "unknown",
     public_watch_items: sanitizePublicWatchItems(report.public_watch_items),

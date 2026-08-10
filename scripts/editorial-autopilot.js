@@ -228,6 +228,7 @@ function parseRss(xml, source) {
   }).filter((item) => item.title && item.url);
   const relevant = parsed.filter((item) => sourceContentAllowed(source, item) && item.relevance_score >= 35);
   const filtered = qualityFiltered(relevant);
+  filtered.raw_item_count = parsed.length;
   filtered.rejected_content_scope = parsed.length - relevant.length;
   return filtered;
 }
@@ -358,7 +359,7 @@ async function collectWatchItems() {
       const payload = await fetchWithTimeout(source.url);
       const parsed = source.source_type === "rss" ? parseRss(payload, source) : parsePublicPage(payload, source);
       fetched.push(...parsed);
-      sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: parsed.length ? "healthy" : "empty", item_count: parsed.length, text_quality_rejected_count: Number(parsed.rejected_text_quality || 0), url_scope_rejected_count: Number(parsed.rejected_url_scope || 0), content_scope_rejected_count: Number(parsed.rejected_content_scope || 0) });
+      sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: parsed.length ? "healthy" : Number(parsed.raw_item_count || 0) > 0 ? "no-relevant-items" : "empty", item_count: parsed.length, raw_item_count: Number(parsed.raw_item_count || parsed.length || 0), text_quality_rejected_count: Number(parsed.rejected_text_quality || 0), url_scope_rejected_count: Number(parsed.rejected_url_scope || 0), content_scope_rejected_count: Number(parsed.rejected_content_scope || 0) });
     } catch (error) {
       errors.push({ source: source.id, error: error.message || "fetch failed" });
       sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: "failed", item_count: 0, error: error.message || "fetch failed" });
@@ -739,6 +740,7 @@ async function run() {
     fetchable_source_count: sourceResults.length,
     healthy_source_count: sourceResults.filter((source) => source.status === "healthy").length,
     empty_source_count: sourceResults.filter((source) => source.status === "empty").length,
+    no_relevant_source_count: sourceResults.filter((source) => source.status === "no-relevant-items").length,
     failed_source_count: sourceResults.filter((source) => source.status === "failed").length,
     url_scope_rejected_count: sourceResults.reduce((sum, source) => sum + Number(source.url_scope_rejected_count || 0), 0),
     text_quality_rejected_count: sourceResults.reduce((sum, source) => sum + Number(source.text_quality_rejected_count || 0), 0),
@@ -770,6 +772,8 @@ async function run() {
     source_count: report.source_count,
     healthy_source_count: report.healthy_source_count,
     empty_source_count: report.empty_source_count,
+    no_relevant_source_count: report.no_relevant_source_count,
+
     failed_source_count: report.failed_source_count,
     collection_status: report.collection_status,
     public_watch_items: sanitizePublicWatchItems(report.public_watch_items),
@@ -779,7 +783,7 @@ async function run() {
   write(join(ASSET_DIR, "editorial-autopilot-latest.json"), JSON.stringify(publicReport, null, 2));
 
   console.log(`Editorial autopilot ${publicWriteEnabled ? "published" : "held"} candidate ${issue.slug} with ${items.length} watch items (${synthesis.provider}/${synthesis.status}); gate=${publicationGate.decision}.`);
-  console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
+  console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", no-relevant=" + report.no_relevant_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
 export { parseRss, parsePublicPage, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, aiProviders, publicationDate, evaluatePublicationGate };
