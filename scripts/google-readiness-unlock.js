@@ -114,14 +114,18 @@ function actionFor(id, row, reason) {
   const missing = missingFor(row);
   const optionalMissing = [];
   if (id === "ga4" && !envConfigured(["GA4_API_SECRET", "GOOGLE_GA4_API_SECRET"])) optionalMissing.push("GA4_API_SECRET");
+  const configured = Boolean(row?.ready);
+  const operationalReady = configured && !degraded(row);
   return {
     id,
     label: row?.label || id,
     family: row?.family || (id === "ga4" ? "analytics" : "google"),
     severity: plan.severity,
     reason,
-    status: row?.status || "unknown",
-    ready: Boolean(row?.ready),
+    status: lastStatus(row) || row?.status || "unknown",
+    configured,
+    operational_ready: operationalReady,
+    ready: operationalReady,
     objective: plan.objective,
     missing_required_names: missing,
     missing_optional_names: optionalMissing,
@@ -168,6 +172,7 @@ const report = {
     "no-secret-values-exported",
     "secret-names-only",
     "google-apis-use-official-connectors",
+    "configured-is-distinct-from-operational-ready",
     "serp-signals-labelled-measured-or-fallback",
     "ga4-events-without-pii"
   ]
