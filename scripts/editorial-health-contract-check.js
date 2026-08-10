@@ -11,6 +11,7 @@ const admin = readFileSync("public/assets/admin.js", "utf8");
 const review = readFileSync("scripts/local-editorial-review-monitor.js", "utf8");
 const growth = readFileSync("scripts/local-growth-ops-export.js", "utf8");
 const task = readFileSync("scripts/local-runtime-task.ps1", "utf8");
+const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const reportPath = join(reportDir, "editorial-health-contract-report.json");
 const checks = [
@@ -29,7 +30,9 @@ const checks = [
   ["review-alert-routes-explicitly-to-team", task.includes("LOCAL_EDITORIAL_REVIEW_ALERT_TO = 'team@immeubleassur.com'") && review.includes("recipient_is_team")],
   ["critical-review-alerts-escalate-faster", review.includes("LOCAL_EDITORIAL_REVIEW_CRITICAL_COOLDOWN_MINUTES") && review.includes("report.critical_count > 0") && task.includes("LOCAL_EDITORIAL_REVIEW_CRITICAL_COOLDOWN_MINUTES = '360'")],
   ["runtime-runs-review-after-editorial", runtime.indexOf('runStep("editorial_review_monitor"') > runtime.indexOf('runStep("editorial_runtime_publisher"')],
-  ["growth-ops-exposes-review-aggregate", growth.includes("sanitizeEditorialReview") && growth.includes("editorial-human-review")]
+  ["growth-ops-exposes-review-aggregate", growth.includes("sanitizeEditorialReview") && growth.includes("editorial-human-review")],
+  ["runtime-executes-editorial-text-quality", runtime.includes('runStep("editorial_text_quality", ["scripts/editorial-text-quality-check.js"]')],
+  ["standard-pipelines-execute-editorial-text-quality", ["check", "check:site", "local:autarky:check"].every((name) => String(packageJson.scripts?.[name] || "").includes("node scripts/editorial-text-quality-check.js"))]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
 const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, policy: { alert_after_consecutive_holds: 3, maximum_public_edition_age_days: 14, legal_ai_auto_publication: false } };
