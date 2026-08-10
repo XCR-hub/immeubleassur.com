@@ -93,8 +93,10 @@ function publicProfile(row) {
 }
 
 function requestContext(request) {
+  const cloudflare = request?.headers?.get("cf-connecting-ip") || "";
+  const forwarded = request?.headers?.get("x-forwarded-for") || "";
   return {
-    ip_address: clean(request?.headers?.get("x-forwarded-for") || request?.headers?.get("cf-connecting-ip"), 120).split(",")[0].trim(),
+    ip_address: clean(cloudflare || String(forwarded).split(",").at(-1), 120),
     user_agent: clean(request?.headers?.get("user-agent"), 500)
   };
 }
@@ -239,6 +241,12 @@ async function login(request, env, body) {
     return json({ success: false, error: "Identifiants invalides" }, 401);
   };
   if (!validEmail(email) || !password) return genericError("login_invalid_input");
+  const context = requestContext(request);
+  const recentFailures = context.ip_address ? await env.DB.prepare("SELECT COUNT(*) AS count FROM admin_auth_events WHERE ip_address = ? AND success = 0 AND action LIKE 'login_%' AND created_at >= datetime('now', '-15 minutes')").bind(context.ip_address).first() : { count: 0 };
+  if (Number(recentFailures?.count || 0) >= 10) {
+    await logAuthEvent(env, request, { email, action: "login_rate_limited", success: false });
+    return json({ success: false, error: "Identifiants invalides" }, 429);
+  }
   const row = await env.DB.prepare("SELECT * FROM admin_profiles WHERE lower(email) = ? LIMIT 1").bind(email).first();
   const now = new Date();
   if (!row || Number(row.active) !== 1) return genericError("login_unknown_profile", row?.id || "");

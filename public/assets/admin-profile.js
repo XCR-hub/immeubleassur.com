@@ -13,6 +13,7 @@ const auditButton = document.querySelector("#load-admin-auth-events");
 const auditBody = document.querySelector("#admin-auth-events-body");
 const PROFILE_SESSION_KEY = "immeubleassur_admin_token";
 const inviteFromUrl = new URLSearchParams(window.location.search).get("invite") || "";
+if (inviteFromUrl) history.replaceState(null, "", window.location.pathname + window.location.hash);
 if (inviteFromUrl && profileInviteAcceptPanel) { profileInviteAcceptPanel.hidden = false; profileInviteAcceptForm?.elements.token && (profileInviteAcceptForm.elements.token.value = inviteFromUrl); }
 
 function status(message, type = "") {

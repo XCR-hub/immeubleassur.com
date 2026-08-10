@@ -3,13 +3,15 @@ const ADMIN_AUTH_RATE_LIMIT_MARKER = "admin-auth-rate-limit-v1";
 const ADMIN_SESSION_MARKER = "admin-profile-session-v1";
 const ADMIN_SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 const adminSessions = new Map();
-const ADMIN_AUTH_FAILURE_LIMIT = 40;
+const ADMIN_AUTH_FAILURE_LIMIT = 12;
 const ADMIN_AUTH_WINDOW_MS = 5 * 60 * 1000;
 const failuresByIp = new Map();
 
 function requestIp(request) {
-  const forwarded = request?.headers?.get("x-forwarded-for") || request?.headers?.get("cf-connecting-ip") || "unknown";
-  return String(forwarded).split(",")[0].trim().slice(0, 120) || "unknown";
+  const cloudflare = request?.headers?.get("cf-connecting-ip") || "";
+  const forwarded = request?.headers?.get("x-forwarded-for") || "";
+  const candidate = cloudflare || String(forwarded).split(",").at(-1) || "unknown";
+  return String(candidate).trim().slice(0, 120) || "unknown";
 }
 
 function failureState(ip, now) {

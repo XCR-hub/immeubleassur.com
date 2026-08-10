@@ -98,6 +98,13 @@ try {
   const logout = await read(await authPost({ request: request("/api/admin/auth", { method: "POST", headers: authorization, body: JSON.stringify({ action: "logout" }) }), env }));
   assert(logout.status === 200 && logout.body.success, "operator logout should succeed");
 
+  const limiterHeaders = { "Content-Type": "application/json", "X-Forwarded-For": "198.51.100.44, 203.0.113.9" };
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const rejected = await read(await authPost({ request: request("/api/admin/auth", { method: "POST", headers: limiterHeaders, body: JSON.stringify({ action: "login", email: "unknown@example.test", password: "invalid-password" }) }), env }));
+    assert(rejected.status === 401, "first ten IP login failures should remain generic rejections");
+  }
+  const rateLimited = await read(await authPost({ request: request("/api/admin/auth", { method: "POST", headers: limiterHeaders, body: JSON.stringify({ action: "login", email: "unknown@example.test", password: "invalid-password" }) }), env }));
+  assert(rateLimited.status === 429 && rateLimited.body.error === "Identifiants invalides", "persistent IP limiter should reject the eleventh login without revealing account state");
   const audit = await read(await authGet({ request: request("/api/admin/auth?events=1", { headers: { Authorization: "Bearer admin-profile-master-token" } }), env }));
   assert(audit.status === 200 && audit.body.marker === "admin-auth-audit-v1" && audit.body.events.some((event) => event.action === "login_success"), "authenticated operators should read the authentication audit");
   const readonlyAudit = await read(await authGet({ request: request("/api/admin/auth?events=1", { headers: refreshedReadonlyAuthorization }), env }));
@@ -106,12 +113,13 @@ try {
   const revoked = await read(await authGet({ request: request("/api/admin/auth", { headers: authorization }), env }));
   assert(revoked.status === 401, "logged out operator session should be rejected");
 
-  const auditRows = DB.prepare("SELECT action, success, payload FROM admin_auth_events ORDER BY created_at").all().results;
+  const auditRows = DB.prepare("SELECT action, success, ip_address, payload FROM admin_auth_events ORDER BY created_at").all().results;
   assert(auditRows.length >= 5, "profile authentication events should be persisted");
   const auditText = JSON.stringify(auditRows);
   assert(!auditText.includes("Longue-Phrase-2026!") && !auditText.includes("Invitation-Phrase-2026!") && !auditText.includes(inviteToken) && !auditText.includes(login.body.session.token), "authentication audit must not store passwords, invitation tokens or session tokens");
   assert(auditRows.some((row) => row.action === "login_failed" && Number(row.success) === 0), "failed login should be audited");
   assert(auditRows.some((row) => row.action === "login_success" && Number(row.success) === 1), "successful login should be audited");
+  assert(auditRows.some((row) => row.action === "login_rate_limited" && Number(row.success) === 0 && row.ip_address === "203.0.113.9"), "rate limiting must be audited against the trusted last proxy hop");
   assert(auditRows.some((row) => row.action === "logout" && Number(row.success) === 1), "logout should be audited");
   console.log("Admin profile workflow smoke passed: protected creation -> PBKDF2 login -> CRM session -> logout.");
 } finally {

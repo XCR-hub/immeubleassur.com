@@ -19,6 +19,7 @@ const checks=[
   ["monitor-covers-smtp",monitor.includes('inspectJsonRuntime("smtp_transport"')],
   ["monitor-covers-newsletter",monitor.includes('inspectJsonRuntime("newsletter_delivery"')],
   ["monitor-covers-runtime-cycle",monitor.includes('inspectJsonRuntime("runtime_cycle_freshness"')],
+  ["monitor-covers-security-surface",monitor.includes('inspectJsonRuntime("security_surface"') && runtime.includes('runStep("security_surface_monitor"')],
   ["production-alerts-enabled",task.includes("LOCAL_MONITOR_ALERTS = '1'")],
   ["lead-sla-alerts-enabled",task.includes("LOCAL_LEAD_SLA_ALERTS = '1'")],
   ["runtime-runs-monitor",runtime.includes('runStep("production_monitor"')]

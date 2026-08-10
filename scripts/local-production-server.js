@@ -94,6 +94,7 @@ function applySecurityHeaders(response, request) {
   response.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
   response.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), fullscreen=(self)');
   response.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  response.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
   response.setHeader('Content-Security-Policy', contentSecurityPolicy());
   if (isHttpsRequest(request)) response.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 }
@@ -284,9 +285,9 @@ function handleStatic(request, response) {
     response.writeHead(200, {
       "Content-Type": contentTypes[extension] || "application/octet-stream",
       "Content-Length": stat.size,
-      "Cache-Control": runtimeFile ? "no-store" : (file.includes(`${join("public", "assets")}`) ? "public, max-age=31536000, immutable" : "public, max-age=300"),
+      "Cache-Control": runtimeFile || file.endsWith(join("public", "admin.html")) ? "no-store" : (file.includes(`${join("public", "assets")}`) ? "public, max-age=31536000, immutable" : "public, max-age=300"),
       "X-Content-Type-Options": "nosniff",
-      "Referrer-Policy": "strict-origin-when-cross-origin"
+      "Referrer-Policy": file.endsWith(join("public", "admin.html")) ? "no-referrer" : "strict-origin-when-cross-origin"
     });
     if (request.method === "HEAD") {
       response.end();

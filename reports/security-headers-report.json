@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-04T12:24:39.712Z",
+  "generated_at": "2026-08-10T03:55:02.719Z",
   "status": "passed",
-  "header_count": 8,
+  "header_count": 9,
   "csp_directive_count": 9,
   "files_checked": 2,
   "security_txt": true,
@@ -18,7 +18,8 @@
         "X-Frame-Options",
         "X-Permitted-Cross-Domain-Policies",
         "Permissions-Policy",
-        "Cross-Origin-Opener-Policy"
+        "Cross-Origin-Opener-Policy",
+        "Cross-Origin-Resource-Policy"
       ],
       "csp_directives_present": [
         "default-src 'self'",
@@ -44,7 +45,8 @@
         "X-Frame-Options",
         "X-Permitted-Cross-Domain-Policies",
         "Permissions-Policy",
-        "Cross-Origin-Opener-Policy"
+        "Cross-Origin-Opener-Policy",
+        "Cross-Origin-Resource-Policy"
       ],
       "csp_directives_present": [
         "default-src 'self'",
@@ -66,6 +68,9 @@
     "csp-allows-turnstile-and-ga4-only",
     "hsts-behind-https-proxy",
     "frame-ancestors-none",
+    "cross-origin-resource-policy",
+    "admin-no-store",
+    "invite-url-scrubbing",
     "security-txt-contact"
   ]
 }

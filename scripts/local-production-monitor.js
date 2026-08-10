@@ -285,6 +285,7 @@ async function run() {
   const smtpReportPath = resolve(env("LOCAL_SMTP_HEALTH_REPORT", join(runtimeReportsRoot, "local-smtp-health-report.json")));
   const newsletterReportPath = resolve(env("LOCAL_NEWSLETTER_DELIVERY_REPORT", join(runtimeReportsRoot, "local-newsletter-delivery-report.json")));
   const runtimeCyclePath = resolve(env("LOCAL_RUNTIME_CYCLE_REPORT", join(runtimeReportsRoot, "local-runtime-report-cycle.json")));
+  const securitySurfacePath = resolve(env("LOCAL_SECURITY_SURFACE_REPORT", join(runtimeReportsRoot, "local-security-surface-report.json")));
   const out = resolve(argValue("--out", env("LOCAL_PRODUCTION_MONITOR_REPORT", join("reports", "local-production-monitor-report.json"))));
 
   const checks = [
@@ -297,7 +298,8 @@ async function run() {
     inspectJsonRuntime("tls_certificate", tlsReportPath, 90, (report) => report.ok === true && ["healthy", "warning"].includes(report.status), (report) => ({ days_remaining: report.days_remaining })),
     inspectJsonRuntime("smtp_transport", smtpReportPath, 90, (report) => report.status === "ready" && report.authenticated === true, (report) => ({ authenticated: report.authenticated === true, transport: report.transport || report.provider || "smtp" })),
     inspectJsonRuntime("newsletter_delivery", newsletterReportPath, 90, (report) => ["no-active-subscribers", "up-to-date", "completed", "batch-completed"].includes(report.status) && report.failed === 0, (report) => ({ issue_synced: report.issue_synced === true, active_subscribers: Number(report.active_subscribers || 0), failed: Number(report.failed || 0) })),
-    inspectJsonRuntime("runtime_cycle_freshness", runtimeCyclePath, 90, (report) => report.success === true, (report) => ({ steps: Array.isArray(report.steps) ? report.steps.length : 0 }))
+    inspectJsonRuntime("runtime_cycle_freshness", runtimeCyclePath, 90, (report) => report.success === true, (report) => ({ steps: Array.isArray(report.steps) ? report.steps.length : 0 })),
+    inspectJsonRuntime("security_surface", securitySurfacePath, 90, (report) => report.success === true && report.summary?.failed === 0, (report) => ({ checks: Array.isArray(report.checks) ? report.checks.length : 0, failed: Number(report.summary?.failed || 0) }))
   ];
 
   const report = {
