@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { DatabaseSync } from "node:sqlite";
 
@@ -33,12 +33,15 @@ try {
   result = runDrill();
   if (result.status !== 0) throw new Error(result.stderr || "valid business schema restore drill failed");
   report = JSON.parse(readFileSync(reportPath, "utf8"));
+  const serializedReport = JSON.stringify(report);
   const checks = [
     ["valid-schema-passes", report.status === "passed" && report.integrity === "ok"],
     ["all-required-business-tables-present", report.required_table_count === 10 && report.missing_required_tables.length === 0],
     ["source-hash-verified", report.source_hash_verified === true],
     ["foreign-keys-clean", report.foreign_key_violations === 0],
-    ["temporary-restore-copy-removed", report.copy_retained === false && (!existsSync(drillDir) || readdirSync(drillDir).filter((name) => name.endsWith(".sqlite")).length === 0)]
+    ["temporary-restore-copy-removed", report.copy_retained === false && (!existsSync(drillDir) || readdirSync(drillDir).filter((name) => name.endsWith(".sqlite")).length === 0)],
+    ["local-paths-not-exported", report.source_file === basename(source) && report.manifest_file === basename(manifest) && !serializedReport.includes(root)],
+    ["path-minimization-safeguard-exported", report.safeguards.includes("no-local-paths-in-report")]
   ];
   const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
   if (missing.length) throw new Error(`Restore business schema contract failed: ${missing.join(", ")}`);

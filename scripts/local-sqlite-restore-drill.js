@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 
@@ -14,6 +14,12 @@ function writeReport(path, report) {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 }
+function safeReportError(value) {
+  return String(value || "restore drill failed")
+    .replace(/[A-Za-z]:[\\/][^,\r\n]+/g, "[local-path]")
+    .replace(/\/(?:[^/\s]+\/)+[^,\r\n\s]+/g, "[local-path]")
+    .slice(0, 500);
+}
 
 function run() {
   const backupDir = resolve(env("LOCAL_SQLITE_BACKUP_DIR", join("backups", "sqlite")));
@@ -23,7 +29,7 @@ function run() {
   const preferMirror = env("LOCAL_SQLITE_RESTORE_DRILL_PREFER_MIRROR", "1") === "1";
   const retainCopy = env("LOCAL_SQLITE_RESTORE_DRILL_RETAIN_COPY", "0") === "1";
   let restoredPath = "";
-  const report = { generated_at: new Date().toISOString(), status: "failed", manifest: manifestPath };
+  const report = { generated_at: new Date().toISOString(), status: "failed", manifest_file: basename(manifestPath), safeguards: ["hash-verified", "sqlite-integrity-check", "foreign-key-check", "required-business-tables", "no-local-paths-in-report", "temporary-copy-removed"] };
 
   try {
     if (!existsSync(manifestPath)) throw new Error(`Manifest de sauvegarde introuvable: ${manifestPath}`);
@@ -47,14 +53,14 @@ function run() {
       let totalRows = 0;
       for (const table of tables) totalRows += Number(database.prepare(`SELECT COUNT(*) AS count FROM ${quoteIdentifier(table)}`).get()?.count || 0);
       const missingRequiredTables = REQUIRED_BUSINESS_TABLES.filter((table) => !tables.includes(table));
-      Object.assign(report, { source_type: useMirror ? "mirror" : "primary", source_file: sourcePath, restored_file: restoredPath, source_hash_verified: true, sha256: restoredHash, size_bytes: statSync(restoredPath).size, integrity, foreign_key_violations: foreignKeyViolations, table_count: tables.length, total_rows: totalRows, required_table_count: REQUIRED_BUSINESS_TABLES.length, missing_required_tables: missingRequiredTables });
+      Object.assign(report, { source_type: useMirror ? "mirror" : "primary", source_file: basename(sourcePath), restored_file: basename(restoredPath), source_hash_verified: true, sha256: restoredHash, size_bytes: statSync(restoredPath).size, integrity, foreign_key_violations: foreignKeyViolations, table_count: tables.length, total_rows: totalRows, required_table_count: REQUIRED_BUSINESS_TABLES.length, missing_required_tables: missingRequiredTables });
       if (integrity !== "ok" || foreignKeyViolations !== 0 || tables.length < 10 || missingRequiredTables.length) throw new Error(`Restauration invalide: integrity=${integrity}, foreign_keys=${foreignKeyViolations}, tables=${tables.length}, missing_required=${missingRequiredTables.join(",") || "none"}`);
       report.status = "passed";
     } finally {
       database.close();
     }
   } catch (error) {
-    report.error = error.message || "restore drill failed";
+    report.error = safeReportError(error.message);
   } finally {
     if (restoredPath && existsSync(restoredPath) && !retainCopy) rmSync(restoredPath, { force: true });
     report.copy_retained = Boolean(retainCopy && restoredPath && existsSync(restoredPath));
