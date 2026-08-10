@@ -295,7 +295,7 @@ function handleStatic(request, response) {
     response.writeHead(200, {
       "Content-Type": contentTypes[extension] || "application/octet-stream",
       "Content-Length": stat.size,
-      "Cache-Control": runtimeFile || file.endsWith(join("public", "admin.html")) ? "no-store" : (file.includes(`${join("public", "assets")}`) ? "public, max-age=31536000, immutable" : "public, max-age=300"),
+      "Cache-Control": runtimeFile || file.endsWith(join("public", "admin.html")) || /-latest\.json$/i.test(file) ? "no-store" : (file.includes(`${join("public", "assets")}`) ? "public, max-age=31536000, immutable" : "public, max-age=300"),
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": file.endsWith(join("public", "admin.html")) ? "no-referrer" : "strict-origin-when-cross-origin"
     });

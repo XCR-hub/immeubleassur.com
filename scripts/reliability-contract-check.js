@@ -11,6 +11,7 @@ const monitorTask=readFileSync("scripts/local-production-monitor-task.ps1","utf8
 const lighthouse=readFileSync("scripts/local-lighthouse-monitor.js","utf8");
 const restoreDrill=readFileSync("scripts/local-sqlite-restore-drill.js","utf8");
 const server=readFileSync("scripts/local-production-server.js","utf8");
+const staticServer=readFileSync("scripts/local-static-server.js","utf8");
 const security=readFileSync("scripts/local-security-surface-monitor.js","utf8");
 const smtp=readFileSync("scripts/local-smtp.js","utf8");
 const smtpHealth=readFileSync("scripts/local-smtp-health-check.js","utf8");
@@ -53,6 +54,8 @@ const checks=[
   ["runtime-fails-on-ready-connector-errors",runtime.includes('["scripts/live-ready-connectors-runner.js", "--runtime-cycle", "--strict"]')],
   ["runtime-does-not-rerun-connectors",task.match(/live-ready-connectors-runner\\.js/g) === null],
   ["csp-blocks-inline-executable-scripts",server.includes("script-src 'self' https://challenges.cloudflare.com")&&!server.includes("script-src 'self' 'unsafe-inline'")],
+  ["production-latest-json-is-never-immutable",server.includes('/-latest\\.json$/i.test(file) ? "no-store"')],
+  ["static-latest-json-is-never-immutable",staticServer.includes('/-latest\\.json$/i.test(file) ? "no-store"')],
   ["public-html-has-no-inline-executable-scripts",inlineExecutableHtml.length===0],
   ["live-security-monitor-enforces-strict-script-csp",security.includes("csp-blocks-inline-executable-scripts")&&security.includes("!scriptPolicy.includes")&&security.includes("'unsafe-inline'")],
   ["live-security-monitor-blocks-sensitive-files",security.includes("sensitive-files-not-public")&&security.includes('"/.env.production"')&&security.includes('"/.git/config"')&&security.includes('"/data/immeubleassur.sqlite"')],

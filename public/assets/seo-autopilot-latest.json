@@ -1,38 +1,71 @@
 {
-  "generated_at": "2026-08-01T13:38:50.858Z",
-  "pages_checked": 185,
-  "average_score": 95,
-  "opportunities_count": 89,
+  "generated_at": "2026-08-10T14:47:29.698Z",
+  "pages_checked": 203,
+  "average_score": 100,
+  "opportunities_count": 12,
   "weak_pages": [
     {
-      "slug": "blog/franchise-degat-des-eaux-immeuble",
-      "url": "https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble",
-      "title": "Degat des eaux immeuble: franchises et recherche de fuite | ImmeubleAssur",
-      "description": "Pourquoi deux contrats d'immeuble peuvent produire des restes a charge tres differents apres degat des eaux.",
-      "words": 521,
+      "slug": "espace-assureur",
+      "url": "https://immeubleassur.com/espace-assureur",
+      "title": "Espace assureur - ImmeubleAssur | ImmeubleAssur",
+      "description": "Espace assureur ImmeubleAssur consacre aux echanges de dossiers, aux pieces utiles et au suivi des consultations en assurance immeuble.",
+      "words": 57,
       "h1": 1,
-      "h2": 4,
+      "h2": 7,
       "details": 0,
-      "jsonLd": 4,
-      "hasLeadForm": true,
+      "jsonLd": 0,
+      "hasLeadForm": false,
       "issues": [
         {
           "severity": "medium",
-          "type": "title",
-          "message": "Title longueur 73",
-          "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles."
-        },
-        {
-          "severity": "medium",
-          "type": "description",
-          "message": "Description longueur 108",
-          "recommendation": "Ajuster la meta description autour de 120-160 caracteres."
+          "type": "content-depth",
+          "message": "57 mots",
+          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
         },
         {
           "severity": "low",
           "type": "faq",
           "message": "Peu de FAQ visibles",
           "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
+        },
+        {
+          "severity": "medium",
+          "type": "schema",
+          "message": "0 blocs JSON-LD",
+          "recommendation": "Verifier BreadcrumbList, WebPage/Article, FAQ ou Service selon la page."
+        }
+      ],
+      "score": 75
+    },
+    {
+      "slug": "espace-client",
+      "url": "https://immeubleassur.com/espace-client",
+      "title": "Espace client - ImmeubleAssur | ImmeubleAssur",
+      "description": "Espace client securise ImmeubleAssur pour suivre un dossier courtage, transmettre les pieces et piloter son contrat.",
+      "words": 132,
+      "h1": 1,
+      "h2": 11,
+      "details": 0,
+      "jsonLd": 0,
+      "hasLeadForm": false,
+      "issues": [
+        {
+          "severity": "medium",
+          "type": "content-depth",
+          "message": "132 mots",
+          "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile."
+        },
+        {
+          "severity": "low",
+          "type": "faq",
+          "message": "Peu de FAQ visibles",
+          "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent."
+        },
+        {
+          "severity": "medium",
+          "type": "schema",
+          "message": "0 blocs JSON-LD",
+          "recommendation": "Verifier BreadcrumbList, WebPage/Article, FAQ ou Service selon la page."
         }
       ],
       "score": 75
@@ -40,204 +73,124 @@
   ],
   "top_opportunities": [
     {
-      "id": "assurance-immeuble-bordeaux-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/assurance-immeuble-bordeaux",
+      "id": "espace-assureur-1",
+      "type": "content-depth",
+      "url": "https://immeubleassur.com/espace-assureur",
+      "page_score": 75,
+      "severity": "medium",
+      "score": 60,
+      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
+      "message": "57 mots"
+    },
+    {
+      "id": "espace-assureur-3",
+      "type": "schema",
+      "url": "https://immeubleassur.com/espace-assureur",
+      "page_score": 75,
+      "severity": "medium",
+      "score": 60,
+      "recommendation": "Verifier BreadcrumbList, WebPage/Article, FAQ ou Service selon la page.",
+      "message": "0 blocs JSON-LD"
+    },
+    {
+      "id": "espace-client-1",
+      "type": "content-depth",
+      "url": "https://immeubleassur.com/espace-client",
+      "page_score": 75,
+      "severity": "medium",
+      "score": 60,
+      "recommendation": "Renforcer la page avec exemples, FAQ et checklist utile.",
+      "message": "132 mots"
+    },
+    {
+      "id": "espace-client-3",
+      "type": "schema",
+      "url": "https://immeubleassur.com/espace-client",
+      "page_score": 75,
+      "severity": "medium",
+      "score": 60,
+      "recommendation": "Verifier BreadcrumbList, WebPage/Article, FAQ ou Service selon la page.",
+      "message": "0 blocs JSON-LD"
+    },
+    {
+      "id": "methodologie-editoriale-1",
+      "type": "schema",
+      "url": "https://immeubleassur.com/methodologie-editoriale",
       "page_score": 90,
       "severity": "medium",
       "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 172"
+      "recommendation": "Verifier BreadcrumbList, WebPage/Article, FAQ ou Service selon la page.",
+      "message": "1 blocs JSON-LD"
     },
     {
-      "id": "assurance-immeuble-de-rapport-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 109"
+      "id": "blog/assurance-sci-patrimoine-locatif-1",
+      "type": "faq",
+      "url": "https://immeubleassur.com/blog/assurance-sci-patrimoine-locatif",
+      "page_score": 95,
+      "severity": "low",
+      "score": 35,
+      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
+      "message": "Peu de FAQ visibles"
     },
     {
-      "id": "assurance-immeuble-grenoble-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/assurance-immeuble-grenoble",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 171"
+      "id": "blog/franchise-degat-des-eaux-immeuble-1",
+      "type": "faq",
+      "url": "https://immeubleassur.com/blog/franchise-degat-des-eaux-immeuble",
+      "page_score": 95,
+      "severity": "low",
+      "score": 35,
+      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
+      "message": "Peu de FAQ visibles"
     },
     {
-      "id": "assurance-immeuble-obligatoire-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 103"
+      "id": "dommages-ouvrage-immeuble-1",
+      "type": "faq",
+      "url": "https://immeubleassur.com/dommages-ouvrage-immeuble",
+      "page_score": 95,
+      "severity": "low",
+      "score": 35,
+      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
+      "message": "Peu de FAQ visibles"
     },
     {
-      "id": "assurance-immeuble-paris-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/assurance-immeuble-paris",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 183"
+      "id": "espace-assureur-2",
+      "type": "faq",
+      "url": "https://immeubleassur.com/espace-assureur",
+      "page_score": 75,
+      "severity": "low",
+      "score": 35,
+      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
+      "message": "Peu de FAQ visibles"
     },
     {
-      "id": "assurance-immeuble-syndic-benevole-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/assurance-immeuble-syndic-benevole",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 74"
+      "id": "espace-client-2",
+      "type": "faq",
+      "url": "https://immeubleassur.com/espace-client",
+      "page_score": 75,
+      "severity": "low",
+      "score": 35,
+      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
+      "message": "Peu de FAQ visibles"
     },
     {
-      "id": "assurance-parties-communes-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/assurance-parties-communes",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 81"
+      "id": "gestion-sinistres-immeuble-1",
+      "type": "faq",
+      "url": "https://immeubleassur.com/gestion-sinistres-immeuble",
+      "page_score": 95,
+      "severity": "low",
+      "score": 35,
+      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
+      "message": "Peu de FAQ visibles"
     },
     {
-      "id": "blog/assurance-colocation-immeuble-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-colocation-immeuble",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 96"
-    },
-    {
-      "id": "blog/assurance-copropriete-obligatoire-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-copropriete-obligatoire",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 73"
-    },
-    {
-      "id": "blog/assurance-immeuble-ancien-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-ancien",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 74"
-    },
-    {
-      "id": "blog/assurance-immeuble-ancien-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-ancien",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 106"
-    },
-    {
-      "id": "blog/assurance-immeuble-avec-ascenseur-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-avec-ascenseur",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 79"
-    },
-    {
-      "id": "blog/assurance-immeuble-avec-ascenseur-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-avec-ascenseur",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 91"
-    },
-    {
-      "id": "blog/assurance-immeuble-etudiant-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-etudiant",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 105"
-    },
-    {
-      "id": "blog/assurance-immeuble-local-professionnel-1",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-local-professionnel",
-      "page_score": 90,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 104"
-    },
-    {
-      "id": "blog/assurance-immeuble-mixte-commerce-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 75"
-    },
-    {
-      "id": "blog/assurance-immeuble-mixte-commerce-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-mixte-commerce",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 95"
-    },
-    {
-      "id": "blog/assurance-immeuble-protection-du-patrimoine-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-protection-du-patrimoine",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 80"
-    },
-    {
-      "id": "blog/assurance-immeuble-protection-du-patrimoine-2",
-      "type": "description",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-protection-du-patrimoine",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster la meta description autour de 120-160 caracteres.",
-      "message": "Description longueur 100"
-    },
-    {
-      "id": "blog/assurance-immeuble-vacant-1",
-      "type": "title",
-      "url": "https://immeubleassur.com/blog/assurance-immeuble-vacant",
-      "page_score": 80,
-      "severity": "medium",
-      "score": 60,
-      "recommendation": "Ajuster le titre entre 35 et 72 caracteres utiles.",
-      "message": "Title longueur 74"
+      "id": "rc-syndic-1",
+      "type": "faq",
+      "url": "https://immeubleassur.com/rc-syndic",
+      "page_score": 95,
+      "severity": "low",
+      "score": 35,
+      "recommendation": "Ajouter des questions reelles et reponses courtes quand pertinent.",
+      "message": "Peu de FAQ visibles"
     }
   ],
   "auto_fix": {
@@ -489,8 +442,8 @@
   },
   "content_quality": {
     "configured": true,
-    "generated_at": "2026-08-01T13:23:48.019Z",
-    "pages_checked": 186,
+    "generated_at": "2026-08-05T02:14:25.190Z",
+    "pages_checked": 205,
     "status": "passed",
     "severe_issue_count": 0,
     "warning_count": 0,
@@ -506,13 +459,13 @@
   },
   "cannibalization": {
     "configured": true,
-    "generated_at": "2026-08-01T13:23:49.356Z",
+    "generated_at": "2026-08-04T11:31:07.893Z",
     "status": "passed",
-    "pages_checked": 177,
+    "pages_checked": 188,
     "clusters_checked": 11,
     "high_risk_count": 0,
-    "medium_risk_count": 0,
-    "watch_count": 3,
+    "medium_risk_count": 5,
+    "watch_count": 23,
     "cluster_summary": [
       {
         "cluster": "local-city",
@@ -525,14 +478,14 @@
           }
         ],
         "representative_terms": [
+          "arbitrage",
           "historique",
           "locale",
+          "multirisque",
           "coproprietes",
-          "arbitrage",
           "climatiques",
           "evenements",
           "activites",
-          "batiment",
           "correctives",
           "degats",
           "delais",
@@ -541,12 +494,12 @@
       },
       {
         "cluster": "assurance-immeuble",
-        "pages": 20,
+        "pages": 19,
         "primary_slug": "multirisque-immeuble",
         "type_mix": [
           {
             "type": "service",
-            "count": 10
+            "count": 9
           },
           {
             "type": "blog",
@@ -562,28 +515,28 @@
           }
         ],
         "representative_terms": [
-          "aller",
-          "batiment",
-          "multirisque",
-          "changement",
-          "checklist",
           "civile",
-          "coproprietaires",
-          "obligatoire",
-          "rapport",
-          "assure",
-          "comment",
-          "communes"
+          "multirisque",
+          "checklist",
+          "commerce",
+          "eviter",
+          "quand",
+          "assurer",
+          "communes",
+          "comprendre",
+          "decision",
+          "donnees",
+          "historique"
         ]
       },
       {
         "cluster": "copropriete-syndic",
-        "pages": 18,
+        "pages": 19,
         "primary_slug": "assurance-copropriete",
         "type_mix": [
           {
             "type": "blog",
-            "count": 10
+            "count": 11
           },
           {
             "type": "service",
@@ -595,18 +548,18 @@
           }
         ],
         "representative_terms": [
-          "aller",
           "quand",
           "coproprietaires",
           "benevole",
-          "communes",
           "assemblee",
           "civile",
+          "communes",
+          "decision",
+          "dommages",
           "multirisque",
-          "parties",
           "archives",
-          "comment",
-          "dommages"
+          "comprendre",
+          "designation"
         ]
       },
       {
@@ -637,7 +590,6 @@
         ],
         "representative_terms": [
           "occupant",
-          "aller",
           "coproprietaire",
           "statut",
           "vacant",
@@ -645,9 +597,76 @@
           "quand",
           "attestation",
           "biens",
-          "logement",
           "comprendre",
-          "locataire"
+          "locataire",
+          "logement",
+          "multirisque"
+        ]
+      },
+      {
+        "cluster": "sinistre-resilie",
+        "pages": 15,
+        "primary_slug": "gestion-sinistres-immeuble",
+        "type_mix": [
+          {
+            "type": "blog",
+            "count": 11
+          },
+          {
+            "type": "service",
+            "count": 3
+          },
+          {
+            "type": "faq",
+            "count": 1
+          }
+        ],
+        "representative_terms": [
+          "historique",
+          "devient",
+          "demandeur",
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "fuite",
+          "mesures",
+          "causes",
+          "correctifs",
+          "correctives"
+        ]
+      },
+      {
+        "cluster": "devis-courtier",
+        "pages": 13,
+        "primary_slug": "devis-assurance-immeuble",
+        "type_mix": [
+          {
+            "type": "blog",
+            "count": 8
+          },
+          {
+            "type": "lead",
+            "count": 4
+          },
+          {
+            "type": "service",
+            "count": 1
+          }
+        ],
+        "representative_terms": [
+          "decision",
+          "correctement",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct",
+          "document",
+          "ensuite",
+          "evite",
+          "offres",
+          "comparaison"
         ]
       },
       {
@@ -671,88 +690,26 @@
         "representative_terms": [
           "locatif",
           "multirisque",
-          "aller",
+          "quand",
           "biens",
           "locative",
-          "occupants",
           "patrimoine",
-          "quand",
-          "gerant",
-          "principal",
           "coherence",
-          "commerce"
-        ]
-      },
-      {
-        "cluster": "sinistre-resilie",
-        "pages": 10,
-        "primary_slug": "gestion-sinistres-immeuble",
-        "type_mix": [
-          {
-            "type": "blog",
-            "count": 6
-          },
-          {
-            "type": "service",
-            "count": 3
-          },
-          {
-            "type": "faq",
-            "count": 1
-          }
-        ],
-        "representative_terms": [
-          "historique",
-          "aller",
-          "comment",
-          "fuite",
-          "mesures",
-          "causes",
-          "correctives",
-          "degat",
-          "quand",
-          "cause",
-          "correctifs",
-          "devient"
-        ]
-      },
-      {
-        "cluster": "devis-courtier",
-        "pages": 8,
-        "primary_slug": "devis-assurance-immeuble",
-        "type_mix": [
-          {
-            "type": "blog",
-            "count": 4
-          },
-          {
-            "type": "lead",
-            "count": 4
-          }
-        ],
-        "representative_terms": [
-          "batiment",
-          "aller",
-          "comment",
-          "complet",
-          "ligne",
-          "mandat",
-          "offres",
-          "acceder",
-          "arbitrage",
-          "assure",
-          "assurer",
-          "cahier"
+          "commerce",
+          "gerant",
+          "occupants",
+          "principal",
+          "dependances"
         ]
       },
       {
         "cluster": "prix-tarif",
-        "pages": 6,
+        "pages": 7,
         "primary_slug": "prix-assurance-immeuble",
         "type_mix": [
           {
             "type": "blog",
-            "count": 3
+            "count": 4
           },
           {
             "type": "service",
@@ -764,18 +721,18 @@
           }
         ],
         "representative_terms": [
-          "comprendre",
-          "arbitrage",
           "budget",
+          "comprendre",
+          "reste",
+          "arbitrage",
+          "changent",
           "charge",
           "comparaison",
           "historique",
           "quand",
-          "reste",
+          "surface",
           "tarif",
-          "aller",
-          "changent",
-          "comment"
+          "basse"
         ]
       },
       {
@@ -793,18 +750,18 @@
           }
         ],
         "representative_terms": [
-          "activite",
-          "aller",
           "commerce",
           "commercial",
+          "demandeur",
+          "activite",
           "commerciale",
-          "batiment",
-          "cache",
-          "changement",
-          "changer",
-          "chere",
-          "clauses",
-          "comment"
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "devient",
+          "distinct",
+          "document"
         ]
       },
       {
@@ -822,18 +779,18 @@
           }
         ],
         "representative_terms": [
-          "communes",
-          "compter",
-          "dernier",
-          "difference",
-          "entreprendre",
-          "evolution",
-          "existe",
-          "explique",
-          "actionnable",
-          "alertes",
-          "aller",
-          "anticiper"
+          "historique",
+          "transformer",
+          "alerte",
+          "communications",
+          "coproprietaires",
+          "droit",
+          "exploitable",
+          "newsletter",
+          "preparer",
+          "regulateur",
+          "remplace",
+          "renouvellement"
         ]
       },
       {
@@ -851,51 +808,299 @@
           }
         ],
         "representative_terms": [
-          "chantier",
+          "demandeur",
+          "dommage",
           "ravalement",
           "toiture",
-          "aller",
           "anticiper",
           "basse",
-          "batiment",
-          "cache",
-          "changement",
-          "changer",
-          "chere",
-          "clauses"
+          "chantier",
+          "commence",
+          "comparaison",
+          "comprise",
+          "connus",
+          "coproprietes"
         ]
       }
     ],
     "watchlist": [
       {
-        "cluster": "newsletter-veille",
-        "risk": "watch",
-        "score": 45.69,
-        "primary_slug": "veille-assurance-immeuble",
+        "cluster": "devis-courtier",
+        "risk": "medium",
+        "score": 49.72,
+        "primary_slug": "devis-assurance-immeuble",
         "pages": [
-          "news/veille-assurance-immeuble-2026-08-01",
-          "veille-assurance-immeuble"
+          "blog/assurance-immeuble-ancien",
+          "blog/devis-assurance-immeuble-comparatif"
         ],
         "page_types": [
-          "news",
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "presenter",
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct"
+        ],
+        "recommendation": "Clarifier blog/devis-assurance-immeuble-comparatif comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+      },
+      {
+        "cluster": "devis-courtier",
+        "risk": "medium",
+        "score": 49.26,
+        "primary_slug": "devis-assurance-immeuble",
+        "pages": [
+          "blog/devis-assurance-immeuble-comparatif",
+          "blog/devis-assurance-immeuble-complet"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct",
+          "document"
+        ],
+        "recommendation": "Clarifier blog/devis-assurance-immeuble-complet comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+      },
+      {
+        "cluster": "devis-courtier",
+        "risk": "medium",
+        "score": 48.71,
+        "primary_slug": "devis-assurance-immeuble",
+        "pages": [
+          "blog/devis-assurance-immeuble-comparatif",
+          "blog/devis-assurance-immeuble-echeance"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "comparaison",
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct"
+        ],
+        "recommendation": "Clarifier blog/devis-assurance-immeuble-echeance comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+      },
+      {
+        "cluster": "devis-courtier",
+        "risk": "medium",
+        "score": 48,
+        "primary_slug": "devis-assurance-immeuble",
+        "pages": [
+          "blog/devis-assurance-immeuble-complet",
+          "blog/devis-assurance-immeuble-echeance"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct",
+          "document"
+        ],
+        "recommendation": "Clarifier blog/devis-assurance-immeuble-echeance comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+      },
+      {
+        "cluster": "devis-courtier",
+        "risk": "medium",
+        "score": 46.81,
+        "primary_slug": "devis-assurance-immeuble",
+        "pages": [
+          "blog/assurance-immeuble-ancien",
+          "blog/devis-assurance-immeuble-complet"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct",
+          "document"
+        ],
+        "recommendation": "Clarifier blog/devis-assurance-immeuble-complet comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+      },
+      {
+        "cluster": "devis-courtier",
+        "risk": "watch",
+        "score": 45.97,
+        "primary_slug": "devis-assurance-immeuble",
+        "pages": [
+          "blog/devis-assurance-immeuble-echeance",
+          "blog/devis-courtier-assurance-immeuble"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "humaine",
+          "validation",
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient"
+        ],
+        "recommendation": "Clarifier blog/devis-courtier-assurance-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+      },
+      {
+        "cluster": "devis-courtier",
+        "risk": "watch",
+        "score": 45.33,
+        "primary_slug": "devis-assurance-immeuble",
+        "pages": [
+          "blog/assurance-immeuble-ancien",
+          "blog/devis-assurance-immeuble-echeance"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct",
+          "document"
+        ],
+        "recommendation": "Clarifier blog/devis-assurance-immeuble-echeance comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+      },
+      {
+        "cluster": "sinistre-resilie",
+        "risk": "watch",
+        "score": 43,
+        "primary_slug": "gestion-sinistres-immeuble",
+        "pages": [
+          "blog/refus-assureur-apres-sinistre-immeuble",
+          "blog/sinistre-recurrent-assurance-immeuble"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "mesures",
+          "documenter",
+          "prevention",
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur"
+        ],
+        "recommendation": "Clarifier blog/sinistre-recurrent-assurance-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+      },
+      {
+        "cluster": "sinistre-resilie",
+        "risk": "watch",
+        "score": 42.49,
+        "primary_slug": "gestion-sinistres-immeuble",
+        "pages": [
+          "assurance-immeuble-resilie",
+          "assurance-immeuble-sinistre"
+        ],
+        "page_types": [
+          "service",
           "service"
         ],
         "shared_terms": [
-          "dernier",
-          "difference",
-          "communes",
-          "compter",
-          "entreprendre",
-          "evolution",
-          "existe",
-          "explique"
+          "historique",
+          "causes",
+          "correctifs",
+          "correctives",
+          "mesures",
+          "commerce"
         ],
-        "recommendation": "Renforcer l'angle unique de news/veille-assurance-immeuble-2026-08-01 et ajouter un lien contextuel vers veille-assurance-immeuble."
+        "recommendation": "Renforcer l'angle unique de assurance-immeuble-resilie et ajouter un lien contextuel vers gestion-sinistres-immeuble."
+      },
+      {
+        "cluster": "sinistre-resilie",
+        "risk": "watch",
+        "score": 42.17,
+        "primary_slug": "gestion-sinistres-immeuble",
+        "pages": [
+          "blog/infiltration-toiture-terrasse",
+          "blog/sinistre-recurrent-assurance-immeuble"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "documenter",
+          "coproprietes",
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient"
+        ],
+        "recommendation": "Clarifier blog/sinistre-recurrent-assurance-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+      },
+      {
+        "cluster": "devis-courtier",
+        "risk": "watch",
+        "score": 41.55,
+        "primary_slug": "devis-assurance-immeuble",
+        "pages": [
+          "blog/devis-assurance-immeuble-comparatif",
+          "blog/devis-courtier-assurance-immeuble"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "offres",
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct"
+        ],
+        "recommendation": "Clarifier blog/devis-courtier-assurance-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
       },
       {
         "cluster": "local-commercial",
         "risk": "watch",
-        "score": 44.52,
+        "score": 41.5,
         "primary_slug": "blog/local-commercial-vacant",
         "pages": [
           "blog/immeuble-mixte-restaurant",
@@ -906,21 +1111,46 @@
           "blog"
         ],
         "shared_terms": [
-          "aller",
-          "batiment",
-          "cache",
-          "changement",
-          "changer",
-          "chere",
-          "clauses",
-          "comment"
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct",
+          "document"
         ],
         "recommendation": "Clarifier blog/immeuble-mixte-restaurant comme support informationnel et renforcer le lien vers blog/local-commercial-vacant."
       },
       {
+        "cluster": "sinistre-resilie",
+        "risk": "watch",
+        "score": 40.67,
+        "primary_slug": "gestion-sinistres-immeuble",
+        "pages": [
+          "blog/renouvellement-apres-sinistre-immeuble",
+          "blog/sinistre-immeuble-apres-declaration"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct",
+          "document"
+        ],
+        "recommendation": "Clarifier blog/sinistre-immeuble-apres-declaration comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+      },
+      {
         "cluster": "sci-bailleur",
         "risk": "watch",
-        "score": 40.36,
+        "score": 40.21,
         "primary_slug": "assurance-sci",
         "pages": [
           "assurance-immeuble-locatif",
@@ -939,6 +1169,152 @@
           "principal"
         ],
         "recommendation": "Renforcer l'angle unique de assurance-immeuble-locatif et ajouter un lien contextuel vers assurance-sci."
+      },
+      {
+        "cluster": "devis-courtier",
+        "risk": "watch",
+        "score": 40.13,
+        "primary_slug": "devis-assurance-immeuble",
+        "pages": [
+          "blog/devis-assurance-immeuble-complet",
+          "blog/devis-courtier-assurance-immeuble"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct",
+          "document"
+        ],
+        "recommendation": "Clarifier blog/devis-courtier-assurance-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+      },
+      {
+        "cluster": "sinistre-resilie",
+        "risk": "watch",
+        "score": 39.92,
+        "primary_slug": "gestion-sinistres-immeuble",
+        "pages": [
+          "blog/devis-assurance-immeuble-refus",
+          "blog/refus-assureur-apres-sinistre-immeuble"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "refus",
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur"
+        ],
+        "recommendation": "Clarifier blog/refus-assureur-apres-sinistre-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+      },
+      {
+        "cluster": "sinistre-resilie",
+        "risk": "watch",
+        "score": 39.87,
+        "primary_slug": "gestion-sinistres-immeuble",
+        "pages": [
+          "blog/renouvellement-apres-sinistre-immeuble",
+          "blog/sinistre-recurrent-assurance-immeuble"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct"
+        ],
+        "recommendation": "Clarifier blog/sinistre-recurrent-assurance-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+      },
+      {
+        "cluster": "sinistre-resilie",
+        "risk": "watch",
+        "score": 39.67,
+        "primary_slug": "gestion-sinistres-immeuble",
+        "pages": [
+          "blog/sinistre-immeuble-apres-declaration",
+          "blog/sinistre-recurrent-assurance-immeuble"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "delais",
+          "correctement",
+          "decision",
+          "defendable",
+          "demandeur",
+          "devient",
+          "distinct"
+        ],
+        "recommendation": "Clarifier blog/sinistre-recurrent-assurance-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+      },
+      {
+        "cluster": "sinistre-resilie",
+        "risk": "watch",
+        "score": 39.11,
+        "primary_slug": "gestion-sinistres-immeuble",
+        "pages": [
+          "blog/infiltration-toiture-terrasse",
+          "blog/renouvellement-apres-sinistre-immeuble"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct",
+          "document"
+        ],
+        "recommendation": "Clarifier blog/renouvellement-apres-sinistre-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+      },
+      {
+        "cluster": "sinistre-resilie",
+        "risk": "watch",
+        "score": 38.93,
+        "primary_slug": "gestion-sinistres-immeuble",
+        "pages": [
+          "blog/infiltration-toiture-terrasse",
+          "blog/sinistre-immeuble-apres-declaration"
+        ],
+        "page_types": [
+          "blog",
+          "blog"
+        ],
+        "shared_terms": [
+          "correctement",
+          "decision",
+          "defendable",
+          "delais",
+          "demandeur",
+          "devient",
+          "distinct",
+          "document"
+        ],
+        "recommendation": "Clarifier blog/sinistre-immeuble-apres-declaration comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
       }
     ],
     "safeguards": [
@@ -956,7 +1332,7 @@
   "intent_differentiation": {
     "configured": true,
     "status": "passed",
-    "generated_at": "2026-08-01T13:23:43.797Z",
+    "generated_at": "2026-08-03T22:14:52.311Z",
     "target_pages": 0,
     "pages_changed": 0,
     "pages_changed_this_run": 0,
@@ -973,10 +1349,10 @@
   "angle_differentiation": {
     "configured": true,
     "status": "passed",
-    "generated_at": "2026-08-01T13:23:44.829Z",
-    "pages_targeted": 25,
+    "generated_at": "2026-08-03T22:14:52.775Z",
+    "pages_targeted": 27,
     "pages_changed": 14,
-    "noindex_pages": 5,
+    "noindex_pages": 7,
     "sitemap_entries_removed": 0,
     "safeguards": [
       "visible-content-only",
@@ -1182,32 +1558,36 @@
       {
         "slug": "news/veille-assurance-immeuble-2026-08-01",
         "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-01",
-        "changed": true,
-        "indexable": true,
-        "title": "Veille immeuble 1 aout 2026: dernier signal",
-        "h1": "Veille assurance immeuble du 1 aout 2026."
+        "changed": false,
+        "indexable": false,
+        "title": "Archive veille immeuble 1 aout 2026",
+        "h1": "Archive du 1 aout 2026: signaux assurance immeuble a relire."
       }
     ]
   },
   "internal_link_equity": {
     "configured": true,
     "status": "passed",
-    "generated_at": "2026-08-01T13:23:45.932Z",
-    "pages_checked": 186,
-    "pages_targeted": 57,
-    "pages_changed": 14,
-    "links_added": 56,
-    "pages_with_active_blocks": 60,
-    "active_internal_links": 237,
-    "noindex_skipped": 6,
+    "generated_at": "2026-08-03T22:14:53.397Z",
+    "pages_checked": 203,
+    "pages_targeted": 68,
+    "pages_changed": 17,
+    "links_added": 68,
+    "pages_with_active_blocks": 74,
+    "active_internal_links": 293,
+    "noindex_skipped": 12,
     "cluster_targets": [
       {
         "cluster": "default",
-        "count": 12
+        "count": 16
       },
       {
         "cluster": "copropriete-syndic",
-        "count": 11
+        "count": 12
+      },
+      {
+        "cluster": "sinistre-resilie",
+        "count": 12
       },
       {
         "cluster": "pno-cno",
@@ -1218,15 +1598,11 @@
         "count": 7
       },
       {
-        "cluster": "sinistre-resilie",
-        "count": 7
+        "cluster": "prix-tarif",
+        "count": 5
       },
       {
         "cluster": "local-commercial",
-        "count": 4
-      },
-      {
-        "cluster": "prix-tarif",
         "count": 4
       },
       {
@@ -1251,77 +1627,98 @@
         "slug": "blog/assurance-copropriete-avant-ag",
         "type": "blog",
         "cluster": "copropriete-syndic",
-        "previous_internal_links": 17,
+        "previous_internal_links": 18,
         "links_added": 4
       },
       {
         "slug": "blog/assurance-immeuble-apres-refus-assureur",
         "type": "blog",
         "cluster": "sinistre-resilie",
-        "previous_internal_links": 17,
+        "previous_internal_links": 18,
         "links_added": 4
       },
       {
         "slug": "blog/assurance-immeuble-sans-sinistre",
         "type": "blog",
         "cluster": "sinistre-resilie",
-        "previous_internal_links": 17,
+        "previous_internal_links": 23,
+        "links_added": 4
+      },
+      {
+        "slug": "blog/checklist-documents-devis-immeuble",
+        "type": "blog",
+        "cluster": "default",
+        "previous_internal_links": 22,
         "links_added": 4
       },
       {
         "slug": "blog/checklist-sinistre-degat-des-eaux",
         "type": "blog",
         "cluster": "sinistre-resilie",
-        "previous_internal_links": 17,
+        "previous_internal_links": 23,
         "links_added": 4
       },
       {
         "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
         "type": "blog",
         "cluster": "pno-cno",
-        "previous_internal_links": 16,
+        "previous_internal_links": 22,
         "links_added": 4
       },
       {
         "slug": "blog/copropriete-petite-syndic-benevole",
         "type": "blog",
         "cluster": "copropriete-syndic",
-        "previous_internal_links": 17,
+        "previous_internal_links": 18,
         "links_added": 4
       },
       {
         "slug": "blog/dommages-ouvrage-copropriete-travaux",
         "type": "blog",
         "cluster": "copropriete-syndic",
-        "previous_internal_links": 17,
+        "previous_internal_links": 18,
         "links_added": 4
       },
       {
         "slug": "blog/multirisque-immeuble-vs-pno",
         "type": "blog",
         "cluster": "pno-cno",
-        "previous_internal_links": 15,
+        "previous_internal_links": 20,
+        "links_added": 4
+      },
+      {
+        "slug": "blog/pno-bailleur-copropriete",
+        "type": "blog",
+        "cluster": "pno-cno",
+        "previous_internal_links": 22,
         "links_added": 4
       },
       {
         "slug": "blog/pno-cno-differences-garanties",
         "type": "blog",
         "cluster": "pno-cno",
-        "previous_internal_links": 14,
+        "previous_internal_links": 19,
         "links_added": 4
       },
       {
         "slug": "blog/pno-obligatoire-copropriete",
         "type": "blog",
         "cluster": "pno-cno",
-        "previous_internal_links": 17,
+        "previous_internal_links": 23,
+        "links_added": 4
+      },
+      {
+        "slug": "blog/prix-assurance-immeuble-au-m2",
+        "type": "blog",
+        "cluster": "prix-tarif",
+        "previous_internal_links": 21,
         "links_added": 4
       },
       {
         "slug": "blog/renovation-energetique-copropriete-assurance",
         "type": "blog",
         "cluster": "copropriete-syndic",
-        "previous_internal_links": 17,
+        "previous_internal_links": 18,
         "links_added": 4
       },
       {
@@ -1335,14 +1732,14 @@
         "slug": "blog/sinistres-recurrents-immeuble",
         "type": "blog",
         "cluster": "sinistre-resilie",
-        "previous_internal_links": 17,
+        "previous_internal_links": 23,
         "links_added": 4
       },
       {
-        "slug": "news/veille-assurance-immeuble-2026-08-01",
+        "slug": "news/veille-assurance-immeuble-2026-08-03",
         "type": "news",
         "cluster": "newsletter-veille",
-        "previous_internal_links": 22,
+        "previous_internal_links": 30,
         "links_added": 4
       }
     ]
@@ -1350,34 +1747,34 @@
   "cluster_conversion_bridge": {
     "configured": true,
     "status": "passed",
-    "generated_at": "2026-08-01T13:23:47.047Z",
-    "pages_checked": 186,
-    "pages_targeted": 48,
-    "pages_changed": 11,
-    "active_bridges": 51,
+    "generated_at": "2026-08-03T22:14:54.285Z",
+    "pages_checked": 203,
+    "pages_targeted": 60,
+    "pages_changed": 14,
+    "active_bridges": 65,
     "cluster_targets": [
       {
         "cluster": "copropriete-syndic",
-        "count": 16
+        "count": 17
+      },
+      {
+        "cluster": "sinistre-resilie",
+        "count": 12
+      },
+      {
+        "cluster": "devis-courtier",
+        "count": 9
       },
       {
         "cluster": "sci-bailleur",
         "count": 8
       },
       {
-        "cluster": "sinistre-resilie",
-        "count": 7
-      },
-      {
-        "cluster": "devis-courtier",
-        "count": 4
+        "cluster": "prix-tarif",
+        "count": 5
       },
       {
         "cluster": "local-commercial",
-        "count": 4
-      },
-      {
-        "cluster": "prix-tarif",
         "count": 4
       },
       {
@@ -1413,6 +1810,11 @@
         "cluster": "sinistre-resilie"
       },
       {
+        "slug": "blog/checklist-documents-devis-immeuble",
+        "type": "blog",
+        "cluster": "devis-courtier"
+      },
+      {
         "slug": "blog/checklist-sinistre-degat-des-eaux",
         "type": "blog",
         "cluster": "sinistre-resilie"
@@ -1433,9 +1835,19 @@
         "cluster": "copropriete-syndic"
       },
       {
+        "slug": "blog/pno-bailleur-copropriete",
+        "type": "blog",
+        "cluster": "copropriete-syndic"
+      },
+      {
         "slug": "blog/pno-obligatoire-copropriete",
         "type": "blog",
         "cluster": "copropriete-syndic"
+      },
+      {
+        "slug": "blog/prix-assurance-immeuble-au-m2",
+        "type": "blog",
+        "cluster": "prix-tarif"
       },
       {
         "slug": "blog/renovation-energetique-copropriete-assurance",
@@ -1448,19 +1860,76 @@
         "cluster": "sinistre-resilie"
       },
       {
-        "slug": "news/veille-assurance-immeuble-2026-08-01",
+        "slug": "news/veille-assurance-immeuble-2026-08-03",
         "type": "news",
         "cluster": "newsletter-veille"
       }
     ]
   },
+  "editorial_cluster_rescue": {
+    "configured": true,
+    "status": "passed",
+    "generated_at": "2026-08-03T22:14:54.710Z",
+    "pages_checked": 203,
+    "clusters_targeted": 2,
+    "pages_targeted": 4,
+    "blocks_written": 4,
+    "active_rescues": 4,
+    "cluster_targets": [
+      {
+        "cluster": "newsletter-veille",
+        "count": 3
+      },
+      {
+        "cluster": "assurance-immeuble",
+        "count": 1
+      }
+    ],
+    "safeguards": [
+      "visible-cta-only",
+      "idempotent-marker",
+      "no-hidden-text",
+      "first-party-pages-only",
+      "lead-pages-not-distracted"
+    ],
+    "pages": [
+      {
+        "slug": "newsletter-assurance-immeuble",
+        "type": "newsletter",
+        "cluster": "newsletter-veille",
+        "active": true,
+        "changed": false
+      },
+      {
+        "slug": "veille-assurance-immeuble",
+        "type": "newsletter",
+        "cluster": "newsletter-veille",
+        "active": true,
+        "changed": false
+      },
+      {
+        "slug": "news/veille-assurance-immeuble-2026-08-03",
+        "type": "news",
+        "cluster": "newsletter-veille",
+        "active": true,
+        "changed": true
+      },
+      {
+        "slug": "strategie-seo-continue",
+        "type": "service",
+        "cluster": "assurance-immeuble",
+        "active": true,
+        "changed": false
+      }
+    ]
+  },
   "conversion_intelligence": {
     "configured": true,
-    "generated_at": "2026-08-01T13:23:50.261Z",
-    "pages_checked": 182,
-    "money_pages_checked": 118,
-    "average_conversion_score": 82,
-    "average_money_score": 91,
+    "generated_at": "2026-08-10T04:38:31.637Z",
+    "pages_checked": 200,
+    "money_pages_checked": 128,
+    "average_conversion_score": 85,
+    "average_money_score": 95,
     "cluster_count": 11,
     "cluster_detection": {
       "strategy": "slug-title-description-h1",
@@ -1476,7 +1945,7 @@
         "cluster": "local",
         "pages": 82,
         "money_pages": 81,
-        "average_score": 93,
+        "average_score": 94,
         "top_pages": [
           {
             "slug": "assurance-immeuble-agen",
@@ -1514,202 +1983,207 @@
         "cluster": "pno-cno",
         "pages": 15,
         "money_pages": 13,
-        "average_score": 84,
+        "average_score": 95,
         "top_pages": [
+          {
+            "slug": "assurance-cno",
+            "url": "https://immeubleassur.com/assurance-cno",
+            "score": 100
+          },
+          {
+            "slug": "assurance-pno-cno",
+            "url": "https://immeubleassur.com/assurance-pno-cno",
+            "score": 100
+          },
+          {
+            "slug": "assurance-pno",
+            "url": "https://immeubleassur.com/assurance-pno",
+            "score": 100
+          },
           {
             "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
             "url": "https://immeubleassur.com/blog/cno-coproprietaire-non-occupant-obligatoire",
-            "score": 94
+            "score": 100
           },
           {
-            "slug": "blog/pno-obligatoire-copropriete",
-            "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
-            "score": 94
-          },
-          {
-            "slug": "blog/coproprietaire-non-occupant-documents-devis",
-            "url": "https://immeubleassur.com/blog/coproprietaire-non-occupant-documents-devis",
-            "score": 90
+            "slug": "blog/multirisque-immeuble-vs-pno",
+            "url": "https://immeubleassur.com/blog/multirisque-immeuble-vs-pno",
+            "score": 100
           },
           {
             "slug": "blog/pno-bailleur-copropriete",
             "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
-            "score": 90
-          },
-          {
-            "slug": "faq/pno",
-            "url": "https://immeubleassur.com/faq/pno",
-            "score": 86
-          },
-          {
-            "slug": "assurance-cno",
-            "url": "https://immeubleassur.com/assurance-cno",
-            "score": 84
+            "score": 100
           }
         ]
       },
       {
         "cluster": "sinistre-resilie",
-        "pages": 14,
-        "money_pages": 7,
-        "average_score": 76,
+        "pages": 15,
+        "money_pages": 12,
+        "average_score": 90,
         "top_pages": [
-          {
-            "slug": "blog/assurance-immeuble-sans-sinistre",
-            "url": "https://immeubleassur.com/blog/assurance-immeuble-sans-sinistre",
-            "score": 94
-          },
-          {
-            "slug": "blog/checklist-sinistre-degat-des-eaux",
-            "url": "https://immeubleassur.com/blog/checklist-sinistre-degat-des-eaux",
-            "score": 94
-          },
-          {
-            "slug": "blog/sinistres-recurrents-immeuble",
-            "url": "https://immeubleassur.com/blog/sinistres-recurrents-immeuble",
-            "score": 94
-          },
-          {
-            "slug": "faq/sinistres",
-            "url": "https://immeubleassur.com/faq/sinistres",
-            "score": 90
-          },
           {
             "slug": "assurance-immeuble-resilie",
             "url": "https://immeubleassur.com/assurance-immeuble-resilie",
-            "score": 84
+            "score": 100
           },
           {
             "slug": "assurance-immeuble-sinistre",
             "url": "https://immeubleassur.com/assurance-immeuble-sinistre",
-            "score": 84
+            "score": 100
+          },
+          {
+            "slug": "blog/assurance-immeuble-sans-sinistre",
+            "url": "https://immeubleassur.com/blog/assurance-immeuble-sans-sinistre",
+            "score": 100
+          },
+          {
+            "slug": "blog/checklist-sinistre-degat-des-eaux",
+            "url": "https://immeubleassur.com/blog/checklist-sinistre-degat-des-eaux",
+            "score": 100
+          },
+          {
+            "slug": "blog/sinistres-recurrents-immeuble",
+            "url": "https://immeubleassur.com/blog/sinistres-recurrents-immeuble",
+            "score": 100
+          },
+          {
+            "slug": "faq/sinistres",
+            "url": "https://immeubleassur.com/faq/sinistres",
+            "score": 100
           }
         ]
       },
       {
         "cluster": "devis-courtier",
         "pages": 16,
-        "money_pages": 7,
-        "average_score": 70,
+        "money_pages": 10,
+        "average_score": 84,
         "top_pages": [
-          {
-            "slug": "assurance-immeuble",
-            "url": "https://immeubleassur.com/assurance-immeuble",
-            "score": 91
-          },
           {
             "slug": "blog/checklist-documents-devis-immeuble",
             "url": "https://immeubleassur.com/blog/checklist-documents-devis-immeuble",
-            "score": 90
+            "score": 100
           },
           {
-            "slug": "blog/mandat-courtier-assurance-immeuble-consultation",
-            "url": "https://immeubleassur.com/blog/mandat-courtier-assurance-immeuble-consultation",
-            "score": 90
-          },
-          {
-            "slug": "courtier-assurance-immeuble",
-            "url": "https://immeubleassur.com/courtier-assurance-immeuble",
-            "score": 87
+            "slug": "comparateur-assurance-immeuble",
+            "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
+            "score": 100
           },
           {
             "slug": "devis-assurance-immeuble",
             "url": "https://immeubleassur.com/devis-assurance-immeuble",
-            "score": 87
+            "score": 100
+          },
+          {
+            "slug": "index",
+            "url": "https://immeubleassur.com/",
+            "score": 100
+          },
+          {
+            "slug": "courtier-assurance-immeuble",
+            "url": "https://immeubleassur.com/courtier-assurance-immeuble",
+            "score": 97
           },
           {
             "slug": "devis-assurance-immeuble-en-ligne",
             "url": "https://immeubleassur.com/devis-assurance-immeuble-en-ligne",
-            "score": 84
+            "score": 94
           }
         ]
       },
       {
         "cluster": "prix-tarif",
         "pages": 9,
-        "money_pages": 5,
-        "average_score": 76,
+        "money_pages": 6,
+        "average_score": 85,
         "top_pages": [
-          {
-            "slug": "prix-assurance-immeuble",
-            "url": "https://immeubleassur.com/prix-assurance-immeuble",
-            "score": 91
-          },
           {
             "slug": "blog/prix-assurance-immeuble-au-m2",
             "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-au-m2",
+            "score": 100
+          },
+          {
+            "slug": "faq/prix",
+            "url": "https://immeubleassur.com/faq/prix",
+            "score": 100
+          },
+          {
+            "slug": "prix-assurance-immeuble",
+            "url": "https://immeubleassur.com/prix-assurance-immeuble",
+            "score": 100
+          },
+          {
+            "slug": "tarif-assurance-immeuble",
+            "url": "https://immeubleassur.com/tarif-assurance-immeuble",
+            "score": 94
+          },
+          {
+            "slug": "blog/prix-assurance-immeuble-franchise",
+            "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-franchise",
             "score": 90
           },
           {
             "slug": "blog/prix-assurance-immeuble-franchises-reste-a-charge",
             "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-franchises-reste-a-charge",
             "score": 90
-          },
-          {
-            "slug": "faq/prix",
-            "url": "https://immeubleassur.com/faq/prix",
-            "score": 90
-          },
-          {
-            "slug": "tarif-assurance-immeuble",
-            "url": "https://immeubleassur.com/tarif-assurance-immeuble",
-            "score": 84
-          },
-          {
-            "slug": "blog/audit-franchises-assurance-immeuble",
-            "url": "https://immeubleassur.com/blog/audit-franchises-assurance-immeuble",
-            "score": 75
           }
         ]
       },
       {
         "cluster": "sci-bailleur",
-        "pages": 12,
+        "pages": 13,
         "money_pages": 4,
-        "average_score": 72,
+        "average_score": 77,
         "top_pages": [
+          {
+            "slug": "assurance-immeuble-de-rapport",
+            "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
+            "score": 100
+          },
+          {
+            "slug": "assurance-sci",
+            "url": "https://immeubleassur.com/assurance-sci",
+            "score": 100
+          },
+          {
+            "slug": "assurance-immeuble-meuble-colocation",
+            "url": "https://immeubleassur.com/assurance-immeuble-meuble-colocation",
+            "score": 91
+          },
+          {
+            "slug": "assurance-immeuble-monopropriete",
+            "url": "https://immeubleassur.com/assurance-immeuble-monopropriete",
+            "score": 91
+          },
           {
             "slug": "assurance-immeuble-locatif",
             "url": "https://immeubleassur.com/assurance-immeuble-locatif",
             "score": 84
           },
           {
-            "slug": "assurance-immeuble-meuble-colocation",
-            "url": "https://immeubleassur.com/assurance-immeuble-meuble-colocation",
-            "score": 84
-          },
-          {
-            "slug": "assurance-immeuble-monopropriete",
-            "url": "https://immeubleassur.com/assurance-immeuble-monopropriete",
-            "score": 84
-          },
-          {
-            "slug": "assurance-immeuble-de-rapport",
-            "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
-            "score": 80
-          },
-          {
-            "slug": "assurance-sci",
-            "url": "https://immeubleassur.com/assurance-sci",
-            "score": 76
-          },
-          {
-            "slug": "blog/assurance-sci-immeuble-cartographie-patrimoine",
-            "url": "https://immeubleassur.com/blog/assurance-sci-immeuble-cartographie-patrimoine",
+            "slug": "blog/assurance-immeuble-etudiant",
+            "url": "https://immeubleassur.com/blog/assurance-immeuble-etudiant",
             "score": 75
           }
         ]
       },
       {
         "cluster": "copropriete-syndic",
-        "pages": 16,
-        "money_pages": 1,
-        "average_score": 74,
+        "pages": 17,
+        "money_pages": 2,
+        "average_score": 76,
         "top_pages": [
           {
             "slug": "assurance-copropriete",
             "url": "https://immeubleassur.com/assurance-copropriete",
-            "score": 91
+            "score": 100
+          },
+          {
+            "slug": "assurance-immeuble",
+            "url": "https://immeubleassur.com/assurance-immeuble",
+            "score": 100
           },
           {
             "slug": "blog/assurance-copropriete-avant-ag",
@@ -1730,11 +2204,6 @@
             "slug": "blog/renovation-energetique-copropriete-assurance",
             "url": "https://immeubleassur.com/blog/renovation-energetique-copropriete-assurance",
             "score": 79
-          },
-          {
-            "slug": "blog/syndic-benevole-assurance-immeuble-archives-ag",
-            "url": "https://immeubleassur.com/blog/syndic-benevole-assurance-immeuble-archives-ag",
-            "score": 79
           }
         ]
       },
@@ -1742,8 +2211,13 @@
         "cluster": "local-commercial",
         "pages": 6,
         "money_pages": 0,
-        "average_score": 72,
+        "average_score": 76,
         "top_pages": [
+          {
+            "slug": "assurance-local-commercial",
+            "url": "https://immeubleassur.com/assurance-local-commercial",
+            "score": 93
+          },
           {
             "slug": "blog/assurance-immeuble-local-professionnel",
             "url": "https://immeubleassur.com/blog/assurance-immeuble-local-professionnel",
@@ -1768,11 +2242,44 @@
             "slug": "blog/local-commercial-vacant",
             "url": "https://immeubleassur.com/blog/local-commercial-vacant",
             "score": 71
+          }
+        ]
+      },
+      {
+        "cluster": "newsletter-veille",
+        "pages": 9,
+        "money_pages": 0,
+        "average_score": 73,
+        "top_pages": [
+          {
+            "slug": "news/veille-assurance-immeuble-2026-07-29",
+            "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-29",
+            "score": 74
           },
           {
-            "slug": "assurance-local-commercial",
-            "url": "https://immeubleassur.com/assurance-local-commercial",
-            "score": 69
+            "slug": "news/veille-assurance-immeuble-2026-07-30",
+            "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-30",
+            "score": 74
+          },
+          {
+            "slug": "news/veille-assurance-immeuble-2026-07-31",
+            "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-31",
+            "score": 74
+          },
+          {
+            "slug": "news/veille-assurance-immeuble-2026-08-01",
+            "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-01",
+            "score": 74
+          },
+          {
+            "slug": "news/veille-assurance-immeuble-2026-08-02",
+            "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-02",
+            "score": 74
+          },
+          {
+            "slug": "news/veille-assurance-immeuble-2026-08-03",
+            "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-03",
+            "score": 74
           }
         ]
       },
@@ -1800,63 +2307,57 @@
         ]
       },
       {
-        "cluster": "newsletter-veille",
-        "pages": 7,
-        "money_pages": 0,
-        "average_score": 60,
-        "top_pages": [
-          {
-            "slug": "news/veille-assurance-immeuble-2026-07-29",
-            "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-29",
-            "score": 62
-          },
-          {
-            "slug": "news/veille-assurance-immeuble-2026-07-30",
-            "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-30",
-            "score": 62
-          },
-          {
-            "slug": "news/veille-assurance-immeuble-2026-07-31",
-            "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-31",
-            "score": 62
-          },
-          {
-            "slug": "news/veille-assurance-immeuble-2026-08-01",
-            "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-08-01",
-            "score": 62
-          },
-          {
-            "slug": "veille-assurance-immeuble",
-            "url": "https://immeubleassur.com/veille-assurance-immeuble",
-            "score": 62
-          },
-          {
-            "slug": "newsletter-assurance-immeuble",
-            "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
-            "score": 55
-          }
-        ]
-      },
-      {
         "cluster": "assurance-immeuble",
-        "pages": 2,
+        "pages": 15,
         "money_pages": 0,
-        "average_score": 53,
+        "average_score": 50,
         "top_pages": [
           {
-            "slug": "faq/assurance-immeuble",
-            "url": "https://immeubleassur.com/faq/assurance-immeuble",
-            "score": 60
+            "slug": "faq/index",
+            "url": "https://immeubleassur.com/faq/index",
+            "score": 76
           },
           {
-            "slug": "strategie-seo-continue",
-            "url": "https://immeubleassur.com/strategie-seo-continue",
-            "score": 45
+            "slug": "faq",
+            "url": "https://immeubleassur.com/faq",
+            "score": 76
+          },
+          {
+            "slug": "assurance-batiment-proprietaire",
+            "url": "https://immeubleassur.com/assurance-batiment-proprietaire",
+            "score": 69
+          },
+          {
+            "slug": "multirisque-immeuble",
+            "url": "https://immeubleassur.com/multirisque-immeuble",
+            "score": 69
+          },
+          {
+            "slug": "blog/preparer-renouvellement-assurance-immeuble",
+            "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
+            "score": 53
+          },
+          {
+            "slug": "contact",
+            "url": "https://immeubleassur.com/contact",
+            "score": 53
           }
         ]
       }
     ],
     "top_money_pages": [
+      {
+        "slug": "assurance-cno",
+        "url": "https://immeubleassur.com/assurance-cno",
+        "cluster": "pno-cno",
+        "score": 100
+      },
+      {
+        "slug": "assurance-copropriete",
+        "url": "https://immeubleassur.com/assurance-copropriete",
+        "cluster": "copropriete-syndic",
+        "score": 100
+      },
       {
         "slug": "assurance-immeuble-agen",
         "url": "https://immeubleassur.com/assurance-immeuble-agen",
@@ -1930,6 +2431,12 @@
         "score": 100
       },
       {
+        "slug": "assurance-immeuble-bordeaux",
+        "url": "https://immeubleassur.com/assurance-immeuble-bordeaux",
+        "cluster": "local",
+        "score": 100
+      },
+      {
         "slug": "assurance-immeuble-bourges",
         "url": "https://immeubleassur.com/assurance-immeuble-bourges",
         "cluster": "local",
@@ -1988,210 +2495,10 @@
         "url": "https://immeubleassur.com/assurance-immeuble-colmar",
         "cluster": "local",
         "score": 100
-      },
-      {
-        "slug": "assurance-immeuble-douai",
-        "url": "https://immeubleassur.com/assurance-immeuble-douai",
-        "cluster": "local",
-        "score": 100
-      },
-      {
-        "slug": "assurance-immeuble-dunkerque",
-        "url": "https://immeubleassur.com/assurance-immeuble-dunkerque",
-        "cluster": "local",
-        "score": 100
-      },
-      {
-        "slug": "assurance-immeuble-evreux",
-        "url": "https://immeubleassur.com/assurance-immeuble-evreux",
-        "cluster": "local",
-        "score": 100
       }
     ],
-    "weak_money_pages": [
-      {
-        "slug": "comparateur-assurance-immeuble",
-        "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-        "cluster": "devis-courtier",
-        "score": 68,
-        "actions": [
-          "Ajouter un deuxieme CTA contextuel avant la fin de page.",
-          "Ajouter le diagnostic express pour qualifier l'intention.",
-          "Ajouter le module dossier pret assureur.",
-          "Ajouter un bloc priorite business PNO/CNO/immeuble."
-        ]
-      },
-      {
-        "slug": "blog/multirisque-immeuble-vs-pno",
-        "url": "https://immeubleassur.com/blog/multirisque-immeuble-vs-pno",
-        "cluster": "pno-cno",
-        "score": 72,
-        "actions": [
-          "Ajouter un deuxieme CTA contextuel avant la fin de page.",
-          "Ajouter le diagnostic express pour qualifier l'intention.",
-          "Ajouter le module dossier pret assureur.",
-          "Ajouter un bloc priorite business PNO/CNO/immeuble."
-        ]
-      },
-      {
-        "slug": "blog/pno-cno-differences-garanties",
-        "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
-        "cluster": "pno-cno",
-        "score": 72,
-        "actions": [
-          "Ajouter un deuxieme CTA contextuel avant la fin de page.",
-          "Ajouter le diagnostic express pour qualifier l'intention.",
-          "Ajouter le module dossier pret assureur.",
-          "Ajouter un bloc priorite business PNO/CNO/immeuble."
-        ]
-      },
-      {
-        "slug": "gestion-sinistres-immeuble",
-        "url": "https://immeubleassur.com/gestion-sinistres-immeuble",
-        "cluster": "sinistre-resilie",
-        "score": 76,
-        "actions": [
-          "Ajouter le diagnostic express pour qualifier l'intention.",
-          "Ajouter le module dossier pret assureur.",
-          "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-          "Renforcer la FAQ visible avec questions de decision."
-        ]
-      },
-      {
-        "slug": "assurance-immeuble-bordeaux",
-        "url": "https://immeubleassur.com/assurance-immeuble-bordeaux",
-        "cluster": "local",
-        "score": 80,
-        "actions": [
-          "Ajouter le diagnostic express pour qualifier l'intention.",
-          "Ajouter le module dossier pret assureur.",
-          "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-          "Renforcer la profondeur utile sans duplication."
-        ]
-      },
-      {
-        "slug": "assurance-immeuble-de-rapport",
-        "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
-        "cluster": "sci-bailleur",
-        "score": 80,
-        "actions": [
-          "Ajouter le diagnostic express pour qualifier l'intention.",
-          "Ajouter le module dossier pret assureur.",
-          "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-          "Renforcer la profondeur utile sans duplication."
-        ]
-      },
-      {
-        "slug": "assurance-immeuble-grenoble",
-        "url": "https://immeubleassur.com/assurance-immeuble-grenoble",
-        "cluster": "local",
-        "score": 80,
-        "actions": [
-          "Ajouter le diagnostic express pour qualifier l'intention.",
-          "Ajouter le module dossier pret assureur.",
-          "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-          "Renforcer la profondeur utile sans duplication."
-        ]
-      },
-      {
-        "slug": "assurance-immeuble-obligatoire",
-        "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
-        "cluster": "local",
-        "score": 80,
-        "actions": [
-          "Ajouter le diagnostic express pour qualifier l'intention.",
-          "Ajouter le module dossier pret assureur.",
-          "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-          "Renforcer la profondeur utile sans duplication."
-        ]
-      },
-      {
-        "slug": "assurance-immeuble-paris",
-        "url": "https://immeubleassur.com/assurance-immeuble-paris",
-        "cluster": "local",
-        "score": 80,
-        "actions": [
-          "Ajouter le diagnostic express pour qualifier l'intention.",
-          "Ajouter le module dossier pret assureur.",
-          "Ajouter un bloc priorite business PNO/CNO/immeuble.",
-          "Renforcer la profondeur utile sans duplication."
-        ]
-      }
-    ],
-    "actions": [
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-        "cluster": "devis-courtier",
-        "score": 68,
-        "action": "Ajouter un deuxieme CTA contextuel avant la fin de page."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/blog/multirisque-immeuble-vs-pno",
-        "cluster": "pno-cno",
-        "score": 72,
-        "action": "Ajouter un deuxieme CTA contextuel avant la fin de page."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
-        "cluster": "pno-cno",
-        "score": 72,
-        "action": "Ajouter un deuxieme CTA contextuel avant la fin de page."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/gestion-sinistres-immeuble",
-        "cluster": "sinistre-resilie",
-        "score": 76,
-        "action": "Ajouter le diagnostic express pour qualifier l'intention."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/assurance-immeuble-bordeaux",
-        "cluster": "local",
-        "score": 80,
-        "action": "Ajouter le diagnostic express pour qualifier l'intention."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
-        "cluster": "sci-bailleur",
-        "score": 80,
-        "action": "Ajouter le diagnostic express pour qualifier l'intention."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/assurance-immeuble-grenoble",
-        "cluster": "local",
-        "score": 80,
-        "action": "Ajouter le diagnostic express pour qualifier l'intention."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
-        "cluster": "local",
-        "score": 80,
-        "action": "Ajouter le diagnostic express pour qualifier l'intention."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/assurance-immeuble-paris",
-        "cluster": "local",
-        "score": 80,
-        "action": "Ajouter le diagnostic express pour qualifier l'intention."
-      }
-    ],
+    "weak_money_pages": [],
+    "actions": [],
     "safeguards": [
       "conversion-score-does-not-replace-lead-quality",
       "money-pages-need-clear-user-intent",
@@ -2201,13 +2508,16 @@
   },
   "cro_experiment": {
     "configured": true,
-    "generated_at": "2026-08-01T13:23:50.662Z",
+    "generated_at": "2026-08-03T22:14:57.443Z",
     "status": "passed",
-    "variant_count": 3,
+    "variant_count": 6,
     "variants": [
       "audit",
       "proof",
-      "speed"
+      "source-quality-direct",
+      "source-quality-intent",
+      "speed",
+      "standard"
     ],
     "required_contracts": 14,
     "missing": [],
@@ -2223,7 +2533,7 @@
     "action_count": 1000,
     "verified_count": 1000,
     "watch_count": 0,
-    "pages_checked": 185,
+    "pages_checked": 202,
     "top_dimensions": [
       {
         "dimension": "validation-friction",
@@ -2299,42 +2609,42 @@
       "sinistre"
     ],
     "intent_link_counts": {
-      "travaux": 13,
-      "veille": 6,
+      "travaux": 17,
+      "veille": 20,
       "local-commercial": 8,
-      "prix": 13,
-      "sinistre": 37,
-      "copropriete": 31,
+      "prix": 16,
+      "sinistre": 54,
+      "copropriete": 34,
       "sci": 18,
-      "immeuble": 98,
+      "immeuble": 225,
       "pno": 9,
-      "cno": 58
+      "cno": 91
     },
     "missing_money_intent_links": [],
-    "active_bridges": 51,
+    "active_bridges": 65,
     "bridge_status": "passed"
   },
   "lead_urgency_feedback": {
     "status": "passed",
-    "urgent_pages": 166,
+    "urgent_pages": 171,
     "missing_cta_count": 0,
     "contract_missing_count": 0,
     "coverage_by_intent": [
       {
         "intent": "sinistre",
         "urgency_level": "immediate",
-        "pages": 45,
-        "pages_with_intent_link": 16,
-        "pages_with_conversion_route": 45,
+        "pages": 52,
+        "pages_with_intent_link": 19,
+        "pages_with_conversion_route": 52,
         "missing_pages": [],
         "action": "Orienter vers un audit sinistre/resiliation avec rappel prioritaire."
       },
       {
         "intent": "travaux",
         "urgency_level": "this-month",
-        "pages": 14,
-        "pages_with_intent_link": 2,
-        "pages_with_conversion_route": 14,
+        "pages": 18,
+        "pages_with_intent_link": 3,
+        "pages_with_conversion_route": 18,
         "missing_pages": [],
         "action": "Orienter vers la verification travaux et garanties dommages-ouvrage."
       },
@@ -2350,18 +2660,18 @@
       {
         "intent": "prix",
         "urgency_level": "quote-ready",
-        "pages": 19,
-        "pages_with_intent_link": 7,
-        "pages_with_conversion_route": 19,
+        "pages": 27,
+        "pages_with_intent_link": 11,
+        "pages_with_conversion_route": 27,
         "missing_pages": [],
         "action": "Orienter vers un devis comparatif prix, franchises et garanties."
       },
       {
         "intent": "pno-cno",
         "urgency_level": "quote-ready",
-        "pages": 116,
-        "pages_with_intent_link": 68,
-        "pages_with_conversion_route": 116,
+        "pages": 111,
+        "pages_with_intent_link": 77,
+        "pages_with_conversion_route": 111,
         "missing_pages": [],
         "action": "Orienter vers le parcours PNO/CNO avec pre-remplissage."
       }
@@ -2369,8 +2679,8 @@
     "weakest_pages": [],
     "conversion_signals": {
       "lead_intent_routing": "passed",
-      "lead_intent_active_bridges": 51,
-      "money_score": 91,
+      "lead_intent_active_bridges": 65,
+      "money_score": 95,
       "funnel_leads_30d": 0,
       "funnel_form_starts_30d": 0
     }
@@ -2378,7 +2688,7 @@
   "intent_conversion_monitor": {
     "status": "no-data",
     "available": true,
-    "generated_at": "2026-08-01T13:23:36.815Z",
+    "generated_at": "2026-08-03T22:14:49.334Z",
     "attention_required": false,
     "summary": {
       "lookback_days": 30,
@@ -2410,21 +2720,25 @@
     "recommendations": []
   },
   "search_intelligence": {
-    "status": "serpapi-unavailable-fallback",
+    "status": "serpapi-rate-limited-fallback",
     "available": true,
     "provider": "serpapi",
     "serp_enabled": true,
     "confidence": "low",
-    "generated_at": "2026-08-01T13:38:40.529Z",
+    "generated_at": "2026-08-02T23:05:03.530Z",
     "keywords_checked": 10,
     "measured_count": 0,
     "fallback_count": 10,
-    "serp_error_count": 10,
-    "average_position": 3.5,
+    "serp_error_count": 1,
+    "serp_request_count": 1,
+    "rate_limited": true,
+    "rate_limited_skipped_count": 9,
+    "retry_after": "",
+    "average_position": null,
     "measured_average_position": null,
-    "top3_count": 2,
-    "missing_count": 6,
-    "first_page_count": 4,
+    "top3_count": 0,
+    "missing_count": 0,
+    "first_page_count": 0,
     "priority_queries": [
       "assurance copropriete",
       "assurance PNO CNO",
@@ -2443,7 +2757,7 @@
         "query": "assurance immeuble",
         "target_url": "/assurance-immeuble",
         "intent": "money",
-        "status": "serp-error",
+        "status": "serp-rate-limited",
         "data_source": "local-fallback",
         "confidence": "low",
         "measured": false,
@@ -2454,15 +2768,18 @@
         ],
         "organic_count": 0,
         "serpapi_id": "",
-        "checked_at": "2026-08-01T13:38:39.392Z",
+        "checked_at": "2026-08-02T23:05:03.525Z",
         "error": "HTTP 429",
+        "error_status": 429,
+        "retry_after": "",
+        "quota_limited": true,
         "recommendation": "Maintenir /assurance-immeuble: surveiller CTR, fraicheur et conversion sur assurance immeuble."
       },
       {
         "query": "devis assurance immeuble",
         "target_url": "/devis-assurance-immeuble",
         "intent": "lead",
-        "status": "serp-error",
+        "status": "serp-rate-limited-skip",
         "data_source": "local-fallback",
         "confidence": "low",
         "measured": false,
@@ -2474,15 +2791,18 @@
         ],
         "organic_count": 0,
         "serpapi_id": "",
-        "checked_at": "2026-08-01T13:38:39.562Z",
+        "checked_at": "2026-08-02T23:05:03.528Z",
         "error": "HTTP 429",
+        "retry_after": "",
+        "quota_limited": true,
+        "skipped_due_to_rate_limit": true,
         "recommendation": "Maintenir /devis-assurance-immeuble: surveiller CTR, fraicheur et conversion sur devis assurance immeuble."
       },
       {
         "query": "assurance copropriete",
         "target_url": "/assurance-copropriete",
         "intent": "money",
-        "status": "serp-error",
+        "status": "serp-rate-limited-skip",
         "data_source": "local-fallback",
         "confidence": "low",
         "measured": false,
@@ -2495,15 +2815,18 @@
         ],
         "organic_count": 0,
         "serpapi_id": "",
-        "checked_at": "2026-08-01T13:38:39.680Z",
+        "checked_at": "2026-08-02T23:05:03.528Z",
         "error": "HTTP 429",
+        "retry_after": "",
+        "quota_limited": true,
+        "skipped_due_to_rate_limit": true,
         "recommendation": "Optimiser /assurance-copropriete: viser top 3 sur assurance copropriete avec preuve, schema FAQ et intention devis."
       },
       {
         "query": "assurance PNO CNO",
         "target_url": "/assurance-pno-cno",
         "intent": "money",
-        "status": "serp-error",
+        "status": "serp-rate-limited-skip",
         "data_source": "local-fallback",
         "confidence": "low",
         "measured": false,
@@ -2514,15 +2837,18 @@
         ],
         "organic_count": 0,
         "serpapi_id": "",
-        "checked_at": "2026-08-01T13:38:39.790Z",
+        "checked_at": "2026-08-02T23:05:03.528Z",
         "error": "HTTP 429",
+        "retry_after": "",
+        "quota_limited": true,
+        "skipped_due_to_rate_limit": true,
         "recommendation": "Optimiser /assurance-pno-cno: viser top 3 sur assurance PNO CNO avec preuve, schema FAQ et intention devis."
       },
       {
         "query": "assurance coproprietaire non occupant",
         "target_url": "/assurance-coproprietaire-non-occupant",
         "intent": "lead",
-        "status": "serp-error",
+        "status": "serp-rate-limited-skip",
         "data_source": "local-fallback",
         "confidence": "low",
         "measured": false,
@@ -2534,15 +2860,18 @@
         ],
         "organic_count": 0,
         "serpapi_id": "",
-        "checked_at": "2026-08-01T13:38:39.902Z",
+        "checked_at": "2026-08-02T23:05:03.528Z",
         "error": "HTTP 429",
+        "retry_after": "",
+        "quota_limited": true,
+        "skipped_due_to_rate_limit": true,
         "recommendation": "Renforcer /assurance-coproprietaire-non-occupant: contenu expert, FAQ visible, liens internes et CTA devis pour assurance coproprietaire non occupant."
       },
       {
         "query": "assurance SCI immeuble",
         "target_url": "/assurance-sci",
         "intent": "lead",
-        "status": "serp-error",
+        "status": "serp-rate-limited-skip",
         "data_source": "local-fallback",
         "confidence": "low",
         "measured": false,
@@ -2555,15 +2884,18 @@
         ],
         "organic_count": 0,
         "serpapi_id": "",
-        "checked_at": "2026-08-01T13:38:40.026Z",
+        "checked_at": "2026-08-02T23:05:03.528Z",
         "error": "HTTP 429",
+        "retry_after": "",
+        "quota_limited": true,
+        "skipped_due_to_rate_limit": true,
         "recommendation": "Renforcer /assurance-sci: contenu expert, FAQ visible, liens internes et CTA devis pour assurance SCI immeuble."
       },
       {
         "query": "courtier assurance immeuble",
         "target_url": "/courtier-assurance-immeuble",
         "intent": "lead",
-        "status": "serp-error",
+        "status": "serp-rate-limited-skip",
         "data_source": "local-fallback",
         "confidence": "low",
         "measured": false,
@@ -2574,15 +2906,18 @@
         ],
         "organic_count": 0,
         "serpapi_id": "",
-        "checked_at": "2026-08-01T13:38:40.146Z",
+        "checked_at": "2026-08-02T23:05:03.528Z",
         "error": "HTTP 429",
+        "retry_after": "",
+        "quota_limited": true,
+        "skipped_due_to_rate_limit": true,
         "recommendation": "Renforcer /courtier-assurance-immeuble: contenu expert, FAQ visible, liens internes et CTA devis pour courtier assurance immeuble."
       },
       {
         "query": "prix assurance immeuble",
         "target_url": "/prix-assurance-immeuble",
         "intent": "comparison",
-        "status": "serp-error",
+        "status": "serp-rate-limited-skip",
         "data_source": "local-fallback",
         "confidence": "low",
         "measured": false,
@@ -2594,15 +2929,18 @@
         ],
         "organic_count": 0,
         "serpapi_id": "",
-        "checked_at": "2026-08-01T13:38:40.281Z",
+        "checked_at": "2026-08-02T23:05:03.528Z",
         "error": "HTTP 429",
+        "retry_after": "",
+        "quota_limited": true,
+        "skipped_due_to_rate_limit": true,
         "recommendation": "Renforcer /prix-assurance-immeuble: contenu expert, FAQ visible, liens internes et CTA devis pour prix assurance immeuble."
       },
       {
         "query": "multirisque immeuble",
         "target_url": "/multirisque-immeuble",
         "intent": "money",
-        "status": "serp-error",
+        "status": "serp-rate-limited-skip",
         "data_source": "local-fallback",
         "confidence": "low",
         "measured": false,
@@ -2615,15 +2953,18 @@
         ],
         "organic_count": 0,
         "serpapi_id": "",
-        "checked_at": "2026-08-01T13:38:40.404Z",
+        "checked_at": "2026-08-02T23:05:03.528Z",
         "error": "HTTP 429",
+        "retry_after": "",
+        "quota_limited": true,
+        "skipped_due_to_rate_limit": true,
         "recommendation": "Renforcer /multirisque-immeuble: contenu expert, FAQ visible, liens internes et CTA devis pour multirisque immeuble."
       },
       {
         "query": "assurance immeuble syndic benevole",
         "target_url": "/assurance-immeuble-syndic-benevole",
         "intent": "niche",
-        "status": "serp-error",
+        "status": "serp-rate-limited-skip",
         "data_source": "local-fallback",
         "confidence": "low",
         "measured": false,
@@ -2634,56 +2975,26 @@
         ],
         "organic_count": 0,
         "serpapi_id": "",
-        "checked_at": "2026-08-01T13:38:40.528Z",
+        "checked_at": "2026-08-02T23:05:03.528Z",
         "error": "HTTP 429",
+        "retry_after": "",
+        "quota_limited": true,
+        "skipped_due_to_rate_limit": true,
         "recommendation": "Renforcer /assurance-immeuble-syndic-benevole: contenu expert, FAQ visible, liens internes et CTA devis pour assurance immeuble syndic benevole."
       }
     ],
     "errors": [
       {
         "query": "assurance immeuble",
-        "error": "HTTP 429"
-      },
-      {
-        "query": "devis assurance immeuble",
-        "error": "HTTP 429"
-      },
-      {
-        "query": "assurance copropriete",
-        "error": "HTTP 429"
-      },
-      {
-        "query": "assurance PNO CNO",
-        "error": "HTTP 429"
-      },
-      {
-        "query": "assurance coproprietaire non occupant",
-        "error": "HTTP 429"
-      },
-      {
-        "query": "assurance SCI immeuble",
-        "error": "HTTP 429"
-      },
-      {
-        "query": "courtier assurance immeuble",
-        "error": "HTTP 429"
-      },
-      {
-        "query": "prix assurance immeuble",
-        "error": "HTTP 429"
-      },
-      {
-        "query": "multirisque immeuble",
-        "error": "HTTP 429"
-      },
-      {
-        "query": "assurance immeuble syndic benevole",
-        "error": "HTTP 429"
+        "error": "HTTP 429",
+        "status_code": 429,
+        "retry_after": "",
+        "rate_limited": true
       }
     ]
   },
   "google_feedback_loop": {
-    "status": "action-required",
+    "status": "monitoring",
     "actions": [
       {
         "priority": "setup",
@@ -2692,50 +3003,8 @@
       },
       {
         "priority": "medium",
-        "source": "search-intelligence",
-        "url": "/assurance-copropriete",
-        "query": "assurance copropriete",
-        "action": "assurance copropriete: position 4 sur /assurance-copropriete. Optimiser /assurance-copropriete: viser top 3 sur assurance copropriete avec preuve, schema FAQ et intention devis. Source local-fallback, confiance low."
-      },
-      {
-        "priority": "medium",
-        "source": "search-intelligence",
-        "url": "/assurance-pno-cno",
-        "query": "assurance PNO CNO",
-        "action": "assurance PNO CNO: position 5 sur /assurance-pno-cno. Optimiser /assurance-pno-cno: viser top 3 sur assurance PNO CNO avec preuve, schema FAQ et intention devis. Source local-fallback, confiance low."
-      },
-      {
-        "priority": "high",
-        "source": "search-intelligence",
-        "url": "/assurance-coproprietaire-non-occupant",
-        "query": "assurance coproprietaire non occupant",
-        "action": "assurance coproprietaire non occupant: absent du top 10 sur /assurance-coproprietaire-non-occupant. Renforcer /assurance-coproprietaire-non-occupant: contenu expert, FAQ visible, liens internes et CTA devis pour assurance coproprietaire non occupant. Source local-fallback, confiance low."
-      },
-      {
-        "priority": "high",
-        "source": "search-intelligence",
-        "url": "/assurance-sci",
-        "query": "assurance SCI immeuble",
-        "action": "assurance SCI immeuble: absent du top 10 sur /assurance-sci. Renforcer /assurance-sci: contenu expert, FAQ visible, liens internes et CTA devis pour assurance SCI immeuble. Source local-fallback, confiance low."
-      },
-      {
-        "priority": "high",
-        "source": "search-intelligence",
-        "url": "/courtier-assurance-immeuble",
-        "query": "courtier assurance immeuble",
-        "action": "courtier assurance immeuble: absent du top 10 sur /courtier-assurance-immeuble. Renforcer /courtier-assurance-immeuble: contenu expert, FAQ visible, liens internes et CTA devis pour courtier assurance immeuble. Source local-fallback, confiance low."
-      },
-      {
-        "priority": "high",
-        "source": "search-intelligence",
-        "url": "/prix-assurance-immeuble",
-        "query": "prix assurance immeuble",
-        "action": "prix assurance immeuble: absent du top 10 sur /prix-assurance-immeuble. Renforcer /prix-assurance-immeuble: contenu expert, FAQ visible, liens internes et CTA devis pour prix assurance immeuble. Source local-fallback, confiance low."
-      },
-      {
-        "priority": "fix",
         "source": "serpapi",
-        "action": "Controle SerpApi a corriger: 10/10 requetes en erreur, statut serpapi-unavailable-fallback. Les positions fallback restent utiles mais ne doivent pas etre traitees comme mesures Google."
+        "action": "Quota SerpApi atteint apres 1 requete(s); 9 requete(s) reportee(s). Attendre la fenetre de quota ou augmenter le quota avant de relancer search:live."
       },
       {
         "priority": "medium",
@@ -2744,60 +3013,23 @@
       },
       {
         "priority": "medium",
+        "source": "seo-cannibalization",
+        "action": "5 recouvrement(s) moyen(s) a surveiller pour proteger les pages money."
+      },
+      {
+        "priority": "medium",
         "source": "seo-angle-differentiation",
-        "action": "25 page(s) recadrees par titres/H1/meta; 5 page(s) consolidee(s) en noindex pour concentrer l'indexation."
+        "action": "27 page(s) recadrees par titres/H1/meta; 7 page(s) consolidee(s) en noindex pour concentrer l'indexation."
       },
       {
         "priority": "low",
         "source": "internal-link-equity",
-        "action": "237 lien(s) interne(s) visible(s) actif(s) sur 60 page(s) pour orienter vers devis, hubs et pages money sans masquer de texte."
+        "action": "293 lien(s) interne(s) visible(s) actif(s) sur 74 page(s) pour orienter vers devis, hubs et pages money sans masquer de texte."
       },
       {
         "priority": "setup",
         "source": "intent-conversion-monitor",
         "action": "Laisser tourner la telemetrie locale pour obtenir assez de signaux par intention avant de prioriser les parcours SEO."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
-        "cluster": "devis-courtier",
-        "action": "devis-courtier: score conversion 68/100. Ajouter un deuxieme CTA contextuel avant la fin de page."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/blog/multirisque-immeuble-vs-pno",
-        "cluster": "pno-cno",
-        "action": "pno-cno: score conversion 72/100. Ajouter un deuxieme CTA contextuel avant la fin de page."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
-        "cluster": "pno-cno",
-        "action": "pno-cno: score conversion 72/100. Ajouter un deuxieme CTA contextuel avant la fin de page."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/gestion-sinistres-immeuble",
-        "cluster": "sinistre-resilie",
-        "action": "sinistre-resilie: score conversion 76/100. Ajouter le diagnostic express pour qualifier l'intention."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/assurance-immeuble-bordeaux",
-        "cluster": "local",
-        "action": "local: score conversion 80/100. Ajouter le diagnostic express pour qualifier l'intention."
-      },
-      {
-        "priority": "medium",
-        "source": "conversion-intelligence",
-        "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
-        "cluster": "sci-bailleur",
-        "action": "sci-bailleur: score conversion 80/100. Ajouter le diagnostic express pour qualifier l'intention."
       }
     ],
     "principles": [
@@ -2819,14 +3051,16 @@
     "sitemap_status": 0,
     "pagespeed_checked": 0,
     "pagespeed_slow_pages": 0,
-    "search_intelligence_status": "serpapi-unavailable-fallback",
+    "search_intelligence_status": "serpapi-rate-limited-fallback",
     "search_intelligence_provider": "serpapi",
     "search_intelligence_confidence": "low",
     "serp_keywords_checked": 10,
     "serp_measured_count": 0,
     "serp_fallback_count": 10,
-    "serp_missing_count": 6,
-    "serp_error_count": 10,
+    "serp_missing_count": 0,
+    "serp_error_count": 1,
+    "serp_rate_limited": true,
+    "serp_request_count": 1,
     "status": "action-required"
   },
   "connectors": {
@@ -2851,6 +3085,7 @@
     "angle differentiation uses visible content and noindex consolidation for duplicates",
     "internal link equity uses visible contextual links only",
     "cluster conversion bridges use visible CTAs only",
+    "editorial_cluster_rescue uses visible first-party CTA blocks only",
     "lead intent routing keeps visible SEO CTAs measurable through form, API and GA4",
     "lead urgency feedback keeps urgent pages routed to visible quote paths",
     "intent conversion monitor uses first-party local SQLite events only"
