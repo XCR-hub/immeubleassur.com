@@ -4,9 +4,12 @@ import { dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { openLocalSqlite } from "./local-sqlite-db.js";
 import { onRequestGet, onRequestPost } from "../functions/api/newsletter.js";
+import { loadDefaultEnvFiles, env } from "./local-env.js";
 
-const reportPath = resolve(process.env.LOCAL_NEWSLETTER_CANARY_REPORT || join(process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports", "newsletter-runtime-canary-report.json"));
-const publicationsRoot = resolve(process.env.LOCAL_RUNTIME_PUBLICATIONS_ROOT || join("data", "runtime-assets", "publications"));
+loadDefaultEnvFiles();
+
+const reportPath = resolve(env("LOCAL_NEWSLETTER_CANARY_REPORT", join(env("LOCAL_RUNTIME_REPORTS_ROOT", "reports"), "newsletter-runtime-canary-report.json")));
+const publicationsRoot = resolve(env("LOCAL_RUNTIME_PUBLICATIONS_ROOT", join(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")), "publications")));
 const dbPath = join(tmpdir(), `immeubleassur-newsletter-canary-${process.pid}-${Date.now()}.sqlite`);
 const deliveryOnePath = join(tmpdir(), `immeubleassur-newsletter-delivery-one-${process.pid}.json`);
 const deliveryTwoPath = join(tmpdir(), `immeubleassur-newsletter-delivery-two-${process.pid}.json`);
