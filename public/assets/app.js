@@ -1,7 +1,7 @@
 const form = document.querySelector("#lead-form");
 const statusBox = document.querySelector(".form-status");
 
-const requiredFields = ["name", "phone", "email", "profile", "property_type", "city"];
+const requiredFields = ["name", "phone", "profile", "property_type", "city"];
 const sessionKey = "immeubleassur_session_id";
 const attributionKey = "immeubleassur_attribution";
 const experimentKey = "immeubleassur_cta_experiment";
@@ -512,7 +512,7 @@ function validationDetails(payload) {
 
   const missing = requiredFields.filter((field) => !payload[field]);
   const invalid = [];
-  if (!missing.includes("email") && !emailLooksValid(payload.email)) invalid.push("email");
+  if (payload.email && !emailLooksValid(payload.email)) invalid.push("email");
   if (!missing.includes("phone") && !phoneLooksValid(payload.phone)) invalid.push("phone");
   if (!payload.consent) missing.push("consent");
 

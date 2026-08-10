@@ -627,11 +627,11 @@ function validate(payload) {
     if (!validEmail && !validPhone) return "Telephone ou email requis";
     return "";
   }
-  const required = ["name", "phone", "email", "profile", "property_type", "city"];
+  const required = ["name", "phone", "profile", "property_type", "city"];
   for (const field of required) {
     if (!clean(payload[field])) return `Champ manquant: ${field}`;
   }
-  if (!validEmail) return "Email invalide";
+  if (email && !validEmail) return "Email invalide";
   if (!validPhone) return "Telephone invalide";
   if (payload.consent !== true) return "Consentement requis";
   return "";
@@ -905,6 +905,8 @@ async function logLeadEvent(env, leadId, eventType, payload, createdAt) {
     .bind(crypto.randomUUID(), leadId, eventType, JSON.stringify(payload), createdAt)
     .run();
 }
+
+export { validate as validateLeadPayload };
 
 export async function onRequestOptions({ request, env }) {
   return new Response(null, { status: 204, headers: corsHeadersFor(request, env) });

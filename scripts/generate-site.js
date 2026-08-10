@@ -509,7 +509,7 @@ function leadForm(defaults = {}) {
         <label>Nom et prenom *<input name="name" autocomplete="name" required placeholder="Jean Dupont" /></label>
         <label>Telephone *<input name="phone" type="tel" autocomplete="tel" required placeholder="06 12 34 56 78" /></label>
       </div>
-      <label>Email *<input name="email" type="email" autocomplete="email" required placeholder="contact@exemple.fr" /></label>
+      <label>Email (facultatif)<input name="email" type="email" autocomplete="email" placeholder="contact@exemple.fr" /></label>
       <div class="field-grid">
         <label>Profil *
           <select name="profile" required>
