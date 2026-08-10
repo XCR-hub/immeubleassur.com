@@ -4,9 +4,14 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
 const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
-const { normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered } = await import("./editorial-autopilot.js");
+const { repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered } = await import("./editorial-autopilot.js");
 const decomposed = "Assurance proprie\u0301taire";
-const corruptedFixture = { title: "Actualite\u00c3\u00a9 assurance immeuble", summary: "Signal public", published_at: "10 aout 2026" };
+const corruptedFixture = { title: "Actualite\uFFFD assurance immeuble", summary: "Signal public", published_at: "10 aout 2026" };
+const repairableFixtures = [
+  ["ao\u00c3\u00bbt", "ao\u00fbt"],
+  ["l\u00e2\u20ac\u2122\u00e9volution", "l\u2019\u00e9volution"],
+  ["propri\u00c3\u00a9taire", "propri\u00e9taire"]
+];
 const cleanFixture = { title: decomposed, summary: "Signal public attribue", published_at: "10 aout 2026" };
 const artifactFixture = { title: "Actualite assurance immeuble attribuee", summary: '/fileadmin/image.jpg 992w,/fileadmin/image-large.jpg 2000w" sizes="100vw" loading="lazy" width="1200" height="800" alt=""> 03 aout 2026 Une mesure de prevention est publiee pour les immeubles&hellip;', published_at: "03 aout 2026" };
 const sanitizedArtifact = sanitizeEditorialSummary(artifactFixture.summary);
@@ -33,6 +38,8 @@ const checks = [
   ["runtime-summaries-exported", editorial.includes("title, url, summary, topic")],
   ["current-runtime-output-clean", !editorialReport || corrupted.length === 0],
   ["decomposed-unicode-normalized", normalizeEditorialText(decomposed) === decomposed.normalize("NFC")],
+  ["windows-1252-mojibake-repaired", repairableFixtures.every(([input, expected]) => repairMojibake(input) === expected)],
+  ["normalization-applies-mojibake-repair", repairableFixtures.every(([input, expected]) => normalizeEditorialText(input) === expected)],
   ["corrupted-fixture-detected", editorialTextQuality(corruptedFixture).clean === false],
   ["corrupted-fixture-excluded", qualityFiltered([cleanFixture, corruptedFixture]).length === 1],
   ["artifact-fixture-sanitized", sanitizedArtifact.includes("Une mesure de prevention") && sanitizedArtifact.includes("\u2026") && !corruptionPattern.test(sanitizedArtifact)],
