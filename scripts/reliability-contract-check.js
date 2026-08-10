@@ -58,7 +58,7 @@ const checks=[
   ["monitor-covers-smtp",monitor.includes('inspectJsonRuntime("smtp_transport"')],
   ["runtime-runs-isolated-newsletter-canary",runtime.includes('runStep("newsletter_runtime_canary"')&&newsletterCanary.includes("sqlite-temp-db")&&newsletterCanary.includes("in-memory-smtp-capture")],
   ["newsletter-capture-is-temp-and-synthetic-only",newsletterDelivery.includes("dbPath.startsWith(resolve(tmpdir()))")&&newsletterDelivery.includes('endsWith("@example.test")')&&newsletterDelivery.includes("newsletter-in-memory-capture-scope-invalid")],
-  ["monitor-covers-isolated-newsletter-canary",monitor.includes('inspectJsonRuntime("newsletter_runtime_canary"')&&monitor.includes("report.delivery?.capture_verified === true")&&monitor.includes("report.delivery?.second_sent || 0")],
+  ["monitor-covers-isolated-newsletter-canary",monitor.includes('inspectJsonRuntime("newsletter_runtime_canary"')&&monitor.includes("report.delivery?.capture_verified === true")&&monitor.includes("report.delivery?.second_sent || 0")&&monitor.includes("report.unsubscribe?.confirmed === true")&&newsletterCanary.includes("unsubscribeEvents === 1")],
   ["monitor-covers-newsletter",monitor.includes('inspectJsonRuntime("newsletter_delivery"')],
   ["monitor-accepts-safe-manual-newsletter-sync",monitor.includes('"synced-awaiting-auto-send"')&&monitor.includes("report.issue_synced === true")&&monitor.includes("report.failed === 0")],
   ["monitor-covers-runtime-cycle",monitor.includes('inspectJsonRuntime("runtime_cycle_freshness"')],

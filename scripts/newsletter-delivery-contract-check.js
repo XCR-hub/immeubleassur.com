@@ -24,7 +24,7 @@ const checks = [
   ["runtime-delivery-enabled", runtime.includes('runStep("newsletter_delivery"') && task.includes("NEWSLETTER_AUTO_SEND = '1'")],
   ["dry-run-supported", delivery.includes('process.argv.includes("--dry-run")')],
   ["in-memory-capture-strictly-scoped", delivery.includes("dbPath.startsWith(resolve(tmpdir()))") && delivery.includes('endsWith("@example.test")')],
-  ["runtime-canary-proves-consent-dedupe-idempotence", canary.includes("consent_refused") && canary.includes("subscribers === 1") && canary.includes("deliveryTwo.status === \"up-to-date\"") && canary.includes("sentEvents === 1")]
+  ["runtime-canary-proves-consent-dedupe-idempotence", canary.includes("consent_refused") && canary.includes("subscribers === 1") && canary.includes("deliveryTwo.status === \"up-to-date\"") && canary.includes("sentEvents === 1") && canary.includes("unsubscribeResult.status === 200") && canary.includes("unsubscribeEvents === 1")]
 ];
 const missing=checks.filter(([,ok])=>!ok).map(([name])=>name);
 const report={generated_at:new Date().toISOString(),status:missing.length?"failed":"passed",checks:checks.length,missing,safeguards:["validated-editions-only","idempotent-delivery","subscriber-consent-status","unsubscribe","no-draft-send","no-ai-legal-publication"]};

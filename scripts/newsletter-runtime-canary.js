@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { openLocalSqlite } from "./local-sqlite-db.js";
-import { onRequestPost } from "../functions/api/newsletter.js";
+import { onRequestGet, onRequestPost } from "../functions/api/newsletter.js";
 
 const reportPath = resolve(process.env.LOCAL_NEWSLETTER_CANARY_REPORT || join(process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports", "newsletter-runtime-canary-report.json"));
 const dbPath = join(tmpdir(), `immeubleassur-newsletter-canary-${process.pid}-${Date.now()}.sqlite`);
@@ -58,6 +58,11 @@ function deliver(out) {
     encoding: "utf8"
   });
 }
+async function unsubscribe(DB, token) {
+  const request = new Request(`https://immeubleassur.com/api/newsletter?unsubscribe=${encodeURIComponent(token)}`);
+  const response = await onRequestGet({ request, env: { DB } });
+  return { status: response.status, body: await response.text() };
+}
 async function run() {
   cleanup();
   const DB = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
@@ -75,6 +80,10 @@ async function run() {
     const deliveryTwo = existsSync(deliveryTwoPath) ? JSON.parse(readFileSync(deliveryTwoPath, "utf8")) : {};
     const sentEvents = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_events WHERE event_type='sent'").first("count") || 0);
     const issueSent = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_issues WHERE sent_at IS NOT NULL").first("count") || 0);
+    const subscriber = await DB.prepare("SELECT unsubscribe_token FROM newsletter_subscribers LIMIT 1").first();
+    const unsubscribeResult = await unsubscribe(DB, subscriber?.unsubscribe_token || "");
+    const unsubscribed = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_subscribers WHERE status='unsubscribed' AND unsubscribed_at IS NOT NULL").first("count") || 0);
+    const unsubscribeEvents = Number(await DB.prepare("SELECT COUNT(*) AS count FROM newsletter_events WHERE event_type='unsubscribed'").first("count") || 0);
 
     const success = refused.status === 422 && refused.body?.success === false &&
       first.status === 200 && first.body?.status === "active" &&
@@ -84,7 +93,8 @@ async function run() {
       deliveryOne.sent === 1 && deliveryOne.failed === 0 &&
       deliveryOne.capture?.verified === true && deliveryOne.capture?.external_delivery === false &&
       deliveryTwoResult.status === 0 && deliveryTwo.status === "up-to-date" &&
-      deliveryTwo.sent === 0 && sentEvents === 1 && issueSent === 1;
+      deliveryTwo.sent === 0 && sentEvents === 1 && issueSent === 1 &&
+      unsubscribeResult.status === 200 && unsubscribed === 1 && unsubscribeEvents === 1;
 
     const report = {
       generated_at: new Date().toISOString(),
@@ -116,7 +126,7 @@ async function run() {
     mkdirSync(dirname(reportPath), { recursive: true });
     writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
     if (!success) throw new Error(`newsletter-runtime-canary-failed: ${JSON.stringify(report)}`);
-    console.log("Newsletter runtime canary passed: consent, dedupe and one idempotent in-memory delivery verified.");
+    console.log("Newsletter runtime canary passed: consent, dedupe, idempotent in-memory delivery and unsubscribe verified.");
   } finally {
     DB.close();
     cleanup();
