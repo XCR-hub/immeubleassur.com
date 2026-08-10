@@ -4,6 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { loadDefaultEnvFiles } from "./local-env.js";
 import { sanitizePublicWatchItems } from "./editorial-public-metadata-policy.js";
+import { findEquivalentPendingDraft, sourceSetFingerprint } from "./editorial-draft-dedupe-policy.js";
 
 loadDefaultEnvFiles();
 
@@ -636,8 +637,13 @@ async function run() {
   ensureDir(join(OUT, "news"));
   ensureDir(REPORT_DIR);
   const { items, errors, sourceResults, mode } = await collectWatchItems();
-  const synthesis = await synthesize(items);
+  const draftsRoot = join(REPORT_DIR, "editorial-drafts");
+  const equivalentPendingDraft = findEquivalentPendingDraft(draftsRoot, items);
+  const synthesis = equivalentPendingDraft
+    ? { ...deterministicProvider(), status: "skipped-equivalent-pending-draft", text: fallbackSynthesis(items), error: "equivalent-pending-draft", attempts: [], provider_order: aiProviders().map((item) => item.provider) }
+    : await synthesize(items);
   const aiRequiresReview = synthesis.provider !== "deterministic";
+  const humanReviewPending = aiRequiresReview || Boolean(equivalentPendingDraft);
   const legalReview = legalSensitivity(items, synthesis);
   const publicSynthesis = aiRequiresReview
     ? { ...deterministicProvider(), status: "local-safe-public-fallback", text: fallbackSynthesis(items), attempts: synthesis.attempts || [] }
@@ -654,8 +660,8 @@ async function run() {
     issueBackfills = injectIssueBacklog();
     updateSitemap(["veille-assurance-immeuble", "newsletter-assurance-immeuble", issue.slug]);
   }
-  const draftReviewPath = aiRequiresReview ? join(REPORT_DIR, "editorial-drafts", issue.slug.replace(/\//g, "-") + ".json") : "";
-  const reportStatus = aiRequiresReview ? "draft_review" : synthesis.status === "fallback-after-ai-errors" ? "fallback" : "completed";
+  const draftReviewPath = aiRequiresReview ? join(draftsRoot, issue.slug.replace(/\//g, "-") + ".json") : equivalentPendingDraft ? join(draftsRoot, equivalentPendingDraft.file) : "";
+  const reportStatus = aiRequiresReview ? "draft_review" : equivalentPendingDraft ? "equivalent_draft_reused" : synthesis.status === "fallback-after-ai-errors" ? "fallback" : "completed";
   if (aiRequiresReview) write(draftReviewPath, JSON.stringify({ marker: "editorial-ai-draft-review-v1", generated_at: new Date().toISOString(), publication_status: "quarantined", human_review_required: true, no_auto_publish: true, allowed_publication: false, legal_review: legalReview, issue: { id: issue.id, slug: issue.slug, title: issue.title }, synthesis, source_items: items.slice(0, 18) }, null, 2));
   const draftPacket = aiRequiresReview ? contentDraftPacket(items, synthesis, legalReview) : null;
   const draftPacketPath = aiRequiresReview ? join(REPORT_DIR, "editorial-drafts", "multi-format-" + todayIsoDate() + ".json") : "";
@@ -669,18 +675,21 @@ async function run() {
     ai_provider: synthesis.provider,
     ai_model: synthesis.model,
     ai_status: synthesis.status,
-    publication_status: RUNTIME_ONLY ? "runtime-preview-only" : !publicationGate.ready ? "held-insufficient-official-evidence" : aiRequiresReview ? "safe-fallback-published-ai-quarantined" : "published",
+    publication_status: RUNTIME_ONLY ? "runtime-preview-only" : !publicationGate.ready ? "held-insufficient-official-evidence" : humanReviewPending ? "safe-fallback-published-ai-quarantined" : "published",
     public_write_enabled: publicWriteEnabled,
     publication_gate: publicationGate,
     published_issue: publicWriteEnabled ? { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url } : null,
     public_content_provider: publicSynthesis.provider,
     public_content_ai_generated: false,
-    ai_draft_publication_status: aiRequiresReview ? "quarantined" : "not-created",
+    ai_draft_publication_status: humanReviewPending ? "quarantined" : "not-created",
     ai_draft_allowed_publication: false,
-    legal_sensitive_draft: aiRequiresReview && legalReview.sensitive,
-    legal_review: aiRequiresReview ? legalReview : null,
-    human_review_required: aiRequiresReview,
-    no_auto_publish: aiRequiresReview,
+    legal_sensitive_draft: humanReviewPending && legalReview.sensitive,
+    legal_review: humanReviewPending ? legalReview : null,
+    human_review_required: humanReviewPending,
+    no_auto_publish: humanReviewPending,
+    equivalent_pending_draft_reused: Boolean(equivalentPendingDraft),
+    equivalent_pending_draft_file: equivalentPendingDraft?.file || "",
+    source_set_fingerprint: sourceSetFingerprint(items).slice(0, 20),
     draft_review_path: draftReviewPath,
     draft_packet_path: draftPacketPath,
     draft_packet_count: draftPacket?.drafts?.length || 0,
@@ -706,7 +715,7 @@ async function run() {
     issue: publicWriteEnabled ? { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url } : null,
     issue_backfills: issueBackfills,
     automation_plan: automationPlan(items),
-    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review", "legal-sensitive-ai-drafts-quarantined", "public-content-provider-deterministic", "human-approval-required-before-ai-publication", "fresh-official-evidence-required", "last-valid-publication-preserved-on-source-failure", "unicode-nfc-normalized", "corrupted-source-text-excluded", "source-markup-artifacts-sanitized", "regulator-url-scope-filtered"],
+    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review", "legal-sensitive-ai-drafts-quarantined", "equivalent-source-set-reuses-pending-draft", "public-content-provider-deterministic", "human-approval-required-before-ai-publication", "fresh-official-evidence-required", "last-valid-publication-preserved-on-source-failure", "unicode-nfc-normalized", "corrupted-source-text-excluded", "source-markup-artifacts-sanitized", "regulator-url-scope-filtered"],
     errors
   };
   const publicReport = {
