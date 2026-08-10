@@ -588,13 +588,13 @@ function buildGoogleFeedbackLoop({ gsc, pagespeed, searchIntelligence, contentQu
 
   if (searchIntelligence?.available) {
     const lowConfidence = searchIntelligence.confidence === "low" || String(searchIntelligence.status || "").includes("fallback");
-    for (const row of (searchIntelligence.rankings || []).filter((item) => !item.position || Number(item.position) > 3).slice(0, 6)) {
+    for (const row of (searchIntelligence.rankings || []).filter((item) => item.measured === true && item.actionable === true && item.data_source === "serpapi" && item.confidence === "measured" && (!item.position || Number(item.position) > 3)).slice(0, 6)) {
       actions.push({
         priority: !row.position ? "high" : "medium",
         source: "search-intelligence",
         url: row.target_url,
         query: row.query,
-        action: `${row.query}: ${row.position ? `position ${row.position}` : "absent du top 10"} sur ${row.target_url}. ${row.recommendation || "Renforcer contenu, preuves, FAQ, maillage et CTA devis."} Source ${row.data_source || searchIntelligence.provider}, confiance ${row.confidence || searchIntelligence.confidence}.`
+        action: `${row.query}: ${row.position ? `position ${row.position}` : "absent du top 10"} sur ${row.target_url}. ${row.recommendation} Source ${row.data_source}, confiance ${row.confidence}.`
       });
     }
     if (searchIntelligence.serp_error_count > 0) {
