@@ -14,7 +14,12 @@ function ageHours(value) {
   return Number.isFinite(timestamp) ? Math.max(0, Math.round(((Date.now() - timestamp) / 3600000) * 10) / 10) : null;
 }
 
-function latestPublishedEdition(publicRoot) {
+function latestPublishedEdition(publicRoot, publicationsRoot) {
+  const manifest = readJson(join(publicationsRoot, "current.json"));
+  const runtimeDate = String(manifest?.issue?.slug || "").match(/^news\/veille-assurance-immeuble-(\d{4}-\d{2}-\d{2})$/)?.[1];
+  if (runtimeDate && Array.isArray(manifest.allowed_files) && manifest.allowed_files.includes(`${manifest.issue.slug}.html`)) {
+    return { date: runtimeDate, path: `${manifest.issue.slug}.html`, age_days: Math.max(0, Math.floor((Date.now() - Date.parse(`${runtimeDate}T00:00:00Z`)) / 86400000)), source: "runtime-manifest", version: manifest.version || "" };
+  }
   const newsDir = join(publicRoot, "news");
   if (!existsSync(newsDir)) return null;
   const editions = readdirSync(newsDir)
@@ -28,6 +33,8 @@ function latestPublishedEdition(publicRoot) {
 
 const reportRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", "reports"));
 const publicRoot = resolve(env("LOCAL_SITE_PUBLIC_ROOT", "public"));
+const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));
+const publicationsRoot = resolve(env("LOCAL_RUNTIME_PUBLICATIONS_ROOT", join(runtimeAssetsRoot, "publications")));
 const editorialPath = resolve(env("LOCAL_EDITORIAL_REPORT", join(reportRoot, "editorial-autopilot-report.json")));
 const out = resolve(env("LOCAL_EDITORIAL_HEALTH_REPORT", join(reportRoot, "local-editorial-health-report.json")));
 const statePath = resolve(env("LOCAL_EDITORIAL_HEALTH_STATE", join(reportRoot, "editorial-health-state.json")));
@@ -41,7 +48,7 @@ const gateReady = editorial?.publication_gate?.ready === true;
 const operationalCycle = editorial?.fetch_enabled === true;
 const held = operationalCycle && !gateReady;
 const consecutiveHolds = held ? Number(previousState.consecutive_holds || 0) + 1 : 0;
-const latestEdition = latestPublishedEdition(publicRoot);
+const latestEdition = latestPublishedEdition(publicRoot, publicationsRoot);
 const reportAge = ageHours(editorial?.generated_at);
 const issues = [];
 

@@ -7,7 +7,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 loadDefaultEnvFiles();
 
 const SITE = "https://immeubleassur.com";
-const OUT = "public";
+const OUT = process.env.LOCAL_EDITORIAL_OUTPUT_ROOT || "public";
 const RUNTIME_ONLY = process.env.LOCAL_RUNTIME_ONLY === "1";
 const ASSET_DIR = process.env.LOCAL_RUNTIME_ASSETS_ROOT ? join(process.env.LOCAL_RUNTIME_ASSETS_ROOT, "assets") : join(OUT, "assets");
 const REPORT_DIR = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";

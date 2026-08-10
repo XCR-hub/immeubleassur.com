@@ -562,7 +562,9 @@ function sanitizeEditorialHealthReport(report) {
     latest_valid_edition: report.latest_valid_edition ? {
       date: report.latest_valid_edition.date || "",
       path: report.latest_valid_edition.path || "",
-      age_days: Number(report.latest_valid_edition.age_days || 0)
+      age_days: Number(report.latest_valid_edition.age_days || 0),
+      source: report.latest_valid_edition.source || "static-checkout",
+      version: report.latest_valid_edition.version || ""
     } : null,
     maximum_edition_age_days: Number(report.maximum_edition_age_days || 0),
     issues: Array.isArray(report.issues) ? report.issues.slice(0, 8).map((item) => ({ type: item.type || "", severity: item.severity || "", signal: item.signal || "", threshold: item.threshold || "" })) : []

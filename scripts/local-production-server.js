@@ -1,4 +1,4 @@
-import { createReadStream, existsSync, mkdirSync, statSync } from "node:fs";
+import { createReadStream, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -11,6 +11,7 @@ loadDefaultEnvFiles();
 
 const root = resolve(env("LOCAL_SITE_ROOT", "public"));
 const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));
+const runtimePublicationsRoot = resolve(env("LOCAL_RUNTIME_PUBLICATIONS_ROOT", join(runtimeAssetsRoot, "publications")));
 const host = env("LOCAL_SITE_HOST", env("HOST", "0.0.0.0"));
 const port = Number.parseInt(env("LOCAL_SITE_PORT", env("PORT", "8790")), 10) || 8790;
 const dbPath = env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite"));
@@ -226,6 +227,23 @@ function resolveRuntimeStaticPath(requestUrlValue) {
   return existsSync(direct) ? direct : "";
 }
 
+function resolveRuntimePublicationPath(requestUrlValue) {
+  const cleanUrl = decodeURIComponent((requestUrlValue || "/").split("?")[0]);
+  const requestPath = cleanUrl === "/" ? "index.html" : cleanUrl.replace(/^\/+/, "");
+  const relative = extname(requestPath) ? requestPath : `${requestPath}.html`;
+  const manifestPath = join(runtimePublicationsRoot, "current.json");
+  if (!existsSync(manifestPath)) return "";
+  try {
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    if (!Array.isArray(manifest.allowed_files) || !manifest.allowed_files.includes(relative)) return "";
+    const versionRoot = normalize(join(runtimePublicationsRoot, "versions", String(manifest.version || "")));
+    const file = normalize(join(versionRoot, relative));
+    if (!isInside(versionRoot, file) || !existsSync(file) || !statSync(file).isFile()) return "";
+    return file;
+  } catch {
+    return "";
+  }
+}
 function resolveStaticPath(requestUrlValue) {
   const cleanUrl = decodeURIComponent((requestUrlValue || "/").split("?")[0]);
   const pathname = cleanUrl === "/" ? "/index.html" : cleanUrl;
@@ -251,7 +269,7 @@ function handleStatic(request, response) {
     return;
   }
 
-  const runtimeFile = resolveRuntimeStaticPath(request.url);
+  const runtimeFile = resolveRuntimeStaticPath(request.url) || resolveRuntimePublicationPath(request.url);
   const file = runtimeFile || resolveStaticPath(request.url);
   if (!file) {
     response.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });

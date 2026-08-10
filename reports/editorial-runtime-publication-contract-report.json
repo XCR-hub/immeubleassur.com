@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-08-10T03:00:26.492Z",
+  "status": "passed",
+  "checks": 12,
+  "missing": [],
+  "invariants": [
+    "deterministic-public-content-only",
+    "ai-drafts-never-promoted",
+    "fresh-official-evidence-required",
+    "atomic-manifest-activation",
+    "last-valid-edition-preserved"
+  ]
+}
