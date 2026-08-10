@@ -20,9 +20,11 @@ const ENABLE_AI = args.has("--ai");
 
 const SOURCES = [
   ["service-public-particuliers", "Service-Public.fr particuliers", "https://www.service-public.fr/abonnements/rss/actu-actualites-particuliers.rss", "rss", "droit-logement", "official", "rss-summary-only"],
-  ["service-public-professionnels", "Service-Public.fr professionnels", "https://www.service-public.fr/abonnements/rss/actu-actualites-professionnels.rss", "rss", "entreprises-immobilier", "official", "rss-summary-only"],
+  ["service-public-professionnels", "Entreprendre.Service-Public.fr", "https://entreprendre.service-public.fr/actualites", "public-page", "entreprises-immobilier", "official", "public-title-and-summary"],
   ["acpr-actualites", "ACPR Banque de France", "https://acpr.banque-france.fr/fr/actualites", "public-page", "regulateur-assurance", "regulator", "public-title-and-summary"],
   ["acpr-communiques", "ACPR communiques", "https://acpr.banque-france.fr/fr/communiques-de-presse", "public-page", "regulateur-assurance", "regulator", "public-title-and-summary"],
+  ["anil-actualites", "ANIL", "https://www.anil.org/actualites-evenements/", "public-page", "logement-copropriete", "official", "public-title-and-summary"],
+  ["france-assureurs-actualites", "France Assureurs", "https://www.franceassureurs.fr/actualites", "public-page", "marche-assurance", "industry", "public-title-and-summary"],
   ["legifrance", "Legifrance", "https://www.legifrance.gouv.fr/", "reference", "droit", "official", "reference-link-only"]
 ].map(([id, name, url, source_type, category, authority, crawl_policy]) => ({ id, name, url, source_type, category, authority, crawl_policy }));
 
@@ -158,6 +160,62 @@ function parseRss(xml, source) {
   }).filter((item) => item.title && item.url);
 }
 
+function decodeHtml(value) {
+  const named = {
+    eacute: "é", egrave: "è", ecirc: "ê", euml: "ë", agrave: "à", acirc: "â",
+    auml: "ä", ugrave: "ù", ucirc: "û", uuml: "ü", ocirc: "ô", ouml: "ö",
+    icirc: "î", iuml: "ï", ccedil: "ç", oelig: "œ", laquo: "«", raquo: "»",
+    rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”", ndash: "–", mdash: "—"
+  };
+  let decoded = decodeXml(value)
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
+    .replace(/&([a-z]+);/gi, (entity, name) => named[name.toLowerCase()] || entity)
+    .replace(/&(?:apos|#0*39);/gi, "'")
+    .replace(/&(?:nbsp|#0*160);/gi, " ");
+  if (/[ÃÂ]|â[€™œ]/.test(decoded)) {
+    const repaired = Buffer.from(decoded, "latin1").toString("utf8");
+    const noise = (text) => (text.match(/[ÃÂ�]|â[€™œ]/g) || []).length;
+    if (noise(repaired) < noise(decoded)) decoded = repaired;
+  }
+  return decoded;
+}
+
+function parsePublicPage(html, source) {
+  const cleaned = String(html || "").replace(/<(script|style|svg|nav|footer)\b[\s\S]*?<\/\1>/gi, " ");
+  const sourceUrl = new URL(source.url);
+  const candidates = [];
+  const anchorPattern = /<a\b[^>]*href\s*=\s*["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  for (const match of cleaned.matchAll(anchorPattern)) {
+    const title = stripHtml(decodeHtml(match[2])).replace(/\s+/g, " ").trim();
+    if (title.length < 24 || title.length > 220 || /^(lire|voir|en savoir|accueil|actualit|suivant|pr.c.dent)/i.test(title)) continue;
+    let url;
+    try { url = new URL(decodeHtml(match[1]), source.url); } catch { continue; }
+    if (!/^https?:$/.test(url.protocol) || url.hostname !== sourceUrl.hostname || url.href === sourceUrl.href) continue;
+    const contextStart = Math.max(0, (match.index || 0) - 350);
+    const contextEnd = Math.min(cleaned.length, (match.index || 0) + match[0].length + 550);
+    const context = stripHtml(decodeHtml(cleaned.slice(contextStart, contextEnd)));
+    const summary = context.replace(title, "").replace(/\s+/g, " ").trim().slice(0, 500);
+    const item = {
+      source_id: source.id,
+      source_name: source.name,
+      source_url: source.url,
+      title,
+      url: url.href,
+      summary,
+      published_at: (context.match(/\b(?:0?[1-9]|[12]\d|3[01])\s+(?:janvier|f.vrier|mars|avril|mai|juin|juillet|ao.t|septembre|octobre|novembre|d.cembre)\s+20\d{2}\b/i) || [""])[0]
+    };
+    const enriched = { ...item, topic: topicFor(item), relevance_score: relevanceFor(item) };
+    if (enriched.relevance_score >= 35) candidates.push(enriched);
+  }
+  const unique = new Map();
+  for (const item of candidates) {
+    const key = item.url.replace(/[?#].*$/, "").replace(/\/$/, "");
+    if (!unique.has(key) || unique.get(key).summary.length < item.summary.length) unique.set(key, item);
+  }
+  return [...unique.values()].sort((a, b) => b.relevance_score - a.relevance_score).slice(0, 12);
+}
+
 async function fetchWithTimeout(url, timeoutMs = 8000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -174,11 +232,21 @@ async function collectWatchItems() {
   const errors = [];
   if (!ENABLE_FETCH) return { items: FALLBACK_ITEMS.map((item) => ({ ...item, fetched_at: new Date().toISOString() })), errors, mode: "local-fallback" };
   const fetched = [];
-  for (const source of SOURCES.filter((item) => item.source_type === "rss")) {
-    try { fetched.push(...parseRss(await fetchWithTimeout(source.url), source)); }
-    catch (error) { errors.push({ source: source.id, error: error.message || "fetch failed" }); }
+  for (const source of SOURCES.filter((item) => item.source_type === "rss" || item.source_type === "public-page")) {
+    try {
+      const payload = await fetchWithTimeout(source.url);
+      fetched.push(...(source.source_type === "rss" ? parseRss(payload, source) : parsePublicPage(payload, source)));
+    } catch (error) {
+      errors.push({ source: source.id, error: error.message || "fetch failed" });
+    }
   }
-  const items = (fetched.length ? fetched : FALLBACK_ITEMS).map((item) => ({ ...item, topic: item.topic || topicFor(item), relevance_score: item.relevance_score || relevanceFor(item), fetched_at: new Date().toISOString() }));
+  const deduplicated = new Map();
+  for (const item of fetched.length ? fetched : FALLBACK_ITEMS) {
+    const key = String(item.url || item.title || "").replace(/[?#].*$/, "").replace(/\/$/, "").toLowerCase();
+    const enriched = { ...item, topic: item.topic || topicFor(item), relevance_score: item.relevance_score || relevanceFor(item), fetched_at: new Date().toISOString() };
+    if (!deduplicated.has(key) || deduplicated.get(key).relevance_score < enriched.relevance_score) deduplicated.set(key, enriched);
+  }
+  const items = [...deduplicated.values()];
   return { items: items.sort((a, b) => b.relevance_score - a.relevance_score).slice(0, 18), errors, mode: fetched.length ? "fetched" : "fallback-after-fetch" };
 }
 
@@ -446,6 +514,8 @@ async function run() {
     quality_score: qualityScore(items, synthesis),
     source_count: SOURCES.length,
     watch_items: items.length,
+    source_item_counts: Object.fromEntries(SOURCES.map((source) => [source.id, items.filter((item) => item.source_id === source.id).length])),
+    watch_preview: items.slice(0, 8).map(({ source_id, title, url, topic, relevance_score }) => ({ source_id, title, url, topic, relevance_score })),
     issue: { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url },
     issue_backfills: issueBackfills,
     automation_plan: automationPlan(items),
