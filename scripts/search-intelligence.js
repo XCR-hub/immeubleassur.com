@@ -173,13 +173,15 @@ async function run() {
   ensureDir(REPORT_DIR);
   ensureDir(OUT);
   const { rankings, errors, serpRequestCount, rateLimit } = await collectRankings();
-  const found = rankings.filter((row) => Number.isFinite(row.position));
   const measured = rankings.filter((row) => row.measured === true);
   const measuredFound = measured.filter((row) => Number.isFinite(row.position));
   const estimated = rankings.filter((row) => row.measured !== true);
-  const estimatedAverage = found.length ? found.reduce((sum, row) => sum + row.position, 0) / found.length : null;
+  const estimatedFound = estimated.filter((row) => Number.isFinite(row.position));
+  const estimatedAverage = estimatedFound.length ? estimatedFound.reduce((sum, row) => sum + row.position, 0) / estimatedFound.length : null;
   const measuredAverage = measuredFound.length ? measuredFound.reduce((sum, row) => sum + row.position, 0) / measuredFound.length : null;
-  const enriched = rankings.map((row) => ({ ...row, recommendation: recommendation(row) }));
+  const enriched = rankings.map((row) => row.measured === true
+    ? { ...row, recommendation: recommendation(row), actionable: true }
+    : { ...row, recommendation: null, actionable: false, observation: `Position non mesuree pour ${row.query}; aucune optimisation de classement autorisee.` });
   const rateLimited = Boolean(rateLimit || enriched.some((row) => row.quota_limited));
   const status = ENABLE_SERP && rateLimited && measured.length === 0 ? "serpapi-rate-limited-fallback" : ENABLE_SERP && rateLimited ? "completed-with-rate-limit-fallback" : ENABLE_SERP && errors.length === rankings.length ? "serpapi-unavailable-fallback" : errors.length && ENABLE_SERP ? "completed-with-fallback" : ENABLE_SERP ? "completed" : "skipped-no-serp-key";
   const confidence = measured.length && estimated.length ? "mixed" : measured.length ? "measured" : "low";
@@ -204,8 +206,8 @@ async function run() {
     top3_count: measuredFound.filter((row) => row.position <= 3).length,
     missing_count: measured.filter((row) => !row.position).length,
     estimated_average_position: estimatedAverage,
-    estimated_first_page_count: found.filter((row) => row.measured !== true && row.position <= 10).length,
-    estimated_top3_count: found.filter((row) => row.measured !== true && row.position <= 3).length,
+    estimated_first_page_count: estimatedFound.filter((row) => row.position <= 10).length,
+    estimated_top3_count: estimatedFound.filter((row) => row.position <= 3).length,
     estimated_missing_count: estimated.filter((row) => !row.position).length,
     coverage_status: measured.length ? "measured-data-available" : "no-measured-data",
     rankings: enriched,
@@ -215,10 +217,12 @@ async function run() {
       measured_queries: measured.map((row) => row.query).slice(0, 10),
       fallback_queries: estimated.map((row) => row.query).slice(0, 10),
       rate_limit: rateLimited ? { provider: "serpapi", request_count: serpRequestCount, skipped_count: enriched.filter((row) => row.skipped_due_to_rate_limit).length, retry_after: rateLimit?.retry_after || "", recommendation: "Attendre la fenetre de quota SerpApi ou augmenter le quota avant de relancer search:live." } : null,
-      competitor_domains: [...new Set(enriched.flatMap((row) => row.top_domains || []))].slice(0, 12),
-      next_actions: enriched.map((row) => row.recommendation).slice(0, 8)
+      competitor_domains: [...new Set(enriched.filter((row) => row.measured === true).flatMap((row) => row.top_domains || []))].slice(0, 12),
+      competitor_coverage: measured.length ? "measured-only" : "held-no-measured-data",
+      next_actions: measured.length ? enriched.filter((row) => row.measured === true).map((row) => row.recommendation).slice(0, 8) : ["Aucune action de classement autorisee sans mesure SERP reelle."],
+      estimated_observations: enriched.filter((row) => row.measured !== true).map((row) => row.observation).slice(0, 8)
     },
-    compliance: ["api-based-serp-monitoring", "quota-safe-serpapi-backoff", "no-automated-google-page-scraping", "no-cloaking", "people-first-content-prioritization", "ranking-data-used-for-roadmap-not-spam"],
+    compliance: ["api-based-serp-monitoring", "quota-safe-serpapi-backoff", "no-automated-google-page-scraping", "no-cloaking", "people-first-content-prioritization", "ranking-data-used-for-roadmap-not-spam", "fallback-never-actionable", "competitors-from-measured-serp-only"],
     errors
   };
   write(join(REPORT_DIR, "search-intelligence-report.json"), JSON.stringify(report, null, 2));
