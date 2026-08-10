@@ -389,6 +389,7 @@ const forbidden = [
   ["public/assets/client-portal.js", "navigator.contacts"],
   ["public/assets/app.js", "    localBackup(payload, result);"],
   ["scripts/client-contract-orchestrator.js", "contact_import: true"],
+  ["scripts/local-production-server.js", "script-src 'self' 'unsafe-inline'"],
 ];
 
 const missing = [];
