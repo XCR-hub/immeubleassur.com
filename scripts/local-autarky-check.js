@@ -185,6 +185,8 @@ const required = [
   ["public/assets/admin.js", "runtime_cycle.stale"],
   ["scripts/local-runtime-report-cycle.js", "smtp_health"],
   ["scripts/local-runtime-report-cycle.js", "lead_notification_retry"],
+  ["scripts/local-runtime-report-cycle.js", "LOCAL_IMAP_REPORT"],
+  ["scripts/local-runtime-report-cycle.js", "LOCAL_TLS_REPORT"],
   ["scripts/local-lead-notification-retry.js", "email_notification_retry_sent"],
   ["scripts/local-lead-notification-retry.js", "LOCAL_NOTIFICATION_RETRY_MAX_ATTEMPTS"],
   ["scripts/local-lead-notification-retry.js", "LOCAL_NOTIFICATION_RETRY_RECOVERY_PROBE_MINUTES"],
