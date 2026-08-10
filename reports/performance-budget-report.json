@@ -1,43 +1,43 @@
 {
-  "generated_at": "2026-08-03T22:14:45.444Z",
+  "generated_at": "2026-08-10T01:27:15.757Z",
   "status": "passed",
   "pages_checked": 203,
   "indexable_pages": 191,
-  "average_html_kb": 19.9,
+  "average_html_kb": 20.4,
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 37.9,
+      "kb": 38.1,
       "issue_count": 0
     },
     {
       "source": "assurance-immeuble.html",
-      "kb": 31.2,
+      "kb": 31.3,
       "issue_count": 0
     },
     {
       "source": "news/veille-assurance-immeuble-2026-08-01.html",
-      "kb": 28.3,
+      "kb": 28.4,
       "issue_count": 0
     },
     {
       "source": "prix-assurance-immeuble.html",
-      "kb": 27.6,
+      "kb": 27.7,
       "issue_count": 0
     },
     {
       "source": "news/veille-assurance-immeuble-2026-08-03.html",
-      "kb": 27.5,
+      "kb": 27.6,
       "issue_count": 0
     },
     {
       "source": "assurance-copropriete.html",
-      "kb": 27,
+      "kb": 27.1,
       "issue_count": 0
     },
     {
       "source": "devis-assurance-immeuble.html",
-      "kb": 26.7,
+      "kb": 26.8,
       "issue_count": 0
     },
     {
@@ -51,50 +51,50 @@
       "issue_count": 0
     },
     {
+      "source": "assurance-immeuble-de-rapport.html",
+      "kb": 26.1,
+      "issue_count": 0
+    },
+    {
       "source": "news/veille-assurance-immeuble-2026-07-31.html",
       "kb": 26,
       "issue_count": 0
     },
     {
-      "source": "assurance-immeuble-de-rapport.html",
-      "kb": 25.9,
-      "issue_count": 0
-    },
-    {
       "source": "assurance-sci.html",
-      "kb": 25.9,
+      "kb": 26,
       "issue_count": 0
     }
   ],
   "assets": [
     {
       "path": "assets/styles.css",
-      "bytes": 70769,
-      "kb": 69.1,
+      "bytes": 74665,
+      "kb": 72.9,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
     },
     {
       "path": "assets/app.js",
-      "bytes": 123906,
-      "kb": 121,
+      "bytes": 127902,
+      "kb": 124.9,
       "budget_bytes": 143360,
       "budget_kb": 140,
       "ok": true
     },
     {
       "path": "assets/admin.js",
-      "bytes": 97003,
-      "kb": 94.7,
+      "bytes": 98217,
+      "kb": 95.9,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true
     },
     {
       "path": "assets/search-index.json",
-      "bytes": 49262,
-      "kb": 48.1,
+      "bytes": 50218,
+      "kb": 49,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
@@ -109,26 +109,26 @@
     },
     {
       "path": "assets/seo-cannibalization-latest.json",
-      "bytes": 21262,
-      "kb": 20.8,
+      "bytes": 22252,
+      "kb": 21.7,
       "ok": true
     },
     {
       "path": "assets/lead-friction-latest.json",
-      "bytes": 18815,
-      "kb": 18.4,
+      "bytes": 19336,
+      "kb": 18.9,
       "ok": true
     },
     {
       "path": "assets/conversion-intelligence-latest.json",
-      "bytes": 15037,
-      "kb": 14.7,
+      "bytes": 15540,
+      "kb": 15.2,
       "ok": true
     },
     {
       "path": "assets/live-api-readiness-latest.json",
-      "bytes": 11336,
-      "kb": 11.1,
+      "bytes": 11716,
+      "kb": 11.4,
       "ok": true
     },
     {
@@ -145,32 +145,32 @@
     },
     {
       "path": "assets/seo-angle-differentiation-latest.json",
-      "bytes": 9612,
-      "kb": 9.4,
-      "ok": true
-    },
-    {
-      "path": "assets/internal-link-equity-latest.json",
-      "bytes": 6536,
-      "kb": 6.4,
-      "ok": true
-    },
-    {
-      "path": "assets/cluster-conversion-bridge-latest.json",
-      "bytes": 5973,
-      "kb": 5.8,
+      "bytes": 9851,
+      "kb": 9.6,
       "ok": true
     },
     {
       "path": "assets/local-growth-ops-latest.json",
-      "bytes": 5874,
-      "kb": 5.7,
+      "bytes": 6093,
+      "kb": 6,
       "ok": true
     },
     {
       "path": "assets/editorial-autopilot-latest.json",
       "bytes": 5819,
       "kb": 5.7,
+      "ok": true
+    },
+    {
+      "path": "assets/google-readiness-unlock-latest.json",
+      "bytes": 5091,
+      "kb": 5,
+      "ok": true
+    },
+    {
+      "path": "assets/internal-link-equity-latest.json",
+      "bytes": 4405,
+      "kb": 4.3,
       "ok": true
     }
   ],

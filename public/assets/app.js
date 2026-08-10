@@ -2690,15 +2690,8 @@ applyIntentPrefill();
 mountLeadBar();
 mountFormAdvisor();
 mountFormProof();
-mountLeadValuePreview();
-mountDiagnostic();
-mountReadiness();
-mountRiskRouter();
-mountQuoteFastTrack();
 bindNewsletterForms();
 enhanceHeader();
-bindScrollDepthTracking();
-bindContentLeadBridge();
 bindFormAbandonment();
 bindBotSignalTracking();
 bindHeroIntentAccelerator();
@@ -2708,9 +2701,29 @@ bindHomepageDecisionAccelerator();
 bindHomepageDevisAccelerator();
 bindLeadMagnetAccelerator();
 bindInstantCallbackForms();
-bindTrafficNoClickRescue();
 bindGrowthTracking();
-bindFormRescue();
+
+// Keep forms, anti-spam signals and above-the-fold interactions responsive.
+// The remaining enhancements only enrich content below the fold or delayed
+// rescue journeys, so let the browser finish its first render before mounting
+// them. The timeout still guarantees initialization on busy/older browsers.
+const mountDeferredEnhancements = () => {
+  mountLeadValuePreview();
+  mountDiagnostic();
+  mountReadiness();
+  mountRiskRouter();
+  mountQuoteFastTrack();
+  bindScrollDepthTracking();
+  bindContentLeadBridge();
+  bindTrafficNoClickRescue();
+  bindFormRescue();
+};
+
+if ('requestIdleCallback' in window) {
+  window.requestIdleCallback(mountDeferredEnhancements, { timeout: 1500 });
+} else {
+  window.setTimeout(mountDeferredEnhancements, 600);
+}
 
 
 
