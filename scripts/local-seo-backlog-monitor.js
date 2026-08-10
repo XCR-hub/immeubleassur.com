@@ -405,7 +405,7 @@ function eventSourceQualityRows(database, limit) {
         SUM(CASE WHEN event_type = 'form_start' THEN 1 ELSE 0 END) AS form_starts,
         SUM(CASE WHEN event_type = 'form_submit_attempt' THEN 1 ELSE 0 END) AS submit_attempts,
         SUM(CASE WHEN event_type = 'lead_submit_error' THEN 1 ELSE 0 END) AS submit_errors,
-        SUM(CASE WHEN event_type = 'lead_form_abandoned' THEN 1 ELSE 0 END) AS abandoned_forms,
+        SUM(CASE WHEN event_type = 'lead_form_abandoned' AND json_valid(payload) AND COALESCE(json_extract(payload, '$.qualified_abandonment'), 0) = 1 THEN 1 ELSE 0 END) AS abandoned_forms,
         SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created,
         SUM(CASE WHEN event_type = 'content_lead_bridge_shown' THEN 1 ELSE 0 END) AS bridge_shown,
         SUM(CASE WHEN event_type IN ('content_lead_bridge_quote_click', 'content_lead_bridge_phone_click') THEN 1 ELSE 0 END) AS bridge_clicks,

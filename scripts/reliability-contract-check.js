@@ -17,6 +17,12 @@ const smtpHealth=readFileSync("scripts/local-smtp-health-check.js","utf8");
 const leadCanary=readFileSync("scripts/lead-dedupe-runtime-check.js","utf8");
 const newsletterCanary=readFileSync("scripts/newsletter-runtime-canary.js","utf8");
 const newsletterDelivery=readFileSync("scripts/local-newsletter-delivery.js","utf8");
+const client=readFileSync("public/assets/app.js","utf8");
+const conversionFunnel=readFileSync("scripts/local-conversion-funnel-monitor.js","utf8");
+const seoBacklog=readFileSync("scripts/local-seo-backlog-monitor.js","utf8");
+const sourceQuality=readFileSync("scripts/local-source-quality-monitor.js","utf8");
+const intentConversion=readFileSync("scripts/local-intent-conversion-monitor.js","utf8");
+const turnstileBrowser=readFileSync("scripts/local-turnstile-browser-smoke.js","utf8");
 const smtpEnvelope=smtp.slice(smtp.indexOf("export async function verifyNodeSmtpRecipients"),smtp.indexOf("export async function sendNodeSmtpMail"));
 const inlineExecutableHtml=readdirSync("public",{recursive:true}).filter((file)=>String(file).endsWith(".html")).filter((file)=>/<script\b(?![^>]*\bsrc=)(?![^>]*type=["']application\/ld\+json["'])[^>]*>/i.test(readFileSync(join("public",String(file)),"utf8")));
 const checks=[
@@ -74,6 +80,9 @@ const checks=[
   ["monitor-covers-dependency-security",monitor.includes('inspectJsonRuntime("dependency_security"') && runtime.includes('runStep("dependency_security"')],
   ["monitor-covers-scheduled-task-health",monitor.includes('inspectJsonRuntime("scheduled_task_health"') && runtime.includes('runStep("scheduled_task_health"')],
   ["monitor-covers-nondestructive-turnstile-browser",monitor.includes('inspectJsonRuntime("turnstile_browser"')&&monitor.includes("report.destructive === false")&&monitor.includes("report.submitted_forms || 0")],
+  ["turnstile-browser-isolates-production-telemetry",turnstileBrowser.includes("setRequestInterception(true)")&&turnstileBrowser.includes('/\\/api\\/events')&&turnstileBrowser.includes('request.abort("blockedbyclient")')&&turnstileBrowser.includes("telemetry_isolated: true")&&monitor.includes("report.telemetry_isolated === true")],
+  ["abandonment-requires-qualified-engagement",client.includes("engagementMs < 3000 || interactions < 2 || completedFields < 2")&&client.includes("qualified_abandonment: true")],
+  ["aggregate-monitors-ignore-unqualified-abandonment",conversionFunnel.includes("$.qualified_abandonment")&&seoBacklog.includes("$.qualified_abandonment")&&sourceQuality.includes("payload.qualified_abandonment === true")&&intentConversion.includes("payload.qualified_abandonment === true")],
   ["monitor-covers-site-watchdog",monitor.includes('inspectJsonRuntime("site_watchdog"')&&monitor.includes('LOCAL_SITE_WATCHDOG_REPORT')],
   ["production-alerts-enabled",task.includes("LOCAL_MONITOR_ALERTS = '1'")],
   ["lead-sla-alerts-enabled",task.includes("LOCAL_LEAD_SLA_ALERTS = '1'")],

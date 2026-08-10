@@ -9,6 +9,8 @@ const sessionId = getSessionId();
 captureAttribution();
 const ctaExperiment = getCtaExperiment();
 let formStarted = false;
+let formStartedAt = 0;
+let formInteractionBaseline = 0;
 let experimentViewSent = false;
 let formSubmitted = false;
 let qualityEventSent = false;
@@ -112,6 +114,10 @@ function eventPayload(eventType, data = {}) {
 }
 
 function track(eventType, data = {}) {
+  if (eventType === "form_start" && !formStartedAt) {
+    formStartedAt = Date.now();
+    formInteractionBaseline = botSignalInteractionCount;
+  }
   const payload = JSON.stringify(eventPayload(eventType, data));
   if (navigator.sendBeacon) {
     const sent = navigator.sendBeacon("/api/events", new Blob([payload], { type: "application/json" }));
@@ -1745,13 +1751,19 @@ function bindContentLeadBridge() {
 function trackFormAbandonment(reason) {
   if (!form || !formStarted || formSubmitted || abandonEventSent) return;
   let payload = readForm(form);
-  const hasContact = Boolean(payload.name || payload.phone || payload.email || payload.city || payload.message);
-  if (!hasContact) return;
+  const engagementMs = formStartedAt ? Math.max(0, Date.now() - formStartedAt) : 0;
+  const interactions = Math.max(0, botSignalInteractionCount - formInteractionBaseline);
+  const completedFields = [payload.name, payload.phone, payload.email, payload.city, payload.message].filter((value) => String(value || "").trim()).length;
+  if (engagementMs < 3000 || interactions < 2 || completedFields < 2) return;
   const qualification = leadQualification(payload);
   abandonEventSent = true;
   track("lead_form_abandoned", {
     target: payload.need || "unknown",
     label: reason,
+    qualified_abandonment: true,
+    engagement_ms: engagementMs,
+    interaction_count: interactions,
+    completed_field_count: completedFields,
     ...leadValueEventPayload(payload, qualification)
   });
 }

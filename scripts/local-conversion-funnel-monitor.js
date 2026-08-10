@@ -43,6 +43,7 @@ function eventCounts(database, sinceSql) {
       SELECT event_type, COUNT(*) AS count, COUNT(DISTINCT COALESCE(NULLIF(session_id, ''), id)) AS sessions, MAX(created_at) AS last_seen
       FROM site_events
       WHERE created_at >= datetime('now', ?)
+        AND (event_type <> 'lead_form_abandoned' OR (json_valid(payload) AND COALESCE(json_extract(payload, '$.qualified_abandonment'), 0) = 1))
       GROUP BY event_type
       ORDER BY count DESC
     `)
@@ -106,7 +107,7 @@ function pathFunnels(database, sinceSql, maxRows) {
         SUM(CASE WHEN event_type = 'lead_form_rescue_phone_click' THEN 1 ELSE 0 END) AS form_rescue_phone_clicks,
         SUM(CASE WHEN event_type = 'lead_form_rescue_express_click' THEN 1 ELSE 0 END) AS form_rescue_express_clicks,
         SUM(CASE WHEN event_type = 'lead_form_rescue_dismissed' THEN 1 ELSE 0 END) AS form_rescue_dismissed,
-        SUM(CASE WHEN event_type = 'lead_form_abandoned' THEN 1 ELSE 0 END) AS abandoned_forms,
+        SUM(CASE WHEN event_type = 'lead_form_abandoned' AND json_valid(payload) AND COALESCE(json_extract(payload, '$.qualified_abandonment'), 0) = 1 THEN 1 ELSE 0 END) AS abandoned_forms,
         SUM(CASE WHEN event_type = 'lead_created' THEN 1 ELSE 0 END) AS leads_created
       FROM site_events
       WHERE created_at >= datetime('now', ?)

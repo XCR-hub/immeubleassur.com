@@ -278,7 +278,7 @@ function addPath(bucket, path, eventType) {
   bucket.paths.set(path, current);
 }
 
-function countEvent(bucket, row, path, session = "") {
+function countEvent(bucket, row, payload, path, session = "") {
   const type = row.event_type;
   bucket.events_seen += 1;
   if (row.session_id) bucket.sessions_set.add(row.session_id);
@@ -300,7 +300,7 @@ function countEvent(bucket, row, path, session = "") {
   if (type === "form_start") bucket.form_starts += 1;
   if (type === "form_submit_attempt") bucket.submit_attempts += 1;
   if (type === "lead_submit_error" || type === "lead_submit_rejected") bucket.submit_errors += 1;
-  if (type === "lead_form_abandoned") bucket.abandoned_forms += 1;
+  if (type === "lead_form_abandoned" && payload.qualified_abandonment === true) bucket.abandoned_forms += 1;
   if (type === "quote_router_view") bucket.quote_router_views += 1;
   if (type === "quote_router_select") bucket.quote_router_selects += 1;
   if (type === "quote_router_continue") bucket.quote_router_continues += 1;
@@ -587,8 +587,8 @@ function run() {
         intentBucket.sessions_set.add(session);
         urgencyBucket.sessions_set.add(session);
       }
-      countEvent(intentBucket, row, path, session);
-      countEvent(urgencyBucket, row, path, session);
+      countEvent(intentBucket, row, payload, path, session);
+      countEvent(urgencyBucket, row, payload, path, session);
     }
 
     for (const row of analysisLeads) {

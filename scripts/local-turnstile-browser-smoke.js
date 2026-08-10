@@ -24,7 +24,18 @@ async function runScenario(browser, scenario) {
   const page = await browser.newPage();
   const requests = [];
   const failures = [];
-  page.on("request", (request) => requests.push({ url: request.url(), method: request.method(), resource_type: request.resourceType() }));
+  let telemetryPostsBlocked = 0;
+  await page.setRequestInterception(true);
+  page.on("request", (request) => {
+    const item = { url: request.url(), method: request.method(), resource_type: request.resourceType() };
+    requests.push(item);
+    if (item.method === "POST" && /\/api\/events(?:\?|$)/.test(item.url)) {
+      telemetryPostsBlocked += 1;
+      request.abort("blockedbyclient");
+      return;
+    }
+    request.continue();
+  });
   page.on("requestfailed", (request) => failures.push({ url: request.url(), error: request.failure()?.errorText || "request-failed" }));
   try {
     await page.goto(`${site}/`, { waitUntil: "domcontentloaded", timeout: 30000 });
@@ -57,9 +68,9 @@ async function runScenario(browser, scenario) {
       no_form_submission: leadPosts.length === 0,
       api_request_succeeded: relevantFailures.length === 0 && turnstileRequestsAfter.length > 0
     };
-    return { name: scenario.name, ok: Object.values(checks).every(Boolean), network_ok: challengeFailures.length === 0, checks, before, after, turnstile_request_count: turnstileRequestsAfter.length, form_post_count: leadPosts.length, relevant_failures: relevantFailures, challenge_failures: challengeFailures };
+    return { name: scenario.name, ok: Object.values(checks).every(Boolean), network_ok: challengeFailures.length === 0, checks, before, after, turnstile_request_count: turnstileRequestsAfter.length, form_post_count: leadPosts.length, telemetry_posts_blocked: telemetryPostsBlocked, relevant_failures: relevantFailures, challenge_failures: challengeFailures };
   } catch (error) {
-    return { name: scenario.name, ok: false, error: String(error.message || error).slice(0, 500), checks: {}, relevant_failures: failures.filter((item) => item.url.includes("challenges.cloudflare.com")) };
+    return { name: scenario.name, ok: false, error: String(error.message || error).slice(0, 500), checks: {}, telemetry_posts_blocked: telemetryPostsBlocked, relevant_failures: failures.filter((item) => item.url.includes("challenges.cloudflare.com")) };
   } finally {
     await page.close();
   }
@@ -77,6 +88,7 @@ async function run() {
   }
   const coreHealthy = rows.every((row) => row.ok);
   const networkHealthy = rows.every((row) => row.network_ok !== false);
+  const telemetryPostsBlocked = rows.reduce((sum, row) => sum + Number(row.telemetry_posts_blocked || 0), 0);
   const report = {
     generated_at: new Date().toISOString(),
     status: !coreHealthy ? "failed" : networkHealthy ? "healthy" : "degraded",
@@ -84,10 +96,12 @@ async function run() {
     chrome_path: chromePath,
     destructive: false,
     submitted_forms: 0,
+    telemetry_isolated: true,
+    telemetry_posts_blocked: telemetryPostsBlocked,
     scenarios_checked: rows.length,
     scenarios_passed: rows.filter((row) => row.ok).length,
     rows,
-    safeguards: ["no-lead-created", "no-newsletter-created", "turnstile-absent-before-interaction", "turnstile-present-after-interaction"]
+    safeguards: ["no-lead-created", "no-newsletter-created", "no-production-telemetry-written", "turnstile-absent-before-interaction", "turnstile-present-after-interaction"]
   };
   writeReport(report);
   console.log(`Turnstile browser smoke ${report.status}: ${report.scenarios_passed}/${report.scenarios_checked} scenarios, 0 form submission.`);

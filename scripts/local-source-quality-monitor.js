@@ -174,7 +174,7 @@ function countEvent(bucket, row, payload) {
   if (type === "form_start") bucket.form_starts += 1;
   if (type === "form_submit_attempt") bucket.submit_attempts += 1;
   if (type === "lead_submit_error" || type === "lead_submit_rejected") bucket.submit_errors += 1;
-  if (type === "lead_form_abandoned") bucket.abandoned_forms += 1;
+  if (type === "lead_form_abandoned" && payload.qualified_abandonment === true) bucket.abandoned_forms += 1;
   const rescueVariant = normalizeSource(payload.rescue_variant);
   const directRescue = rescueVariant === "source-quality-direct";
   if (type === "traffic_without_click_shown") bucket.traffic_rescue_shown += 1;
