@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
+import { outputNeedsAttention } from "./runtime-attention.js";
 
 loadDefaultEnvFiles();
 
@@ -39,7 +40,7 @@ function runStep(name, args, extraEnv = {}) {
   });
   const stdout = clean(result.stdout);
   const stderr = clean(result.stderr);
-  const attention = result.status === 0 && /(failed|degraded|action-required|fallback-only|partial)/i.test(stdout + " " + stderr);
+  const attention = result.status === 0 && outputNeedsAttention(stdout, stderr);
   return {
     name,
     command: `node ${args.join(" ")}`,
