@@ -41,6 +41,7 @@ const statePath = resolve(env("LOCAL_EDITORIAL_HEALTH_STATE", join(reportRoot, "
 const maxReportAgeHours = Math.max(1, Number(env("LOCAL_EDITORIAL_REPORT_MAX_AGE_HOURS", "12")) || 12);
 const maxEditionAgeDays = Math.max(1, Number(env("LOCAL_EDITORIAL_EDITION_MAX_AGE_DAYS", "14")) || 14);
 const holdThreshold = Math.max(1, Number(env("LOCAL_EDITORIAL_HOLD_ALERT_CYCLES", "3")) || 3);
+const coverageGapThreshold = Math.max(1, Number(env("LOCAL_EDITORIAL_COVERAGE_GAP_ALERT_CYCLES", "3")) || 3);
 
 const editorial = readJson(editorialPath);
 const previousState = readJson(statePath) || {};
@@ -48,6 +49,10 @@ const gateReady = editorial?.publication_gate?.ready === true;
 const operationalCycle = editorial?.fetch_enabled === true;
 const held = operationalCycle && !gateReady;
 const consecutiveHolds = held ? Number(previousState.consecutive_holds || 0) + 1 : 0;
+const missingCoverageDimensions = operationalCycle && editorial?.business_coverage?.status === "gaps-detected"
+  ? [...new Set((editorial.business_coverage.missing_dimensions || []).map((value) => String(value || "").trim()).filter(Boolean))].sort()
+  : [];
+const coverageGapCycles = Object.fromEntries(missingCoverageDimensions.map((dimension) => [dimension, Number(previousState.coverage_gap_cycles?.[dimension] || 0) + 1]));
 const latestEdition = latestPublishedEdition(publicRoot, publicationsRoot);
 const reportAge = ageHours(editorial?.generated_at);
 const issues = [];
@@ -57,6 +62,8 @@ else if (reportAge === null || reportAge > maxReportAgeHours) issues.push({ type
 if (!latestEdition) issues.push({ type: "published-edition-missing", severity: "critical", signal: publicRoot });
 else if (latestEdition.age_days > maxEditionAgeDays) issues.push({ type: "published-edition-stale", severity: "high", signal: `${latestEdition.age_days}d`, threshold: `${maxEditionAgeDays}d` });
 if (consecutiveHolds >= holdThreshold) issues.push({ type: "publication-held-repeatedly", severity: "high", signal: `${consecutiveHolds} cycles`, reasons: editorial?.publication_gate?.reasons || [] });
+const persistentCoverageGaps = missingCoverageDimensions.filter((dimension) => coverageGapCycles[dimension] >= coverageGapThreshold);
+if (persistentCoverageGaps.length) issues.push({ type: "editorial-business-coverage-gap", severity: "high", signal: persistentCoverageGaps.join(", "), threshold: `${coverageGapThreshold} cycles`, cycles: Object.fromEntries(persistentCoverageGaps.map((dimension) => [dimension, coverageGapCycles[dimension]])) });
 
 const report = {
   success: issues.length === 0,
@@ -72,6 +79,9 @@ const report = {
   held_this_cycle: held,
   consecutive_holds: consecutiveHolds,
   hold_alert_cycles: holdThreshold,
+  business_coverage: editorial?.business_coverage || { status: "unknown", missing_dimensions: [] },
+  coverage_gap_cycles: coverageGapCycles,
+  coverage_gap_alert_cycles: coverageGapThreshold,
   latest_valid_edition: latestEdition,
   maximum_edition_age_days: maxEditionAgeDays,
   issues
@@ -79,5 +89,5 @@ const report = {
 
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
-writeFileSync(statePath, `${JSON.stringify({ updated_at: report.generated_at, consecutive_holds: consecutiveHolds, last_gate_ready: gateReady, last_publication_status: report.publication_status }, null, 2)}\n`, "utf8");
+writeFileSync(statePath, `${JSON.stringify({ updated_at: report.generated_at, consecutive_holds: consecutiveHolds, coverage_gap_cycles: coverageGapCycles, last_gate_ready: gateReady, last_publication_status: report.publication_status }, null, 2)}\n`, "utf8");
 console.log(`Editorial health: ${report.status}; last edition ${latestEdition?.date || "missing"}; consecutive holds ${consecutiveHolds}/${holdThreshold}.`);
