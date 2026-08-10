@@ -13,8 +13,10 @@ const fixtures = [
 ];
 const productionMonitorFailure = { ...base, task_name: "ImmeubleAssur Production Monitor", last_result: 1 };
 fixtures.push([productionMonitorFailure, false]);
+const runtimeSelfFailure = { ...base, task_name: "ImmeubleAssur Runtime Reports", last_result: 1 };
 const circularDependencyChecks = [
   classifyScheduledTask(productionMonitorFailure, now, { ignoreLastResult: true }).healthy === true,
+  classifyScheduledTask(runtimeSelfFailure, now, { ignoreLastResult: true }).healthy === true,
   classifyScheduledTask({ ...productionMonitorFailure, enabled: false }, now, { ignoreLastResult: true }).healthy === false
 ];
 const failures = fixtures.filter(([task, expected]) => classifyScheduledTask(task, now).healthy !== expected);
