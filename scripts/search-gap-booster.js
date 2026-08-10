@@ -48,6 +48,20 @@ function removeBlock(html) {
   return html.replace(new RegExp(`${START}[\\s\\S]*?${END}\\s*`, "g"), "");
 }
 
+function sanitizeLegacyUnmeasuredBlock(html) {
+  if (!html.includes(START)) return html;
+  return html
+    .replaceAll(START, "<!-- evidence-preparation-guide:start -->")
+    .replaceAll(END, "<!-- evidence-preparation-guide:end -->")
+    .replace(/search-gap-booster/g, "evidence-preparation-guide")
+    .replace(/aria-label="Renforcement recherche [^"]*"/g, 'aria-label="Guide de preparation assurance immeuble"')
+    .replace(/<p class="eyebrow dark">Objectif top 3 Google<\/p>/g, '<p class="eyebrow dark">Dossier mieux prepare</p>')
+    .replace(/<p class="large-copy">Ce renforcement[^<]*<\/p>/g, '<p class="large-copy">Ce guide relie le besoin aux decisions concretes, aux preuves de specialisation, aux documents utiles et au bon parcours de devis.</p>')
+    .replace(/<li>Surveiller les concurrents visibles \([^)]*\)[^<]*<\/li>/g, '<li>Verifier les garanties, les responsabilites et les pieces attendues sans reprendre de contenu tiers ni supposer une position Google.</li>')
+    .replace(/<summary>Pourquoi cette page cible [^<]* \?<\/summary><p>[^<]*<\/p>/g, "<summary>Pourquoi preparer ce dossier ?</summary><p>Parce qu'un dossier clair aide a comprendre le risque, reunir les pieces et choisir les garanties avant consultation assureur.</p>")
+    .replace(/<p class="seo-expansion-note">[^<]*<\/p>/g, '<p class="seo-expansion-note">Guide de preparation fonde sur le besoin utilisateur et les pieces du dossier, sans affirmation de classement Google.</p>');
+}
+
 function destinationLinks(row) {
   const query = `${row.query || ""} ${row.target_url || ""}`.toLowerCase();
   if (/pno|cno|coproprietaire/.test(query)) return [
@@ -179,11 +193,17 @@ function run() {
   const searchReport = readSearchReport();
   const rankings = Array.isArray(searchReport.rankings) ? searchReport.rankings : [];
   const candidates = rankings
-    .filter((row) => row.target_url && (!Number.isFinite(row.position) || row.position > 3))
+    .filter((row) => row.measured === true && row.data_source === "serpapi" && row.confidence === "measured" && row.target_url && (!Number.isFinite(row.position) || row.position > 3))
     .slice(0, 12);
 
   const pages = walk(PUBLIC_DIR);
   const pageMap = new Map(pages.map((file) => [slugFromFile(file), file]));
+  let unmeasuredBlocksSanitized = 0;
+  for (const file of pages) {
+    const html = read(file);
+    const cleaned = sanitizeLegacyUnmeasuredBlock(html);
+    if (cleaned !== html) { write(file, cleaned); unmeasuredBlocksSanitized += 1; }
+  }
   const actions = [];
 
   for (const row of candidates) {
@@ -214,11 +234,14 @@ function run() {
     generated_at: new Date().toISOString(),
     source_run_id: searchReport.run_id || "",
     provider: searchReport.provider || "unknown",
+    status: candidates.length ? "measured-input-applied" : "held-no-measured-input",
+    measured_input_required: true,
+    unmeasured_blocks_sanitized: unmeasuredBlocksSanitized,
     candidates: candidates.length,
     pages_boosted: boosted.length,
     missing_files: actions.filter((item) => item.status === "missing-file").length,
     actions,
-    safeguards: ["idempotent-marker", "no-hidden-text", "no-google-scraping", "people-first-search-gap-content", "lead-paths-contextualized", "faq-schema-for-visible-search-gap-questions"]
+    safeguards: ["idempotent-marker", "no-hidden-text", "no-google-scraping", "people-first-search-gap-content", "lead-paths-contextualized", "faq-schema-for-visible-search-gap-questions", "serpapi-measured-input-only", "unmeasured-blocks-sanitized"]
   };
   write(join(REPORT_DIR, "search-gap-booster-report.json"), JSON.stringify(report, null, 2));
   write(join(PUBLIC_DIR, "assets", "search-gap-booster-latest.json"), JSON.stringify(report, null, 2));

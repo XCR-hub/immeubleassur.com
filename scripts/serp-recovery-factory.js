@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const SITE = "https://immeubleassur.com";
@@ -393,7 +393,26 @@ function loadSearchReport() {
 
 function candidateRows(report) {
   const rankings = Array.isArray(report.rankings) ? report.rankings : [];
-  return rankings.filter((row) => row.target_url && (!Number.isFinite(row.position) || row.position > 3)).slice(0, 12);
+  return rankings.filter((row) => row.measured === true && row.data_source === "serpapi" && row.confidence === "measured" && row.target_url && (!Number.isFinite(row.position) || row.position > 3)).slice(0, 12);
+}
+
+function sanitizeLegacyFallbackPages() {
+  let sanitized = 0;
+  for (const relativePath of readdirSync(OUT, { recursive: true }).map(String).filter((file) => file.endsWith(".html"))) {
+    const file = join(OUT, relativePath);
+    const html = read(file);
+    if (!html.includes("data-serp-recovery=")) continue;
+    const next = html
+      .replace('class="article-layout rich-article serp-recovery-page"', 'class="article-layout rich-article evidence-guide-page"')
+      .replace("data-serp-recovery=", "data-evidence-guide=")
+      .replace(/ - SERP recovery/g, "")
+      .replace(/<li>Signal SerpApi:[\s\S]*?<\/li>/g, "")
+      .replace(/Lire le signal de recherche sans creer de doublon\./g, "Clarifier le besoin sans creer de doublon.")
+      .replace(/<a href="#signal">Signal<\/a>/g, '<a href="#signal">Besoin</a>')
+      .replace(/<p>Le suivi API observe surtout[\s\S]*?<\/p>/g, "<p>Le guide se concentre sur les pieces, les garanties, les responsabilites et le passage vers un dossier de devis exploitable, sans affirmer de position Google non mesuree.</p>");
+    if (next !== html) { write(file, next); sanitized += 1; }
+  }
+  return sanitized;
 }
 
 function writePage(slug, html) {
@@ -440,6 +459,7 @@ function build() {
   ensureDir(REPORT_DIR);
   const report = loadSearchReport();
   const rows = candidateRows(report);
+  const legacyFallbackPagesSanitized = sanitizeLegacyFallbackPages();
   const entries = [];
   const pages = [];
 
@@ -460,12 +480,15 @@ function build() {
     generated_at: new Date().toISOString(),
     source_run_id: report.run_id || "",
     provider: report.provider || "unknown",
+    status: rows.length ? "measured-input-applied" : "held-no-measured-input",
+    measured_input_required: true,
+    legacy_fallback_pages_sanitized: legacyFallbackPagesSanitized,
     candidates: rows.length,
     pages_written: pages.length,
     search_index_entries: entries.length,
     sitemap_updated: pages.length > 0,
     pages,
-    safeguards: ["serpapi-signal-only", "no-google-scraping", "support-pages-not-doorways", "visible-cta", "faq-schema", "canonical-self", "sitemap-lastmod"]
+    safeguards: ["serpapi-signal-only", "no-google-scraping", "support-pages-not-doorways", "visible-cta", "faq-schema", "canonical-self", "sitemap-lastmod", "serpapi-measured-input-only", "no-fallback-driven-pages", "legacy-fallback-claims-sanitized"]
   };
   write(join(REPORT_DIR, "serp-recovery-report.json"), JSON.stringify(out, null, 2));
   write(join(OUT, "assets", "serp-recovery-latest.json"), JSON.stringify(out, null, 2));

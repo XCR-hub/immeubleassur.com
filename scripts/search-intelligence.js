@@ -177,7 +177,7 @@ async function run() {
   const measured = rankings.filter((row) => row.measured === true);
   const measuredFound = measured.filter((row) => Number.isFinite(row.position));
   const estimated = rankings.filter((row) => row.measured !== true);
-  const average = found.length ? found.reduce((sum, row) => sum + row.position, 0) / found.length : null;
+  const estimatedAverage = found.length ? found.reduce((sum, row) => sum + row.position, 0) / found.length : null;
   const measuredAverage = measuredFound.length ? measuredFound.reduce((sum, row) => sum + row.position, 0) / measuredFound.length : null;
   const enriched = rankings.map((row) => ({ ...row, recommendation: recommendation(row) }));
   const rateLimited = Boolean(rateLimit || enriched.some((row) => row.quota_limited));
@@ -198,14 +198,20 @@ async function run() {
     rate_limited: rateLimited,
     retry_after: rateLimit?.retry_after || "",
     rate_limited_skipped_count: enriched.filter((row) => row.skipped_due_to_rate_limit).length,
-    average_position: average,
+    average_position: measuredAverage,
     measured_average_position: measuredAverage,
-    first_page_count: found.filter((row) => row.position <= 10).length,
-    top3_count: found.filter((row) => row.position <= 3).length,
-    missing_count: enriched.filter((row) => !row.position).length,
+    first_page_count: measuredFound.filter((row) => row.position <= 10).length,
+    top3_count: measuredFound.filter((row) => row.position <= 3).length,
+    missing_count: measured.filter((row) => !row.position).length,
+    estimated_average_position: estimatedAverage,
+    estimated_first_page_count: found.filter((row) => row.measured !== true && row.position <= 10).length,
+    estimated_top3_count: found.filter((row) => row.measured !== true && row.position <= 3).length,
+    estimated_missing_count: estimated.filter((row) => !row.position).length,
+    coverage_status: measured.length ? "measured-data-available" : "no-measured-data",
     rankings: enriched,
     summary: {
-      priority_queries: enriched.filter((row) => !row.position || row.position > 3).slice(0, 6).map((row) => row.query),
+      priority_queries: enriched.filter((row) => row.measured === true && (!row.position || row.position > 3)).slice(0, 6).map((row) => row.query),
+      estimated_priority_queries: enriched.filter((row) => row.measured !== true && (!row.position || row.position > 3)).slice(0, 6).map((row) => row.query),
       measured_queries: measured.map((row) => row.query).slice(0, 10),
       fallback_queries: estimated.map((row) => row.query).slice(0, 10),
       rate_limit: rateLimited ? { provider: "serpapi", request_count: serpRequestCount, skipped_count: enriched.filter((row) => row.skipped_due_to_rate_limit).length, retry_after: rateLimit?.retry_after || "", recommendation: "Attendre la fenetre de quota SerpApi ou augmenter le quota avant de relancer search:live." } : null,

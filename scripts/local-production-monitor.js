@@ -192,6 +192,21 @@ function inspectGoogleReadiness(reportPath) {
   }
 }
 
+function inspectSearchIntelligence(reportPath) {
+  if (!existsSync(reportPath)) return check("serp_measurement", false, { path: reportPath, error: "missing" });
+  try {
+    const report = JSON.parse(readFileSync(reportPath, "utf8"));
+    const ageMinutes = reportAgeMinutes(report);
+    const measured = Number(report.measured_count || 0);
+    const fallback = Number(report.fallback_count || 0);
+    const fresh = ageMinutes <= 390;
+    const trustworthy = fresh && measured > 0 && report.confidence !== "low" && report.rate_limited !== true;
+    return check("serp_measurement", trustworthy, { path: reportPath, status: report.status || "unknown", age_minutes: ageMinutes, max_age_minutes: 390, provider: report.provider || "", confidence: report.confidence || "unknown", measured_queries: measured, fallback_queries: fallback, rate_limited: report.rate_limited === true, request_count: Number(report.serp_request_count || 0), fallback_positions_treated_as_measured: false }, fresh ? "warn" : "fail");
+  } catch (error) {
+    return check("serp_measurement", false, { path: reportPath, error: error.message || "search intelligence report unreadable" });
+  }
+}
+
 function inspectEditorialReview(reportPath) {
   if (!existsSync(reportPath)) return check("editorial_review_sla", false, { path: reportPath, error: "missing" });
   try {
@@ -326,6 +341,7 @@ async function run() {
   const leadCanaryPath = resolve(env("LOCAL_LEAD_CANARY_REPORT", join(runtimeReportsRoot, "lead-dedupe-runtime-report.json")));
   const newsletterReportPath = resolve(env("LOCAL_NEWSLETTER_DELIVERY_REPORT", join(runtimeReportsRoot, "local-newsletter-delivery-report.json")));
   const googleReadinessPath = resolve(env("LOCAL_GOOGLE_READINESS_REPORT", join(runtimeReportsRoot, "google-readiness-unlock-report.json")));
+  const searchIntelligencePath = resolve(env("LOCAL_SEARCH_INTELLIGENCE_REPORT", join(runtimeReportsRoot, "search-intelligence-report.json")));
   const newsletterCanaryPath = resolve(env("LOCAL_NEWSLETTER_CANARY_REPORT", join(runtimeReportsRoot, "newsletter-runtime-canary-report.json")));
   const runtimeCyclePath = resolve(env("LOCAL_RUNTIME_CYCLE_REPORT", join(runtimeReportsRoot, "local-runtime-report-cycle.json")));
   const securitySurfacePath = resolve(env("LOCAL_SECURITY_SURFACE_REPORT", join(runtimeReportsRoot, "local-security-surface-report.json")));
@@ -345,6 +361,7 @@ async function run() {
     inspectJsonRuntime("sqlite_restore_drill", restoreDrillPath, 90, (report) => report.status === "passed" && report.source_hash_verified === true && report.integrity === "ok" && report.foreign_key_violations === 0 && report.table_count >= 10, (report) => ({ source_type: report.source_type || "", integrity: report.integrity || "", table_count: Number(report.table_count || 0), total_rows: Number(report.total_rows || 0) })),
     inspectEditorialHealth(editorialHealthPath),
     inspectGoogleReadiness(googleReadinessPath),
+    inspectSearchIntelligence(searchIntelligencePath),
     inspectEditorialReview(editorialReviewPath),
     inspectJsonRuntime("tls_certificate", tlsReportPath, 90, (report) => report.ok === true && ["healthy", "warning"].includes(report.status), (report) => ({ days_remaining: report.days_remaining })),
     inspectJsonRuntime("smtp_transport", smtpReportPath, 90, (report) => report.status === "ready" && report.authenticated === true && report.team_recipient_configured === true && (report.transport === "resend" || report.recipient_accepted === true), (report) => ({ authenticated: report.authenticated === true, transport: report.transport || report.provider || "smtp", team_recipient_configured: report.team_recipient_configured === true, recipient_accepted: report.recipient_accepted === true, message_sent: report.message_sent === true })),

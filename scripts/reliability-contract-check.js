@@ -68,6 +68,8 @@ const checks=[
   ["monitor-covers-editorial-review-sla",monitor.includes("inspectEditorialReview(editorialReviewPath)")&&monitor.includes('severity = fresh && report.success === true && critical === 0 && warning > 0 ? "warn" : "fail"')],
   ["monitor-covers-fresh-google-search-console-readiness",monitor.includes("inspectGoogleReadiness(googleReadinessPath)")&&monitor.includes('item.id === "google-search-console"')&&monitor.includes("ageMinutes <= 90")],
   ["missing-gsc-configuration-is-visible-warning",monitor.includes('gscAction?.reason === "missing-secret"')&&monitor.includes('fresh ? "warn" : "fail"')&&monitor.includes("secret_values_exported: false")],
+  ["monitor-covers-fresh-serp-measurement",monitor.includes("inspectSearchIntelligence(searchIntelligencePath)")&&monitor.includes("ageMinutes <= 390")&&monitor.includes("measured > 0")],
+  ["fallback-rankings-never-presented-as-measured",monitor.includes("fallback_positions_treated_as_measured: false")&&monitor.includes("measured_queries: measured")&&monitor.includes("fallback_queries: fallback")],
   ["monitor-failure-exits-gracefully",monitor.includes("if (!report.success) process.exitCode = 1")&&!monitor.includes("if (!report.success) process.exit(1)")],
   ["monitor-covers-dependency-security",monitor.includes('inspectJsonRuntime("dependency_security"') && runtime.includes('runStep("dependency_security"')],
   ["monitor-covers-scheduled-task-health",monitor.includes('inspectJsonRuntime("scheduled_task_health"') && runtime.includes('runStep("scheduled_task_health"')],

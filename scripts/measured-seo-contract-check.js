@@ -9,6 +9,10 @@ const funnel = readFileSync("scripts/local-conversion-funnel-monitor.js", "utf8"
 const reconciliation = readFileSync("scripts/local-seo-opportunity-reconcile.js", "utf8");
 const admin = readFileSync("public/assets/admin.js", "utf8");
 const runtime = readFileSync("scripts/local-runtime-report-cycle.js", "utf8");
+const searchIntelligence = readFileSync("scripts/search-intelligence.js", "utf8");
+const searchGap = readFileSync("scripts/search-gap-booster.js", "utf8");
+const serpRecovery = readFileSync("scripts/serp-recovery-factory.js", "utf8");
+const seoAutopilot = readFileSync("scripts/seo-autopilot.js", "utf8");
 const checks = [
   ["engagement-event-set", source.includes("ENGAGEMENT_EVENTS") && source.includes("engaged_sessions: new Set()")],
   ["passive-pageviews-kept-separate", source.includes("sessions: totals.sessions") && source.includes("engaged_sessions: totals.engaged_sessions")],
@@ -29,10 +33,15 @@ const checks = [
   ["runtime-runs-backlog-after-sync", runtime.includes('runStep("seo_backlog_monitor_after_sync"')],
   ["runtime-refreshes-conversion-before-reconciliation", runtime.includes('runStep("conversion_intelligence_runtime"') && runtime.includes('runStep("seo_opportunity_reconciliation"')],
   ["reconciliation-is-transactional", reconciliation.includes('BEGIN IMMEDIATE') && reconciliation.includes('ROLLBACK') && reconciliation.includes('COMMIT')],
-  ["reconciliation-preserves-history", reconciliation.includes("status = 'resolved'") && reconciliation.includes("no-content-publication")]
+  ["reconciliation-preserves-history", reconciliation.includes("status = 'resolved'") && reconciliation.includes("no-content-publication")],
+  ["primary-serp-metrics-are-measured-only", searchIntelligence.includes("average_position: measuredAverage") && searchIntelligence.includes("top3_count: measuredFound.filter") && searchIntelligence.includes('coverage_status: measured.length ? "measured-data-available" : "no-measured-data"')],
+  ["estimated-serp-metrics-explicitly-separated", searchIntelligence.includes("estimated_average_position: estimatedAverage") && searchIntelligence.includes("estimated_top3_count:") && searchIntelligence.includes("estimated_priority_queries:")],
+  ["search-gap-requires-measured-serpapi-input", searchGap.includes('row.measured === true && row.data_source === "serpapi" && row.confidence === "measured"') && searchGap.includes("unmeasured_blocks_sanitized") && searchGap.includes("sanitizeLegacyUnmeasuredBlock") && searchGap.includes("held-no-measured-input")],
+  ["serp-recovery-requires-measured-serpapi-input", serpRecovery.includes('row.measured === true && row.data_source === "serpapi" && row.confidence === "measured"') && serpRecovery.includes("no-fallback-driven-pages") && serpRecovery.includes("legacy-fallback-claims-sanitized") && serpRecovery.includes("sanitizeLegacyFallbackPages")],
+  ["seo-autopilot-recomputes-measured-rank-counts", seoAutopilot.includes("row.measured === true && Number.isFinite(row.position) && row.position <= 3") && seoAutopilot.includes("average_position: report.measured_average_position || null")]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
-const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, safeguards: ["raw-traffic-not-treated-as-commercial-intent", "minimum-sample-before-high-friction-alert", "first-party-events-only", "no-pii-in-seo-reports"] };
+const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, safeguards: ["raw-traffic-not-treated-as-commercial-intent", "minimum-sample-before-high-friction-alert", "first-party-events-only", "no-pii-in-seo-reports", "serp-primary-metrics-measured-only", "no-fallback-driven-content"] };
 const out = process.env.LOCAL_MEASURED_SEO_CONTRACT_REPORT || join(process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports", "measured-seo-contract-report.json");
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
