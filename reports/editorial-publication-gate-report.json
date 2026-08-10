@@ -1,0 +1,10 @@
+{
+  "generated_at": "2026-08-10T02:36:23.633Z",
+  "status": "passed",
+  "checks": 10,
+  "missing": [],
+  "forbidden_checks": 2,
+  "forbidden_hits": [],
+  "policy": "new-publication-requires-fresh-attributable-official-evidence",
+  "failure_action": "preserve-last-valid-publication"
+}

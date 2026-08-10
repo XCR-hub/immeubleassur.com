@@ -47,6 +47,7 @@
                     "google:apis":  "node scripts/google-api-contract-check.js",
                     "editorial:autopilot":  "node scripts/editorial-autopilot.js",
                     "editorial:legal:safety":  "node scripts/editorial-legal-safety-check.js",
+                    "editorial:publication:gate":  "node scripts/editorial-publication-gate-check.js",
                     "editorial:live":  "node scripts/editorial-autopilot.js --fetch --ai",
                     "media:autopilot":  "node scripts/media-autopilot.js",
                     "media:live":  "node scripts/media-autopilot.js --fetch",

@@ -240,10 +240,10 @@ async function collectWatchItems() {
       const payload = await fetchWithTimeout(source.url);
       const parsed = source.source_type === "rss" ? parseRss(payload, source) : parsePublicPage(payload, source);
       fetched.push(...parsed);
-      sourceResults.push({ source_id: source.id, source_name: source.name, status: parsed.length ? "healthy" : "empty", item_count: parsed.length });
+      sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: parsed.length ? "healthy" : "empty", item_count: parsed.length });
     } catch (error) {
       errors.push({ source: source.id, error: error.message || "fetch failed" });
-      sourceResults.push({ source_id: source.id, source_name: source.name, status: "failed", item_count: 0, error: error.message || "fetch failed" });
+      sourceResults.push({ source_id: source.id, source_name: source.name, authority: source.authority, status: "failed", item_count: 0, error: error.message || "fetch failed" });
     }
   }
   const deduplicated = new Map();
@@ -459,6 +459,46 @@ function qualityScore(items, synthesis) {
   return Math.min(100, score);
 }
 
+function publicationDate(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (!normalized) return null;
+  const frenchMonths = { janvier: 0, fevrier: 1, "février": 1, mars: 2, avril: 3, mai: 4, juin: 5, juillet: 6, aout: 7, "août": 7, septembre: 8, octobre: 9, novembre: 10, decembre: 11, "décembre": 11 };
+  const french = normalized.match(/\b(\d{1,2})\s+([a-zéû]+)\s+(20\d{2})\b/i);
+  if (french && frenchMonths[french[2]] !== undefined) return new Date(Date.UTC(Number(french[3]), frenchMonths[french[2]], Number(french[1])));
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function evaluatePublicationGate(items, sourceResults, now = new Date()) {
+  const minimums = { healthy_sources: 3, authoritative_sources: 2, attributable_items: 3, fresh_dated_items: 1, maximum_age_days: 45 };
+  const healthy = sourceResults.filter((source) => source.status === "healthy");
+  const authoritative = healthy.filter((source) => source.authority === "official" || source.authority === "regulator");
+  const healthyIds = new Set(healthy.map((source) => source.source_id));
+  const attributable = items.filter((item) => healthyIds.has(item.source_id) && item.url && item.source_name);
+  const authoritativeIds = new Set(authoritative.map((source) => source.source_id));
+  const maximumAgeMs = minimums.maximum_age_days * 86400000;
+  const freshDated = attributable.filter((item) => {
+    if (!authoritativeIds.has(item.source_id) || /\u00c3|\u00c2|\u00e2\u20ac|\ufffd/.test(`${item.title || ""} ${item.published_at || ""}`)) return false;
+    const date = publicationDate(item.published_at);
+    if (!date) return false;
+    const age = now.getTime() - date.getTime();
+    return age >= -2 * 86400000 && age <= maximumAgeMs;
+  });
+  const reasons = [];
+  if (!ENABLE_FETCH) reasons.push("network-fetch-disabled");
+  if (healthy.length < minimums.healthy_sources) reasons.push("insufficient-healthy-sources");
+  if (authoritative.length < minimums.authoritative_sources) reasons.push("insufficient-official-or-regulator-sources");
+  if (attributable.length < minimums.attributable_items) reasons.push("insufficient-attributable-items");
+  if (freshDated.length < minimums.fresh_dated_items) reasons.push("no-fresh-dated-official-evidence");
+  return {
+    ready: reasons.length === 0,
+    decision: reasons.length ? "hold-last-valid-publication" : "publish-new-safe-edition",
+    reasons,
+    minimums,
+    observed: { healthy_sources: healthy.length, authoritative_sources: authoritative.length, attributable_items: attributable.length, fresh_dated_items: freshDated.length },
+    fresh_evidence: freshDated.slice(0, 8).map((item) => ({ source_id: item.source_id, title: item.title, url: item.url, published_at: item.published_at }))
+  };
+}
 function legalSensitivity(items, synthesis) {
   const corpus = [synthesis?.text || "", ...items.flatMap((item) => [item.title || "", item.summary || "", item.topic || ""])].join(" ").toLowerCase();
   const terms = ["loi", "decret", "arrete", "code civil", "code des assurances", "jurisprudence", "obligation", "obligatoire", "responsabilite", "reglementaire", "legifrance", "service-public"];
@@ -497,12 +537,17 @@ async function run() {
     ? { ...deterministicProvider(), status: "local-safe-public-fallback", text: fallbackSynthesis(items), attempts: synthesis.attempts || [] }
     : synthesis;
   const issue = buildIssue(items, publicSynthesis);
-  if (!RUNTIME_ONLY) write(join(OUT, "veille-assurance-immeuble.html"), veillePage(items, publicSynthesis, issue));
-  if (!RUNTIME_ONLY) write(join(OUT, "newsletter-assurance-immeuble.html"), newsletterPage(issue));
-  if (!RUNTIME_ONLY) write(join(OUT, `${issue.slug}.html`), issuePage(issue, items, publicSynthesis));
-  injectHubs(issue);
-  const issueBackfills = injectIssueBacklog();
-  updateSitemap(["veille-assurance-immeuble", "newsletter-assurance-immeuble", issue.slug]);
+  const publicationGate = evaluatePublicationGate(items, sourceResults);
+  const publicWriteEnabled = !RUNTIME_ONLY && publicationGate.ready;
+  let issueBackfills = 0;
+  if (publicWriteEnabled) {
+    write(join(OUT, "veille-assurance-immeuble.html"), veillePage(items, publicSynthesis, issue));
+    write(join(OUT, "newsletter-assurance-immeuble.html"), newsletterPage(issue));
+    write(join(OUT, `${issue.slug}.html`), issuePage(issue, items, publicSynthesis));
+    injectHubs(issue);
+    issueBackfills = injectIssueBacklog();
+    updateSitemap(["veille-assurance-immeuble", "newsletter-assurance-immeuble", issue.slug]);
+  }
   const draftReviewPath = aiRequiresReview ? join(REPORT_DIR, "editorial-drafts", issue.slug.replace(/\//g, "-") + ".json") : "";
   const reportStatus = aiRequiresReview ? "draft_review" : synthesis.status === "fallback-after-ai-errors" ? "fallback" : "completed";
   if (aiRequiresReview) write(draftReviewPath, JSON.stringify({ marker: "editorial-ai-draft-review-v1", generated_at: new Date().toISOString(), publication_status: "quarantined", human_review_required: true, no_auto_publish: true, allowed_publication: false, legal_review: legalReview, issue: { id: issue.id, slug: issue.slug, title: issue.title }, synthesis, source_items: items.slice(0, 18) }, null, 2));
@@ -518,8 +563,10 @@ async function run() {
     ai_provider: synthesis.provider,
     ai_model: synthesis.model,
     ai_status: synthesis.status,
-    publication_status: RUNTIME_ONLY ? "runtime-preview-only" : aiRequiresReview ? "safe-fallback-published-ai-quarantined" : "published",
-    public_write_enabled: !RUNTIME_ONLY,
+    publication_status: RUNTIME_ONLY ? "runtime-preview-only" : !publicationGate.ready ? "held-insufficient-official-evidence" : aiRequiresReview ? "safe-fallback-published-ai-quarantined" : "published",
+    public_write_enabled: publicWriteEnabled,
+    publication_gate: publicationGate,
+    published_issue: publicWriteEnabled,
     public_content_provider: publicSynthesis.provider,
     public_content_ai_generated: false,
     ai_draft_publication_status: aiRequiresReview ? "quarantined" : "not-created",
@@ -545,16 +592,17 @@ async function run() {
     source_item_counts: Object.fromEntries(SOURCES.map((source) => [source.id, items.filter((item) => item.source_id === source.id).length])),
     watch_preview: items.slice(0, 8).map(({ source_id, title, url, topic, relevance_score }) => ({ source_id, title, url, topic, relevance_score })),
     public_watch_items: items.slice(0, 18).map(({ source_id, source_name, title, url, topic, relevance_score, published_at }) => ({ source_id, source_name, title, url, topic, relevance_score, published_at })),
-    issue: { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url },
+    candidate_issue: { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url },
+    issue: publicWriteEnabled ? { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url } : null,
     issue_backfills: issueBackfills,
     automation_plan: automationPlan(items),
-    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review", "legal-sensitive-ai-drafts-quarantined", "public-content-provider-deterministic", "human-approval-required-before-ai-publication"],
+    compliance: ["rss-and-public-summary-first", "source-attribution-required", "no-copying-third-party-articles", "no-google-results-scraping", "people-first-content-before-seo-volume", "ai-output-held-for-human-review", "local-safe-public-fallback-when-ai-draft-pending", "article-faq-city-ai-seeds-held-for-human-review", "legal-sensitive-ai-drafts-quarantined", "public-content-provider-deterministic", "human-approval-required-before-ai-publication", "fresh-official-evidence-required", "last-valid-publication-preserved-on-source-failure"],
     errors
   };
   write(join(REPORT_DIR, "editorial-autopilot-report.json"), JSON.stringify(report, null, 2));
   write(join(ASSET_DIR, "editorial-autopilot-latest.json"), JSON.stringify(report, null, 2));
 
-  console.log(`Editorial autopilot ${RUNTIME_ONLY ? "prepared runtime preview for" : "wrote veille, newsletter and"} issue ${issue.slug} with ${items.length} watch items (${synthesis.provider}/${synthesis.status}).`);
+  console.log(`Editorial autopilot ${publicWriteEnabled ? "published" : "held"} candidate ${issue.slug} with ${items.length} watch items (${synthesis.provider}/${synthesis.status}); gate=${publicationGate.decision}.`);
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 

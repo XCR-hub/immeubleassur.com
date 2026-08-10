@@ -49,6 +49,9 @@ jobs:
       - name: Enforce AI legal quarantine
         run: npm run editorial:legal:safety
 
+      - name: Enforce fresh official evidence gate
+        run: npm run editorial:publication:gate
+
       - name: Validate site and functions
         run: npm run check
 
