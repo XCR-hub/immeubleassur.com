@@ -39,7 +39,12 @@ try {
   writeFileSync(draftPath, JSON.stringify(draft("2026-08-10T09:00:00.000Z", "Texte officiel A")), "utf8");
   const timestampOnly = run();
   writeFileSync(draftPath, JSON.stringify(draft("2026-08-10T09:00:00.000Z", "Texte officiel B")), "utf8");
-  const changed = run();
+const changed = run();
+  const invalidRecipientRun = spawnSync(process.execPath, [join(root, "scripts", "local-editorial-review-monitor.js")], {
+    cwd: root, encoding: "utf8",
+    env: { ...process.env, LOCAL_EDITORIAL_DRAFT_ROOT: drafts, LOCAL_EDITORIAL_REVIEW_REPORT: report, LOCAL_EDITORIAL_REVIEW_ALERT_STATE: state, LOCAL_EDITORIAL_REVIEW_ALERTS: "1", LOCAL_EDITORIAL_REVIEW_ALERT_TO: "wrong-recipient@example.invalid" }
+  });
+  const invalidRecipientReport = JSON.parse(readFileSync(report, "utf8"));
   writeFileSync(join(drafts, "news-old.json"), JSON.stringify(draft("2026-07-20T08:00:00.000Z", "Texte officiel ancien")), "utf8");
   const sla = run();
   const checks = [
@@ -49,6 +54,7 @@ try {
     ["fingerprint-exported-without-content", /^[a-f0-9]{20}$/.test(changed.newest_pending?.review_fingerprint || "") && !JSON.stringify(changed).includes("Texte officiel B")],
     ["official-source-url-exported-without-source-text", changed.newest_pending?.source_urls?.includes("https://example.test/official") && !JSON.stringify(changed).includes("Texte officiel B")],
     ["alerts-disabled-in-fixture", changed.alert?.status === "skipped" && changed.alert?.attempted === false],
+    ["non-team-alert-recipient-rejected", invalidRecipientRun.status !== 0 && invalidRecipientReport.alert?.status === "failed" && invalidRecipientReport.alert?.error?.includes("Destinataire operationnel") && invalidRecipientReport.alert?.error?.includes("[email-redacted]")],
     ["old-draft-escalates-status", sla.status === "review-overdue" && sla.critical_count === 1],
     ["old-critical-draft-prioritized", sla.priority_pending?.file === "news-old.json" && sla.priority_pending?.review_severity === "critical"],
     ["queue-exports-age-without-content", sla.review_queue?.every((item) => Number.isFinite(item.age_days)) && !JSON.stringify(sla).includes("Texte officiel ancien")],

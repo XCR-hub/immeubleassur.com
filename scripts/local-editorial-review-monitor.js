@@ -109,6 +109,7 @@ async function maybeAlert(report) {
       : numberEnv("LOCAL_EDITORIAL_REVIEW_ALERT_COOLDOWN_MINUTES", 1440);
   if (recentAlert(report.signature, cooldownMinutes)) return { attempted: false, status: "cooldown", cooldown_minutes: cooldownMinutes };
   const config = mailConfig();
+  if (!config.to.some((item) => item.toLowerCase() === "team@immeubleassur.com")) throw new Error("Destinataire operationnel team@immeubleassur.com absent");
   if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return { attempted: false, status: "missing-smtp-config" };
   const draft = report.priority_pending || report.newest_pending;
   const urgency = draft.review_severity === "critical" ? "CRITIQUE " : draft.review_severity === "warning" ? "A TRAITER " : "";
@@ -183,6 +184,7 @@ async function run() {
   mkdirSync(dirname(reportPath), { recursive: true });
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(`Editorial review monitor: ${report.status}, pending=${report.pending_count}, legal=${report.legal_sensitive_count}, alert=${report.alert.status}.`);
+  if (report.alert.status === "failed") process.exitCode = 1;
 }
 
 run().catch((error) => { console.error(error); process.exit(1); });
