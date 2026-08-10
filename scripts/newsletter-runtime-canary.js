@@ -121,6 +121,12 @@ async function run() {
         recipient_synthetic: deliveryOne.capture?.recipient_synthetic === true,
         external_delivery: false
       },
+      unsubscribe: {
+        status: unsubscribeResult.status,
+        confirmed: unsubscribeResult.status === 200 && unsubscribeResult.body.includes("Desinscription prise en compte"),
+        inactive_subscribers: unsubscribed,
+        events: unsubscribeEvents
+      },
       safeguards: ["sqlite-temp-db", "synthetic-recipient-only", "in-memory-smtp-capture", "no-external-email-delivery", "consent-required", "one-subscriber-per-email", "one-send-per-issue", "no-recipient-or-message-exported"]
     };
     mkdirSync(dirname(reportPath), { recursive: true });
