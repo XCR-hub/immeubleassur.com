@@ -62,7 +62,11 @@ const snippetChecks = [
   },
   {
     file: "public/recherches-assurance-immeuble.html",
-    snippets: ["/devis-assurance-immeuble?intent=immeuble#lead-form"]
+    snippets: ['href="#devis-hub"', 'id="devis-hub"', 'id="lead-form"', 'data-conversion-source="recherches-hub"', "Email facultatif", 'name="phone"', 'name="consent"']
+  },
+  {
+    file: "scripts/money-intent-factory.js",
+    snippets: ['href="#devis-hub"', 'id="devis-hub"', "Aucune interpretation juridique IA publiee automatiquement"]
   },
   {
     file: "public/devis-assurance-immeuble.html",
