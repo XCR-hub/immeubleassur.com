@@ -59,11 +59,5 @@ New-Item -ItemType Directory -Force -Path (Join-Path $RuntimeRoot 'assets'), (Jo
 & 'C:\Program Files\nodejs\node.exe' 'scripts\local-runtime-report-cycle.js'
 $reportExitCode = $LASTEXITCODE
 
-# Refresh only connectors that are configured and ready. The runner keeps
-# fallbacks operational, never prints secret values, and applies the SerpApi
-# cooldown so the 15-minute runtime task does not burn quota.
-& 'C:\Program Files\nodejs\node.exe' 'scripts\live-ready-connectors-runner.js'
-$liveConnectorExitCode = $LASTEXITCODE
-
-if ($reportExitCode -ne 0) { exit $reportExitCode }
-exit $liveConnectorExitCode
+# Connectors are already executed once inside the strict runtime cycle.
+exit $reportExitCode
