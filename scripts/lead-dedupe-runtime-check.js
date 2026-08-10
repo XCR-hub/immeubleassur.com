@@ -26,7 +26,7 @@ function sessionToken(sessionId, hostname) {
   return Math.abs(hashString(`${sessionId}:${hostname}`)).toString(36);
 }
 
-async function submitLead(DB, payload) {
+async function submitLead(DB, payload, extraEnv = {}) {
   const request = new Request("https://immeubleassur.com/api/leads", {
     method: "POST",
     headers: {
@@ -36,7 +36,7 @@ async function submitLead(DB, payload) {
     },
     body: JSON.stringify(payload)
   });
-  const response = await onRequestPost({ request, env: { DB }, waitUntil: () => {} });
+  const response = await onRequestPost({ request, env: { DB, ...extraEnv }, waitUntil: () => {} });
   return { status: response.status, body: await response.json() };
 }
 
@@ -103,13 +103,20 @@ async function run() {
   const DB = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
   try {
     const payload = buildPayload();
-    const first = await submitLead(DB, payload);
+    let capturedNotification = null;
+    const fakeSmtpEnv = {
+      SMTP_HOST: "127.0.0.1", SMTP_PORT: "2525", SMTP_USER: "canary@immeubleassur.test", SMTP_PASS: "canary-smtp-secret-value",
+      SMTP_FROM: "canary@immeubleassur.test", SMTP_TO: "team@immeubleassur.com",
+      SEND_SMTP_MAIL: async (config, message) => { capturedNotification = { config, message }; return "canary:accepted"; }
+    };
+    const first = await submitLead(DB, payload, fakeSmtpEnv);
     const second = await submitLead(DB, payload);
     const express = await submitLead(DB, buildExpressPayload());
     const leadCount = await DB.prepare("SELECT COUNT(*) AS count FROM leads").first("count");
     const duplicateEvents = await DB.prepare("SELECT COUNT(*) AS count FROM site_events WHERE event_type = ?").bind("lead_duplicate_filtered").first("count");
     const duplicateLeadEvents = await DB.prepare("SELECT COUNT(*) AS count FROM lead_events WHERE event_type = ?").bind("lead_duplicate_filtered").first("count");
     const duplicateNotificationEvents = await DB.prepare("SELECT COUNT(*) AS count FROM lead_events WHERE event_type IN (?, ?)").bind("duplicate_email_notification_sent", "duplicate_email_notification_failed").first("count");
+    const emailNotificationEvents = await DB.prepare("SELECT COUNT(*) AS count FROM lead_events WHERE event_type = ?").bind("email_notification_sent").first("count");
     const expressRecord = express.body?.reference ? await DB.prepare("SELECT name, phone, email, profile, property_type, city, message FROM leads WHERE reference = ?").bind(express.body.reference).first() : null;
     const expressEventRow = express.body?.id ? await DB.prepare("SELECT payload FROM lead_events WHERE lead_id = ? AND event_type = ?").bind(express.body.id, "lead_created").first() : null;
     let expressEvent = {};
@@ -126,7 +133,9 @@ async function run() {
     const adminSalesDuplicateFollowups = Number(adminSales.body?.summary?.duplicate_followups || 0);
     const adminSalesDuplicateRows = Array.isArray(adminSales.body?.duplicate_followups) ? adminSales.body.duplicate_followups.length : 0;
     const adminSalesLeadMarked = (adminSales.body?.relance_leads || []).some((lead) => lead.duplicate_followup && lead.reference === first.body?.reference);
-    const dedupeVerified = first.status === 200 && first.body?.success === true && !first.body?.duplicate && second.status === 200 && second.body?.duplicate === true && second.body?.notification === "skipped" && leadCount === 2 && duplicateEvents === 1 && duplicateLeadEvents === 1 && duplicateNotificationEvents === 0;
+    const capturedMessage = String(capturedNotification?.message || "");
+    const notificationVerified = first.body?.notification === "sent" && capturedNotification?.config?.to?.includes("team@immeubleassur.com") && capturedMessage.includes("To: team@immeubleassur.com") && capturedMessage.includes(`Subject: Nouveau lead ImmeubleAssur ${first.body?.reference}`) && capturedMessage.includes(`Reference: ${first.body?.reference}`) && !capturedMessage.includes(fakeSmtpEnv.SMTP_PASS);
+    const dedupeVerified = first.status === 200 && first.body?.success === true && !first.body?.duplicate && notificationVerified && emailNotificationEvents === 1 && second.status === 200 && second.body?.duplicate === true && second.body?.notification === "skipped" && leadCount === 2 && duplicateEvents === 1 && duplicateLeadEvents === 1 && duplicateNotificationEvents === 0;
     const adminVerified = adminSpam.status === 200 && adminSeo.status === 200 && adminIntegrations.status === 200 && adminSales.status === 200 && adminSpamDuplicates === 1 && adminSeoDuplicates === 1 && adminIntegrationsDuplicates === 1 && adminSalesDuplicateFollowups === 1 && adminSalesDuplicateRows === 1 && adminSalesLeadMarked;
     const expressVerified = express.status === 200 && express.body?.success === true && express.body?.submission_mode === "express-callback" && String(express.body?.next_action || "").includes("Rappeler") && expressRecord?.name === "A preciser" && expressRecord?.email === "" && expressRecord?.profile === "a-preciser" && expressRecord?.property_type === "a-preciser" && expressRecord?.city === "a-preciser" && String(expressRecord?.message || "").includes("Mode rappel express") && expressEvent?.submission_mode === "express-callback" && expressEvent?.contact_mode === "telephone";
 
@@ -163,7 +172,16 @@ async function run() {
         leads: leadCount,
         duplicate_site_events: duplicateEvents,
         duplicate_lead_events: duplicateLeadEvents,
-        duplicate_notification_events: duplicateNotificationEvents
+        duplicate_notification_events: duplicateNotificationEvents,
+        email_notification_events: emailNotificationEvents
+      },
+      notification_capture: {
+        verified: notificationVerified,
+        transport: capturedNotification ? "in-memory" : "missing",
+        recipient_is_team: capturedNotification?.config?.to?.includes("team@immeubleassur.com") === true,
+        subject_has_reference: capturedMessage.includes(`Subject: Nouveau lead ImmeubleAssur ${first.body?.reference}`),
+        body_has_reference: capturedMessage.includes(`Reference: ${first.body?.reference}`),
+        secret_absent: !capturedMessage.includes(fakeSmtpEnv.SMTP_PASS)
       },
       admin: {
         spam: {
@@ -189,7 +207,7 @@ async function run() {
           lead_marked: adminSalesLeadMarked
         }
       },
-      safeguards: ["sqlite-temp-db", "no-smtp-config", "no-real-lead-persisted", "duplicate-does-not-create-new-lead", "duplicate-email-skips-without-smtp", "admin-duplicate-metrics-verified", "sales-duplicate-followup-verified", "express-callback-minimal-contact-verified"]
+      safeguards: ["sqlite-temp-db", "no-smtp-config", "no-real-lead-persisted", "duplicate-does-not-create-new-lead", "duplicate-email-skips-without-smtp", "admin-duplicate-metrics-verified", "sales-duplicate-followup-verified", "express-callback-minimal-contact-verified", "in-memory-smtp-capture", "no-external-email-delivery", "email-body-not-exported"]
     };
 
     mkdirSync(dirname(REPORT_PATH), { recursive: true });
