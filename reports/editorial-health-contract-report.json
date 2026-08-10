@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-08-10T02:47:27.084Z",
+  "status": "passed",
+  "checks": 9,
+  "missing": [],
+  "policy": {
+    "alert_after_consecutive_holds": 3,
+    "maximum_public_edition_age_days": 14,
+    "legal_ai_auto_publication": false
+  }
+}

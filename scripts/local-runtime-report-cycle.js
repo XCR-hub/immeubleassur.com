@@ -92,6 +92,7 @@ function run() {
     runStep("editorial_publication_gate", ["scripts/editorial-publication-gate-check.js"], commonRuntimeEnv),
     runStep("google_readiness_unlock", ["scripts/google-readiness-unlock.js"], commonRuntimeEnv),
     runStep("live_ready_connectors", ["scripts/live-ready-connectors-runner.js", "--runtime-cycle"], commonRuntimeEnv),
+    runStep("editorial_health_monitor", ["scripts/local-editorial-health-monitor.js"], commonRuntimeEnv),
     runStep("sqlite_backup", ["scripts/local-sqlite-backup.js"]),
     runStep("brokerage_cases", ["scripts/brokerage-case-orchestrator.js"], commonRuntimeEnv),
     runStep("client_contracts", ["scripts/client-contract-orchestrator.js"], commonRuntimeEnv),

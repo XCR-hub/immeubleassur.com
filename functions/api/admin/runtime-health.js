@@ -533,6 +533,40 @@ function sanitizeSeoBacklogReport(report) {
       : []
   };
 }
+function sanitizeEditorialHealthReport(report) {
+  if (!report || typeof report !== "object") return { available: false };
+  const generatedAt = report.generated_at || "";
+  const ageMinutes = generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null;
+  return {
+    available: true,
+    success: report.success === true,
+    attention_required: report.attention_required === true,
+    status: report.status || "unknown",
+    generated_at: generatedAt,
+    age_minutes: ageMinutes,
+    collection_status: report.collection_status || "unknown",
+    publication_status: report.publication_status || "unknown",
+    gate_ready: report.publication_gate?.ready === true,
+    gate_decision: report.publication_gate?.decision || "unknown",
+    gate_reasons: Array.isArray(report.publication_gate?.reasons) ? report.publication_gate.reasons.slice(0, 8) : [],
+    observed: {
+      healthy_sources: Number(report.publication_gate?.observed?.healthy_sources || 0),
+      authoritative_sources: Number(report.publication_gate?.observed?.authoritative_sources || 0),
+      attributable_items: Number(report.publication_gate?.observed?.attributable_items || 0),
+      fresh_dated_items: Number(report.publication_gate?.observed?.fresh_dated_items || 0)
+    },
+    held_this_cycle: report.held_this_cycle === true,
+    consecutive_holds: Number(report.consecutive_holds || 0),
+    hold_alert_cycles: Number(report.hold_alert_cycles || 0),
+    latest_valid_edition: report.latest_valid_edition ? {
+      date: report.latest_valid_edition.date || "",
+      path: report.latest_valid_edition.path || "",
+      age_days: Number(report.latest_valid_edition.age_days || 0)
+    } : null,
+    maximum_edition_age_days: Number(report.maximum_edition_age_days || 0),
+    issues: Array.isArray(report.issues) ? report.issues.slice(0, 8).map((item) => ({ type: item.type || "", severity: item.severity || "", signal: item.signal || "", threshold: item.threshold || "" })) : []
+  };
+}
 export async function onRequestGet({ request, env }) {
   if (!isAuthorized(request, env)) return json({ success: false, error: "Non autorise" }, 401);
 
@@ -555,6 +589,8 @@ export async function onRequestGet({ request, env }) {
   const sourceQualityReport = await readLocalJson(sourceQualityPath);
   const seoBacklogPath = env.LOCAL_SEO_BACKLOG_REPORT || "reports/local-seo-backlog-report.json";
   const seoBacklogReport = await readLocalJson(seoBacklogPath);
+  const editorialHealthPath = env.LOCAL_EDITORIAL_HEALTH_REPORT || "reports/local-editorial-health-report.json";
+  const editorialHealthReport = await readLocalJson(editorialHealthPath);
   const expectedSourceRevision = await currentSourceRevision();
   const documentScanner = typeof env.DOCUMENT_SCANNER_STATUS === "function"
     ? await env.DOCUMENT_SCANNER_STATUS()
@@ -585,6 +621,7 @@ export async function onRequestGet({ request, env }) {
     conversion_funnel: sanitizeConversionFunnelReport(conversionFunnelReport),
     intent_conversion: sanitizeIntentConversionReport(intentConversionReport),
     source_quality: sanitizeSourceQualityReport(sourceQualityReport),
-    seo_backlog: sanitizeSeoBacklogReport(seoBacklogReport)
+    seo_backlog: sanitizeSeoBacklogReport(seoBacklogReport),
+    editorial_health: sanitizeEditorialHealthReport(editorialHealthReport)
   });
 }

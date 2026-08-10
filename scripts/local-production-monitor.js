@@ -145,6 +145,25 @@ function inspectBackup(manifestPath, maxAgeHours) {
   }
 }
 
+function inspectEditorialHealth(reportPath) {
+  if (!existsSync(reportPath)) return check("editorial_health", false, { path: reportPath, error: "missing" });
+  try {
+    const report = JSON.parse(readFileSync(reportPath, "utf8"));
+    const issue = Array.isArray(report.issues) ? report.issues[0] : null;
+    return check("editorial_health", report.success === true && report.attention_required !== true, {
+      path: reportPath,
+      status: report.status || "unknown",
+      publication_status: report.publication_status || "unknown",
+      consecutive_holds: Number(report.consecutive_holds || 0),
+      latest_edition: report.latest_valid_edition?.date || "",
+      latest_edition_age_days: report.latest_valid_edition?.age_days ?? null,
+      reason: issue?.type || "",
+      gate_reasons: report.publication_gate?.reasons || []
+    });
+  } catch (error) {
+    return check("editorial_health", false, { path: reportPath, error: error.message || "editorial health unreadable" });
+  }
+}
 function mailConfig() {
   const resendMode = env("EMAIL_TRANSPORT", "smtp").toLowerCase() === "resend";
   const from = env("SMTP_FROM", env("RESEND_FROM", env("SMTP_USER", "")));
@@ -236,6 +255,8 @@ async function run() {
   const backupDir = resolve(argValue("--backup-dir", env("LOCAL_SQLITE_BACKUP_DIR", join("backups", "sqlite"))));
   const backupManifest = resolve(argValue("--backup-manifest", join(backupDir, "latest.json")));
   const maxBackupAgeHours = numberEnv("LOCAL_SQLITE_BACKUP_MAX_AGE_HOURS", 8);
+  const runtimeReportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", "reports"));
+  const editorialHealthPath = resolve(env("LOCAL_EDITORIAL_HEALTH_REPORT", join(runtimeReportsRoot, "local-editorial-health-report.json")));
   const out = resolve(argValue("--out", env("LOCAL_PRODUCTION_MONITOR_REPORT", join("reports", "local-production-monitor-report.json"))));
 
   const checks = [
@@ -243,7 +264,8 @@ async function run() {
     await checkHealth(origin),
     await checkTelemetryFilter(origin),
     inspectSqlite(dbPath),
-    inspectBackup(backupManifest, maxBackupAgeHours)
+    inspectBackup(backupManifest, maxBackupAgeHours),
+    inspectEditorialHealth(editorialHealthPath)
   ];
 
   const report = {
