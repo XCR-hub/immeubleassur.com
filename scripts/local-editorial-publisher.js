@@ -22,11 +22,15 @@ function esc(value) { return String(value || "").replaceAll("&", "&amp;").replac
 function enrichStaticHub(relative, marker, block) {
   const source = join(staticPublicRoot, relative);
   const destination = join(versionRoot, relative);
-  if (!existsSync(source)) return false;
+  if (!existsSync(source)) return { relative, marker, enriched: false, marker_count: 0, reason: "source-missing" };
   let html = readFileSync(source, "utf8").replace(new RegExp(`\\n?<!-- ${marker}:start -->[\\s\\S]*?<!-- ${marker}:end -->`, "g"), "");
+  if (!html.includes("</main>")) return { relative, marker, enriched: false, marker_count: 0, reason: "main-close-missing" };
   html = html.replace("</main>", `\n<!-- ${marker}:start -->\n${block}\n<!-- ${marker}:end -->\n</main>`);
   writeFileSync(destination, html, "utf8");
-  return true;
+  const markerCount = (html.match(new RegExp(`<!-- ${marker}:start -->`, "g")) || []).length;
+  const endMarkerCount = (html.match(new RegExp(`<!-- ${marker}:end -->`, "g")) || []).length;
+  const enriched = markerCount === 1 && endMarkerCount === 1;
+  return { relative, marker, enriched, marker_count: markerCount, end_marker_count: endMarkerCount, reason: enriched ? "" : "marker-count-invalid" };
 }
 
 const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));
@@ -40,7 +44,9 @@ const today = new Date().toISOString().slice(0, 10);
 const expectedSlug = `news/veille-assurance-immeuble-${today}`;
 const force = process.argv.includes("--force");
 const currentIssuePath = current?.version && current?.issue?.slug ? join(publicationsRoot, "versions", current.version, `${current.issue.slug}.html`) : "";
-const repairTriggered = Boolean(currentIssuePath && existsSync(currentIssuePath) && containsSourceSummaryArtifacts(readFileSync(currentIssuePath, "utf8")));
+const sourceArtifactRepairNeeded = Boolean(currentIssuePath && existsSync(currentIssuePath) && containsSourceSummaryArtifacts(readFileSync(currentIssuePath, "utf8")));
+const hubProofRepairNeeded = current?.issue?.slug === expectedSlug && (current?.hub_enrichment?.faq?.marker_count !== 1 || current?.hub_enrichment?.faq?.end_marker_count !== 1 || current?.hub_enrichment?.cities?.marker_count !== 1 || current?.hub_enrichment?.cities?.end_marker_count !== 1 || Number(current?.hub_enrichment?.cities?.linked_city_count || 0) < 3);
+const repairTriggered = sourceArtifactRepairNeeded || hubProofRepairNeeded;
 
 if (!force && current?.issue?.slug === expectedSlug && !repairTriggered) {
   const report = { success: true, status: "already-published-today", generated_at: new Date().toISOString(), manifest: manifestPath, active_version: current.version, issue: current.issue, preserved_previous: true, source_artifact_repair_needed: false };
@@ -89,12 +95,19 @@ const faqQuestions = [
   ["Comment utiliser une actualite pour un immeuble situe dans une ville precise ?", "La ville seule ne suffit pas. Il faut relier le signal a l occupation, aux commerces, aux travaux, aux sinistres et aux caracteristiques du batiment avant toute consultation."]
 ];
 const faqBlock = `<section class="band content-expansion-band runtime-editorial-hub" aria-labelledby="runtime-faq-${today}"><div class="section-head"><p class="eyebrow dark">FAQ mise a jour ${today}</p><h2 id="runtime-faq-${today}">Questions pratiques issues de la derniere veille validee.</h2><p>Edition source: <a href="/${issue.slug}">${esc(issue.title)}</a>. Themes suivis: ${esc(topTopics.join(", ") || "assurance immeuble")}.</p></div><div class="card-grid">${faqQuestions.map(([question, answer]) => `<article class="content-card"><h3>${esc(question)}</h3><p>${esc(answer)}</p></article>`).join("")}</div><p class="seo-expansion-note">Ces reponses organisent les verifications utiles et ne constituent ni une interpretation juridique ni une recommandation contractuelle personnalisee.</p></section>`;
-enrichStaticHub("faq.html", "runtime-editorial-faq", faqBlock);
+const faqHub = enrichStaticHub("faq.html", "runtime-editorial-faq", faqBlock);
 const citiesHtml = existsSync(join(staticPublicRoot, "villes.html")) ? readFileSync(join(staticPublicRoot, "villes.html"), "utf8") : "";
 const cityLinks = [...citiesHtml.matchAll(/href="\/(assurance-immeuble-[^"]+)(?:\.html)?"[^>]*>([^<]+)<\/a>/g)].map((match) => ({ path: match[1].replace(/\.html$/, ""), label: match[2].trim() })).filter((item, index, all) => item.label && all.findIndex((candidate) => candidate.path === item.path) === index).slice(0, 6);
 const cityActions = ["Verifier usages et nombre de lots", "Relire sinistres et mesures correctives", "Lister travaux votes ou prevus", "Qualifier commerces et locaux techniques", "Comparer franchises et plafonds", "Preparer contrat, prime et echeance"];
 const cityBlock = `<section class="band content-expansion-band runtime-editorial-hub" aria-labelledby="runtime-cities-${today}"><div class="section-head"><p class="eyebrow dark">Parcours villes mis a jour ${today}</p><h2 id="runtime-cities-${today}">Appliquer la veille validee a un dossier local concret.</h2><p>Le dernier numero ne cree pas une regle locale: il fournit une checklist a confronter au batiment, a son occupation et a ses pieces.</p></div><div class="card-grid">${cityLinks.map((city, index) => `<article class="content-card"><h3><a href="/${city.path}">${esc(city.label)}</a></h3><p>${esc(cityActions[index % cityActions.length])}, puis relier le dossier a <a href="/${issue.slug}">la veille du ${today}</a>.</p></article>`).join("")}</div><p class="seo-expansion-note">Aucune page locale nouvelle n est creee automatiquement: seuls les parcours existants et controles sont actualises.</p></section>`;
-enrichStaticHub("villes.html", "runtime-editorial-cities", cityBlock);
+const cityHub = { ...enrichStaticHub("villes.html", "runtime-editorial-cities", cityBlock), linked_city_count: cityLinks.length };
+const hubEnrichment = { faq: faqHub, cities: cityHub };
+if (!faqHub.enriched || !cityHub.enriched || cityLinks.length < 3) {
+  const report = { ...baseReport, success: false, status: "hub-enrichment-failed", preserved_previous: Boolean(current), hub_enrichment: hubEnrichment };
+  writeJson(reportPath, report);
+  console.error(`Editorial publisher: ${report.status}.`);
+  process.exit(1);
+}
 const baseLlmsPath = join(staticPublicRoot, "llms.txt");
 if (existsSync(baseLlmsPath) && issue?.slug) {
   const sourceLines = (editorialReport.public_watch_items || []).slice(0, 6).map((item) => `- ${item.source_name}: ${item.url}`).join("\n");
@@ -136,14 +149,15 @@ const manifest = {
   public_content_provider: editorialReport.public_content_provider,
   public_content_ai_generated: false,
   ai_draft_allowed_publication: false,
+  hub_enrichment: hubEnrichment,
   previous_version: current?.version || null,
-  repair_reason: repairTriggered ? "source-summary-artifacts" : null
+  repair_reason: sourceArtifactRepairNeeded ? "source-summary-artifacts" : hubProofRepairNeeded ? "hub-enrichment-proof-missing" : null
 };
 mkdirSync(publicationsRoot, { recursive: true });
 const temporaryManifest = join(publicationsRoot, `current-${process.pid}-${Date.now()}.tmp`);
 writeJson(temporaryManifest, manifest);
 renameSync(temporaryManifest, manifestPath);
-const publicationStatus = repairTriggered ? "repaired-source-artifacts" : "published";
-const report = { ...baseReport, success: true, status: publicationStatus, preserved_previous: Boolean(current), active_version: version, previous_version: current?.version || null, issue: manifest.issue, files };
+const publicationStatus = sourceArtifactRepairNeeded ? "repaired-source-artifacts" : hubProofRepairNeeded ? "repaired-hub-enrichment-proof" : "published";
+const report = { ...baseReport, success: true, status: publicationStatus, preserved_previous: Boolean(current), active_version: version, previous_version: current?.version || null, issue: manifest.issue, hub_enrichment: hubEnrichment, files };
 writeJson(reportPath, report);
 console.log(`Editorial publisher: ${publicationStatus} ${issue.slug} as ${version}.`);

@@ -24,7 +24,7 @@ const checks = [];
 
 if (!manifest) checks.push({ name: "active_manifest", ok: false, error: "missing" });
 else {
-  checks.push({ name: "active_manifest", ok: manifest.marker === "runtime-editorial-publication-v1" && manifest.public_content_provider === "deterministic" && manifest.public_content_ai_generated === false && manifest.ai_draft_allowed_publication === false, version: manifest.version || "" });
+  checks.push({ name: "active_manifest", ok: manifest.marker === "runtime-editorial-publication-v1" && manifest.public_content_provider === "deterministic" && manifest.public_content_ai_generated === false && manifest.ai_draft_allowed_publication === false && manifest.hub_enrichment?.faq?.marker_count === 1 && manifest.hub_enrichment?.faq?.end_marker_count === 1 && manifest.hub_enrichment?.cities?.marker_count === 1 && manifest.hub_enrichment?.cities?.end_marker_count === 1 && Number(manifest.hub_enrichment?.cities?.linked_city_count || 0) >= 3, version: manifest.version || "" });
   for (const relative of manifest.allowed_files || []) {
     const localPath = join(publicationsRoot, "versions", String(manifest.version || ""), ...relative.split("/"));
     const localHash = existsSync(localPath) ? createHash("sha256").update(readFileSync(localPath)).digest("hex") : "";

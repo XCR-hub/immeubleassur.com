@@ -30,6 +30,8 @@ const checks = [
   ["health-reads-active-runtime-manifest", health.includes('source: "runtime-manifest"') && health.includes('readJson(join(publicationsRoot, "current.json"))')],
   ["public-smoke-compares-active-file-hashes", smoke.includes("remote.sha256 === localHash") && smoke.includes("manifest.allowed_files")],
   ["faq-and-city-hubs-are-enriched", publisher.includes('enrichStaticHub("faq.html"') && publisher.includes('enrichStaticHub("villes.html"')],
+  ["hub-enrichment-is-activation-gated", publisher.includes('status: "hub-enrichment-failed"') && publisher.includes("!faqHub.enriched || !cityHub.enriched || cityLinks.length < 3")],
+  ["hub-enrichment-proof-is-versioned", publisher.includes("hub_enrichment: hubEnrichment") && publisher.includes('"hub-enrichment-proof-missing"')],
   ["hub-quality-blocks-doorway-pages", hubQuality.includes('no-automatic-city-doorway-pages') && hubQuality.includes('automatically_created_city_pages')],
   ["git-workflow-remains-read-only", /permissions:\s*\n\s*contents:\s*read/.test(workflow)]
 ];
