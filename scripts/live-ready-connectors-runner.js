@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
+import { serpCooldownDecision } from "./live-connector-policy.js";
 
 loadDefaultEnvFiles();
 
@@ -79,17 +80,7 @@ function rowById(report, id) {
   return (report?.rows || []).find((row) => row.id === id) || null;
 }
 function shouldSkipSerp() {
-  if (forceSerp) return null;
-  const report = readJson(SEARCH_REPORT);
-  if (!report?.rate_limited) return null;
-  const age = minutesSince(report.generated_at);
-  if (age >= cooldownMinutes) return null;
-  return {
-    reason: "serpapi-rate-limit-cooldown",
-    age_minutes: Math.round(age),
-    cooldown_minutes: cooldownMinutes,
-    next_retry_after_minutes: Math.max(0, Math.ceil(cooldownMinutes - age))
-  };
+  return serpCooldownDecision(readJson(SEARCH_REPORT), { force: forceSerp, cooldownMinutes });
 }
 function shouldSkipFreshConnector(config) {
   if (!runtimeCycle || !config.report || !config.minIntervalMinutes) return null;
