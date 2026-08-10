@@ -5,6 +5,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 loadDefaultEnvFiles();
 const source = readFileSync("scripts/local-source-quality-monitor.js", "utf8");
 const backlog = readFileSync("scripts/local-seo-backlog-monitor.js", "utf8");
+const funnel = readFileSync("scripts/local-conversion-funnel-monitor.js", "utf8");
 const admin = readFileSync("public/assets/admin.js", "utf8");
 const runtime = readFileSync("scripts/local-runtime-report-cycle.js", "utf8");
 const checks = [
@@ -19,6 +20,9 @@ const checks = [
   ["backlog-exports-engaged-summary", backlog.includes("top_qualified_source_engaged_sessions")],
   ["backlog-deduplicates-logical-actions", backlog.includes("CREATE TEMP VIEW seo_opportunities_effective") && backlog.includes("ROW_NUMBER() OVER")],
   ["backlog-reports-suppressed-duplicates", backlog.includes("suppressed: Math.max(0, raw - effective)") && backlog.includes('mode: "sqlite-readonly-deduplicated"')],
+  ["funnel-counts-engaged-sessions", funnel.includes("engagedSessionCount") && funnel.includes("AS engaged_sessions")],
+  ["funnel-keeps-raw-traffic-separate", funnel.includes("raw-traffic-kept-separate")],
+  ["funnel-requires-minimum-samples", funnel.includes("row.engaged_sessions >= 3") && funnel.includes("summary.form_starts >= 3")],
   ["admin-shows-engaged-versus-raw", admin.includes("session(s) engagee(s)")],
   ["runtime-runs-source-quality", runtime.includes('runStep("source_quality_monitor"')],
   ["runtime-runs-backlog-after-sync", runtime.includes('runStep("seo_backlog_monitor_after_sync"')]

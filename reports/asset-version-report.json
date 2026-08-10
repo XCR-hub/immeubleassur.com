@@ -1,20 +1,17 @@
 {
-  "generated_at": "2026-08-10T02:04:20.416Z",
-  "files_checked": 203,
+  "generated_at": "2026-08-10T04:16:22.224Z",
+  "files_checked": 204,
   "files_changed": 203,
   "replacements": 203,
   "assets": {
     "styles": "/assets/styles.css?v=e2c242e26c",
-    "app": "/assets/app.js?v=9f02248243",
-    "admin": "/assets/admin.js?v=5b124f6bc7",
+    "app": "/assets/app.js?v=48f65f2a3a",
+    "admin": "/assets/admin.js?v=94f9a03a1d",
+    "adminProfile": "/assets/admin-profile.js?v=d2c9b7240c",
     "clientPortal": "/assets/client-portal.js?v=81d5124e2f",
     "partnerPortal": "/assets/partner-portal.js?v=b9cd664ef8"
   },
   "changed": [
-    {
-      "file": "admin.html",
-      "updates": 1
-    },
     {
       "file": "assurance-batiment-proprietaire.html",
       "updates": 1
@@ -329,6 +326,10 @@
     },
     {
       "file": "assurance-immeuble-saintes.html",
+      "updates": 1
+    },
+    {
+      "file": "assurance-immeuble-sinistre.html",
       "updates": 1
     }
   ],

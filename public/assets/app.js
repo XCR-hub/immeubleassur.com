@@ -2775,21 +2775,33 @@ function bindNewsletterForms() {
 }
 applyIntentPrefill();
 bindTurnstileOnDemand();
-mountLeadBar();
-mountFormAdvisor();
-mountFormProof();
-bindNewsletterForms();
-enhanceHeader();
 bindFormAbandonment();
 bindBotSignalTracking();
-bindHeroIntentAccelerator();
-bindHeroActionAccelerator();
-bindLeadBarAccelerator();
-bindHomepageDecisionAccelerator();
 bindHomepageDevisAccelerator();
-bindLeadMagnetAccelerator();
 bindInstantCallbackForms();
 bindGrowthTracking();
+
+// Split non-critical visual mounting from module evaluation. This keeps form,
+// tracking and anti-spam listeners available immediately while preventing the
+// first JavaScript task from accumulating avoidable DOM/layout work.
+const mountInitialVisualEnhancements = () => {
+  mountLeadBar();
+  mountFormAdvisor();
+  mountFormProof();
+  bindNewsletterForms();
+  enhanceHeader();
+  bindHeroIntentAccelerator();
+  bindHeroActionAccelerator();
+  bindLeadBarAccelerator();
+  bindHomepageDecisionAccelerator();
+  bindLeadMagnetAccelerator();
+};
+
+if ('requestAnimationFrame' in window) {
+  window.requestAnimationFrame(mountInitialVisualEnhancements);
+} else {
+  window.setTimeout(mountInitialVisualEnhancements, 0);
+}
 
 // Keep forms, anti-spam signals and above-the-fold interactions responsive.
 // The remaining enhancements only enrich content below the fold or delayed

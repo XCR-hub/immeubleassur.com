@@ -49,6 +49,15 @@ function eventCounts(database, sinceSql) {
     .all(sinceSql);
 }
 
+function engagedSessionCount(database, sinceSql) {
+  const row = database.prepare(`
+    SELECT COUNT(DISTINCT COALESCE(NULLIF(session_id, ''), id)) AS count
+    FROM site_events
+    WHERE created_at >= datetime('now', ?)
+      AND event_type IN ('cta_click', 'phone_click', 'email_click', 'form_start', 'form_submit_attempt', 'lead_created', 'traffic_without_click_urgency_select', 'traffic_without_click_quote_click', 'traffic_without_click_phone_click', 'content_lead_bridge_quote_click', 'content_lead_bridge_phone_click')
+  `).get(sinceSql);
+  return Number(row?.count || 0);
+}
 function countFor(rows, eventType) {
   const row = rows.find((item) => item.event_type === eventType);
   return Number(row?.count || 0);
@@ -73,6 +82,7 @@ function pathFunnels(database, sinceSql, maxRows) {
       SELECT
         COALESCE(NULLIF(CASE WHEN json_valid(payload) THEN json_extract(payload, '$.path') ELSE NULL END, ''), page_url, '/') AS raw_path,
         COUNT(DISTINCT COALESCE(NULLIF(session_id, ''), id)) AS sessions,
+        COUNT(DISTINCT CASE WHEN event_type IN ('cta_click', 'phone_click', 'email_click', 'form_start', 'form_submit_attempt', 'lead_created', 'traffic_without_click_urgency_select', 'traffic_without_click_quote_click', 'traffic_without_click_phone_click', 'content_lead_bridge_quote_click', 'content_lead_bridge_phone_click') THEN COALESCE(NULLIF(session_id, ''), id) END) AS engaged_sessions,
         SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END) AS page_views,
         SUM(CASE WHEN event_type = 'quote_router_view' THEN 1 ELSE 0 END) AS quote_router_views,
         SUM(CASE WHEN event_type = 'quote_router_select' THEN 1 ELSE 0 END) AS quote_router_selects,
@@ -123,6 +133,7 @@ function enrichPath(row) {
   return {
     path: pathOf(row.raw_path),
     sessions: Number(row.sessions || 0),
+    engaged_sessions: Number(row.engaged_sessions || 0),
     page_views: pageViews,
     quote_router_views: quoteViews,
     quote_router_selects: Number(row.quote_router_selects || 0),
@@ -204,10 +215,10 @@ function addRecommendation(items, type, severity, path, signal, action, score) {
 function recommendations(summary, paths) {
   const items = [];
   for (const row of paths) {
-    if (row.page_views >= 20 && row.form_starts === 0) {
+    if (row.page_views >= 20 && row.engaged_sessions >= 10 && row.form_starts === 0) {
       addRecommendation(items, "page-sans-start", "high", row.path, `${row.page_views} vues, 0 demarrage formulaire`, "Ajouter un CTA devis au-dessus de la ligne de flottaison et verifier le message d'intention.", 90);
     }
-    if (row.quote_router_views >= 10 && row.quote_router_continues === 0) {
+    if (row.quote_router_views >= 10 && row.engaged_sessions >= 3 && row.quote_router_continues === 0) {
       addRecommendation(items, "routeur-sans-suite", "high", row.path, `${row.quote_router_views} vues routeur, 0 continuation`, "Revoir le libelle du parcours recommande et rendre le bouton principal plus explicite.", 86);
     }
     if (row.traffic_rescue_shown >= 5 && row.traffic_rescue_clicks === 0) {
@@ -219,7 +230,7 @@ function recommendations(summary, paths) {
     if (row.traffic_rescue_clicks > 0 && row.form_starts === 0) {
       addRecommendation(items, "relance-accueil-sans-start", "medium", row.path, `${row.traffic_rescue_clicks} clic(s) relance, 0 start`, "Verifier le scroll vers formulaire, le pre-remplissage et affichage mobile de la relance accueil.", 76);
     }
-    if (row.content_bridge_shown >= 5 && row.content_bridge_clicks === 0) {
+    if (row.content_bridge_shown >= 5 && row.engaged_sessions >= 3 && row.content_bridge_clicks === 0) {
       addRecommendation(items, "pont-contenu-sans-clic", "medium", row.path, `${row.content_bridge_shown} affichage(s), 0 clic`, "Rendre le passage lecture vers devis plus concret sur cette page SEO.", 78);
     }
     if (row.form_starts >= 3 && row.leads_created === 0 && row.submit_attempts > 0) {
@@ -235,19 +246,19 @@ function recommendations(summary, paths) {
       addRecommendation(items, "abandon-formulaire", "medium", row.path, `${row.abandoned_forms} abandon(s) detecte(s)`, "Reduire la friction du formulaire et mettre en avant les pieces facultatives apres contact.", 68);
     }
   }
-  if (summary.page_views > 0 && summary.form_starts === 0) {
+  if (summary.engaged_sessions >= 10 && summary.form_starts === 0) {
     addRecommendation(items, "aucun-start-global", "critical", "/", `${summary.page_views} vues, aucun demarrage`, "Verifier immediatement le JS, les CTA et l'accessibilite du formulaire.", 100);
   }
   if (summary.submit_attempts > 0 && summary.leads_db === 0) {
     addRecommendation(items, "aucun-lead-global", "critical", "/", `${summary.form_starts} starts, aucun lead SQLite`, "Tester une demande de devis de bout en bout et verifier l'API leads.", 98);
   }
-  if (summary.form_starts > 0 && summary.submit_attempts === 0 && summary.leads_db === 0) {
+  if (summary.form_starts >= 3 && summary.submit_attempts === 0 && summary.leads_db === 0) {
     addRecommendation(items, "aucun-submit-global", "high", "/", `${summary.form_starts} start(s), aucune tentative`, "Traiter comme friction formulaire: raccourcir le premier contact, rendre le rappel express dominant et clarifier les champs obligatoires.", 94);
   }
   return items.sort((a, b) => b.score - a.score || a.path.localeCompare(b.path)).slice(0, 16);
 }
 
-function summaryFrom(events, leadStats, days, paths = []) {
+function summaryFrom(events, leadStats, days, paths = [], engagedSessions = 0) {
   const pageViews = countFor(events, "page_view");
   const formStarts = countFor(events, "form_start");
   const submitAttempts = countFor(events, "form_submit_attempt");
@@ -269,6 +280,7 @@ function summaryFrom(events, leadStats, days, paths = []) {
   const formRescueExpressClicks = countFor(events, "lead_form_rescue_express_click");
   return {
     lookback_days: days,
+    engaged_sessions: engagedSessions,
     page_views: pageViews,
     quote_router_views: quoteViews,
     quote_router_selects: countFor(events, "quote_router_select"),
@@ -326,7 +338,8 @@ function run() {
     const events = eventCounts(database, sinceSql);
     const leads = leadTotals(database, sinceSql);
     const paths = pathFunnels(database, sinceSql, maxPaths);
-    const summary = summaryFrom(events, leads, days, paths);
+    const engagedSessions = engagedSessionCount(database, sinceSql);
+    const summary = summaryFrom(events, leads, days, paths, engagedSessions);
     const reportRecommendations = recommendations(summary, paths);
     const report = {
       success: true,
@@ -337,6 +350,7 @@ function run() {
       events,
       top_paths: paths.slice(0, 30),
       cta_variants: variantFunnels(database, sinceSql),
+      safeguards: ["raw-traffic-kept-separate", "engaged-session-thresholds", "minimum-three-form-starts-before-global-friction-alert"],
       recommendations: reportRecommendations
     };
 

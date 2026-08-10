@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-10T02:04:21.103Z",
+  "generated_at": "2026-08-10T04:21:12.204Z",
   "status": "passed",
-  "pages_checked": 203,
-  "indexable_pages": 191,
+  "pages_checked": 204,
+  "indexable_pages": 192,
   "average_html_kb": 20.2,
   "largest_pages": [
     {
@@ -77,8 +77,8 @@
     },
     {
       "path": "assets/app.js",
-      "bytes": 131547,
-      "kb": 128.5,
+      "bytes": 132019,
+      "kb": 128.9,
       "budget_bytes": 143360,
       "budget_kb": 140,
       "ok": true
@@ -93,8 +93,8 @@
     },
     {
       "path": "assets/admin.js",
-      "bytes": 98217,
-      "kb": 95.9,
+      "bytes": 99805,
+      "kb": 97.5,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true
@@ -176,9 +176,9 @@
       "ok": true
     },
     {
-      "path": "assets/internal-link-equity-latest.json",
-      "bytes": 4405,
-      "kb": 4.3,
+      "path": "assets/performance-budget-latest.json",
+      "bytes": 4513,
+      "kb": 4.4,
       "ok": true
     }
   ],
