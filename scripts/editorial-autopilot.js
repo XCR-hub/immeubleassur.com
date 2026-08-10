@@ -578,7 +578,17 @@ function selectPublishedWatchItems(items, limit = 12) {
     /syndic|conseil syndical|assemblee generale/i,
     /obligation|obligatoire|reglement|decret|loi|jurisprudence|responsabilite/i
   ];
-  for (const pattern of explicitDimensions) add(items.find((item) => pattern.test(editorialSearchText(item?.title))));
+  const representativeFor = (pattern) => [...items]
+    .filter((item) => pattern.test(editorialSearchText(item?.title)))
+    .sort((a, b) => {
+      const futureCutoff = Date.now() + 6 * 3600000;
+      const aTimestamp = publicationDate(a?.published_at)?.getTime() || 0;
+      const bTimestamp = publicationDate(b?.published_at)?.getTime() || 0;
+      const aDate = aTimestamp <= futureCutoff ? aTimestamp : 0;
+      const bDate = bTimestamp <= futureCutoff ? bTimestamp : 0;
+      return bDate - aDate || Number(b?.relevance_score || 0) - Number(a?.relevance_score || 0);
+    })[0];
+  for (const pattern of explicitDimensions) add(representativeFor(pattern));
   for (const item of items) {
     if (seenSources.has(item.source_id)) continue;
     add(item);
