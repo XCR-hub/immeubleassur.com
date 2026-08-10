@@ -52,6 +52,7 @@ const nodePath = argValue("--node", env("LOCAL_NODE_PATH", process.execPath));
 const logDir = resolve(argValue("--log-dir", env("LOCAL_SITE_WATCHDOG_LOG_DIR", join("data", "logs"))));
 const reportPath = resolve(argValue("--report", env("LOCAL_SITE_WATCHDOG_REPORT", join(logDir, "local-site-watchdog-report.json"))));
 const startupWaitSeconds = numberValue(argValue("--startup-wait", env("LOCAL_SITE_WATCHDOG_STARTUP_WAIT_SECONDS", "12")), 12);
+const startupAttempts = Math.max(1, Math.min(3, numberValue(argValue("--startup-attempts", env("LOCAL_SITE_WATCHDOG_STARTUP_ATTEMPTS", "3")), 3)));
 const forceRestart = hasArg("--force");
 const serverScript = join(siteDir, "scripts", "local-production-server.js");
 const requiredSecurityHeaders = [
@@ -285,8 +286,16 @@ async function main() {
   }
 
   const stopped = stopSiteProcesses();
-  const started = startSite();
-  const recovery = await waitForRuntime(startupWaitSeconds);
+  let started = startSite();
+  let recovery = await waitForRuntime(startupWaitSeconds);
+  const launches = [{ attempt: 1, started, recovery }];
+  for (let attempt = 2; !recovery.health.ok && attempt <= startupAttempts; attempt += 1) {
+    await sleep(500 * attempt);
+    stopped.push(...stopSiteProcesses());
+    started = startSite();
+    recovery = await waitForRuntime(startupWaitSeconds);
+    launches.push({ attempt, started, recovery });
+  }
   const after = recovery.health;
   writeReport(after.ok ? "recovered" : "failed", {
     action: "restart",
@@ -294,7 +303,7 @@ async function main() {
     health_after: after,
     stopped,
     started,
-    recovery
+    recovery: { ...recovery, launch_attempts: launches.length, launches }
   });
 
   if (!after.ok) {

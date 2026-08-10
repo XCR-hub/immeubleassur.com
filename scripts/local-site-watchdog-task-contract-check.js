@@ -13,6 +13,7 @@ const checks = [
   ["watchdog-health-and-headers", watchdog.includes("runtimeCheck()") && watchdog.includes("requiredSecurityHeaders")],
   ["watchdog-targeted-process-discovery", watchdog.includes("WATCHDOG_PROCESS_MATCH_MARKER") && watchdog.includes("matchesSiteProcess")],
   ["watchdog-bounded-readiness-poll", watchdog.includes("async function waitForRuntime") && watchdog.includes("elapsed_ms") && watchdog.includes("await sleep(250)")],
+  ["watchdog-retries-transient-startup-failures", watchdog.includes("LOCAL_SITE_WATCHDOG_STARTUP_ATTEMPTS") && watchdog.includes("attempt <= startupAttempts") && watchdog.includes("launch_attempts: launches.length")],
   ["watchdog-empty-port-is-not-an-error", watchdog.includes("Get-NetTCPConnection") && watchdog.includes("-ErrorAction SilentlyContinue")]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
