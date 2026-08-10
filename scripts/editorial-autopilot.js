@@ -537,30 +537,47 @@ function qualityScore(items, synthesis) {
   return Math.min(100, score);
 }
 
+function validUtcCalendarDate(year, monthIndex, day) {
+  const candidate = new Date(Date.UTC(year, monthIndex, day));
+  return candidate.getUTCFullYear() === year && candidate.getUTCMonth() === monthIndex && candidate.getUTCDate() === day;
+}
+
 function publicationDate(value) {
   const normalized = String(value || "").trim().toLowerCase();
   if (!normalized) return null;
   const frenchMonths = { janvier: 0, fevrier: 1, "février": 1, mars: 2, avril: 3, mai: 4, juin: 5, juillet: 6, aout: 7, "août": 7, septembre: 8, octobre: 9, novembre: 10, decembre: 11, "décembre": 11 };
   const french = normalized.match(/\b(\d{1,2})\s+([a-zéû]+)\s+(20\d{2})\b/i);
-  if (french && frenchMonths[french[2]] !== undefined) return new Date(Date.UTC(Number(french[3]), frenchMonths[french[2]], Number(french[1])));
+  if (french && frenchMonths[french[2]] !== undefined) {
+    const year = Number(french[3]);
+    const month = frenchMonths[french[2]];
+    const day = Number(french[1]);
+    return validUtcCalendarDate(year, month, day) ? new Date(Date.UTC(year, month, day)) : null;
+  }
+  const isoDate = normalized.match(/^(\d{4})-(\d{2})-(\d{2})(?:\D|$)/);
+  if (isoDate && !validUtcCalendarDate(Number(isoDate[1]), Number(isoDate[2]) - 1, Number(isoDate[3]))) return null;
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
-
 function evaluatePublicationGate(items, sourceResults, now = new Date()) {
-  const minimums = { healthy_sources: 3, authoritative_sources: 2, attributable_items: 3, fresh_dated_items: 1, maximum_age_days: 45 };
+  const minimums = { healthy_sources: 3, authoritative_sources: 2, attributable_items: 3, fresh_dated_items: 1, maximum_age_days: 45, maximum_future_hours: 6 };
   const healthy = sourceResults.filter((source) => source.status === "healthy");
   const authoritative = healthy.filter((source) => source.authority === "official" || source.authority === "regulator");
   const healthyIds = new Set(healthy.map((source) => source.source_id));
   const attributable = items.filter((item) => healthyIds.has(item.source_id) && item.url && item.source_name);
   const authoritativeIds = new Set(authoritative.map((source) => source.source_id));
   const maximumAgeMs = minimums.maximum_age_days * 86400000;
+  const maximumFutureMs = minimums.maximum_future_hours * 3600000;
   const freshDated = attributable.filter((item) => {
     if (!authoritativeIds.has(item.source_id) || /\u00c3|\u00c2|\u00e2\u20ac|\ufffd/.test(`${item.title || ""} ${item.published_at || ""}`)) return false;
     const date = publicationDate(item.published_at);
     if (!date) return false;
     const age = now.getTime() - date.getTime();
-    return age >= -2 * 86400000 && age <= maximumAgeMs;
+    return age >= -maximumFutureMs && age <= maximumAgeMs;
+  });
+  const futureDatedRejected = attributable.filter((item) => {
+    if (!authoritativeIds.has(item.source_id)) return false;
+    const date = publicationDate(item.published_at);
+    return date && date.getTime() - now.getTime() > maximumFutureMs;
   });
   const reasons = [];
   if (!ENABLE_FETCH) reasons.push("network-fetch-disabled");
@@ -573,7 +590,7 @@ function evaluatePublicationGate(items, sourceResults, now = new Date()) {
     decision: reasons.length ? "hold-last-valid-publication" : "publish-new-safe-edition",
     reasons,
     minimums,
-    observed: { healthy_sources: healthy.length, authoritative_sources: authoritative.length, attributable_items: attributable.length, fresh_dated_items: freshDated.length, text_quality_rejected_items: sourceResults.reduce((sum, source) => sum + Number(source.text_quality_rejected_count || 0), 0) },
+    observed: { healthy_sources: healthy.length, authoritative_sources: authoritative.length, attributable_items: attributable.length, fresh_dated_items: freshDated.length, future_dated_rejected_items: futureDatedRejected.length, text_quality_rejected_items: sourceResults.reduce((sum, source) => sum + Number(source.text_quality_rejected_count || 0), 0) },
     fresh_evidence: freshDated.slice(0, 8).map((item) => ({ source_id: item.source_id, title: item.title, url: item.url, published_at: item.published_at }))
   };
 }
@@ -703,7 +720,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, aiProviders };
+export { repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, aiProviders, publicationDate, evaluatePublicationGate };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });
