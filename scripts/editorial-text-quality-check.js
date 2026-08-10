@@ -13,12 +13,14 @@ const repairableFixtures = [
   ["propri\u00c3\u00a9taire", "propri\u00e9taire"]
 ];
 const cleanFixture = { title: decomposed, summary: "Signal public attribue", published_at: "10 aout 2026" };
+const coverageReferenceNow = new Date("2026-08-10T12:00:00Z");
 const coverageFixture = [
-  { source_id: "regulator", title: "Assurance immeuble : garanties et franchise", summary: "Contrat copropriete" },
-  { source_id: "official", title: "Syndic et assemblee generale", summary: "Obligation et responsabilite" }
+  { source_id: "regulator", title: "Assurance immeuble : garanties et franchise", summary: "Contrat copropriete", published_at: "2026-08-09" },
+  { source_id: "official", title: "Syndic et assemblee generale", summary: "Obligation et responsabilite", published_at: "2026-08-08" }
 ];
-const coverageComplete = editorialBusinessCoverage(coverageFixture);
-const coverageGap = editorialBusinessCoverage(coverageFixture.slice(0, 1));
+const coverageComplete = editorialBusinessCoverage(coverageFixture, coverageReferenceNow);
+const coverageGap = editorialBusinessCoverage(coverageFixture.slice(0, 1), coverageReferenceNow);
+const staleCoverage = editorialBusinessCoverage(coverageFixture.map((item) => ({ ...item, published_at: "2026-01-01" })), coverageReferenceNow);
 const artifactFixture = { title: "Actualite assurance immeuble attribuee", summary: '/fileadmin/image.jpg 992w,/fileadmin/image-large.jpg 2000w" sizes="100vw" loading="lazy" width="1200" height="800" alt=""> 03 aout 2026 Une mesure de prevention est publiee pour les immeubles&hellip;', published_at: "03 aout 2026" };
 const sanitizedArtifact = sanitizeEditorialSummary(artifactFixture.summary);
 const navigationSummaryFixture = "L’assurance vie";
@@ -72,6 +74,8 @@ const checks = [
   ["normalization-applies-mojibake-repair", repairableFixtures.every(([input, expected]) => normalizeEditorialText(input) === expected)],
   ["business-coverage-dimensions-reported", coverageComplete.status === "covered" && coverageComplete.required_dimensions.length === 4],
   ["business-coverage-gap-detected", coverageGap.status === "gaps-detected" && coverageGap.missing_dimensions.includes("syndic") && coverageGap.missing_dimensions.includes("obligations")],
+  ["business-coverage-freshness-reported", coverageComplete.freshness_status === "fresh" && coverageComplete.dimensions.syndic.fresh_item_count === 1 && coverageComplete.dimensions.syndic.latest_published_at === "2026-08-08T00:00:00.000Z"],
+  ["stale-business-coverage-not-labelled-fresh", staleCoverage.status === "covered" && staleCoverage.freshness_status === "freshness-gaps-detected" && staleCoverage.missing_fresh_dimensions.length === 4],
   ["reference-sources-distinguished", editorial.includes("reference_source_count") && editorial.includes('status: "monitored-reference"')],
   ["legifrance-exact-reference-monitored", editorial.includes("LEGIARTI000028779136") && editorial.includes('"reference-metadata-only"')],
   ["legifrance-in-force-metadata-verified", verifiedLegifranceFixture.verified === true && verifiedLegifranceFixture.identifier === "LEGIARTI000028779136" && verifiedLegifranceFixture.status_marker === "in-force"],

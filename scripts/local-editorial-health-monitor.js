@@ -49,8 +49,10 @@ const gateReady = editorial?.publication_gate?.ready === true;
 const operationalCycle = editorial?.fetch_enabled === true;
 const held = operationalCycle && !gateReady;
 const consecutiveHolds = held ? Number(previousState.consecutive_holds || 0) + 1 : 0;
-const missingCoverageDimensions = operationalCycle && editorial?.business_coverage?.status === "gaps-detected"
-  ? [...new Set((editorial.business_coverage.missing_dimensions || []).map((value) => String(value || "").trim()).filter(Boolean))].sort()
+const availabilityCoverageGaps = editorial?.business_coverage?.status === "gaps-detected" ? editorial.business_coverage.missing_dimensions || [] : [];
+const freshnessCoverageGaps = editorial?.business_coverage?.freshness_status === "freshness-gaps-detected" ? editorial.business_coverage.missing_fresh_dimensions || [] : [];
+const missingCoverageDimensions = operationalCycle
+  ? [...new Set([...availabilityCoverageGaps, ...freshnessCoverageGaps].map((value) => String(value || "").trim()).filter(Boolean))].sort()
   : [];
 const coverageGapCycles = Object.fromEntries(missingCoverageDimensions.map((dimension) => [dimension, Number(previousState.coverage_gap_cycles?.[dimension] || 0) + 1]));
 const latestEdition = latestPublishedEdition(publicRoot, publicationsRoot);
@@ -63,7 +65,7 @@ if (!latestEdition) issues.push({ type: "published-edition-missing", severity: "
 else if (latestEdition.age_days > maxEditionAgeDays) issues.push({ type: "published-edition-stale", severity: "high", signal: `${latestEdition.age_days}d`, threshold: `${maxEditionAgeDays}d` });
 if (consecutiveHolds >= holdThreshold) issues.push({ type: "publication-held-repeatedly", severity: "high", signal: `${consecutiveHolds} cycles`, reasons: editorial?.publication_gate?.reasons || [] });
 const persistentCoverageGaps = missingCoverageDimensions.filter((dimension) => coverageGapCycles[dimension] >= coverageGapThreshold);
-if (persistentCoverageGaps.length) issues.push({ type: "editorial-business-coverage-gap", severity: "high", signal: persistentCoverageGaps.join(", "), threshold: `${coverageGapThreshold} cycles`, cycles: Object.fromEntries(persistentCoverageGaps.map((dimension) => [dimension, coverageGapCycles[dimension]])) });
+if (persistentCoverageGaps.length) issues.push({ type: "editorial-business-coverage-gap", severity: "high", signal: persistentCoverageGaps.join(", "), threshold: `${coverageGapThreshold} cycles`, freshness_gaps: persistentCoverageGaps.filter((dimension) => freshnessCoverageGaps.includes(dimension)), cycles: Object.fromEntries(persistentCoverageGaps.map((dimension) => [dimension, coverageGapCycles[dimension]])) });
 
 const report = {
   success: issues.length === 0,

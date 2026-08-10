@@ -537,9 +537,11 @@ function sanitizeEditorialHealthReport(report) {
   if (!report || typeof report !== "object") return { available: false };
   const generatedAt = report.generated_at || "";
   const ageMinutes = generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null;
-  const missingCoverage = Array.isArray(report.business_coverage?.missing_dimensions)
-    ? report.business_coverage.missing_dimensions.map((value) => String(value || "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40)).filter(Boolean).slice(0, 8)
-    : [];
+  const availabilityGaps = Array.isArray(report.business_coverage?.missing_dimensions) ? report.business_coverage.missing_dimensions : [];
+  const freshnessGaps = Array.isArray(report.business_coverage?.missing_fresh_dimensions) ? report.business_coverage.missing_fresh_dimensions : [];
+  const normalizeDimension = (value) => String(value || "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40);
+  const normalizedFreshnessGaps = new Set(freshnessGaps.map(normalizeDimension).filter(Boolean));
+  const missingCoverage = [...new Set([...availabilityGaps, ...freshnessGaps].map(normalizeDimension).filter(Boolean))].slice(0, 8);
   return {
     available: true,
     success: report.success === true,
@@ -563,7 +565,9 @@ function sanitizeEditorialHealthReport(report) {
     consecutive_holds: Number(report.consecutive_holds || 0),
     hold_alert_cycles: Number(report.hold_alert_cycles || 0),
     business_coverage_status: report.business_coverage?.status === "gaps-detected" ? "gaps-detected" : report.business_coverage?.status === "covered" ? "covered" : "unknown",
-    coverage_gaps: missingCoverage.map((dimension) => ({ dimension, cycles: Math.max(0, Number(report.coverage_gap_cycles?.[dimension] || 0)) })),
+    business_freshness_status: report.business_coverage?.freshness_status === "freshness-gaps-detected" ? "freshness-gaps-detected" : report.business_coverage?.freshness_status === "fresh" ? "fresh" : "unknown",
+    business_freshness_maximum_age_days: Math.max(0, Number(report.business_coverage?.maximum_age_days || 0)),
+    coverage_gaps: missingCoverage.map((dimension) => ({ dimension, freshness_gap: normalizedFreshnessGaps.has(dimension), cycles: Math.max(0, Number(report.coverage_gap_cycles?.[dimension] || 0)) })),
     coverage_gap_alert_cycles: Math.max(0, Number(report.coverage_gap_alert_cycles || 0)),
     latest_valid_edition: report.latest_valid_edition ? {
       date: report.latest_valid_edition.date || "",

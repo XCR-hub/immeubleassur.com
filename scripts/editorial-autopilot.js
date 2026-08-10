@@ -173,21 +173,28 @@ function qualityFiltered(items) {
   clean.rejected_text_quality = items.length - clean.length;
   return clean;
 }
-function editorialBusinessCoverage(items) {
+function editorialBusinessCoverage(items, now = new Date(), maximumAgeDays = 45) {
   const dimensions = [
     ["assurance", /assurance|assureur|contrat|garantie|prime|franchise/i],
     ["copropriete", /copropri|immeuble|logement|habitat/i],
-    ["syndic", /syndic|conseil syndical|assembl[ée]e g[ée]n[ée]rale/i],
-    ["obligations", /obligation|obligatoire|r[ée]glement|d[ée]cret|loi|jurisprudence|responsabilit[ée]/i]
+    ["syndic", /syndic|conseil syndical|assembl[Ã©e]e g[Ã©e]n[Ã©e]rale/i],
+    ["obligations", /obligation|obligatoire|r[Ã©e]glement|d[Ã©e]cret|loi|jurisprudence|responsabilit[Ã©e]/i]
   ];
   const dimensionsReport = Object.fromEntries(dimensions.map(([id, pattern]) => {
     const matching = items.filter((item) => pattern.test(`${item.title || ""} ${item.summary || ""}`));
-    return [id, { item_count: matching.length, source_count: new Set(matching.map((item) => item.source_id).filter(Boolean)).size, covered: matching.length > 0 }];
+    const fresh = matching.filter((item) => {
+      const date = publicationDate(item.published_at);
+      if (!date) return false;
+      const age = now.getTime() - date.getTime();
+      return age >= -6 * 3600000 && age <= maximumAgeDays * 86400000;
+    });
+    const latest = matching.map((item) => publicationDate(item.published_at)).filter(Boolean).sort((a, b) => b - a)[0] || null;
+    return [id, { item_count: matching.length, source_count: new Set(matching.map((item) => item.source_id).filter(Boolean)).size, covered: matching.length > 0, fresh_item_count: fresh.length, fresh_source_count: new Set(fresh.map((item) => item.source_id).filter(Boolean)).size, fresh_covered: fresh.length > 0, latest_published_at: latest ? latest.toISOString() : null }];
   }));
   const missing = Object.entries(dimensionsReport).filter(([, value]) => !value.covered).map(([id]) => id);
-  return { status: missing.length ? "gaps-detected" : "covered", required_dimensions: dimensions.map(([id]) => id), missing_dimensions: missing, dimensions: dimensionsReport };
+  const missingFresh = Object.entries(dimensionsReport).filter(([, value]) => !value.fresh_covered).map(([id]) => id);
+  return { status: missing.length ? "gaps-detected" : "covered", freshness_status: missingFresh.length ? "freshness-gaps-detected" : "fresh", maximum_age_days: maximumAgeDays, required_dimensions: dimensions.map(([id]) => id), missing_dimensions: missing, missing_fresh_dimensions: missingFresh, dimensions: dimensionsReport };
 }
-
 function rssTag(block, name) {
   const match = block.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)<\\/${name}>`, "i"));
   return decodeXml(match?.[1] || "");
