@@ -109,6 +109,7 @@ function run() {
     runStep("live_ready_connectors", ["scripts/live-ready-connectors-runner.js", "--runtime-cycle", "--strict"], commonRuntimeEnv),
     runStep("editorial_public_metadata_sanitizer", ["scripts/local-editorial-public-metadata-sanitizer.js"], commonRuntimeEnv),
     runStep("editorial_runtime_publisher", ["scripts/local-editorial-publisher.js"], commonRuntimeEnv),
+    runStep("editorial_draft_schema_migration", ["scripts/local-editorial-draft-schema-migrate.js"], commonRuntimeEnv),
     runStep("editorial_review_monitor", ["scripts/local-editorial-review-monitor.js"], commonRuntimeEnv),
     runStep("editorial_hub_quality", ["scripts/local-editorial-hub-quality-check.js"], commonRuntimeEnv),
     runStep("editorial_publication_smoke", ["scripts/local-editorial-publication-smoke.js"], commonRuntimeEnv),
