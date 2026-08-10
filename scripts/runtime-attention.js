@@ -1,4 +1,4 @@
-const ATTENTION_STATUS = /\b(failed|failures?|degraded|action-required|fallback-only|partial)\b/i;
+const ATTENTION_STATUS = /\b(failed|failures?|degraded|action-required|fallback-only|partial|review-aging|review-overdue)\b/i;
 
 export function outputNeedsAttention(stdout = "", stderr = "") {
   const output = `${stdout} ${stderr}`

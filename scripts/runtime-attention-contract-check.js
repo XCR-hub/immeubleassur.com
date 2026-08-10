@@ -9,7 +9,9 @@ const fixtures = [
   ["Google readiness unlock action-required: 2 blocking, 1 degraded.", true],
   ["Newsletter delivery failed=2.", true],
   ["2 failures detected.", true],
-  ["Production monitor passed: errors=0.", false]
+  ["Production monitor passed: errors=0.", false],
+  ["Editorial review monitor: review-aging, pending=3.", true],
+  ["Editorial review monitor: review-overdue, pending=1.", true]
 ];
 
 const failed = fixtures.filter(([output, expected]) => outputNeedsAttention(output) !== expected);

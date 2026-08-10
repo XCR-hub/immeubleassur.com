@@ -178,6 +178,21 @@ function inspectJsonRuntime(name, reportPath, maxAgeMinutes, validate, details =
     return check(name, false, { path: reportPath, error: error.message || "runtime report unreadable" });
   }
 }
+function inspectEditorialReview(reportPath) {
+  if (!existsSync(reportPath)) return check("editorial_review_sla", false, { path: reportPath, error: "missing" });
+  try {
+    const report = JSON.parse(readFileSync(reportPath, "utf8"));
+    const ageMinutes = reportAgeMinutes(report);
+    const critical = Number(report.critical_count || 0);
+    const warning = Number(report.warning_count || 0);
+    const fresh = ageMinutes <= 90;
+    const ok = fresh && report.success === true && critical === 0 && warning === 0;
+    const severity = fresh && report.success === true && critical === 0 && warning > 0 ? "warn" : "fail";
+    return check("editorial_review_sla", ok, { path: reportPath, status: report.status || "unknown", age_minutes: ageMinutes, max_age_minutes: 90, pending: Number(report.pending_count || 0), warning, critical, oldest_age_days: Number(report.oldest_age_days || 0), priority_file: report.priority_pending?.file || "" }, severity);
+  } catch (error) {
+    return check("editorial_review_sla", false, { path: reportPath, error: error.message || "editorial review unreadable" });
+  }
+}
 function inspectEditorialHealth(reportPath) {
   if (!existsSync(reportPath)) return check("editorial_health", false, { path: reportPath, error: "missing" });
   try {
@@ -290,6 +305,7 @@ async function run() {
   const maxBackupAgeHours = numberEnv("LOCAL_SQLITE_BACKUP_MAX_AGE_HOURS", 8);
   const runtimeReportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", "reports"));
   const editorialHealthPath = resolve(env("LOCAL_EDITORIAL_HEALTH_REPORT", join(runtimeReportsRoot, "local-editorial-health-report.json")));
+  const editorialReviewPath = resolve(env("LOCAL_EDITORIAL_REVIEW_REPORT", join(runtimeReportsRoot, "local-editorial-review-report.json")));
   const tlsReportPath = resolve(env("LOCAL_TLS_REPORT", join(runtimeReportsRoot, "local-tls-certificate-report.json")));
   const smtpReportPath = resolve(env("LOCAL_SMTP_HEALTH_REPORT", join(runtimeReportsRoot, "local-smtp-health-report.json")));
   const notificationRetryPath = resolve(env("LOCAL_NOTIFICATION_RETRY_REPORT", join(runtimeReportsRoot, "local-lead-notification-retry-report.json")));
@@ -310,6 +326,7 @@ async function run() {
     inspectBackup(backupManifest, maxBackupAgeHours),
     inspectJsonRuntime("sqlite_restore_drill", restoreDrillPath, 90, (report) => report.status === "passed" && report.source_hash_verified === true && report.integrity === "ok" && report.foreign_key_violations === 0 && report.table_count >= 10, (report) => ({ source_type: report.source_type || "", integrity: report.integrity || "", table_count: Number(report.table_count || 0), total_rows: Number(report.total_rows || 0) })),
     inspectEditorialHealth(editorialHealthPath),
+    inspectEditorialReview(editorialReviewPath),
     inspectJsonRuntime("tls_certificate", tlsReportPath, 90, (report) => report.ok === true && ["healthy", "warning"].includes(report.status), (report) => ({ days_remaining: report.days_remaining })),
     inspectJsonRuntime("smtp_transport", smtpReportPath, 90, (report) => report.status === "ready" && report.authenticated === true && report.team_recipient_configured === true && (report.transport === "resend" || report.recipient_accepted === true), (report) => ({ authenticated: report.authenticated === true, transport: report.transport || report.provider || "smtp", team_recipient_configured: report.team_recipient_configured === true, recipient_accepted: report.recipient_accepted === true, message_sent: report.message_sent === true })),
     inspectJsonRuntime("lead_notification_backlog", notificationRetryPath, 90, (report) => report.status === "completed" && report.failed === 0 && report.overdue === 0 && report.exhausted === 0, (report) => ({ pending: Number(report.pending || 0), overdue: Number(report.overdue || 0), exhausted: Number(report.exhausted || 0), oldest_pending_hours: Number(report.oldest_pending_hours || 0) })),
@@ -338,7 +355,7 @@ async function run() {
   writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(`Production monitor: ${report.success ? "ok" : "failed"} (${report.summary.ok}/${checks.length} checks ok)`);
   console.log(`Report: ${out}`);
-  if (!report.success) process.exit(1);
+  if (!report.success) process.exitCode = 1;
 }
 
 run();
