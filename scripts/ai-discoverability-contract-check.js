@@ -20,6 +20,7 @@ const forbiddenPublicFields = ["draft_review_path", "draft_packet_path", "legal_
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const out = join(reportDir, "ai-discoverability-contract-report.json");
 const checks = [
+  ["googlebot-and-bingbot-explicit-allow", /User-agent: Googlebot\s+Allow: \//.test(robots) && /User-agent: Bingbot\s+Allow: \//.test(robots)],
   ["oai-searchbot-explicit-allow", /User-agent: OAI-SearchBot\s+Allow: \//.test(robots)],
   ["chatgpt-user-explicit-allow", /User-agent: ChatGPT-User\s+Allow: \//.test(robots)],
   ["perplexity-search-explicit-allow", /User-agent: PerplexityBot\s+Allow: \//.test(robots) && /User-agent: Perplexity-User\s+Allow: \//.test(robots)],
@@ -33,6 +34,7 @@ const checks = [
   ["methodology-discloses-ai-quarantine", methodology.includes("brouillons produits par une IA restent en quarantaine")],
   ["runtime-llms-includes-active-edition", publisher.includes('## Edition active') && publisher.includes('Contenu public genere par IA: non')],
   ["chatgpt-referrals-measured", attribution.includes('"chatgpt / ai-referral"') && sourceQuality.includes('ai-referral:')],
+  ["gemini-and-copilot-referrals-measured", attribution.includes('"gemini / ai-referral"') && attribution.includes('"copilot / ai-referral"') && sourceQuality.includes('["gemini", /gemini|bard/]') && sourceQuality.includes('["copilot", /copilot/]')],
   ["live-monitor-does-not-promise-citations", monitor.includes("citation_guaranteed: false")],
   ["public-editorial-export-is-distinct", editorial.includes("const publicReport =") && editorial.includes("JSON.stringify(publicReport, null, 2)")],
   ["static-public-editorial-asset-is-sanitized", publicEditorial.status === "safe-public-metadata" && publicEditorial.public_content_ai_generated === false && forbiddenPublicFields.length === 0 && Array.isArray(publicEditorial.public_watch_items) && publicEditorial.public_watch_items.every((item) => !Object.hasOwn(item, "summary"))],
@@ -44,7 +46,7 @@ const checks = [
   ["official-openai-guidance-recorded", monitor.includes("https://help.openai.com/en/articles/12627856-publishers-and-developers-faq")],
   ["official-perplexity-guidance-recorded", monitor.includes("https://docs.perplexity.ai/docs/resources/perplexity-crawlers")],
   ["official-anthropic-guidance-recorded", monitor.includes("https://support.anthropic.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler")],
-  ["live-monitor-verifies-multi-ai-access", monitor.includes("perplexitybot-can-read-watch") && monitor.includes("claude-searchbot-can-read-watch") && monitor.includes("claude-user-can-read-watch")],
+  ["live-monitor-verifies-multi-ai-access", monitor.includes("perplexitybot-can-read-watch") && monitor.includes("claude-searchbot-can-read-watch") && monitor.includes("claude-user-can-read-watch") && monitor.includes("googlebot-can-read-watch") && monitor.includes("bingbot-can-read-watch")],
   ["live-monitor-verifies-active-edition-utf8", monitor.includes("active-edition-declares-utf8") && monitor.includes("active-edition-has-no-mojibake") && monitor.includes("active_edition_content_type")],
   ["generation-pass-persists-artifacts", pass.includes('write(join(OUT, "robots.txt")') && pass.includes('write(join(OUT, "llms.txt")') && pass.includes('methodologie-editoriale.html')],
   ["indexnow-key-is-public-and-valid", /^[a-f0-9]{64}$/.test(indexNowKey) && indexNow.includes("key_publicly_verifiable: true")],
@@ -53,7 +55,7 @@ const checks = [
   ["indexnow-never-claims-ranking", indexNow.includes("citation_or_ranking_guaranteed: false") && indexNow.includes('"no-ranking-claim"')]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
-const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, claims: { search_eligible: ["chatgpt", "perplexity", "claude"], citation_guaranteed: false, training_bots_allowed: [] }, safeguards: ["explicit-multi-ai-crawler-policy", "training-bot-opt-out", "indexable-methodology", "entity-schema", "active-edition-in-llms", "sanitized-public-editorial-metadata", "ai-referral-attribution"] };
+const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, claims: { search_eligible: ["chatgpt", "perplexity", "claude", "gemini", "copilot"], citation_guaranteed: false, training_bots_allowed: [] }, safeguards: ["explicit-multi-ai-crawler-policy", "training-bot-opt-out", "indexable-methodology", "entity-schema", "active-edition-in-llms", "sanitized-public-editorial-metadata", "ai-referral-attribution"] };
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 console.log(`AI discoverability contract: ${report.status} (${checks.filter(([, ok]) => ok).length}/${checks.length}).`);

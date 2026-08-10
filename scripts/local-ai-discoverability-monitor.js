@@ -30,7 +30,7 @@ let manifest = null;
 try { manifest = JSON.parse(read(publicationManifestPath)); } catch {}
 const activeIssue = manifest?.issue?.slug || "";
 const activeEditionUrl = activeIssue ? `${origin}/${activeIssue}` : `${origin}/veille-assurance-immeuble`;
-const [robots, llms, methodology, sitemap, watch, editorialMetadata, perplexityWatch, claudeSearchWatch, claudeUserWatch, activeEdition] = await Promise.all([
+const [robots, llms, methodology, sitemap, watch, editorialMetadata, perplexityWatch, claudeSearchWatch, claudeUserWatch, googleWatch, bingWatch, activeEdition] = await Promise.all([
   fetchText(`${origin}/robots.txt`, "OAI-SearchBot/1.0; +https://openai.com/searchbot"),
   fetchText(`${origin}/llms.txt`, "OAI-SearchBot/1.0; +https://openai.com/searchbot"),
   fetchText(`${origin}/methodologie-editoriale`, "OAI-SearchBot/1.0; +https://openai.com/searchbot"),
@@ -40,6 +40,8 @@ const [robots, llms, methodology, sitemap, watch, editorialMetadata, perplexityW
   fetchText(`${origin}/veille-assurance-immeuble`, "PerplexityBot/1.0; +https://perplexity.ai/perplexitybot"),
   fetchText(`${origin}/veille-assurance-immeuble`, "Claude-SearchBot/1.0"),
   fetchText(`${origin}/veille-assurance-immeuble`, "Claude-User/1.0"),
+  fetchText(`${origin}/veille-assurance-immeuble`, "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"),
+  fetchText(`${origin}/veille-assurance-immeuble`, "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)"),
   fetchText(activeEditionUrl, "OAI-SearchBot/1.0; +https://openai.com/searchbot")
 ]);
 let publicEditorial = null;
@@ -49,6 +51,8 @@ const attribution = read("functions/api/admin/attribution.js");
 const sourceMonitor = read("scripts/local-source-quality-monitor.js");
 const checks = [
   ["robots-http-200", robots.status === 200],
+  ["googlebot-explicitly-allowed", groupAllows(robots.text, "Googlebot")],
+  ["bingbot-explicitly-allowed", groupAllows(robots.text, "Bingbot")],
   ["oai-searchbot-explicitly-allowed", groupAllows(robots.text, "OAI-SearchBot")],
   ["chatgpt-user-explicitly-allowed", groupAllows(robots.text, "ChatGPT-User")],
   ["perplexitybot-search-explicitly-allowed", groupAllows(robots.text, "PerplexityBot")],
@@ -72,11 +76,13 @@ const checks = [
   ["perplexitybot-can-read-watch", perplexityWatch.status === 200 && perplexityWatch.text.includes("Veille assurance immeuble")],
   ["claude-searchbot-can-read-watch", claudeSearchWatch.status === 200 && claudeSearchWatch.text.includes("Veille assurance immeuble")],
   ["claude-user-can-read-watch", claudeUserWatch.status === 200 && claudeUserWatch.text.includes("Veille assurance immeuble")],
+  ["googlebot-can-read-watch", googleWatch.status === 200 && googleWatch.text.includes("Veille assurance immeuble")],
+  ["bingbot-can-read-watch", bingWatch.status === 200 && bingWatch.text.includes("Veille assurance immeuble")],
   ["public-editorial-metadata-is-sanitized", editorialMetadata.status === 200 && publicEditorial?.status === "safe-public-metadata" && publicEditorial?.public_content_ai_generated === false && forbiddenPublicEditorialFields.length === 0],
   ["chatgpt-attribution-is-distinct", attribution.includes('"chatgpt / ai-referral"') && sourceMonitor.includes('`ai-referral:${aiUtm[0]}`')]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
-const report = { success: missing.length === 0, status: missing.length ? "degraded" : "ready", generated_at: new Date().toISOString(), origin, checks: checks.length, missing, active_issue: activeIssue, crawler_http: { robots: robots.status, llms: llms.status, methodology: methodology.status, sitemap: sitemap.status, active_edition: activeEdition.status, active_edition_content_type: activeEdition.content_type, watch_as_chatgpt_user: watch.status, watch_as_perplexitybot: perplexityWatch.status, watch_as_claude_searchbot: claudeSearchWatch.status, watch_as_claude_user: claudeUserWatch.status, editorial_metadata: editorialMetadata.status }, public_editorial_metadata: { status: publicEditorial?.status || "unavailable", sanitized: forbiddenPublicEditorialFields.length === 0, forbidden_fields: forbiddenPublicEditorialFields, ai_generated: publicEditorial?.public_content_ai_generated ?? null }, policies: { search_discovery: ["OAI-SearchBot", "PerplexityBot", "Claude-SearchBot"], user_navigation: ["ChatGPT-User", "Perplexity-User", "Claude-User"], model_training_disallowed: ["GPTBot", "ClaudeBot"], citation_guaranteed: false }, measurement: { source_key: "chatgpt / ai-referral", expected_utm_source: "chatgpt.com" }, official_guidance: { openai: "https://help.openai.com/en/articles/12627856-publishers-and-developers-faq", perplexity: "https://docs.perplexity.ai/docs/resources/perplexity-crawlers", anthropic: "https://support.anthropic.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler" } };
+const report = { success: missing.length === 0, status: missing.length ? "degraded" : "ready", generated_at: new Date().toISOString(), origin, checks: checks.length, missing, active_issue: activeIssue, crawler_http: { robots: robots.status, llms: llms.status, methodology: methodology.status, sitemap: sitemap.status, active_edition: activeEdition.status, active_edition_content_type: activeEdition.content_type, watch_as_chatgpt_user: watch.status, watch_as_perplexitybot: perplexityWatch.status, watch_as_claude_searchbot: claudeSearchWatch.status, watch_as_claude_user: claudeUserWatch.status, watch_as_googlebot: googleWatch.status, watch_as_bingbot: bingWatch.status, editorial_metadata: editorialMetadata.status }, public_editorial_metadata: { status: publicEditorial?.status || "unavailable", sanitized: forbiddenPublicEditorialFields.length === 0, forbidden_fields: forbiddenPublicEditorialFields, ai_generated: publicEditorial?.public_content_ai_generated ?? null }, policies: { search_discovery: ["Googlebot", "Bingbot", "OAI-SearchBot", "PerplexityBot", "Claude-SearchBot"], user_navigation: ["ChatGPT-User", "Perplexity-User", "Claude-User"], model_training_disallowed: ["GPTBot", "ClaudeBot"], citation_guaranteed: false }, measurement: { source_key: "chatgpt / ai-referral", expected_utm_source: "chatgpt.com", source_keys: ["chatgpt / ai-referral", "perplexity / ai-referral", "claude / ai-referral", "gemini / ai-referral", "copilot / ai-referral"], expected_utm_sources: ["chatgpt.com", "perplexity.ai", "claude.ai", "gemini.google.com", "copilot.microsoft.com"] }, official_guidance: { openai: "https://help.openai.com/en/articles/12627856-publishers-and-developers-faq", perplexity: "https://docs.perplexity.ai/docs/resources/perplexity-crawlers", anthropic: "https://support.anthropic.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler" } };
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 console.log(`AI discoverability monitor: ${report.status} (${checks.filter(([, ok]) => ok).length}/${checks.length}).`);

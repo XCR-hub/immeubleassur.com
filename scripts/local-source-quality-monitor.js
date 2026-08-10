@@ -10,6 +10,7 @@ const AI_SOURCE_PATTERNS = [
   ["chatgpt", /chatgpt|openai/],
   ["perplexity", /perplexity/],
   ["claude", /claude|anthropic/],
+  ["gemini", /gemini|bard/],
   ["copilot", /copilot/]
 ];
 

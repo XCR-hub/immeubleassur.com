@@ -75,6 +75,7 @@ function sourceKey(row = {}) {
   if (/chatgpt|openai/.test(source) || /chatgpt\.com|openai\.com/.test(referrer)) return "chatgpt / ai-referral";
   if (/perplexity/.test(source + " " + referrer)) return "perplexity / ai-referral";
   if (/claude|anthropic/.test(source + " " + referrer)) return "claude / ai-referral";
+  if (/gemini|bard/.test(source + " " + referrer)) return "gemini / ai-referral";
   if (/copilot/.test(source + " " + referrer)) return "copilot / ai-referral";
   if (source) return medium ? `${source} / ${medium}` : source;
   if (referrer.includes("google.")) return "google / organic";

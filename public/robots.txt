@@ -1,3 +1,13 @@
+User-agent: Googlebot
+Allow: /
+Disallow: /admin.html
+Disallow: /api/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin.html
+Disallow: /api/
+
 User-agent: OAI-SearchBot
 Allow: /
 Disallow: /admin.html
