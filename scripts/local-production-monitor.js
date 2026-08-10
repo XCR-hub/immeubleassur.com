@@ -138,7 +138,12 @@ function inspectBackup(manifestPath, maxAgeHours) {
     const actualSize = fileExists ? statSync(backupFile).size : 0;
     const actualHash = fileExists ? createHash("sha256").update(readFileSync(backupFile)).digest("hex") : "";
     const artifactVerified = fileExists && actualSize === Number(manifest.size_bytes || 0) && actualHash === manifest.sha256;
-    return check("sqlite_backup_age", manifest.integrity === "ok" && ageHours <= maxAgeHours && artifactVerified, {
+    const mirrorRequired = env("LOCAL_SQLITE_BACKUP_MIRROR_REQUIRED", "0") === "1";
+    const mirrorFile = resolve(manifest.mirror?.backup_file || "");
+    const mirrorExists = Boolean(manifest.mirror?.backup_file && existsSync(mirrorFile));
+    const mirrorHash = mirrorExists ? createHash("sha256").update(readFileSync(mirrorFile)).digest("hex") : "";
+    const mirrorVerified = mirrorExists && manifest.mirror?.verified === true && manifest.mirror?.integrity === "ok" && mirrorHash === manifest.mirror?.sha256 && mirrorHash === manifest.sha256;
+    return check("sqlite_backup_age", manifest.integrity === "ok" && ageHours <= maxAgeHours && artifactVerified && (!mirrorRequired || mirrorVerified), {
       manifest: manifestPath,
       backup_file: manifest.backup_file || "",
       integrity: manifest.integrity || "",
@@ -147,7 +152,11 @@ function inspectBackup(manifestPath, maxAgeHours) {
       max_age_hours: maxAgeHours,
       artifact_exists: fileExists,
       artifact_verified: artifactVerified,
-      size_bytes: actualSize
+      size_bytes: actualSize,
+      mirror_required: mirrorRequired,
+      mirror_file: manifest.mirror?.backup_file || "",
+      mirror_exists: mirrorExists,
+      mirror_verified: mirrorVerified
     });
   } catch (error) {
     return check("sqlite_backup_age", false, { manifest: manifestPath, error: error.message || "backup manifest unreadable" });

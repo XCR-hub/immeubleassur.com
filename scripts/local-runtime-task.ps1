@@ -29,6 +29,8 @@ try {
 }
 $env:LOCAL_SQLITE_DB = Join-Path $DataRoot 'immeubleassur.sqlite'
 $env:LOCAL_SQLITE_BACKUP_DIR = $BackupRoot
+$env:LOCAL_SQLITE_BACKUP_MIRROR_DIR = 'C:\Users\Administrateur\immeubleassur-backup-mirror'
+$env:LOCAL_SQLITE_BACKUP_MIRROR_REQUIRED = '1'
 $env:LOCAL_PRODUCTION_MONITOR_REPORT = 'F:\immeubleassur-monitor\latest.json'
 $env:LOCAL_LEAD_SLA_REPORT = 'F:\immeubleassur-monitor\lead-sla-latest.json'
 $env:LOCAL_LEAD_QUALITY_REPORT = 'F:\immeubleassur-monitor\lead-quality-latest.json'
