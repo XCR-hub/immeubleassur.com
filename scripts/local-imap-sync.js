@@ -119,7 +119,7 @@ class ImapSession {
 }
 
 async function sync() {
-  const report = { generated_at: nowIso(), status: "skipped", mailbox, mode: "read-only-headers", scanned: 0, imported: 0, matched: 0, unmatched: 0, ignored_automation: 0, errors: [] };
+  const report = { generated_at: nowIso(), status: "skipped", mailbox, mode: "read-only-headers", scanned: 0, imported: 0, matched: 0, unmatched: 0, ignored_automation: 0, automation_receipts: {}, smtp_roundtrip_verified: false, smtp_roundtrip_marker: automationHeader, smtp_roundtrip_last_seen_at: "", errors: [] };
   if (!host || !username || !password) { report.reason = "imap_configuration_missing"; writeReport(report); console.log(`IMAP sync skipped: ${report.reason}`); return; }
   const session = new ImapSession();
   try {
@@ -138,6 +138,9 @@ async function sync() {
       const headers = parseHeaders(extractLiterals(response)[0] || "");
       if (clean(headers["x-immeubleassur-automation"], 120).toLowerCase() === automationHeader) {
         report.ignored_automation += 1;
+        report.automation_receipts[automationHeader] = Number(report.automation_receipts[automationHeader] || 0) + 1;
+        report.smtp_roundtrip_verified = true;
+        report.smtp_roundtrip_last_seen_at = clean(headers.date, 200);
         continue;
       }
       const subject = clean(headers.subject, 500);

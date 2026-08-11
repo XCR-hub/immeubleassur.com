@@ -13,6 +13,8 @@ const checks = [
   ["delivery-failure-is-visible", imap.includes("alert_delivery_required") && imap.includes("alert_delivery_verified") && imap.includes("process.exitCode = 1")],
   ["manual-review-link-present", imap.includes("https://immeubleassur.com/admin#cases")],
   ["self-alert-loop-prevented", imap.includes("X-ImmeubleAssur-Automation: ") && imap.includes("X-IMMEUBLEASSUR-AUTOMATION") && imap.includes("ignored_automation") && imap.includes("continue;") && monitor.includes("ignored_automation")],
+  ["smtp-imap-roundtrip-proof-exported", imap.includes("smtp_roundtrip_verified") && imap.includes("smtp_roundtrip_marker: automationHeader") && imap.includes("automation_receipts[automationHeader]") && monitor.includes("smtp_roundtrip_receipts") && monitor.includes("smtp_roundtrip_last_seen_at")],
+  ["roundtrip-proof-remains-metadata-only", imap.includes('mode: "read-only-headers"') && imap.includes("BODY.PEEK[HEADER.FIELDS") && !imap.includes("BODY.PEEK[TEXT]") && !imap.includes("BODY[]")],
   ["imap-remains-read-only", imap.includes("BODY.PEEK[HEADER.FIELDS") && !imap.includes("STORE ") && !imap.includes("EXPUNGE")]
 ];
 const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
