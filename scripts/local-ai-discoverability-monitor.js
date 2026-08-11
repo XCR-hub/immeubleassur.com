@@ -27,6 +27,14 @@ function groupDisallows(robots, agent) {
   return Boolean(group && /(^|\n)Disallow:\s*\/\s*$/im.test(group));
 }
 
+function groupDisallowsPath(robots, agent, path) {
+  const groups = String(robots || "").split(/\n\s*\n/).map((group) => group.trim());
+  const escapedAgent = agent.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const group = groups.find((item) => new RegExp("^User-agent:\\s*" + escapedAgent + "\\s*$", "im").test(item));
+  return Boolean(group && new RegExp("(^|\\n)Disallow:\\s*" + escapedPath + "\\s*$", "im").test(group));
+}
+
 const origin = String(env("SITE_ORIGIN", "https://immeubleassur.com")).replace(/\/+$/, "");
 const canonicalOrigin = String(env("SITE_CANONICAL_ORIGIN", "https://immeubleassur.com")).replace(/\/+$/, "");
 const reportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", join("data", "runtime-reports")));
@@ -68,6 +76,7 @@ const checks = [
   ["claude-user-explicitly-allowed", groupAllows(robots.text, "Claude-User")],
   ["gptbot-training-explicitly-disallowed", groupDisallows(robots.text, "GPTBot")],
   ["claudebot-training-explicitly-disallowed", groupDisallows(robots.text, "ClaudeBot")],
+  ["admin-route-disallowed-for-search-crawlers", ["Googlebot", "Bingbot", "OAI-SearchBot", "ChatGPT-User", "PerplexityBot", "Perplexity-User", "Claude-SearchBot", "Claude-User", "*"].every((agent) => groupDisallowsPath(robots.text, agent, "/admin"))],
   ["llms-http-200", llms.status === 200],
   ["llms-links-methodology", llms.text.includes(`${canonicalOrigin}/methodologie-editoriale`)],
   ["llms-identifies-active-edition", !activeIssue || llms.text.includes(`${canonicalOrigin}/${activeIssue}`)],

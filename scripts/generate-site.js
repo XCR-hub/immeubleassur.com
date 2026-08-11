@@ -1068,7 +1068,7 @@ function writeStatic() {
     "mentions-legales.html"
   ];
   writeFileSync(join(OUT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((url) => { const loc = url === "" ? `${SITE}/` : `${SITE}/${url.replace(/\.html$/, "")}`; return `  <url><loc>${loc}</loc><changefreq>weekly</changefreq><priority>${url === "" ? "1.0" : "0.8"}</priority></url>`; }).join("\n")}\n</urlset>\n`, "utf8");
-  writeFileSync(join(OUT, "robots.txt"), `User-agent: *\nAllow: /\nDisallow: /admin.html\nDisallow: /api/\n\nSitemap: ${SITE}/sitemap.xml\n`, "utf8");
+  writeFileSync(join(OUT, "robots.txt"), `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\n\nSitemap: ${SITE}/sitemap.xml\n`, "utf8");
 }
 
 writeStatic();
