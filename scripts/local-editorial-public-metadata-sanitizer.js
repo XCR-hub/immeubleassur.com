@@ -6,9 +6,9 @@ import { sanitizePublicWatchItems } from "./editorial-public-metadata-policy.js"
 
 function powershellLiteral(value) { return `'${String(value).replace(/'/g, "''")}'`; }
 function replaceFileOnWindows(source, destination, backup) {
-  const command = `$ErrorActionPreference='Stop';[IO.File]::Replace(${powershellLiteral(source)},${powershellLiteral(destination)},${powershellLiteral(backup)},$true)`;
+  const command = `$ErrorActionPreference='Stop';$last=$null;for($attempt=1;$attempt -le 60;$attempt++){try{[IO.File]::Replace(${powershellLiteral(source)},${powershellLiteral(destination)},${powershellLiteral(backup)},$true);exit 0}catch{$last=$_;if($attempt -lt 60){Start-Sleep -Milliseconds 500}}};throw $last`;
   const encoded = Buffer.from(command, "utf16le").toString("base64");
-  const result = spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-EncodedCommand", encoded], { windowsHide: true, timeout: 10000, encoding: "utf8" });
+  const result = spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-EncodedCommand", encoded], { windowsHide: true, timeout: 35000, encoding: "utf8" });
   return result.status === 0;
 }
 
