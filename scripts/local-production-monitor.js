@@ -71,7 +71,8 @@ async function checkHealth(origin) {
     const { response, body } = await fetchJson(`${origin}/health`);
     return check("public_health", response.ok && body?.success === true && body?.status === "ok", {
       status: response.status,
-      mode: body?.mode || ""
+      mode: body?.mode || "",
+      gsc_verification_file_configured: body?.checks?.google_search_console_verification?.configured === true
     });
   } catch (error) {
     return check("public_health", false, { error: error.message || "health unavailable" });

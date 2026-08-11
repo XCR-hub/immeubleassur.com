@@ -128,7 +128,7 @@ const checks=[
   ["monitor-covers-fresh-privacy-retention",monitor.includes('inspectJsonRuntime("privacy_retention"')&&monitor.includes("report.policy?.lead_contact_data_deleted === false")&&monitor.includes('report.safeguards?.includes("no-pii-in-report")')],
   ["production-alerts-enabled",task.includes("LOCAL_MONITOR_ALERTS = '1'")],
   ["lead-sla-alerts-enabled",task.includes("LOCAL_LEAD_SLA_ALERTS = '1'")],
-  ["gsc-verification-file-is-strict-and-opt-in",server.includes("GOOGLE_SITE_VERIFICATION_FILE")&&server.includes("googleSiteVerificationBody")&&server.includes('requestTarget.pathname')],
+  ["gsc-verification-file-is-strict-and-opt-in",server.includes("GOOGLE_SITE_VERIFICATION_FILE")&&server.includes("googleSiteVerificationBody")&&server.includes('requestTarget.pathname')&&server.includes("google_search_console_verification")&&monitor.includes("gsc_verification_file_configured")],
   ["runtime-runs-monitor",runtime.includes('runStep("production_monitor"')],
   ["lighthouse-reports-long-tasks",lighthouse.includes('"long-tasks"')&&lighthouse.includes("long_tasks")],
   ["lighthouse-reports-script-bootup",lighthouse.includes('"bootup-time"')&&lighthouse.includes("bootup_time")],

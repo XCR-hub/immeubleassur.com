@@ -325,10 +325,11 @@ function healthSnapshot() {
     return {
       ready: databaseReady,
       database: { ready: databaseReady, table_count: database.tables?.length || 0 },
-      document_scanner: { available: scanner.available === true, configured: scanner.configured === true, engine_count: Number(scanner.engine_count || 0) }
+      document_scanner: { available: scanner.available === true, configured: scanner.configured === true, engine_count: Number(scanner.engine_count || 0) },
+      google_search_console_verification: { configured: Boolean(googleSiteVerificationFile) }
     };
   } catch {
-    return { ready: false, database: { ready: false, table_count: 0 }, document_scanner: { available: false, configured: false, engine_count: 0 } };
+    return { ready: false, database: { ready: false, table_count: 0 }, document_scanner: { available: false, configured: false, engine_count: 0 }, google_search_console_verification: { configured: Boolean(googleSiteVerificationFile) } };
   }
 }
 const server = createServer((request, response) => {
