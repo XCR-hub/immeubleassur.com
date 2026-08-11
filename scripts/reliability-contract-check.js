@@ -77,6 +77,7 @@ const checks=[
   ["live-security-monitor-enforces-strict-script-csp",security.includes("csp-blocks-inline-executable-scripts")&&security.includes("!scriptPolicy.includes")&&security.includes("'unsafe-inline'")],
   ["live-security-monitor-blocks-sensitive-files",security.includes("sensitive-files-not-public")&&security.includes('"/.env.production"')&&security.includes('"/.git/config"')&&security.includes('"/data/immeubleassur.sqlite"')],
   ["live-security-monitor-rejects-cross-site-cors",security.includes("cross-site-cors-origin-rejected")&&security.includes("Origin:evilOrigin")&&security.includes("row.allow_origin!==evilOrigin")],
+  ["lead-sla-alert-delivery-is-globally-enforced",monitor.includes("inspectLeadSla")&&monitor.includes("alert_delivery_verified")&&monitorTask.includes("LOCAL_LEAD_SLA_REPORT")],
   ["smtp-envelope-verifies-recipients",smtp.includes("verifyNodeSmtpRecipients")&&smtp.includes("RCPT TO")&&smtp.includes('smtpCommand(client, "RSET"')],
   ["smtp-envelope-does-not-send-message",smtpEnvelope.includes('smtpCommand(client, "RSET"')&&!smtpEnvelope.includes('smtpCommand(client, "DATA"')&&smtpHealth.includes("message_sent: false")&&smtpHealth.includes("envelope_test_only")],
   ["smtp-health-requires-team-recipient",smtpHealth.includes("team@immeubleassur.com")&&smtpHealth.includes("team_recipient_configured")],

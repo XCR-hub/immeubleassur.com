@@ -334,11 +334,16 @@ async function run() {
       upcoming_leads: leads.filter((lead) => !lead.due).sort((a, b) => a.due_in_hours - b.due_in_hours).slice(0, 12)
     };
     report.alert = await maybeAlert(report, out).catch((error) => ({ attempted: true, status: "failed", error: error.message || "alert failed" }));
+    const alertRequired = env("LOCAL_LEAD_SLA_ALERTS", "0") === "1" && report.summary.due_now > 0;
+    report.alert_delivery_required = alertRequired;
+    report.alert_delivery_verified = !alertRequired || ["sent", "cooldown"].includes(report.alert.status);
+    report.success = report.alert_delivery_verified;
 
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
     console.log(`Lead SLA monitor: ${report.summary.due_now} due / ${report.summary.open_leads} open leads`);
     console.log(`Report: ${out}`);
+    if (!report.success) process.exitCode = 1;
   } finally {
     database.close();
   }
