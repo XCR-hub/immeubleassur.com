@@ -178,6 +178,8 @@ const required = [
   ["scripts/local-production-monitor.js", "sqlite_backup_age"],
   ["scripts/local-runtime-report-cycle.js", "runtime-assets"],
   ["scripts/local-runtime-report-cycle.js", "sourceRevision"],
+  ["scripts/update-local-production-checkout.ps1", "Global\\ImmeubleAssurProductionCheckout"],
+  ["scripts/update-local-production-checkout.ps1", "pull', '--ff-only"],
   ["functions/api/admin/runtime-health.js", "source_revision"],
   ["functions/api/admin/runtime-health.js", "currentSourceRevision"],
   ["functions/api/admin/runtime-health.js", "source_revision_mismatch"],

@@ -7,6 +7,7 @@ const monitor=readFileSync("scripts/local-production-monitor.js","utf8");
 const runtime=readFileSync("scripts/local-runtime-report-cycle.js","utf8");
 const task=readFileSync("scripts/local-runtime-task.ps1","utf8");
 const runtimeTaskInstaller=readFileSync("scripts/install-local-runtime-task.ps1","utf8");
+const productionCheckoutUpdate=readFileSync("scripts/update-local-production-checkout.ps1","utf8");
 const backupTask=readFileSync("scripts/local-sqlite-backup-task.ps1","utf8");
 const backupTaskInstaller=readFileSync("scripts/install-local-sqlite-backup-task.ps1","utf8");
 const monitorTask=readFileSync("scripts/local-production-monitor-task.ps1","utf8");
@@ -59,6 +60,7 @@ const checks=[
   ["runtime-runs-restore-drill",runtime.includes('runStep("sqlite_restore_drill"')],
   ["runtime-bounds-each-step-and-global-task",runtime.includes('timeout_ms: timeout')&&runtime.includes('timed_out: result.error?.code === "ETIMEDOUT"')&&runtimeTaskInstaller.includes("New-TimeSpan -Minutes 25")&&runtimeTaskInstaller.includes("Floor($now.Minute / 15)")&&runtimeTaskInstaller.includes("$quarterStart.AddMinutes(15)")],
   ["runtime-revision-snapshotted-before-steps",runtime.includes("const cycleSourceRevision = sourceRevision();")&&runtime.includes("source_revision: cycleSourceRevision")&&runtime.indexOf("const cycleSourceRevision = sourceRevision();")<runtime.indexOf('runStep("smtp_health"')],
+  ["runtime-and-deploy-share-checkout-lock",task.includes("Global\\ImmeubleAssurProductionCheckout")&&productionCheckoutUpdate.includes("Global\\ImmeubleAssurProductionCheckout")&&productionCheckoutUpdate.includes("pull', '--ff-only")],
   ["runtime-fails-on-ready-connector-errors",runtime.includes('["scripts/live-ready-connectors-runner.js", "--runtime-cycle", "--strict"]')],
   ["runtime-does-not-rerun-connectors",task.match(/live-ready-connectors-runner\\.js/g) === null],
   ["csp-blocks-inline-executable-scripts",server.includes("script-src 'self' https://challenges.cloudflare.com")&&!server.includes("script-src 'self' 'unsafe-inline'")],

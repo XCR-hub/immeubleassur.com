@@ -6,6 +6,12 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$checkoutMutex = New-Object Threading.Mutex($false, 'Global\ImmeubleAssurProductionCheckout')
+$checkoutLockAcquired = $false
+try {
+try { $checkoutLockAcquired = $checkoutMutex.WaitOne([TimeSpan]::FromMinutes(25)) }
+catch [Threading.AbandonedMutexException] { $checkoutLockAcquired = $true }
+if (-not $checkoutLockAcquired) { throw 'Production checkout lock timeout after 25 minutes.' }
 Set-Location -LiteralPath $SiteRoot
 
 # Self-heal an older task registration that used an interactive token.
@@ -70,3 +76,7 @@ $reportExitCode = $LASTEXITCODE
 
 # Connectors are already executed once inside the strict runtime cycle.
 exit $reportExitCode
+} finally {
+  if ($checkoutLockAcquired) { $checkoutMutex.ReleaseMutex() }
+  $checkoutMutex.Dispose()
+}
