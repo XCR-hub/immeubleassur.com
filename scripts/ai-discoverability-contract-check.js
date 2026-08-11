@@ -1,6 +1,9 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { tmpdir } from "node:os";
+import { DatabaseSync } from "node:sqlite";
 import { loadDefaultEnvFiles } from "./local-env.js";
+import { summarizeCrawlerObservations } from "./crawler-observation-summary.js";
 
 loadDefaultEnvFiles();
 const pass = readFileSync("scripts/ai-discoverability-pass.js", "utf8");
@@ -19,6 +22,17 @@ const indexNow = readFileSync("scripts/local-indexnow-submit.js", "utf8");
 const indexNowKey = readFileSync("public/d169136979c0451ea899c65ee7ee337d5ba8a445f2544bcbb89a3b055692177e.txt", "utf8").trim();
 const publicEditorial = JSON.parse(readFileSync("public/assets/editorial-autopilot-latest.json", "utf8"));
 const forbiddenPublicFields = ["draft_review_path", "draft_packet_path", "legal_review", "source_results", "watch_preview", "errors", "ai_attempts", "ai_provider_order"].filter((field) => Object.hasOwn(publicEditorial, field));
+const crawlerFixture = mkdtempSync(join(tmpdir(), "immeubleassur-crawler-summary-"));
+const crawlerDbPath = join(crawlerFixture, "crawler.sqlite");
+const crawlerDb = new DatabaseSync(crawlerDbPath);
+crawlerDb.exec("CREATE TABLE site_events (event_type TEXT, target TEXT, payload TEXT, created_at TEXT)");
+const insertCrawler = crawlerDb.prepare("INSERT INTO site_events (event_type, target, payload, created_at) VALUES ('crawler_observation', ?, ?, datetime('now'))");
+insertCrawler.run("oai-searchbot", JSON.stringify({ identity_verified: true, ip_stored: false, query_stored: false }));
+insertCrawler.run("chatgpt-user", JSON.stringify({ identity_verified: false, ip_stored: false, query_stored: false }));
+insertCrawler.run("unknown-raw-agent", JSON.stringify({ identity_verified: true }));
+crawlerDb.close();
+const crawlerSummary = summarizeCrawlerObservations(crawlerDbPath, 30);
+rmSync(crawlerFixture, { recursive: true, force: true });
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const out = join(reportDir, "ai-discoverability-contract-report.json");
 const checks = [
@@ -38,6 +52,9 @@ const checks = [
   ["chatgpt-referrals-measured", attribution.includes('"chatgpt / ai-referral"') && sourceQuality.includes('ai-referral:')],
   ["gemini-and-copilot-referrals-measured", attribution.includes('"gemini / ai-referral"') && attribution.includes('"copilot / ai-referral"') && sourceQuality.includes('["gemini", /gemini|bard/]') && sourceQuality.includes('["copilot", /copilot/]')],
   ["live-monitor-does-not-promise-citations", monitor.includes("citation_guaranteed: false")],
+  ["crawler-observation-summary-distinguishes-verification", crawlerSummary.status === "verified-observed" && crawlerSummary.observed_agents === 2 && crawlerSummary.verified_agents === 1 && crawlerSummary.observation_count === 2 && crawlerSummary.verified_observation_count === 1],
+  ["crawler-observation-summary-is-privacy-minimal", crawlerSummary.privacy === "no-ip-no-query-no-raw-user-agent" && crawlerSummary.agents.every((item) => !Object.hasOwn(item, "ip_address") && !Object.hasOwn(item, "query") && !Object.hasOwn(item, "user_agent"))],
+  ["live-monitor-exports-observation-without-ranking-claim", monitor.includes("crawler_observation: crawlerObservation") && monitor.includes("citation_guaranteed: false")],
   ["live-monitor-verifies-admin-route-policy", monitor.includes("admin-route-disallowed-for-search-crawlers") && monitor.includes('groupDisallowsPath(robots.text, agent, "/admin")')],
   ["public-editorial-export-is-distinct", editorial.includes("const publicReport =") && editorial.includes("JSON.stringify(publicReport, null, 2)")],
   ["static-public-editorial-asset-is-sanitized", publicEditorial.status === "safe-public-metadata" && publicEditorial.public_content_ai_generated === false && forbiddenPublicFields.length === 0 && Array.isArray(publicEditorial.public_watch_items) && publicEditorial.public_watch_items.every((item) => !Object.hasOwn(item, "summary"))],
