@@ -1,8 +1,10 @@
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { connect as tlsConnect } from "node:tls";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { openLocalSqlite } from "./local-sqlite-db.js";
+import { requireOperationalTeamRecipient, sendNodeSmtpMail } from "./local-smtp.js";
 
 loadDefaultEnvFiles();
 
@@ -15,8 +17,10 @@ const username = String(env("IMAP_USER", "")).trim();
 const password = String(env("IMAP_PASS", ""));
 const lookbackDays = Math.max(1, Math.min(30, Number.parseInt(env("IMAP_LOOKBACK_DAYS", "7"), 10) || 7));
 const maxMessages = Math.max(1, Math.min(100, Number.parseInt(env("IMAP_MAX_MESSAGES", "40"), 10) || 40));
+const alertStatePath = resolve(env("LOCAL_IMAP_UNMATCHED_ALERT_STATE", join(dirname(reportPath), "imap-unmatched-alert-state.json")));
 
 function nowIso() { return new Date().toISOString(); }
+function numberEnv(name, fallback) { const value = Number.parseInt(env(name, String(fallback)), 10); return Number.isFinite(value) ? value : fallback; }
 function clean(value, max = 500) { return String(value || "").replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, max); }
 function json(value) { return JSON.stringify(value); }
 function writeReport(report) { mkdirSync(resolve(reportPath, ".."), { recursive: true }); writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8"); }
@@ -51,6 +55,32 @@ function extractLiterals(buffer) {
 }
 function caseReference(subject) {
   return (String(subject || "").match(/\bDOS-[A-Z0-9-]{4,}\b/i)?.[0] || "").toUpperCase();
+}
+
+function mailConfig() {
+  const from = env("SMTP_FROM", env("SMTP_USER", ""));
+  const to = env("LOCAL_IMAP_UNMATCHED_ALERT_TO", env("SMTP_TO", from));
+  return { host: env("SMTP_HOST", ""), port: numberEnv("SMTP_PORT", 587), username: env("SMTP_USER", from), password: env("SMTP_PASS", ""), from, to: String(to || "").split(/[;,]/).map((item) => item.trim()).filter(Boolean).slice(0, 6), secureTransport: numberEnv("SMTP_PORT", 587) === 465 ? "on" : "starttls", transport: "smtp" };
+}
+function pendingSignature(rows) { return createHash("sha256").update(rows.map((row) => row.id).sort().join("|")).digest("hex"); }
+function recentAlert(signature, cooldownMinutes) {
+  if (!existsSync(alertStatePath)) return false;
+  try { const state = JSON.parse(readFileSync(alertStatePath, "utf8")); const lastAt = Date.parse(state.last_alert_at || ""); return state.signature === signature && Number.isFinite(lastAt) && Date.now() - lastAt < cooldownMinutes * 60000; } catch { return false; }
+}
+async function maybeAlertPending(rows, generatedAt) {
+  if (env("LOCAL_IMAP_UNMATCHED_ALERTS", "0") !== "1" || !rows.length) return { attempted: false, status: "skipped" };
+  const signature = pendingSignature(rows);
+  const cooldownMinutes = numberEnv("LOCAL_IMAP_UNMATCHED_ALERT_COOLDOWN_MINUTES", 1440);
+  if (recentAlert(signature, cooldownMinutes)) return { attempted: false, status: "cooldown", cooldown_minutes: cooldownMinutes, recipient_is_team: true };
+  const config = mailConfig();
+  requireOperationalTeamRecipient(config);
+  if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return { attempted: false, status: "missing-smtp-config", recipient_is_team: true };
+  const text = [String(rows.length) + " email(s) entrant(s) attendent un rattachement manuel.", "", "Aucun expediteur, objet ou contenu de message n est inclus dans cette alerte.", "Ouvrir le centre dossiers ImmeubleAssur pour relire la file des emails recus et rattacher chaque message avant toute action.", "", "Administration: https://immeubleassur.com/admin#cases"].join("\n");
+  const message = ["From: ImmeubleAssur Operations <" + config.from + ">", "To: " + config.to.join(", "), "Subject: ImmeubleAssur - " + rows.length + " email(s) entrant(s) sans dossier", "Date: " + new Date(generatedAt).toUTCString(), "MIME-Version: 1.0", "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: 8bit", "", text].join("\r\n");
+  const receipt = await sendNodeSmtpMail(config, message);
+  mkdirSync(dirname(alertStatePath), { recursive: true });
+  writeFileSync(alertStatePath, JSON.stringify({ last_alert_at: nowIso(), signature, pending_count: rows.length }, null, 2) + "\n", "utf8");
+  return { attempted: true, status: "sent", transport: config.transport, receipt: clean(receipt, 200), cooldown_minutes: cooldownMinutes, recipient_is_team: true };
 }
 
 class ImapSession {
@@ -121,8 +151,15 @@ async function sync() {
     await session.command("LOGOUT");
     report.status = "completed";
   } catch (error) { report.status = "degraded"; report.errors.push(clean(error.message, 500)); }
-  finally { session.close(); writeReport(report); }
-  console.log(`IMAP sync ${report.status}: ${report.imported} importe(s), ${report.matched} rattache(s), ${report.unmatched} sans dossier.`);
+  finally { session.close(); }
+  const pendingRows = db.prepare("SELECT id FROM case_mail_inbox WHERE case_id IS NULL AND status = 'received_pending_review' ORDER BY created_at ASC").all();
+  report.pending_unmatched = pendingRows.length;
+  report.alert = await maybeAlertPending(pendingRows, report.generated_at).catch((error) => ({ attempted: true, status: "failed", error: clean(error.message, 300) }));
+  report.alert_delivery_required = env("LOCAL_IMAP_UNMATCHED_ALERTS", "0") === "1" && pendingRows.length > 0;
+  report.alert_delivery_verified = !report.alert_delivery_required || ["sent", "cooldown"].includes(report.alert.status);
+  writeReport(report);
+  console.log("IMAP sync " + report.status + ": " + report.imported + " importe(s), " + report.matched + " rattache(s), " + report.unmatched + " sans dossier, " + report.pending_unmatched + " en attente.");
+  if (!report.alert_delivery_verified) process.exitCode = 1;
 }
 
 sync().catch((error) => { writeReport({ generated_at: nowIso(), status: "failed", mode: "read-only-headers", errors: [clean(error.message, 500)] }); console.error(error); process.exit(1); });
