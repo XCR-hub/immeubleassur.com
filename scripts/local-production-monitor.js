@@ -418,6 +418,7 @@ async function run() {
   const maxBackupAgeHours = numberEnv("LOCAL_SQLITE_BACKUP_MAX_AGE_HOURS", 8);
   const runtimeReportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", "reports"));
   const editorialHealthPath = resolve(env("LOCAL_EDITORIAL_HEALTH_REPORT", join(runtimeReportsRoot, "local-editorial-health-report.json")));
+  const aiDiscoverabilityPath = resolve(env("LOCAL_AI_DISCOVERABILITY_REPORT", join(runtimeReportsRoot, "local-ai-discoverability-report.json")));
   const editorialReviewPath = resolve(env("LOCAL_EDITORIAL_REVIEW_REPORT", join(runtimeReportsRoot, "local-editorial-review-report.json")));
   const tlsReportPath = resolve(env("LOCAL_TLS_REPORT", join(runtimeReportsRoot, "local-tls-certificate-report.json")));
   const smtpReportPath = resolve(env("LOCAL_SMTP_HEALTH_REPORT", join(runtimeReportsRoot, "local-smtp-health-report.json")));
@@ -452,6 +453,7 @@ async function run() {
     inspectProductionCheckout(productionCheckoutUpdatePath),
     inspectJsonRuntime("sqlite_restore_drill", restoreDrillPath, 90, (report) => report.status === "passed" && report.source_hash_verified === true && report.integrity === "ok" && report.foreign_key_violations === 0 && report.table_count >= 10, (report) => ({ source_type: report.source_type || "", integrity: report.integrity || "", table_count: Number(report.table_count || 0), total_rows: Number(report.total_rows || 0) })),
     inspectEditorialHealth(editorialHealthPath),
+    inspectJsonRuntime("ai_discoverability", aiDiscoverabilityPath, 90, (report) => report.success === true && report.status === "ready" && Array.isArray(report.missing) && report.missing.length === 0 && report.public_editorial_metadata?.sanitized === true && report.public_editorial_metadata?.ai_generated === false && report.policies?.citation_guaranteed === false && report.crawler_observation?.privacy === "no-ip-no-query-no-raw-user-agent", (report) => ({ checks: Number(report.checks || 0), missing: Array.isArray(report.missing) ? report.missing.length : 0, active_issue: report.active_issue || "", crawler_status: report.crawler_observation?.status || "unavailable", observed_agents: Number(report.crawler_observation?.observed_agents || 0), verified_agents: Number(report.crawler_observation?.verified_agents || 0), public_metadata_sanitized: report.public_editorial_metadata?.sanitized === true, public_content_ai_generated: report.public_editorial_metadata?.ai_generated === true, citation_guaranteed: false, privacy: report.crawler_observation?.privacy || "unavailable" })),
     inspectGoogleReadiness(googleReadinessPath),
     inspectSearchIntelligence(searchIntelligencePath),
     inspectSeoAutopilot(seoAutopilotPublicPath),
