@@ -36,10 +36,12 @@ const clusters = [...paragraphs.entries()]
   .filter((item) => item.pages.length >= 8)
   .map((item) => ({ ...item, count: item.pages.length }));
 const diversity = readFileSync("scripts/content-diversity-pass.js", "utf8");
+const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
 const checks = [
   ["no-eight-page-paragraph-cluster", clusters.length === 0],
   ["short-article-variants-covered", diversity.includes('"blog-documents-short"') && diversity.includes('"blog-premium-short"')],
-  ["measured-serp-boilerplate-covered", diversity.includes('"measured-serp-guide"')]
+  ["measured-serp-boilerplate-covered", diversity.includes('"measured-serp-guide"')],
+  ["editorial-regeneration-stays-contextual", editorial.includes("contextualizeEditorialCopy(publicSynthesis.text, issue.slug)") && editorial.includes("contextualizeEditorialCopy(html, source)") && editorial.includes("intentExitBlock(source)") && editorial.includes("editorialReadinessCopy(source)")]
 ];
 const missing = checks.filter(([, passed]) => !passed).map(([name]) => name);
 console.log(JSON.stringify({ status: missing.length ? "failed" : "passed", checks: checks.length, clusters, missing }, null, 2));
