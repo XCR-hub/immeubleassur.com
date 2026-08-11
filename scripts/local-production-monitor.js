@@ -202,7 +202,7 @@ function inspectJsonRuntime(name, reportPath, maxAgeMinutes, validate, details =
   }
 }
 function inspectImapInbox(reportPath) {
-  const result = inspectJsonRuntime("imap_inbox_review", reportPath, 90, (report) => report.status === "completed" && report.alert_delivery_verified === true, (report) => ({ imported: Number(report.imported || 0), matched: Number(report.matched || 0), newly_unmatched: Number(report.unmatched || 0), pending_unmatched: Number(report.pending_unmatched || 0), alert_status: report.alert?.status || "", alert_delivery_required: report.alert_delivery_required === true, alert_delivery_verified: report.alert_delivery_verified === true, recipient_is_team: report.alert?.recipient_is_team === true }));
+  const result = inspectJsonRuntime("imap_inbox_review", reportPath, 90, (report) => report.status === "completed" && report.alert_delivery_verified === true, (report) => ({ imported: Number(report.imported || 0), matched: Number(report.matched || 0), newly_unmatched: Number(report.unmatched || 0), ignored_automation: Number(report.ignored_automation || 0), pending_unmatched: Number(report.pending_unmatched || 0), alert_status: report.alert?.status || "", alert_delivery_required: report.alert_delivery_required === true, alert_delivery_verified: report.alert_delivery_verified === true, recipient_is_team: report.alert?.recipient_is_team === true }));
   if (result.ok && result.pending_unmatched > 0) return { ...result, ok: false, severity: "warn", reason: "imap-review-backlog-alerted" };
   return result;
 }
