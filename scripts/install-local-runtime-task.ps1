@@ -11,7 +11,10 @@ if (-not (Test-Path -LiteralPath $WrapperPath)) { throw "Wrapper runtime introuv
 
 $quotedWrapper = '"' + $WrapperPath + '"'
 $action = New-ScheduledTaskAction -Execute 'PowerShell.exe' -Argument ('-NoProfile -NonInteractive -ExecutionPolicy Bypass -File ' + $quotedWrapper)
-$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Days 3650)
+$now = Get-Date
+$quarterStart = Get-Date -Hour $now.Hour -Minute ([math]::Floor($now.Minute / 15) * 15) -Second 0
+$first = $quarterStart.AddMinutes(15)
+$trigger = New-ScheduledTaskTrigger -Once -At $first -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Days 3650)
 $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 25)
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
