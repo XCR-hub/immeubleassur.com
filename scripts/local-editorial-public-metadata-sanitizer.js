@@ -1,7 +1,16 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { sanitizePublicWatchItems } from "./editorial-public-metadata-policy.js";
+
+function powershellLiteral(value) { return `'${String(value).replace(/'/g, "''")}'`; }
+function replaceFileOnWindows(source, destination, backup) {
+  const command = `$ErrorActionPreference='Stop';[IO.File]::Replace(${powershellLiteral(source)},${powershellLiteral(destination)},${powershellLiteral(backup)},$true)`;
+  const encoded = Buffer.from(command, "utf16le").toString("base64");
+  const result = spawnSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-EncodedCommand", encoded], { windowsHide: true, timeout: 10000, encoding: "utf8" });
+  return result.status === 0;
+}
 
 loadDefaultEnvFiles();
 
@@ -39,6 +48,7 @@ if (!existsSync(sourcePath)) {
   mkdirSync(dirname(outputPath), { recursive: true });
   const temporaryPath = `${outputPath}.${process.pid}.tmp`;
   writeFileSync(temporaryPath, `${JSON.stringify(publicReport, null, 2)}\n`, "utf8");
+  const backupPath = `${outputPath}.${process.pid}.bak`;
   let replaced = false;
   try {
     for (let attempt = 1; attempt <= 20; attempt += 1) {
@@ -47,12 +57,18 @@ if (!existsSync(sourcePath)) {
         replaced = true;
         break;
       } catch (error) {
-        if (!["EPERM", "EACCES"].includes(error?.code) || attempt === 20) throw error;
+        if (!["EPERM", "EACCES"].includes(error?.code)) throw error;
+        if (attempt === 20) {
+          if (process.platform !== "win32" || !replaceFileOnWindows(temporaryPath, outputPath, backupPath)) throw error;
+          replaced = true;
+          break;
+        }
         Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
       }
     }
   } finally {
     if (!replaced) rmSync(temporaryPath, { force: true });
+    rmSync(backupPath, { force: true });
   }
   console.log(`Editorial public metadata sanitizer: passed (${publicReport.public_watch_items.length} public signal(s)).`);
 }
