@@ -111,7 +111,7 @@ const checks=[
   ["monitor-failure-exits-gracefully",monitor.includes("if (!report.success) process.exitCode = 1")&&!monitor.includes("if (!report.success) process.exit(1)")],
   ["monitor-covers-dependency-security",monitor.includes('inspectJsonRuntime("dependency_security"') && runtime.includes('runStep("dependency_security"')],
   ["monitor-covers-scheduled-task-health",monitor.includes('inspectJsonRuntime("scheduled_task_health"') && runtime.includes('runStep("scheduled_task_health"')],
-  ["monitor-covers-github-workflow-health",monitor.includes('inspectJsonRuntime("github_workflow_health"') && runtime.includes('runStep("github_workflow_health"') && githubWorkflowMonitor.includes('event=${event}') && githubWorkflowMonitor.includes('manual-recovery-must-be-newer')],
+  ["monitor-covers-github-workflow-health",monitor.includes('inspectJsonRuntime("github_workflow_health"') && monitor.includes("proof_due_at") && monitor.includes("schedule_grace_minutes") && runtime.includes('runStep("github_workflow_health"') && githubWorkflowMonitor.includes('event=${event}') && githubWorkflowMonitor.includes('manual-recovery-must-be-newer')],
   ["scheduled-task-health-validates-system-identity",scheduledTaskHealth.includes('principalSid === "s-1-5-18"')&&scheduledTaskHealth.includes('"serviceaccount"')&&scheduledTaskHealth.includes('"highest"')],
   ["scheduled-task-health-validates-expected-actions",scheduledTaskHealth.includes("EXPECTED_SCHEDULED_TASK_ACTIONS")&&scheduledTaskHealth.includes("action-invalid")],
   ["scheduled-task-health-does-not-export-action-paths",scheduledTaskMonitor.includes("principal_sid, principal_user, logon_type, run_level, execute")&&scheduledTaskMonitor.includes("action-paths-not-exported")],
