@@ -6,13 +6,13 @@ loadDefaultEnvFiles();
 function read(path) { return existsSync(path) ? readFileSync(path, "utf8") : ""; }
 async function fetchText(url, userAgent) {
   try {
-    const response = await fetch(url, { headers: { "User-Agent": userAgent }, signal: AbortSignal.timeout(15000) });
+    const response = await fetch(url, { headers: { "User-Agent": userAgent + " ImmeubleAssurDiscoverabilityMonitor/1.0" }, signal: AbortSignal.timeout(15000) });
     return { ok: response.ok, status: response.status, content_type: response.headers.get("content-type") || "", text: await response.text() };
   } catch (error) { return { ok: false, status: 0, content_type: "", text: "", error: error.message || "fetch failed" }; }
 }
 async function fetchRedirect(url, userAgent) {
   try {
-    const response = await fetch(url, { redirect: "manual", headers: { "User-Agent": userAgent }, signal: AbortSignal.timeout(15000) });
+    const response = await fetch(url, { redirect: "manual", headers: { "User-Agent": userAgent + " ImmeubleAssurDiscoverabilityMonitor/1.0" }, signal: AbortSignal.timeout(15000) });
     return { status: response.status, location: response.headers.get("location") || "" };
   } catch (error) { return { status: 0, location: "", error: error.message || "fetch failed" }; }
 }

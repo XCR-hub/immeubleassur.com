@@ -114,13 +114,19 @@ function inspectSqlite(dbPath) {
       .map((row) => row.name);
     const leads24h = database.prepare("SELECT COUNT(*) AS count FROM leads WHERE created_at >= datetime('now', '-24 hours')").get()?.count || 0;
     const spam24h = database.prepare("SELECT COUNT(*) AS count FROM site_events WHERE event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked') AND created_at >= datetime('now', '-24 hours')").get()?.count || 0;
+    const crawlerRows = database.prepare("SELECT target, COUNT(*) AS count, MAX(created_at) AS last_seen_at FROM site_events WHERE event_type = 'crawler_observation' AND created_at >= datetime('now', '-30 days') GROUP BY target ORDER BY target").all();
+    const crawlerObservations = Object.fromEntries(crawlerRows.map((row) => [String(row.target || "unknown"), { count: Number(row.count || 0), last_seen_at: row.last_seen_at || "" }]));
     return check("sqlite_database", integrity === "ok" && tables.length >= 10, {
       path: dbPath,
       size_bytes: statSync(dbPath).size,
       integrity,
       table_count: tables.length,
       leads_24h: Number(leads24h || 0),
-      spam_blocks_24h: Number(spam24h || 0)
+      spam_blocks_24h: Number(spam24h || 0),
+      crawler_observations_30d: crawlerObservations,
+      crawler_agents_observed_30d: crawlerRows.length,
+      crawler_identity_verified: false,
+      crawler_privacy: "no-ip-no-query-normalized-agent"
     });
   } catch (error) {
     return check("sqlite_database", false, { path: dbPath, error: error.message || "sqlite inspection failed" });

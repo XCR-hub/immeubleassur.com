@@ -14,6 +14,14 @@ const task = readFileSync("scripts/local-runtime-task.ps1", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const reportPath = join(reportDir, "editorial-health-contract-report.json");
+function pipelineIncludes(scriptName, marker, seen = new Set()) {
+  if (seen.has(scriptName)) return false;
+  seen.add(scriptName);
+  const command = String(packageJson.scripts?.[scriptName] || "");
+  if (command.includes(marker)) return true;
+  const references = [...command.matchAll(/npm run ([A-Za-z0-9:_-]+)/g)].map((match) => match[1]);
+  return references.some((reference) => pipelineIncludes(reference, marker, seen));
+}
 const checks = [
   ["latest-valid-edition-measured", monitor.includes("latestPublishedEdition(publicRoot, publicationsRoot)") && monitor.includes("maximum_edition_age_days")],
   ["three-cycle-hold-threshold", monitor.includes('LOCAL_EDITORIAL_HOLD_ALERT_CYCLES') && monitor.includes("consecutiveHolds >= holdThreshold")],
@@ -45,7 +53,7 @@ const checks = [
   ["runtime-runs-review-after-editorial", runtime.indexOf('runStep("editorial_review_monitor"') > runtime.indexOf('runStep("editorial_runtime_publisher"')],
   ["growth-ops-exposes-review-aggregate", growth.includes("sanitizeEditorialReview") && growth.includes("editorial-human-review")],
   ["runtime-executes-editorial-text-quality", runtime.includes('runStep("editorial_text_quality", ["scripts/editorial-text-quality-check.js"]')],
-  ["standard-pipelines-execute-editorial-text-quality", ["check", "check:site", "local:autarky:check"].every((name) => String(packageJson.scripts?.[name] || "").includes("node scripts/editorial-text-quality-check.js"))]
+  ["standard-pipelines-execute-editorial-text-quality", ["check", "check:site", "local:autarky:check"].every((name) => pipelineIncludes(name, "node scripts/editorial-text-quality-check.js"))]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
 const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, policy: { alert_after_consecutive_holds: 3, alert_after_consecutive_coverage_gaps: 3, maximum_public_edition_age_days: 14, legal_ai_auto_publication: false } };

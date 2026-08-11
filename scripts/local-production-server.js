@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { createReadStream, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, normalize, resolve, sep } from "node:path";
@@ -72,7 +73,35 @@ const contentTypes = {
   };
 const SECURITY_HEADER_MARKER = "runtime-security-headers-v1";
 const REQUEST_BODY_LIMIT_MARKER = "request-body-limit-v1";
+const CRAWLER_OBSERVATION_MARKER = "crawler-observation-v1";
 const MAX_REQUEST_BODY_BYTES = Number.parseInt(env("LOCAL_MAX_REQUEST_BODY_BYTES", String(12 * 1024 * 1024)), 10) || 12 * 1024 * 1024;
+const crawlerUserAgents = [
+  ["googlebot", /Googlebot(?:\/|\s|;|\))/i],
+  ["bingbot", /bingbot(?:\/|\s|;|\))/i],
+  ["oai-searchbot", /OAI-SearchBot(?:\/|\s|;|\))/i],
+  ["chatgpt-user", /ChatGPT-User(?:\/|\s|;|\))/i],
+  ["perplexitybot", /PerplexityBot(?:\/|\s|;|\))/i],
+  ["perplexity-user", /Perplexity-User(?:\/|\s|;|\))/i],
+  ["claude-searchbot", /Claude-SearchBot(?:\/|\s|;|\))/i],
+  ["claude-user", /Claude-User(?:\/|\s|;|\))/i]
+];
+
+function observeCrawlerRequest(request, pathname) {
+  const userAgent = String(request.headers["user-agent"] || "");
+  if (!userAgent || /ImmeubleAssurDiscoverabilityMonitor/i.test(userAgent)) return;
+  const crawler = crawlerUserAgents.find(([, pattern]) => pattern.test(userAgent))?.[0];
+  if (!crawler) return;
+  const pagePath = String(pathname || "/").slice(0, 500);
+  try {
+    const alreadyObserved = db.prepare("SELECT id FROM site_events WHERE event_type = 'crawler_observation' AND target = ? AND page_url = ? AND created_at >= datetime('now', '-1 day') LIMIT 1").bind(crawler, pagePath).first();
+    if (alreadyObserved) return;
+    db.prepare("INSERT INTO site_events (id, event_type, page_url, target, payload, ip_address, user_agent, created_at) VALUES (?, 'crawler_observation', ?, ?, ?, '', ?, datetime('now'))")
+      .bind(randomUUID(), pagePath, crawler, JSON.stringify({ marker: CRAWLER_OBSERVATION_MARKER, identity_verified: false, source: "user-agent-observation", query_stored: false, ip_stored: false }), crawler)
+      .run();
+  } catch (error) {
+    console.error("crawler-observation-failed", safeServerDiagnostic(error.message));
+  }
+}
 
 function contentSecurityPolicy() {
   return [
@@ -320,6 +349,7 @@ function handleStatic(request, response) {
       response.end();
       return;
     }
+    observeCrawlerRequest(request, new URL(request.url || "/", "http://local").pathname);
     createReadStream(file).pipe(response);
   } catch {
     response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
