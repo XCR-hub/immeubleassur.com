@@ -185,9 +185,12 @@ function inspectProductionCheckout(reportPath) {
     const revisionBefore = String(report.revision_before || "");
     const revisionAfter = String(report.revision_after || "");
     const sourceRevision = currentSourceRevision();
+    const ageMinutes = reportAgeMinutes(report);
+    const maxAgeMinutes = numberEnv("LOCAL_PRODUCTION_CHECKOUT_UPDATE_MAX_AGE_MINUTES", 30);
+    const fresh = ageMinutes >= -5 && ageMinutes <= maxAgeMinutes;
     const safeguardsVerified = requiredSafeguards.every((item) => report.safeguards?.includes(item));
-    const ok = ["updated", "validated"].includes(report.status) && /^[a-f0-9]{40}$/.test(revisionBefore) && /^[a-f0-9]{40}$/.test(revisionAfter) && revisionAfter === sourceRevision && report.runtime_revision_verified === true && report.served_revision === revisionAfter && (!report.validate_only || revisionBefore === revisionAfter) && safeguardsVerified && !report.error;
-    return check("production_checkout_update", ok, { path: reportPath, status: report.status || "unknown", validate_only: report.validate_only === true, revision_matches_runtime: revisionAfter === sourceRevision, served_revision_matches: report.served_revision === revisionAfter, runtime_revision_verified: report.runtime_revision_verified === true, safeguards_verified: safeguardsVerified, duration_seconds: Number(report.duration_seconds || 0) });
+    const ok = fresh && ["updated", "validated"].includes(report.status) && /^[a-f0-9]{40}$/.test(revisionBefore) && /^[a-f0-9]{40}$/.test(revisionAfter) && revisionAfter === sourceRevision && report.runtime_revision_verified === true && report.served_revision === revisionAfter && (!report.validate_only || revisionBefore === revisionAfter) && safeguardsVerified && !report.error;
+    return check("production_checkout_update", ok, { path: reportPath, status: report.status || "unknown", validate_only: report.validate_only === true, age_minutes: ageMinutes, max_age_minutes: maxAgeMinutes, fresh, revision_matches_runtime: revisionAfter === sourceRevision, served_revision_matches: report.served_revision === revisionAfter, runtime_revision_verified: report.runtime_revision_verified === true, safeguards_verified: safeguardsVerified, duration_seconds: Number(report.duration_seconds || 0) });
   } catch (error) {
     return check("production_checkout_update", false, { path: reportPath, error: error.message || "deployment report unreadable" });
   }
