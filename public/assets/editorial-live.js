@@ -18,9 +18,10 @@ async function refreshLiveEditorialWatch(target) {
       "acpr.banque-france.fr",
       "www.anil.org",
       "www.franceassureurs.fr",
+      "www.georisques.gouv.fr",
       "www.legifrance.gouv.fr"
     ]);
-    const items = Array.isArray(report.public_watch_items) ? report.public_watch_items.slice(0, 18) : [];
+    const items = Array.isArray(report.public_watch_items) ? report.public_watch_items.slice(0, 12) : [];
     const cards = [];
     for (const item of items) {
       let url;

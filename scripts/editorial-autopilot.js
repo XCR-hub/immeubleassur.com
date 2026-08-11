@@ -589,10 +589,43 @@ async function synthesize(items) {
   const fallback = deterministicProvider();
   return { ...fallback, status: "fallback-after-ai-errors", text: fallbackSynthesis(items), error: "all-ai-providers-failed", attempts, provider_order: providerOrder };
 }
-function selectPublishedWatchItems(items, limit = 12) {
+function publicationPriority(item, now = new Date()) {
+  const title = editorialSearchText(item?.title);
+  const topic = String(item?.topic || topicFor(item));
+  let score = Number(item?.relevance_score || 0);
+  const sourceWeights = {
+    "acpr-actualites": 35,
+    "acpr-communiques": 35,
+    "france-assureurs-actualites": 30,
+    "georisques-actualites": 25,
+    "adil57-syndic-actualites": 25,
+    "adil20-syndic-actualites": 25,
+    "service-public-particuliers": 20,
+    "service-public-professionnels": 15
+  };
+  score += sourceWeights[item?.source_id] || 0;
+  score += ({ assurance: 30, copropriete: 28, sinistres: 28, travaux: 18, "pno-cno": 14, veille: 0 })[topic] || 0;
+  const strongPropertySignal = /assurance(?: non-vie| habitation| immeuble)|assureur|multirisque|sinistre|incendie|inondation|catastrophe|copropri|syndic|immeuble|batiment|responsabilite|argile|dommage/.test(title);
+  if (strongPropertySignal) score += 30;
+  if (/travailleur saisonnier|location de vacances|acompte|arrhes|augmentation (?:du |de )?loyer|bail commercial/.test(title) && !strongPropertySignal) score -= 35;
+  const date = publicationDate(item?.published_at);
+  if (date) {
+    const ageMs = now.getTime() - date.getTime();
+    if (ageMs < -6 * 3600000) score -= 200;
+    else if (ageMs <= 45 * 86400000) score += 20;
+    else if (ageMs <= 90 * 86400000) score += 8;
+  }
+  return score;
+}
+function selectPublishedWatchItems(items, limit = 12, now = new Date()) {
   const selected = [];
   const seenUrls = new Set();
   const seenSources = new Set();
+  const timestamp = (item) => {
+    const value = publicationDate(item?.published_at)?.getTime() || 0;
+    return value <= now.getTime() + 6 * 3600000 ? value : 0;
+  };
+  const rankedItems = [...items].sort((a, b) => publicationPriority(b, now) - publicationPriority(a, now) || timestamp(b) - timestamp(a) || Number(b?.relevance_score || 0) - Number(a?.relevance_score || 0));
   const add = (item) => {
     const key = String(item?.url || item?.title || "").replace(/[?#].*$/, "").replace(/\/$/, "").toLowerCase();
     if (!key || seenUrls.has(key) || selected.length >= limit) return;
@@ -601,29 +634,20 @@ function selectPublishedWatchItems(items, limit = 12) {
     selected.push(item);
   };
   const explicitDimensions = [
-    /assurance|assureur|contrat|garantie|prime|franchise/i,
-    /copropri|immeuble|logement|habitat/i,
+    /assurance(?: non-vie| habitation| immeuble)|assureur|multirisque|contrat|franchise|prime/i,
+    /copropri|immeuble|batiment|habitat/i,
     /syndic|conseil syndical|assemblee generale/i,
     /obligation|obligatoire|reglement|decret|loi|jurisprudence|responsabilite/i
   ];
-  const representativeFor = (pattern) => [...items]
-    .filter((item) => pattern.test(editorialSearchText(item?.title)))
-    .sort((a, b) => {
-      const futureCutoff = Date.now() + 6 * 3600000;
-      const aTimestamp = publicationDate(a?.published_at)?.getTime() || 0;
-      const bTimestamp = publicationDate(b?.published_at)?.getTime() || 0;
-      const aDate = aTimestamp <= futureCutoff ? aTimestamp : 0;
-      const bDate = bTimestamp <= futureCutoff ? bTimestamp : 0;
-      return bDate - aDate || Number(b?.relevance_score || 0) - Number(a?.relevance_score || 0);
-    })[0];
-  for (const pattern of explicitDimensions) add(representativeFor(pattern));
-  for (const item of items) {
+  for (const pattern of explicitDimensions) add(rankedItems.find((item) => pattern.test(editorialSearchText(item?.title))));
+  for (const item of rankedItems) {
     if (seenSources.has(item.source_id)) continue;
     add(item);
   }
-  for (const item of items) add(item);
+  for (const item of rankedItems) add(item);
   return selected;
-}function editorialRecency(item, now = new Date(), maximumAgeDays = 45) {
+}
+function editorialRecency(item, now = new Date(), maximumAgeDays = 45) {
   const date = publicationDate(item?.published_at);
   if (!date) return { status: "undated", date: "", label: "Date non fournie par la source" };
   const ageDays = (now.getTime() - date.getTime()) / 86400000;
@@ -843,7 +867,7 @@ async function run() {
   const publicWriteEnabled = !RUNTIME_ONLY && publicationGate.ready;
   let issueBackfills = 0;
   if (publicWriteEnabled) {
-    write(join(OUT, "veille-assurance-immeuble.html"), veillePage(items, publicSynthesis, issue));
+    write(join(OUT, "veille-assurance-immeuble.html"), veillePage(publishedItems, publicSynthesis, issue));
     write(join(OUT, "newsletter-assurance-immeuble.html"), newsletterPage(issue));
     write(join(OUT, `${issue.slug}.html`), issuePage(issue, publishedItems, publicSynthesis));
     injectHubs(issue);
@@ -912,7 +936,7 @@ async function run() {
     published_source_count: new Set(publishedItems.map((item) => item.source_id).filter(Boolean)).size,
     published_source_item_counts: Object.fromEntries(SOURCES.map((source) => [source.id, publishedItems.filter((item) => item.source_id === source.id).length])),
     watch_preview: items.slice(0, 8).map(({ source_id, title, url, topic, relevance_score }) => ({ source_id, title, url, topic, relevance_score })),
-    public_watch_items: items.slice(0, 18).map(({ source_id, source_name, title, url, summary, topic, relevance_score, published_at }) => ({ source_id, source_name, title, url, summary, topic, relevance_score, published_at })),
+    public_watch_items: publishedItems.map(({ source_id, source_name, title, url, summary, topic, relevance_score, published_at }) => ({ source_id, source_name, title, url, summary, topic, relevance_score, published_at })),
     candidate_issue: { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url },
     issue: publicWriteEnabled ? { id: issue.id, slug: issue.slug, title: issue.title, html_url: issue.html_url } : null,
     issue_backfills: issueBackfills,
@@ -948,7 +972,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", no-relevant=" + report.no_relevant_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, selectPublishedWatchItems, editorialRecency, publicationDateMetadata, enrichPublicationDates, aiProviders, publicationDate, evaluatePublicationGate };
+export { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, publicationPriority, selectPublishedWatchItems, editorialRecency, publicationDateMetadata, enrichPublicationDates, aiProviders, publicationDate, evaluatePublicationGate };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });

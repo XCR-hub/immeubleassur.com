@@ -4,7 +4,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 
 loadDefaultEnvFiles();
 const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
-const { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, selectPublishedWatchItems, editorialRecency, publicationDateMetadata } = await import("./editorial-autopilot.js");
+const { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, publicationPriority, selectPublishedWatchItems, editorialRecency, publicationDateMetadata } = await import("./editorial-autopilot.js");
 const decomposed = "Assurance proprie\u0301taire";
 const corruptedFixture = { title: "Actualite\uFFFD assurance immeuble", summary: "Signal public", published_at: "10 aout 2026" };
 const repairableFixtures = [
@@ -27,6 +27,15 @@ const dominantSourceItems = [
   { source_id: "regulator", title: "Assurance et regulation", url: "https://example.com/regulator", relevance_score: 40 }
 ];
 const representativeSelection = selectPublishedWatchItems(dominantSourceItems, 6);
+const priorityNow = new Date("2026-08-11T12:00:00Z");
+const priorityFixture = [
+  { source_id: "anil-actualites", title: "Louer à un travailleur saisonnier : sécurisez votre location avec la garantie Visale", url: "https://example.com/seasonal", topic: "veille", relevance_score: 49, published_at: "2026-07-30" },
+  { source_id: "acpr-communiques", title: "Assurance non-vie : prévention face à la hausse de sinistralité climatique", url: "https://example.com/acpr", topic: "assurance", relevance_score: 49, published_at: "2026-07-23" },
+  { source_id: "georisques-actualites", title: "Pour limiter les sinistres liés au retrait-gonflement des argiles", url: "https://example.com/argiles", topic: "sinistres", relevance_score: 42, published_at: "2026-02-04" },
+  { source_id: "adil20-syndic-actualites", title: "Guide du syndic bénévole en copropriété", url: "https://example.com/syndic", topic: "copropriete", relevance_score: 49, published_at: "2026-07-21" },
+  { source_id: "anil-actualites", title: "Incendies : mesures pour accompagner les immeubles sinistrés", url: "https://example.com/incendies", topic: "sinistres", relevance_score: 56, published_at: "2026-07-31" }
+];
+const prioritySelection = selectPublishedWatchItems(priorityFixture, 4, priorityNow);
 const freshRecency = editorialRecency({ published_at: "2026-08-08" }, coverageReferenceNow);
 const referenceRecency = editorialRecency({ published_at: "2026-06-04" }, coverageReferenceNow);
 const undatedRecency = editorialRecency({}, coverageReferenceNow);
@@ -89,6 +98,9 @@ const checks = [
   ["business-coverage-freshness-reported", coverageComplete.freshness_status === "fresh" && coverageComplete.dimensions.syndic.fresh_item_count === 1 && coverageComplete.dimensions.syndic.latest_published_at === "2026-08-08T00:00:00.000Z"],
   ["stale-business-coverage-not-labelled-fresh", staleCoverage.status === "covered" && staleCoverage.freshness_status === "freshness-gaps-detected" && staleCoverage.missing_fresh_dimensions.length === 4],
   ["published-selection-preserves-source-diversity", representativeSelection.length === 6 && representativeSelection.some((item) => item.source_id === "syndic-official") && representativeSelection.some((item) => item.source_id === "regulator")],
+  ["business-priority-beats-peripheral-rental-content", publicationPriority(priorityFixture[1], priorityNow) > publicationPriority(priorityFixture[0], priorityNow)],
+  ["published-selection-prioritizes-insurance-copro-risk", prioritySelection.length === 4 && prioritySelection[0]?.source_id === "acpr-communiques" && prioritySelection.some((item) => item.source_id === "adil20-syndic-actualites") && prioritySelection.some((item) => item.source_id === "georisques-actualites") && prioritySelection.some((item) => item.url === "https://example.com/incendies") && !prioritySelection.some((item) => item.url === "https://example.com/seasonal")],
+  ["static-and-runtime-watch-selection-aligned", editorial.includes("veillePage(publishedItems, publicSynthesis, issue)") && editorial.includes("public_watch_items: publishedItems.map")],
   ["published-selection-drives-business-coverage", editorial.includes("business_coverage: editorialBusinessCoverage(publishedItems)") && editorial.includes("published_source_item_counts:")],
   ["public-cards-label-recency", editorial.includes("watchRecencyMarkup(item)") && freshRecency.status === "fresh" && referenceRecency.status === "reference" && undatedRecency.status === "undated"],
   ["acpr-publication-date-preferred-over-update", acprVisibleDateFixture === "9 Juin 2026" && updateOnlyDateFixture === ""],

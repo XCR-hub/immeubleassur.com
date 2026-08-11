@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-10T02:51:50.254Z",
+  "generated_at": "2026-08-11T18:37:47.703Z",
   "status": "passed",
-  "checks": 12,
+  "checks": 68,
   "missing": [],
   "runtime_report_available": true,
   "runtime_items_checked": 0,
@@ -10,6 +10,8 @@
     "unicode-nfc",
     "control-character-removal",
     "mojibake-rejection",
-    "source-rejection-accounting"
+    "source-rejection-accounting",
+    "markup-artifact-sanitization",
+    "runtime-summary-inspection"
   ]
 }

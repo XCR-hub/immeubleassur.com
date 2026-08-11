@@ -6,7 +6,7 @@ const representativeFixture = selectPublishedWatchItems([
   { source_id: "official", title: "Futur syndic non fiable", url: "https://example.test/future", published_at: "09 juin 2099", relevance_score: 99 },
   { source_id: "official", title: "L'ADIL accompagne les syndics benevoles", url: "https://example.test/recent", published_at: "09 juin 2026", relevance_score: 49 },
   { source_id: "official", title: "Assurance immeuble et garanties", url: "https://example.test/insurance", published_at: "30 juillet 2026", relevance_score: 70 }
-], 3);
+], 3, new Date("2026-08-11T12:00:00Z"));
 
 const files = {
   editorial: readFileSync("scripts/editorial-autopilot.js", "utf8"),
@@ -38,7 +38,7 @@ const checks = [
   ["rc-syndic-faq-visible-and-structured", files.rc.includes('id="faq-rc-syndic"') && files.rc.includes('"@type":"FAQPage"') && files.rc.includes("Une IA peut-elle determiner seule la responsabilite ?")],
   ["rc-syndic-faq-safe-and-generated", files.generator.includes("RC du syndicat et RC professionnelle du syndic") && files.generator.includes("toute interpretation juridique ou recommandation contractuelle exige une validation humaine") && files.generator.includes("faqSchema")],
   ["rc-syndic-official-sources", files.rc.includes("legifrance.gouv.fr") && files.rc.includes("service-public.fr")],
-  ["newest-dated-syndic-signal-selected", representativeFixture.some((item) => item.url === "https://example.test/recent") && representativeFixture[1]?.url === "https://example.test/recent"],
+  ["business-priority-syndic-signals-selected", representativeFixture[0]?.url === "https://example.test/insurance" && representativeFixture[1]?.url === "https://example.test/old" && representativeFixture.some((item) => item.url === "https://example.test/recent")],
   ["future-dated-syndic-signal-rejected", !representativeFixture.some((item) => item.url === "https://example.test/future")]
 ];
 

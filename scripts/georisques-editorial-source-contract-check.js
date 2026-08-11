@@ -1,11 +1,13 @@
 import { readFileSync } from "node:fs";
 
 const editorial = readFileSync("scripts/editorial-autopilot.js", "utf8");
+const editorialLive = readFileSync("public/assets/editorial-live.js", "utf8");
 const checks = [
   ["georisques-official-source-configured", editorial.includes('["georisques-actualites", "Georisques", "https://www.georisques.gouv.fr/actualites-evenements", "public-page", "risques-batiment", "official"')],
   ["georisques-url-scope-single-article-only", editorial.includes('source?.id === "georisques-actualites"') && editorial.includes('/^\\/[a-z0-9][a-z0-9-]+$/')],
   ["georisques-content-scope-explicit", editorial.includes('/sinistre|incendie|inondation|pluie|tempete|catastrophe|secheresse|argile|feu de foret|deboisement|debroussaillement|prevention|risque naturel|submersion|mouvement de terrain/')],
   ["georisques-date-enrichment-enabled", editorial.includes('"france-assureurs-actualites", "georisques-actualites"')],
+  ["georisques-runtime-card-host-allowed", editorialLive.includes('"www.georisques.gouv.fr"') && editorialLive.includes("slice(0, 12)")],
   ["unrelated-content-counted-as-rejected", editorial.includes("content_scope_rejected_count") && editorial.includes("rejectedContentScope")],
   ["fresh-official-evidence-still-required", editorial.includes('"no-fresh-dated-official-evidence"') && editorial.includes("maximum_age_days: 45")],
   ["legal-signals-remain-human-only", editorial.includes('publication_gate: matched_terms.length ? "legal-human-approval"') && editorial.includes("allowed_publication: false")],
