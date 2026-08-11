@@ -48,10 +48,19 @@ const baseHubHashes = Object.fromEntries(["faq.html", "villes.html"].map((relati
   const path = join(staticPublicRoot, relative);
   return [relative.replace(".html", ""), existsSync(path) ? sha256(path) : ""];
 }));
+const publicationInputHashes = Object.fromEntries([
+  "scripts/editorial-autopilot.js",
+  "scripts/editorial-public-metadata-policy.js",
+  "scripts/local-editorial-publisher.js"
+].map((relative) => [relative, existsSync(resolve(relative)) ? sha256(resolve(relative)) : ""]));
+const publicationBuildHash = createHash("sha256")
+  .update(JSON.stringify(publicationInputHashes))
+  .digest("hex");
 const sourceArtifactRepairNeeded = Boolean(currentIssuePath && existsSync(currentIssuePath) && containsSourceSummaryArtifacts(readFileSync(currentIssuePath, "utf8")));
 const hubProofRepairNeeded = current?.issue?.slug === expectedSlug && (current?.hub_enrichment?.faq?.marker_count !== 1 || current?.hub_enrichment?.faq?.end_marker_count !== 1 || current?.hub_enrichment?.cities?.marker_count !== 1 || current?.hub_enrichment?.cities?.end_marker_count !== 1 || Number(current?.hub_enrichment?.cities?.linked_city_count || 0) < 3);
 const baseHubRefreshNeeded = current?.issue?.slug === expectedSlug && (current?.base_hub_hashes?.faq !== baseHubHashes.faq || current?.base_hub_hashes?.villes !== baseHubHashes.villes);
-const repairTriggered = sourceArtifactRepairNeeded || hubProofRepairNeeded || baseHubRefreshNeeded;
+const publicationInputsRefreshNeeded = current?.issue?.slug === expectedSlug && current?.publication_build_hash !== publicationBuildHash;
+const repairTriggered = sourceArtifactRepairNeeded || hubProofRepairNeeded || baseHubRefreshNeeded || publicationInputsRefreshNeeded;
 
 if (!force && current?.issue?.slug === expectedSlug && !repairTriggered) {
   const report = { success: true, status: "already-published-today", generated_at: new Date().toISOString(), manifest: manifestPath, active_version: current.version, issue: current.issue, preserved_previous: true, source_artifact_repair_needed: false };
@@ -156,14 +165,16 @@ const manifest = {
   ai_draft_allowed_publication: false,
   hub_enrichment: hubEnrichment,
   base_hub_hashes: baseHubHashes,
+  publication_input_hashes: publicationInputHashes,
+  publication_build_hash: publicationBuildHash,
   previous_version: current?.version || null,
-  repair_reason: sourceArtifactRepairNeeded ? "source-summary-artifacts" : hubProofRepairNeeded ? "hub-enrichment-proof-missing" : baseHubRefreshNeeded ? "static-hub-base-changed" : null
+  repair_reason: sourceArtifactRepairNeeded ? "source-summary-artifacts" : hubProofRepairNeeded ? "hub-enrichment-proof-missing" : baseHubRefreshNeeded ? "static-hub-base-changed" : publicationInputsRefreshNeeded ? "publication-inputs-changed" : null
 };
 mkdirSync(publicationsRoot, { recursive: true });
 const temporaryManifest = join(publicationsRoot, `current-${process.pid}-${Date.now()}.tmp`);
 writeJson(temporaryManifest, manifest);
 renameSync(temporaryManifest, manifestPath);
-const publicationStatus = sourceArtifactRepairNeeded ? "repaired-source-artifacts" : hubProofRepairNeeded ? "repaired-hub-enrichment-proof" : baseHubRefreshNeeded ? "refreshed-static-hub-base" : "published";
+const publicationStatus = sourceArtifactRepairNeeded ? "repaired-source-artifacts" : hubProofRepairNeeded ? "repaired-hub-enrichment-proof" : baseHubRefreshNeeded ? "refreshed-static-hub-base" : publicationInputsRefreshNeeded ? "refreshed-publication-inputs" : "published";
 const report = { ...baseReport, success: true, status: publicationStatus, preserved_previous: Boolean(current), active_version: version, previous_version: current?.version || null, issue: manifest.issue, hub_enrichment: hubEnrichment, files };
 writeJson(reportPath, report);
 console.log(`Editorial publisher: ${publicationStatus} ${issue.slug} as ${version}.`);

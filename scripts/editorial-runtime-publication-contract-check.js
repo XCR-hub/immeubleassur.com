@@ -21,6 +21,7 @@ const checks = [
   ["fresh-source-gate-required", publisher.includes("!editorialReport.publication_gate?.ready") && publisher.includes("!editorialReport.public_write_enabled")],
   ["same-day-artifacts-trigger-repair", publisher.includes("const repairTriggered =") && publisher.includes('status: publicationStatus') && publisher.includes('"repaired-source-artifacts"')],
   ["same-day-static-hub-change-triggers-refresh", publisher.includes("baseHubRefreshNeeded") && publisher.includes("base_hub_hashes: baseHubHashes") && publisher.includes('"static-hub-base-changed"') && publisher.includes('"refreshed-static-hub-base"')],
+  ["same-day-publication-input-change-triggers-refresh", publisher.includes("publicationInputsRefreshNeeded") && publisher.includes("publication_input_hashes: publicationInputHashes") && publisher.includes("publication_build_hash: publicationBuildHash") && publisher.includes('"publication-inputs-changed"') && publisher.includes('"refreshed-publication-inputs"')],
   ["generated-artifacts-block-activation", publisher.includes("containsSourceSummaryArtifacts(html)") && publisher.includes("SOURCE_SUMMARY_ARTIFACT_PATTERN")],
   ["publisher-does-not-enable-ai", publisher.includes('["scripts/editorial-autopilot.js", "--fetch"]') && !publisher.includes('"--fetch", "--ai"')],
   ["runtime-output-is-versioned", publisher.includes('join(publicationsRoot, "versions", version)')],
@@ -37,7 +38,7 @@ const checks = [
   ["git-workflow-remains-read-only", /permissions:\s*\n\s*contents:\s*read/.test(workflow)]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
-const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, invariants: ["deterministic-public-content-only", "ai-drafts-never-promoted", "fresh-official-evidence-required", "atomic-manifest-activation", "last-valid-edition-preserved", "same-day-source-artifact-self-repair"] };
+const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, invariants: ["deterministic-public-content-only", "ai-drafts-never-promoted", "fresh-official-evidence-required", "atomic-manifest-activation", "last-valid-edition-preserved", "same-day-source-artifact-self-repair", "same-day-publication-input-refresh"] };
 mkdirSync(dirname(reportPath), { recursive: true });
 writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 if (missing.length) { console.error(`Editorial runtime publication contract failed: ${missing.join(", ")}`); process.exit(1); }
