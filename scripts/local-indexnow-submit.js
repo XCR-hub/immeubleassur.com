@@ -10,6 +10,8 @@ const key = env("INDEXNOW_KEY", "d169136979c0451ea899c65ee7ee337d5ba8a445f2544bc
 const keyLocation = `${site}/${key}.txt`;
 const configuredSitemapPath = env("INDEXNOW_SITEMAP", "");
 const reportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", "reports"));
+const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));
+const publicationsRoot = resolve(env("LOCAL_RUNTIME_PUBLICATIONS_ROOT", join(runtimeAssetsRoot, "publications")));
 const reportPath = resolve(env("LOCAL_INDEXNOW_REPORT", join(reportsRoot, "local-indexnow-report.json")));
 const statePath = resolve(env("LOCAL_INDEXNOW_STATE", join(reportsRoot, "indexnow-state.json")));
 const enabled = env("INDEXNOW_SUBMIT", "0") === "1";
@@ -24,7 +26,6 @@ function sitemapRows(xml) {
 
 function activeSitemap() {
   if (configuredSitemapPath) return { path: resolve(configuredSitemapPath), source: "configured", manifest_verified: false };
-  const publicationsRoot = join(resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets"))), "publications");
   const manifest = readJson(join(publicationsRoot, "current.json"));
   const sitemapArtifact = manifest?.marker === "runtime-editorial-publication-v1" && Array.isArray(manifest.files) ? manifest.files.find((file) => file.path === "sitemap.xml") : null;
   const candidate = manifest?.version ? join(publicationsRoot, "versions", manifest.version, "sitemap.xml") : "";
