@@ -4,6 +4,7 @@ param(
   [string]$ReportPath = 'F:\immeubleassur-runtime\reports\production-checkout-update-report.json',
   [string]$NodePath = 'C:\Program Files\nodejs\node.exe',
   [string]$RuntimeRoot = 'F:\immeubleassur-runtime',
+  [string]$GitPath = 'C:\Users\Administrateur\.local\PortableGit\cmd\git.exe',
   [switch]$RunNow
 )
 
@@ -12,6 +13,7 @@ $siteRootResolved = (Resolve-Path -LiteralPath $SiteRoot).Path
 $wrapperPath = Join-Path $siteRootResolved 'scripts\update-local-production-checkout.ps1'
 if (-not (Test-Path -LiteralPath $wrapperPath)) { throw "Script de mise a jour introuvable: $wrapperPath" }
 if (-not (Test-Path -LiteralPath $NodePath)) { throw "Node.js introuvable: $NodePath" }
+if (-not (Test-Path -LiteralPath $GitPath)) { throw "Git introuvable: $GitPath" }
 New-Item -ItemType Directory -Force -Path (Split-Path -Parent $ReportPath) | Out-Null
 
 function Quote-TaskArgument([string]$Value) { '"' + $Value.Replace('"', '\"') + '"' }
@@ -22,7 +24,8 @@ $arguments = @(
   '-SiteRoot', (Quote-TaskArgument $siteRootResolved),
   '-ReportPath', (Quote-TaskArgument $ReportPath),
   '-NodePath', (Quote-TaskArgument $NodePath),
-  '-RuntimeRoot', (Quote-TaskArgument $RuntimeRoot)
+  '-RuntimeRoot', (Quote-TaskArgument $RuntimeRoot),
+  '-GitPath', (Quote-TaskArgument $GitPath)
 ) -join ' '
 $action = New-ScheduledTaskAction -Execute 'PowerShell.exe' -Argument $arguments -WorkingDirectory $siteRootResolved
 $now = Get-Date

@@ -6,6 +6,7 @@ param(
   [string]$NodePath = 'C:\Program Files\nodejs\node.exe',
   [string]$RuntimeRoot = 'F:\immeubleassur-runtime',
   [string]$HealthOrigin = 'http://127.0.0.1:8790',
+  [string]$GitPath = 'C:\Users\Administrateur\.local\PortableGit\cmd\git.exe',
   [ValidateRange(1, 1500)]
   [int]$LockTimeoutSeconds = 1500,
   [switch]$ValidateOnly
@@ -20,7 +21,7 @@ function Invoke-Git([string[]]$Arguments) {
   $previousErrorAction = $ErrorActionPreference
   try {
     $ErrorActionPreference = 'Continue'
-    $output = & git -C $SiteRoot @Arguments 2>&1
+    $output = & $GitPath -C $SiteRoot @Arguments 2>&1
     $exitCode = $LASTEXITCODE
   } finally {
     $ErrorActionPreference = $previousErrorAction
@@ -65,6 +66,7 @@ try {
   try { $acquired = $mutex.WaitOne([TimeSpan]::FromSeconds($LockTimeoutSeconds)) }
   catch [Threading.AbandonedMutexException] { $acquired = $true }
   if (-not $acquired) { throw "Production checkout lock timeout after $LockTimeoutSeconds second(s)." }
+  if (-not (Test-Path -LiteralPath $GitPath)) { throw 'Git executable is unavailable.' }
   $resolvedRoot = [IO.Path]::GetFullPath($SiteRoot)
   if (-not (Test-Path -LiteralPath (Join-Path $resolvedRoot '.git'))) { throw 'Production checkout is not a Git repository.' }
   $branchNow = (Invoke-Git @('symbolic-ref', '--short', 'HEAD') | Select-Object -First 1).Trim()

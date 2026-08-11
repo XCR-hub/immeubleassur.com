@@ -11,6 +11,7 @@ const checks = [
   ["bounded-execution", installer.includes("New-TimeSpan -Minutes 25")],
   ["locked-fast-forward-deployment", deploy.includes("Global\\ImmeubleAssurProductionCheckout") && deploy.includes("pull', '--ff-only'")],
   ["runtime-activation-and-proof", deploy.includes("local-site-watchdog.js") && deploy.includes("--force") && deploy.includes("runtime_revision_verified")],
+  ["explicit-system-git-path", installer.includes("-GitPath") && installer.includes("PortableGit") && deploy.includes("& $GitPath -C $SiteRoot")],
   ["persistent-report", installer.includes("production-checkout-update-report.json") && installer.includes("-ReportPath")]
 ];
 const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
