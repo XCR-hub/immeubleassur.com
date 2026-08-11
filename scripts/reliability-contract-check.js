@@ -10,6 +10,8 @@ const task=readFileSync("scripts/local-runtime-task.ps1","utf8");
 const runtimeTaskInstaller=readFileSync("scripts/install-local-runtime-task.ps1","utf8");
 const gitRevision=readFileSync("scripts/git-revision.js","utf8");
 const gitRevisionContract=readFileSync("scripts/git-revision-contract-check.js","utf8");
+const seoWorkflow=readFileSync(".github/workflows/seo-autopilot.yml","utf8");
+const editorialWorkflow=readFileSync(".github/workflows/editorial-autopilot.yml","utf8");
 const leadSlaRuntime=readFileSync("scripts/lead-sla-alert-runtime-check.js","utf8");
 const productionCheckoutUpdate=readFileSync("scripts/update-local-production-checkout.ps1","utf8");
 const productionUpdateTask=readFileSync("scripts/install-local-production-update-task.ps1","utf8");
@@ -119,6 +121,7 @@ const checks=[
   ["turnstile-browser-isolates-production-telemetry",turnstileBrowser.includes("setRequestInterception(true)")&&turnstileBrowser.includes('/\\/api\\/events')&&turnstileBrowser.includes('request.abort("blockedbyclient")')&&turnstileBrowser.includes("telemetry_isolated: true")&&monitor.includes("report.telemetry_isolated === true")],
   ["abandonment-requires-qualified-engagement",client.includes("engagementMs < 3000 || interactions < 2 || completedFields < 2")&&client.includes("qualified_abandonment: true")],
   ["aggregate-monitors-ignore-unqualified-abandonment",conversionFunnel.includes("$.qualified_abandonment")&&seoBacklog.includes("$.qualified_abandonment")&&sourceQuality.includes("payload.qualified_abandonment === true")&&intentConversion.includes("payload.qualified_abandonment === true")],
+  ["github-workflows-use-pinned-node24-actions-and-lockfile",[seoWorkflow,editorialWorkflow].every((workflow)=>workflow.includes("npm ci --ignore-scripts")&&workflow.includes("persist-credentials: false")&&workflow.includes("package-manager-cache: false")&&!workflow.includes("@v4")&&[/actions\/checkout@[a-f0-9]{40}\s+# v6/,/actions\/setup-node@[a-f0-9]{40}\s+# v6/,/actions\/upload-artifact@[a-f0-9]{40}\s+# v6/].every((pattern)=>pattern.test(workflow)))],
   ["github-scheduled-recovery-remains-visible",monitor.includes("inspectGithubWorkflowHealth")&&monitor.includes("scheduled-run-awaiting-proof")&&monitor.includes('severity: "warn"')],
   ["monitor-covers-site-watchdog",monitor.includes('inspectJsonRuntime("site_watchdog"')&&monitor.includes('LOCAL_SITE_WATCHDOG_REPORT')],
   ["runtime-submits-indexnow-with-deduplicated-state",runtime.includes('runStep("indexnow_submit"')&&task.includes("INDEXNOW_SUBMIT = '1'")&&indexNow.includes("indexnow-state.json")],
