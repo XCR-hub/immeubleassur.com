@@ -1,7 +1,7 @@
 param(
   [string]$TaskName = 'ImmeubleAssur Production Update',
   [string]$SiteRoot = 'F:\immeubleassur-sync\immeubleassur.com',
-  [string]$ReportPath = 'F:\immeubleassur-runtime\reports\production-checkout-update-report.json',
+  [string]$ReportPath = 'F:\immeubleassur-runtime\reports\local-production-checkout-update-report.json',
   [string]$NodePath = 'C:\Program Files\nodejs\node.exe',
   [string]$RuntimeRoot = 'F:\immeubleassur-runtime',
   [string]$GitPath = 'C:\Users\Administrateur\.local\PortableGit\cmd\git.exe',
