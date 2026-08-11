@@ -41,6 +41,7 @@ const checks = [
   ["public-editorial-export-declares-safeguards", editorial.includes('"no-ai-draft-content"') && editorial.includes('"no-internal-paths"') && editorial.includes('"no-provider-errors"') && editorial.includes('"no-source-summaries"')],
   ["live-monitor-checks-public-editorial-redaction", monitor.includes("public-editorial-metadata-is-sanitized") && monitor.includes("forbiddenPublicEditorialFields")],
   ["runtime-sanitizer-is-atomic", sanitizer.includes("renameSync(temporaryPath, outputPath)") && sanitizer.includes('status: "safe-public-metadata"')],
+  ["runtime-sanitizer-retries-windows-sharing-violation", sanitizer.includes('["EPERM", "EACCES"]') && sanitizer.includes("attempt <= 20") && sanitizer.includes("Atomics.wait") && sanitizer.includes("rmSync(temporaryPath, { force: true })")],
   ["runtime-sanitizer-strips-sensitive-fields", !sanitizer.includes("draft_review_path") && !sanitizer.includes("draft_packet_path") && !sanitizer.includes("legal_review") && !sanitizer.includes("source_results")],
   ["monitor-exits-cleanly-on-windows", monitor.includes("process.exitCode = 1")],
   ["official-openai-guidance-recorded", monitor.includes("https://help.openai.com/en/articles/12627856-publishers-and-developers-faq")],

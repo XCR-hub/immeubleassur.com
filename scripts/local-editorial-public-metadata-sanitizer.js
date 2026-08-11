@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { sanitizePublicWatchItems } from "./editorial-public-metadata-policy.js";
@@ -39,6 +39,20 @@ if (!existsSync(sourcePath)) {
   mkdirSync(dirname(outputPath), { recursive: true });
   const temporaryPath = `${outputPath}.${process.pid}.tmp`;
   writeFileSync(temporaryPath, `${JSON.stringify(publicReport, null, 2)}\n`, "utf8");
-  renameSync(temporaryPath, outputPath);
+  let replaced = false;
+  try {
+    for (let attempt = 1; attempt <= 20; attempt += 1) {
+      try {
+        renameSync(temporaryPath, outputPath);
+        replaced = true;
+        break;
+      } catch (error) {
+        if (!["EPERM", "EACCES"].includes(error?.code) || attempt === 20) throw error;
+        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
+      }
+    }
+  } finally {
+    if (!replaced) rmSync(temporaryPath, { force: true });
+  }
   console.log(`Editorial public metadata sanitizer: passed (${publicReport.public_watch_items.length} public signal(s)).`);
 }
