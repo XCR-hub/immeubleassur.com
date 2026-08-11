@@ -45,7 +45,10 @@ const changed = run();
     env: { ...process.env, LOCAL_EDITORIAL_DRAFT_ROOT: drafts, LOCAL_EDITORIAL_REVIEW_REPORT: report, LOCAL_EDITORIAL_REVIEW_ALERT_STATE: state, LOCAL_EDITORIAL_REVIEW_ALERTS: "1", LOCAL_EDITORIAL_REVIEW_ALERT_TO: "wrong-recipient@example.invalid" }
   });
   const invalidRecipientReport = JSON.parse(readFileSync(report, "utf8"));
-  writeFileSync(join(drafts, "news-old.json"), JSON.stringify(draft("2026-07-20T08:00:00.000Z", "Texte officiel ancien")), "utf8");
+  const oldDraft = draft("2026-07-20T08:00:00.000Z", "Texte officiel ancien");
+  oldDraft.source_items[0].url = "https://example.test/distinct-old-official";
+  writeFileSync(join(drafts, "news-old.json"), JSON.stringify(oldDraft), "utf8");
+  writeFileSync(join(drafts, "news-overlap.json"), JSON.stringify(draft("2026-08-09T08:00:00.000Z", "Texte officiel remplace")), "utf8");
   const sla = run();
   const checks = [
     ["same-content-stable-across-timestamp", first.signature === timestampOnly.signature],
@@ -57,11 +60,14 @@ const changed = run();
     ["non-team-alert-recipient-rejected", invalidRecipientRun.status !== 0 && invalidRecipientReport.alert?.status === "failed" && invalidRecipientReport.alert?.error?.includes("Destinataire operationnel") && invalidRecipientReport.alert?.error?.includes("[email-redacted]")],
     ["old-draft-escalates-status", sla.status === "review-overdue" && sla.critical_count === 1],
     ["old-critical-draft-prioritized", sla.priority_pending?.file === "news-old.json" && sla.priority_pending?.review_severity === "critical"],
+    ["overlapping-older-draft-superseded", sla.pending_count === 2 && sla.total_quarantined_count === 3 && sla.superseded_count === 1 && sla.superseded?.[0]?.file === "news-overlap.json" && sla.superseded?.[0]?.superseded_by === "news-fixture.json"],
+    ["supersession-remains-quarantined-and-nondestructive", sla.superseded?.[0]?.retained_quarantined === true && sla.safeguards?.includes("non-destructive-supersession") && sla.retention?.automatic_deletion === false],
     ["queue-exports-age-without-content", sla.review_queue?.every((item) => Number.isFinite(item.age_days)) && !JSON.stringify(sla).includes("Texte officiel ancien")],
     ["report-does-not-export-local-draft-paths", !JSON.stringify(sla).includes(drafts) && sla.review_queue?.every((item) => !("path" in item))],
     ["operational-diagnostics-privacy-declared", sla.safeguards?.includes("no-local-paths-in-report-or-alert") && sla.safeguards?.includes("smtp-diagnostics-redacted")],
     ["review-alert-declares-actionable-links", sla.safeguards?.includes("actionable-source-links") && sla.safeguards?.includes("admin-review-link")],
     ["admin-api-sanitizes-editorial-review-metadata", runtimeHealthApi.includes("sanitizeEditorialReviewReport") && runtimeHealthApi.includes("LOCAL_EDITORIAL_REVIEW_REPORT") && runtimeHealthApi.includes("source_urls: (item.source_urls || []).map(safeUrl)") && runtimeHealthApi.includes("LOCAL_RUNTIME_REPORTS_ROOT") && runtimeHealthApi.includes("LOCAL_MONITOR_ROOT") && runtimeHealthApi.includes("reportAt(runtimeReportsRoot")],
+    ["admin-exposes-supersession-aggregates-only", runtimeHealthApi.includes("total_quarantined_count: Number(report.total_quarantined_count") && runtimeHealthApi.includes("superseded_count: Number(report.superseded_count") && admin.includes("e.superseded_count||0") && !admin.includes("e.superseded?.")],
     ["admin-renders-quarantined-review-with-safe-links", admin.includes("Revue IA quarantinee") && admin.includes("editorial_review.review_queue") && admin.includes("noopener noreferrer")],
     ["admin-review-alert-anchor-resolves", reviewMonitor.includes("https://immeubleassur.com/admin#editorial-review") && reviewMonitor.includes("admin-review-anchor-resolves") && adminHtml.includes('id="editorial-review"')],
     ["admin-review-link-autoloads-with-existing-session", admin.includes("admin-editorial-review-autoload-v1") && admin.includes('location.hash==="#editorial-review"') && admin.includes("sessionStorage.getItem") && admin.includes("loadContent().catch")],

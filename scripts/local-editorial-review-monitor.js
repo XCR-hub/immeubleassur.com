@@ -10,6 +10,7 @@ const reportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", "reports"));
 const draftsRoot = resolve(env("LOCAL_EDITORIAL_DRAFT_ROOT", join(reportsRoot, "editorial-drafts")));
 const reportPath = resolve(env("LOCAL_EDITORIAL_REVIEW_REPORT", join(reportsRoot, "local-editorial-review-report.json")));
 const statePath = resolve(env("LOCAL_EDITORIAL_REVIEW_ALERT_STATE", join(reportsRoot, "editorial-review-alert-state.json")));
+const SOURCE_IDENTITIES = Symbol("source-identities");
 
 function numberEnv(name, fallback) {
   const value = Number(env(name, String(fallback)));
@@ -56,6 +57,7 @@ function pendingDrafts() {
         sources: (data.source_items || []).map((item) => ({ source_id: item.source_id || "", title: item.title || "", url: item.url || "" })),
         synthesis: { provider: data.synthesis?.provider || "", model: data.synthesis?.model || "", status: data.synthesis?.status || "", text: data.synthesis?.text || "" }
       })).digest("hex").slice(0, 20);
+      const sourceIdentities = [...new Set((data.source_items || []).map((item) => safeSourceUrl(item.url)).filter(Boolean))].sort();
       return {
         file: name,
         generated_at: generatedAt,
@@ -65,16 +67,42 @@ function pendingDrafts() {
         legal_sensitive: data.legal_review?.sensitive === true,
         matched_terms: (data.legal_review?.matched_terms || []).map((item) => clean(item, 80)).filter(Boolean).slice(0, 12),
         source_count: Array.isArray(data.source_items) ? data.source_items.length : 0,
-        source_urls: [...new Set((data.source_items || []).map((item) => safeSourceUrl(item.url)).filter(Boolean))].slice(0, 7),
+        source_urls: sourceIdentities.slice(0, 7),
         provider: clean(data.synthesis?.provider, 80),
         model: clean(data.synthesis?.model, 120),
-        review_fingerprint: reviewFingerprint
+        review_fingerprint: reviewFingerprint,
+        [SOURCE_IDENTITIES]: sourceIdentities
       };
     })
     .filter(Boolean)
     .sort((a, b) => Date.parse(b.generated_at) - Date.parse(a.generated_at));
 }
 
+function sourceSimilarity(left, right) {
+  const leftUrls = left[SOURCE_IDENTITIES] || [];
+  const rightUrls = right[SOURCE_IDENTITIES] || [];
+  const union = new Set([...leftUrls, ...rightUrls]);
+  if (!union.size) return 0;
+  const intersection = leftUrls.filter((url) => rightUrls.includes(url)).length;
+  return intersection / union.size;
+}
+
+function classifyPendingDrafts(drafts, threshold) {
+  const active = [];
+  const superseded = [];
+  for (let index = 0; index < drafts.length; index += 1) {
+    const draft = drafts[index];
+    const replacements = drafts.slice(0, index)
+      .filter((candidate) => candidate.issue === draft.issue && candidate.legal_sensitive === draft.legal_sensitive)
+      .map((candidate) => ({ candidate, similarity: sourceSimilarity(draft, candidate) }))
+      .filter((row) => row.similarity >= threshold)
+      .sort((a, b) => b.similarity - a.similarity || Date.parse(b.candidate.generated_at) - Date.parse(a.candidate.generated_at));
+    const replacement = replacements[0];
+    if (!replacement) active.push(draft);
+    else superseded.push({ file: draft.file, generated_at: draft.generated_at, superseded_by: replacement.candidate.file, source_similarity: Math.round(replacement.similarity * 100) / 100, retained_quarantined: true });
+  }
+  return { active, superseded };
+}
 function signature(drafts) {
   return createHash("sha256").update(drafts.map((draft) => `${draft.file}:${draft.legal_sensitive}:${draft.review_fingerprint}`).sort().join("|")).digest("hex").slice(0, 20);
 }
@@ -143,7 +171,10 @@ async function maybeAlert(report) {
 }
 
 async function run() {
-  const rawDrafts = pendingDrafts();
+  const allQuarantinedDrafts = pendingDrafts();
+  const supersedeThreshold = Math.min(1, Math.max(0.8, numberEnv("LOCAL_EDITORIAL_REVIEW_SUPERSEDE_THRESHOLD", 0.8)));
+  const classified = classifyPendingDrafts(allQuarantinedDrafts, supersedeThreshold);
+  const rawDrafts = classified.active;
   const now = Date.now();
   const warningDays = numberEnv("LOCAL_EDITORIAL_REVIEW_WARNING_DAYS", 3);
   const criticalDays = numberEnv("LOCAL_EDITORIAL_REVIEW_CRITICAL_DAYS", 7);
@@ -161,6 +192,9 @@ async function run() {
     attention_required: drafts.length > 0,
     generated_at: new Date().toISOString(),
     pending_count: drafts.length,
+    total_quarantined_count: allQuarantinedDrafts.length,
+    superseded_count: classified.superseded.length,
+    superseded: classified.superseded.slice(0, 30),
     legal_sensitive_count: drafts.filter((draft) => draft.legal_sensitive).length,
     legacy_format_count: drafts.filter((draft) => draft.legacy_format).length,
     warning_count: warningCount,
@@ -177,8 +211,8 @@ async function run() {
       warning_cooldown_minutes: numberEnv("LOCAL_EDITORIAL_REVIEW_WARNING_COOLDOWN_MINUTES", 1440),
       critical_cooldown_minutes: numberEnv("LOCAL_EDITORIAL_REVIEW_CRITICAL_COOLDOWN_MINUTES", 360)
     },
-    retention: { automatic_deletion: false, review_window_days: numberEnv("LOCAL_EDITORIAL_REVIEW_WINDOW_DAYS", 30), warning_days: warningDays, critical_days: criticalDays },
-    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "no-automatic-deletion", "age-based-review-sla", "oldest-critical-first", "actionable-source-links", "admin-review-link", "admin-review-anchor-resolves", "no-local-paths-in-report-or-alert", "smtp-diagnostics-redacted"]
+    retention: { automatic_deletion: false, review_window_days: numberEnv("LOCAL_EDITORIAL_REVIEW_WINDOW_DAYS", 30), warning_days: warningDays, critical_days: criticalDays, supersede_similarity_threshold: supersedeThreshold },
+    safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "non-destructive-supersession", "same-issue-and-legal-sensitivity", "source-overlap-threshold", "no-automatic-deletion", "age-based-review-sla", "oldest-critical-first", "actionable-source-links", "admin-review-link", "admin-review-anchor-resolves", "no-local-paths-in-report-or-alert", "smtp-diagnostics-redacted"]
   };
   report.alert = await maybeAlert(report).catch((error) => ({ attempted: true, status: "failed", error: safeDiagnostic(error.message || "editorial review alert failed") }));
   mkdirSync(dirname(reportPath), { recursive: true });

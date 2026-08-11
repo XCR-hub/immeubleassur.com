@@ -616,6 +616,8 @@ function sanitizeEditorialReviewReport(report) {
     generated_at: generatedAt,
     age_minutes: generatedAt ? Math.round(((Date.now() - new Date(generatedAt).getTime()) / 60000) * 10) / 10 : null,
     pending_count: Number(report.pending_count || 0),
+    total_quarantined_count: Number(report.total_quarantined_count || report.pending_count || 0),
+    superseded_count: Number(report.superseded_count || 0),
     legal_sensitive_count: Number(report.legal_sensitive_count || 0),
     warning_count: Number(report.warning_count || 0),
     critical_count: Number(report.critical_count || 0),
