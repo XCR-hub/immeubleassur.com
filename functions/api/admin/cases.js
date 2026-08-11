@@ -1020,7 +1020,7 @@ export async function onRequestGet({ request, env }) {
     safeAll(env, `SELECT c.*, l.reference AS lead_reference, l.name, l.phone, l.email, l.profile, l.property_type, l.city, l.units_count, l.need, l.status AS lead_status FROM brokerage_cases c JOIN leads l ON l.id = c.lead_id ORDER BY CASE c.priority WHEN 'hot' THEN 1 WHEN 'warm' THEN 2 WHEN 'standard' THEN 3 ELSE 4 END, c.updated_at DESC LIMIT 120`),
     safeAll(env, `SELECT d.* FROM case_documents d JOIN brokerage_cases c ON c.id = d.case_id ORDER BY d.required DESC, d.label LIMIT 800`),
     safeAll(env, `SELECT m.*, c.case_reference FROM case_mail_queue m JOIN brokerage_cases c ON c.id = m.case_id ORDER BY CASE m.status WHEN 'draft_review' THEN 1 WHEN 'approved' THEN 2 WHEN 'sent' THEN 3 ELSE 4 END, m.updated_at DESC LIMIT 240`),
-    safeAll(env, `SELECT i.*, c.case_reference FROM case_mail_inbox i LEFT JOIN brokerage_cases c ON c.id = i.case_id ORDER BY CASE i.status WHEN 'received_pending_review' THEN 1 ELSE 2 END, i.created_at DESC LIMIT 240`),
+    safeAll(env, `SELECT i.*, c.case_reference FROM case_mail_inbox i LEFT JOIN brokerage_cases c ON c.id = i.case_id ORDER BY CASE WHEN i.status = 'received_pending_review' AND i.case_id IS NULL THEN 1 WHEN i.status = 'received_pending_review' THEN 2 ELSE 3 END, i.created_at DESC LIMIT 240`),
     safeAll(env, `SELECT i.*, c.case_reference, tok.token AS insurer_portal_token FROM insurer_consultations i JOIN brokerage_cases c ON c.id = i.case_id LEFT JOIN insurer_consultation_tokens tok ON tok.consultation_id = i.id AND tok.status = 'active' ORDER BY CASE i.status WHEN 'draft_review' THEN 1 WHEN 'approved' THEN 2 WHEN 'sent' THEN 3 ELSE 4 END, i.updated_at DESC LIMIT 240`),
     safeAll(env, `SELECT t.* FROM case_timeline t JOIN brokerage_cases c ON c.id = t.case_id ORDER BY t.created_at DESC LIMIT 300`),
     safeAll(env, `SELECT o.*, c.case_reference FROM client_offer_recommendations o JOIN brokerage_cases c ON c.id = o.case_id ORDER BY CASE o.status WHEN 'draft_review' THEN 1 WHEN 'presented' THEN 2 WHEN 'accepted' THEN 3 ELSE 4 END, o.updated_at DESC LIMIT 240`),
@@ -1050,7 +1050,13 @@ export async function onRequestGet({ request, env }) {
     ...(summaryRow || {}),
     documents: docSummary || {},
     mail_queue: mailSummary || {},
-    inbox_mail: { received: rowsOrEmpty(inboxMails).length, pending_review: rowsOrEmpty(inboxMails).filter((item) => item.status === "received_pending_review").length },
+    inbox_mail: {
+      received: rowsOrEmpty(inboxMails).length,
+      pending_review: rowsOrEmpty(inboxMails).filter((item) => item.status === "received_pending_review").length,
+      pending_unmatched: rowsOrEmpty(inboxMails).filter((item) => item.status === "received_pending_review" && !item.case_id).length,
+      pending_attached: rowsOrEmpty(inboxMails).filter((item) => item.status === "received_pending_review" && item.case_id).length,
+      reviewed_no_case: rowsOrEmpty(inboxMails).filter((item) => item.status === "reviewed_no_case").length
+    },
     consultations: { ...(consultSummary || {}), ...consultationOperationSummary(consultations) },
     contracts: contractSummary || {},
     client_offers: offerSummary || {},
@@ -1486,6 +1492,30 @@ async function attachInboxMail(env, body) {
   await logTimeline(env, caseRow.id, "mail_received_manual_attach", reviewer, { marker: "local-imap-inbox-v1", inbox_id: inboxId, case_reference: caseReference, subject: clean(mail.subject, 500), human_review_required: true });
   return json({ success: true, status: "received_pending_review", case_reference: caseReference, inbox_id: inboxId });
 }
+async function reviewInboxMailWithoutCase(env, body) {
+  const inboxId = clean(body.inbox_id, 120);
+  const reviewer = clean(body.reviewer || "admin", 120);
+  const reason = clean(body.reason || "Classement manuel sans dossier", 500);
+  if (!inboxId) return json({ success: false, error: "Identifiant email requis" }, 422);
+  const mail = await safeFirst(env, "SELECT * FROM case_mail_inbox WHERE id = ?", [inboxId]);
+  if (!mail || errorOf(mail)) return json({ success: false, error: "Reponse email introuvable" }, 404);
+  if (mail.case_id) return json({ success: false, error: "Email deja rattache a un dossier" }, 409);
+  if (mail.status === "reviewed_no_case") return json({ success: true, status: "reviewed_no_case", already_done: true, inbox_id: inboxId });
+  if (mail.status !== "received_pending_review") return json({ success: false, error: "Email non classable dans cet etat" }, 409);
+  let payload = {};
+  try {
+    const parsed = JSON.parse(String(mail.payload || "{}"));
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) payload = parsed;
+  } catch {}
+  const reviewedAt = nowIso();
+  payload.inbox_review = { marker: "imap-inbox-human-review-v1", reviewer, reason, reviewed_at: reviewedAt, outcome: "no_case" };
+  const update = await safeRun(env, "UPDATE case_mail_inbox SET status = 'reviewed_no_case', payload = ?, updated_at = ? WHERE id = ? AND case_id IS NULL AND status = 'received_pending_review'", [JSON.stringify(payload), reviewedAt, inboxId]);
+  if (errorOf(update)) return json({ success: false, error: "Classement email non enregistre" }, 500);
+  const updated = await safeFirst(env, "SELECT status, case_id FROM case_mail_inbox WHERE id = ?", [inboxId]);
+  if (!updated || errorOf(updated) || updated.case_id || updated.status !== "reviewed_no_case") return json({ success: false, error: "Etat email modifie pendant la revue, recharge requise" }, 409);
+  return json({ success: true, status: "reviewed_no_case", inbox_id: inboxId, human_review: true });
+}
+
 export async function onRequestPost({ request, env }) {
   if (!authorized(request, env)) return json({ success: false, error: "Acces refuse" }, 401);
   if (!env.DB) return json({ success: false, error: "Base SQLite indisponible" }, 503);
@@ -1493,6 +1523,7 @@ export async function onRequestPost({ request, env }) {
   const action = clean(body.action, 80);
   if (action === "sync") return json({ success: true, sync: await ensureCasesForOpenLeads(env, 220) });
   if (action === "attach_inbox_mail") return attachInboxMail(env, body);
+  if (action === "review_inbox_mail_no_case") return reviewInboxMailWithoutCase(env, body);
 
   if (action === "contract_request_status") return updateContractRequestStatus(env, body);
   if (action === "referral_status") return updateReferralStatus(env, body);

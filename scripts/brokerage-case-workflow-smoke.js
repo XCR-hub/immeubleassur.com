@@ -67,8 +67,28 @@ async function main() {
   assert(adminResponse.body.safeguards?.includes("human-review-before-send"), "admin safeguards should require human review before send");
   assert(adminResponse.body.safeguards?.includes("client-offer-human-review"), "admin safeguards should require human review before client offer publication");
 
-  const caseRow = DB.prepare("SELECT id, client_portal_token FROM brokerage_cases WHERE lead_id = ?").bind(leadId).first();
+  const caseRow = DB.prepare("SELECT id, case_reference, client_portal_token FROM brokerage_cases WHERE lead_id = ?").bind(leadId).first();
   assert(caseRow?.client_portal_token?.length >= 24, "case should have a private client portal token");
+
+  const inboxReviewId = crypto.randomUUID();
+  const inboxAttachId = crypto.randomUUID();
+  DB.prepare(`INSERT INTO case_mail_inbox (id, mailbox, message_uid, message_id, sender, recipients, subject, sent_at, status, payload, created_at, updated_at)
+    VALUES (?, 'team@immeubleassur.com', 'smoke-review', '<smoke-review@example.test>', 'newsletter@example.test', 'team@immeubleassur.com', 'Information hors dossier', ?, 'received_pending_review', '{}', ?, ?)`).bind(inboxReviewId, now, now, now).run();
+  DB.prepare(`INSERT INTO case_mail_inbox (id, mailbox, message_uid, message_id, sender, recipients, subject, sent_at, status, payload, created_at, updated_at)
+    VALUES (?, 'team@immeubleassur.com', 'smoke-attach', '<smoke-attach@example.test>', 'client-smoke@example.test', 'team@immeubleassur.com', 'Reponse dossier', ?, 'received_pending_review', '{}', ?, ?)`).bind(inboxAttachId, now, now, now).run();
+
+  const reviewNoCase = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "review_inbox_mail_no_case", inbox_id: inboxReviewId, reviewer: "smoke-human", reason: "Information generale verifiee" }) }), env }));
+  assert(reviewNoCase.status === 200 && reviewNoCase.body.status === "reviewed_no_case" && reviewNoCase.body.human_review, "human reviewer should classify an unmatched inbox mail without deleting it");
+  const reviewedInbox = DB.prepare("SELECT status, payload FROM case_mail_inbox WHERE id = ?").bind(inboxReviewId).first();
+  const reviewedPayload = JSON.parse(reviewedInbox?.payload || "{}");
+  assert(reviewedInbox?.status === "reviewed_no_case" && reviewedPayload.inbox_review?.reviewer === "smoke-human" && reviewedPayload.inbox_review?.outcome === "no_case", "inbox classification should preserve a human audit trail");
+
+  const attachInbox = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "attach_inbox_mail", inbox_id: inboxAttachId, case_reference: caseRow.case_reference, reviewer: "smoke-human" }) }), env }));
+  assert(attachInbox.status === 200 && attachInbox.body.case_reference === caseRow.case_reference, "human reviewer should attach a matching inbox mail to its case");
+  const rejectAttachedClassification = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "review_inbox_mail_no_case", inbox_id: inboxAttachId, reviewer: "smoke-human" }) }), env }));
+  assert(rejectAttachedClassification.status === 409, "inbox classification without case should reject already attached mail");
+  const inboxSummaryResponse = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=0`, { headers: { Authorization: `Bearer ${adminToken}` } }), env }));
+  assert(inboxSummaryResponse.body.summary?.inbox_mail?.reviewed_no_case === 1 && inboxSummaryResponse.body.summary?.inbox_mail?.pending_attached === 1 && inboxSummaryResponse.body.summary?.inbox_mail?.pending_unmatched === 0, "admin inbox summary should distinguish unmatched, attached, and reviewed mail");
   const insurerMailDraft = DB.prepare("SELECT id FROM case_mail_queue WHERE case_id = ? AND audience = 'insurer' AND status = 'draft_review' LIMIT 1").bind(caseRow.id).first();
   assert(insurerMailDraft?.id, "smoke should create an initial insurer mail draft before package completion");
   const blockedInsurerMailApproval = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "approve_mail", mail_id: insurerMailDraft.id, reviewer: "smoke" }) }), env }));
