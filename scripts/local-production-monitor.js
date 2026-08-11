@@ -200,6 +200,12 @@ function inspectJsonRuntime(name, reportPath, maxAgeMinutes, validate, details =
     return check(name, false, { path: reportPath, error: error.message || "runtime report unreadable" });
   }
 }
+function inspectGithubWorkflowHealth(reportPath) {
+  const result = inspectJsonRuntime("github_workflow_health", reportPath, 90, (report) => report.success === true && Number(report.summary?.failed || 0) === 0, (report) => ({ status: report.status || "", expected: Number(report.summary?.expected || 0), healthy: Number(report.summary?.healthy || 0), scheduled_success: Number(report.summary?.scheduled_success || 0), recovered: Number(report.summary?.recovered || 0), failed: Number(report.summary?.failed || 0) }));
+  if (result.ok && result.status === "recovered-awaiting-schedule") return { ...result, ok: false, severity: "warn", reason: "scheduled-run-awaiting-proof" };
+  return result;
+}
+
 function inspectGoogleReadiness(reportPath) {
   if (!existsSync(reportPath)) return check("google_search_console", false, { path: reportPath, error: "missing" });
   try {
@@ -436,7 +442,7 @@ async function run() {
     inspectJsonRuntime("security_surface", securitySurfacePath, 90, (report) => report.success === true && report.summary?.failed === 0, (report) => ({ checks: Array.isArray(report.checks) ? report.checks.length : 0, failed: Number(report.summary?.failed || 0) })),
     inspectJsonRuntime("dependency_security", dependencySecurityPath, 1560, (report) => report.success === true && Number(report.blocking || 0) === 0, (report) => ({ registry_checked: report.registry_checked === true, vulnerabilities: Number(report.summary?.total || 0), high: Number(report.summary?.high || 0), critical: Number(report.summary?.critical || 0) })),
     inspectJsonRuntime("scheduled_task_health", scheduledTaskHealthPath, 90, (report) => report.success === true && Number(report.summary?.unhealthy || 0) === 0, (report) => ({ expected: Number(report.summary?.expected || 0), healthy: Number(report.summary?.healthy || 0), unhealthy: Number(report.summary?.unhealthy || 0) })),
-    inspectJsonRuntime("github_workflow_health", githubWorkflowHealthPath, 90, (report) => report.success === true && Number(report.summary?.failed || 0) === 0, (report) => ({ status: report.status || "", expected: Number(report.summary?.expected || 0), healthy: Number(report.summary?.healthy || 0), scheduled_success: Number(report.summary?.scheduled_success || 0), recovered: Number(report.summary?.recovered || 0), failed: Number(report.summary?.failed || 0) })),
+    inspectGithubWorkflowHealth(githubWorkflowHealthPath),
     inspectJsonRuntime("turnstile_browser", turnstileBrowserPath, 390, (report) => report.status === "healthy" && report.destructive === false && report.telemetry_isolated === true && Number(report.submitted_forms || 0) === 0 && Number(report.scenarios_passed || 0) === Number(report.scenarios_checked || 0) && Number(report.scenarios_checked || 0) >= 2, (report) => ({ destructive: report.destructive === true, submitted_forms: Number(report.submitted_forms || 0), telemetry_isolated: report.telemetry_isolated === true, telemetry_posts_blocked: Number(report.telemetry_posts_blocked || 0), scenarios_checked: Number(report.scenarios_checked || 0), scenarios_passed: Number(report.scenarios_passed || 0) })),
     inspectJsonRuntime("site_watchdog", siteWatchdogPath, 20, (report) => ["healthy", "recovered"].includes(report.status) && (report.details?.health_before?.ok === true || report.details?.health_after?.ok === true), (report) => ({ action: report.details?.action || "", port: Number(report.port || 0), marker: report.marker || "" }))
   ];

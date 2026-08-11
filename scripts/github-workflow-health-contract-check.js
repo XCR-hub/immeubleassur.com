@@ -6,6 +6,7 @@ const fixtures = [
   [run({ conclusion: "failure" }), null, "failed", false],
   [run({ conclusion: "failure" }), run({ event: "workflow_dispatch", updated_at: "2026-08-11T05:00:00Z" }), "recovered-awaiting-schedule", true],
   [run({ conclusion: "failure" }), run({ event: "workflow_dispatch", updated_at: "2026-08-11T03:00:00Z" }), "failed", false],
+  [run({ conclusion: "failure", updated_at: "2026-08-09T00:00:00Z" }), run({ event: "workflow_dispatch", updated_at: "2026-08-09T01:00:00Z" }), "stale", false],
   [run({ updated_at: "2026-08-09T00:00:00Z" }), null, "stale", false],
   [null, null, "stale", false]
 ];
