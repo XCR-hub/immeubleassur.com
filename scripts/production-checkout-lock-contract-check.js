@@ -5,6 +5,7 @@ const deploy = readFileSync("scripts/update-local-production-checkout.ps1", "utf
 const mutex = "Global\\ImmeubleAssurProductionCheckout";
 const checks = [
   ["shared-named-mutex", runtime.includes(mutex) && deploy.includes(mutex)],
+  ["authenticated-users-have-minimal-wait-rights", runtime.includes("S-1-5-11") && deploy.includes("S-1-5-11") && runtime.includes("MutexRights]::Modify") && runtime.includes("MutexRights]::Synchronize") && !runtime.includes("S-1-1-0") && !deploy.includes("S-1-1-0")],
   ["runtime-waits-for-checkout-lock", runtime.includes("WaitOne([TimeSpan]::FromMinutes(25))")],
   ["deployment-waits-for-runtime-lock", deploy.includes("LockTimeoutSeconds = 1500") && deploy.includes("WaitOne([TimeSpan]::FromSeconds($LockTimeoutSeconds))")],
   ["runtime-releases-lock-in-finally", runtime.includes("} finally {") && runtime.includes("ReleaseMutex()")],

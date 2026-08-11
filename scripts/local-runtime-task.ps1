@@ -6,7 +6,13 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$checkoutMutex = New-Object Threading.Mutex($false, 'Global\ImmeubleAssurProductionCheckout')
+$mutexSecurity = New-Object System.Security.AccessControl.MutexSecurity
+$authenticatedUsers = New-Object Security.Principal.SecurityIdentifier('S-1-5-11')
+$mutexRights = [System.Security.AccessControl.MutexRights]::Modify -bor [System.Security.AccessControl.MutexRights]::Synchronize
+$mutexRule = New-Object System.Security.AccessControl.MutexAccessRule($authenticatedUsers, $mutexRights, [System.Security.AccessControl.AccessControlType]::Allow)
+$mutexSecurity.AddAccessRule($mutexRule)
+$createdNew = $false
+$checkoutMutex = New-Object Threading.Mutex($false, 'Global\ImmeubleAssurProductionCheckout', [ref]$createdNew, $mutexSecurity)
 $checkoutLockAcquired = $false
 try {
 try { $checkoutLockAcquired = $checkoutMutex.WaitOne([TimeSpan]::FromMinutes(25)) }

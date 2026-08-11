@@ -9,7 +9,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$mutex = New-Object Threading.Mutex($false, 'Global\ImmeubleAssurProductionCheckout')
+$mutex = $null
 $acquired = $false
 $startedAt = [DateTime]::UtcNow
 
@@ -37,6 +37,13 @@ function Write-DeploymentReport([string]$Status, [string]$Before, [string]$After
 
 $before = ''
 try {
+  $mutexSecurity = New-Object System.Security.AccessControl.MutexSecurity
+  $authenticatedUsers = New-Object Security.Principal.SecurityIdentifier('S-1-5-11')
+  $mutexRights = [System.Security.AccessControl.MutexRights]::Modify -bor [System.Security.AccessControl.MutexRights]::Synchronize
+  $mutexRule = New-Object System.Security.AccessControl.MutexAccessRule($authenticatedUsers, $mutexRights, [System.Security.AccessControl.AccessControlType]::Allow)
+  $mutexSecurity.AddAccessRule($mutexRule)
+  $createdNew = $false
+  $mutex = New-Object Threading.Mutex($false, 'Global\ImmeubleAssurProductionCheckout', [ref]$createdNew, $mutexSecurity)
   try { $acquired = $mutex.WaitOne([TimeSpan]::FromSeconds($LockTimeoutSeconds)) }
   catch [Threading.AbandonedMutexException] { $acquired = $true }
   if (-not $acquired) { throw "Production checkout lock timeout after $LockTimeoutSeconds second(s)." }
@@ -57,5 +64,5 @@ try {
   throw
 } finally {
   if ($acquired) { $mutex.ReleaseMutex() }
-  $mutex.Dispose()
+  if ($null -ne $mutex) { $mutex.Dispose() }
 }
