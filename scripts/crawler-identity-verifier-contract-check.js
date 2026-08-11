@@ -16,6 +16,7 @@ const trusted = trustedCrawlerSourceAddress({ headers: { "cf-connecting-ip": "10
 const spoofable = trustedCrawlerSourceAddress({ headers: { "cf-connecting-ip": "104.210.140.130", "cf-ray": "test-ray" }, socket: { remoteAddress: "192.168.1.25" } });
 const server = readFileSync("scripts/local-production-server.js", "utf8");
 const monitor = readFileSync("scripts/local-production-monitor.js", "utf8");
+const observationSummary = readFileSync("scripts/crawler-observation-summary.js", "utf8");
 
 const checks = [
   ["ipv4-prefix-match", addressInPrefixes("104.210.140.130", fixturePrefixes)],
@@ -29,7 +30,7 @@ const checks = [
   ["official-primary-sources-recorded", crawlerVerificationSources.googlebot.includes("developers.google.com") && crawlerVerificationSources.bingbot.includes("bing.com") && crawlerVerificationSources["oai-searchbot"] === "https://openai.com/searchbot.json"],
   ["server-never-persists-source-ip", server.includes("ip_address, user_agent") && server.includes("VALUES (?, 'crawler_observation', ?, ?, ?, '', ?") && server.includes("ip_stored: false")],
   ["verified-and-unverified-dedupe-distinct", server.includes("json_extract(payload, '$.identity_verified')") && server.includes("verifiedValue")],
-  ["monitor-separates-verified-observations", monitor.includes("verified_count") && monitor.includes("last_verified_at") && monitor.includes("crawler_verified_agents_30d")]
+  ["monitor-separates-verified-observations", monitor.includes("summarizeCrawlerObservations(dbPath, 30)") && monitor.includes("crawler_verified_agents_30d: crawlerSummary.verified_agents") && observationSummary.includes("verified_count") && observationSummary.includes("last_verified_at") && observationSummary.includes("verified_observation_count")]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
 console.log(`Crawler identity verifier contract: ${missing.length ? "failed" : "passed"} (${checks.length - missing.length}/${checks.length}).`);

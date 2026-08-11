@@ -6,6 +6,7 @@ import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { requireOperationalTeamRecipient, sendNodeSmtpMail } from "./local-smtp.js";
 import { readGitRevision } from "./git-revision.js";
 import { summarizeCrawlerObservations } from "./crawler-observation-summary.js";
+import { evaluateDependencySecurityReport } from "./dependency-security.js";
 
 loadDefaultEnvFiles();
 
@@ -198,6 +199,17 @@ function inspectProductionCheckout(reportPath) {
     return check("production_checkout_update", ok, { path: reportPath, status: report.status || "unknown", validate_only: report.validate_only === true, age_minutes: ageMinutes, max_age_minutes: maxAgeMinutes, fresh, revision_matches_runtime: revisionAfter === sourceRevision, served_revision_matches: report.served_revision === revisionAfter, runtime_revision_verified: report.runtime_revision_verified === true, safeguards_verified: safeguardsVerified, duration_seconds: Number(report.duration_seconds || 0) });
   } catch (error) {
     return check("production_checkout_update", false, { path: reportPath, error: error.message || "deployment report unreadable" });
+  }
+}
+
+function inspectDependencySecurity(reportPath) {
+  if (!existsSync(reportPath)) return check("dependency_security", false, { path: reportPath, error: "missing" });
+  try {
+    const report = JSON.parse(readFileSync(reportPath, "utf8"));
+    const evaluation = evaluateDependencySecurityReport(report);
+    return check("dependency_security", evaluation.ok, { path: reportPath, status: report.status || "unknown", reason: evaluation.reason, age_minutes: Math.round(evaluation.generated_age_minutes * 10) / 10, last_successful_audit_age_hours: Math.round(evaluation.audit_age_hours * 10) / 10, registry_checked: evaluation.registry_checked, last_success_applies_to_lockfile: report.registry_checked === true || report.last_success_applies_to_lockfile === true, vulnerabilities: evaluation.total, high: Number(report.summary?.high || 0), critical: Number(report.summary?.critical || 0) }, evaluation.severity);
+  } catch (error) {
+    return check("dependency_security", false, { path: reportPath, error: error.message || "dependency security report unreadable" });
   }
 }
 
@@ -470,7 +482,7 @@ async function run() {
     inspectJsonRuntime("newsletter_delivery", newsletterReportPath, 90, (report) => ["no-active-subscribers", "up-to-date", "completed", "batch-completed", "synced-awaiting-auto-send"].includes(report.status) && report.issue_synced === true && report.failed === 0, (report) => ({ issue_synced: report.issue_synced === true, auto_send: report.auto_send === true, active_subscribers: Number(report.active_subscribers || 0), failed: Number(report.failed || 0) })),
     ...(env("LOCAL_PRODUCTION_MONITOR_SKIP_RUNTIME_CYCLE", "0") === "1" ? [] : [inspectJsonRuntime("runtime_cycle_freshness", runtimeCyclePath, 90, (report) => report.success === true, (report) => ({ steps: Array.isArray(report.steps) ? report.steps.length : 0 }))]),
     inspectJsonRuntime("security_surface", securitySurfacePath, 90, (report) => report.success === true && report.summary?.failed === 0, (report) => ({ checks: Array.isArray(report.checks) ? report.checks.length : 0, failed: Number(report.summary?.failed || 0), schedule_grace_minutes: Number(report.schedule_grace_minutes || 0), proof_due_at: (report.workflows || []).filter((row) => row.status === "recovered-awaiting-schedule").map((row) => row.scheduled_proof_due_at).filter(Boolean).sort()[0] || "" })),
-    inspectJsonRuntime("dependency_security", dependencySecurityPath, 1560, (report) => report.success === true && Number(report.blocking || 0) === 0, (report) => ({ registry_checked: report.registry_checked === true, vulnerabilities: Number(report.summary?.total || 0), high: Number(report.summary?.high || 0), critical: Number(report.summary?.critical || 0) })),
+    inspectDependencySecurity(dependencySecurityPath),
     inspectJsonRuntime("scheduled_task_health", scheduledTaskHealthPath, 90, (report) => report.success === true && Number(report.summary?.unhealthy || 0) === 0, (report) => ({ expected: Number(report.summary?.expected || 0), healthy: Number(report.summary?.healthy || 0), unhealthy: Number(report.summary?.unhealthy || 0) })),
     inspectGithubWorkflowHealth(githubWorkflowHealthPath),
     inspectJsonRuntime("turnstile_browser", turnstileBrowserPath, 390, (report) => report.status === "healthy" && report.destructive === false && report.telemetry_isolated === true && Number(report.submitted_forms || 0) === 0 && Number(report.scenarios_passed || 0) === Number(report.scenarios_checked || 0) && Number(report.scenarios_checked || 0) >= 2, (report) => ({ destructive: report.destructive === true, submitted_forms: Number(report.submitted_forms || 0), telemetry_isolated: report.telemetry_isolated === true, telemetry_posts_blocked: Number(report.telemetry_posts_blocked || 0), scenarios_checked: Number(report.scenarios_checked || 0), scenarios_passed: Number(report.scenarios_passed || 0) })),

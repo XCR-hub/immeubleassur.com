@@ -114,7 +114,7 @@ const checks=[
   ["monitor-covers-fresh-serp-measurement",monitor.includes("inspectSearchIntelligence(searchIntelligencePath)")&&monitor.includes("ageMinutes <= 390")&&monitor.includes("measured > 0")],
   ["fallback-rankings-never-presented-as-measured",monitor.includes("fallback_positions_treated_as_measured: false")&&monitor.includes("measured_queries: measured")&&monitor.includes("fallback_queries: fallback")],
   ["monitor-failure-exits-gracefully",monitor.includes("if (!report.success) process.exitCode = 1")&&!monitor.includes("if (!report.success) process.exit(1)")],
-  ["monitor-covers-dependency-security",monitor.includes('inspectJsonRuntime("dependency_security"') && runtime.includes('runStep("dependency_security"')],
+  ["monitor-covers-dependency-security",monitor.includes("inspectDependencySecurity(dependencySecurityPath)")&&monitor.includes("last_successful_audit_age_hours")&&monitor.includes("evaluation.reason")&&runtime.includes('runStep("dependency_security"')],
   ["monitor-covers-scheduled-task-health",monitor.includes('inspectJsonRuntime("scheduled_task_health"') && runtime.includes('runStep("scheduled_task_health"')],
   ["monitor-covers-github-workflow-health",monitor.includes('inspectJsonRuntime("github_workflow_health"') && monitor.includes("proof_due_at") && monitor.includes("schedule_grace_minutes") && runtime.includes('runStep("github_workflow_health"') && githubWorkflowMonitor.includes('event=${event}') && githubWorkflowMonitor.includes('manual-recovery-must-be-newer')],
   ["scheduled-task-health-validates-system-identity",scheduledTaskHealth.includes('principalSid === "s-1-5-18"')&&scheduledTaskHealth.includes('"serviceaccount"')&&scheduledTaskHealth.includes('"highest"')],
