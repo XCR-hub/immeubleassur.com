@@ -114,8 +114,8 @@ function inspectSqlite(dbPath) {
       .map((row) => row.name);
     const leads24h = database.prepare("SELECT COUNT(*) AS count FROM leads WHERE created_at >= datetime('now', '-24 hours')").get()?.count || 0;
     const spam24h = database.prepare("SELECT COUNT(*) AS count FROM site_events WHERE event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked') AND created_at >= datetime('now', '-24 hours')").get()?.count || 0;
-    const crawlerRows = database.prepare("SELECT target, COUNT(*) AS count, MAX(created_at) AS last_seen_at FROM site_events WHERE event_type = 'crawler_observation' AND created_at >= datetime('now', '-30 days') GROUP BY target ORDER BY target").all();
-    const crawlerObservations = Object.fromEntries(crawlerRows.map((row) => [String(row.target || "unknown"), { count: Number(row.count || 0), last_seen_at: row.last_seen_at || "" }]));
+    const crawlerRows = database.prepare("SELECT target, COUNT(*) AS count, SUM(CASE WHEN COALESCE(json_extract(payload, '$.identity_verified'), 0) = 1 THEN 1 ELSE 0 END) AS verified_count, MAX(CASE WHEN COALESCE(json_extract(payload, '$.identity_verified'), 0) = 1 THEN created_at ELSE NULL END) AS last_verified_at, MAX(created_at) AS last_seen_at FROM site_events WHERE event_type = 'crawler_observation' AND created_at >= datetime('now', '-30 days') GROUP BY target ORDER BY target").all();
+    const crawlerObservations = Object.fromEntries(crawlerRows.map((row) => [String(row.target || "unknown"), { count: Number(row.count || 0), verified_count: Number(row.verified_count || 0), last_seen_at: row.last_seen_at || "", last_verified_at: row.last_verified_at || "" }]));
     return check("sqlite_database", integrity === "ok" && tables.length >= 10, {
       path: dbPath,
       size_bytes: statSync(dbPath).size,
@@ -125,7 +125,8 @@ function inspectSqlite(dbPath) {
       spam_blocks_24h: Number(spam24h || 0),
       crawler_observations_30d: crawlerObservations,
       crawler_agents_observed_30d: crawlerRows.length,
-      crawler_identity_verified: false,
+      crawler_verified_agents_30d: crawlerRows.filter((row) => Number(row.verified_count || 0) > 0).length,
+      crawler_identity_verified: crawlerRows.some((row) => Number(row.verified_count || 0) > 0),
       crawler_privacy: "no-ip-no-query-normalized-agent"
     });
   } catch (error) {

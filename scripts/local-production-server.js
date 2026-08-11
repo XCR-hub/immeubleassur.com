@@ -10,6 +10,7 @@ import { createLocalDocumentScanner } from "./local-document-scanner.js";
 import { readGitRevision } from "./git-revision.js";
 import { googleSiteVerificationBody, normalizeGoogleSiteVerificationFile } from "./google-site-verification.js";
 import { createLocalEditorialReviewStore } from "./local-editorial-review-store.js";
+import { trustedCrawlerSourceAddress, verifyCrawlerAddress } from "./crawler-identity-verifier.js";
 
 loadDefaultEnvFiles();
 
@@ -86,17 +87,20 @@ const crawlerUserAgents = [
   ["claude-user", /Claude-User(?:\/|\s|;|\))/i]
 ];
 
-function observeCrawlerRequest(request, pathname) {
+async function observeCrawlerRequest(request, pathname) {
   const userAgent = String(request.headers["user-agent"] || "");
   if (!userAgent || /ImmeubleAssurDiscoverabilityMonitor/i.test(userAgent)) return;
   const crawler = crawlerUserAgents.find(([, pattern]) => pattern.test(userAgent))?.[0];
   if (!crawler) return;
   const pagePath = String(pathname || "/").slice(0, 500);
+  const sourceAddress = trustedCrawlerSourceAddress(request);
+  const verification = await verifyCrawlerAddress(crawler, sourceAddress.address);
   try {
-    const alreadyObserved = db.prepare("SELECT id FROM site_events WHERE event_type = 'crawler_observation' AND target = ? AND page_url = ? AND created_at >= datetime('now', '-1 day') LIMIT 1").bind(crawler, pagePath).first();
+    const verifiedValue = verification.verified ? 1 : 0;
+    const alreadyObserved = db.prepare("SELECT id FROM site_events WHERE event_type = 'crawler_observation' AND target = ? AND page_url = ? AND COALESCE(json_extract(payload, '$.identity_verified'), 0) = ? AND created_at >= datetime('now', '-1 day') LIMIT 1").bind(crawler, pagePath, verifiedValue).first();
     if (alreadyObserved) return;
     db.prepare("INSERT INTO site_events (id, event_type, page_url, target, payload, ip_address, user_agent, created_at) VALUES (?, 'crawler_observation', ?, ?, ?, '', ?, datetime('now'))")
-      .bind(randomUUID(), pagePath, crawler, JSON.stringify({ marker: CRAWLER_OBSERVATION_MARKER, identity_verified: false, source: "user-agent-observation", query_stored: false, ip_stored: false }), crawler)
+      .bind(randomUUID(), pagePath, crawler, JSON.stringify({ marker: CRAWLER_OBSERVATION_MARKER, identity_verified: verification.verified, verification_method: verification.method, verification_source: verification.source_url, source_transport: sourceAddress.transport, user_agent_observation: true, query_stored: false, ip_stored: false }), crawler)
       .run();
   } catch (error) {
     console.error("crawler-observation-failed", safeServerDiagnostic(error.message));
@@ -349,7 +353,7 @@ function handleStatic(request, response) {
       response.end();
       return;
     }
-    observeCrawlerRequest(request, new URL(request.url || "/", "http://local").pathname);
+    void observeCrawlerRequest(request, new URL(request.url || "/", "http://local").pathname);
     createReadStream(file).pipe(response);
   } catch {
     response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });

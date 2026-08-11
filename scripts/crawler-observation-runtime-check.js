@@ -51,6 +51,7 @@ try {
   await request("OAI-SearchBot/1.0 ImmeubleAssurDiscoverabilityMonitor/1.0");
   await request("OAI-SearchBot/1.0 (+https://openai.com/searchbot)");
   await request("OAI-SearchBot/1.0 (+https://openai.com/searchbot)");
+  await new Promise((resolveWait) => setTimeout(resolveWait, 150));
 
   const database = new DatabaseSync(databasePath, { readOnly: true });
   const rows = database.prepare("SELECT event_type, page_url, target, payload, ip_address, user_agent FROM site_events WHERE event_type = 'crawler_observation'").all();
@@ -62,7 +63,7 @@ try {
     ["path-stored-without-query", row?.page_url === "/assurance-immeuble"],
     ["agent-normalized", row?.target === "oai-searchbot" && row?.user_agent === "oai-searchbot"],
     ["ip-not-stored", row?.ip_address === ""],
-    ["identity-claim-is-honest", payload.identity_verified === false && payload.source === "user-agent-observation"],
+    ["identity-claim-is-honest", payload.identity_verified === false && payload.verification_method === "no-trusted-source-address" && payload.source_transport === "untrusted-or-unavailable"],
     ["privacy-marker-recorded", payload.query_stored === false && payload.ip_stored === false && payload.marker === "crawler-observation-v1"]
   ];
   const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);

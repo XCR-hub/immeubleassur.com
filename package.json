@@ -72,7 +72,7 @@
                     "search:gap":  "node scripts/search-gap-booster.js",
                     "serp:recovery":  "node scripts/serp-recovery-factory.js",
                     "serve:local":  "node scripts/local-production-server.js",
-                    "check:crawler-observation":  "node --check scripts/local-production-server.js \u0026\u0026 node --check scripts/local-production-monitor.js \u0026\u0026 node --check scripts/local-ai-discoverability-monitor.js \u0026\u0026 node --check scripts/crawler-observation-runtime-check.js \u0026\u0026 node scripts/crawler-observation-runtime-check.js",
+                    "check:crawler-observation":  "node --check scripts/crawler-identity-verifier.js \u0026\u0026 node --check scripts/crawler-identity-verifier-contract-check.js \u0026\u0026 node scripts/crawler-identity-verifier-contract-check.js \u0026\u0026 node --check scripts/local-production-server.js \u0026\u0026 node --check scripts/local-production-monitor.js \u0026\u0026 node --check scripts/local-ai-discoverability-monitor.js \u0026\u0026 node --check scripts/crawler-observation-runtime-check.js \u0026\u0026 node scripts/crawler-observation-runtime-check.js",
                     "db:sqlite:restore":  "node scripts/local-sqlite-restore.js --replace",
                     "db:sqlite:backup":  "node scripts/local-sqlite-backup.js",
                     "production:monitor":  "node scripts/local-production-monitor.js",
