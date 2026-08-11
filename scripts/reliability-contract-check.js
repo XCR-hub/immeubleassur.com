@@ -9,6 +9,7 @@ const task=readFileSync("scripts/local-runtime-task.ps1","utf8");
 const runtimeTaskInstaller=readFileSync("scripts/install-local-runtime-task.ps1","utf8");
 const gitRevision=readFileSync("scripts/git-revision.js","utf8");
 const gitRevisionContract=readFileSync("scripts/git-revision-contract-check.js","utf8");
+const leadSlaRuntime=readFileSync("scripts/lead-sla-alert-runtime-check.js","utf8");
 const productionCheckoutUpdate=readFileSync("scripts/update-local-production-checkout.ps1","utf8");
 const productionUpdateTask=readFileSync("scripts/install-local-production-update-task.ps1","utf8");
 const backupTask=readFileSync("scripts/local-sqlite-backup-task.ps1","utf8");
@@ -77,6 +78,7 @@ const checks=[
   ["live-security-monitor-enforces-strict-script-csp",security.includes("csp-blocks-inline-executable-scripts")&&security.includes("!scriptPolicy.includes")&&security.includes("'unsafe-inline'")],
   ["live-security-monitor-blocks-sensitive-files",security.includes("sensitive-files-not-public")&&security.includes('"/.env.production"')&&security.includes('"/.git/config"')&&security.includes('"/data/immeubleassur.sqlite"')],
   ["live-security-monitor-rejects-cross-site-cors",security.includes("cross-site-cors-origin-rejected")&&security.includes("Origin:evilOrigin")&&security.includes("row.allow_origin!==evilOrigin")],
+  ["lead-sla-alert-failure-has-isolated-runtime-proof",leadSlaRuntime.includes("127.0.0.1")&&leadSlaRuntime.includes('report?.alert_delivery_verified === false')&&leadSlaRuntime.includes('result?.status === 1')&&leadSlaRuntime.includes("rmSync(fixture")],
   ["lead-sla-alert-delivery-is-globally-enforced",monitor.includes("inspectLeadSla")&&monitor.includes("alert_delivery_verified")&&monitorTask.includes("LOCAL_LEAD_SLA_REPORT")],
   ["smtp-envelope-verifies-recipients",smtp.includes("verifyNodeSmtpRecipients")&&smtp.includes("RCPT TO")&&smtp.includes('smtpCommand(client, "RSET"')],
   ["smtp-envelope-does-not-send-message",smtpEnvelope.includes('smtpCommand(client, "RSET"')&&!smtpEnvelope.includes('smtpCommand(client, "DATA"')&&smtpHealth.includes("message_sent: false")&&smtpHealth.includes("envelope_test_only")],
