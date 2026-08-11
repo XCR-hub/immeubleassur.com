@@ -30,6 +30,7 @@ const SOURCES = [
   ["adil57-syndic-actualites", "ADIL 57 - copropriete et syndic", "https://www.anil.org/adil-57/toutes-nos-actualites/", "public-page", "syndic-copropriete", "official", "public-title-and-summary"],
   ["adil20-syndic-actualites", "ADIL Corse - copropriete et syndic", "https://www.anil.org/adil-20/toutes-nos-actualites/", "public-page", "syndic-copropriete", "official", "public-title-and-summary"],
   ["france-assureurs-actualites", "France Assureurs", "https://www.franceassureurs.fr/actualites", "public-page", "marche-assurance", "industry", "public-title-summary-and-date-metadata"],
+  ["georisques-actualites", "Georisques", "https://www.georisques.gouv.fr/actualites-evenements", "public-page", "risques-batiment", "official", "public-title-summary-and-date-metadata"],
   ["legifrance", "Legifrance", "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/", "reference", "droit", "official", "reference-metadata-only"]
 ].map(([id, name, url, source_type, category, authority, crawl_policy]) => ({ id, name, url, source_type, category, authority, crawl_policy }));
 
@@ -313,6 +314,7 @@ function sourceUrlAllowed(source, candidateUrl) {
   if (source?.id === "adil57-syndic-actualites") return /^\/adil-57\/toutes-nos-actualites\/details\/[^/]+$/.test(path);
   if (source?.id === "adil20-syndic-actualites") return /^\/adil-20\/toutes-nos-actualites\/details\/[^/]+$/.test(path);
   if (source?.id === "france-assureurs-actualites") return /^\/actualites\/[^/]+$/.test(path);
+  if (source?.id === "georisques-actualites") return /^\/[a-z0-9][a-z0-9-]+$/.test(path);
   return true;
 }
 function sourceContentAllowed(source, item) {
@@ -321,6 +323,10 @@ function sourceContentAllowed(source, item) {
     return /bail|loyer|local commercial|immeuble|immobilier|copro|logement|location|locataire|proprietaire|bailleur|diagnostic immobilier|batiment tertiaire/.test(text);
   }
   if (["adil57-syndic-actualites", "adil20-syndic-actualites"].includes(source?.id)) return /syndic|copropriete|conseil syndical|assemblee generale/.test(editorialSearchText(item?.title));
+  if (source?.id === "georisques-actualites") {
+    const text = editorialSearchText(item?.title, item?.summary);
+    return /sinistre|incendie|inondation|pluie|tempete|catastrophe|secheresse|argile|feu de foret|deboisement|debroussaillement|prevention|risque naturel|submersion|mouvement de terrain/.test(text);
+  }
   if (source?.id !== "france-assureurs-actualites") return true;
   const title = editorialSearchText(item?.title);
   const propertySignal = /habitation|logement|immeuble|immobilier|copro|propri[ée]taire|location|sinistre|incendie|inondation|temp[êe]te|catastrophe|climat|d[ée]g[âa]t|dommage|responsabilit[ée]/i.test(title);
@@ -416,7 +422,7 @@ function publicationDateMetadata(html) {
   return publicationDate(french?.[1]) ? normalizeEditorialText(french[1]) : "";
 }
 async function enrichPublicationDates(items, sourceResults, maximumFetches = 8) {
-  const allowed = new Set(["acpr-actualites", "acpr-communiques", "france-assureurs-actualites"]);
+  const allowed = new Set(["acpr-actualites", "acpr-communiques", "france-assureurs-actualites", "georisques-actualites"]);
   const candidates = items.filter((item) => !publicationDate(item.published_at) && allowed.has(item.source_id) && /^https?:\/\//i.test(item.url || "")).slice(0, maximumFetches);
   const enrichedByUrl = new Map();
   await Promise.all(candidates.map(async (item) => {

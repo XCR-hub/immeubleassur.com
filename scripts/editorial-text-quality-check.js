@@ -93,7 +93,7 @@ const checks = [
   ["public-cards-label-recency", editorial.includes("watchRecencyMarkup(item)") && freshRecency.status === "fresh" && referenceRecency.status === "reference" && undatedRecency.status === "undated"],
   ["acpr-publication-date-preferred-over-update", acprVisibleDateFixture === "9 Juin 2026" && updateOnlyDateFixture === ""],
   ["structured-published-date-retained", structuredDateFixture === "2026-07-30T17:14:04+02:00"],
-  ["date-metadata-fetch-is-bounded-and-scoped", editorial.includes("async function enrichPublicationDates") && editorial.includes("maximumFetches = 8") && editorial.includes('new Set(["acpr-actualites", "acpr-communiques", "france-assureurs-actualites"])')],
+  ["date-metadata-fetch-is-bounded-and-scoped", editorial.includes("async function enrichPublicationDates") && editorial.includes("maximumFetches = 8") && editorial.includes('new Set(["acpr-actualites", "acpr-communiques", "france-assureurs-actualites", "georisques-actualites"])')],
   ["date-enrichment-counted-per-source", editorial.includes("date_metadata_enriched_count") && editorial.includes('date_source: "article-metadata"')],
   ["daily-edition-uses-representative-items", editorial.includes("issuePage(issue, publishedItems, publicSynthesis)") && editorial.includes("const publishedItems = selectPublishedWatchItems(items)")],
   ["reference-sources-distinguished", editorial.includes("reference_source_count") && editorial.includes('status: "monitored-reference"')],
