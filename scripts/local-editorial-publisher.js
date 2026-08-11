@@ -44,9 +44,14 @@ const today = new Date().toISOString().slice(0, 10);
 const expectedSlug = `news/veille-assurance-immeuble-${today}`;
 const force = process.argv.includes("--force");
 const currentIssuePath = current?.version && current?.issue?.slug ? join(publicationsRoot, "versions", current.version, `${current.issue.slug}.html`) : "";
+const baseHubHashes = Object.fromEntries(["faq.html", "villes.html"].map((relative) => {
+  const path = join(staticPublicRoot, relative);
+  return [relative.replace(".html", ""), existsSync(path) ? sha256(path) : ""];
+}));
 const sourceArtifactRepairNeeded = Boolean(currentIssuePath && existsSync(currentIssuePath) && containsSourceSummaryArtifacts(readFileSync(currentIssuePath, "utf8")));
 const hubProofRepairNeeded = current?.issue?.slug === expectedSlug && (current?.hub_enrichment?.faq?.marker_count !== 1 || current?.hub_enrichment?.faq?.end_marker_count !== 1 || current?.hub_enrichment?.cities?.marker_count !== 1 || current?.hub_enrichment?.cities?.end_marker_count !== 1 || Number(current?.hub_enrichment?.cities?.linked_city_count || 0) < 3);
-const repairTriggered = sourceArtifactRepairNeeded || hubProofRepairNeeded;
+const baseHubRefreshNeeded = current?.issue?.slug === expectedSlug && (current?.base_hub_hashes?.faq !== baseHubHashes.faq || current?.base_hub_hashes?.villes !== baseHubHashes.villes);
+const repairTriggered = sourceArtifactRepairNeeded || hubProofRepairNeeded || baseHubRefreshNeeded;
 
 if (!force && current?.issue?.slug === expectedSlug && !repairTriggered) {
   const report = { success: true, status: "already-published-today", generated_at: new Date().toISOString(), manifest: manifestPath, active_version: current.version, issue: current.issue, preserved_previous: true, source_artifact_repair_needed: false };
@@ -150,14 +155,15 @@ const manifest = {
   public_content_ai_generated: false,
   ai_draft_allowed_publication: false,
   hub_enrichment: hubEnrichment,
+  base_hub_hashes: baseHubHashes,
   previous_version: current?.version || null,
-  repair_reason: sourceArtifactRepairNeeded ? "source-summary-artifacts" : hubProofRepairNeeded ? "hub-enrichment-proof-missing" : null
+  repair_reason: sourceArtifactRepairNeeded ? "source-summary-artifacts" : hubProofRepairNeeded ? "hub-enrichment-proof-missing" : baseHubRefreshNeeded ? "static-hub-base-changed" : null
 };
 mkdirSync(publicationsRoot, { recursive: true });
 const temporaryManifest = join(publicationsRoot, `current-${process.pid}-${Date.now()}.tmp`);
 writeJson(temporaryManifest, manifest);
 renameSync(temporaryManifest, manifestPath);
-const publicationStatus = sourceArtifactRepairNeeded ? "repaired-source-artifacts" : hubProofRepairNeeded ? "repaired-hub-enrichment-proof" : "published";
+const publicationStatus = sourceArtifactRepairNeeded ? "repaired-source-artifacts" : hubProofRepairNeeded ? "repaired-hub-enrichment-proof" : baseHubRefreshNeeded ? "refreshed-static-hub-base" : "published";
 const report = { ...baseReport, success: true, status: publicationStatus, preserved_previous: Boolean(current), active_version: version, previous_version: current?.version || null, issue: manifest.issue, hub_enrichment: hubEnrichment, files };
 writeJson(reportPath, report);
 console.log(`Editorial publisher: ${publicationStatus} ${issue.slug} as ${version}.`);

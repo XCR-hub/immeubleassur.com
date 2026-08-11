@@ -20,6 +20,7 @@ const checks = [
   ["automatic-ai-publication-forbidden", publisher.includes('public_content_ai_generated !== false') && publisher.includes('ai_draft_allowed_publication !== false')],
   ["fresh-source-gate-required", publisher.includes("!editorialReport.publication_gate?.ready") && publisher.includes("!editorialReport.public_write_enabled")],
   ["same-day-artifacts-trigger-repair", publisher.includes("const repairTriggered =") && publisher.includes('status: publicationStatus') && publisher.includes('"repaired-source-artifacts"')],
+  ["same-day-static-hub-change-triggers-refresh", publisher.includes("baseHubRefreshNeeded") && publisher.includes("base_hub_hashes: baseHubHashes") && publisher.includes('"static-hub-base-changed"') && publisher.includes('"refreshed-static-hub-base"')],
   ["generated-artifacts-block-activation", publisher.includes("containsSourceSummaryArtifacts(html)") && publisher.includes("SOURCE_SUMMARY_ARTIFACT_PATTERN")],
   ["publisher-does-not-enable-ai", publisher.includes('["scripts/editorial-autopilot.js", "--fetch"]') && !publisher.includes('"--fetch", "--ai"')],
   ["runtime-output-is-versioned", publisher.includes('join(publicationsRoot, "versions", version)')],
