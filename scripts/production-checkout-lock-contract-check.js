@@ -15,6 +15,7 @@ const checks = [
   ["updates-are-fast-forward-only", deploy.includes("pull', '--ff-only', $Remote, $Branch")],
   ["native-git-stderr-does-not-bypass-exit-code", deploy.includes("$previousErrorAction = $ErrorActionPreference") && deploy.includes("$exitCode = $LASTEXITCODE") && deploy.includes("if ($exitCode -ne 0)") && deploy.includes("$ErrorActionPreference = $previousErrorAction")],
   ["deployment-report-has-revisions", deploy.includes("revision_before") && deploy.includes("revision_after")],
+  ["deployment-report-is-utf8-without-bom", deploy.includes("[IO.File]::WriteAllText") && deploy.includes("[Text.UTF8Encoding]::new($false)") && !deploy.includes("Set-Content -LiteralPath $ReportPath")],
   ["validation-mode-does-not-pull", deploy.includes("if (-not $ValidateOnly)")]
 ];
 const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);

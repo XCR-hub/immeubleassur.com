@@ -61,6 +61,7 @@ const checks=[
   ["runtime-bounds-each-step-and-global-task",runtime.includes('timeout_ms: timeout')&&runtime.includes('timed_out: result.error?.code === "ETIMEDOUT"')&&runtimeTaskInstaller.includes("New-TimeSpan -Minutes 25")&&runtimeTaskInstaller.includes("Floor($now.Minute / 15)")&&runtimeTaskInstaller.includes("$quarterStart.AddMinutes(15)")],
   ["runtime-revision-snapshotted-before-steps",runtime.includes("const cycleSourceRevision = sourceRevision();")&&runtime.includes("source_revision: cycleSourceRevision")&&runtime.indexOf("const cycleSourceRevision = sourceRevision();")<runtime.indexOf('runStep("smtp_health"')],
   ["runtime-and-deploy-share-checkout-lock",task.includes("Global\\ImmeubleAssurProductionCheckout")&&productionCheckoutUpdate.includes("Global\\ImmeubleAssurProductionCheckout")&&productionCheckoutUpdate.includes("pull', '--ff-only")],
+  ["monitor-verifies-last-locked-deployment",monitor.includes("inspectProductionCheckout(productionCheckoutUpdatePath)")&&monitor.includes("revision_matches_runtime")&&monitor.includes("requiredSafeguards.every")&&monitor.includes("revisionAfter === sourceRevision")],
   ["runtime-fails-on-ready-connector-errors",runtime.includes('["scripts/live-ready-connectors-runner.js", "--runtime-cycle", "--strict"]')],
   ["runtime-does-not-rerun-connectors",task.match(/live-ready-connectors-runner\\.js/g) === null],
   ["csp-blocks-inline-executable-scripts",server.includes("script-src 'self' https://challenges.cloudflare.com")&&!server.includes("script-src 'self' 'unsafe-inline'")],

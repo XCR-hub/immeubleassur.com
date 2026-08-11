@@ -168,6 +168,31 @@ function reportAgeMinutes(report) {
   return Number.isFinite(timestamp) ? Math.round(((Date.now() - timestamp) / 60000) * 10) / 10 : 999999;
 }
 
+function currentSourceRevision() {
+  try {
+    const gitRoot = resolve(".git");
+    const head = readFileSync(join(gitRoot, "HEAD"), "utf8").trim();
+    if (!head.startsWith("ref: ")) return head.slice(0, 40);
+    return readFileSync(join(gitRoot, head.slice(5)), "utf8").trim().slice(0, 40);
+  } catch { return ""; }
+}
+
+function inspectProductionCheckout(reportPath) {
+  if (!existsSync(reportPath)) return check("production_checkout_update", false, { path: reportPath, error: "missing" });
+  try {
+    const report = JSON.parse(readFileSync(reportPath, "utf8"));
+    const requiredSafeguards = ["named-checkout-mutex", "clean-worktree-required", "fast-forward-only", "branch-pinned", "no-local-paths"];
+    const revisionBefore = String(report.revision_before || "");
+    const revisionAfter = String(report.revision_after || "");
+    const sourceRevision = currentSourceRevision();
+    const safeguardsVerified = requiredSafeguards.every((item) => report.safeguards?.includes(item));
+    const ok = ["updated", "validated"].includes(report.status) && /^[a-f0-9]{40}$/.test(revisionBefore) && /^[a-f0-9]{40}$/.test(revisionAfter) && revisionAfter === sourceRevision && (!report.validate_only || revisionBefore === revisionAfter) && safeguardsVerified && !report.error;
+    return check("production_checkout_update", ok, { path: reportPath, status: report.status || "unknown", validate_only: report.validate_only === true, revision_matches_runtime: revisionAfter === sourceRevision, safeguards_verified: safeguardsVerified, duration_seconds: Number(report.duration_seconds || 0) });
+  } catch (error) {
+    return check("production_checkout_update", false, { path: reportPath, error: error.message || "deployment report unreadable" });
+  }
+}
+
 function inspectJsonRuntime(name, reportPath, maxAgeMinutes, validate, details = () => ({})) {
   if (!existsSync(reportPath)) return check(name, false, { path: reportPath, error: "missing" });
   try {
@@ -386,6 +411,7 @@ async function run() {
   const turnstileBrowserPath = resolve(env("LOCAL_TURNSTILE_BROWSER_REPORT", join(runtimeReportsRoot, "local-turnstile-browser-smoke-report.json")));
   const restoreDrillPath = resolve(env("LOCAL_SQLITE_RESTORE_DRILL_REPORT", join(runtimeReportsRoot, "local-sqlite-restore-drill-report.json")));
   const siteWatchdogPath = resolve(env("LOCAL_SITE_WATCHDOG_REPORT", join(runtimeReportsRoot, "local-site-watchdog-report.json")));
+  const productionCheckoutUpdatePath = resolve(env("LOCAL_PRODUCTION_CHECKOUT_UPDATE_REPORT", join(runtimeReportsRoot, "local-production-checkout-update-report.json")));
   const out = resolve(argValue("--out", env("LOCAL_PRODUCTION_MONITOR_REPORT", join("reports", "local-production-monitor-report.json"))));
 
   const checks = [
@@ -394,6 +420,7 @@ async function run() {
     await checkTelemetryFilter(origin),
     inspectSqlite(dbPath),
     inspectBackup(backupManifest, maxBackupAgeHours),
+    inspectProductionCheckout(productionCheckoutUpdatePath),
     inspectJsonRuntime("sqlite_restore_drill", restoreDrillPath, 90, (report) => report.status === "passed" && report.source_hash_verified === true && report.integrity === "ok" && report.foreign_key_violations === 0 && report.table_count >= 10, (report) => ({ source_type: report.source_type || "", integrity: report.integrity || "", table_count: Number(report.table_count || 0), total_rows: Number(report.total_rows || 0) })),
     inspectEditorialHealth(editorialHealthPath),
     inspectGoogleReadiness(googleReadinessPath),

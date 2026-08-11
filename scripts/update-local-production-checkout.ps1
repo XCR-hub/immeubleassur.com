@@ -30,7 +30,7 @@ function Write-DeploymentReport([string]$Status, [string]$Before, [string]$After
   if ([string]::IsNullOrWhiteSpace($ReportPath)) { return }
   $parent = Split-Path -Parent $ReportPath
   if ($parent) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
-  [ordered]@{
+  $json = [ordered]@{
     generated_at = [DateTime]::UtcNow.ToString('o')
     status = $Status
     validate_only = [bool]$ValidateOnly
@@ -39,7 +39,8 @@ function Write-DeploymentReport([string]$Status, [string]$Before, [string]$After
     duration_seconds = [Math]::Round(([DateTime]::UtcNow - $startedAt).TotalSeconds, 1)
     safeguards = @('named-checkout-mutex', 'clean-worktree-required', 'fast-forward-only', 'branch-pinned', 'no-local-paths')
     error = $ErrorMessage
-  } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $ReportPath -Encoding utf8
+  } | ConvertTo-Json -Depth 4
+  [IO.File]::WriteAllText($ReportPath, $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
 }
 
 $before = ''
