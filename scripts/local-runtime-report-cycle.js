@@ -36,11 +36,13 @@ const runtimeSeoAsset = join(runtimeAssetsRoot, "assets", "seo-autopilot-latest.
 const cycleReportPath = resolve(env("LOCAL_RUNTIME_REPORT_CYCLE_REPORT", join(runtimeReportsRoot, "local-runtime-report-cycle.json")));
 
 function runStep(name, args, extraEnv = {}) {
+  const timeout = Math.max(30000, Number(extraEnv.LOCAL_RUNTIME_STEP_TIMEOUT_MS || process.env.LOCAL_RUNTIME_STEP_TIMEOUT_MS || 300000));
   const result = spawnSync(process.execPath, args, {
     cwd: process.cwd(),
     env: { ...process.env, ...extraEnv },
     encoding: "utf8",
-    stdio: "pipe"
+    stdio: "pipe",
+    timeout
   });
   const stdout = clean(result.stdout);
   const stderr = clean(result.stderr);
@@ -53,7 +55,9 @@ function runStep(name, args, extraEnv = {}) {
     attention,
     stdout,
     stderr,
-    error: clean(result.error?.message || "")
+    error: clean(result.error?.message || ""),
+    timed_out: result.error?.code === "ETIMEDOUT",
+    timeout_ms: timeout
   };
 }
 

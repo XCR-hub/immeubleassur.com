@@ -13,10 +13,11 @@ $quotedWrapper = '"' + $WrapperPath + '"'
 $action = New-ScheduledTaskAction -Execute 'PowerShell.exe' -Argument ('-NoProfile -NonInteractive -ExecutionPolicy Bypass -File ' + $quotedWrapper)
 $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Days 3650)
 $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
-$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 72)
+$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 25)
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
 $task = Get-ScheduledTask -TaskName $TaskName
-if (@('SYSTEM', 'S-1-5-18') -notcontains [string]$task.Principal.UserId -or $task.Principal.LogonType -ne 'ServiceAccount') { throw "Scheduled task principal invalide: $($task.Principal.UserId)/$($task.Principal.LogonType)" }
+$sid = ([System.Security.Principal.NTAccount]$task.Principal.UserId).Translate([System.Security.Principal.SecurityIdentifier]).Value
+if ($sid -ne 'S-1-5-18' -or $task.Principal.LogonType -ne 'ServiceAccount') { throw "Scheduled task principal invalide: $sid/$($task.Principal.LogonType)" }
 Write-Output ("task={0} state={1} principal={2} logon={3} interval=15m wrapper={4}" -f $task.TaskName, $task.State, $task.Principal.UserId, $task.Principal.LogonType, $WrapperPath)
 if ($RunNow) {
   Start-ScheduledTask -TaskName $TaskName
