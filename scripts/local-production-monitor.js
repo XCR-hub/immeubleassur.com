@@ -5,6 +5,7 @@ import { DatabaseSync } from "node:sqlite";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { requireOperationalTeamRecipient, sendNodeSmtpMail } from "./local-smtp.js";
 import { readGitRevision } from "./git-revision.js";
+import { summarizeCrawlerObservations } from "./crawler-observation-summary.js";
 
 loadDefaultEnvFiles();
 
@@ -105,6 +106,7 @@ async function checkTelemetryFilter(origin) {
 
 function inspectSqlite(dbPath) {
   if (!existsSync(dbPath)) return check("sqlite_database", false, { path: dbPath, error: "missing" });
+  const crawlerSummary = summarizeCrawlerObservations(dbPath, 30);
   const database = new DatabaseSync(dbPath);
   try {
     const integrity = database.prepare("PRAGMA integrity_check").get()?.integrity_check || "unknown";
@@ -114,8 +116,8 @@ function inspectSqlite(dbPath) {
       .map((row) => row.name);
     const leads24h = database.prepare("SELECT COUNT(*) AS count FROM leads WHERE created_at >= datetime('now', '-24 hours')").get()?.count || 0;
     const spam24h = database.prepare("SELECT COUNT(*) AS count FROM site_events WHERE event_type IN ('lead_spam_blocked', 'newsletter_spam_blocked') AND created_at >= datetime('now', '-24 hours')").get()?.count || 0;
-    const crawlerRows = database.prepare("SELECT target, COUNT(*) AS count, SUM(CASE WHEN COALESCE(json_extract(payload, '$.identity_verified'), 0) = 1 THEN 1 ELSE 0 END) AS verified_count, MAX(CASE WHEN COALESCE(json_extract(payload, '$.identity_verified'), 0) = 1 THEN created_at ELSE NULL END) AS last_verified_at, MAX(created_at) AS last_seen_at FROM site_events WHERE event_type = 'crawler_observation' AND created_at >= datetime('now', '-30 days') GROUP BY target ORDER BY target").all();
-    const crawlerObservations = Object.fromEntries(crawlerRows.map((row) => [String(row.target || "unknown"), { count: Number(row.count || 0), verified_count: Number(row.verified_count || 0), last_seen_at: row.last_seen_at || "", last_verified_at: row.last_verified_at || "" }]));
+    const crawlerObservations = Object.fromEntries(crawlerSummary.agents.map(({ agent, ...details }) => [agent, details]));
+
     return check("sqlite_database", integrity === "ok" && tables.length >= 10, {
       path: dbPath,
       size_bytes: statSync(dbPath).size,
@@ -124,10 +126,11 @@ function inspectSqlite(dbPath) {
       leads_24h: Number(leads24h || 0),
       spam_blocks_24h: Number(spam24h || 0),
       crawler_observations_30d: crawlerObservations,
-      crawler_agents_observed_30d: crawlerRows.length,
-      crawler_verified_agents_30d: crawlerRows.filter((row) => Number(row.verified_count || 0) > 0).length,
-      crawler_identity_verified: crawlerRows.some((row) => Number(row.verified_count || 0) > 0),
-      crawler_privacy: "no-ip-no-query-normalized-agent"
+      crawler_agents_observed_30d: crawlerSummary.observed_agents,
+      crawler_verified_agents_30d: crawlerSummary.verified_agents,
+      crawler_identity_verified: crawlerSummary.verified_observation_count > 0,
+      crawler_observation_status: crawlerSummary.status,
+      crawler_privacy: crawlerSummary.privacy
     });
   } catch (error) {
     return check("sqlite_database", false, { path: dbPath, error: error.message || "sqlite inspection failed" });

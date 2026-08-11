@@ -4,6 +4,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 loadDefaultEnvFiles();
 const backup=readFileSync("scripts/local-sqlite-backup.js","utf8");
 const monitor=readFileSync("scripts/local-production-monitor.js","utf8");
+const crawlerObservationSummary=readFileSync("scripts/crawler-observation-summary.js","utf8");
 const editorialReview=readFileSync("scripts/local-editorial-review-monitor.js","utf8");
 const runtime=readFileSync("scripts/local-runtime-report-cycle.js","utf8");
 const task=readFileSync("scripts/local-runtime-task.ps1","utf8");
@@ -64,6 +65,7 @@ const checks=[
   ["restore-drill-checks-integrity-and-foreign-keys",restoreDrill.includes("PRAGMA integrity_check")&&restoreDrill.includes("PRAGMA foreign_key_check")],
   ["restore-drill-cleans-temporary-copy",restoreDrill.includes("rmSync(restoredPath, { force: true })")],
   ["production-monitor-requires-fresh-restore-drill",monitor.includes('inspectJsonRuntime("sqlite_restore_drill"')],
+  ["production-monitor-reuses-privacy-safe-crawler-summary",monitor.includes('summarizeCrawlerObservations(dbPath, 30)')&&monitor.includes("crawler_observation_status: crawlerSummary.status")&&monitor.includes("crawler_privacy: crawlerSummary.privacy")&&!monitor.includes("FROM site_events WHERE event_type = 'crawler_observation'")&&crawlerObservationSummary.includes("KNOWN_CRAWLERS")&&crawlerObservationSummary.includes("no-ip-no-query-no-raw-user-agent")],
   ["runtime-runs-restore-drill",runtime.includes('runStep("sqlite_restore_drill"')],
   ["runtime-bounds-each-step-and-global-task",runtime.includes('timeout_ms: timeout')&&runtime.includes('timed_out: result.error?.code === "ETIMEDOUT"')&&runtimeTaskInstaller.includes("New-TimeSpan -Minutes 25")&&runtimeTaskInstaller.includes("Floor($now.Minute / 15)")&&runtimeTaskInstaller.includes("$quarterStart.AddMinutes(15)")],
   ["git-revision-reader-supports-maintenance-and-worktrees",gitRevision.includes("packed-refs")&&gitRevision.includes("commondir")&&gitRevision.includes("SAFE_REF")&&gitRevisionContract.includes("packed-reference")&&gitRevisionContract.includes("worktree-common-packed-reference")&&server.includes('readGitRevision()')&&monitor.includes('readGitRevision()')&&runtime.includes('readGitRevision()')],
