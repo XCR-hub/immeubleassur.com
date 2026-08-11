@@ -6,6 +6,7 @@ export const EXPECTED_SCHEDULED_TASKS = {
   "ImmeubleAssur Lead SLA Monitor": 45,
   "ImmeubleAssur Local Site": 20,
   "ImmeubleAssur Production Monitor": 45,
+  "ImmeubleAssur Production Update": 30,
   "ImmeubleAssur Runtime Reports": 90,
   "ImmeubleAssur SEO Backlog Monitor": 90,
   "ImmeubleAssur SQLite Backup": 420
@@ -19,6 +20,7 @@ export const EXPECTED_SCHEDULED_TASK_ACTIONS = {
   "ImmeubleAssur Lead SLA Monitor": ["powershell.exe", "run-lead-sla-monitor.ps1"],
   "ImmeubleAssur Local Site": ["node.exe", "local-site-watchdog.js"],
   "ImmeubleAssur Production Monitor": ["powershell.exe", "local-production-monitor-task.ps1"],
+  "ImmeubleAssur Production Update": ["powershell.exe", "update-local-production-checkout.ps1"],
   "ImmeubleAssur Runtime Reports": ["powershell.exe", "local-runtime-task.ps1"],
   "ImmeubleAssur SEO Backlog Monitor": ["powershell.exe", "run-seo-backlog-monitor.ps1"],
   "ImmeubleAssur SQLite Backup": ["powershell.exe", "local-sqlite-backup-task.ps1"]

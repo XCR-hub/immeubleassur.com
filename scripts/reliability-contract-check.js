@@ -8,6 +8,7 @@ const runtime=readFileSync("scripts/local-runtime-report-cycle.js","utf8");
 const task=readFileSync("scripts/local-runtime-task.ps1","utf8");
 const runtimeTaskInstaller=readFileSync("scripts/install-local-runtime-task.ps1","utf8");
 const productionCheckoutUpdate=readFileSync("scripts/update-local-production-checkout.ps1","utf8");
+const productionUpdateTask=readFileSync("scripts/install-local-production-update-task.ps1","utf8");
 const backupTask=readFileSync("scripts/local-sqlite-backup-task.ps1","utf8");
 const backupTaskInstaller=readFileSync("scripts/install-local-sqlite-backup-task.ps1","utf8");
 const monitorTask=readFileSync("scripts/local-production-monitor-task.ps1","utf8");
@@ -61,6 +62,7 @@ const checks=[
   ["runtime-bounds-each-step-and-global-task",runtime.includes('timeout_ms: timeout')&&runtime.includes('timed_out: result.error?.code === "ETIMEDOUT"')&&runtimeTaskInstaller.includes("New-TimeSpan -Minutes 25")&&runtimeTaskInstaller.includes("Floor($now.Minute / 15)")&&runtimeTaskInstaller.includes("$quarterStart.AddMinutes(15)")],
   ["runtime-revision-snapshotted-before-steps",runtime.includes("const cycleSourceRevision = sourceRevision();")&&runtime.includes("source_revision: cycleSourceRevision")&&runtime.indexOf("const cycleSourceRevision = sourceRevision();")<runtime.indexOf('runStep("smtp_health"')],
   ["runtime-and-deploy-share-checkout-lock",task.includes("Global\\ImmeubleAssurProductionCheckout")&&productionCheckoutUpdate.includes("Global\\ImmeubleAssurProductionCheckout")&&productionCheckoutUpdate.includes("pull', '--ff-only")],
+  ["production-update-task-is-safe-and-staggered",productionUpdateTask.includes("-UserId 'SYSTEM'")&&productionUpdateTask.includes("-LogonType ServiceAccount")&&productionUpdateTask.includes("New-TimeSpan -Minutes 10")&&productionUpdateTask.includes("* 10) + 3")&&productionUpdateTask.includes("-MultipleInstances IgnoreNew")],
   ["monitor-verifies-last-locked-deployment",monitor.includes("inspectProductionCheckout(productionCheckoutUpdatePath)")&&monitor.includes("revision_matches_runtime")&&monitor.includes("runtime_revision_verified")&&monitor.includes("served_revision_matches")&&monitor.includes("requiredSafeguards.every")&&monitor.includes("revisionAfter === sourceRevision")],
   ["deployment-activates-and-verifies-served-revision",productionCheckoutUpdate.includes("local-site-watchdog.js")&&productionCheckoutUpdate.includes("--force")&&productionCheckoutUpdate.includes("$servedRevision -eq $after")&&server.includes("source_revision")],
   ["runtime-fails-on-ready-connector-errors",runtime.includes('["scripts/live-ready-connectors-runner.js", "--runtime-cycle", "--strict"]')],
