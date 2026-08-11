@@ -9,6 +9,7 @@ const representativeFixture = selectPublishedWatchItems([
 ], 3);
 
 const files = {
+  editorial: readFileSync("scripts/editorial-autopilot.js", "utf8"),
   factory: readFileSync("scripts/seo-content-factory.js", "utf8"),
   seo: readFileSync("scripts/seo-autopilot.js", "utf8"),
   professional: readFileSync("public/blog/syndic-copropriete-assurance-contrat.html", "utf8"),
@@ -18,6 +19,9 @@ const files = {
 };
 
 const checks = [
+  ["fresh-official-syndic-source-configured", files.editorial.includes('["adil20-syndic-actualites", "ADIL Corse - copropriete et syndic", "https://www.anil.org/adil-20/toutes-nos-actualites/"')],
+  ["fresh-official-syndic-source-path-scoped", files.editorial.includes('source?.id === "adil20-syndic-actualites"') && files.editorial.includes('/^\\/adil-20\\/toutes-nos-actualites\\/details\\/[^/]+$/')],
+  ["syndic-sources-content-filtered", files.editorial.includes('["adil57-syndic-actualites", "adil20-syndic-actualites"].includes(source?.id)')],
   ["professional-generator-angle", files.factory.includes("syndic-copropriete-assurance-contrat|Syndic professionnel et assurance copropriete") && files.factory.includes("Quand un syndic professionnel pilote plusieurs contrats immeuble")],
   ["professional-query-measured", files.seo.includes('["syndic professionnel assurance copropriete", "blog/syndic-copropriete-assurance-contrat"]')],
   ["professional-page-specific", files.professional.includes("Syndic professionnel - guide expert") && files.professional.includes("Centraliser mandats, contrats et echeances par copropriete")],

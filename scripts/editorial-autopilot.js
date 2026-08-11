@@ -28,6 +28,7 @@ const SOURCES = [
   ["acpr-communiques", "ACPR communiques", "https://acpr.banque-france.fr/fr/communiques-de-presse", "public-page", "regulateur-assurance", "regulator", "public-title-summary-and-date-metadata"],
   ["anil-actualites", "ANIL", "https://www.anil.org/actualites-evenements/", "public-page", "logement-copropriete", "official", "public-title-and-summary"],
   ["adil57-syndic-actualites", "ADIL 57 - copropriete et syndic", "https://www.anil.org/adil-57/toutes-nos-actualites/", "public-page", "syndic-copropriete", "official", "public-title-and-summary"],
+  ["adil20-syndic-actualites", "ADIL Corse - copropriete et syndic", "https://www.anil.org/adil-20/toutes-nos-actualites/", "public-page", "syndic-copropriete", "official", "public-title-and-summary"],
   ["france-assureurs-actualites", "France Assureurs", "https://www.franceassureurs.fr/actualites", "public-page", "marche-assurance", "industry", "public-title-summary-and-date-metadata"],
   ["legifrance", "Legifrance", "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/", "reference", "droit", "official", "reference-metadata-only"]
 ].map(([id, name, url, source_type, category, authority, crawl_policy]) => ({ id, name, url, source_type, category, authority, crawl_policy }));
@@ -290,6 +291,7 @@ function sourceUrlAllowed(source, candidateUrl) {
   if (source?.id === "acpr-actualites") return /^\/fr\/actualites\/[^/]+$/.test(path);
   if (source?.id === "acpr-communiques") return /^\/fr\/communiques-de-presse\/[^/]+$/.test(path);
   if (source?.id === "adil57-syndic-actualites") return /^\/adil-57\/toutes-nos-actualites\/details\/[^/]+$/.test(path);
+  if (source?.id === "adil20-syndic-actualites") return /^\/adil-20\/toutes-nos-actualites\/details\/[^/]+$/.test(path);
   if (source?.id === "france-assureurs-actualites") return /^\/actualites\/[^/]+$/.test(path);
   return true;
 }
@@ -298,7 +300,7 @@ function sourceContentAllowed(source, item) {
     const text = editorialSearchText(item?.title, item?.summary);
     return /bail|loyer|local commercial|immeuble|immobilier|copro|logement|location|locataire|proprietaire|bailleur|diagnostic immobilier|batiment tertiaire/.test(text);
   }
-  if (source?.id === "adil57-syndic-actualites") return /syndic|copropriete|conseil syndical|assemblee generale/.test(editorialSearchText(item?.title));
+  if (["adil57-syndic-actualites", "adil20-syndic-actualites"].includes(source?.id)) return /syndic|copropriete|conseil syndical|assemblee generale/.test(editorialSearchText(item?.title));
   if (source?.id !== "france-assureurs-actualites") return true;
   const title = editorialSearchText(item?.title);
   const propertySignal = /habitation|logement|immeuble|immobilier|copro|propri[ée]taire|location|sinistre|incendie|inondation|temp[êe]te|catastrophe|climat|d[ée]g[âa]t|dommage|responsabilit[ée]/i.test(title);
