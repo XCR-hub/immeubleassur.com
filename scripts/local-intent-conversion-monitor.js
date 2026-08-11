@@ -524,6 +524,7 @@ function writeReports(report, out, publicOut) {
     attention_required: report.attention_required,
     summary: report.summary,
     observation: report.observation,
+    measurement_scope: report.measurement_scope,
     historical_context: report.historical_context,
     intent_funnels: report.intent_funnels.slice(0, 12),
     urgency_funnels: report.urgency_funnels.slice(0, 8),
@@ -543,6 +544,8 @@ function unavailableReport(status, dbPath, reason) {
     generated_at: new Date().toISOString(),
     database: { engine: "sqlite", file: basename(dbPath), mode: "unavailable" },
     summary: { lookback_days: 0, tracked_events: 0, tracked_sessions: 0, leads_db: 0, hot_leads_db: 0, intent_count: 0, urgency_count: 0, attention_count: 0, reason },
+    measurement_scope: { active_cohort: "unavailable", active_started_at: "", rolling_lookback_days: 0, analyzed_events: 0, analyzed_leads: 0, excluded_pre_intervention_events: 0, excluded_pre_intervention_leads: 0, data_status: "unavailable" },
+    historical_context: { scope: "unavailable", lookback_days: 0, tracked_events: 0, tracked_sessions: 0, form_starts: 0, submit_attempts: 0, leads_db: 0, pre_intervention_events: 0, pre_intervention_leads: 0 },
     intent_funnels: [],
     urgency_funnels: [],
     form_source_funnels: [],
@@ -674,6 +677,7 @@ function run() {
       status: observing ? "collecting" : "measured"
     } : null;
     const historicalContext = {
+      scope: "rolling-lookback",
       lookback_days: days,
       tracked_events: events.length,
       tracked_sessions: historicalSessions.size,
@@ -683,6 +687,20 @@ function run() {
       pre_intervention_events: intervention ? events.length - analysisEvents.length : 0,
       pre_intervention_leads: intervention ? leads.length - analysisLeads.length : 0
     };
+    const measurementScope = {
+      active_cohort: intervention ? "post-intervention" : "rolling-lookback",
+      active_started_at: intervention ? new Date(intervention.timestamp_ms).toISOString() : "",
+      rolling_lookback_days: days,
+      analyzed_events: analysisEvents.length,
+      analyzed_leads: analysisLeads.length,
+      excluded_pre_intervention_events: intervention ? events.length - analysisEvents.length : 0,
+      excluded_pre_intervention_leads: intervention ? leads.length - analysisLeads.length : 0,
+      data_status: analysisEvents.length || analysisLeads.length
+        ? "active-cohort-observed"
+        : events.length || leads.length
+          ? "awaiting-active-cohort-data"
+          : "no-first-party-data"
+    };
     const report = {
       success: true,
       status: observing ? "observing" : analysisEvents.length || analysisLeads.length ? (summary.attention_count ? "action-required" : "passed") : "no-data",
@@ -691,13 +709,14 @@ function run() {
       database: { engine: "sqlite", file: basename(dbPath), mode: "readonly" },
       summary,
       observation,
+      measurement_scope: measurementScope,
       historical_context: historicalContext,
       intent_funnels: intentFunnels.slice(0, 30),
       urgency_funnels: urgencyFunnels.slice(0, 12),
       form_source_funnels: formSourceFunnels.slice(0, 20),
       lead_segments: leadSegments(analysisLeads),
       recommendations: actions,
-      safeguards: ["no-pii-public-export", "sqlite-readonly", "first-party-events-only", "no-google-scraping", "intent-data-from-local-events-and-lead-events", "recommendations-require-engaged-sessions", "post-intervention-cohort", "historical-context-preserved"]
+      safeguards: ["no-pii-public-export", "sqlite-readonly", "first-party-events-only", "no-google-scraping", "intent-data-from-local-events-and-lead-events", "recommendations-require-engaged-sessions", "post-intervention-cohort", "measurement-scope-explicit", "historical-context-preserved"]
     };
     writeReports(report, out, publicOut);
     console.log(`Intent conversion monitor: ${summary.intent_count} intent(s), ${summary.leads_db} lead(s), ${summary.attention_count} action(s)`);

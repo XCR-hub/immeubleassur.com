@@ -62,6 +62,12 @@ try {
   const growthResult = spawnSync(process.execPath, [join(root, "scripts", "local-growth-ops-export.js"), "--runtime-only", "--runtime-out", growthOut], { cwd: root, encoding: "utf8", env: { ...process.env, LOCAL_INTENT_CONVERSION_REPORT: out } });
   if (growthResult.status !== 0) throw new Error(growthResult.stderr || growthResult.stdout || `growth export exit ${growthResult.status}`);
   const growth = JSON.parse(readFileSync(growthOut, "utf8"));
+  const missingDbOut = join(fixture, "missing-db-report.json");
+  const missingDbPublicOut = join(fixture, "missing-db-public.json");
+  const missingDbResult = spawnSync(process.execPath, [join(root, "scripts", "local-intent-conversion-monitor.js"), "--db", join(fixture, "missing.sqlite"), "--out", missingDbOut, "--public-out", missingDbPublicOut], { cwd: root, encoding: "utf8" });
+  if (missingDbResult.status !== 0) throw new Error(missingDbResult.stderr || missingDbResult.stdout || `missing-db monitor exit ${missingDbResult.status}`);
+  const missingDbReport = JSON.parse(readFileSync(missingDbOut, "utf8"));
+  const missingDbPublic = JSON.parse(readFileSync(missingDbPublicOut, "utf8"));
   const productionRegistry = JSON.parse(readFileSync(join(root, "config", "conversion-interventions.json"), "utf8"));
   const productionIntervention = productionRegistry.interventions?.find((item) => item.id === "lead-email-optional-v1");
   const priorityContactIntervention = productionRegistry.interventions?.find((item) => item.id === "urgent-quote-priority-contact-v1");
@@ -72,6 +78,9 @@ try {
     ["historical-starts-not-current-alert", automatic.summary?.form_starts === 0 && !automaticTypes.includes("aucun-submit-global")],
     ["observation-window-visible", automatic.status === "observing" && automatic.observation?.intervention_id === "fixture-cro-change"],
     ["public-observation-safe-export", automaticPublic.observation?.status === "collecting" && automaticPublic.historical_context?.form_starts === 2],
+    ["post-intervention-scope-explicit", automatic.measurement_scope?.active_cohort === "post-intervention" && automatic.measurement_scope?.analyzed_events === 60 && automatic.measurement_scope?.excluded_pre_intervention_events === 4 && automatic.measurement_scope?.data_status === "active-cohort-observed"],
+    ["public-measurement-scope-exported", automaticPublic.measurement_scope?.active_cohort === "post-intervention" && automaticPublic.historical_context?.scope === "rolling-lookback"],
+    ["unavailable-scope-remains-explicit", missingDbReport.measurement_scope?.data_status === "unavailable" && missingDbPublic.measurement_scope?.active_cohort === "unavailable" && missingDbPublic.historical_context?.scope === "unavailable"],
     ["automatic-loads-not-engaged", automaticWebsite?.sessions === 30 && automaticWebsite?.engaged_sessions === 0],
     ["automatic-loads-no-false-intent-action", !automaticTypes.includes("intent-sans-start")],
     ["automatic-router-views-no-false-action", !automaticTypes.includes("routeur-intention-bloque")],
