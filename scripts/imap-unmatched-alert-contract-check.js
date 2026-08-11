@@ -4,7 +4,7 @@ const imap = readFileSync("scripts/local-imap-sync.js", "utf8");
 const task = readFileSync("scripts/local-runtime-task.ps1", "utf8");
 const alertBlock = imap.slice(imap.indexOf("async function maybeAlertPending"), imap.indexOf("class ImapSession"));
 const checks = [
-  ["pending-unmatched-queried", imap.includes("case_id IS NULL") && imap.includes("received_pending_review") && imap.includes("report.pending_unmatched")],
+  ["pending-unmatched-queried", imap.includes("case_id IS NULL") && imap.includes("received_pending_review") && imap.includes("report.pending_unmatched") && imap.includes('all().results')],
   ["team-recipient-enforced", imap.includes("requireOperationalTeamRecipient(config)") && task.includes("LOCAL_IMAP_UNMATCHED_ALERT_TO = 'team@immeubleassur.com'")],
   ["alert-enabled-in-system-cycle", task.includes("LOCAL_IMAP_UNMATCHED_ALERTS = '1'") && task.includes("LOCAL_IMAP_UNMATCHED_ALERT_STATE")],
   ["content-free-alert", alertBlock.includes("Aucun expediteur, objet ou contenu de message n est inclus") && !alertBlock.includes("headers.") && !alertBlock.includes("sender") && !alertBlock.includes("subject")],

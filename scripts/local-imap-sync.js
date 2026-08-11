@@ -152,7 +152,7 @@ async function sync() {
     report.status = "completed";
   } catch (error) { report.status = "degraded"; report.errors.push(clean(error.message, 500)); }
   finally { session.close(); }
-  const pendingRows = db.prepare("SELECT id FROM case_mail_inbox WHERE case_id IS NULL AND status = 'received_pending_review' ORDER BY created_at ASC").all();
+  const pendingRows = db.prepare("SELECT id FROM case_mail_inbox WHERE case_id IS NULL AND status = 'received_pending_review' ORDER BY created_at ASC").all().results;
   report.pending_unmatched = pendingRows.length;
   report.alert = await maybeAlertPending(pendingRows, report.generated_at).catch((error) => ({ attempted: true, status: "failed", error: clean(error.message, 300) }));
   report.alert_delivery_required = env("LOCAL_IMAP_UNMATCHED_ALERTS", "0") === "1" && pendingRows.length > 0;
