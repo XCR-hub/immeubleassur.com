@@ -6,6 +6,7 @@ import { openLocalSqlite } from "./local-sqlite-db.js";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { sendNodeSmtpMail } from "./local-smtp.js";
 import { createLocalDocumentScanner } from "./local-document-scanner.js";
+import { readGitRevision } from "./git-revision.js";
 
 loadDefaultEnvFiles();
 
@@ -19,15 +20,7 @@ const db = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
 const documentScanner = createLocalDocumentScanner({ binary: env("CLAMSCAN_BIN", "C:\\Program Files\\ClamAV\\clamscan.exe"), fallbackBinary: env("DEFENDER_SCAN_BIN", "C:\\Program Files\\Windows Defender\\MpCmdRun.exe"), timeoutMs: Number.parseInt(env("CLAMSCAN_TIMEOUT_MS", "30000"), 10) || 30000 });
 const moduleCache = new Map();
 
-function checkoutRevision() {
-  try {
-    const gitRoot = resolve(".git");
-    const head = readFileSync(join(gitRoot, "HEAD"), "utf8").trim();
-    if (!head.startsWith("ref: ")) return head.slice(0, 40);
-    return readFileSync(join(gitRoot, head.slice(5)), "utf8").trim().slice(0, 40);
-  } catch { return ""; }
-}
-const sourceRevision = checkoutRevision();
+const sourceRevision = readGitRevision();
 
 globalThis.__IMMEUBLEASSUR_SEND_SMTP_MAIL = sendNodeSmtpMail;
 

@@ -4,6 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { outputNeedsAttention } from "./runtime-attention.js";
 import { redactLocalPaths, reportFileName } from "./runtime-report-redaction.js";
+import { readGitRevision } from "./git-revision.js";
 
 loadDefaultEnvFiles();
 
@@ -11,17 +12,7 @@ function ensureDir(path) { mkdirSync(path, { recursive: true }); }
 function writeJson(path, value) { ensureDir(dirname(path)); writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, "utf8"); }
 function clean(value, max = 2000) { return redactLocalPaths(value).replace(/\r/g, "").trim().slice(0, max); }
 
-function sourceRevision() {
-  try {
-    const gitDir = join(process.cwd(), ".git");
-    const head = readFileSync(join(gitDir, "HEAD"), "utf8").trim();
-    if (!head.startsWith("ref: ")) return head.slice(0, 40);
-    const refPath = join(gitDir, head.slice(5));
-    return readFileSync(refPath, "utf8").trim().slice(0, 40);
-  } catch {
-    return "";
-  }
-}
+function sourceRevision() { return readGitRevision(); }
 
 const runtimeReportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", join("data", "runtime-reports")));
 const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));

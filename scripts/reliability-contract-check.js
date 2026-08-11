@@ -7,6 +7,8 @@ const monitor=readFileSync("scripts/local-production-monitor.js","utf8");
 const runtime=readFileSync("scripts/local-runtime-report-cycle.js","utf8");
 const task=readFileSync("scripts/local-runtime-task.ps1","utf8");
 const runtimeTaskInstaller=readFileSync("scripts/install-local-runtime-task.ps1","utf8");
+const gitRevision=readFileSync("scripts/git-revision.js","utf8");
+const gitRevisionContract=readFileSync("scripts/git-revision-contract-check.js","utf8");
 const productionCheckoutUpdate=readFileSync("scripts/update-local-production-checkout.ps1","utf8");
 const productionUpdateTask=readFileSync("scripts/install-local-production-update-task.ps1","utf8");
 const backupTask=readFileSync("scripts/local-sqlite-backup-task.ps1","utf8");
@@ -60,6 +62,7 @@ const checks=[
   ["production-monitor-requires-fresh-restore-drill",monitor.includes('inspectJsonRuntime("sqlite_restore_drill"')],
   ["runtime-runs-restore-drill",runtime.includes('runStep("sqlite_restore_drill"')],
   ["runtime-bounds-each-step-and-global-task",runtime.includes('timeout_ms: timeout')&&runtime.includes('timed_out: result.error?.code === "ETIMEDOUT"')&&runtimeTaskInstaller.includes("New-TimeSpan -Minutes 25")&&runtimeTaskInstaller.includes("Floor($now.Minute / 15)")&&runtimeTaskInstaller.includes("$quarterStart.AddMinutes(15)")],
+  ["git-revision-reader-supports-maintenance-and-worktrees",gitRevision.includes("packed-refs")&&gitRevision.includes("commondir")&&gitRevision.includes("SAFE_REF")&&gitRevisionContract.includes("packed-reference")&&gitRevisionContract.includes("worktree-common-packed-reference")&&server.includes('readGitRevision()')&&monitor.includes('readGitRevision()')&&runtime.includes('readGitRevision()')],
   ["runtime-revision-snapshotted-before-steps",runtime.includes("const cycleSourceRevision = sourceRevision();")&&runtime.includes("source_revision: cycleSourceRevision")&&runtime.indexOf("const cycleSourceRevision = sourceRevision();")<runtime.indexOf('runStep("smtp_health"')],
   ["runtime-and-deploy-share-checkout-lock",task.includes("Global\\ImmeubleAssurProductionCheckout")&&productionCheckoutUpdate.includes("Global\\ImmeubleAssurProductionCheckout")&&productionCheckoutUpdate.includes("pull', '--ff-only")],
   ["production-update-task-is-safe-and-staggered",productionUpdateTask.includes("-UserId 'SYSTEM'")&&productionUpdateTask.includes("-LogonType ServiceAccount")&&productionUpdateTask.includes("New-TimeSpan -Minutes 10")&&productionUpdateTask.includes("* 10) + 12")&&productionUpdateTask.includes("($startMinute % 10) -ne 2")&&productionUpdateTask.includes("-MultipleInstances IgnoreNew")],

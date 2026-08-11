@@ -1,9 +1,10 @@
-import { closeSync, existsSync, mkdirSync, openSync, readFileSync, writeFileSync } from "node:fs";
+import { closeSync, existsSync, mkdirSync, openSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync, spawn } from "node:child_process";
 import { request as httpRequest } from "node:http";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
+import { readGitRevision } from "./git-revision.js";
 
 function argValue(name, fallback = "") {
   const index = process.argv.indexOf(name);
@@ -64,15 +65,7 @@ const requiredSecurityHeaders = [
 ];
 const WATCHDOG_PROCESS_MATCH_MARKER = "watchdog-process-discovery-v2";
 
-function checkoutRevision() {
-  try {
-    const gitRoot = join(siteDir, ".git");
-    const head = readFileSync(join(gitRoot, "HEAD"), "utf8").trim();
-    if (!head.startsWith("ref: ")) return head.slice(0, 40);
-    return readFileSync(join(gitRoot, head.slice(5)), "utf8").trim().slice(0, 40);
-  } catch { return ""; }
-}
-const expectedRevision = checkoutRevision();
+const expectedRevision = readGitRevision(siteDir);
 
 mkdirSync(logDir, { recursive: true });
 mkdirSync(dirname(reportPath), { recursive: true });

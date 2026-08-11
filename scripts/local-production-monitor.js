@@ -4,6 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { requireOperationalTeamRecipient, sendNodeSmtpMail } from "./local-smtp.js";
+import { readGitRevision } from "./git-revision.js";
 
 loadDefaultEnvFiles();
 
@@ -168,14 +169,7 @@ function reportAgeMinutes(report) {
   return Number.isFinite(timestamp) ? Math.round(((Date.now() - timestamp) / 60000) * 10) / 10 : 999999;
 }
 
-function currentSourceRevision() {
-  try {
-    const gitRoot = resolve(".git");
-    const head = readFileSync(join(gitRoot, "HEAD"), "utf8").trim();
-    if (!head.startsWith("ref: ")) return head.slice(0, 40);
-    return readFileSync(join(gitRoot, head.slice(5)), "utf8").trim().slice(0, 40);
-  } catch { return ""; }
-}
+function currentSourceRevision() { return readGitRevision(); }
 
 function inspectProductionCheckout(reportPath) {
   if (!existsSync(reportPath)) return check("production_checkout_update", false, { path: reportPath, error: "missing" });
