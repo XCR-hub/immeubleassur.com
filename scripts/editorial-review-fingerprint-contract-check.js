@@ -25,13 +25,15 @@ function draft(generatedAt, title) {
     synthesis: { provider: "fixture", model: "fixture", text: title }
   };
 }
-function run() {
+function run({ allowUndeliveredAlert = false } = {}) {
   const result = spawnSync(process.execPath, [join(root, "scripts", "local-editorial-review-monitor.js")], {
     cwd: root, encoding: "utf8",
     env: { ...process.env, LOCAL_EDITORIAL_DRAFT_ROOT: drafts, LOCAL_EDITORIAL_REVIEW_REPORT: report, LOCAL_EDITORIAL_REVIEW_ALERT_STATE: state, LOCAL_EDITORIAL_REVIEW_ALERTS: "0" }
   });
-  if (result.status !== 0) throw new Error(result.stderr || result.stdout || `monitor exit ${result.status}`);
-  return JSON.parse(readFileSync(report, "utf8"));
+  const emitted = JSON.parse(readFileSync(report, "utf8"));
+  const expectedUndeliveredAlert = allowUndeliveredAlert && result.status === 1 && emitted.alert?.status === "skipped" && emitted.alert_delivery_required === true && emitted.alert_delivery_verified === false;
+  if (result.status !== 0 && !expectedUndeliveredAlert) throw new Error(result.stderr || result.stdout || `monitor exit ${result.status}`);
+  return emitted;
 }
 try {
   writeFileSync(draftPath, JSON.stringify(draft("2026-08-10T08:00:00.000Z", "Texte officiel A")), "utf8");
@@ -49,7 +51,7 @@ const changed = run();
   oldDraft.source_items[0].url = "https://example.test/distinct-old-official";
   writeFileSync(join(drafts, "news-old.json"), JSON.stringify(oldDraft), "utf8");
   writeFileSync(join(drafts, "news-overlap.json"), JSON.stringify(draft("2026-08-09T08:00:00.000Z", "Texte officiel remplace")), "utf8");
-  const sla = run();
+  const sla = run({ allowUndeliveredAlert: true });
   const checks = [
     ["same-content-stable-across-timestamp", first.signature === timestampOnly.signature],
     ["material-content-change-detected", changed.signature !== first.signature],
@@ -60,6 +62,7 @@ const changed = run();
     ["non-team-alert-recipient-rejected", invalidRecipientRun.status !== 0 && invalidRecipientReport.alert?.status === "failed" && invalidRecipientReport.alert?.error?.includes("Destinataire operationnel") && invalidRecipientReport.alert?.error?.includes("[email-redacted]")],
     ["old-draft-escalates-status", sla.status === "review-overdue" && sla.critical_count === 1],
     ["old-critical-draft-prioritized", sla.priority_pending?.file === "news-old.json" && sla.priority_pending?.review_severity === "critical"],
+    ["disabled-critical-alert-reports-undelivered", sla.alert?.status === "skipped" && sla.alert_delivery_required === true && sla.alert_delivery_verified === false],
     ["overlapping-older-draft-superseded", sla.pending_count === 2 && sla.total_quarantined_count === 3 && sla.superseded_count === 1 && sla.superseded?.[0]?.file === "news-overlap.json" && sla.superseded?.[0]?.superseded_by === "news-fixture.json"],
     ["supersession-remains-quarantined-and-nondestructive", sla.superseded?.[0]?.retained_quarantined === true && sla.safeguards?.includes("non-destructive-supersession") && sla.retention?.automatic_deletion === false],
     ["queue-exports-age-without-content", sla.review_queue?.every((item) => Number.isFinite(item.age_days)) && !JSON.stringify(sla).includes("Texte officiel ancien")],
