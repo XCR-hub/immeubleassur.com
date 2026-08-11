@@ -18,6 +18,7 @@ const password = String(env("IMAP_PASS", ""));
 const lookbackDays = Math.max(1, Math.min(30, Number.parseInt(env("IMAP_LOOKBACK_DAYS", "7"), 10) || 7));
 const maxMessages = Math.max(1, Math.min(100, Number.parseInt(env("IMAP_MAX_MESSAGES", "40"), 10) || 40));
 const alertStatePath = resolve(env("LOCAL_IMAP_UNMATCHED_ALERT_STATE", join(dirname(reportPath), "imap-unmatched-alert-state.json")));
+const automationHeader = "imap-unmatched-alert-v1";
 
 function nowIso() { return new Date().toISOString(); }
 function numberEnv(name, fallback) { const value = Number.parseInt(env(name, String(fallback)), 10); return Number.isFinite(value) ? value : fallback; }
@@ -76,7 +77,7 @@ async function maybeAlertPending(rows, generatedAt) {
   requireOperationalTeamRecipient(config);
   if (!config.host || !config.username || !config.password || !config.from || !config.to.length) return { attempted: false, status: "missing-smtp-config", recipient_is_team: true };
   const text = [String(rows.length) + " email(s) entrant(s) attendent un rattachement manuel.", "", "Aucun expediteur, objet ou contenu de message n est inclus dans cette alerte.", "Ouvrir le centre dossiers ImmeubleAssur pour relire la file des emails recus et rattacher chaque message avant toute action.", "", "Administration: https://immeubleassur.com/admin#cases"].join("\n");
-  const message = ["From: ImmeubleAssur Operations <" + config.from + ">", "To: " + config.to.join(", "), "Subject: ImmeubleAssur - " + rows.length + " email(s) entrant(s) sans dossier", "Date: " + new Date(generatedAt).toUTCString(), "MIME-Version: 1.0", "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: 8bit", "", text].join("\r\n");
+  const message = ["From: ImmeubleAssur Operations <" + config.from + ">", "To: " + config.to.join(", "), "Subject: ImmeubleAssur - " + rows.length + " email(s) entrant(s) sans dossier", "Date: " + new Date(generatedAt).toUTCString(), "MIME-Version: 1.0", "X-ImmeubleAssur-Automation: " + automationHeader, "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: 8bit", "", text].join("\r\n");
   const receipt = await sendNodeSmtpMail(config, message);
   mkdirSync(dirname(alertStatePath), { recursive: true });
   writeFileSync(alertStatePath, JSON.stringify({ last_alert_at: nowIso(), signature, pending_count: rows.length }, null, 2) + "\n", "utf8");
@@ -118,7 +119,7 @@ class ImapSession {
 }
 
 async function sync() {
-  const report = { generated_at: nowIso(), status: "skipped", mailbox, mode: "read-only-headers", scanned: 0, imported: 0, matched: 0, unmatched: 0, errors: [] };
+  const report = { generated_at: nowIso(), status: "skipped", mailbox, mode: "read-only-headers", scanned: 0, imported: 0, matched: 0, unmatched: 0, ignored_automation: 0, errors: [] };
   if (!host || !username || !password) { report.reason = "imap_configuration_missing"; writeReport(report); console.log(`IMAP sync skipped: ${report.reason}`); return; }
   const session = new ImapSession();
   try {
@@ -133,8 +134,12 @@ async function sync() {
       const messageUid = `${mailbox}:${uid}`;
       const existing = db.prepare("SELECT id FROM case_mail_inbox WHERE mailbox = ? AND message_uid = ?").bind(mailbox, messageUid).first();
       if (existing?.id) continue;
-      const response = await session.command(`UID FETCH ${uid} (BODY.PEEK[HEADER.FIELDS (DATE FROM TO SUBJECT MESSAGE-ID IN-REPLY-TO REFERENCES)])`);
+      const response = await session.command(`UID FETCH ${uid} (BODY.PEEK[HEADER.FIELDS (DATE FROM TO SUBJECT MESSAGE-ID IN-REPLY-TO REFERENCES X-IMMEUBLEASSUR-AUTOMATION)])`);
       const headers = parseHeaders(extractLiterals(response)[0] || "");
+      if (clean(headers["x-immeubleassur-automation"], 120).toLowerCase() === automationHeader) {
+        report.ignored_automation += 1;
+        continue;
+      }
       const subject = clean(headers.subject, 500);
       const reference = caseReference(subject);
       const caseRow = reference ? db.prepare("SELECT id FROM brokerage_cases WHERE case_reference = ?").bind(reference).first() : null;
