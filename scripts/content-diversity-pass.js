@@ -50,12 +50,7 @@ function cityOf(slug, html) {
   const h1 = h1Of(html, "");
   const fromH1 = (h1.match(/Assurance immeuble a ([^.]+)\.?/i) || [])[1];
   if (fromH1) return fromH1.trim();
-  return slug
-    .replace(/^assurance-immeuble-/, "")
-    .split("-")
-    .filter(Boolean)
-    .map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`)
-    .join(" ");
+  return "";
 }
 
 function contextFor(slug, html) {

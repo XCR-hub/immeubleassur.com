@@ -1,33 +1,48 @@
 {
-  "generated_at": "2026-08-10T09:04:19.614Z",
+  "generated_at": "2026-08-11T04:18:22.650Z",
   "status": "passed",
-  "pages_checked": 204,
-  "indexable_pages": 192,
-  "average_html_kb": 20.2,
+  "pages_checked": 205,
+  "indexable_pages": 193,
+  "average_html_kb": 20.1,
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 37.9,
+      "kb": 40.1,
       "issue_count": 0
     },
     {
       "source": "assurance-immeuble.html",
-      "kb": 31.1,
-      "issue_count": 0
-    },
-    {
-      "source": "news/veille-assurance-immeuble-2026-08-01.html",
-      "kb": 28.3,
-      "issue_count": 0
-    },
-    {
-      "source": "news/veille-assurance-immeuble-2026-08-03.html",
-      "kb": 27.6,
+      "kb": 33.4,
       "issue_count": 0
     },
     {
       "source": "prix-assurance-immeuble.html",
-      "kb": 27.5,
+      "kb": 29.5,
+      "issue_count": 0
+    },
+    {
+      "source": "devis-assurance-immeuble.html",
+      "kb": 29.2,
+      "issue_count": 0
+    },
+    {
+      "source": "blog.html",
+      "kb": 28.2,
+      "issue_count": 0
+    },
+    {
+      "source": "news/veille-assurance-immeuble-2026-08-01.html",
+      "kb": 28.1,
+      "issue_count": 0
+    },
+    {
+      "source": "comparateur-assurance-immeuble.html",
+      "kb": 28.1,
+      "issue_count": 0
+    },
+    {
+      "source": "news/veille-assurance-immeuble-2026-08-03.html",
+      "kb": 27.4,
       "issue_count": 0
     },
     {
@@ -36,32 +51,17 @@
       "issue_count": 0
     },
     {
-      "source": "devis-assurance-immeuble.html",
-      "kb": 26.7,
+      "source": "faq.html",
+      "kb": 26,
       "issue_count": 0
     },
     {
       "source": "blog/index.html",
-      "kb": 26,
-      "issue_count": 0
-    },
-    {
-      "source": "assurance-immeuble-de-rapport.html",
-      "kb": 26,
+      "kb": 25.8,
       "issue_count": 0
     },
     {
       "source": "news/veille-assurance-immeuble-2026-07-31.html",
-      "kb": 25.9,
-      "issue_count": 0
-    },
-    {
-      "source": "blog.html",
-      "kb": 25.9,
-      "issue_count": 0
-    },
-    {
-      "source": "assurance-immeuble-obligatoire.html",
       "kb": 25.8,
       "issue_count": 0
     }
@@ -69,16 +69,16 @@
   "assets": [
     {
       "path": "assets/styles.css",
-      "bytes": 74862,
-      "kb": 73.1,
+      "bytes": 71285,
+      "kb": 69.6,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
     },
     {
       "path": "assets/app.js",
-      "bytes": 131997,
-      "kb": 128.9,
+      "bytes": 133155,
+      "kb": 130,
       "budget_bytes": 143360,
       "budget_kb": 140,
       "ok": true
@@ -93,16 +93,16 @@
     },
     {
       "path": "assets/admin.js",
-      "bytes": 99805,
-      "kb": 97.5,
+      "bytes": 103585,
+      "kb": 101.2,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true
     },
     {
       "path": "assets/search-index.json",
-      "bytes": 50218,
-      "kb": 49,
+      "bytes": 51521,
+      "kb": 50.3,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
@@ -111,8 +111,8 @@
   "public_report_assets": [
     {
       "path": "assets/seo-autopilot-latest.json",
-      "bytes": 91909,
-      "kb": 89.8,
+      "bytes": 94831,
+      "kb": 92.6,
       "ok": true
     },
     {
@@ -129,8 +129,8 @@
     },
     {
       "path": "assets/conversion-intelligence-latest.json",
-      "bytes": 15037,
-      "kb": 14.7,
+      "bytes": 15540,
+      "kb": 15.2,
       "ok": true
     },
     {
@@ -170,15 +170,15 @@
       "ok": true
     },
     {
-      "path": "assets/internal-link-equity-latest.json",
-      "bytes": 4405,
-      "kb": 4.3,
+      "path": "assets/performance-budget-latest.json",
+      "bytes": 4560,
+      "kb": 4.5,
       "ok": true
     },
     {
-      "path": "assets/performance-budget-latest.json",
-      "bytes": 4351,
-      "kb": 4.2,
+      "path": "assets/internal-link-equity-latest.json",
+      "bytes": 4405,
+      "kb": 4.3,
       "ok": true
     }
   ],
@@ -201,6 +201,7 @@
     "core-asset-budget",
     "versioned-css-js",
     "turnstile-on-demand",
+    "ga4-script-exact-allowlist",
     "local-hero-image-budget",
     "lcp-image-fetch-priority",
     "below-fold-render-containment",

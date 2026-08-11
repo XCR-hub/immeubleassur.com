@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-05T02:14:25.190Z",
+  "generated_at": "2026-08-11T04:18:38.928Z",
   "pages_checked": 205,
   "status": "passed",
   "severe_issue_count": 0,
@@ -25,10 +25,9 @@
         "blog/refus-assureur-apres-sinistre-immeuble",
         "blog/renouvellement-apres-sinistre-immeuble",
         "blog/sinistre-immeuble-apres-declaration",
-        "blog/sinistre-recurrent-assurance-immeuble",
-        "blog/syndic-copropriete-assurance-contrat"
+        "blog/sinistre-recurrent-assurance-immeuble"
       ],
-      "count": 17
+      "count": 16
     },
     {
       "fingerprint": "la prime annuelle n est qu une ligne du contrat les franchises plafonds exclusions obligations d entretien et delais de declaration peuvent changer fortement le cout final",
@@ -48,10 +47,23 @@
         "blog/refus-assureur-apres-sinistre-immeuble",
         "blog/renouvellement-apres-sinistre-immeuble",
         "blog/sinistre-immeuble-apres-declaration",
-        "blog/sinistre-recurrent-assurance-immeuble",
-        "blog/syndic-copropriete-assurance-contrat"
+        "blog/sinistre-recurrent-assurance-immeuble"
       ],
-      "count": 17
+      "count": 16
+    },
+    {
+      "fingerprint": "le guide se concentre sur les pieces les garanties les responsabilites et le passage vers un dossier de devis exploitable sans affirmer de position google non mesuree",
+      "pages": [
+        "blog/assurance-sci-immeuble-cartographie-patrimoine",
+        "blog/coproprietaire-non-occupant-documents-devis",
+        "blog/dossier-preuve-assurance-copropriete",
+        "blog/mandat-courtier-assurance-immeuble-consultation",
+        "blog/multirisque-immeuble-garanties-batiment-preuves",
+        "blog/pno-cno-preuves-lot-non-occupant",
+        "blog/prix-assurance-immeuble-franchises-reste-a-charge",
+        "blog/syndic-benevole-assurance-immeuble-archives-ag"
+      ],
+      "count": 8
     }
   ],
   "severe_issues": [],

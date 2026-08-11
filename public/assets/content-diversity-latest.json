@@ -1,10 +1,23 @@
 {
-  "generated_at": "2026-08-01T14:36:54.319Z",
-  "pages_checked": 185,
-  "pages_changed": 8,
-  "paragraphs_contextualized": 0,
-  "quality_support_pages": 20,
-  "replacement_families": [],
+  "generated_at": "2026-08-11T04:16:46.002Z",
+  "pages_checked": 204,
+  "pages_changed": 18,
+  "paragraphs_contextualized": 27,
+  "quality_support_pages": 13,
+  "replacement_families": [
+    {
+      "id": "money-intent-errors",
+      "count": 9
+    },
+    {
+      "id": "money-intent-risk-scope",
+      "count": 9
+    },
+    {
+      "id": "money-intent-lead-method",
+      "count": 9
+    }
+  ],
   "safeguards": [
     "visible-content-only",
     "no-hidden-keywords",
