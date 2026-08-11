@@ -247,6 +247,6 @@ export async function onRequestPost({ request, env }) {
   } catch {}
 
   const action = clean(payload.action || "send_latest", 80);
-  if (action === "send_latest") return sendLatestIssue(request, env);
+  if (action === "send_latest") return json({ success: false, error: "Envoi manuel desactive : utiliser le worker planifie avec verrou atomique" }, 409);
   return json({ success: false, error: "Action newsletter inconnue" }, 422);
 }

@@ -27,6 +27,7 @@ const checks = [
   ["recipient-pii-absent-from-report", delivery.includes("no-recipient-pii-in-report")],
   ["admin-never-sends-draft", admin.includes("status = 'published'") && !admin.includes("status IN ('published', 'draft')")],
   ["admin-excludes-already-sent", admin.includes("NOT EXISTS (SELECT 1 FROM newsletter_events")],
+  ["admin-manual-send-disabled", admin.includes('action === "send_latest"') && admin.includes("Envoi manuel desactive") && admin.includes("409")],
   ["admin-requires-deterministic-payload", admin.includes("json_extract(payload, '$.provider') = 'deterministic'")],
   ["runtime-delivery-enabled", runtime.includes('runStep("newsletter_delivery"') && task.includes("NEWSLETTER_AUTO_SEND = '1'")],
   ["dry-run-supported", delivery.includes('process.argv.includes("--dry-run")')],
