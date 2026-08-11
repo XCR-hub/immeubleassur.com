@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-11T17:20:22.125Z",
+  "generated_at": "2026-08-11T17:34:44.921Z",
   "files_checked": 205,
   "files_changed": 1,
   "replacements": 1,
   "assets": {
     "styles": "/assets/styles.css?v=b22aed2b87",
     "app": "/assets/app.js?v=df296930c1",
-    "admin": "/assets/admin.js?v=96bc41c022",
+    "admin": "/assets/admin.js?v=17769007a5",
     "adminProfile": "/assets/admin-profile.js?v=d2c9b7240c",
     "clientPortal": "/assets/client-portal.js?v=81d5124e2f",
     "partnerPortal": "/assets/partner-portal.js?v=b9cd664ef8"
