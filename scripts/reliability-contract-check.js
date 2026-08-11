@@ -113,6 +113,7 @@ const checks=[
   ["monitor-covers-fresh-google-search-console-readiness",monitor.includes("inspectGoogleReadiness(googleReadinessPath)")&&monitor.includes('item.id === "google-search-console"')&&monitor.includes("ageMinutes <= 90")],
   ["missing-gsc-configuration-is-visible-warning",monitor.includes('gscAction?.reason === "missing-secret"')&&monitor.includes('fresh ? "warn" : "fail"')&&monitor.includes("secret_values_exported: false")],
   ["monitor-covers-fresh-serp-measurement",monitor.includes("inspectSearchIntelligence(searchIntelligencePath)")&&monitor.includes("ageMinutes <= 390")&&monitor.includes("measured > 0")],
+  ["monitor-separates-technical-score-from-ranking-proof",monitor.includes('report.score_scope === "on-page-technical"')&&monitor.includes("ranking_measurement_status")&&monitor.includes("ranking_improvement_verified")],
   ["fallback-rankings-never-presented-as-measured",monitor.includes("fallback_positions_treated_as_measured: false")&&monitor.includes("measured_queries: measured")&&monitor.includes("fallback_queries: fallback")],
   ["monitor-failure-exits-gracefully",monitor.includes("if (!report.success) process.exitCode = 1")&&!monitor.includes("if (!report.success) process.exit(1)")],
   ["monitor-covers-dependency-security",monitor.includes("inspectDependencySecurity(dependencySecurityPath)")&&monitor.includes("last_successful_audit_age_hours")&&monitor.includes("evaluation.reason")&&runtime.includes('runStep("dependency_security"')],

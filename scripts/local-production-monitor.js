@@ -277,8 +277,14 @@ function inspectSeoAutopilot(reportPath) {
     const measuredQueries = new Set(rankings.filter((row) => row.measured === true && row.actionable === true && row.data_source === "serpapi" && row.confidence === "measured").map((row) => row.query));
     const fallbackUnsafe = rankings.some((row) => row.measured !== true && (row.actionable === true || row.recommendation));
     const rankingActions = (report.google_feedback_loop?.actions || []).filter((row) => row.source === "search-intelligence" && row.query);
-    return !fallbackUnsafe && rankingActions.every((row) => measuredQueries.has(row.query));
+    const measurement = report.ranking_measurement || {};
+    const measurementHonest = report.score_scope === "on-page-technical" && ["awaiting-measured-data", "gsc-measured", "serpapi-measured"].includes(measurement.status) && measurement.static_score_is_ranking_proof === false && measurement.ranking_improvement_verified === false;
+    return measurementHonest && !fallbackUnsafe && rankingActions.every((row) => measuredQueries.has(row.query));
   }, (report) => ({
+    technical_score: Number(report.average_score || 0),
+    score_scope: report.score_scope || "unknown",
+    ranking_measurement_status: report.ranking_measurement?.status || "unknown",
+    ranking_improvement_verified: report.ranking_measurement?.ranking_improvement_verified === true,
     measured_queries: Number(report.search_intelligence?.measured_count || 0),
     fallback_queries: Number(report.search_intelligence?.fallback_count || 0),
     ranking_actions: (report.google_feedback_loop?.actions || []).filter((row) => row.source === "search-intelligence" && row.query).length,

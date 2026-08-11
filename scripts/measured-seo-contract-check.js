@@ -46,6 +46,7 @@ const checks = [
   ["seo-autopilot-recomputes-measured-rank-counts", seoAutopilot.includes("row.measured === true && Number.isFinite(row.position) && row.position <= 3") && seoAutopilot.includes("average_position: report.measured_average_position || null")],
   ["seo-autopilot-feedback-requires-measured-actionable-serp", seoAutopilot.includes('item.measured === true && item.actionable === true && item.data_source === "serpapi" && item.confidence === "measured"')],
   ["seo-autopilot-feedback-does-not-invent-ranking-advice", !seoAutopilot.includes('row.recommendation || "Renforcer contenu, preuves, FAQ, maillage et CTA devis."')],
+  ["static-seo-score-is-not-ranking-proof", seoAutopilot.includes('report.score_scope = "on-page-technical"') && seoAutopilot.includes('status: gscMeasured > 0 ? "gsc-measured" : serpMeasured > 0 ? "serpapi-measured" : "awaiting-measured-data"') && seoAutopilot.includes('ranking_improvement_verified: false') && seoAutopilot.includes('static_score_is_ranking_proof: false')],
   ["seo-autopilot-supports-runtime-search-input", seoAutopilot.includes("LOCAL_SEARCH_INTELLIGENCE_REPORT") && seoAutopilot.includes("SEARCH_INTELLIGENCE_REPORT")],
   ["seo-autopilot-supports-runtime-safe-outputs", seoAutopilot.includes("LOCAL_SEO_AUTOPILOT_REPORT") && seoAutopilot.includes("LOCAL_SEO_AUTOPILOT_PUBLIC_REPORT")],
   ["seo-autopilot-skips-noindex-opportunities", seoAutopilot.includes("const noindex =") && seoAutopilot.includes("const indexablePages = pages.filter((page) => !page.noindex)") && seoAutopilot.includes("noindex_pages_skipped")],
