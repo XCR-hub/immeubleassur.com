@@ -1,7 +1,7 @@
 [
   {
-    "title": "Assurance batiment proprietaire: immeuble, SCI ou local",
-    "description": "Assurance batiment proprietaire: garanties immeuble, RC, locaux, SCI, PNO et audit contrat avant devis.",
+    "title": "Assurance batiment proprietaire: murs et locaux",
+    "description": "Assurance batiment proprietaire pour murs, locaux, dependances, SCI ou bailleur: garanties batiment, RC et audit contrat.",
     "url": "/assurance-batiment-proprietaire"
   },
   {
@@ -260,8 +260,8 @@
     "url": "/assurance-immeuble-meuble-colocation"
   },
   {
-    "title": "Assurance immeuble en monopropriete",
-    "description": "Assurance immeuble en monopropriete: garanties batiment, RC bailleur, PNO, sinistres et devis proprietaire unique.",
+    "title": "Assurance immeuble en monopropriete familiale",
+    "description": "Assurance immeuble en monopropriete: proprietaire unique, SCI familiale, lots loues, parties communes internes et devis specialise.",
     "url": "/assurance-immeuble-monopropriete"
   },
   {
@@ -360,8 +360,8 @@
     "url": "/assurance-immeuble-rennes"
   },
   {
-    "title": "Assurance immeuble resilie ou refuse par assureur",
-    "description": "Assurance immeuble resilie ou refuse: reconstruire un dossier apres sinistres, aggravation ou refus de souscription.",
+    "title": "Assurance immeuble resilie: retrouver une solution",
+    "description": "Assurance immeuble resiliee ou refusee: causes de resiliation, pieces a reunir, correctifs et consultation assureur specialisee.",
     "url": "/assurance-immeuble-resilie"
   },
   {
@@ -390,8 +390,8 @@
     "url": "/assurance-immeuble-saintes"
   },
   {
-    "title": "Assurance immeuble avec sinistres: refaire un dossier",
-    "description": "Assurance immeuble avec sinistres: historique, causes, franchises, mesures correctives et solution de renouvellement.",
+    "title": "Assurance immeuble avec sinistres: dossier a defendre",
+    "description": "Assurance immeuble avec sinistres: historique, causes, recurrence, franchises, mesures correctives et demande de devis specialisee.",
     "url": "/assurance-immeuble-sinistre"
   },
   {

@@ -246,6 +246,26 @@ const replacements = [
     build: (ctx) => `Avant de traiter ${ctx.page}, preparez ${ctx.documents}. Ajoutez les informations d'AG, de syndic ou de bail quand elles expliquent mieux le risque.`
   },
   {
+    id: "blog-documents-short",
+    text: "Preparez le contrat actuel, le dernier appel de prime, l'adresse complete, le nombre de lots, les surfaces, les usages du batiment, les sinistres sur 36 mois et les travaux votes ou prevus.",
+    build: (ctx) => `Pour ${ctx.page}, preparez ${ctx.documents}; completez avec les surfaces, usages, sinistres sur 36 mois et travaux votes ou prevus.`
+  },
+  {
+    id: "blog-premium-short",
+    text: "La prime annuelle n'est qu'une ligne du contrat. Les franchises, plafonds, exclusions, obligations d'entretien et delais de declaration peuvent changer fortement le cout final.",
+    build: (ctx) => `Pour ${ctx.page}, la prime annuelle doit etre rapprochee des franchises, plafonds, exclusions, obligations d'entretien et delais de declaration.`
+  },
+  {
+    id: "measured-serp-guide",
+    text: "Le guide se concentre sur les pieces, les garanties, les responsabilites et le passage vers un dossier de devis exploitable, sans affirmer de position Google non mesuree.",
+    build: (ctx) => `Pour ${ctx.page}, le guide relie ${ctx.documents}, garanties et responsabilites au dossier de devis, sans transformer un signal non mesure en position Google.`
+  },
+  {
+    id: "editorial-actionability",
+    text: "La veille devient actionnable quand elle est reliee aux pieces du contrat, a l'echeance, aux sinistres et aux travaux prevus. Ce mini-controle prepare un echange court avec un courtier.",
+    build: (ctx) => "Pour " + ctx.page + ", la veille devient actionnable lorsqu'elle relie les pieces du contrat, l'echeance, les sinistres et les travaux au prochain echange avec le courtier."
+  },
+  {
     id: "blog-mixed-use",
     text: "Pour un immeuble mixte ou un local professionnel, l'activite exacte doit etre declaree. Pour une SCI, la lecture doit distinguer les lots, les occupants et les contrats deja en place afin d'eviter les doublons.",
     build: (ctx) => `Dans ${ctx.page}, les usages mixtes doivent etre declares precisement: activite, occupants, contrats voisins et responsabilites evitent les doublons comme les zones non couvertes.`

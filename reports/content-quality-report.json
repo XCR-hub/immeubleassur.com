@@ -1,71 +1,12 @@
 {
-  "generated_at": "2026-08-11T04:18:38.928Z",
+  "generated_at": "2026-08-11T04:29:45.799Z",
   "pages_checked": 205,
   "status": "passed",
   "severe_issue_count": 0,
   "warning_count": 0,
   "duplicate_titles": [],
   "duplicate_descriptions": [],
-  "repeated_paragraph_clusters": [
-    {
-      "fingerprint": "preparez le contrat actuel le dernier appel de prime l adresse complete le nombre de lots les surfaces les usages du batiment les sinistres sur 36 mois et les travaux votes ou prevus",
-      "pages": [
-        "blog/assurance-immeuble-ancien",
-        "blog/assurance-immeuble-vacant",
-        "blog/devis-assurance-immeuble-comparatif",
-        "blog/devis-assurance-immeuble-complet",
-        "blog/devis-assurance-immeuble-echeance",
-        "blog/devis-assurance-immeuble-refus",
-        "blog/devis-courtier-assurance-immeuble",
-        "blog/immeuble-mixte-restaurant",
-        "blog/infiltration-toiture-terrasse",
-        "blog/local-commercial-vacant",
-        "blog/prix-assurance-immeuble-franchise",
-        "blog/ravalement-toiture-travaux-assurance",
-        "blog/refus-assureur-apres-sinistre-immeuble",
-        "blog/renouvellement-apres-sinistre-immeuble",
-        "blog/sinistre-immeuble-apres-declaration",
-        "blog/sinistre-recurrent-assurance-immeuble"
-      ],
-      "count": 16
-    },
-    {
-      "fingerprint": "la prime annuelle n est qu une ligne du contrat les franchises plafonds exclusions obligations d entretien et delais de declaration peuvent changer fortement le cout final",
-      "pages": [
-        "blog/assurance-immeuble-ancien",
-        "blog/assurance-immeuble-vacant",
-        "blog/devis-assurance-immeuble-comparatif",
-        "blog/devis-assurance-immeuble-complet",
-        "blog/devis-assurance-immeuble-echeance",
-        "blog/devis-assurance-immeuble-refus",
-        "blog/devis-courtier-assurance-immeuble",
-        "blog/immeuble-mixte-restaurant",
-        "blog/infiltration-toiture-terrasse",
-        "blog/local-commercial-vacant",
-        "blog/prix-assurance-immeuble-franchise",
-        "blog/ravalement-toiture-travaux-assurance",
-        "blog/refus-assureur-apres-sinistre-immeuble",
-        "blog/renouvellement-apres-sinistre-immeuble",
-        "blog/sinistre-immeuble-apres-declaration",
-        "blog/sinistre-recurrent-assurance-immeuble"
-      ],
-      "count": 16
-    },
-    {
-      "fingerprint": "le guide se concentre sur les pieces les garanties les responsabilites et le passage vers un dossier de devis exploitable sans affirmer de position google non mesuree",
-      "pages": [
-        "blog/assurance-sci-immeuble-cartographie-patrimoine",
-        "blog/coproprietaire-non-occupant-documents-devis",
-        "blog/dossier-preuve-assurance-copropriete",
-        "blog/mandat-courtier-assurance-immeuble-consultation",
-        "blog/multirisque-immeuble-garanties-batiment-preuves",
-        "blog/pno-cno-preuves-lot-non-occupant",
-        "blog/prix-assurance-immeuble-franchises-reste-a-charge",
-        "blog/syndic-benevole-assurance-immeuble-archives-ag"
-      ],
-      "count": 8
-    }
-  ],
+  "repeated_paragraph_clusters": [],
   "severe_issues": [],
   "warnings": [],
   "policy_alignment": [
