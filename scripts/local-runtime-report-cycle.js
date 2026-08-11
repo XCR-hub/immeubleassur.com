@@ -71,6 +71,7 @@ function readJson(path) {
 }
 
 function run() {
+  const cycleSourceRevision = sourceRevision();
   ensureDir(runtimeReportsRoot);
   ensureDir(join(runtimeAssetsRoot, "assets"));
   const commonRuntimeEnv = {
@@ -182,7 +183,7 @@ function run() {
   const report = {
     success: steps.every((step) => step.ok),
     generated_at: new Date().toISOString(),
-    source_revision: sourceRevision(),
+    source_revision: cycleSourceRevision,
     runtime_storage: { reports: "isolated", assets: "isolated" },
     public_runtime_assets: {
       growth_ops: reportFileName(runtimeGrowthAsset),
