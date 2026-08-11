@@ -17,7 +17,8 @@ const nonLocalImmeubleSlugs = new Set([
   "assurance-immeuble-obligatoire",
   "assurance-immeuble-resilie",
   "assurance-immeuble-sinistre",
-  "assurance-immeuble-syndic-benevole"
+  "assurance-immeuble-syndic-benevole",
+  "assurance-immeuble-syndic-professionnel"
 ]);
 
 const explicitSlugRules = [

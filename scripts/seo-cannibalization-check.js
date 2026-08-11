@@ -32,7 +32,7 @@ const primaryByCluster = {
   "pno-cno": ["pno-cno", "assurance-pno-cno", "devis-pno-cno", "assurance-cno", "assurance-pno"],
   "devis-courtier": ["devis-assurance-immeuble", "devis-assurance-immeuble-en-ligne", "courtier-assurance-immeuble", "comparateur-assurance-immeuble"],
   "prix-tarif": ["prix-assurance-immeuble", "tarif-assurance-immeuble", "blog/prix-assurance-immeuble-au-m2"],
-  "copropriete-syndic": ["assurance-copropriete", "assurance-immeuble-syndic-benevole", "rc-syndic", "faq/copropriete"],
+  "copropriete-syndic": ["assurance-copropriete", "assurance-immeuble-syndic-benevole", "assurance-immeuble-syndic-professionnel", "rc-syndic", "faq/copropriete"],
   "sinistre-resilie": ["gestion-sinistres-immeuble", "assurance-immeuble-sinistre", "assurance-immeuble-resilie"],
   "sci-bailleur": ["assurance-sci", "assurance-immeuble-de-rapport", "assurance-immeuble-monopropriete", "assurance-immeuble-locatif"],
   "local-commercial": ["assurance-local-commercial", "blog/local-commercial-vacant", "blog/immeuble-mixte-restaurant"],

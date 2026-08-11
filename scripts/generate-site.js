@@ -770,6 +770,7 @@ function servicePage(page) {
   const faqIds = { "rc-syndic": "faq-rc-syndic", "gestion-sinistres-immeuble": "faq-gestion-sinistres", "dommages-ouvrage-immeuble": "faq-dommages-ouvrage" };
   const faqId = faqIds[page.slug] ? ` id="${faqIds[page.slug]}"` : "";
   const faqBlock = faqRows.length ? `<section${faqId} class="band faq-band"><div class="container narrow"><p class="eyebrow dark">Questions frequentes</p><h2>${esc(page.title)}: points a verifier avant toute conclusion.</h2><div class="faq-list">${faqRows.map(([question, answer]) => `<details><summary>${esc(question)}</summary><p>${esc(answer)}</p></details>`).join("")}</div><div class="source-box"><strong>Sources officielles a consulter</strong>${faqSources.map(([url, label]) => `<a href="${esc(url)}" rel="nofollow noopener">${esc(label)}</a>`).join("")}</div></div></section>` : "";
+  const syndicProfessionalBridge = ["assurance-copropriete", "rc-syndic"].includes(page.slug) ? `<section class="band compare-band"><div class="container narrow"><p class="eyebrow dark">Gestion professionnelle</p><h2>Vous pilotez plusieurs coproprietes ?</h2><p class="large-copy">Consultez notre methode dediee aux cabinets de syndic pour centraliser echeances, sinistres, cahiers des charges et comparaisons.</p><a class="button secondary" href="/assurance-immeuble-syndic-professionnel">Assurance immeuble syndic professionnel</a></div></section>` : "";
   const faqSchema = faqRows.length ? `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", "@id": `${SITE}/${page.slug}#faq`, mainEntity: faqRows.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) })}</script>` : "";
   const body = `
     <section class="page-hero compact-hero">
@@ -792,6 +793,7 @@ function servicePage(page) {
     </section>
     ${page.sections.map(([title, text]) => `<section class="band ${title.length % 2 ? "intro-band" : "compare-band"}"><div class="container narrow"><p class="eyebrow dark">${esc(page.title)}</p><h2>${esc(title)}</h2><p class="large-copy">${esc(text)}</p></div></section>`).join("")}
     ${faqBlock}
+    ${syndicProfessionalBridge}
     <section class="band faq-band">
       <div class="section-head"><p class="eyebrow dark">Pages liees</p><h2>Approfondir le sujet.</h2></div>
       <div class="card-grid">

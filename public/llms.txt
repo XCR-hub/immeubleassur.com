@@ -14,6 +14,7 @@ ORIAS: 11 061 425
 - https://immeubleassur.com/assurance-immeuble
 - https://immeubleassur.com/assurance-copropriete
 - https://immeubleassur.com/assurance-immeuble-syndic-benevole
+- https://immeubleassur.com/assurance-immeuble-syndic-professionnel
 - https://immeubleassur.com/rc-syndic
 - https://immeubleassur.com/assurance-pno-cno
 - https://immeubleassur.com/assurance-sci

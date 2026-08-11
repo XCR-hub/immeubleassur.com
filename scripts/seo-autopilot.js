@@ -47,7 +47,8 @@ const intentBacklog = [
   ["assurance immeuble resilie", "assurance-immeuble-resilie"],
   ["assurance immeuble avec sinistres", "assurance-immeuble-sinistre"],
   ["tarif assurance immeuble", "tarif-assurance-immeuble"],
-  ["assurance immeuble syndic benevole", "assurance-immeuble-syndic-benevole"]
+  ["assurance immeuble syndic benevole", "assurance-immeuble-syndic-benevole"],
+  ["assurance immeuble syndic professionnel", "assurance-immeuble-syndic-professionnel"]
 ];
 
 function walk(dir) {

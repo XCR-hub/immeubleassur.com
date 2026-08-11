@@ -22,7 +22,8 @@ const KEYWORDS = [
   ["courtier assurance immeuble", "/courtier-assurance-immeuble", "lead"],
   ["prix assurance immeuble", "/prix-assurance-immeuble", "comparison"],
   ["multirisque immeuble", "/multirisque-immeuble", "money"],
-  ["assurance immeuble syndic benevole", "/assurance-immeuble-syndic-benevole", "niche"]
+  ["assurance immeuble syndic benevole", "/assurance-immeuble-syndic-benevole", "niche"],
+  ["assurance immeuble syndic professionnel", "/assurance-immeuble-syndic-professionnel", "commercial"]
 ].map(([query, target_url, intent]) => ({ query, target_url, intent }));
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }

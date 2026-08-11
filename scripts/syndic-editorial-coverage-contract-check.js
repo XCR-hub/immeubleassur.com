@@ -13,6 +13,7 @@ const files = {
   factory: readFileSync("scripts/seo-content-factory.js", "utf8"),
   seo: readFileSync("scripts/seo-autopilot.js", "utf8"),
   professional: readFileSync("public/blog/syndic-copropriete-assurance-contrat.html", "utf8"),
+  professionalLanding: readFileSync("public/assurance-immeuble-syndic-professionnel.html", "utf8"),
   volunteer: readFileSync("public/blog/copropriete-petite-syndic-benevole.html", "utf8"),
   rc: readFileSync("public/rc-syndic.html", "utf8"),
   generator: readFileSync("scripts/generate-site.js", "utf8")
@@ -24,6 +25,10 @@ const checks = [
   ["syndic-sources-content-filtered", files.editorial.includes('["adil57-syndic-actualites", "adil20-syndic-actualites"].includes(source?.id)')],
   ["professional-generator-angle", files.factory.includes("syndic-copropriete-assurance-contrat|Syndic professionnel et assurance copropriete") && files.factory.includes("Quand un syndic professionnel pilote plusieurs contrats immeuble")],
   ["professional-query-measured", files.seo.includes('["syndic professionnel assurance copropriete", "blog/syndic-copropriete-assurance-contrat"]')],
+  ["professional-landing-indexable", files.professionalLanding.includes('meta name="robots" content="index, follow') && files.professionalLanding.includes('rel="canonical" href="https://immeubleassur.com/assurance-immeuble-syndic-professionnel"')],
+  ["professional-landing-operational-angle", files.professionalLanding.includes("portefeuille de coproprietes") && files.professionalLanding.includes("cahier des charges") && files.professionalLanding.includes("sans formuler d interpretation juridique automatique")],
+  ["professional-landing-lead-form", files.professionalLanding.includes('id="lead-form"') && files.professionalLanding.includes('value="syndic-professionnel" selected') && files.professionalLanding.includes("team@immeubleassur.com")],
+  ["professional-landing-internal-bridges", files.rc.includes('href="/assurance-immeuble-syndic-professionnel"') && readFileSync("public/assurance-copropriete.html", "utf8").includes('href="/assurance-immeuble-syndic-professionnel"') && files.generator.includes("syndicProfessionalBridge")],
   ["professional-page-specific", files.professional.includes("Syndic professionnel - guide expert") && files.professional.includes("Centraliser mandats, contrats et echeances par copropriete")],
   ["professional-human-legal-validation", files.professional.includes("Une IA peut-elle valider le contrat ?") && files.professional.includes("decision restent validees humainement")],
   ["professional-official-sources", files.professional.includes("legifrance.gouv.fr") && files.professional.includes("service-public.fr")],
