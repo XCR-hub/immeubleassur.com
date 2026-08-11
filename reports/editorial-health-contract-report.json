@@ -1,10 +1,11 @@
 {
-  "generated_at": "2026-08-10T02:51:54.807Z",
+  "generated_at": "2026-08-11T17:48:38.623Z",
   "status": "passed",
-  "checks": 9,
+  "checks": 31,
   "missing": [],
   "policy": {
     "alert_after_consecutive_holds": 3,
+    "alert_after_consecutive_coverage_gaps": 3,
     "maximum_public_edition_age_days": 14,
     "legal_ai_auto_publication": false
   }

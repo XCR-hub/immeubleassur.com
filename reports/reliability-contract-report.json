@@ -1,13 +1,20 @@
 {
-  "generated_at": "2026-08-10T03:55:05.798Z",
+  "generated_at": "2026-08-11T17:46:31.476Z",
   "status": "passed",
-  "checks": 16,
+  "checks": 94,
   "missing": [],
   "safeguards": [
     "tiered-backup-retention",
     "backup-artifact-hash-verification",
+    "cross-volume-mirror-verification",
+    "non-destructive-restore-drill",
+    "strict-ready-connector-failures",
+    "single-pass-ready-connectors",
+    "strict-script-csp",
+    "smtp-recipient-envelope-acceptance",
     "cross-system-freshness",
     "email-alert-cooldown",
-    "lead-sla-alerts"
+    "lead-sla-alerts",
+    "actionable-lighthouse-diagnostics"
   ]
 }

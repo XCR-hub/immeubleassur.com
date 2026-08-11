@@ -8,11 +8,13 @@ import { sendNodeSmtpMail } from "./local-smtp.js";
 import { createLocalDocumentScanner } from "./local-document-scanner.js";
 import { readGitRevision } from "./git-revision.js";
 import { googleSiteVerificationBody, normalizeGoogleSiteVerificationFile } from "./google-site-verification.js";
+import { createLocalEditorialReviewStore } from "./local-editorial-review-store.js";
 
 loadDefaultEnvFiles();
 
 const root = resolve(env("LOCAL_SITE_ROOT", "public"));
 const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));
+const runtimeReportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", join("reports")));
 const runtimePublicationsRoot = resolve(env("LOCAL_RUNTIME_PUBLICATIONS_ROOT", join(runtimeAssetsRoot, "publications")));
 const host = env("LOCAL_SITE_HOST", env("HOST", "0.0.0.0"));
 const port = Number.parseInt(env("LOCAL_SITE_PORT", env("PORT", "8790")), 10) || 8790;
@@ -20,6 +22,10 @@ const googleSiteVerificationFile = normalizeGoogleSiteVerificationFile(env("GOOG
 const dbPath = env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite"));
 const db = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
 const documentScanner = createLocalDocumentScanner({ binary: env("CLAMSCAN_BIN", "C:\\Program Files\\ClamAV\\clamscan.exe"), fallbackBinary: env("DEFENDER_SCAN_BIN", "C:\\Program Files\\Windows Defender\\MpCmdRun.exe"), timeoutMs: Number.parseInt(env("CLAMSCAN_TIMEOUT_MS", "30000"), 10) || 30000 });
+const editorialReviewStore = createLocalEditorialReviewStore({
+  draftsRoot: env("LOCAL_EDITORIAL_DRAFT_ROOT", join(runtimeReportsRoot, "editorial-drafts")),
+  reviewReportPath: env("LOCAL_EDITORIAL_REVIEW_REPORT", join(runtimeReportsRoot, "local-editorial-review-report.json"))
+});
 const moduleCache = new Map();
 
 const sourceRevision = readGitRevision();
@@ -36,6 +42,7 @@ const apiRoutes = new Map([
   ["/api/admin/attribution", "functions/api/admin/attribution.js"],
   ["/api/admin/cases", "functions/api/admin/cases.js"],
   ["/api/admin/content", "functions/api/admin/content.js"],
+  ["/api/admin/editorial-review", "functions/api/admin/editorial-review.js"],
   ["/api/admin/integrations", "functions/api/admin/integrations.js"],
   ["/api/admin/leads", "functions/api/admin/leads.js"],
   ["/api/admin/newsletter", "functions/api/admin/newsletter.js"],
@@ -146,7 +153,10 @@ function envForRequest() {
     DB: db,
     SEND_SMTP_MAIL: sendNodeSmtpMail,
     SCAN_DOCUMENT: documentScanner,
-    DOCUMENT_SCANNER_STATUS: documentScanner.status
+    DOCUMENT_SCANNER_STATUS: documentScanner.status,
+    LIST_EDITORIAL_REVIEWS: editorialReviewStore.listDrafts,
+    READ_EDITORIAL_REVIEW: editorialReviewStore.readDraft,
+    REVIEW_EDITORIAL_DRAFT: editorialReviewStore.reviewDraft
   };
 }
 

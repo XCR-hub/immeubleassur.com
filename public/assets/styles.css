@@ -3972,3 +3972,11 @@ textarea:focus {
   .quote-priority-contact .button { width: 100%; }
 }
 /* quote-priority-contact:end */
+
+
+/* admin-editorial-human-review-2026-08:start */
+#editorial-review-detail[hidden]{display:none}
+#editorial-review-text{max-height:32rem;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:1rem;border:1px solid var(--border);border-radius:.75rem;background:#f8fafc;color:#172033}
+#editorial-review-sources{margin:1rem 0}
+#editorial-review-sources a{display:inline-block;max-width:100%;overflow-wrap:anywhere;margin:.2rem 0}
+/* admin-editorial-human-review-2026-08:end */

@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-11T04:28:43.859Z",
+  "generated_at": "2026-08-11T17:48:31.708Z",
   "status": "passed",
   "pages_checked": 205,
   "indexable_pages": 193,
-  "average_html_kb": 20.1,
+  "average_html_kb": 20.2,
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 40.1,
+      "kb": 40.2,
       "issue_count": 0
     },
     {
@@ -16,13 +16,13 @@
       "issue_count": 0
     },
     {
-      "source": "prix-assurance-immeuble.html",
+      "source": "devis-assurance-immeuble.html",
       "kb": 29.5,
       "issue_count": 0
     },
     {
-      "source": "devis-assurance-immeuble.html",
-      "kb": 29.2,
+      "source": "prix-assurance-immeuble.html",
+      "kb": 29.5,
       "issue_count": 0
     },
     {
@@ -32,7 +32,7 @@
     },
     {
       "source": "news/veille-assurance-immeuble-2026-08-01.html",
-      "kb": 28.1,
+      "kb": 28.2,
       "issue_count": 0
     },
     {
@@ -52,25 +52,25 @@
     },
     {
       "source": "faq.html",
-      "kb": 26,
+      "kb": 26.1,
       "issue_count": 0
     },
     {
       "source": "blog/index.html",
-      "kb": 25.8,
+      "kb": 25.9,
       "issue_count": 0
     },
     {
       "source": "news/veille-assurance-immeuble-2026-07-31.html",
-      "kb": 25.7,
+      "kb": 25.8,
       "issue_count": 0
     }
   ],
   "assets": [
     {
       "path": "assets/styles.css",
-      "bytes": 71285,
-      "kb": 69.6,
+      "bytes": 72406,
+      "kb": 70.7,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
@@ -93,16 +93,16 @@
     },
     {
       "path": "assets/admin.js",
-      "bytes": 103585,
-      "kb": 101.2,
+      "bytes": 111939,
+      "kb": 109.3,
       "budget_bytes": 133120,
       "budget_kb": 130,
       "ok": true
     },
     {
       "path": "assets/search-index.json",
-      "bytes": 51585,
-      "kb": 50.4,
+      "bytes": 52551,
+      "kb": 51.3,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
@@ -117,8 +117,8 @@
     },
     {
       "path": "assets/seo-cannibalization-latest.json",
-      "bytes": 20105,
-      "kb": 19.6,
+      "bytes": 20944,
+      "kb": 20.5,
       "ok": true
     },
     {
@@ -153,8 +153,8 @@
     },
     {
       "path": "assets/seo-angle-differentiation-latest.json",
-      "bytes": 9628,
-      "kb": 9.4,
+      "bytes": 9864,
+      "kb": 9.6,
       "ok": true
     },
     {
@@ -170,14 +170,14 @@
       "ok": true
     },
     {
-      "path": "assets/internal-link-equity-latest.json",
-      "bytes": 4405,
-      "kb": 4.3,
+      "path": "assets/performance-budget-latest.json",
+      "bytes": 4573,
+      "kb": 4.5,
       "ok": true
     },
     {
-      "path": "assets/performance-budget-latest.json",
-      "bytes": 4363,
+      "path": "assets/internal-link-equity-latest.json",
+      "bytes": 4405,
       "kb": 4.3,
       "ok": true
     }
