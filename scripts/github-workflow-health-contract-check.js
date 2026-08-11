@@ -11,5 +11,7 @@ const fixtures = [
   [null, null, "stale", false]
 ];
 const failed = fixtures.filter(([scheduled, recovery, status, healthy]) => { const value = classifyWorkflowHealth(scheduled, recovery, now, 36); return value.status !== status || value.healthy !== healthy; });
-if (failed.length) throw new Error(`GitHub workflow health contract failed: ${failed.length}/${fixtures.length}`);
-console.log(`GitHub workflow health contract passed: ${fixtures.length}/${fixtures.length}.`);
+const overdue = classifyWorkflowHealth(run({ conclusion: "failure", updated_at: "2026-08-10T04:10:00Z" }), run({ event: "workflow_dispatch", updated_at: "2026-08-11T02:20:00Z" }), Date.parse("2026-08-11T05:18:00Z"), 36, { hour_utc: 3, minute_utc: 17, grace_minutes: 120 });
+const beforeDeadline = classifyWorkflowHealth(run({ conclusion: "failure", updated_at: "2026-08-10T04:10:00Z" }), run({ event: "workflow_dispatch", updated_at: "2026-08-11T02:20:00Z" }), Date.parse("2026-08-11T05:16:00Z"), 36, { hour_utc: 3, minute_utc: 17, grace_minutes: 120 });
+if (failed.length || overdue.status !== "scheduled-proof-overdue" || overdue.healthy !== false || beforeDeadline.status !== "recovered-awaiting-schedule" || beforeDeadline.healthy !== true || !overdue.scheduled_proof_due_at) throw new Error(`GitHub workflow health contract failed: fixtures=${failed.length}, overdue=${overdue.status}, before=${beforeDeadline.status}`);
+console.log(`GitHub workflow health contract passed: ${fixtures.length + 2}/${fixtures.length + 2}.`);

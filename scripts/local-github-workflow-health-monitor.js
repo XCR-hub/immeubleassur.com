@@ -6,7 +6,11 @@ loadDefaultEnvFiles();
 const reportPath = resolve(env("LOCAL_GITHUB_WORKFLOW_HEALTH_REPORT", join(env("LOCAL_RUNTIME_REPORTS_ROOT", "reports"), "local-github-workflow-health-report.json")));
 const repository = env("GITHUB_WORKFLOW_HEALTH_REPOSITORY", "XCR-hub/immeubleassur.com");
 const maxAgeHours = Math.max(24, Number(env("GITHUB_WORKFLOW_MAX_AGE_HOURS", "36")) || 36);
-const workflows = ["seo-autopilot.yml", "editorial-autopilot.yml"];
+const scheduleGraceMinutes = Math.max(30, Number(env("GITHUB_WORKFLOW_SCHEDULE_GRACE_MINUTES", "120")) || 120);
+const workflows = [
+  { workflow: "seo-autopilot.yml", hour_utc: 3, minute_utc: 17 },
+  { workflow: "editorial-autopilot.yml", hour_utc: 4, minute_utc: 44 }
+];
 function previousReport() { try { return JSON.parse(readFileSync(reportPath, "utf8")); } catch { return null; } }
 async function latest(workflow, event) {
   const url = `https://api.github.com/repos/${repository}/actions/workflows/${workflow}/runs?event=${event}&per_page=1`;
@@ -20,11 +24,11 @@ function safeRun(run) {
 }
 try {
   const checkedAt = Date.now();
-  const rows = await Promise.all(workflows.map(async (workflow) => {
+  const rows = await Promise.all(workflows.map(async ({ workflow, hour_utc, minute_utc }) => {
     const [scheduled, recovery] = await Promise.all([latest(workflow, "schedule"), latest(workflow, "workflow_dispatch")]);
-    return { workflow, ...classifyWorkflowHealth(scheduled, recovery, checkedAt, maxAgeHours), scheduled: safeRun(scheduled), recovery: safeRun(recovery) };
+    return { workflow, schedule_utc: `${String(hour_utc).padStart(2, "0")}:${String(minute_utc).padStart(2, "0")}`, ...classifyWorkflowHealth(scheduled, recovery, checkedAt, maxAgeHours, { hour_utc, minute_utc, grace_minutes: scheduleGraceMinutes }), scheduled: safeRun(scheduled), recovery: safeRun(recovery) };
   }));
-  const report = { generated_at: new Date(checkedAt).toISOString(), status: rows.every((row) => row.status === "healthy") ? "healthy" : rows.every((row) => row.healthy) ? "recovered-awaiting-schedule" : "failed", success: rows.every((row) => row.healthy), repository, max_age_hours: maxAgeHours, workflows: rows, summary: { expected: rows.length, healthy: rows.filter((row) => row.healthy).length, scheduled_success: rows.filter((row) => row.scheduled_success).length, recovered: rows.filter((row) => row.recovery_verified).length, failed: rows.filter((row) => !row.healthy).length }, safeguards: ["public-metadata-only", "scheduled-run-observed", "manual-recovery-must-be-newer", "stale-run-detected", "no-github-token-required"] };
+  const report = { generated_at: new Date(checkedAt).toISOString(), status: rows.every((row) => row.status === "healthy") ? "healthy" : rows.every((row) => row.healthy) ? "recovered-awaiting-schedule" : "failed", success: rows.every((row) => row.healthy), repository, max_age_hours: maxAgeHours, schedule_grace_minutes: scheduleGraceMinutes, workflows: rows, summary: { expected: rows.length, healthy: rows.filter((row) => row.healthy).length, scheduled_success: rows.filter((row) => row.scheduled_success).length, recovered: rows.filter((row) => row.recovery_verified).length, failed: rows.filter((row) => !row.healthy).length }, safeguards: ["public-metadata-only", "scheduled-run-observed", "manual-recovery-must-be-newer", "stale-run-detected", "no-github-token-required"] };
   mkdirSync(dirname(reportPath), { recursive: true });
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(`GitHub workflow health ${report.status}: ${report.summary.healthy}/${report.summary.expected}, scheduled=${report.summary.scheduled_success}, recovered=${report.summary.recovered}.`);
