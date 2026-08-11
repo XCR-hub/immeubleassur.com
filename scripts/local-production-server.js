@@ -7,6 +7,7 @@ import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { sendNodeSmtpMail } from "./local-smtp.js";
 import { createLocalDocumentScanner } from "./local-document-scanner.js";
 import { readGitRevision } from "./git-revision.js";
+import { googleSiteVerificationBody, normalizeGoogleSiteVerificationFile } from "./google-site-verification.js";
 
 loadDefaultEnvFiles();
 
@@ -15,6 +16,7 @@ const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", 
 const runtimePublicationsRoot = resolve(env("LOCAL_RUNTIME_PUBLICATIONS_ROOT", join(runtimeAssetsRoot, "publications")));
 const host = env("LOCAL_SITE_HOST", env("HOST", "0.0.0.0"));
 const port = Number.parseInt(env("LOCAL_SITE_PORT", env("PORT", "8790")), 10) || 8790;
+const googleSiteVerificationFile = normalizeGoogleSiteVerificationFile(env("GOOGLE_SITE_VERIFICATION_FILE", ""));
 const dbPath = env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite"));
 const db = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
 const documentScanner = createLocalDocumentScanner({ binary: env("CLAMSCAN_BIN", "C:\\Program Files\\ClamAV\\clamscan.exe"), fallbackBinary: env("DEFENDER_SCAN_BIN", "C:\\Program Files\\Windows Defender\\MpCmdRun.exe"), timeoutMs: Number.parseInt(env("CLAMSCAN_TIMEOUT_MS", "30000"), 10) || 30000 });
@@ -336,6 +338,12 @@ const server = createServer((request, response) => {
     const location = `${requestTarget.pathname.replace(/\/+$/, "")}${requestTarget.search}`;
     response.writeHead(308, { Location: location, "Cache-Control": "public, max-age=86400" });
     response.end();
+    return;
+  }
+  const verificationBody = googleSiteVerificationBody(requestTarget.pathname, googleSiteVerificationFile);
+  if (["GET", "HEAD"].includes(request.method || "GET") && verificationBody) {
+    response.writeHead(200, { "Content-Type": "text/plain; charset=utf-8", "Content-Length": Buffer.byteLength(verificationBody), "Cache-Control": "public, max-age=300" });
+    response.end(request.method === "HEAD" ? undefined : verificationBody);
     return;
   }
   const pathname = apiPathOf(request.url);
