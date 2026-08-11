@@ -14,9 +14,16 @@ $acquired = $false
 $startedAt = [DateTime]::UtcNow
 
 function Invoke-Git([string[]]$Arguments) {
-  $output = & git -C $SiteRoot @Arguments 2>&1
-  if ($LASTEXITCODE -ne 0) { throw "git $($Arguments -join ' ') failed: $($output -join ' ')" }
-  return @($output)
+  $previousErrorAction = $ErrorActionPreference
+  try {
+    $ErrorActionPreference = 'Continue'
+    $output = & git -C $SiteRoot @Arguments 2>&1
+    $exitCode = $LASTEXITCODE
+  } finally {
+    $ErrorActionPreference = $previousErrorAction
+  }
+  if ($exitCode -ne 0) { throw "git $($Arguments -join ' ') failed: $($output -join ' ')" }
+  return @($output | ForEach-Object { $_.ToString() })
 }
 
 function Write-DeploymentReport([string]$Status, [string]$Before, [string]$After, [string]$ErrorMessage = '') {

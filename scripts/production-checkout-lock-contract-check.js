@@ -13,6 +13,7 @@ const checks = [
   ["dirty-production-checkout-rejected", deploy.includes("status', '--porcelain") && deploy.includes("uncommitted changes")],
   ["production-branch-pinned", deploy.includes("symbolic-ref', '--short', 'HEAD") && deploy.includes("expected '$Branch'")],
   ["updates-are-fast-forward-only", deploy.includes("pull', '--ff-only', $Remote, $Branch")],
+  ["native-git-stderr-does-not-bypass-exit-code", deploy.includes("$previousErrorAction = $ErrorActionPreference") && deploy.includes("$exitCode = $LASTEXITCODE") && deploy.includes("if ($exitCode -ne 0)") && deploy.includes("$ErrorActionPreference = $previousErrorAction")],
   ["deployment-report-has-revisions", deploy.includes("revision_before") && deploy.includes("revision_after")],
   ["validation-mode-does-not-pull", deploy.includes("if (-not $ValidateOnly)")]
 ];
