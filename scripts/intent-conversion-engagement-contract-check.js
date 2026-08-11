@@ -64,8 +64,10 @@ try {
   const growth = JSON.parse(readFileSync(growthOut, "utf8"));
   const productionRegistry = JSON.parse(readFileSync(join(root, "config", "conversion-interventions.json"), "utf8"));
   const productionIntervention = productionRegistry.interventions?.find((item) => item.id === "lead-email-optional-v1");
+  const priorityContactIntervention = productionRegistry.interventions?.find((item) => item.id === "urgent-quote-priority-contact-v1");
   const checks = [
     ["production-intervention-registry-valid", productionRegistry.schema_version === 1 && productionIntervention?.deployed_at === "2026-08-10T05:45:21.000Z" && productionIntervention?.scope?.includes("intent-conversion")],
+    ["priority-contact-intervention-registered", priorityContactIntervention?.deployed_at === "2026-08-11T16:31:05.000Z" && priorityContactIntervention?.scope?.includes("intent-conversion") && priorityContactIntervention?.metric === "urgent-session-to-phone-or-form-start"],
     ["historical-starts-preserved", automatic.historical_context?.form_starts === 2 && automatic.historical_context?.pre_intervention_events === 4],
     ["historical-starts-not-current-alert", automatic.summary?.form_starts === 0 && !automaticTypes.includes("aucun-submit-global")],
     ["observation-window-visible", automatic.status === "observing" && automatic.observation?.intervention_id === "fixture-cro-change"],
