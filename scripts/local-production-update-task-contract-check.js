@@ -6,7 +6,7 @@ const checks = [
   ["system-service-account", installer.includes("-UserId 'SYSTEM'") && installer.includes("-LogonType ServiceAccount") && installer.includes("S-1-5-18")],
   ["highest-run-level", installer.includes("-RunLevel Highest")],
   ["ten-minute-cadence", installer.includes("New-TimeSpan -Minutes 10") && installer.includes("PT10M")],
-  ["minute-three-offset", installer.includes("* 10) + 3") && installer.includes("($startMinute % 10) -ne 3")],
+  ["offset-precedes-runtime-and-monitor", installer.includes("* 10) + 12") && installer.includes("($startMinute % 10) -ne 2")],
   ["single-instance", installer.includes("-MultipleInstances IgnoreNew")],
   ["bounded-execution", installer.includes("New-TimeSpan -Minutes 25")],
   ["locked-fast-forward-deployment", deploy.includes("Global\\ImmeubleAssurProductionCheckout") && deploy.includes("pull', '--ff-only'")],

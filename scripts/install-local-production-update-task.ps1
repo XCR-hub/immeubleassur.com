@@ -30,7 +30,7 @@ $arguments = @(
 $action = New-ScheduledTaskAction -Execute 'PowerShell.exe' -Argument $arguments -WorkingDirectory $siteRootResolved
 $now = Get-Date
 $hourStart = Get-Date -Hour $now.Hour -Minute 0 -Second 0
-$first = $hourStart.AddMinutes(([math]::Floor($now.Minute / 10) * 10) + 3)
+$first = $hourStart.AddMinutes(([math]::Floor($now.Minute / 10) * 10) + 12)
 if ($first -le $now) { $first = $first.AddMinutes(10) }
 $trigger = New-ScheduledTaskTrigger -Once -At $first -RepetitionInterval (New-TimeSpan -Minutes 10) -RepetitionDuration (New-TimeSpan -Days 3650)
 $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
@@ -43,7 +43,7 @@ $hasTenMinutes = @($task.Triggers | Where-Object { $_.Repetition.Interval -eq 'P
 $startMinute = ([DateTime]$task.Triggers[0].StartBoundary).Minute
 if ($sid -ne 'S-1-5-18' -or $task.Principal.LogonType -ne 'ServiceAccount') { throw "Principal invalide: $sid/$($task.Principal.LogonType)" }
 if ($task.Actions.Execute -notlike '*PowerShell.exe' -or $task.Actions.Arguments -notlike '*update-local-production-checkout.ps1*') { throw 'Action de mise a jour invalide.' }
-if (-not $hasTenMinutes -or ($startMinute % 10) -ne 3) { throw "Planification invalide: interval10m=$hasTenMinutes minute=$startMinute" }
+if (-not $hasTenMinutes -or ($startMinute % 10) -ne 2) { throw "Planification invalide: interval10m=$hasTenMinutes minute=$startMinute" }
 Write-Output ("task={0} state={1} principal={2} interval10m={3} offset={4}" -f $task.TaskName, $task.State, $task.Principal.UserId, $hasTenMinutes, ($startMinute % 10))
 if ($RunNow) {
   Start-ScheduledTask -TaskName $TaskName
