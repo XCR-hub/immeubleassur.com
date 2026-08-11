@@ -5,6 +5,7 @@ const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
 const SITE = "https://immeubleassur.com";
 const duplicateAliasSlugs = new Set(["blog/index", "faq/index"]);
+const utilitySlugs = new Set(["mentions-legales", "confidentialite", "merci"]);
 const stopwords = new Set("assurance immeuble immeubles pour avec dans des les une aux votre vous nous plus sur par qui est sont cette entre sans devis prix garanties contrat contrats copropriete pno cno sci syndic bailleur proprietaire proprietaires".split(" "));
 const bannedManipulation = [
   /contenu\s+non\s+identifiable/i,
@@ -93,10 +94,10 @@ function auditPage(file) {
     if (/display\s*:\s*none|visibility\s*:\s*hidden|font-size\s*:\s*0/i.test(html) && /assurance|devis|immeuble/i.test(html)) warnings.push("possible-hidden-seo-text");
     if (canonicalUrl !== canonical(slug)) issues.push("canonical-mismatch");
     if (h1Count !== 1) issues.push("h1-count");
-    if (words < 380 && !["mentions-legales", "confidentialite", "merci"].includes(slug)) warnings.push("thin-content-risk");
+    if (words < 380 && !utilitySlugs.has(slug)) warnings.push("thin-content-risk");
     if (density.density > 0.095 && density.count >= 18) warnings.push(`keyword-density-${density.keyword}`);
-    if (!form && !html.includes('class="button primary"') && !["mentions-legales", "confidentialite", "merci"].includes(slug)) warnings.push("weak-conversion-path");
-    if (detailsCount === 0 && /assurance|devis|prix|courtier|pno|cno/i.test(title)) warnings.push("no-visible-faq");
+    if (!form && !html.includes('class="button primary"') && !utilitySlugs.has(slug)) warnings.push("weak-conversion-path");
+    if (!utilitySlugs.has(slug) && detailsCount === 0 && /assurance|devis|prix|courtier|pno|cno/i.test(title)) warnings.push("no-visible-faq");
   }
 
   return { slug, url: canonical(slug), title, description, noindex: noIndex, words, h1_count: h1Count, faq_count: detailsCount, has_lead_form: form, top_keyword: density, issues, warnings, paragraphs: paragraphs(html).map(paragraphFingerprint) };
