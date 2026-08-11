@@ -3953,3 +3953,22 @@ textarea:focus {
   }
 }
 .admin-profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:end}.admin-profile-grid .admin-toolbar{margin:0;align-items:end}.admin-profile-actions{display:flex;gap:1rem;align-items:center;justify-content:space-between;margin-top:1rem}.admin-profile-actions .form-status{margin:0}.admin-profile-panel{margin-bottom:1.25rem}@media (max-width:760px){.admin-profile-grid{grid-template-columns:1fr}.admin-profile-actions{align-items:stretch;flex-direction:column}.admin-profile-actions button{width:100%}}
+/* quote-priority-contact:start */
+.quote-priority-contact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid rgba(205, 141, 42, 0.34);
+  border-radius: 16px;
+  background: #fff8e8;
+}
+.quote-priority-contact span { display: grid; gap: 3px; }
+.quote-priority-contact small { color: var(--muted); line-height: 1.45; }
+.quote-priority-contact .button { flex: 0 0 auto; }
+@media (max-width: 560px) {
+  .quote-priority-contact { align-items: stretch; flex-direction: column; }
+  .quote-priority-contact .button { width: 100%; }
+}
+/* quote-priority-contact:end */

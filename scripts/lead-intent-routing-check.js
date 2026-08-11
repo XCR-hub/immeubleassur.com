@@ -73,7 +73,7 @@ const snippetChecks = [
   },
   {
     file: "public/devis-assurance-immeuble.html",
-    snippets: ['id="lead-form"', '<select name="need">']
+    snippets: ['id="lead-form"', '<select name="need">', 'data-quote-priority-contact', 'data-track="quote-priority-phone"', 'href="tel:+33180855786"']
   }
 ];
 
