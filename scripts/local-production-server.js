@@ -19,6 +19,16 @@ const db = openLocalSqlite({ dbPath, schemaPath: "schema.sql" });
 const documentScanner = createLocalDocumentScanner({ binary: env("CLAMSCAN_BIN", "C:\\Program Files\\ClamAV\\clamscan.exe"), fallbackBinary: env("DEFENDER_SCAN_BIN", "C:\\Program Files\\Windows Defender\\MpCmdRun.exe"), timeoutMs: Number.parseInt(env("CLAMSCAN_TIMEOUT_MS", "30000"), 10) || 30000 });
 const moduleCache = new Map();
 
+function checkoutRevision() {
+  try {
+    const gitRoot = resolve(".git");
+    const head = readFileSync(join(gitRoot, "HEAD"), "utf8").trim();
+    if (!head.startsWith("ref: ")) return head.slice(0, 40);
+    return readFileSync(join(gitRoot, head.slice(5)), "utf8").trim().slice(0, 40);
+  } catch { return ""; }
+}
+const sourceRevision = checkoutRevision();
+
 globalThis.__IMMEUBLEASSUR_SEND_SMTP_MAIL = sendNodeSmtpMail;
 
 const apiRoutes = new Map([
@@ -339,6 +349,7 @@ const server = createServer((request, response) => {
         service: "immeubleassur-local-site",
         status: health.ready ? "ok" : "degraded",
         mode: "sqlite",
+        source_revision: sourceRevision,
         checks: health,
         generated_at: new Date().toISOString()
       },

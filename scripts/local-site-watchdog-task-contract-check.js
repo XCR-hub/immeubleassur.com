@@ -11,6 +11,7 @@ const checks = [
   ["watchdog-action", installer.includes("local-site-watchdog.js") && installer.includes("--site-dir") && installer.includes("--report")],
   ["post-registration-validation", installer.includes("Action watchdog invalide") && installer.includes("Declencheurs invalides")],
   ["watchdog-health-and-headers", watchdog.includes("runtimeCheck()") && watchdog.includes("requiredSecurityHeaders")],
+  ["watchdog-restarts-stale-runtime-revision", watchdog.includes("expectedRevision") && watchdog.includes("source_revision") && watchdog.includes("revision_matches") && watchdog.includes("runtime revision mismatch")],
   ["watchdog-targeted-process-discovery", watchdog.includes("WATCHDOG_PROCESS_MATCH_MARKER") && watchdog.includes("matchesSiteProcess")],
   ["watchdog-bounded-readiness-poll", watchdog.includes("async function waitForRuntime") && watchdog.includes("elapsed_ms") && watchdog.includes("await sleep(250)")],
   ["watchdog-retries-transient-startup-failures", watchdog.includes("LOCAL_SITE_WATCHDOG_STARTUP_ATTEMPTS") && watchdog.includes("attempt <= startupAttempts") && watchdog.includes("launch_attempts: launches.length")],

@@ -181,13 +181,13 @@ function inspectProductionCheckout(reportPath) {
   if (!existsSync(reportPath)) return check("production_checkout_update", false, { path: reportPath, error: "missing" });
   try {
     const report = JSON.parse(readFileSync(reportPath, "utf8"));
-    const requiredSafeguards = ["named-checkout-mutex", "clean-worktree-required", "fast-forward-only", "branch-pinned", "no-local-paths"];
+    const requiredSafeguards = ["named-checkout-mutex", "clean-worktree-required", "fast-forward-only", "branch-pinned", "runtime-revision-verified", "no-local-paths"];
     const revisionBefore = String(report.revision_before || "");
     const revisionAfter = String(report.revision_after || "");
     const sourceRevision = currentSourceRevision();
     const safeguardsVerified = requiredSafeguards.every((item) => report.safeguards?.includes(item));
-    const ok = ["updated", "validated"].includes(report.status) && /^[a-f0-9]{40}$/.test(revisionBefore) && /^[a-f0-9]{40}$/.test(revisionAfter) && revisionAfter === sourceRevision && (!report.validate_only || revisionBefore === revisionAfter) && safeguardsVerified && !report.error;
-    return check("production_checkout_update", ok, { path: reportPath, status: report.status || "unknown", validate_only: report.validate_only === true, revision_matches_runtime: revisionAfter === sourceRevision, safeguards_verified: safeguardsVerified, duration_seconds: Number(report.duration_seconds || 0) });
+    const ok = ["updated", "validated"].includes(report.status) && /^[a-f0-9]{40}$/.test(revisionBefore) && /^[a-f0-9]{40}$/.test(revisionAfter) && revisionAfter === sourceRevision && report.runtime_revision_verified === true && report.served_revision === revisionAfter && (!report.validate_only || revisionBefore === revisionAfter) && safeguardsVerified && !report.error;
+    return check("production_checkout_update", ok, { path: reportPath, status: report.status || "unknown", validate_only: report.validate_only === true, revision_matches_runtime: revisionAfter === sourceRevision, served_revision_matches: report.served_revision === revisionAfter, runtime_revision_verified: report.runtime_revision_verified === true, safeguards_verified: safeguardsVerified, duration_seconds: Number(report.duration_seconds || 0) });
   } catch (error) {
     return check("production_checkout_update", false, { path: reportPath, error: error.message || "deployment report unreadable" });
   }

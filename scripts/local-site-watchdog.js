@@ -1,4 +1,4 @@
-import { closeSync, existsSync, mkdirSync, openSync, writeFileSync } from "node:fs";
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync, spawn } from "node:child_process";
@@ -64,6 +64,16 @@ const requiredSecurityHeaders = [
 ];
 const WATCHDOG_PROCESS_MATCH_MARKER = "watchdog-process-discovery-v2";
 
+function checkoutRevision() {
+  try {
+    const gitRoot = join(siteDir, ".git");
+    const head = readFileSync(join(gitRoot, "HEAD"), "utf8").trim();
+    if (!head.startsWith("ref: ")) return head.slice(0, 40);
+    return readFileSync(join(gitRoot, head.slice(5)), "utf8").trim().slice(0, 40);
+  } catch { return ""; }
+}
+const expectedRevision = checkoutRevision();
+
 mkdirSync(logDir, { recursive: true });
 mkdirSync(dirname(reportPath), { recursive: true });
 
@@ -92,11 +102,17 @@ function healthCheck() {
           try {
             body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
           } catch {}
+          const baseHealthy = response.statusCode === 200 && body?.success === true && body?.status === "ok";
+          const observedRevision = String(body?.source_revision || "");
+          const revisionMatches = Boolean(expectedRevision && observedRevision === expectedRevision);
           resolveHealth({
-            ok: response.statusCode === 200 && body?.success === true && body?.status === "ok",
+            ok: baseHealthy && revisionMatches,
             status_code: response.statusCode || 0,
             body,
-            error: ""
+            expected_revision: expectedRevision,
+            observed_revision: observedRevision,
+            revision_matches: revisionMatches,
+            error: baseHealthy && !revisionMatches ? "runtime revision mismatch" : ""
           });
         });
       }

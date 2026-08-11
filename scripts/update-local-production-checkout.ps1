@@ -3,6 +3,9 @@ param(
   [string]$Remote = 'origin',
   [string]$Branch = 'main',
   [string]$ReportPath = '',
+  [string]$NodePath = 'C:\Program Files\nodejs\node.exe',
+  [string]$RuntimeRoot = 'F:\immeubleassur-runtime',
+  [string]$HealthOrigin = 'http://127.0.0.1:8790',
   [ValidateRange(1, 1500)]
   [int]$LockTimeoutSeconds = 1500,
   [switch]$ValidateOnly
@@ -36,14 +39,21 @@ function Write-DeploymentReport([string]$Status, [string]$Before, [string]$After
     validate_only = [bool]$ValidateOnly
     revision_before = $Before
     revision_after = $After
+    activation_attempted = $activationAttempted
+    served_revision = $servedRevision
+    runtime_revision_verified = $runtimeRevisionVerified
     duration_seconds = [Math]::Round(([DateTime]::UtcNow - $startedAt).TotalSeconds, 1)
-    safeguards = @('named-checkout-mutex', 'clean-worktree-required', 'fast-forward-only', 'branch-pinned', 'no-local-paths')
+    safeguards = @('named-checkout-mutex', 'clean-worktree-required', 'fast-forward-only', 'branch-pinned', 'runtime-revision-verified', 'no-local-paths')
     error = $ErrorMessage
   } | ConvertTo-Json -Depth 4
   [IO.File]::WriteAllText($ReportPath, $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
 }
 
 $before = ''
+$after = ''
+$activationAttempted = $false
+$servedRevision = ''
+$runtimeRevisionVerified = $false
 try {
   $mutexSecurity = New-Object System.Security.AccessControl.MutexSecurity
   $authenticatedUsers = New-Object Security.Principal.SecurityIdentifier('S-1-5-11')
@@ -63,12 +73,24 @@ try {
   $before = (Invoke-Git @('rev-parse', 'HEAD') | Select-Object -First 1).Trim()
   if (-not $ValidateOnly) { Invoke-Git @('pull', '--ff-only', $Remote, $Branch) | Out-Null }
   $after = (Invoke-Git @('rev-parse', 'HEAD') | Select-Object -First 1).Trim()
+  if (-not $ValidateOnly -and $before -ne $after) {
+    $activationAttempted = $true
+    $watchdog = Join-Path $resolvedRoot 'scripts\local-site-watchdog.js'
+    $watchdogReport = Join-Path $RuntimeRoot 'reports\local-site-watchdog-report.json'
+    $watchdogLogs = Join-Path $RuntimeRoot 'logs'
+    & $NodePath $watchdog --site-dir $resolvedRoot --node $NodePath --log-dir $watchdogLogs --report $watchdogReport --force
+    if ($LASTEXITCODE -ne 0) { throw "Production runtime activation failed with exit code $LASTEXITCODE." }
+  }
+  $health = Invoke-RestMethod -Uri "$HealthOrigin/health" -Method Get -TimeoutSec 15
+  $servedRevision = [string]$health.source_revision
+  $runtimeRevisionVerified = $health.success -eq $true -and $health.status -eq 'ok' -and $servedRevision -eq $after
+  if (-not $runtimeRevisionVerified) { throw "Production runtime revision '$servedRevision' does not match checkout '$after'." }
   $modeStatus = if ($ValidateOnly) { 'validated' } else { 'updated' }
   $modeVerb = if ($ValidateOnly) { 'validated' } else { 'updated' }
   Write-DeploymentReport $modeStatus $before $after
   Write-Output "Production checkout ${modeVerb}: $after"
 } catch {
-  Write-DeploymentReport 'failed' $before '' $_.Exception.Message
+  Write-DeploymentReport 'failed' $before $after $_.Exception.Message
   throw
 } finally {
   if ($acquired) { $mutex.ReleaseMutex() }
