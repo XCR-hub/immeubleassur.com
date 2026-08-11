@@ -6,6 +6,8 @@ loadDefaultEnvFiles();
 const pass = readFileSync("scripts/ai-discoverability-pass.js", "utf8");
 const publisher = readFileSync("scripts/local-editorial-publisher.js", "utf8");
 const monitor = readFileSync("scripts/local-ai-discoverability-monitor.js", "utf8");
+const productionServer = readFileSync("scripts/local-production-server.js", "utf8");
+const staticServer = readFileSync("scripts/local-static-server.js", "utf8");
 const attribution = readFileSync("functions/api/admin/attribution.js", "utf8");
 const sourceQuality = readFileSync("scripts/local-source-quality-monitor.js", "utf8");
 const robots = readFileSync("public/robots.txt", "utf8");
@@ -47,6 +49,7 @@ const checks = [
   ["official-openai-guidance-recorded", monitor.includes("https://help.openai.com/en/articles/12627856-publishers-and-developers-faq")],
   ["official-perplexity-guidance-recorded", monitor.includes("https://docs.perplexity.ai/docs/resources/perplexity-crawlers")],
   ["official-anthropic-guidance-recorded", monitor.includes("https://support.anthropic.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler")],
+  ["canonical-trailing-slash-redirect", [productionServer, staticServer].every((server) => server.includes("requestTarget.pathname.endsWith") && server.includes("response.writeHead(308") && server.includes("Location: location")) && monitor.includes("trailing-slash-redirects-to-canonical") && monitor.includes('redirect: "manual"')],
   ["live-monitor-verifies-multi-ai-access", monitor.includes("perplexitybot-can-read-watch") && monitor.includes("claude-searchbot-can-read-watch") && monitor.includes("claude-user-can-read-watch") && monitor.includes("googlebot-can-read-watch") && monitor.includes("bingbot-can-read-watch")],
   ["live-monitor-verifies-active-edition-utf8", monitor.includes("active-edition-declares-utf8") && monitor.includes("active-edition-has-no-mojibake") && monitor.includes("active_edition_content_type")],
   ["mojibake-check-preserves-valid-french-accents", monitor.includes("\\u00c3[\\u0080-\\u00bf]") && monitor.includes("\\u00e2\\u20ac") && !monitor.includes("Ã.|Â.|â.")],

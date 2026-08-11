@@ -338,6 +338,13 @@ function healthSnapshot() {
 }
 const server = createServer((request, response) => {
   applySecurityHeaders(response, request);
+  const requestTarget = new URL(request.url || "/", "http://local");
+  if (["GET", "HEAD"].includes(request.method || "GET") && requestTarget.pathname.length > 1 && requestTarget.pathname.endsWith("/")) {
+    const location = `${requestTarget.pathname.replace(/\/+$/, "")}${requestTarget.search}`;
+    response.writeHead(308, { Location: location, "Cache-Control": "public, max-age=86400" });
+    response.end();
+    return;
+  }
   const pathname = apiPathOf(request.url);
   if (["GET", "HEAD"].includes(request.method || "GET") && new URL(request.url || "/", "http://local").pathname === "/health") {
     const health = healthSnapshot();

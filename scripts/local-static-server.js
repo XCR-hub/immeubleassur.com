@@ -96,6 +96,13 @@ function resolvePath(requestUrl) {
 
 const server = createServer((request, response) => {
   applySecurityHeaders(response, request);
+  const requestTarget = new URL(request.url || "/", "http://local");
+  if (["GET", "HEAD"].includes(request.method || "GET") && requestTarget.pathname.length > 1 && requestTarget.pathname.endsWith("/")) {
+    const location = `${requestTarget.pathname.replace(/\/+$/, "")}${requestTarget.search}`;
+    response.writeHead(308, { Location: location, "Cache-Control": "public, max-age=86400" });
+    response.end();
+    return;
+  }
   const runtimeFile = resolveRuntimePath(request.url);
   const file = runtimeFile || resolvePath(request.url);
   if (!file) {
