@@ -263,9 +263,10 @@ function inspectEditorialReview(reportPath) {
     const critical = Number(report.critical_count || 0);
     const warning = Number(report.warning_count || 0);
     const fresh = ageMinutes <= 90;
-    const ok = fresh && report.success === true && critical === 0 && warning === 0;
-    const severity = fresh && report.success === true && critical === 0 && warning > 0 ? "warn" : "fail";
-    return check("editorial_review_sla", ok, { path: reportPath, status: report.status || "unknown", age_minutes: ageMinutes, max_age_minutes: 90, pending: Number(report.pending_count || 0), warning, critical, oldest_age_days: Number(report.oldest_age_days || 0), priority_file: report.priority_pending?.file || "" }, severity);
+    const deliveryVerified = report.alert_delivery_verified === true;
+    const ok = fresh && report.success === true && deliveryVerified && critical === 0 && warning === 0;
+    const severity = fresh && report.success === true && deliveryVerified && critical === 0 && warning > 0 ? "warn" : "fail";
+    return check("editorial_review_sla", ok, { path: reportPath, status: report.status || "unknown", age_minutes: ageMinutes, max_age_minutes: 90, pending: Number(report.pending_count || 0), warning, critical, oldest_age_days: Number(report.oldest_age_days || 0), priority_file: report.priority_pending?.file || "", alert_status: report.alert?.status || "", alert_delivery_required: report.alert_delivery_required === true, alert_delivery_verified: deliveryVerified }, severity);
   } catch (error) {
     return check("editorial_review_sla", false, { path: reportPath, error: error.message || "editorial review unreadable" });
   }

@@ -4,6 +4,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 loadDefaultEnvFiles();
 const backup=readFileSync("scripts/local-sqlite-backup.js","utf8");
 const monitor=readFileSync("scripts/local-production-monitor.js","utf8");
+const editorialReview=readFileSync("scripts/local-editorial-review-monitor.js","utf8");
 const runtime=readFileSync("scripts/local-runtime-report-cycle.js","utf8");
 const task=readFileSync("scripts/local-runtime-task.ps1","utf8");
 const runtimeTaskInstaller=readFileSync("scripts/install-local-runtime-task.ps1","utf8");
@@ -101,7 +102,8 @@ const checks=[
   ["runtime-marks-in-cycle-monitor-call",runtime.includes('LOCAL_PRODUCTION_MONITOR_SKIP_RUNTIME_CYCLE: "1"')],
   ["monitor-covers-security-surface",monitor.includes('inspectJsonRuntime("security_surface"') && runtime.includes('runStep("security_surface_monitor"')],
   ["runtime-assets-are-flat-only",server.includes('assetRelative.includes("/")')&&staticServer.includes('assetRelative.includes("/")')&&security.includes('nested-runtime-assets-not-public')],
-  ["monitor-covers-editorial-review-sla",monitor.includes("inspectEditorialReview(editorialReviewPath)")&&monitor.includes('severity = fresh && report.success === true && critical === 0 && warning > 0 ? "warn" : "fail"')],
+  ["monitor-covers-editorial-review-sla",monitor.includes("inspectEditorialReview(editorialReviewPath)")&&monitor.includes('severity = fresh && report.success === true && deliveryVerified && critical === 0 && warning > 0 ? "warn" : "fail"')&&monitor.includes("alert_delivery_verified")],
+  ["editorial-review-alert-delivery-enforced",editorialReview.includes("alert_delivery_required")&&editorialReview.includes("alert_delivery_verified")&&editorialReview.includes('["sent", "cooldown"]')&&editorialReview.includes("!report.alert_delivery_verified")],
   ["monitor-covers-fresh-google-search-console-readiness",monitor.includes("inspectGoogleReadiness(googleReadinessPath)")&&monitor.includes('item.id === "google-search-console"')&&monitor.includes("ageMinutes <= 90")],
   ["missing-gsc-configuration-is-visible-warning",monitor.includes('gscAction?.reason === "missing-secret"')&&monitor.includes('fresh ? "warn" : "fail"')&&monitor.includes("secret_values_exported: false")],
   ["monitor-covers-fresh-serp-measurement",monitor.includes("inspectSearchIntelligence(searchIntelligencePath)")&&monitor.includes("ageMinutes <= 390")&&monitor.includes("measured > 0")],

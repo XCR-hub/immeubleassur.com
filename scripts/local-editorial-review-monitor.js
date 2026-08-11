@@ -215,10 +215,12 @@ async function run() {
     safeguards: ["quarantined-only", "metadata-alert-only", "human-review-required", "no-auto-publication", "content-aware-cooldown", "same-content-timestamp-stable", "non-destructive-supersession", "same-issue-and-legal-sensitivity", "source-overlap-threshold", "no-automatic-deletion", "age-based-review-sla", "oldest-critical-first", "actionable-source-links", "admin-review-link", "admin-review-anchor-resolves", "no-local-paths-in-report-or-alert", "smtp-diagnostics-redacted"]
   };
   report.alert = await maybeAlert(report).catch((error) => ({ attempted: true, status: "failed", error: safeDiagnostic(error.message || "editorial review alert failed") }));
+  report.alert_delivery_required = warningCount > 0 || criticalCount > 0;
+  report.alert_delivery_verified = !report.alert_delivery_required || ["sent", "cooldown"].includes(report.alert.status);
   mkdirSync(dirname(reportPath), { recursive: true });
   writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   console.log(`Editorial review monitor: ${report.status}, pending=${report.pending_count}, legal=${report.legal_sensitive_count}, alert=${report.alert.status}.`);
-  if (report.alert.status === "failed") process.exitCode = 1;
+  if (report.alert.status === "failed" || !report.alert_delivery_verified) process.exitCode = 1;
 }
 
 run().catch((error) => { console.error(error); process.exit(1); });
