@@ -7,6 +7,7 @@ import { requireOperationalTeamRecipient, sendNodeSmtpMail } from "./local-smtp.
 import { readGitRevision } from "./git-revision.js";
 import { summarizeCrawlerObservations } from "./crawler-observation-summary.js";
 import { evaluateDependencySecurityReport } from "./dependency-security.js";
+import { buildProductionAttention } from "./production-attention.js";
 
 loadDefaultEnvFiles();
 
@@ -500,6 +501,9 @@ async function run() {
       warnings: checks.filter((item) => !item.ok && item.severity === "warn").length
     }
   };
+  report.attention = buildProductionAttention(checks, report.generated_at);
+  report.summary.attention_human = report.attention.filter((item) => item.intervention === "human-required").length;
+  report.summary.attention_automatic = report.attention.filter((item) => item.intervention.startsWith("automatic-")).length;
   report.alert = await maybeAlert(report, out).catch((error) => ({ attempted: true, status: "failed", error: error.message || "alert failed" }));
 
   mkdirSync(dirname(out), { recursive: true });

@@ -4,6 +4,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 loadDefaultEnvFiles();
 const backup=readFileSync("scripts/local-sqlite-backup.js","utf8");
 const monitor=readFileSync("scripts/local-production-monitor.js","utf8");
+const productionAttention=readFileSync("scripts/production-attention.js","utf8");
 const crawlerObservationSummary=readFileSync("scripts/crawler-observation-summary.js","utf8");
 const editorialReview=readFileSync("scripts/local-editorial-review-monitor.js","utf8");
 const runtime=readFileSync("scripts/local-runtime-report-cycle.js","utf8");
@@ -117,6 +118,7 @@ const checks=[
   ["monitor-covers-dependency-security",monitor.includes("inspectDependencySecurity(dependencySecurityPath)")&&monitor.includes("last_successful_audit_age_hours")&&monitor.includes("evaluation.reason")&&runtime.includes('runStep("dependency_security"')],
   ["monitor-covers-scheduled-task-health",monitor.includes('inspectJsonRuntime("scheduled_task_health"') && runtime.includes('runStep("scheduled_task_health"')],
   ["monitor-covers-github-workflow-health",monitor.includes('inspectJsonRuntime("github_workflow_health"') && monitor.includes("proof_due_at") && monitor.includes("schedule_grace_minutes") && runtime.includes('runStep("github_workflow_health"') && githubWorkflowMonitor.includes('event=${event}') && githubWorkflowMonitor.includes('manual-recovery-must-be-newer')],
+  ["monitor-exposes-actionable-attention-queue",monitor.includes("buildProductionAttention(checks, report.generated_at)")&&monitor.includes("attention_human")&&monitor.includes("attention_automatic")&&productionAttention.includes('intervention: "human-required"')&&productionAttention.includes('intervention: "automatic-retry"')&&productionAttention.includes("secret_values_exported: false")],
   ["scheduled-task-health-validates-system-identity",scheduledTaskHealth.includes('principalSid === "s-1-5-18"')&&scheduledTaskHealth.includes('"serviceaccount"')&&scheduledTaskHealth.includes('"highest"')],
   ["scheduled-task-health-validates-expected-actions",scheduledTaskHealth.includes("EXPECTED_SCHEDULED_TASK_ACTIONS")&&scheduledTaskHealth.includes("action-invalid")],
   ["scheduled-task-health-does-not-export-action-paths",scheduledTaskMonitor.includes("principal_sid, principal_user, logon_type, run_level, execute")&&scheduledTaskMonitor.includes("action-paths-not-exported")],
