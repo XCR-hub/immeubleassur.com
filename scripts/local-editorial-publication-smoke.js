@@ -6,12 +6,21 @@ import { loadDefaultEnvFiles, env } from "./local-env.js";
 loadDefaultEnvFiles();
 function readJson(path) { if (!existsSync(path)) return null; try { return JSON.parse(readFileSync(path, "utf8")); } catch { return null; } }
 function hash(value) { return createHash("sha256").update(value).digest("hex"); }
-async function fetchText(url) {
+async function fetchTextOnce(url) {
   try {
     const response = await fetch(url, { headers: { "User-Agent": "ImmeubleAssur editorial publication smoke" }, signal: AbortSignal.timeout(12000) });
     const text = await response.text();
-    return { ok: response.ok, status: response.status, bytes: Buffer.byteLength(text), sha256: hash(Buffer.from(text, "utf8")), text };
+    return { ok: response.ok, status: response.status, bytes: Buffer.byteLength(text), sha256: hash(Buffer.from(text, "utf8")), text, error: response.ok ? "" : `HTTP ${response.status}` };
   } catch (error) { return { ok: false, status: 0, bytes: 0, sha256: "", text: "", error: error.message || "fetch failed" }; }
+}
+async function fetchText(url) {
+  let result = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    result = await fetchTextOnce(url);
+    if (result.ok || (result.status > 0 && result.status < 500)) return { ...result, attempts: attempt };
+    if (attempt < 2) await new Promise((resolveRetry) => setTimeout(resolveRetry, 300));
+  }
+  return { ...result, attempts: 2 };
 }
 
 const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));
@@ -30,7 +39,7 @@ else {
     const localHash = existsSync(localPath) ? createHash("sha256").update(readFileSync(localPath)).digest("hex") : "";
     const route = `/${relative.replace(/\.html$/, "")}`;
     const remote = await fetchText(`${origin}${route}`);
-    checks.push({ name: `served:${route}`, ok: remote.ok && Boolean(localHash) && remote.sha256 === localHash, status: remote.status, local_sha256: localHash, remote_sha256: remote.sha256, bytes: remote.bytes, error: remote.error || (remote.sha256 !== localHash ? "content-hash-mismatch" : "") });
+    checks.push({ name: `served:${route}`, ok: remote.ok && Boolean(localHash) && remote.sha256 === localHash, status: remote.status, attempts: remote.attempts, local_sha256: localHash, remote_sha256: remote.sha256, bytes: remote.bytes, error: remote.error || (remote.sha256 !== localHash ? "content-hash-mismatch" : "") });
   }
 }
 
