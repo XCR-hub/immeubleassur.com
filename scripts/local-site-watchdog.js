@@ -213,6 +213,23 @@ function queryProcessesByCim(names = ["node.exe", "cmd.exe"]) {
   }
 }
 
+function queryListeningPortOwners() {
+  try {
+    const output = execFileSync("netstat.exe", ["-ano", "-p", "tcp"], { encoding: "utf8", windowsHide: true, timeout: 10000 });
+    const owners = new Set();
+    for (const line of String(output || "").split(/\r?\n/)) {
+      const columns = line.trim().split(/\s+/);
+      if (columns.length < 5 || columns[0].toUpperCase() !== "TCP" || columns[3].toUpperCase() !== "LISTENING") continue;
+      if (!columns[1].endsWith(`:${port}`)) continue;
+      const processId = Number.parseInt(columns[4], 10);
+      if (Number.isFinite(processId) && processId > 0) owners.add(processId);
+    }
+    return [...owners];
+  } catch {
+    return [];
+  }
+}
+
 function queryPortOwnerProcesses() {
   try {
     const script = `$owners = @(Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique); $owners | ForEach-Object { Get-CimInstance Win32_Process -Filter "ProcessId=$_" | Select-Object ProcessId,CommandLine } | ConvertTo-Json -Compress`;
@@ -236,7 +253,9 @@ function matchesSiteProcess(processInfo) {
   );
 }
 
-function siteProcesses() {
+function siteProcesses(allowVerifiedPortOwner = false) {
+  const verifiedPortOwners = allowVerifiedPortOwner ? queryListeningPortOwners().map((processId) => ({ process_id: processId, command_line: `verified-immeubleassur-port-owner local-production-server.js ${siteDir}` })) : [];
+  if (verifiedPortOwners.length) return verifiedPortOwners;
   return [
     ...queryProcessesByName("node.exe"),
     ...queryProcessesByName("cmd.exe"),
@@ -247,9 +266,9 @@ function siteProcesses() {
     .filter((processInfo, index, all) => all.findIndex((item) => item.process_id === processInfo.process_id) === index);
 }
 
-function stopSiteProcesses() {
+function stopSiteProcesses(allowVerifiedPortOwner = false) {
   const stopped = [];
-  for (const processInfo of siteProcesses()) {
+  for (const processInfo of siteProcesses(allowVerifiedPortOwner)) {
     try {
       execFileSync("taskkill.exe", ["/PID", String(processInfo.process_id), "/F", "/T"], {
         encoding: "utf8",
@@ -294,13 +313,14 @@ async function main() {
     return;
   }
 
-  const stopped = stopSiteProcesses();
+  const verifiedRuntimeOnPort = before.status_code === 200 && before.body?.service === "immeubleassur-local-site" && before.body?.status === "ok";
+  const stopped = stopSiteProcesses(verifiedRuntimeOnPort);
   let started = startSite();
   let recovery = await waitForRuntime(startupWaitSeconds);
   const launches = [{ attempt: 1, started, recovery }];
   for (let attempt = 2; !recovery.health.ok && attempt <= startupAttempts; attempt += 1) {
     await sleep(500 * attempt);
-    stopped.push(...stopSiteProcesses());
+    stopped.push(...stopSiteProcesses(verifiedRuntimeOnPort));
     started = startSite();
     recovery = await waitForRuntime(startupWaitSeconds);
     launches.push({ attempt, started, recovery });

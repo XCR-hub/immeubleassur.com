@@ -13,6 +13,7 @@ const checks = [
   ["watchdog-health-and-headers", watchdog.includes("runtimeCheck()") && watchdog.includes("requiredSecurityHeaders")],
   ["watchdog-restarts-stale-runtime-revision", watchdog.includes("expectedRevision") && watchdog.includes("source_revision") && watchdog.includes("revision_matches") && watchdog.includes("runtime revision mismatch")],
   ["watchdog-targeted-process-discovery", watchdog.includes("WATCHDOG_PROCESS_MATCH_MARKER") && watchdog.includes("matchesSiteProcess")],
+  ["watchdog-bypasses-slow-wmi-for-verified-runtime-port", watchdog.includes("queryListeningPortOwners") && watchdog.includes('before.body?.service === "immeubleassur-local-site"') && watchdog.includes("stopSiteProcesses(verifiedRuntimeOnPort)") && watchdog.includes("if (verifiedPortOwners.length) return verifiedPortOwners")],
   ["watchdog-bounded-readiness-poll", watchdog.includes("async function waitForRuntime") && watchdog.includes("elapsed_ms") && watchdog.includes("await sleep(250)")],
   ["watchdog-retries-transient-startup-failures", watchdog.includes("LOCAL_SITE_WATCHDOG_STARTUP_ATTEMPTS") && watchdog.includes("attempt <= startupAttempts") && watchdog.includes("launch_attempts: launches.length")],
   ["watchdog-empty-port-is-not-an-error", watchdog.includes("Get-NetTCPConnection") && watchdog.includes("-ErrorAction SilentlyContinue")]
