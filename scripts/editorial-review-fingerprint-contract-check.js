@@ -25,6 +25,9 @@ function draft(generatedAt, title) {
     synthesis: { provider: "fixture", model: "fixture", text: title }
   };
 }
+function isoHoursAgo(hours) {
+  return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+}
 function run({ allowUndeliveredAlert = false } = {}) {
   const result = spawnSync(process.execPath, [join(root, "scripts", "local-editorial-review-monitor.js")], {
     cwd: root, encoding: "utf8",
@@ -36,21 +39,21 @@ function run({ allowUndeliveredAlert = false } = {}) {
   return emitted;
 }
 try {
-  writeFileSync(draftPath, JSON.stringify(draft("2026-08-10T08:00:00.000Z", "Texte officiel A")), "utf8");
+  writeFileSync(draftPath, JSON.stringify(draft(isoHoursAgo(2), "Texte officiel A")), "utf8");
   const first = run();
-  writeFileSync(draftPath, JSON.stringify(draft("2026-08-10T09:00:00.000Z", "Texte officiel A")), "utf8");
+  writeFileSync(draftPath, JSON.stringify(draft(isoHoursAgo(1), "Texte officiel A")), "utf8");
   const timestampOnly = run();
-  writeFileSync(draftPath, JSON.stringify(draft("2026-08-10T09:00:00.000Z", "Texte officiel B")), "utf8");
-const changed = run();
+  writeFileSync(draftPath, JSON.stringify(draft(isoHoursAgo(1), "Texte officiel B")), "utf8");
+  const changed = run();
   const invalidRecipientRun = spawnSync(process.execPath, [join(root, "scripts", "local-editorial-review-monitor.js")], {
     cwd: root, encoding: "utf8",
     env: { ...process.env, LOCAL_EDITORIAL_DRAFT_ROOT: drafts, LOCAL_EDITORIAL_REVIEW_REPORT: report, LOCAL_EDITORIAL_REVIEW_ALERT_STATE: state, LOCAL_EDITORIAL_REVIEW_ALERTS: "1", LOCAL_EDITORIAL_REVIEW_ALERT_TO: "wrong-recipient@example.invalid" }
   });
   const invalidRecipientReport = JSON.parse(readFileSync(report, "utf8"));
-  const oldDraft = draft("2026-07-20T08:00:00.000Z", "Texte officiel ancien");
+  const oldDraft = draft(isoHoursAgo(10 * 24), "Texte officiel ancien");
   oldDraft.source_items[0].url = "https://example.test/distinct-old-official";
   writeFileSync(join(drafts, "news-old.json"), JSON.stringify(oldDraft), "utf8");
-  writeFileSync(join(drafts, "news-overlap.json"), JSON.stringify(draft("2026-08-09T08:00:00.000Z", "Texte officiel remplace")), "utf8");
+  writeFileSync(join(drafts, "news-overlap.json"), JSON.stringify(draft(isoHoursAgo(2 * 24), "Texte officiel remplace")), "utf8");
   const sla = run({ allowUndeliveredAlert: true });
   const checks = [
     ["same-content-stable-across-timestamp", first.signature === timestampOnly.signature],
