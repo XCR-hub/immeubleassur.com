@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-11T04:18:23.554Z",
+  "generated_at": "2026-08-25T22:10:01.401Z",
   "status": "passed",
-  "pages_checked": 190,
+  "pages_checked": 191,
   "clusters_checked": 11,
   "high_risk_count": 0,
-  "medium_risk_count": 5,
-  "watch_count": 18,
+  "medium_risk_count": 4,
+  "watch_count": 17,
   "generated_block_families_ignored": 12,
   "generated_block_families": [
     "seo-intent-differentiation",
@@ -24,12 +24,12 @@
   "cluster_summary": [
     {
       "cluster": "local-city",
-      "pages": 80,
+      "pages": 81,
       "primary_slug": "assurance-immeuble-agen",
       "type_mix": [
         {
           "type": "city",
-          "count": 80
+          "count": 81
         }
       ],
       "representative_terms": [
@@ -49,12 +49,12 @@
     },
     {
       "cluster": "assurance-immeuble",
-      "pages": 19,
+      "pages": 20,
       "primary_slug": "multirisque-immeuble",
       "type_mix": [
         {
           "type": "service",
-          "count": 9
+          "count": 10
         },
         {
           "type": "blog",
@@ -72,12 +72,12 @@
       "representative_terms": [
         "civile",
         "multirisque",
+        "assurer",
         "checklist",
         "eviter",
         "obligatoire",
         "preparer",
         "retenir",
-        "charge",
         "ligne",
         "liste",
         "monopropriete",
@@ -178,17 +178,17 @@
       ],
       "representative_terms": [
         "retenir",
-        "historique",
         "causes",
-        "devient",
+        "historique",
         "mesures",
         "cause",
+        "completez",
         "correctement",
         "correctives",
-        "decision",
-        "defendable",
         "demandeur",
-        "prevention"
+        "prevention",
+        "correctifs",
+        "decision"
       ]
     },
     {
@@ -212,30 +212,30 @@
       "representative_terms": [
         "charge",
         "decision",
+        "completez",
         "correctement",
         "defendable",
         "delais",
         "demandeur",
         "devient",
-        "distinct",
         "offres",
         "retenir",
         "arbitrage",
-        "document"
+        "distinct"
       ]
     },
     {
       "cluster": "sci-bailleur",
-      "pages": 13,
+      "pages": 12,
       "primary_slug": "assurance-sci",
       "type_mix": [
         {
-          "type": "service",
+          "type": "blog",
           "count": 6
         },
         {
-          "type": "blog",
-          "count": 6
+          "type": "service",
+          "count": 5
         },
         {
           "type": "faq",
@@ -248,13 +248,13 @@
         "biens",
         "multirisque",
         "patrimoine",
-        "commerce",
         "eviter",
         "gerant",
         "locative",
         "occupants",
         "portefeuille",
-        "retenir"
+        "retenir",
+        "coherence"
       ]
     },
     {
@@ -310,13 +310,13 @@
         "commercial",
         "commerciale",
         "demandeur",
+        "completez",
         "correctement",
         "decision",
         "defendable",
         "delais",
         "devient",
-        "distinct",
-        "document"
+        "distinct"
       ]
     },
     {
@@ -364,17 +364,17 @@
       ],
       "representative_terms": [
         "chantier",
-        "demandeur",
+        "decennales",
         "dommage",
+        "entreprises",
         "ouvrage",
         "ravalement",
         "toiture",
         "anticiper",
         "basse",
         "comparaison",
-        "comprise",
-        "coproprietes",
-        "correctement"
+        "completez",
+        "comprise"
       ]
     }
   ],
@@ -382,7 +382,7 @@
     {
       "cluster": "devis-courtier",
       "risk": "medium",
-      "score": 49.7,
+      "score": 49.09,
       "primary_slug": "devis-assurance-immeuble",
       "pages": [
         "blog/devis-assurance-immeuble-complet",
@@ -395,44 +395,19 @@
       "shared_terms": [
         "retenir",
         "charge",
+        "completez",
         "correctement",
         "decision",
         "defendable",
         "delais",
-        "demandeur",
-        "devient"
+        "demandeur"
       ],
       "recommendation": "Clarifier blog/devis-assurance-immeuble-echeance comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
     },
     {
       "cluster": "devis-courtier",
       "risk": "medium",
-      "score": 49.26,
-      "primary_slug": "devis-assurance-immeuble",
-      "pages": [
-        "blog/devis-assurance-immeuble-comparatif",
-        "blog/devis-assurance-immeuble-complet"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "retenir",
-        "charge",
-        "correctement",
-        "decision",
-        "defendable",
-        "delais",
-        "demandeur",
-        "devient"
-      ],
-      "recommendation": "Clarifier blog/devis-assurance-immeuble-complet comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
-    },
-    {
-      "cluster": "devis-courtier",
-      "risk": "medium",
-      "score": 48.73,
+      "score": 48.19,
       "primary_slug": "devis-assurance-immeuble",
       "pages": [
         "blog/devis-assurance-immeuble-echeance",
@@ -447,17 +422,42 @@
         "validation",
         "retenir",
         "charge",
+        "completez",
         "correctement",
         "decision",
-        "defendable",
-        "delais"
+        "defendable"
       ],
       "recommendation": "Clarifier blog/devis-courtier-assurance-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
     },
     {
       "cluster": "devis-courtier",
       "risk": "medium",
-      "score": 48.71,
+      "score": 47.79,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/devis-assurance-immeuble-comparatif",
+        "blog/devis-assurance-immeuble-complet"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "retenir",
+        "charge",
+        "completez",
+        "correctement",
+        "decision",
+        "defendable",
+        "delais",
+        "demandeur"
+      ],
+      "recommendation": "Clarifier blog/devis-assurance-immeuble-complet comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+    },
+    {
+      "cluster": "devis-courtier",
+      "risk": "medium",
+      "score": 47.29,
       "primary_slug": "devis-assurance-immeuble",
       "pages": [
         "blog/devis-assurance-immeuble-comparatif",
@@ -471,18 +471,18 @@
         "retenir",
         "charge",
         "comparaison",
+        "completez",
         "correctement",
         "decision",
         "defendable",
-        "delais",
-        "demandeur"
+        "delais"
       ],
       "recommendation": "Clarifier blog/devis-assurance-immeuble-echeance comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
     },
     {
       "cluster": "devis-courtier",
-      "risk": "medium",
-      "score": 46.43,
+      "risk": "watch",
+      "score": 45.06,
       "primary_slug": "devis-assurance-immeuble",
       "pages": [
         "blog/assurance-immeuble-ancien",
@@ -495,44 +495,19 @@
       "shared_terms": [
         "retenir",
         "charge",
+        "completez",
         "correctement",
         "decision",
         "defendable",
         "delais",
-        "demandeur",
-        "devient"
+        "demandeur"
       ],
       "recommendation": "Clarifier blog/devis-assurance-immeuble-complet comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
     },
     {
       "cluster": "devis-courtier",
       "risk": "watch",
-      "score": 45.64,
-      "primary_slug": "devis-assurance-immeuble",
-      "pages": [
-        "blog/assurance-immeuble-ancien",
-        "blog/devis-assurance-immeuble-comparatif"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "retenir",
-        "charge",
-        "correctement",
-        "decision",
-        "defendable",
-        "delais",
-        "demandeur",
-        "devient"
-      ],
-      "recommendation": "Clarifier blog/devis-assurance-immeuble-comparatif comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
-    },
-    {
-      "cluster": "devis-courtier",
-      "risk": "watch",
-      "score": 44.98,
+      "score": 43.66,
       "primary_slug": "devis-assurance-immeuble",
       "pages": [
         "blog/assurance-immeuble-ancien",
@@ -545,19 +520,91 @@
       "shared_terms": [
         "retenir",
         "charge",
+        "completez",
         "correctement",
         "decision",
         "defendable",
         "delais",
-        "demandeur",
-        "devient"
+        "demandeur"
       ],
       "recommendation": "Clarifier blog/devis-assurance-immeuble-echeance comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
     },
     {
       "cluster": "devis-courtier",
       "risk": "watch",
-      "score": 42.7,
+      "score": 43.65,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/assurance-immeuble-ancien",
+        "blog/devis-assurance-immeuble-comparatif"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "retenir",
+        "charge",
+        "completez",
+        "correctement",
+        "decision",
+        "defendable",
+        "delais",
+        "demandeur"
+      ],
+      "recommendation": "Clarifier blog/devis-assurance-immeuble-comparatif comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+    },
+    {
+      "cluster": "sinistre-resilie",
+      "risk": "watch",
+      "score": 42.38,
+      "primary_slug": "gestion-sinistres-immeuble",
+      "pages": [
+        "blog/devis-assurance-immeuble-refus",
+        "blog/refus-assureur-apres-sinistre-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "refus",
+        "retenir",
+        "causes",
+        "completez",
+        "correctement"
+      ],
+      "recommendation": "Clarifier blog/refus-assureur-apres-sinistre-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "devis-courtier",
+      "risk": "watch",
+      "score": 41.75,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/devis-assurance-immeuble-complet",
+        "blog/devis-courtier-assurance-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "retenir",
+        "charge",
+        "completez",
+        "correctement",
+        "decision",
+        "defendable",
+        "delais",
+        "demandeur"
+      ],
+      "recommendation": "Clarifier blog/devis-courtier-assurance-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
+    },
+    {
+      "cluster": "devis-courtier",
+      "risk": "watch",
+      "score": 41.5,
       "primary_slug": "devis-assurance-immeuble",
       "pages": [
         "blog/devis-assurance-immeuble-comparatif",
@@ -571,43 +618,18 @@
         "offres",
         "retenir",
         "charge",
+        "completez",
         "correctement",
         "decision",
         "defendable",
-        "delais",
-        "demandeur"
-      ],
-      "recommendation": "Clarifier blog/devis-courtier-assurance-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
-    },
-    {
-      "cluster": "devis-courtier",
-      "risk": "watch",
-      "score": 42.39,
-      "primary_slug": "devis-assurance-immeuble",
-      "pages": [
-        "blog/devis-assurance-immeuble-complet",
-        "blog/devis-courtier-assurance-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "retenir",
-        "charge",
-        "correctement",
-        "decision",
-        "defendable",
-        "delais",
-        "demandeur",
-        "devient"
+        "delais"
       ],
       "recommendation": "Clarifier blog/devis-courtier-assurance-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
     },
     {
       "cluster": "sinistre-resilie",
       "risk": "watch",
-      "score": 42.26,
+      "score": 41.11,
       "primary_slug": "gestion-sinistres-immeuble",
       "pages": [
         "blog/refus-assureur-apres-sinistre-immeuble",
@@ -623,39 +645,15 @@
         "mesures",
         "retenir",
         "causes",
-        "correctement",
-        "decision",
-        "defendable"
+        "completez",
+        "correctement"
       ],
       "recommendation": "Clarifier blog/sinistre-recurrent-assurance-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
     },
     {
       "cluster": "sinistre-resilie",
       "risk": "watch",
-      "score": 41.98,
-      "primary_slug": "gestion-sinistres-immeuble",
-      "pages": [
-        "blog/devis-assurance-immeuble-refus",
-        "blog/refus-assureur-apres-sinistre-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "refus",
-        "retenir",
-        "causes",
-        "correctement",
-        "decision",
-        "defendable"
-      ],
-      "recommendation": "Clarifier blog/refus-assureur-apres-sinistre-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
-    },
-    {
-      "cluster": "sinistre-resilie",
-      "risk": "watch",
-      "score": 41.25,
+      "score": 41.01,
       "primary_slug": "gestion-sinistres-immeuble",
       "pages": [
         "blog/renouvellement-apres-sinistre-immeuble",
@@ -668,19 +666,19 @@
       "shared_terms": [
         "retenir",
         "causes",
+        "completez",
         "correctement",
         "decision",
         "defendable",
         "delais",
-        "demandeur",
-        "devient"
+        "demandeur"
       ],
       "recommendation": "Clarifier blog/sinistre-immeuble-apres-declaration comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
     },
     {
       "cluster": "sinistre-resilie",
       "risk": "watch",
-      "score": 40.15,
+      "score": 39.96,
       "primary_slug": "gestion-sinistres-immeuble",
       "pages": [
         "blog/refus-assureur-apres-sinistre-immeuble",
@@ -694,86 +692,10 @@
         "correctives",
         "retenir",
         "causes",
-        "correctement",
-        "decision",
-        "defendable"
+        "completez",
+        "correctement"
       ],
       "recommendation": "Clarifier blog/sinistre-immeuble-apres-declaration comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
-    },
-    {
-      "cluster": "local-commercial",
-      "risk": "watch",
-      "score": 39.47,
-      "primary_slug": "blog/local-commercial-vacant",
-      "pages": [
-        "blog/immeuble-mixte-restaurant",
-        "blog/local-commercial-vacant"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "activite",
-        "retenir",
-        "correctement",
-        "decision",
-        "defendable",
-        "delais",
-        "demandeur",
-        "devient"
-      ],
-      "recommendation": "Clarifier blog/immeuble-mixte-restaurant comme support informationnel et renforcer le lien vers blog/local-commercial-vacant."
-    },
-    {
-      "cluster": "sinistre-resilie",
-      "risk": "watch",
-      "score": 39.47,
-      "primary_slug": "gestion-sinistres-immeuble",
-      "pages": [
-        "blog/sinistre-immeuble-apres-declaration",
-        "blog/sinistre-recurrent-assurance-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "delais",
-        "retenir",
-        "causes",
-        "correctement",
-        "decision",
-        "defendable",
-        "demandeur",
-        "devient"
-      ],
-      "recommendation": "Clarifier blog/sinistre-recurrent-assurance-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
-    },
-    {
-      "cluster": "devis-courtier",
-      "risk": "watch",
-      "score": 39.11,
-      "primary_slug": "devis-assurance-immeuble",
-      "pages": [
-        "blog/assurance-immeuble-ancien",
-        "blog/devis-courtier-assurance-immeuble"
-      ],
-      "page_types": [
-        "blog",
-        "blog"
-      ],
-      "shared_terms": [
-        "retenir",
-        "charge",
-        "correctement",
-        "decision",
-        "defendable",
-        "delais",
-        "demandeur",
-        "devient"
-      ],
-      "recommendation": "Clarifier blog/devis-courtier-assurance-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
     },
     {
       "cluster": "devis-courtier",
@@ -803,10 +725,10 @@
     {
       "cluster": "sinistre-resilie",
       "risk": "watch",
-      "score": 38,
+      "score": 38.82,
       "primary_slug": "gestion-sinistres-immeuble",
       "pages": [
-        "blog/renouvellement-apres-sinistre-immeuble",
+        "blog/sinistre-immeuble-apres-declaration",
         "blog/sinistre-recurrent-assurance-immeuble"
       ],
       "page_types": [
@@ -814,16 +736,66 @@
         "blog"
       ],
       "shared_terms": [
+        "delais",
         "retenir",
         "causes",
+        "completez",
+        "correctement",
+        "decision",
+        "defendable",
+        "demandeur"
+      ],
+      "recommendation": "Clarifier blog/sinistre-recurrent-assurance-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "local-commercial",
+      "risk": "watch",
+      "score": 38.66,
+      "primary_slug": "blog/local-commercial-vacant",
+      "pages": [
+        "blog/immeuble-mixte-restaurant",
+        "blog/local-commercial-vacant"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "activite",
+        "retenir",
+        "completez",
         "correctement",
         "decision",
         "defendable",
         "delais",
-        "demandeur",
-        "devient"
+        "demandeur"
       ],
-      "recommendation": "Clarifier blog/sinistre-recurrent-assurance-immeuble comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+      "recommendation": "Clarifier blog/immeuble-mixte-restaurant comme support informationnel et renforcer le lien vers blog/local-commercial-vacant."
+    },
+    {
+      "cluster": "devis-courtier",
+      "risk": "watch",
+      "score": 38,
+      "primary_slug": "devis-assurance-immeuble",
+      "pages": [
+        "blog/assurance-immeuble-ancien",
+        "blog/devis-courtier-assurance-immeuble"
+      ],
+      "page_types": [
+        "blog",
+        "blog"
+      ],
+      "shared_terms": [
+        "retenir",
+        "charge",
+        "completez",
+        "correctement",
+        "decision",
+        "defendable",
+        "delais",
+        "demandeur"
+      ],
+      "recommendation": "Clarifier blog/devis-courtier-assurance-immeuble comme support informationnel et renforcer le lien vers devis-assurance-immeuble."
     }
   ],
   "safeguards": [

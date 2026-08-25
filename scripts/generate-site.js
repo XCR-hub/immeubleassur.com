@@ -1061,6 +1061,7 @@ function writeStatic() {
     "guides.html",
     ...guides.map((g) => pagePath(g.slug)),
     "villes.html",
+    "assurance-immeuble-vacant.html",
     "devis-assurance-immeuble.html",
     "faq.html",
     "contact.html",
