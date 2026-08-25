@@ -808,7 +808,7 @@ function servicePage(page) {
 function cityPage([slug, city, focus]) {
   const title = `Assurance immeuble ${city}`;
   const description = `Devis assurance immeuble a ${city}: copropriete, PNO, SCI et multirisque pour ${focus}.`;
-  const localSignals = [
+  const localEvidence = slug === "paris" ? `<section class="band city-evidence-band"><div class="container narrow"><p class="eyebrow dark">Donnees publiques locales</p><h2>Paris : trois verifications avant de presenter l'immeuble.</h2><div class="local-proof-grid"><article><h3>Adresse exacte</h3><p>Le rapport communal donne un premier contexte, mais la verification doit ensuite etre faite a l'adresse du batiment sur Georisques.</p></article><article><h3>Sous-sol et caves</h3><p>La Ville de Paris propose un renseignement sur les carrieres souterraines. Cette information peut etre utile pour documenter sous-sols, caves et travaux.</p></article><article><h3>Zones inondables</h3><p>Les cartes d'urbanisme parisiennes donnent acces aux zones inondables. Elles completent l'historique de sinistres et les mesures de prevention.</p></article><article><h3>Travaux</h3><p>Ravalement, toiture, reseaux, renovation energetique et travaux votes doivent etre decrits avec leur calendrier et leurs justificatifs.</p></article></div><div class="source-box"><strong>Sources publiques a consulter pour l'adresse</strong><a href="https://www.georisques.gouv.fr/mes-risques/connaitre-les-risques-pres-de-chez-moi/rapport2/75056/Paris/commune/75000" rel="noopener">Georisques - rapport communal Paris</a><a href="https://www.paris.fr/pages/plans-donnees-et-documents-d-urbanisme-3708" rel="noopener">Ville de Paris - sous-sol, parcelles et zones inondables</a><a href="https://www.apur.org/fr/nos-travaux/consommations-reelles-energie-logements-parisiens-2023-volet-2-parc-prive-operations-renovation" rel="noopener">Apur - parc prive et renovations parisiennes</a></div><p class="legal-note">Ces sources servent a documenter le risque. Seules les conditions du contrat et l'analyse de l'assureur determinent la couverture.</p></div></section>` : "";  const localSignals = [
     `A ${city}, la demande doit distinguer l adresse, les usages et les lots avant de solliciter un assureur.`,
     `${focus} a ${city} appellent une lecture attentive des franchises, des parties communes et des activites eventuelles.`,
     `Pour un dossier situe a ${city}, les informations sur les sinistres, les travaux votes et l occupation accelerent la comparaison.`,
@@ -835,7 +835,7 @@ function cityPage([slug, city, focus]) {
         ${leadForm({ city, need: "multirisque-immeuble" })}
       </div>
     </section>
-    <section class="band seo-band"><div class="container narrow"><h2>Pourquoi passer par ImmeubleAssur a ${esc(city)} ?</h2><p class="large-copy">${esc(localSignals[0])} ${esc(localSignals[1])} ${esc(localSignals[2])}</p></div></section>`;
+    <section class="band seo-band"><div class="container narrow"><h2>Pourquoi passer par ImmeubleAssur a ${esc(city)} ?</h2><p class="large-copy">${esc(localSignals[0])} ${esc(localSignals[1])} ${esc(localSignals[2])}</p></div></section>${localEvidence}`;
   return layout({ slug: `assurance-immeuble-${slug}`, title, description, body });
 }
 
