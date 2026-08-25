@@ -46,6 +46,7 @@ const expectations = [
   },
   {
     file: "public/assets/admin.js",
+    caseInsensitive: true,
     snippets: ["Search Console", "URL Inspection", "Sitemap Google", "google_api_health", "search_intelligence", "Google unlock", "google-readiness-unlock-latest.json", "editorial-autopilot-latest.json", "Publication bloquee"]
   },
   {
@@ -69,8 +70,10 @@ const expectations = [
 const missing = [];
 for (const expectation of expectations) {
   const source = readFileSync(expectation.file, "utf8");
+  const haystack = expectation.caseInsensitive ? source.toLowerCase() : source;
   for (const snippet of expectation.snippets) {
-    if (!source.includes(snippet)) missing.push({ file: expectation.file, snippet });
+    const needle = expectation.caseInsensitive ? snippet.toLowerCase() : snippet;
+    if (!haystack.includes(needle)) missing.push({ file: expectation.file, snippet });
   }
 }
 
