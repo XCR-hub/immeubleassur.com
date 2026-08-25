@@ -208,7 +208,7 @@ function hubPage() {
 function injectBlock(file, marker, block) {
   if (!existsSync(file)) return false;
   let html = readFileSync(file, "utf8");
-  const pattern = new RegExp(`\n?<!-- ${marker}:start -->[\s\S]*?<!-- ${marker}:end -->`, "g");
+  const pattern = new RegExp(`\\n?<!-- ${marker}:start -->[\\s\\S]*?<!-- ${marker}:end -->`, "g");
   html = html.replace(pattern, "");
   html = html.replace("</main>", `\n<!-- ${marker}:start -->\n${block}\n<!-- ${marker}:end -->\n</main>`);
   writeFileSync(file, html, "utf8");

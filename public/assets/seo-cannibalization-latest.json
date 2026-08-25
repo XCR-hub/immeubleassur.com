@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-25T22:20:03.868Z",
+  "generated_at": "2026-08-25T22:24:23.069Z",
   "status": "passed",
   "pages_checked": 191,
   "clusters_checked": 11,
   "high_risk_count": 0,
   "medium_risk_count": 4,
-  "watch_count": 18,
+  "watch_count": 17,
   "generated_block_families_ignored": 12,
   "generated_block_families": [
     "seo-intent-differentiation",
@@ -71,17 +71,17 @@
       ],
       "representative_terms": [
         "civile",
+        "eviter",
         "multirisque",
         "assurer",
         "checklist",
-        "eviter",
         "obligatoire",
         "preparer",
         "retenir",
+        "comprendre",
+        "donnees",
         "ligne",
-        "liste",
-        "monopropriete",
-        "occupants"
+        "liste"
       ]
     },
     {
@@ -104,17 +104,17 @@
       ],
       "representative_terms": [
         "coproprietaires",
-        "quand",
         "dommages",
+        "quand",
         "preparer",
         "benevole",
         "mandat",
         "retenir",
         "communes",
+        "comprendre",
         "decision",
         "multirisque",
-        "parties",
-        "archives"
+        "parties"
       ]
     },
     {
@@ -145,8 +145,8 @@
       ],
       "representative_terms": [
         "occupant",
-        "coproprietaire",
         "vacant",
+        "coproprietaire",
         "civile",
         "statut",
         "quand",
@@ -220,8 +220,8 @@
         "devient",
         "offres",
         "retenir",
-        "arbitrage",
-        "distinct"
+        "distinct",
+        "document"
       ]
     },
     {
@@ -282,12 +282,12 @@
         "reste",
         "affiche",
         "arbitrage",
+        "changent",
         "comparaison",
         "historique",
         "quand",
         "retenir",
-        "changent",
-        "demandeur"
+        "tarif"
       ]
     },
     {
@@ -721,31 +721,6 @@
         "correctement"
       ],
       "recommendation": "Clarifier blog/sinistre-immeuble-apres-declaration comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
-    },
-    {
-      "cluster": "devis-courtier",
-      "risk": "watch",
-      "score": 38.94,
-      "primary_slug": "devis-assurance-immeuble",
-      "pages": [
-        "comparateur-assurance-immeuble",
-        "devis-assurance-immeuble"
-      ],
-      "page_types": [
-        "lead",
-        "lead"
-      ],
-      "shared_terms": [
-        "rapport",
-        "ligne",
-        "monopropriete",
-        "obligatoire",
-        "recherches",
-        "acceder",
-        "assure",
-        "demandes"
-      ],
-      "recommendation": "Differencier l'intention formulaire de comparateur-assurance-immeuble et confirmer le renvoi vers devis-assurance-immeuble quand le besoin est plus large."
     },
     {
       "cluster": "sinistre-resilie",
