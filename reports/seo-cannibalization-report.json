@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-25T22:10:01.401Z",
+  "generated_at": "2026-08-25T22:20:03.868Z",
   "status": "passed",
   "pages_checked": 191,
   "clusters_checked": 11,
   "high_risk_count": 0,
   "medium_risk_count": 4,
-  "watch_count": 17,
+  "watch_count": 18,
   "generated_block_families_ignored": 12,
   "generated_block_families": [
     "seo-intent-differentiation",
@@ -145,17 +145,17 @@
       ],
       "representative_terms": [
         "occupant",
-        "civile",
         "coproprietaire",
-        "statut",
         "vacant",
+        "civile",
+        "statut",
         "quand",
         "attestation",
-        "biens",
-        "comprendre",
         "logement",
-        "eviter",
-        "locataire"
+        "comprendre",
+        "locataire",
+        "assurer",
+        "biens"
       ]
     },
     {
@@ -674,6 +674,31 @@
         "demandeur"
       ],
       "recommendation": "Clarifier blog/sinistre-immeuble-apres-declaration comme support informationnel et renforcer le lien vers gestion-sinistres-immeuble."
+    },
+    {
+      "cluster": "pno-cno",
+      "risk": "watch",
+      "score": 40.11,
+      "primary_slug": "pno-cno",
+      "pages": [
+        "assurance-cno",
+        "assurance-pno"
+      ],
+      "page_types": [
+        "service",
+        "service"
+      ],
+      "shared_terms": [
+        "occupant",
+        "coproprietaire",
+        "vacant",
+        "logement",
+        "assurer",
+        "civile",
+        "dependances",
+        "dommages"
+      ],
+      "recommendation": "Renforcer l'angle unique de assurance-pno et ajouter un lien contextuel vers pno-cno."
     },
     {
       "cluster": "sinistre-resilie",

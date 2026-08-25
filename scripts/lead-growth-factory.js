@@ -258,12 +258,19 @@ function enhanceCoreServiceDepth() {
   }
 }
 
+function enhancePnoCnoAuthority() {
+  const block = `<section class="band pno-cno-authority"><div class="container narrow"><p class="eyebrow dark">PNO, CNO et copropriete</p><h2>Qui doit assurer quoi ?</h2><p>En copropriete, chaque coproprietaire, occupant ou non occupant, doit etre assure au minimum contre les risques de responsabilite civile dont il repond. Hors copropriete, cette obligation legale ne s'applique pas de la meme facon : les garanties dommages d'une PNO restent un choix de protection a analyser selon le bien et son occupation.</p><div class="table-wrap"><table><thead><tr><th>Situation</th><th>Parcours principal</th><th>Point a verifier</th></tr></thead><tbody><tr><td>Lot loue en copropriete</td><td><a href="/assurance-cno">CNO / PNO du coproprietaire</a></td><td>RC du coproprietaire, contrat du syndicat et assurance du locataire.</td></tr><tr><td>Lot vacant en copropriete</td><td><a href="/assurance-cno">CNO avec vacance declaree</a></td><td>Duree d'inoccupation, degat des eaux, gel, vol et surveillance.</td></tr><tr><td>Maison ou logement hors copropriete</td><td><a href="/assurance-pno">PNO</a></td><td>Dommages au bien, responsabilite du bailleur et absence d'occupant.</td></tr><tr><td>Immeuble entier vide</td><td><a href="/assurance-immeuble-vacant">Multirisque immeuble vacant</a></td><td>Vacance totale, parties communes, acces, fluides, travaux et securisation.</td></tr></tbody></table></div><div class="source-box"><strong>Textes et informations de reference</strong><a href="https://www.legifrance.gouv.fr/loda/article_lc/LEGIARTI000028779136" rel="noopener">Legifrance - article 9-1 de la loi du 10 juillet 1965</a><a href="https://www.service-public.fr/particuliers/vosdroits/F21532" rel="noopener">Service-Public.fr - assurance incendie du proprietaire et logement vacant</a><a href="https://www.anil.org/adil-44/les-info-semaines-de-ladil/220526-lassurance-habitation-est-elle-obligatoire/" rel="noopener">ANIL - obligation d'assurance et proprietaire bailleur</a></div><p class="legal-note">Information generale, a confirmer avec les conditions du contrat et la situation exacte du bien.</p></div></section>`;
+  for (const fileName of ["assurance-pno.html", "assurance-cno.html", "assurance-pno-cno.html"]) {
+    injectBlock(join(OUT, fileName), "pno-cno-authority", block);
+  }
+}
 function run() {
   mkdirSync(join(OUT, "blog"), { recursive: true });
   for (const page of pages) writePage(page.slug, landingPage(page));
   for (const article of articles) writePage(`blog/${article.slug}`, articlePage(article));
   writePage("pno-cno", hubPage());
   enhanceCoreServiceDepth();
+  enhancePnoCnoAuthority();
   enhanceExistingPages();
   console.log(`Lead growth factory wrote ${pages.length + articles.length + 1} PNO/CNO pages and injected conversion clusters.`);
 }
