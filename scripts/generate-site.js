@@ -22,8 +22,8 @@ const ADMIN_JS_URL = versionedAsset("/assets/admin.js");
 const servicePages = [
   {
     slug: "assurance-immeuble",
-    title: "Assurance immeuble multirisque pour bailleurs",
-    h1: "Assurance immeuble pour bailleurs, SCI et coproprietes.",
+    title: "Assurance immeuble : multirisque et devis",
+    h1: "Assurance immeuble pour bailleurs, SCI et copropriétés.",
     description:
       "Courtier specialiste assurance immeuble: multirisque, responsabilite civile, PNO, sinistres et audit de garanties.",
     keyword: "assurance immeuble",
@@ -62,8 +62,8 @@ const servicePages = [
   },
   {
     slug: "assurance-pno",
-    title: "Assurance PNO proprietaire non occupant",
-    h1: "Assurance PNO pour proprietaire non occupant.",
+    title: "Assurance PNO : propriétaire non occupant",
+    h1: "Assurance PNO pour propriétaire non occupant.",
     description:
       "Assurance PNO bailleur et SCI: garanties essentielles, vacance locative, copropriete, recours locataire et protection du patrimoine.",
     keyword: "assurance PNO",
@@ -82,8 +82,8 @@ const servicePages = [
   },
   {
     slug: "multirisque-immeuble",
-    title: "Multirisque immeuble",
-    h1: "Multirisque immeuble: le contrat central du batiment.",
+    title: "Multirisque immeuble : garanties et devis",
+    h1: "Multirisque immeuble : garanties du bâtiment et devis.",
     description:
       "Multirisque immeuble pour copropriete, SCI et immeuble locatif: RC, dommages, degats des eaux, incendie et protection juridique.",
     keyword: "multirisque immeuble",
@@ -935,8 +935,8 @@ function quotePage() {
     ["Le devis est-il la meme chose que le comparateur ?", "Non. Le devis est le parcours de transmission du dossier; le comparateur sert a lire et arbitrer les offres obtenues."],
     ["Puis-je demander un audit sans changer d'assureur ?", "Oui. L'audit peut servir a renegocier, completer des garanties ou preparer une consultation avant decision."]
   ];
-  const body = `<section class="page-hero compact-hero"><div class="container"><p class="eyebrow">Demande qualifiee</p><h1>Devis assurance immeuble: envoyer un dossier exploitable.</h1><p>Un parcours direct pour bailleurs, SCI, syndics et administrateurs de biens qui veulent une reponse assureur fondee sur les bonnes informations.</p><div class="hero-actions"><a class="button primary" href="#devis">Completer ma demande</a><a class="button secondary" href="/comparateur-assurance-immeuble.html">Comparer les garanties</a></div></div></section><section class="band page-band" id="devis"><div class="split"><div><p class="eyebrow dark">Formulaire de devis</p><h2>Ce parcours sert a consulter le marche, pas seulement a lire un prix.</h2><p class="large-copy">La demande doit decrire le risque: statut, adresse, lots, surface, occupation, contrat actuel, echeance, sinistres, travaux et usages particuliers. Plus le dossier est net, plus la reponse est rapide et comparable.</p><ul class="check-list"><li>Parcours adapte immeuble, copropriete, PNO/CNO, SCI et local commercial.</li><li>Qualification des dossiers urgents: resiliation, refus, sinistre ou echeance proche.</li><li>Message libre pour preciser assureur actuel, franchises, travaux, vacance ou activite commerciale.</li><li>Anti-spam et controle humain pour proteger les formulaires sans bloquer les vrais prospects.</li></ul></div>${leadForm({ need: "multirisque-immeuble", priorityContact: true })}</div></section><section class="band compare-band"><div class="section-head"><p class="eyebrow dark">Process devis</p><h2>Transformer la demande en fiche risque assureur.</h2></div><div class="local-proof-grid">${process.map(([title, copy]) => `<article><h3>${esc(title)}</h3><p>${esc(copy)}</p></article>`).join("")}</div></section><section class="band faq-band"><div class="container narrow"><h2>Questions frequentes devis assurance immeuble</h2><div class="faq-list">${faqRows.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div></div></section>`;
-  return layout({ slug: "devis-assurance-immeuble", title: "Devis assurance immeuble", description: "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec un dossier qualifie par ImmeubleAssur.", body });
+  const body = `<section class="page-hero compact-hero"><div class="container"><p class="eyebrow">Demande qualifiee</p><h1>Devis assurance immeuble : préparer un dossier exploitable.</h1><p>Un parcours direct pour bailleurs, SCI, syndics et administrateurs de biens qui veulent une reponse assureur fondee sur les bonnes informations.</p><div class="hero-actions"><a class="button primary" href="#devis">Completer ma demande</a><a class="button secondary" href="/comparateur-assurance-immeuble.html">Comparer les garanties</a></div></div></section><section class="band page-band" id="devis"><div class="split"><div><p class="eyebrow dark">Formulaire de devis</p><h2>Ce parcours sert a consulter le marche, pas seulement a lire un prix.</h2><p class="large-copy">La demande doit decrire le risque: statut, adresse, lots, surface, occupation, contrat actuel, echeance, sinistres, travaux et usages particuliers. Plus le dossier est net, plus la reponse est rapide et comparable.</p><ul class="check-list"><li>Parcours adapte immeuble, copropriete, PNO/CNO, SCI et local commercial.</li><li>Qualification des dossiers urgents: resiliation, refus, sinistre ou echeance proche.</li><li>Message libre pour preciser assureur actuel, franchises, travaux, vacance ou activite commerciale.</li><li>Anti-spam et controle humain pour proteger les formulaires sans bloquer les vrais prospects.</li></ul></div>${leadForm({ need: "multirisque-immeuble", priorityContact: true })}</div></section><section class="band compare-band"><div class="section-head"><p class="eyebrow dark">Process devis</p><h2>Transformer la demande en fiche risque assureur.</h2></div><div class="local-proof-grid">${process.map(([title, copy]) => `<article><h3>${esc(title)}</h3><p>${esc(copy)}</p></article>`).join("")}</div></section><section class="band faq-band"><div class="container narrow"><h2>Questions frequentes devis assurance immeuble</h2><div class="faq-list">${faqRows.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div></div></section>`;
+  return layout({ slug: "devis-assurance-immeuble", title: "Devis assurance immeuble : comparer les contrats", description: "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec un dossier qualifie par ImmeubleAssur.", body });
 }
 function simplePage(slug, title, description, content) {
   const body = `<section class="plain-main"><div class="plain-panel"><p class="eyebrow dark">ImmeubleAssur</p><h1>${esc(title)}</h1>${content}</div></section>`;

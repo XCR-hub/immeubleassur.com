@@ -48,10 +48,10 @@ const pages = [
   },
   {
     slug: "assurance-pno-cno",
-    title: "Assurance PNO CNO pour bailleurs et SCI",
+    title: "Assurance PNO/CNO : bailleurs et SCI",
     description: "Comparer assurance PNO et CNO: proprietaire non occupant, coproprietaire non occupant, SCI, lots vacants et portefeuille locatif.",
     eyebrow: "PNO + CNO",
-    h1: "Assurance PNO CNO: choisir le bon contrat sans trou de garantie.",
+    h1: "Assurance PNO/CNO : choisir le bon contrat sans trou de garantie.",
     lead: "PNO et CNO couvrent des situations proches mais les responsabilites changent selon le bien, la copropriete, l'occupant, la vacance et les contrats deja souscrits.",
     need: "pno-cno",
     profile: "sci",
@@ -63,10 +63,10 @@ const pages = [
   },
   {
     slug: "assurance-immeuble-vacant",
-    title: "Assurance immeuble vacant ou vide",
+    title: "Assurance immeuble vacant ou vide : devis",
     description: "Assurance d'un immeuble vacant ou vide: declarer l'inoccupation, verifier exclusions, vandalisme, degats des eaux, surveillance et obtenir un devis.",
     eyebrow: "Immeuble vacant ou vide",
-    h1: "Assurance immeuble vacant: couvrir un batiment vide sans zone grise.",
+    h1: "Assurance immeuble vacant : couvrir un bâtiment vide sans zone grise.",
     lead: "Un immeuble totalement vide ne se traite pas comme un seul logement vacant. ImmeubleAssur documente la duree d'inoccupation, les protections, les travaux et les sinistres pour consulter les assureurs avec un risque clairement presente.",
     need: "multirisque-immeuble",
     profile: "bailleur",
@@ -178,10 +178,13 @@ function form(defaults = {}) {
   return `<form class="quote-panel pno-cno-form" id="lead-form" novalidate><div class="form-heading"><p>Devis PNO/CNO</p><h2>Recevoir mon analyse</h2></div><input class="hp-field" type="text" name="company_website" tabindex="-1" autocomplete="off" /><div class="field-grid"><label>Nom et prenom *<input name="name" autocomplete="name" required placeholder="Jean Dupont" /></label><label>Telephone *<input name="phone" type="tel" autocomplete="tel" required placeholder="06 12 34 56 78" /></label></div><label>Email (facultatif)<input name="email" type="email" autocomplete="email" placeholder="contact@exemple.fr" /></label><div class="field-grid"><label>Profil *<select name="profile" required><option value="">Choisir</option><option value="bailleur"${selected("profile", "bailleur")}>Bailleur / proprietaire</option><option value="sci"${selected("profile", "sci")}>SCI / fonciere</option><option value="syndic-professionnel"${selected("profile", "syndic-professionnel")}>Syndic professionnel</option><option value="administrateur-biens"${selected("profile", "administrateur-biens")}>Administrateur de biens</option><option value="conseil-syndical"${selected("profile", "conseil-syndical")}>Conseil syndical</option></select></label><label>Situation du bien *<select name="property_type" required><option value="">Choisir</option><option value="lot-copropriete">Lot en copropriete</option><option value="logement-vacant">Logement vacant</option><option value="logement-loue">Logement loue</option><option value="immeuble-locatif">Immeuble locatif</option><option value="local-commercial">Local commercial</option><option value="parking">Parking / box</option></select></label></div><div class="field-grid"><label>Ville *<input name="city" autocomplete="address-level2" required placeholder="Paris" /></label><label>Nombre de lots<input name="units_count" inputmode="numeric" placeholder="1" /></label></div><label>Besoin principal<select name="need"><option value="cno"${selected("need", "cno")}>CNO coproprietaire non occupant</option><option value="pno"${selected("need", "pno")}>PNO proprietaire non occupant</option><option value="pno-cno"${selected("need", "pno-cno")}>Comparer PNO/CNO</option><option value="multirisque-immeuble"${selected("need", "multirisque-immeuble")}>Multirisque immeuble</option><option value="audit-contrat"${selected("need", "audit-contrat")}>Audit contrat actuel</option></select></label><label>Message<textarea name="message" rows="3" placeholder="Lot loue ou vacant, copropriete, assureur actuel, echeance, sinistres, surface...">${esc(defaults.message || "")}</textarea></label><label class="consent-row"><input type="checkbox" name="consent" required /><span>J'accepte d'etre recontacte pour recevoir mon analyse et mon devis.</span></label><button class="submit-button" type="submit">Obtenir mon devis PNO/CNO</button><p class="form-note">Reponse specialisee CNO, PNO ou immeuble.</p><div class="form-status" role="status" aria-live="polite"></div></form>`;
 }
 
-function layout({ slug, title, description, body }) {
+function layout({ slug, title, description, body, faq = [] }) {
   const url = slug === "index" ? `${SITE}/` : `${SITE}/${slug}`;
+  const graph = [{ "@type": "InsuranceAgency", "@id": `${SITE}/#organization`, name: "ImmeubleAssur", url: SITE, telephone: PHONE, email: EMAIL, identifier: `ORIAS ${ORIAS}`, areaServed: "France" }, { "@type": "WebSite", "@id": `${SITE}/#website`, url: SITE, name: "ImmeubleAssur", publisher: { "@id": `${SITE}/#organization` }, inLanguage: "fr-FR" }, { "@type": "BreadcrumbList", "@id": `${url}#breadcrumb`, itemListElement: [{ "@type": "ListItem", position: 1, name: "Accueil", item: `${SITE}/` }, { "@type": "ListItem", position: 2, name: title, item: url }] }, { "@type": "WebPage", "@id": `${url}#webpage`, url, name: title, description, isPartOf: { "@id": `${SITE}/#website` }, breadcrumb: { "@id": `${url}#breadcrumb` }, inLanguage: "fr-FR" }, { "@type": "Service", "@id": `${url}#service`, name: title, description, provider: { "@id": `${SITE}/#organization` }, areaServed: "France", url }];
+  if (faq.length) graph.push({ "@type": "FAQPage", "@id": `${url}#faq`, mainEntity: faq.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) });
+  const schema = JSON.stringify({ "@context": "https://schema.org", "@graph": graph }).replaceAll("<", "\\u003c");
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme-color" content="#0f766e" /><meta name="robots" content="index, follow, max-image-preview:large" /><meta name="description" content="${esc(description)}" /><meta property="og:type" content="website" /><meta property="og:locale" content="fr_FR" /><meta property="og:site_name" content="ImmeubleAssur" /><meta property="og:title" content="${esc(title)} | ImmeubleAssur" /><meta property="og:description" content="${esc(description)}" /><meta property="og:url" content="${url}" /><meta property="og:image" content="${HERO_IMAGE}" /><link rel="canonical" href="${url}" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" /><link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="preload" as="image" href="/assets/hero-building.webp" type="image/webp" /><link rel="stylesheet" href="${STYLES_URL}" /><title>${esc(title)} | ImmeubleAssur</title></head><body><a class="skip-link" href="#main-content">Aller au contenu principal</a>${nav()}<main id="main-content">${body}</main>${footer()}<script src="${APP_JS_URL}" type="module"></script></body></html>`;
+    <link rel="preload" as="image" href="/assets/hero-building.webp" type="image/webp" /><link rel="stylesheet" href="${STYLES_URL}" /><title>${esc(title)} | ImmeubleAssur</title><script type="application/ld+json">${schema}</script></head><body><a class="skip-link" href="#main-content">Aller au contenu principal</a>${nav()}<main id="main-content">${body}</main>${footer()}<script src="${APP_JS_URL}" type="module"></script></body></html>`;
 }
 function landingDecisionBlock(page) {
   const title = page.decisionTitle || "Une demande PNO/CNO doit etre qualifiee avant le prix.";
@@ -201,7 +204,7 @@ function landingPage(page) {
   const secondaryHref = vacant ? "/blog/assurance-immeuble-vacant.html" : "/assurance-pno-cno.html";
   const secondaryLabel = vacant ? "Guide immeuble vacant" : "Comprendre PNO/CNO";
   const body = `<section class="page-hero compact-hero pno-cno-hero"><div class="container"><p class="eyebrow">${esc(page.eyebrow)}</p><h1>${esc(page.h1)}</h1><p>${esc(page.lead)}</p><div class="hero-actions"><a class="button primary" href="#devis">Obtenir un devis</a><a class="button secondary" href="${secondaryHref}">${secondaryLabel}</a></div></div></section><section class="band page-band" id="devis"><div class="split"><div>${landingDecisionBlock(page)}</div>${form({ need: page.need, profile: page.profile, message: vacant ? "Je souhaite assurer un immeuble vacant ou vide." : "" })}</div></section><section class="band pno-cno-band"><div class="section-head"><p class="eyebrow dark">Analyse du risque</p><h2>Les points qui permettent de comparer les contrats.</h2></div>${landingProofGrid(page)}</section><section class="band faq-band"><div class="container narrow"><h2>FAQ ${esc(page.eyebrow)}</h2><div class="faq-list">${faq.map(([question, answer]) => `<details><summary>${esc(question)}</summary><p>${esc(answer)}</p></details>`).join("")}</div></div></section>`;
-  return layout({ slug: page.slug, title: page.title, description: page.description, body });
+  return layout({ slug: page.slug, title: page.title, description: page.description, body, faq });
 }
 
 function articlePage(article) {
