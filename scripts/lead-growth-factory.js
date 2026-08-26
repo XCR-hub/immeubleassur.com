@@ -244,7 +244,7 @@ function enhanceExistingPages() {
     injectBlock(join(OUT, fileName), "lead-growth-pno-cno", cluster);
   }
   const vacantBridge = `<section class="band vacant-authority-bridge"><div class="container narrow"><p class="eyebrow dark">Immeuble entier vide</p><h2>La vacance totale demande un parcours distinct.</h2><p>Un batiment entier vacant ne se traite pas comme un seul logement PNO/CNO. Duree, acces, eau, gel, vandalisme, travaux et surveillance doivent etre declares.</p><p class="hero-actions"><a class="button primary" href="/assurance-immeuble-vacant">Assurance immeuble vacant</a><a class="button secondary light-button" href="/blog/assurance-immeuble-vacant">Guide immeuble vide</a></p></div></section>`;
-  for (const fileName of ["index.html", "blog.html", "guides.html", "faq.html"]) {
+  for (const fileName of ["index.html", "blog.html", "blog/index.html", "guides.html", "faq.html"]) {
     injectBlock(join(OUT, fileName), "vacant-authority-bridge", vacantBridge);
   }
 }

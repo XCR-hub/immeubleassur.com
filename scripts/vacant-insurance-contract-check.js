@@ -19,9 +19,9 @@ for (const [marker, label] of requiredPageMarkers) {
 if (page.includes('<div class="form-heading"><p>Devis PNO/CNO</p>')) failures.push("formulaire vacant encore titre PNO/CNO");
 if (!factory.includes('intent: "immeuble-vacant"') || !factory.includes('serviceType: "Assurance multirisque pour immeuble vacant ou vide"')) failures.push("configuration generateur vacante absente");
 if (!factory.includes('defaults.intent === "immeuble-vacant"')) failures.push("variation formulaire vacante absente");
-if (!factory.includes('"vacant-authority-bridge"') || !factory.includes('["index.html", "blog.html", "guides.html", "faq.html"]')) failures.push("pont autorite vacant absent du generateur");
+if (!factory.includes('"vacant-authority-bridge"') || !factory.includes('["index.html", "blog.html", "blog/index.html", "guides.html", "faq.html"]')) failures.push("pont autorite vacant absent du generateur");
 if (!publisher.includes('enrichStaticHub("faq.html", "runtime-editorial-faq", faqBlock, ["vacant-authority-bridge"])')) failures.push("pont autorite vacant non protege dans la FAQ runtime");
-for (const file of ["public/index.html", "public/blog.html", "public/guides.html", "public/faq.html"]) {
+for (const file of ["public/index.html", "public/blog.html", "public/blog/index.html", "public/guides.html", "public/faq.html"]) {
   const hub = fs.readFileSync(file, "utf8");
   if (!hub.includes('<!-- vacant-authority-bridge:start -->') || !hub.includes('href="/assurance-immeuble-vacant"')) failures.push(`${file}: pont vacant absent`);
 }
