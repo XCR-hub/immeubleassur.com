@@ -29,7 +29,16 @@ const profiles = {
     bullets: ["Date precise: 29 juillet 2026.", "Role: dernier numero indexable.", "Suite: abonnement ou audit si une echeance approche."],
     links: [["/veille-assurance-immeuble", "Suivre la veille"], ["/newsletter-assurance-immeuble", "S'abonner"]]
   },
-  "assurance-cno": {
+  "assurance-pno": {
+    title: "Assurance PNO bailleur : logement loue ou vacant",
+    h1: "Assurance PNO bailleur : protéger un logement loué ou vacant.",
+    description: "Assurance PNO pour bailleur, maison ou logement hors copropriete: dommages au bien, responsabilite, vacance locative, SCI et devis.",
+    eyebrow: "Angle PNO bailleur",
+    angle: "Proteger le patrimoine du proprietaire non occupant.",
+    body: "La page PNO part du bien du bailleur, notamment maison ou logement hors copropriete. Elle traite les dommages au bien, la responsabilite du proprietaire, les periodes sans locataire et les garanties qui continuent entre deux occupations.",
+    bullets: ["Maison ou logement loue hors copropriete.", "Vacance entre deux locataires et maintien des garanties.", "Dommages au bien, recours et responsabilite du bailleur.", "SCI ou proprietaire souhaitant proteger son patrimoine."],
+    links: [["/assurance-pno-cno", "Comparer PNO et CNO"], ["/devis-pno-cno?intent=pno", "Devis PNO"]]
+  },  "assurance-cno": {
     title: "Assurance CNO lot vacant ou loue en copropriete",
     h1: "Assurance CNO: couvrir le lot du coproprietaire non occupant.",
     description: "Assurance CNO pour lot en copropriete vacant ou loue: responsabilite du coproprietaire, contrat immeuble, occupant et devis specialise.",

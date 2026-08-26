@@ -17,7 +17,7 @@ const clusterProfiles = {
   },
   "pno-cno": {
     label: "PNO CNO",
-    primary: "pno-cno",
+    primary: "assurance-pno-cno",
     quote: "/devis-pno-cno",
     focus: "separer obligation, statut du lot, occupation, vacance et parcours de devis"
   },
