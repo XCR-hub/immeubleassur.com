@@ -165,7 +165,7 @@ function block(row, pageTitle) {
     </div>
     <div class="seo-opportunity-side">
       <div class="seo-link-panel">
-        <strong>Parcours a renforcer</strong>
+        <strong>Parcours utiles</strong>
         ${links.map(([href, label]) => `<a href="${esc(href)}">${esc(label)}</a>`).join("")}
       </div>
       <div class="faq-list compact-faq">

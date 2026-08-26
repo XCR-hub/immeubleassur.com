@@ -193,7 +193,7 @@ function landingDecisionBlock(page) {
   const title = page.decisionTitle || "Une demande PNO/CNO doit etre qualifiee avant le prix.";
   const copy = page.decisionCopy || "Pour repondre vite, il faut savoir si le bien est un lot en copropriete, un logement vacant, un bien loue, un local commercial ou un portefeuille SCI. Le bon contrat depend aussi de l'assurance occupant, du contrat immeuble, de la responsabilite civile et des sinistres passes.";
   const bullets = page.decisionBullets || ["CNO pour coproprietaire non occupant en copropriete.", "PNO pour logement loue, vacant ou occupe a titre gratuit.", "Lecture des franchises, exclusions de vacance et garanties dommages.", "Comparaison du contrat actuel avec les besoins reels du bien."];
-  return `<p class="eyebrow dark">Objectif leads qualifies</p><h2>${esc(title)}</h2><p class="large-copy">${esc(copy)}</p><ul class="check-list">${bullets.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>`;
+  return `<p class="eyebrow dark">Analyse du besoin</p><h2>${esc(title)}</h2><p class="large-copy">${esc(copy)}</p><ul class="check-list">${bullets.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>`;
 }
 
 function landingProofGrid(page) {
