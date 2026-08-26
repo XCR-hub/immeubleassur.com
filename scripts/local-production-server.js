@@ -403,6 +403,11 @@ const server = createServer((request, response) => {
     response.end();
     return;
   }
+  if (["GET", "HEAD"].includes(request.method || "GET") && requestTarget.pathname.endsWith(".html") && !/^\/google[a-zA-Z0-9_-]+\.html$/.test(requestTarget.pathname)) {
+    response.writeHead(301, { Location: `${requestTarget.pathname.slice(0, -5)}${requestTarget.search}`, "Cache-Control": "public, max-age=86400" });
+    response.end();
+    return;
+  }
   if (["GET", "HEAD"].includes(request.method || "GET") && requestTarget.pathname.length > 1 && requestTarget.pathname.endsWith("/")) {
     const location = `${requestTarget.pathname.replace(/\/+$/, "")}${requestTarget.search}`;
     response.writeHead(308, { Location: location, "Cache-Control": "public, max-age=86400" });

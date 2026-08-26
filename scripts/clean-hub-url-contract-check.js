@@ -13,7 +13,9 @@ for (const file of ["scripts/local-static-server.js", "scripts/local-production-
   }
   if (!source.includes("`${permanentLocation}${requestTarget.search}`")) failures.push(`${file}: parametres non preserves`);
   if (!source.includes("response.writeHead(301")) failures.push(`${file}: statut 301 absent`);
+  if (!source.includes('requestTarget.pathname.endsWith(".html")')) failures.push(`${file}: consolidation HTML generale absente`);
 }
+if (!fs.readFileSync("scripts/local-production-server.js", "utf8").includes('/^\\/google[a-zA-Z0-9_-]+\\.html$/')) failures.push("exception verification Google absente");
 if (failures.length) {
   console.error(`Clean hub URL contract failed:\n- ${failures.join("\n- ")}`);
   process.exit(1);
