@@ -52,12 +52,13 @@ function topAuditItems(audits, id, fields, sortField, limit = 5) {
     .slice(0, limit);
 }
 
-function diagnostics(audits) {
+function diagnostics(audits, categories) {
   return {
     long_tasks: topAuditItems(audits, "long-tasks", ["url", "duration", "startTime"], "duration"),
     bootup_time: topAuditItems(audits, "bootup-time", ["url", "total", "scripting", "scriptParseCompile"], "total"),
     unused_javascript: topAuditItems(audits, "unused-javascript", ["url", "totalBytes", "wastedBytes", "wastedPercent"], "wastedBytes"),
-    layout_shifts: (Array.isArray(audits?.["layout-shifts"]?.details?.items) ? audits["layout-shifts"].details.items : []).slice(0, 5).map((item) => ({ score: item.score ?? null, node: item.node?.snippet || item.node?.selector || "", causes: (item.subItems?.items || []).map((cause) => cause.cause || cause.extra?.[0]?.value || "").filter(Boolean) }))
+    layout_shifts: (Array.isArray(audits?.["layout-shifts"]?.details?.items) ? audits["layout-shifts"].details.items : []).slice(0, 5).map((item) => ({ score: item.score ?? null, node: item.node?.snippet || item.node?.selector || "", causes: (item.subItems?.items || []).map((cause) => cause.cause || cause.extra?.[0]?.value || "").filter(Boolean) })),
+    accessibility_failures: (categories?.accessibility?.auditRefs || []).filter((ref) => ref.weight > 0 && Number(audits?.[ref.id]?.score) < 1).map((ref) => audits[ref.id]).filter(Boolean).map((audit) => ({ id: audit.id, title: audit.title, nodes: (audit.details?.items || []).slice(0, 5).map((item) => item.node?.snippet || item.node?.selector || "").filter(Boolean) }))
   };
 }
 
@@ -111,7 +112,7 @@ async function run() {
             if (result?.lhr?.runtimeError) throw new Error((result.lhr.runtimeError.code || "runtime-error") + ": " + (result.lhr.runtimeError.message || "Lighthouse runtime error"));
             const categories = result?.lhr?.categories || {};
             const audits = result?.lhr?.audits || {};
-            samples.push({ sample, final_url: result?.lhr?.finalUrl || url, lighthouse_version: result?.lhr?.lighthouseVersion || "", performance: score(categories.performance), seo: score(categories.seo), accessibility: score(categories.accessibility), fcp_ms: metric(audits, "first-contentful-paint"), lcp_ms: metric(audits, "largest-contentful-paint"), cls: metric(audits, "cumulative-layout-shift", 3), tbt_ms: metric(audits, "total-blocking-time"), speed_index_ms: metric(audits, "speed-index"), diagnostics: diagnostics(audits) });
+            samples.push({ sample, final_url: result?.lhr?.finalUrl || url, lighthouse_version: result?.lhr?.lighthouseVersion || "", performance: score(categories.performance), seo: score(categories.seo), accessibility: score(categories.accessibility), fcp_ms: metric(audits, "first-contentful-paint"), lcp_ms: metric(audits, "largest-contentful-paint"), cls: metric(audits, "cumulative-layout-shift", 3), tbt_ms: metric(audits, "total-blocking-time"), speed_index_ms: metric(audits, "speed-index"), diagnostics: diagnostics(audits, categories) });
           } catch (error) {
             sampleErrors.push({ sample, error: String(error.message || "Lighthouse sample failed").slice(0, 500) });
           }

@@ -33,6 +33,7 @@ const checks = [
   ["gold-contrast-soft-teal", contrast(gold, "#f0fdfa") >= 4.5],
   ["gold-contrast-soft-gray", contrast(gold, "#f8fafc") >= 4.5],
   ["diagnostic-list-has-explicit-dark-background", /\.diagnostic-next li\s*\{[\s\S]*?color:\s*#edf7f5;[\s\S]*?background-color:\s*#123d42;/i.test(styles)],
+  ["quote-fast-secondary-buttons-use-light-contrast", /class="button secondary light-button" data-track="quote-fast-phone"/.test(readFileSync("public/assets/app.js", "utf8")) && /class="button secondary light-button" data-track="quote-fast-nudge"/.test(readFileSync("public/assets/app.js", "utf8"))],
   ["legacy-brand-label-removed", pageText.every((html) => !html.includes('aria-label="ImmeubleAssur accueil"'))],
   ["all-branded-pages-have-complete-name", pageText.filter((html) => html.includes('class="brand"')).every((html) => html.includes(requiredBrandLabel))],
   ["homepage-css-is-versioned", /styles\.css\?v=[a-f0-9]{10}/.test(pageText.find((html) => /<link rel="canonical" href="https:\/\/immeubleassur\.com\/"/.test(html)) || "")]
