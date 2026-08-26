@@ -23,6 +23,12 @@ if (!anglePass.includes('"assurance-pno": {') || !anglePass.includes('Angle PNO 
 if (sitemap.includes("<loc>https://immeubleassur.com/pno-cno</loc>")) failures.push("ancienne URL encore dans le sitemap");
 if (!sitemap.includes("<loc>https://immeubleassur.com/assurance-pno-cno</loc>")) failures.push("URL principale absente du sitemap");
 if (fs.existsSync("public/pno-cno.html")) failures.push("fichier public duplique encore present");
+const pnoHtml = fs.readFileSync("public/assurance-pno.html", "utf8");
+const cnoHtml = fs.readFileSync("public/assurance-cno.html", "utf8");
+if (!pnoHtml.includes('serviceType":"Assurance PNO pour proprietaire bailleur"')) failures.push("serviceType PNO specialise absent");
+if (!cnoHtml.includes('serviceType":"Assurance CNO pour coproprietaire non occupant"')) failures.push("serviceType CNO specialise absent");
+if (!pnoHtml.includes('"audienceType":"Proprietaires non occupants"')) failures.push("audience PNO absente");
+if (!cnoHtml.includes('"audienceType":"Coproprietaires non occupants"')) failures.push("audience CNO absente");
 
 for (const file of publicFiles) {
   const html = fs.readFileSync(file, "utf8");

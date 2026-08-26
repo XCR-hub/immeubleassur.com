@@ -37,7 +37,9 @@ const profiles = {
     angle: "Proteger le patrimoine du proprietaire non occupant.",
     body: "La page PNO part du bien du bailleur, notamment maison ou logement hors copropriete. Elle traite les dommages au bien, la responsabilite du proprietaire, les periodes sans locataire et les garanties qui continuent entre deux occupations.",
     bullets: ["Maison ou logement loue hors copropriete.", "Vacance entre deux locataires et maintien des garanties.", "Dommages au bien, recours et responsabilite du bailleur.", "SCI ou proprietaire souhaitant proteger son patrimoine."],
-    links: [["/assurance-pno-cno", "Comparer PNO et CNO"], ["/devis-pno-cno?intent=pno", "Devis PNO"]]
+    links: [["/assurance-pno-cno", "Comparer PNO et CNO"], ["/devis-pno-cno?intent=pno", "Devis PNO"]],
+    serviceType: "Assurance PNO pour proprietaire bailleur",
+    audiences: ["Bailleurs", "SCI", "Proprietaires non occupants"]
   },  "assurance-cno": {
     title: "Assurance CNO lot vacant ou loue en copropriete",
     h1: "Assurance CNO: couvrir le lot du coproprietaire non occupant.",
@@ -46,7 +48,9 @@ const profiles = {
     angle: "Isoler le cas du coproprietaire non occupant.",
     body: "La page CNO traite le lot privatif en copropriete. Elle aide a verifier ce qui reste au coproprietaire quand le contrat immeuble et l'assurance occupant ne suffisent pas.",
     bullets: ["Lot privatif vacant, loue ou occupe gratuitement.", "Responsabilite civile du coproprietaire non occupant.", "Coherence entre contrat immeuble, occupant et CNO."],
-    links: [["/assurance-pno-cno", "Comparer PNO CNO"], ["/devis-pno-cno", "Devis CNO"]]
+    links: [["/assurance-pno-cno", "Comparer PNO CNO"], ["/devis-pno-cno", "Devis CNO"]],
+    serviceType: "Assurance CNO pour coproprietaire non occupant",
+    audiences: ["Coproprietaires non occupants", "Bailleurs", "SCI"]
   },
   "assurance-coproprietaire-non-occupant": {
     indexable: false,
@@ -342,6 +346,38 @@ function setHead(html, slug, profile) {
   return next;
 }
 
+function alignStructuredData(html, slug, profile) {
+  const url = urlForSlug(slug);
+  return html.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g, (whole, source) => {
+    try {
+      const data = JSON.parse(source);
+      const visit = (node) => {
+        if (!node || typeof node !== "object") return;
+        if (Array.isArray(node)) {
+          node.forEach(visit);
+          return;
+        }
+        if (node["@id"] === `${url}#webpage`) {
+          node.name = profile.title;
+          node.headline = profile.title;
+          node.description = profile.description;
+        }
+        const types = Array.isArray(node["@type"]) ? node["@type"] : [node["@type"]];
+        if (node["@id"] === `${url}#service` || types.includes("Service")) {
+          node.name = profile.title;
+          node.description = profile.description;
+          node.serviceType = profile.serviceType || profile.title;
+          if (profile.audiences) node.audience = profile.audiences.map((audienceType) => ({ "@type": "Audience", audienceType }));
+        }
+        Object.values(node).forEach(visit);
+      };
+      visit(data);
+      return `<script type="application/ld+json">${JSON.stringify(data).replaceAll("<", "\\u003c")}</script>`;
+    } catch {
+      return whole;
+    }
+  });
+}
 function setHero(html, profile) {
   let next = replaceFirst(html, /<h1([^>]*)>[\s\S]*?<\/h1>/i, `<h1$1>${esc(profile.h1)}</h1>`);
   next = replaceFirst(next, /(<h1[^>]*>[\s\S]*?<\/h1>\s*)<p>[\s\S]*?<\/p>/i, `$1<p>${esc(profile.description)}</p>`);
@@ -394,6 +430,7 @@ function applyProfile(slug, profile) {
   let html = removeBlock(original);
   html = setHead(html, slug, profile);
   html = setHero(html, profile);
+  html = alignStructuredData(html, slug, profile);
   html = insertBlock(html, blockFor(slug, profile));
   const changed = html !== original;
   if (changed) writeFileSync(file, html, "utf8");
