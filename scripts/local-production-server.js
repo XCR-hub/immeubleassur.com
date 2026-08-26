@@ -304,6 +304,7 @@ function resolveRuntimePublicationPath(requestUrlValue) {
     const versionRoot = normalize(join(runtimePublicationsRoot, "versions", String(manifest.version || "")));
     const file = normalize(join(versionRoot, relative));
     if (!isInside(versionRoot, file) || !existsSync(file) || !statSync(file).isFile()) return "";
+    if (relative === "faq.html" && !readFileSync(file, "utf8").includes("<!-- vacant-authority-bridge:start -->")) return "";
     return file;
   } catch {
     return "";

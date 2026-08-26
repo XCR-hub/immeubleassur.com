@@ -34,6 +34,7 @@ const checks = [
   ["public-smoke-retries-transient-server-failures", smoke.includes("fetchTextOnce") && smoke.includes("attempt <= 2") && smoke.includes("attempts: attempt") && smoke.includes("setTimeout(resolveRetry, 300)")],
   ["faq-and-city-hubs-are-enriched", publisher.includes('enrichStaticHub("faq.html"') && publisher.includes('enrichStaticHub("villes.html"')],
   ["runtime-faq-preserves-vacant-authority-bridge", publisher.includes('enrichStaticHub("faq.html", "runtime-editorial-faq", faqBlock, ["vacant-authority-bridge"])') && publisher.includes("required_marker_counts")],
+  ["stale-runtime-faq-falls-back-to-static-hub", server.includes('relative === "faq.html"') && server.includes('includes("<!-- vacant-authority-bridge:start -->")')],
   ["hub-enrichment-is-activation-gated", publisher.includes('status: "hub-enrichment-failed"') && publisher.includes("!faqHub.enriched || !cityHub.enriched || cityLinks.length < 3")],
   ["hub-enrichment-proof-is-versioned", publisher.includes("hub_enrichment: hubEnrichment") && publisher.includes('"hub-enrichment-proof-missing"')],
   ["hub-quality-blocks-doorway-pages", hubQuality.includes('no-automatic-city-doorway-pages') && hubQuality.includes('automatically_created_city_pages')],
