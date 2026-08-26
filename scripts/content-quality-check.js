@@ -16,6 +16,12 @@ const bannedManipulation = [
   /hidden\s+keywords/i,
   /keyword\s+stuffing/i
 ];
+const bannedInternalEditorialLanguage = [
+  /page\s+seo\s+artificielle/i,
+  /gagner\s+un\s+lead\s+qualifie/i,
+  /gain\s+de\s+lead/i,
+  /pourquoi\s+cette\s+page\s+cible/i
+];
 
 function walk(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -91,6 +97,7 @@ function auditPage(file) {
 
   if (slug !== "admin" && !noIndex && !duplicateAliasSlugs.has(slug)) {
     if (bannedManipulation.some((pattern) => pattern.test(text))) issues.push("manipulation-language");
+    if (bannedInternalEditorialLanguage.some((pattern) => pattern.test(text))) issues.push("internal-editorial-language");
     if (/display\s*:\s*none|visibility\s*:\s*hidden|font-size\s*:\s*0/i.test(html) && /assurance|devis|immeuble/i.test(html)) warnings.push("possible-hidden-seo-text");
     if (canonicalUrl !== canonical(slug)) issues.push("canonical-mismatch");
     if (h1Count !== 1) issues.push("h1-count");
@@ -142,6 +149,7 @@ const report = {
   warnings,
   policy_alignment: [
     "people-first-content",
+    "no-internal-editorial-language",
     "no-ai-evasion-language",
     "no-hidden-keyword-blocks",
     "unique-title-and-canonical",

@@ -49,8 +49,8 @@ function removeBlock(html) {
 }
 
 function sanitizeLegacyUnmeasuredBlock(html) {
-  if (!html.includes(START)) return html;
-  return html
+  if (!html.includes(START) && !html.includes("<!-- evidence-preparation-guide:start -->")) return html;
+  const cleaned = html
     .replaceAll(START, "<!-- evidence-preparation-guide:start -->")
     .replaceAll(END, "<!-- evidence-preparation-guide:end -->")
     .replace(/search-gap-booster/g, "evidence-preparation-guide")
@@ -59,7 +59,12 @@ function sanitizeLegacyUnmeasuredBlock(html) {
     .replace(/<p class="large-copy">Ce renforcement[^<]*<\/p>/g, '<p class="large-copy">Ce guide relie le besoin aux decisions concretes, aux preuves de specialisation, aux documents utiles et au bon parcours de devis.</p>')
     .replace(/<li>Surveiller les concurrents visibles \([^)]*\)[^<]*<\/li>/g, '<li>Verifier les garanties, les responsabilites et les pieces attendues sans reprendre de contenu tiers ni supposer une position Google.</li>')
     .replace(/<summary>Pourquoi cette page cible [^<]* \?<\/summary><p>[^<]*<\/p>/g, "<summary>Pourquoi preparer ce dossier ?</summary><p>Parce qu'un dossier clair aide a comprendre le risque, reunir les pieces et choisir les garanties avant consultation assureur.</p>")
+    .replaceAll("Quel element fait gagner un lead qualifie ?", "Quelles informations accelerent l'etude du dossier ?")
+    .replace(/Le gain de lead sur [^<"]+ vient du formulaire contextualise, des documents attendus et d'une lecture claire entre immeuble, lot, occupant et proprietaire\./g, "Le statut du demandeur, l'occupation du bien, le contrat actuel, l'echeance et l'historique des sinistres permettent d'orienter plus vite le dossier vers les garanties pertinentes.")
+    .replaceAll("Comment eviter une page SEO artificielle ?", "Comment comparer les propositions sans regarder seulement le prix ?")
+    .replace(/Pour [^<"]+, le bloc reste visible et utile: decisions concretes, liens internes pertinents et aucun texte cache ni contenu copie depuis les resultats de recherche\./g, "Comparez les franchises, plafonds, exclusions, limites de vacance, garanties de responsabilite et conditions d'indemnisation avant de retenir une proposition.")
     .replace(/<p class="seo-expansion-note">[^<]*<\/p>/g, '<p class="seo-expansion-note">Guide de preparation fonde sur le besoin utilisateur et les pieces du dossier, sans affirmation de classement Google.</p>');
+  return removeSearchGapFaqSchema(cleaned);
 }
 
 function destinationLinks(row) {
@@ -105,9 +110,9 @@ function intentText(intent) {
 
 function faqRows(row, query) {
   return [
-    [`Pourquoi cette page cible ${query} ?`, "Parce que la recherche exprime un besoin proche du devis: comprendre le risque, preparer les pieces et choisir les garanties avant consultation assureur."],
-    ["Quel element fait gagner un lead qualifie ?", "Un formulaire contextualise, des documents attendus explicites et une lecture claire des responsabilites entre immeuble, lot, occupant et proprietaire."],
-    ["Comment eviter une page SEO artificielle ?", "Le bloc ajoute des decisions concretes et des liens utiles. Il n'ajoute ni texte cache, ni duplication massive, ni contenu copie depuis les resultats de recherche."]
+    [`Pourquoi preparer un dossier pour ${query} ?`, "Un dossier clair aide a comprendre le risque, reunir les pieces et choisir les garanties avant consultation assureur."],
+    ["Quelles informations accelerent l'etude du dossier ?", "Le statut du demandeur, l'occupation du bien, le contrat actuel, l'echeance et l'historique des sinistres permettent d'orienter plus vite le dossier vers les garanties pertinentes."],
+    ["Comment comparer les propositions sans regarder seulement le prix ?", "Comparez les franchises, plafonds, exclusions, limites de vacance, garanties de responsabilite et conditions d'indemnisation avant de retenir une proposition."]
   ];
 }
 
