@@ -19,7 +19,7 @@ function safeVersion(value) { return String(value || "").replace(/[^a-zA-Z0-9._-
 const SOURCE_SUMMARY_ARTIFACT_PATTERN = /\/div&gt;|&lt;!--|@bdf_|components\/|(?:png|jpe?g|webp)\s+\d+w|(?:srcset|sizes|loading|width|height|alt)=&quot;/i;
 function containsSourceSummaryArtifacts(value) { return SOURCE_SUMMARY_ARTIFACT_PATTERN.test(String(value || "")); }
 function esc(value) { return String(value || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
-function enrichStaticHub(relative, marker, block) {
+function enrichStaticHub(relative, marker, block, requiredMarkers = []) {
   const source = join(staticPublicRoot, relative);
   const destination = join(versionRoot, relative);
   if (!existsSync(source)) return { relative, marker, enriched: false, marker_count: 0, reason: "source-missing" };
@@ -29,8 +29,10 @@ function enrichStaticHub(relative, marker, block) {
   writeFileSync(destination, html, "utf8");
   const markerCount = (html.match(new RegExp(`<!-- ${marker}:start -->`, "g")) || []).length;
   const endMarkerCount = (html.match(new RegExp(`<!-- ${marker}:end -->`, "g")) || []).length;
-  const enriched = markerCount === 1 && endMarkerCount === 1;
-  return { relative, marker, enriched, marker_count: markerCount, end_marker_count: endMarkerCount, reason: enriched ? "" : "marker-count-invalid" };
+  const requiredMarkerCounts = Object.fromEntries(requiredMarkers.map((requiredMarker) => [requiredMarker, (html.match(new RegExp(`<!-- ${requiredMarker}:start -->`, "g")) || []).length]));
+  const requiredMarkersValid = Object.values(requiredMarkerCounts).every((count) => count === 1);
+  const enriched = markerCount === 1 && endMarkerCount === 1 && requiredMarkersValid;
+  return { relative, marker, enriched, marker_count: markerCount, end_marker_count: endMarkerCount, required_marker_counts: requiredMarkerCounts, reason: enriched ? "" : requiredMarkersValid ? "marker-count-invalid" : "required-marker-missing" };
 }
 
 const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));
@@ -109,7 +111,7 @@ const faqQuestions = [
   ["Comment utiliser une actualite pour un immeuble situe dans une ville precise ?", "La ville seule ne suffit pas. Il faut relier le signal a l occupation, aux commerces, aux travaux, aux sinistres et aux caracteristiques du batiment avant toute consultation."]
 ];
 const faqBlock = `<section class="band content-expansion-band runtime-editorial-hub" aria-labelledby="runtime-faq-${today}"><div class="section-head"><p class="eyebrow dark">FAQ mise a jour ${today}</p><h2 id="runtime-faq-${today}">Questions pratiques issues de la derniere veille validee.</h2><p>Edition source: <a href="/${issue.slug}">${esc(issue.title)}</a>. Themes suivis: ${esc(topTopics.join(", ") || "assurance immeuble")}.</p></div><div class="card-grid">${faqQuestions.map(([question, answer]) => `<article class="content-card"><h3>${esc(question)}</h3><p>${esc(answer)}</p></article>`).join("")}</div><p class="seo-expansion-note">Ces reponses organisent les verifications utiles et ne constituent ni une interpretation juridique ni une recommandation contractuelle personnalisee.</p></section>`;
-const faqHub = enrichStaticHub("faq.html", "runtime-editorial-faq", faqBlock);
+const faqHub = enrichStaticHub("faq.html", "runtime-editorial-faq", faqBlock, ["vacant-authority-bridge"]);
 const citiesHtml = existsSync(join(staticPublicRoot, "villes.html")) ? readFileSync(join(staticPublicRoot, "villes.html"), "utf8") : "";
 const cityLinks = [...citiesHtml.matchAll(/href="\/(assurance-immeuble-[^"]+)(?:\.html)?"[^>]*>([^<]+)<\/a>/g)].map((match) => ({ path: match[1].replace(/\.html$/, ""), label: match[2].trim() })).filter((item, index, all) => item.label && all.findIndex((candidate) => candidate.path === item.path) === index).slice(0, 6);
 const cityActions = ["Verifier usages et nombre de lots", "Relire sinistres et mesures correctives", "Lister travaux votes ou prevus", "Qualifier commerces et locaux techniques", "Comparer franchises et plafonds", "Preparer contrat, prime et echeance"];

@@ -2,6 +2,7 @@ import fs from "node:fs";
 
 const page = fs.readFileSync("public/assurance-immeuble-vacant.html", "utf8");
 const factory = fs.readFileSync("scripts/lead-growth-factory.js", "utf8");
+const publisher = fs.readFileSync("scripts/local-editorial-publisher.js", "utf8");
 const failures = [];
 
 const requiredPageMarkers = [
@@ -19,6 +20,7 @@ if (page.includes('<div class="form-heading"><p>Devis PNO/CNO</p>')) failures.pu
 if (!factory.includes('intent: "immeuble-vacant"') || !factory.includes('serviceType: "Assurance multirisque pour immeuble vacant ou vide"')) failures.push("configuration generateur vacante absente");
 if (!factory.includes('defaults.intent === "immeuble-vacant"')) failures.push("variation formulaire vacante absente");
 if (!factory.includes('"vacant-authority-bridge"') || !factory.includes('["index.html", "blog.html", "guides.html", "faq.html"]')) failures.push("pont autorite vacant absent du generateur");
+if (!publisher.includes('enrichStaticHub("faq.html", "runtime-editorial-faq", faqBlock, ["vacant-authority-bridge"])')) failures.push("pont autorite vacant non protege dans la FAQ runtime");
 for (const file of ["public/index.html", "public/blog.html", "public/guides.html", "public/faq.html"]) {
   const hub = fs.readFileSync(file, "utf8");
   if (!hub.includes('<!-- vacant-authority-bridge:start -->') || !hub.includes('href="/assurance-immeuble-vacant"')) failures.push(`${file}: pont vacant absent`);
