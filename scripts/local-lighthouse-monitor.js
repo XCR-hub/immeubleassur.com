@@ -56,7 +56,8 @@ function diagnostics(audits) {
   return {
     long_tasks: topAuditItems(audits, "long-tasks", ["url", "duration", "startTime"], "duration"),
     bootup_time: topAuditItems(audits, "bootup-time", ["url", "total", "scripting", "scriptParseCompile"], "total"),
-    unused_javascript: topAuditItems(audits, "unused-javascript", ["url", "totalBytes", "wastedBytes", "wastedPercent"], "wastedBytes")
+    unused_javascript: topAuditItems(audits, "unused-javascript", ["url", "totalBytes", "wastedBytes", "wastedPercent"], "wastedBytes"),
+    layout_shifts: (Array.isArray(audits?.["layout-shifts"]?.details?.items) ? audits["layout-shifts"].details.items : []).slice(0, 5).map((item) => ({ score: item.score ?? null, node: item.node?.snippet || item.node?.selector || "", causes: (item.subItems?.items || []).map((cause) => cause.cause || cause.extra?.[0]?.value || "").filter(Boolean) }))
   };
 }
 

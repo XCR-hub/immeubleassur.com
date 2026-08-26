@@ -256,7 +256,7 @@ function diagnosticBlock(context = pageContext()) {
         <p class="diagnostic-route">Parcours CNO</p>
         <h3 class="diagnostic-result-title">Lot en copropriete non occupe.</h3>
         <p class="diagnostic-result-text">Prioriser la responsabilite civile du coproprietaire, la vacance, le bail et la coherence avec le contrat immeuble.</p>
-        <ul class="diagnostic-next"><li>Contrat actuel</li><li>Statut d'occupation</li><li>Sinistres recents</li></ul>
+        <ul class="diagnostic-next"><li>Contrat immeuble copropriete</li><li>Statut d'occupation du lot</li><li>Attestation occupant ou vacance</li><li>Echeance et preavis a verifier</li></ul>
         <a class="button primary diagnostic-cta" data-track="diagnostic-devis" href="/devis-pno-cno?intent=cno">Continuer vers le devis qualifie</a>
       </div>
     </div>

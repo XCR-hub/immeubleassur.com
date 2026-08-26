@@ -3,6 +3,7 @@ import fs from "node:fs";
 const intent = fs.readFileSync("scripts/seo-intent-differentiation-pass.js", "utf8");
 const angle = fs.readFileSync("scripts/seo-angle-differentiation-pass.js", "utf8");
 const cannibal = fs.readFileSync("scripts/seo-cannibalization-check.js", "utf8");
+const ux = fs.readFileSync("scripts/ux-conversion-pass.js", "utf8");
 const pillar = fs.readFileSync("public/assurance-immeuble.html", "utf8");
 const multi = fs.readFileSync("public/multirisque-immeuble.html", "utf8");
 const failures = [];
@@ -10,6 +11,7 @@ const failures = [];
 if (!intent.includes('primary: "assurance-immeuble"')) failures.push("page pilier du cluster incorrecte");
 if (!angle.includes('"assurance-immeuble": {') || !angle.includes('"multirisque-immeuble": {')) failures.push("angles sources absents");
 if (!cannibal.includes("primarySlugs.includes(slug)")) failures.push("priorite des slugs strategiques absente du classificateur");
+if (!pillar.includes("Contrat immeuble copropriete</li><li>Statut d'occupation du lot</li><li>Attestation occupant ou vacance</li><li>Echeance et preavis a verifier") || !ux.includes("Contrat immeuble copropriete</li><li>Statut d'occupation du lot</li><li>Attestation occupant ou vacance</li><li>Echeance et preavis a verifier")) failures.push("etat initial du diagnostic non aligne avec JavaScript");
 
 const pillarMarkers = [
   ["Page pilier assurance immeuble", "marqueur pilier"],
