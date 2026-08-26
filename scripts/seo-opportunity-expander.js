@@ -166,7 +166,7 @@ function expansionBlock(slug, title, beforeWords) {
       <div class="faq-list compact-faq">${data.faqs.map(([question, answer]) => `<details><summary>${esc(question)}</summary><p>${esc(answer)}</p></details>`).join("")}</div>
     </div>
   </div>
-  <p class="seo-expansion-note">Page renforcee automatiquement apres audit de profondeur: ${beforeWords} mots avant extension.</p>
+  <p class="seo-expansion-note">Cette section rassemble les informations utiles pour preparer un dossier complet avant consultation.</p>
 </section>
 ${END}`;
 }

@@ -432,7 +432,7 @@ function blockFor(slug, profile) {
         <strong>Parcours distinct</strong>
         ${links}
       </div>
-      <p class="seo-expansion-note">Angle SEO protege pour ${esc(slug.replace(/[/-]+/g, " "))}.</p>
+      <p class="seo-expansion-note">Cette page distingue ce besoin des contrats voisins pour orienter vers les garanties et les documents utiles.</p>
     </div>
   </div>
 </section>

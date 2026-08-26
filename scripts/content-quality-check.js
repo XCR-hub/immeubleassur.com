@@ -20,7 +20,9 @@ const bannedInternalEditorialLanguage = [
   /page\s+seo\s+artificielle/i,
   /gagner\s+un\s+lead\s+qualifie/i,
   /gain\s+de\s+lead/i,
-  /pourquoi\s+cette\s+page\s+cible/i
+  /pourquoi\s+cette\s+page\s+cible/i,
+  /angle\s+seo\s+protege/i,
+  /page\s+renforcee\s+automatiquement/i
 ];
 
 function walk(dir) {
