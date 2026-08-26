@@ -6,6 +6,10 @@ const root = resolve("public");
 const runtimeAssetsRoot = resolve(process.env.LOCAL_RUNTIME_ASSETS_ROOT || join("data", "runtime-assets"));
 const port = Number.parseInt(process.env.PORT || "8787", 10);
 const host = process.env.HOST || "127.0.0.1";
+const permanentRedirects = new Map([
+  ["/pno-cno", "/assurance-pno-cno"],
+  ["/pno-cno.html", "/assurance-pno-cno"]
+]);
 const types = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -97,6 +101,12 @@ function resolvePath(requestUrl) {
 const server = createServer((request, response) => {
   applySecurityHeaders(response, request);
   const requestTarget = new URL(request.url || "/", "http://local");
+  const permanentLocation = permanentRedirects.get(requestTarget.pathname);
+  if (["GET", "HEAD"].includes(request.method || "GET") && permanentLocation) {
+    response.writeHead(301, { Location: `${permanentLocation}${requestTarget.search}`, "Cache-Control": "public, max-age=86400" });
+    response.end();
+    return;
+  }
   if (["GET", "HEAD"].includes(request.method || "GET") && requestTarget.pathname.length > 1 && requestTarget.pathname.endsWith("/")) {
     const location = `${requestTarget.pathname.replace(/\/+$/, "")}${requestTarget.search}`;
     response.writeHead(308, { Location: location, "Cache-Control": "public, max-age=86400" });

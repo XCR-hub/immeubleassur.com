@@ -271,7 +271,6 @@ function run() {
   mkdirSync(join(OUT, "blog"), { recursive: true });
   for (const page of pages) writePage(page.slug, landingPage(page));
   for (const article of articles) writePage(`blog/${article.slug}`, articlePage(article));
-  writePage("pno-cno", hubPage());
   enhanceCoreServiceDepth();
   enhancePnoCnoAuthority();
   enhanceExistingPages();

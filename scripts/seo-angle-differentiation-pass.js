@@ -37,7 +37,7 @@ const profiles = {
     angle: "Isoler le cas du coproprietaire non occupant.",
     body: "La page CNO traite le lot privatif en copropriete. Elle aide a verifier ce qui reste au coproprietaire quand le contrat immeuble et l'assurance occupant ne suffisent pas.",
     bullets: ["Lot privatif vacant, loue ou occupe gratuitement.", "Responsabilite civile du coproprietaire non occupant.", "Coherence entre contrat immeuble, occupant et CNO."],
-    links: [["/pno-cno", "Hub PNO CNO"], ["/devis-pno-cno", "Devis CNO"]]
+    links: [["/assurance-pno-cno", "Comparer PNO CNO"], ["/devis-pno-cno", "Devis CNO"]]
   },
   "assurance-coproprietaire-non-occupant": {
     indexable: false,
@@ -107,7 +107,7 @@ const profiles = {
     angle: "Comparer deux familles de contrats.",
     body: "Cette page clarifie la frontiere entre contrat immeuble et PNO. Elle sert aux lecteurs qui hesitent entre deux natures de couverture.",
     bullets: ["Batiment et parties communes.", "Lot privatif et responsabilite bailleur.", "Zones de doublon ou de trou de garantie."],
-    links: [["/pno-cno", "Hub PNO CNO"], ["/multirisque-immeuble", "Multirisque immeuble"]]
+    links: [["/assurance-pno-cno", "Comparer PNO CNO"], ["/multirisque-immeuble", "Multirisque immeuble"]]
   },
   "blog/pno-obligatoire-copropriete": {
     title: "PNO obligatoire en copropriete: cas reels",
