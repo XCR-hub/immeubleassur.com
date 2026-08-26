@@ -1,7 +1,7 @@
-﻿import fs from "node:fs";
+import fs from "node:fs";
 
 const failures = [];
-const server = fs.readFileSync("scripts/local-static-server.js", "utf8");
+const servers = ["scripts/local-static-server.js", "scripts/local-production-server.js"].map((file) => [file, fs.readFileSync(file, "utf8")]);
 const factory = fs.readFileSync("scripts/lead-growth-factory.js", "utf8");
 const sitemap = fs.readFileSync("public/sitemap.xml", "utf8");
 const publicFiles = [
@@ -9,9 +9,12 @@ const publicFiles = [
   "public/blog/multirisque-immeuble-vs-pno.html"
 ];
 
-if (!server.includes('["/pno-cno", "/assurance-pno-cno"]')) failures.push("redirect extensionless absent");
-if (!server.includes('["/pno-cno.html", "/assurance-pno-cno"]')) failures.push("redirect .html absent");
-if (!server.includes("response.writeHead(301")) failures.push("statut 301 absent");
+for (const [file, server] of servers) {
+  if (!server.includes('["/pno-cno", "/assurance-pno-cno"]')) failures.push(`${file}: redirect extensionless absent`);
+  if (!server.includes('["/pno-cno.html", "/assurance-pno-cno"]')) failures.push(`${file}: redirect .html absent`);
+  if (!server.includes("response.writeHead(301")) failures.push(`${file}: statut 301 absent`);
+}
+if (!servers[1][1].includes('pathname === "/sitemap.xml"') || !servers[1][1].includes('const sitemap = readFileSync(file, "utf8").replace(')) failures.push("filtre sitemap runtime absent");
 if (factory.includes('writePage("pno-cno", hubPage())')) failures.push("le generateur recree encore le hub duplique");
 if (sitemap.includes("<loc>https://immeubleassur.com/pno-cno</loc>")) failures.push("ancienne URL encore dans le sitemap");
 if (!sitemap.includes("<loc>https://immeubleassur.com/assurance-pno-cno</loc>")) failures.push("URL principale absente du sitemap");

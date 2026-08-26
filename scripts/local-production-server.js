@@ -19,6 +19,10 @@ const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", 
 const runtimeReportsRoot = resolve(env("LOCAL_RUNTIME_REPORTS_ROOT", join("reports")));
 const runtimePublicationsRoot = resolve(env("LOCAL_RUNTIME_PUBLICATIONS_ROOT", join(runtimeAssetsRoot, "publications")));
 const host = env("LOCAL_SITE_HOST", env("HOST", "0.0.0.0"));
+const permanentRedirects = new Map([
+  ["/pno-cno", "/assurance-pno-cno"],
+  ["/pno-cno.html", "/assurance-pno-cno"]
+]);
 const port = Number.parseInt(env("LOCAL_SITE_PORT", env("PORT", "8790")), 10) || 8790;
 const googleSiteVerificationFile = normalizeGoogleSiteVerificationFile(env("GOOGLE_SITE_VERIFICATION_FILE", ""));
 const dbPath = env("LOCAL_SQLITE_DB", join("data", "immeubleassur.sqlite"));
@@ -342,6 +346,16 @@ function handleStatic(request, response) {
     const stat = statSync(file);
     if (!stat.isFile()) throw new Error("Not a file");
     const extension = extname(file);
+    if (new URL(request.url || "/", "http://local").pathname === "/sitemap.xml") {
+      const sitemap = readFileSync(file, "utf8").replace(/\s*<url><loc>https:\/\/immeubleassur\.com\/pno-cno<\/loc>.*?<\/url>\r?\n?/g, "");
+      response.writeHead(200, {
+        "Content-Type": contentTypes[".xml"],
+        "Content-Length": Buffer.byteLength(sitemap),
+        "Cache-Control": "no-store"
+      });
+      response.end(request.method === "HEAD" ? undefined : sitemap);
+      return;
+    }
     response.writeHead(200, {
       "Content-Type": contentTypes[extension] || "application/octet-stream",
       "Content-Length": stat.size,
@@ -379,6 +393,12 @@ function healthSnapshot() {
 const server = createServer((request, response) => {
   applySecurityHeaders(response, request);
   const requestTarget = new URL(request.url || "/", "http://local");
+  const permanentLocation = permanentRedirects.get(requestTarget.pathname);
+  if (["GET", "HEAD"].includes(request.method || "GET") && permanentLocation) {
+    response.writeHead(301, { Location: `${permanentLocation}${requestTarget.search}`, "Cache-Control": "public, max-age=86400" });
+    response.end();
+    return;
+  }
   if (["GET", "HEAD"].includes(request.method || "GET") && requestTarget.pathname.length > 1 && requestTarget.pathname.endsWith("/")) {
     const location = `${requestTarget.pathname.replace(/\/+$/, "")}${requestTarget.search}`;
     response.writeHead(308, { Location: location, "Cache-Control": "public, max-age=86400" });
