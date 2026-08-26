@@ -25,7 +25,13 @@ const bannedInternalEditorialLanguage = [
   /page\s+renforcee\s+automatiquement/i,
   /objectif\s+leads\s+qualifies/i,
   /questions\s+qui\s+convertissent/i,
-  /parcours\s+a\s+renforcer/i
+  /parcours\s+a\s+renforcer/i,
+  /intention\s+de\s+recherche/i,
+  /requetes\s+proches\s+traitees/i,
+  /recherche\s+google\s+au\s+lead\s+qualifie/i,
+  /page\s+mot.?cle/i,
+  /parcours\s+commercial/i,
+  /urgence\s+commerciale/i
 ];
 
 function walk(dir) {
