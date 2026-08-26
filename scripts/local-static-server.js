@@ -8,7 +8,10 @@ const port = Number.parseInt(process.env.PORT || "8787", 10);
 const host = process.env.HOST || "127.0.0.1";
 const permanentRedirects = new Map([
   ["/pno-cno", "/assurance-pno-cno"],
-  ["/pno-cno.html", "/assurance-pno-cno"]
+  ["/pno-cno.html", "/assurance-pno-cno"],
+  ["/blog.html", "/blog"],
+  ["/faq.html", "/faq"],
+  ["/guides.html", "/guides"]
 ]);
 const types = {
   ".html": "text/html; charset=utf-8",

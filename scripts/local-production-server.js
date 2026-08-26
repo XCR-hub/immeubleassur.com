@@ -21,7 +21,10 @@ const runtimePublicationsRoot = resolve(env("LOCAL_RUNTIME_PUBLICATIONS_ROOT", j
 const host = env("LOCAL_SITE_HOST", env("HOST", "0.0.0.0"));
 const permanentRedirects = new Map([
   ["/pno-cno", "/assurance-pno-cno"],
-  ["/pno-cno.html", "/assurance-pno-cno"]
+  ["/pno-cno.html", "/assurance-pno-cno"],
+  ["/blog.html", "/blog"],
+  ["/faq.html", "/faq"],
+  ["/guides.html", "/guides"]
 ]);
 const port = Number.parseInt(env("LOCAL_SITE_PORT", env("PORT", "8790")), 10) || 8790;
 const googleSiteVerificationFile = normalizeGoogleSiteVerificationFile(env("GOOGLE_SITE_VERIFICATION_FILE", ""));
