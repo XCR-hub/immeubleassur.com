@@ -82,6 +82,7 @@ function stripHtml(value) {
 function slugFromFile(file) {
   const rel = relative(PUBLIC_DIR, file).replace(/\\/g, "/");
   if (rel === "index.html") return "";
+  if (/\/index\.html$/i.test(rel)) return rel.replace(/\/index\.html$/i, "");
   return rel.replace(/\.html$/, "");
 }
 

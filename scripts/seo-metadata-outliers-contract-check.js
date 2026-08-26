@@ -6,18 +6,23 @@ import { spawnSync } from "node:child_process";
 const root = mkdtempSync(join(tmpdir(), "immeubleassur-metadata-outliers-"));
 const publicDir = join(root, "public");
 mkdirSync(publicDir, { recursive: true });
+mkdirSync(join(root, "reports"), { recursive: true });
+mkdirSync(join(publicDir, "blog"), { recursive: true });
 const body = '<main><h1>Contenu contractuel preserve</h1><p data-proof="unchanged">Corps de page intact.</p></main>';
 const validDescription = "Cette description respecte volontairement la plage attendue et doit rester strictement identique apres le correcteur cible SEO.";
 writeFileSync(join(publicDir, "valid.html"), `<html><head><title>Titre assurance immeuble deja conforme | ImmeubleAssur</title><meta name="description" content="${validDescription}" /></head><body>${body}</body></html>`, "utf8");
 writeFileSync(join(publicDir, "invalid.html"), `<html><head><title>Trop court</title><meta name="description" content="Breve d&amp;#39;offres" /><meta property="og:title" content="Ancien" /><meta property="og:description" content="Ancienne" /></head><body>${body}</body></html>`, "utf8");
 writeFileSync(join(publicDir, "confidentialite.html"), `<html><head><title>Confidentialite des demandes | ImmeubleAssur</title><meta name="description" content="Breve" /></head><body>${body}</body></html>`, "utf8");
+writeFileSync(join(publicDir, "blog", "index.html"), `<html><head><title>Blog assurance immeuble | ImmeubleAssur</title><meta name="description" content="${validDescription}" /><meta property="og:url" content="https://immeubleassur.com/blog" /><link rel="canonical" href="https://immeubleassur.com/blog" /></head><body>${body}</body></html>`, "utf8");
 const script = resolve("scripts", "seo-auto-fix.js");
 function run() { return spawnSync(process.execPath, [script, "--metadata-outliers-only"], { cwd: root, encoding: "utf8" }); }
 const first = run();
+if (first.status !== 0) throw new Error(`seo-auto-fix fixture failed: ${first.error?.stack || first.error?.message || first.stderr || first.stdout || "unknown spawn failure"}`);
 const firstReport = JSON.parse(readFileSync(join(root, "reports", "seo-auto-fix-report.json"), "utf8"));
 const valid = readFileSync(join(publicDir, "valid.html"), "utf8");
 const invalid = readFileSync(join(publicDir, "invalid.html"), "utf8");
 const legal = readFileSync(join(publicDir, "confidentialite.html"), "utf8");
+const nestedIndex = readFileSync(join(publicDir, "blog", "index.html"), "utf8");
 const second = run();
 const secondReport = JSON.parse(readFileSync(join(root, "reports", "seo-auto-fix-report.json"), "utf8"));
 function meta(html, regex) { return ((html.match(regex) || [])[1] || "").trim(); }
@@ -26,7 +31,8 @@ const checks = [
   ["valid-metadata-unchanged", meta(valid, /<title>(.*?)<\/title>/is) === "Titre assurance immeuble deja conforme | ImmeubleAssur" && meta(valid, /name="description" content="([^"]*)"/i) === validDescription],
   ["outliers-corrected", meta(invalid, /<title>(.*?)<\/title>/is).length >= 35 && meta(invalid, /<title>(.*?)<\/title>/is).length <= 72 && meta(invalid, /name="description" content="([^"]*)"/i).length >= 110 && meta(invalid, /name="description" content="([^"]*)"/i).length <= 170],
   ["entity-encoding-idempotent", invalid.includes("d&#39;offres") && !invalid.includes("&amp;#39;")],
-  ["body-content-preserved", [valid, invalid, legal].every((html) => html.includes(body))],
+  ["body-content-preserved", [valid, invalid, legal, nestedIndex].every((html) => html.includes(body))],
+  ["nested-index-keeps-clean-canonical", nestedIndex.includes('content="https://immeubleassur.com/blog"') && nestedIndex.includes('href="https://immeubleassur.com/blog"') && !nestedIndex.includes("/blog/index")],
   ["legal-page-no-content-injection", !legal.includes("auto-seo-depth") && !legal.includes("auto-conversion")],
   ["mode-and-safeguards-reported", firstReport.mode === "metadata-outliers-only" && firstReport.safeguards?.includes("no-content-block-changes") && firstReport.pages_changed === 2],
   ["second-run-idempotent", second.status === 0 && secondReport.pages_changed === 0]

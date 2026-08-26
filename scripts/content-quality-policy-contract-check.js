@@ -10,10 +10,12 @@ function page(slug, title, body) {
 }
 try {
   mkdirSync(join(fixture, "public"), { recursive: true });
+  mkdirSync(join(fixture, "reports"), { recursive: true });
   const filler = Array.from({ length: 90 }, (_, index) => `Information utile numero ${index} pour analyser correctement un contrat et preparer un dossier documente.`).join(" ");
   writeFileSync(join(fixture, "public", "mentions-legales.html"), page("mentions-legales", "Mentions legales assurance", "<p>Informations legales de l editeur.</p>"), "utf8");
   writeFileSync(join(fixture, "public", "assurance-test.html"), page("assurance-test", "Assurance immeuble test", `<p>${filler}</p><a class="button primary" href="/devis">Devis</a>`), "utf8");
   const result = spawnSync(process.execPath, [checker], { cwd: fixture, encoding: "utf8" });
+  if (result.status !== 0) throw new Error(`content-quality fixture failed: ${result.error?.stack || result.error?.message || result.stderr || result.stdout || "unknown spawn failure"}`);
   const report = JSON.parse(readFileSync(join(fixture, "reports", "content-quality-report.json"), "utf8"));
   const legal = report.weakest_pages.find((item) => item.slug === "mentions-legales");
   const business = report.weakest_pages.find((item) => item.slug === "assurance-test");
