@@ -2807,46 +2807,55 @@ bindGrowthTracking();
 // Split non-critical visual mounting from module evaluation. This keeps form,
 // tracking and anti-spam listeners available immediately while preventing the
 // first JavaScript task from accumulating avoidable DOM/layout work.
-const mountInitialVisualEnhancements = () => {
-  mountLeadBar();
-  mountFormAdvisor();
-  mountFormProof();
-  bindNewsletterForms();
-  enhanceHeader();
-  bindHeroIntentAccelerator();
-  bindHeroActionAccelerator();
-  bindLeadBarAccelerator();
-  bindHomepageDecisionAccelerator();
-  bindLeadMagnetAccelerator();
+const scheduleEnhancementQueue = (tasks, schedule) => {
+  const queue = [...tasks];
+  const runNext = () => {
+    const task = queue.shift();
+    if (!task) return;
+    task();
+    if (queue.length) schedule(runNext);
+  };
+  schedule(runNext);
 };
 
-if ('requestAnimationFrame' in window) {
-  window.requestAnimationFrame(mountInitialVisualEnhancements);
-} else {
-  window.setTimeout(mountInitialVisualEnhancements, 0);
-}
+const initialVisualEnhancements = [
+  mountLeadBar,
+  mountFormAdvisor,
+  mountFormProof,
+  bindNewsletterForms,
+  enhanceHeader,
+  bindHeroIntentAccelerator,
+  bindHeroActionAccelerator,
+  bindLeadBarAccelerator,
+  bindHomepageDecisionAccelerator,
+  bindLeadMagnetAccelerator,
+];
+
+const scheduleVisualEnhancement = 'requestAnimationFrame' in window
+  ? (task) => window.requestAnimationFrame(task)
+  : (task) => window.setTimeout(task, 0);
+scheduleEnhancementQueue(initialVisualEnhancements, scheduleVisualEnhancement);
 
 // Keep forms, anti-spam signals and above-the-fold interactions responsive.
 // The remaining enhancements only enrich content below the fold or delayed
 // rescue journeys, so let the browser finish its first render before mounting
 // them. The timeout still guarantees initialization on busy/older browsers.
-const mountDeferredEnhancements = () => {
-  mountLeadValuePreview();
-  mountDiagnostic();
-  mountReadiness();
-  mountRiskRouter();
-  mountQuoteFastTrack();
-  bindScrollDepthTracking();
-  bindContentLeadBridge();
-  bindTrafficNoClickRescue();
-  bindFormRescue();
-};
+const deferredEnhancements = [
+  mountLeadValuePreview,
+  mountDiagnostic,
+  mountReadiness,
+  mountRiskRouter,
+  mountQuoteFastTrack,
+  bindScrollDepthTracking,
+  bindContentLeadBridge,
+  bindTrafficNoClickRescue,
+  bindFormRescue,
+];
 
-if ('requestIdleCallback' in window) {
-  window.requestIdleCallback(mountDeferredEnhancements, { timeout: 1500 });
-} else {
-  window.setTimeout(mountDeferredEnhancements, 600);
-}
+const scheduleDeferredEnhancement = 'requestIdleCallback' in window
+  ? (task) => window.requestIdleCallback(task, { timeout: 1500 })
+  : (task) => window.setTimeout(task, 120);
+scheduleEnhancementQueue(deferredEnhancements, scheduleDeferredEnhancement);
 
 
 
