@@ -41,7 +41,7 @@ const clusterProfiles = {
   },
   "assurance-immeuble": {
     label: "assurance immeuble",
-    primary: "multirisque-immeuble",
+    primary: "assurance-immeuble",
     quote: "/devis-assurance-immeuble",
     focus: "clarifier le role entre page service, guide, obligation, garanties et demande de devis"
   },

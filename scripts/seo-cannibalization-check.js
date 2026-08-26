@@ -110,6 +110,9 @@ function pageType(slug) {
 }
 
 function detectCluster(slug, title, h1) {
+  for (const [cluster, primarySlugs] of Object.entries(primaryByCluster)) {
+    if (primarySlugs.includes(slug)) return cluster;
+  }
   const city = cityFromSlug(slug);
   if (city) return "local-city";
   const source = `${slug} ${title} ${h1}`;

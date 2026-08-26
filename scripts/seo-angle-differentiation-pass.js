@@ -29,7 +29,30 @@ const profiles = {
     bullets: ["Date precise: 29 juillet 2026.", "Role: dernier numero indexable.", "Suite: abonnement ou audit si une echeance approche."],
     links: [["/veille-assurance-immeuble", "Suivre la veille"], ["/newsletter-assurance-immeuble", "S'abonner"]]
   },
-  "assurance-pno": {
+  "assurance-immeuble": {
+    title: "Assurance immeuble : multirisque et devis",
+    h1: "Assurance immeuble pour bailleurs, SCI et copropriétés.",
+    description: "Courtier specialiste assurance immeuble: multirisque, responsabilite civile, PNO, sinistres et audit de garanties.",
+    eyebrow: "Page pilier assurance immeuble",
+    angle: "Qualifier le bâtiment avant de comparer les contrats.",
+    body: "Cette page porte l'intention generale assurance immeuble. Elle oriente bailleurs, SCI, syndics et coproprietaires selon le batiment, son occupation, ses sinistres et le besoin de devis, puis renvoie vers les parcours specialises.",
+    bullets: ["Immeuble locatif, copropriete ou monopropriete.", "Occupation, lots, commerces, travaux et sinistres.", "Orientation vers PNO, CNO ou immeuble vacant.", "Demande de devis multirisque avec dossier exploitable."],
+    links: [["/multirisque-immeuble", "Comprendre les garanties multirisques"], ["/devis-assurance-immeuble", "Demander un devis immeuble"]],
+    serviceType: "Courtage et devis en assurance immeuble",
+    audiences: ["Proprietaires d immeubles", "Bailleurs", "SCI", "Syndics"]
+  },
+  "multirisque-immeuble": {
+    title: "Multirisque immeuble : garanties et devis",
+    h1: "Multirisque immeuble : garanties du bâtiment et devis.",
+    description: "Multirisque immeuble pour copropriete, SCI et immeuble locatif: RC, dommages, degats des eaux, incendie et protection juridique.",
+    eyebrow: "Contrat multirisque immeuble",
+    angle: "Comparer les garanties, franchises et exclusions du contrat.",
+    body: "Cette page traite le contenu technique de la multirisque immeuble: dommages au batiment, responsabilite civile, degat des eaux, incendie, evenements climatiques, franchises, plafonds et exclusions.",
+    bullets: ["Garanties dommages et responsabilite civile.", "Franchises, plafonds et exclusions.", "Degat des eaux, incendie et evenements climatiques.", "Audit du contrat avant renouvellement."],
+    links: [["/assurance-immeuble", "Page pilier assurance immeuble"], ["/audit-contrat-assurance-immeuble", "Auditer le contrat"]],
+    serviceType: "Audit et comparaison multirisque immeuble",
+    audiences: ["Syndics", "Bailleurs", "SCI", "Proprietaires d immeubles"]
+  },  "assurance-pno": {
     title: "Assurance PNO bailleur : logement loue ou vacant",
     h1: "Assurance PNO bailleur : protéger un logement loué ou vacant.",
     description: "Assurance PNO pour bailleur, maison ou logement hors copropriete: dommages au bien, responsabilite, vacance locative, SCI et devis.",
