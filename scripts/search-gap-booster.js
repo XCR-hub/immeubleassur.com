@@ -57,7 +57,7 @@ function sanitizeLegacyUnmeasuredBlock(html) {
     .replace(/aria-label="Renforcement recherche [^"]*"/g, 'aria-label="Guide de preparation assurance immeuble"')
     .replace(/<p class="eyebrow dark">Objectif top 3 Google<\/p>/g, '<p class="eyebrow dark">Dossier mieux prepare</p>')
     .replace(/<p class="large-copy">Ce renforcement[^<]*<\/p>/g, '<p class="large-copy">Ce guide relie le besoin aux decisions concretes, aux preuves de specialisation, aux documents utiles et au bon parcours de devis.</p>')
-    .replace(/<li>Surveiller les concurrents visibles \([^)]*\)[^<]*<\/li>/g, '<li>Verifier les garanties, les responsabilites et les pieces attendues sans reprendre de contenu tiers ni supposer une position Google.</li>')
+    .replace(/<li>Surveiller les concurrents visibles \([^)]*\)[^<]*<\/li>/g, '<li>Verifier les garanties, les responsabilites et les pieces attendues, puis relier chaque point aux informations du dossier.</li>')
     .replace(/<summary>Pourquoi cette page cible [^<]* \?<\/summary><p>[^<]*<\/p>/g, "<summary>Pourquoi preparer ce dossier ?</summary><p>Parce qu'un dossier clair aide a comprendre le risque, reunir les pieces et choisir les garanties avant consultation assureur.</p>")
     .replaceAll("Quel element fait gagner un lead qualifie ?", "Quelles informations accelerent l'etude du dossier ?")
     .replace(/Le gain de lead sur [^<"]+ vient du formulaire contextualise, des documents attendus et d'une lecture claire entre immeuble, lot, occupant et proprietaire\./g, "Le statut du demandeur, l'occupation du bien, le contrat actuel, l'echeance et l'historique des sinistres permettent d'orienter plus vite le dossier vers les garanties pertinentes.")
@@ -159,7 +159,7 @@ function block(row, pageTitle) {
       <ul class="check-list">
         <li>Clarifier l'intention ${esc(intentText(row.intent))} avant de parler uniquement de tarif.</li>
         <li>Comparer les garanties, franchises, exclusions et documents a fournir pour eviter les demandes incompletes.</li>
-        <li>Renvoyer vers le bon parcours de lead selon le profil: bailleur, SCI, syndic, coproprietaire non occupant ou gestionnaire.</li>
+        <li>Orienter la demande vers le formulaire adapte au profil: bailleur, SCI, syndic, coproprietaire non occupant ou gestionnaire.</li>
         <li>Surveiller les concurrents visibles (${esc(competitors)}) sans copier leurs contenus ni automatiser de scraping Google.</li>
       </ul>
     </div>

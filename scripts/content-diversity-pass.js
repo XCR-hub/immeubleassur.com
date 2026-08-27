@@ -258,7 +258,7 @@ const replacements = [
   {
     id: "measured-serp-guide",
     text: "Le guide se concentre sur les pieces, les garanties, les responsabilites et le passage vers un dossier de devis exploitable, sans affirmer de position Google non mesuree.",
-    build: (ctx) => `Pour ${ctx.page}, le guide relie ${ctx.documents}, garanties et responsabilites au dossier de devis, sans transformer un signal non mesure en position Google.`
+    build: (ctx) => `Pour ${ctx.page}, le guide relie ${ctx.documents}, garanties et responsabilites au dossier de devis, afin de preparer un dossier de devis verifiable.`
   },
   {
     id: "editorial-actionability",

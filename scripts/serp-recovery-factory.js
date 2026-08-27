@@ -129,7 +129,7 @@ const PLANS = {
 const UNIQUE_COPY = {
   "blog/dossier-preuve-assurance-copropriete": {
     takeaway: "Construire un classeur AG: decision, historique, travaux votes et responsabilite du syndicat.",
-    signal: "La requete copropriete appelle une reponse collective: mandat, assemblee generale, responsabilite des parties communes et tracabilite des decisions. Le contenu se concentre sur la preparation du conseil syndical avant d'interroger le marche.",
+    signal: "Le besoin copropriete appelle une reponse collective: mandat, assemblee generale, responsabilite des parties communes et tracabilite des decisions. Le contenu se concentre sur la preparation du conseil syndical avant d'interroger le marche.",
     proof: "Le bon angle consiste a ranger les elements comme un dossier de reunion: ce qui a ete vote, ce qui a ete repare, ce qui reste expose et ce que les coproprietaires devront arbitrer.",
     decision: "Quand le conseil syndical dispose du contrat en cours, de l'echeance, du releve de sinistres et des travaux votes, il peut passer vers la page copropriete pour cadrer la consultation.",
     riskGuidance: [
@@ -167,7 +167,7 @@ const UNIQUE_COPY = {
   },
   "blog/coproprietaire-non-occupant-documents-devis": {
     takeaway: "Passer du statut personnel de coproprietaire a une fiche lot exploitable.",
-    signal: "La requete coproprietaire non occupant exprime un besoin individuel. Elle demande moins une comparaison generale PNO/CNO qu'une checklist centree sur un lot precis et sa situation actuelle.",
+    signal: "Le besoin coproprietaire non occupant exprime un besoin individuel. Elle demande moins une comparaison generale PNO/CNO qu'une checklist centree sur un lot precis et sa situation actuelle.",
     proof: "Le dossier doit raconter le lot: usage, etage, annexes, bail, periode sans occupant, declaration de sinistre et informations transmises par le syndic.",
     decision: "Des que la situation du lot est claire, la page CNO consolidee permet de formuler une demande de devis courte et coherente.",
     riskGuidance: [
@@ -205,7 +205,7 @@ const UNIQUE_COPY = {
   },
   "blog/mandat-courtier-assurance-immeuble-consultation": {
     takeaway: "Encadrer la mission de courtage: mandat, cahier des charges, relances et arbitrage.",
-    signal: "La requete courtier assurance immeuble exprime une demande de pilotage. Le contenu decrit la methode de consultation du marche plutot que les garanties elles-memes.",
+    signal: "Le besoin courtier assurance immeuble exprime une demande de pilotage. Le contenu decrit la methode de consultation du marche plutot que les garanties elles-memes.",
     proof: "Le mandat doit fixer qui parle aux assureurs, quels documents circulent, quelles offres sont comparables et comment les refus seront traces.",
     decision: "Une fois le mandat et le cahier des charges stabilises, la page courtier ou devis peut recevoir une demande commerciale precise.",
     riskGuidance: [
@@ -243,7 +243,7 @@ const UNIQUE_COPY = {
   },
   "blog/multirisque-immeuble-garanties-batiment-preuves": {
     takeaway: "Verifier le socle batiment: bati, dependances, equipements et evenements couverts.",
-    signal: "La requete multirisque immeuble appelle une lecture technique du batiment. Cette page inventorie le socle garanti au lieu de reprendre toute la page assurance immeuble.",
+    signal: "Le besoin multirisque immeuble appelle une lecture technique du batiment. Cette page inventorie le socle garanti au lieu de reprendre toute la page assurance immeuble.",
     proof: "L'analyse part du bati: annee, surface, dependances, reseaux, toiture, portail, cave, parking et locaux techniques.",
     decision: "Quand le socle batiment est decrit, la page multirisque peut recevoir une demande complete pour comparer les garanties.",
     riskGuidance: [
