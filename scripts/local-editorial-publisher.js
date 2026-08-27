@@ -46,6 +46,16 @@ const today = new Date().toISOString().slice(0, 10);
 const expectedSlug = `news/veille-assurance-immeuble-${today}`;
 const force = process.argv.includes("--force");
 const currentIssuePath = current?.version && current?.issue?.slug ? join(publicationsRoot, "versions", current.version, `${current.issue.slug}.html`) : "";
+function refreshPreservedRuntimeSitemap() {
+  if (!currentIssuePath || !current?.issue?.slug) return false;
+  const baseSitemapPath = join(staticPublicRoot, "sitemap.xml");
+  if (!existsSync(baseSitemapPath)) return false;
+  let sitemap = readFileSync(baseSitemapPath, "utf8");
+  const loc = `https://immeubleassur.com/${current.issue.slug}`;
+  if (!sitemap.includes(`<loc>${loc}</loc>`)) sitemap = sitemap.replace("</urlset>", `  <url><loc>${loc}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>\n</urlset>`);
+  writeFileSync(join(dirname(currentIssuePath), "sitemap.xml"), sitemap, "utf8");
+  return true;
+}
 const baseHubHashes = Object.fromEntries(["faq.html", "villes.html", "sitemap.xml"].map((relative) => {
   const path = join(staticPublicRoot, relative);
   return [relative.replace(".html", ""), existsSync(path) ? sha256(path) : ""];
@@ -91,7 +101,8 @@ if (child.status !== 0 || !editorialReport) {
   process.exit(1);
 }
 if (!editorialReport.publication_gate?.ready || !editorialReport.public_write_enabled) {
-  const report = { ...baseReport, success: true, status: "held-by-publication-gate", preserved_previous: Boolean(current), gate: editorialReport.publication_gate, candidate_issue: editorialReport.candidate_issue || null };
+  const preservedSitemapRefreshed = refreshPreservedRuntimeSitemap();
+  const report = { ...baseReport, success: true, status: "held-by-publication-gate", preserved_previous: Boolean(current), preserved_sitemap_refreshed: preservedSitemapRefreshed, gate: editorialReport.publication_gate, candidate_issue: editorialReport.candidate_issue || null };
   writeJson(reportPath, report);
   console.log(`Editorial publisher: ${report.status}; previous edition preserved.`);
   process.exit(0);
