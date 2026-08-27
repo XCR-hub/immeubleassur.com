@@ -90,7 +90,7 @@ const profiles = {
     h1: "Demander un devis PNO/CNO avec un dossier exploitable.",
     description: "Formulaire de devis PNO CNO: statut du lot, occupation, vacance, contrat immeuble, sinistres et rappel specialise ImmeubleAssur.",
     eyebrow: "Angle formulaire",
-    angle: "Separer la conversion du contenu explicatif.",
+    angle: "Distinguer les explications du formulaire de demande.",
     body: "Cette page transforme une recherche prete a agir en dossier qualifie. Elle privilegie les champs utiles au rappel, pas l'explication complete du contrat.",
     bullets: ["Statut du demandeur et du lot.", "Occupation, vacance et sinistres.", "Rappel oriente devis plutot que lecture de guide."],
     links: [["/assurance-cno", "Comprendre CNO"], ["/assurance-pno-cno", "Comparer PNO CNO"]]

@@ -212,7 +212,7 @@ function landingPage(page) {
 
 function articlePage(article) {
   const angle = pnoArticleAngles[article.slug] || {
-    summary: ["Comparer le statut PNO/CNO avant de choisir.", "Verifier occupant, lot, copropriete et contrat immeuble.", "Transformer la lecture en demande de devis exploitable."],
+    summary: ["Comparer le statut PNO/CNO avant de choisir.", "Verifier occupant, lot, copropriete et contrat immeuble.", "Transformer la comparaison en demande de devis exploitable."],
     intentTitle: "Comprendre le besoin avant de choisir.",
     intentCopy: `Une requete comme ${article.keyword} exprime souvent un besoin immediat: savoir quel contrat choisir, ce qui est couvert et comment obtenir un devis fiable.`,
     guaranteeTitle: "Les garanties a verifier.",

@@ -743,7 +743,7 @@ function homePage() {
       </div>
     </section>
     <section class="band process-band">
-      <div class="section-head"><p class="eyebrow dark">Parcours</p><h2>Du trafic SEO au dossier assureur.</h2></div>
+      <div class="section-head"><p class="eyebrow dark">Parcours</p><h2>Du besoin initial au dossier assureur.</h2></div>
       <ol class="steps">
         <li><strong>Attirer</strong><span>Pages services, villes, guides et articles specialises assurance immeuble.</span></li>
         <li><strong>Qualifier</strong><span>Formulaire adapte copropriete, PNO, SCI, syndic et immeuble mixte.</span></li>

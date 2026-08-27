@@ -158,7 +158,7 @@ function pageContext(fileName = "index.html") {
     };
   }
   return {
-    diagnosticLead: `Sur ${label}, le parcours qualifie statut, type de bien, urgence et pieces disponibles pour creer un lead assurance immeuble exploitable.`,
+    diagnosticLead: `Sur ${label}, le parcours qualifie statut, type de bien, urgence et pieces disponibles pour constituer un dossier assurance immeuble exploitable.`,
     readinessLead: `Chaque piece cochee rend la demande ${label.toLowerCase()} plus exploitable: echeance, contrat actuel, sinistres, lots et travaux.`,
     momentumLead: `Les recherches assurance immeuble doivent aller vite vers le bon parcours: CNO/PNO, multirisque, SCI, copropriete ou audit contrat.`
   };
@@ -197,7 +197,7 @@ function routerBlock() {
     <div class="risk-router-copy">
       <p class="eyebrow dark">Orientation rapide</p>
       <h2 id="risk-router-title">Identifier le bon parcours assurance immeuble.</h2>
-      <p class="large-copy">Un proprietaire non occupant, une SCI, un syndic ou un bailleur n'a pas le meme dossier assureur. Le parcours adapte reduit les allers-retours et augmente la qualite du lead.</p>
+      <p class="large-copy">Un proprietaire non occupant, une SCI, un syndic ou un bailleur n'a pas le meme dossier assureur. Le parcours adapte reduit les allers-retours et ameliore la precision des informations transmises.</p>
     </div>
     <div class="risk-router-panel">
       <div class="risk-options" aria-label="Situations assurance immeuble">

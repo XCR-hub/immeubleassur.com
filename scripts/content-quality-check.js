@@ -38,7 +38,12 @@ const bannedInternalEditorialLanguage = [
   /classement\s+google/i,
   /une\s+page\s+locale\s+utile/i,
   /position\s+google/i,
-  /parcours\s+de\s+lead/i
+  /parcours\s+de\s+lead/i,
+  /trafic\s+seo/i,
+  /potentiel\s+seo/i,
+  /qualite\s+du\s+lead/i,
+  /creer\s+un\s+lead/i,
+  /separer\s+la\s+conversion/i
 ];
 
 function walk(dir) {
