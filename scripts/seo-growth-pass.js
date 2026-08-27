@@ -11,7 +11,7 @@ const BRAND = "ImmeubleAssur";
 const EMAIL = "team@immeubleassur.com";
 const PHONE = "+33180855786";
 const privateSlugs = new Set(["admin", "espace-client", "espace-assureur"]);
-const nonIndexableSlugs = new Set(["admin", "espace-client", "espace-assureur", "blog/index", "faq/index"]);
+const nonIndexableSlugs = new Set(["admin", "espace-client", "espace-assureur", "blog/index", "faq/index", "strategie-seo-continue"]);
 const aliasCanonicalSlugs = new Map([["blog/index", "blog"], ["faq/index", "faq"]]);
 
 function walk(dir) {
@@ -83,7 +83,7 @@ function sectionFor(slug) {
   if (slug.startsWith("blog/")) return { name: "Blog", path: "/blog" };
   if (slug.startsWith("assurance-immeuble-") && slug !== "assurance-immeuble-locatif") return { name: "Villes", path: "/villes" };
   if (slug.includes("guide") || slug.includes("checklist") || slug.includes("comparateur")) return { name: "Guides", path: "/guides" };
-  if (["faq", "contact", "mentions-legales", "confidentialite", "merci", "admin"].includes(slug)) return { name: "Infos", path: "/" };
+  if (["faq", "contact", "mentions-legales", "confidentialite", "merci", "admin", "strategie-seo-continue"].includes(slug)) return { name: "Infos", path: "/" };
   return { name: "Solutions", path: "/assurance-immeuble" };
 }
 
@@ -122,7 +122,7 @@ function webpageSchema(slug, title, description) {
 }
 
 function serviceSchema(slug, title, description) {
-  if (slug.startsWith("blog/") || ["", "blog", "villes", "guides", "faq", "contact", "mentions-legales", "confidentialite", "merci", "admin"].includes(slug)) return null;
+  if (slug.startsWith("blog/") || ["", "blog", "villes", "guides", "faq", "contact", "mentions-legales", "confidentialite", "merci", "admin", "strategie-seo-continue"].includes(slug)) return null;
   return {
     "@context": "https://schema.org",
     "@type": "Service",

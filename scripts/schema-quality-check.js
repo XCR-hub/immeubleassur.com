@@ -7,7 +7,7 @@ const REPORT_DIR = "reports";
 const REPORT_PATH = join(REPORT_DIR, "schema-quality-report.json");
 const ASSET_PATH = join(PUBLIC_DIR, "assets", "schema-quality-latest.json");
 const privateSlugs = new Set(["admin", "espace-client", "espace-assureur"]);
-const nonServiceSlugs = new Set(["index", "blog", "villes", "guides", "faq", "contact", "mentions-legales", "confidentialite", "merci"]);
+const nonServiceSlugs = new Set(["index", "blog", "villes", "guides", "faq", "contact", "mentions-legales", "confidentialite", "merci", "strategie-seo-continue"]);
 const aliasSlugs = new Set(["blog/index", "faq/index"]);
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
