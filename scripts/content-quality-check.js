@@ -34,7 +34,9 @@ const bannedInternalEditorialLanguage = [
   /urgence\s+commerciale/i,
   /devis\s+qui\s+convertit/i,
   /transformation\s+en\s+leads?\s+qualifies?/i,
-  /autopilote\s+editorial/i
+  /autopilote\s+editorial/i,
+  /classement\s+google/i,
+  /une\s+page\s+locale\s+utile/i
 ];
 
 function walk(dir) {

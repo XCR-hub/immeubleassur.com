@@ -63,7 +63,7 @@ function sanitizeLegacyUnmeasuredBlock(html) {
     .replace(/Le gain de lead sur [^<"]+ vient du formulaire contextualise, des documents attendus et d'une lecture claire entre immeuble, lot, occupant et proprietaire\./g, "Le statut du demandeur, l'occupation du bien, le contrat actuel, l'echeance et l'historique des sinistres permettent d'orienter plus vite le dossier vers les garanties pertinentes.")
     .replaceAll("Comment eviter une page SEO artificielle ?", "Comment comparer les propositions sans regarder seulement le prix ?")
     .replace(/Pour [^<"]+, le bloc reste visible et utile: decisions concretes, liens internes pertinents et aucun texte cache ni contenu copie depuis les resultats de recherche\./g, "Comparez les franchises, plafonds, exclusions, limites de vacance, garanties de responsabilite et conditions d'indemnisation avant de retenir une proposition.")
-    .replace(/<p class="seo-expansion-note">[^<]*<\/p>/g, '<p class="seo-expansion-note">Guide de preparation fonde sur le besoin utilisateur et les pieces du dossier, sans affirmation de classement Google.</p>');
+    .replace(/<p class="seo-expansion-note">[^<]*<\/p>/g, '<p class="seo-expansion-note">Checklist pratique pour reunir les pieces du dossier, comparer garanties, franchises, plafonds et exclusions avant consultation.</p>');
   return removeSearchGapFaqSchema(cleaned);
 }
 
