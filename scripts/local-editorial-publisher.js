@@ -46,7 +46,7 @@ const today = new Date().toISOString().slice(0, 10);
 const expectedSlug = `news/veille-assurance-immeuble-${today}`;
 const force = process.argv.includes("--force");
 const currentIssuePath = current?.version && current?.issue?.slug ? join(publicationsRoot, "versions", current.version, `${current.issue.slug}.html`) : "";
-const baseHubHashes = Object.fromEntries(["faq.html", "villes.html"].map((relative) => {
+const baseHubHashes = Object.fromEntries(["faq.html", "villes.html", "sitemap.xml"].map((relative) => {
   const path = join(staticPublicRoot, relative);
   return [relative.replace(".html", ""), existsSync(path) ? sha256(path) : ""];
 }));
@@ -60,7 +60,7 @@ const publicationBuildHash = createHash("sha256")
   .digest("hex");
 const sourceArtifactRepairNeeded = Boolean(currentIssuePath && existsSync(currentIssuePath) && containsSourceSummaryArtifacts(readFileSync(currentIssuePath, "utf8")));
 const hubProofRepairNeeded = current?.issue?.slug === expectedSlug && (current?.hub_enrichment?.faq?.marker_count !== 1 || current?.hub_enrichment?.faq?.end_marker_count !== 1 || current?.hub_enrichment?.cities?.marker_count !== 1 || current?.hub_enrichment?.cities?.end_marker_count !== 1 || Number(current?.hub_enrichment?.cities?.linked_city_count || 0) < 3);
-const baseHubRefreshNeeded = current?.issue?.slug === expectedSlug && (current?.base_hub_hashes?.faq !== baseHubHashes.faq || current?.base_hub_hashes?.villes !== baseHubHashes.villes);
+const baseHubRefreshNeeded = current?.issue?.slug === expectedSlug && (current?.base_hub_hashes?.faq !== baseHubHashes.faq || current?.base_hub_hashes?.villes !== baseHubHashes.villes || current?.base_hub_hashes?.sitemap !== baseHubHashes.sitemap);
 const publicationInputsRefreshNeeded = current?.issue?.slug === expectedSlug && current?.publication_build_hash !== publicationBuildHash;
 const repairTriggered = sourceArtifactRepairNeeded || hubProofRepairNeeded || baseHubRefreshNeeded || publicationInputsRefreshNeeded;
 
