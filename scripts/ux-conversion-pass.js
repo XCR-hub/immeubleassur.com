@@ -301,7 +301,7 @@ function momentumBlock(context = pageContext()) {
   <div class="conversion-momentum">
     <div class="conversion-momentum-copy">
       <p class="eyebrow dark">Priorite business</p>
-      <h2 id="conversion-momentum-title">Diriger chaque visiteur vers le devis qui convertit.</h2>
+      <h2 id="conversion-momentum-title">Choisir le bon parcours selon votre situation.</h2>
       <p class="large-copy">${context.momentumLead}</p>
     </div>
     <div class="momentum-grid" aria-label="Parcours prioritaires">
