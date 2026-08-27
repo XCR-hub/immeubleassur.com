@@ -43,8 +43,10 @@ function Write-DeploymentReport([string]$Status, [string]$Before, [string]$After
     activation_attempted = $activationAttempted
     served_revision = $servedRevision
     runtime_revision_verified = $runtimeRevisionVerified
+    editorial_refresh_attempted = $editorialRefreshAttempted
+    editorial_refresh_status = $editorialRefreshStatus
     duration_seconds = [Math]::Round(([DateTime]::UtcNow - $startedAt).TotalSeconds, 1)
-    safeguards = @('named-checkout-mutex', 'clean-worktree-required', 'fast-forward-only', 'branch-pinned', 'runtime-revision-verified', 'no-local-paths')
+    safeguards = @('named-checkout-mutex', 'clean-worktree-required', 'fast-forward-only', 'branch-pinned', 'runtime-revision-verified', 'editorial-refresh-on-new-revision', 'no-local-paths')
     error = $ErrorMessage
   } | ConvertTo-Json -Depth 4
   [IO.File]::WriteAllText($ReportPath, $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
@@ -55,6 +57,8 @@ $after = ''
 $activationAttempted = $false
 $servedRevision = ''
 $runtimeRevisionVerified = $false
+$editorialRefreshAttempted = $false
+$editorialRefreshStatus = 'not-required'
 try {
   $mutexSecurity = New-Object System.Security.AccessControl.MutexSecurity
   $authenticatedUsers = New-Object Security.Principal.SecurityIdentifier('S-1-5-11')
@@ -82,6 +86,10 @@ try {
     $watchdogLogs = Join-Path $RuntimeRoot 'logs'
     & $NodePath $watchdog --site-dir $resolvedRoot --node $NodePath --log-dir $watchdogLogs --report $watchdogReport --force
     if ($LASTEXITCODE -ne 0) { throw "Production runtime activation failed with exit code $LASTEXITCODE." }
+    $editorialRefreshAttempted = $true
+    $publisher = Join-Path $resolvedRoot 'scripts\local-editorial-publisher.js'
+    & $NodePath $publisher
+    $editorialRefreshStatus = if ($LASTEXITCODE -eq 0) { 'completed' } else { "failed-exit-$LASTEXITCODE" }
   }
   $health = Invoke-RestMethod -Uri "$HealthOrigin/health" -Method Get -TimeoutSec 15
   $servedRevision = [string]$health.source_revision
