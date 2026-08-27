@@ -11,7 +11,7 @@ const BRAND = "ImmeubleAssur";
 const EMAIL = "team@immeubleassur.com";
 const PHONE = "+33180855786";
 const privateSlugs = new Set(["admin", "espace-client", "espace-assureur"]);
-const nonIndexableSlugs = new Set(["admin", "espace-client", "espace-assureur", "blog/index", "faq/index", "strategie-seo-continue"]);
+const nonIndexableSlugs = new Set(["admin", "espace-client", "espace-assureur", "blog/index", "faq/index", "merci", "strategie-seo-continue"]);
 const aliasCanonicalSlugs = new Map([["blog/index", "blog"], ["faq/index", "faq"]]);
 
 function walk(dir) {

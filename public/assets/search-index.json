@@ -900,11 +900,6 @@
     "url": "/mentions-legales"
   },
   {
-    "title": "Votre demande est enregistree",
-    "description": "Votre demande a bien ete transmise a ImmeubleAssur. Retrouvez les prochaines etapes et les coordonnees utiles pour completer votre dossier.",
-    "url": "/merci"
-  },
-  {
     "title": "Methodologie editoriale",
     "description": "Methodologie editoriale ImmeubleAssur: sources officielles, fraicheur, controles, IA en quarantaine et validation humaine.",
     "url": "/methodologie-editoriale"
