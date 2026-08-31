@@ -24,7 +24,7 @@ const PLANS = {
     distinct: "Le sujet n'est pas la page generale copropriete. Cette page explique comment assembler les preuves qui rendent la demande lisible avant consultation.",
     evidence: ["PV utiles et mandat du syndic.", "Contrat actuel, appel de prime et echeance.", "Historique sinistres commente par cause.", "Travaux votes, devis, reception et mesures correctives."],
     risks: ["Degat des eaux repete", "Toiture ou facade", "Responsabilite du syndicat", "Protection juridique"],
-    links: [["/assurance-copropriete", "Page pilier assurance copropriete"], ["/rc-syndic", "RC syndic"], ["/guide-assurance-copropriete-2026", "Guide copropriete 2026"]]
+    links: [["/assurance-copropriete", "Comprendre l assurance copropriete"], ["/rc-syndic", "RC syndic"], ["/guide-assurance-copropriete-2026", "Guide copropriete 2026"]]
   },
   "/assurance-pno-cno": {
     slug: "blog/pno-cno-preuves-lot-non-occupant",
@@ -38,7 +38,7 @@ const PLANS = {
     distinct: "Le sujet n'est pas de redefinir la PNO. Cette page isole les preuves qui evitent les doublons entre contrat du syndicat, occupant et proprietaire.",
     evidence: ["Statut du lot: loue, vacant, prete ou en travaux.", "Attestation immeuble ou informations du syndicat.", "Assurance occupant et bail si disponibles.", "Date de vacance et mesures de surveillance."],
     risks: ["Absence d'occupant", "Responsabilite civile", "Degat des eaux parti du lot", "Doublon avec contrat immeuble"],
-    links: [["/assurance-pno-cno", "Page pilier PNO CNO"], ["/devis-pno-cno", "Devis PNO CNO"], ["/assurance-cno", "Assurance CNO"]]
+    links: [["/assurance-pno-cno", "Comprendre PNO et CNO"], ["/devis-pno-cno", "Devis PNO CNO"], ["/assurance-cno", "Assurance CNO"]]
   },
   "/assurance-coproprietaire-non-occupant": {
     slug: "blog/coproprietaire-non-occupant-documents-devis",
@@ -66,7 +66,7 @@ const PLANS = {
     distinct: "Le sujet n'est pas un immeuble locatif unique. Cette page part de la personne morale, des associes, des adresses detenues et de la coherence des contrats.",
     evidence: ["Statuts utiles, gerant et interlocuteur assurance.", "Liste des biens, lots, locaux, parkings et dependances.", "Contrats en cours, echeances, PNO et multirisque.", "Sinistres, travaux et arbitrages patrimoniaux."],
     risks: ["Doublon de contrats", "Trou de garantie par adresse", "Responsabilite du gerant", "Local mixte ou vacant"],
-    links: [["/assurance-sci", "Page pilier SCI"], ["/assurance-immeuble-locatif", "Immeuble locatif"], ["/courtier-assurance-immeuble", "Courtier immeuble"]]
+    links: [["/assurance-sci", "Comprendre l assurance SCI"], ["/assurance-immeuble-locatif", "Immeuble locatif"], ["/courtier-assurance-immeuble", "Courtier immeuble"]]
   },
   "/courtier-assurance-immeuble": {
     slug: "blog/mandat-courtier-assurance-immeuble-consultation",
@@ -142,7 +142,7 @@ const UNIQUE_COPY = {
       ["Quel est le premier document a demander au syndic ?", "Le contrat actuel et son echeance, puis le releve de sinistres. Ces deux pieces donnent le point de depart de la consultation."],
       ["Le PV d'assemblee generale est-il utile ?", "Oui lorsqu'il mentionne mandat, travaux, decisions sur les garanties ou autorisation de mise en concurrence."],
       ["Comment presenter les degats des eaux repetes ?", "Il faut separer origine, colonne concernee, montant, indemnite et mesure corrective prise apres chaque episode."],
-      ["Cette page fait-elle doublon avec la page copropriete ?", "Non, elle sert a preparer le classeur avant d'aller sur la page pilier assurance copropriete."],
+      ["Comment ce guide complete-t-il l assurance copropriete ?", "Il aide a preparer le classeur de consultation avant d examiner les garanties de l assurance copropriete."],
       ["Quand demander un devis ?", "Quand echeance, nombre de lots, sinistralite et travaux importants sont suffisamment connus pour eviter les allers-retours."]
     ]
   },
@@ -284,7 +284,7 @@ const UNIQUE_COPY = {
 function copyFor(plan) {
   return UNIQUE_COPY[plan.slug] || {
     takeaway: "Qualifier le besoin avec un angle distinct avant passage au devis.",
-    signal: "Cette requete prioritaire demande une reponse de support, rattachee a une page pilier sans la remplacer.",
+    signal: "Ce besoin precis demande une reponse pratique, reliee aux garanties et aux pieces du dossier.",
     proof: "Le contenu doit separer le contexte du bien, les elements contractuels et la prochaine decision commerciale.",
     decision: "Lorsque les informations majeures sont reunies, le visiteur peut continuer vers la page principale ou le formulaire.",
     riskGuidance: plan.risks.map((risk) => `Documenter ${risk.toLowerCase()} avec le contexte du bien aide a cadrer la consultation.`)
@@ -323,7 +323,7 @@ function faqRows(plan, row) {
   if (Array.isArray(custom) && custom.length) return custom;
   const query = row.query || plan.title;
   return [
-    [`Pourquoi traiter ${query} dans une page support ?`, `Parce que cette requete precise merite un angle operationnel rattache a ${plan.links[0][1]}, sans concurrencer la page pilier.`],
+    [`Pourquoi traiter ${query} dans un guide dedie ?`, `Parce que ce besoin precis merite une checklist operationnelle reliee a ${plan.links[0][1]}.`],
     ["Quels elements changent vraiment la qualite de la reponse ?", `Les informations les plus utiles sont: ${plan.evidence.slice(0, 3).join(" ")} Elles donnent un contexte court, controle et actionnable.`],
     ["Cette page remplace-t-elle la page principale ?", `Non. Elle oriente le lecteur vers ${plan.links[0][1]} lorsque le besoin devient commercial.`],
     ["Quand passer au formulaire ?", "Des que le statut, la ville, l'occupation, l'echeance et les sinistres recents sont assez clairs."],
@@ -365,7 +365,7 @@ function pageBody(plan, row, faq) {
   const risks = plan.risks.map((item, index) => `<article><h3>${esc(item)}</h3><p>${esc(copy.riskGuidance?.[index] || `Documenter ${item.toLowerCase()} avec le contexte du bien aide a cadrer la consultation.`)}</p></article>`).join("");
   const links = plan.links.map(([href, label]) => `<a href="${attr(href)}">${esc(label)}</a>`).join("");
   const faqHtml = faq.map(([question, answer]) => `<details><summary>${esc(question)}</summary><p>${esc(answer)}</p></details>`).join("");
-  return `<article class="article-layout rich-article serp-recovery-page" data-serp-recovery="${attr(row.query || plan.title)}"><header class="article-head"><p class="eyebrow dark">${esc(plan.eyebrow)} - SERP recovery</p><h1>${esc(plan.title)}.</h1><p>${esc(plan.description)}</p></header><div class="article-body"><div class="article-summary"><strong>A retenir</strong><ul><li>Signal SerpApi: ${esc(rank)} sur ${esc(row.query || "requete prioritaire")}.</li><li>${esc(plan.distinct)}</li><li>${esc(copy.takeaway)}</li></ul></div><nav class="toc-list" aria-label="Sommaire"><a href="#signal">Signal</a><a href="#preuves">Preparation</a><a href="#risques">Risques</a><a href="#decision">Decision</a><a href="#faq">FAQ</a></nav><section id="signal"><h2>Lire le signal de recherche sans creer de doublon.</h2><p>${esc(copy.signal)}</p><p>${esc(competitorText(row))}</p></section><section id="preuves"><h2>Preparation concrete du dossier.</h2><p>${esc(copy.proof)}</p><ul class="check-list">${evidence}</ul><p>La sortie attendue est une fiche courte: contexte certain, zones a verifier, declaration necessaire et arbitrage a prendre.</p></section><section id="risques"><h2>Points de risque a expliciter.</h2><div class="local-proof-grid">${risks}</div></section><section id="decision"><h2>Quand basculer vers la page pilier.</h2><p>${esc(copy.decision)}</p><div class="source-box"><strong>Parcours recommande</strong>${links}<a class="button primary" href="${attr(row.target_url || "/devis-assurance-immeuble")}">Continuer vers la page principale</a></div></section><section id="faq" class="faq-list"><h2>Questions frequentes</h2>${faqHtml}</section></div><aside class="article-cta">${leadForm({ need: plan.need, profile: plan.profile, property_type: plan.propertyType })}</aside></article>`;
+  return `<article class="article-layout rich-article serp-recovery-page" data-serp-recovery="${attr(row.query || plan.title)}"><header class="article-head"><p class="eyebrow dark">${esc(plan.eyebrow)}</p><h1>${esc(plan.title)}.</h1><p>${esc(plan.description)}</p></header><div class="article-body"><div class="article-summary"><strong>A retenir</strong><ul><li>${esc(plan.distinct)}</li><li>${esc(copy.takeaway)}</li></ul></div><nav class="toc-list" aria-label="Sommaire"><a href="#signal">Signal</a><a href="#preuves">Preparation</a><a href="#risques">Risques</a><a href="#decision">Decision</a><a href="#faq">FAQ</a></nav><section id="signal"><h2>Clarifier le besoin et les garanties a verifier.</h2><p>${esc(copy.signal)}</p><p>${esc(competitorText(row))}</p></section><section id="preuves"><h2>Preparation concrete du dossier.</h2><p>${esc(copy.proof)}</p><ul class="check-list">${evidence}</ul><p>La sortie attendue est une fiche courte: contexte certain, zones a verifier, declaration necessaire et arbitrage a prendre.</p></section><section id="risques"><h2>Points de risque a expliciter.</h2><div class="local-proof-grid">${risks}</div></section><section id="decision"><h2>Passer de la preparation a la demande de devis.</h2><p>${esc(copy.decision)}</p><div class="source-box"><strong>Parcours recommande</strong>${links}<a class="button primary" href="${attr(row.target_url || "/devis-assurance-immeuble")}">Voir la solution recommandee</a></div></section><section id="faq" class="faq-list"><h2>Questions frequentes</h2>${faqHtml}</section></div><aside class="article-cta">${leadForm({ need: plan.need, profile: plan.profile, property_type: plan.propertyType })}</aside></article>`;
 }
 
 function fallbackPlan(row) {
@@ -407,7 +407,7 @@ function sanitizeLegacyFallbackPages() {
       .replace("data-serp-recovery=", "data-evidence-guide=")
       .replace(/ - SERP recovery/g, "")
       .replace(/<li>Signal SerpApi:[\s\S]*?<\/li>/g, "")
-      .replace(/Lire le signal de recherche sans creer de doublon\./g, "Clarifier le besoin sans creer de doublon.")
+      .replace(/Lire le signal de recherche sans creer de doublon\./g, "Clarifier le besoin et les garanties a verifier.")
       .replace(/<a href="#signal">Signal<\/a>/g, '<a href="#signal">Besoin</a>')
       .replace(/<p>Le suivi API observe surtout[\s\S]*?<\/p>/g, "<p>Le guide se concentre sur les pieces, les garanties, les responsabilites et le passage vers un dossier de devis exploitable, sans affirmer de position Google non mesuree.</p>");
     if (next !== html) { write(file, next); sanitized += 1; }
