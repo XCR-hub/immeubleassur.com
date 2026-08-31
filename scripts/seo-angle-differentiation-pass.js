@@ -77,14 +77,14 @@ const profiles = {
   },
   "assurance-coproprietaire-non-occupant": {
     indexable: false,
-    title: "Coproprietaire non occupant: page consolidee CNO",
-    h1: "Coproprietaire non occupant: continuer vers l'assurance CNO.",
-    description: "Page de consolidation pour coproprietaire non occupant: l'intention principale est traitee sur assurance CNO avec devis specialise.",
-    eyebrow: "Consolidation CNO",
-    angle: "Eviter deux pages concurrentes sur la meme intention.",
-    body: "Cette page conserve le parcours utilisateur mais ne concurrence plus la page CNO principale dans l'index. Le visiteur est oriente vers la ressource la plus complete.",
-    bullets: ["Intention identique a assurance CNO.", "Conservation des liens et de l'experience utilisateur.", "Indexation concentree sur la page principale."],
-    links: [["/assurance-cno", "Page principale CNO"], ["/devis-pno-cno", "Devis CNO"]]
+    title: "Assurance CNO pour coproprietaire non occupant",
+    h1: "Coproprietaire non occupant : verifier votre assurance CNO.",
+    description: "Assurance CNO pour coproprietaire non occupant : garanties du lot, responsabilite civile, vacance et coordination avec le contrat de copropriete.",
+    eyebrow: "Coordination des garanties",
+    angle: "Verifier ce que couvrent le lot, l occupant et la copropriete.",
+    body: "Avant de souscrire, comparez la responsabilite du coproprietaire, l assurance de l occupant et le contrat collectif afin d identifier les garanties qui restent necessaires pour le lot.",
+    bullets: ["Responsabilite civile du coproprietaire non occupant.", "Dommages au lot pendant une location ou une vacance.", "Doublons et limites avec le contrat de copropriete."],
+    links: [["/assurance-cno", "Comprendre assurance CNO"], ["/devis-pno-cno", "Devis CNO"]]
   },  "devis-pno-cno": {
     title: "Devis PNO CNO: qualifier un lot avant rappel",
     h1: "Demander un devis PNO/CNO avec un dossier exploitable.",
@@ -419,7 +419,7 @@ function blockFor(slug, profile) {
   const links = (profile.links || []).map(([href, label]) => `<a href="${esc(href)}">${esc(label)}</a>`).join("");
   const bullets = (profile.bullets || []).map((item) => `<li>${esc(item)}</li>`).join("");
   return `${START}
-<section class="band seo-opportunity-expansion angle-differentiation" aria-label="Angle editorial de ${esc(profile.title)}">
+<section class="band seo-opportunity-expansion angle-differentiation" aria-label="Informations pratiques : ${esc(profile.title)}">
   <div class="seo-opportunity-grid">
     <div class="seo-opportunity-copy">
       <p class="eyebrow dark">${esc(profile.eyebrow)}</p>
