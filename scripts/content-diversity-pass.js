@@ -187,8 +187,8 @@ const replacements = [
   },
   {
     id: "money-intent-lead-method",
-    text: "La demande est qualifiee en fiche risque: informations certaines, points manquants, garanties sensibles, priorite commerciale et prochaine action.",
-    build: (ctx) => `La demande ${ctx.page} est convertie en fiche risque: informations certaines, pieces manquantes, garanties sensibles, urgence commerciale et prochaine action.`
+    text: "La demande est qualifiee en fiche risque: informations certaines, points manquants, garanties sensibles, niveau de priorite et prochaine action.",
+    build: (ctx) => `Pour ${ctx.page}, nous precisons les informations connues, les pieces manquantes et les garanties a verifier concernant ${ctx.intent}, puis la prochaine etape du dossier.`
   },
   {
     id: "search-gap-near-quote",
