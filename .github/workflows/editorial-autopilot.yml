@@ -65,10 +65,13 @@ jobs:
         run: npm run check
 
       - name: Upload editorial reports
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: immeubleassur-editorial-reports
           path: |
+            reports/cluster-conversion-contract-report.json
+            reports/conversion-intelligence-report.json
             reports/editorial-autopilot-report.json
             reports/editorial-drafts/**/*.json
             public/assets/editorial-autopilot-latest.json

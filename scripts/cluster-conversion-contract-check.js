@@ -9,7 +9,9 @@ const ASSET_PATH = join(PUBLIC_ASSET_DIR, "cluster-conversion-contract-latest.js
 
 const clusterRequirements = {
   "local": { min_score: 94, min_pages: 80, min_money_pages: 80 },
-  "pno-cno": { min_score: 95, min_pages: 15, min_money_pages: 13 },
+  // /pno-cno was consolidated into /assurance-pno-cno (ffeee288).
+  // The retired duplicate accounted for one page and one money page.
+  "pno-cno": { min_score: 95, min_pages: 14, min_money_pages: 12 },
   "sinistre-resilie": { min_score: 81, min_pages: 14, min_money_pages: 7 },
   "prix-tarif": { min_score: 80, min_pages: 9, min_money_pages: 5 },
   "devis-courtier": { min_score: 77, min_pages: 16, min_money_pages: 7 },
