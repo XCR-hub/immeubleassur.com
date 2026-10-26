@@ -204,7 +204,7 @@ function actionPriority(page) {
   return "low";
 }
 
-const ignored = new Set(["admin", "mentions-legales", "confidentialite", "merci"]);
+const ignored = new Set(["admin", "mentions-legales", "confidentialite", "merci", "questionnaire-immeuble"]);
 const pages = walk(PUBLIC_DIR).map(auditPage).filter((page) => !ignored.has(page.slug));
 const moneyPages = pages.filter((page) => page.money_intent);
 const clusters = clusterCoverage(pages);

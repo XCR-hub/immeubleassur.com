@@ -6,7 +6,7 @@ const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
 const START = "<!-- seo-opportunity-expansion:start -->";
 const END = "<!-- seo-opportunity-expansion:end -->";
-const skipSlugs = new Set(["admin", "merci", "mentions-legales", "confidentialite"]);
+const skipSlugs = new Set(["admin", "merci", "mentions-legales", "confidentialite", "questionnaire-immeuble"]);
 
 function walk(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {

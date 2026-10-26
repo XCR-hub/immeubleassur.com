@@ -1,6 +1,8 @@
 import { adminRequestAllowed } from "../../_shared/admin-auth.js";
 import { sendPortableSmtpMail } from "../../_shared/smtp.js";
 import { decryptDocumentBase64 } from "../../_shared/document-crypto.js";
+import { unseal as readQuestionnaireReports } from "../../_shared/risk-questionnaire.js";
+import { XCR_MAIL_SIGNATURE, withXcrMailSignature } from "../../_shared/mail-signature.js";
 import {
   BROKERAGE_CASE_MARKER,
   CLIENT_OFFER_FOLLOWUP_MARKER,
@@ -980,6 +982,13 @@ function wrapBase64(value) {
 export async function mailMessage(config, mail, documents = [], env = {}) {
   const subject = clean(mail.subject, 240).replace(/[\r\n]+/g, " ");
   const attachments = clean(mail.audience, 80) === "insurer" ? await mailAttachmentRows(documents, env) : [];
+  const questionnaireSubmission = safeJson(mail.payload, {}).questionnaire_submission_id;
+  if (questionnaireSubmission && clean(mail.audience, 80) === "insurer") {
+    const submission = await safeFirst(env, "SELECT reports_payload FROM client_risk_submissions WHERE id = ? AND case_id = ? AND state = 'ready'", [questionnaireSubmission, mail.case_id]);
+    if (!submission?.reports_payload) throw new Error("Documents questionnaire indisponibles");
+    const reports = await readQuestionnaireReports(submission.reports_payload, env);
+    for (const report of reports) attachments.push({ fileName: clean(report.file_name, 160).replace(/[\\"\r\n]/g, "-"), mimeType: report.mime_type, contentBase64: report.content_base64 });
+  }
   const boundary = `=_immeubleassur_${crypto.randomUUID().replace(/-/g, "")}`;
   const bodyHeaders = attachments.length ? [`Content-Type: multipart/mixed; boundary="${boundary}"`] : ["Content-Type: text/plain; charset=utf-8"];
   const body = attachments.length ? [
@@ -987,7 +996,7 @@ export async function mailMessage(config, mail, documents = [], env = {}) {
     "Content-Type: text/plain; charset=utf-8",
     "Content-Transfer-Encoding: 8bit",
     "",
-    clean(mail.body, 12000),
+    withXcrMailSignature(clean(mail.body, 12000)),
     ...attachments.flatMap((attachment) => [
       `--${boundary}`,
       `Content-Type: ${attachment.mimeType}; name="${attachment.fileName}"`,
@@ -997,7 +1006,7 @@ export async function mailMessage(config, mail, documents = [], env = {}) {
       wrapBase64(attachment.contentBase64)
     ]),
     `--${boundary}--`
-  ].join("\r\n") : clean(mail.body, 12000);
+  ].join("\r\n") : withXcrMailSignature(clean(mail.body, 12000));
   return [
     `From: ${config.from}`,
     `To: ${clean(mail.recipient_email, 180)}`,
@@ -1285,8 +1294,7 @@ function insurerDraft(row, documents, followup = false, portalUrlValue = "") {
         "",
         "Cette relance est preparee en brouillon et doit rester validee humainement avant tout envoi.",
         "",
-        "Bien cordialement,",
-        "ImmeubleAssur"
+    XCR_MAIL_SIGNATURE
       ].filter(Boolean).join("\n")
     };
   }
@@ -1399,8 +1407,7 @@ function clientOfferMailDraft(row, offer, env) {
       "",
       "Cette proposition est publiee apres validation humaine. L'acceptation finale doit etre explicite depuis votre espace client avant creation du contrat.",
       "",
-      "Bien cordialement,",
-      "ImmeubleAssur"
+    XCR_MAIL_SIGNATURE
     ].filter(Boolean).join("\n")
   };
 }

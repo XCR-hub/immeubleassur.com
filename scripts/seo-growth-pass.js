@@ -10,7 +10,7 @@ const REPORT_DIR = "reports";
 const BRAND = "ImmeubleAssur";
 const EMAIL = "team@immeubleassur.com";
 const PHONE = "+33180855786";
-const privateSlugs = new Set(["admin", "espace-client", "espace-assureur"]);
+const privateSlugs = new Set(["admin", "espace-client", "espace-assureur", "questionnaire-immeuble"]);
 const nonIndexableSlugs = new Set(["admin", "espace-client", "espace-assureur", "blog/index", "faq/index", "merci", "strategie-seo-continue"]);
 const aliasCanonicalSlugs = new Map([["blog/index", "blog"], ["faq/index", "faq"]]);
 
@@ -259,7 +259,7 @@ function enhanceHtml(file) {
   html = normalizeLinks(html);
   html = setRobots(html, slug);
   html = enhanceCtaTracking(html);
-  html = ensureLeadMagnet(html, slug);
+  if (!privateSlugs.has(slug)) html = ensureLeadMagnet(html, slug);
   html = removeMarkedBlock(html, "<!-- growth-meta:start -->", "<!-- growth-meta:end -->");
   html = removeMarkedBlock(html, "<!-- growth-schema:start -->", "<!-- growth-schema:end -->");
   html = removeMarkedBlock(html, "<!-- analytics:start -->", "<!-- analytics:end -->");

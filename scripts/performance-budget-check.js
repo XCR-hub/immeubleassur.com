@@ -67,7 +67,8 @@ function analyzePage(file) {
     pushIssue(issues, "high", source, "lcp-image-priority", "Le preload de l image LCP doit declarer fetchpriority=high.");
   }
 
-  if (source !== "admin.html" && !scripts.some((item) => /^\/assets\/app\.js\?v=[a-f0-9]{8,}/i.test(item.value))) {
+  const applicationAsset = source === "questionnaire-immeuble.html" ? /^\/assets\/risk-questionnaire\.js\?v=[a-f0-9]{8,}/i : /^\/assets\/app\.js\?v=[a-f0-9]{8,}/i;
+  if (source !== "admin.html" && !scripts.some((item) => applicationAsset.test(item.value))) {
     pushIssue(issues, "high", source, "versioned-app-js", "Script applicatif public absent ou non versionne.");
   }
   if (source === "admin.html" && !scripts.some((item) => /^\/assets\/admin\.js\?v=[a-f0-9]{8,}/i.test(item.value))) {
@@ -107,7 +108,9 @@ function build() {
     assetRow("assets/app.js", budgets.appBytes),
     assetRow("assets/hero-building.webp", budgets.heroImageBytes),
     assetRow("assets/admin.js", budgets.adminBytes),
-    assetRow("assets/search-index.json", budgets.searchIndexBytes)
+    assetRow("assets/search-index.json", budgets.searchIndexBytes),
+    assetRow("assets/risk-questionnaire.js", budgets.appBytes),
+    assetRow("assets/risk-questionnaire.css", budgets.stylesBytes)
   ];
   const reportAssets = walk(join(PUBLIC_DIR, "assets"), (file) => /-latest\.json$/i.test(file));
   const reportAssetRows = reportAssets.map((file) => ({ path: rel(file), bytes: bytes(file), kb: kb(bytes(file)), ok: bytes(file) <= budgets.publicReportBytes })).sort((a, b) => b.bytes - a.bytes);

@@ -646,6 +646,40 @@ CREATE TABLE IF NOT EXISTS case_mail_inbox (
 CREATE INDEX IF NOT EXISTS idx_case_mail_inbox_case_id ON case_mail_inbox(case_id);
 CREATE INDEX IF NOT EXISTS idx_case_mail_inbox_status ON case_mail_inbox(status);
 CREATE INDEX IF NOT EXISTS idx_case_mail_inbox_sent_at ON case_mail_inbox(sent_at);
+CREATE TABLE IF NOT EXISTS client_risk_questionnaires (
+  id TEXT PRIMARY KEY,
+  case_id TEXT NOT NULL REFERENCES brokerage_cases(id) ON DELETE CASCADE,
+  token_hash TEXT NOT NULL UNIQUE,
+  expires_at TEXT NOT NULL,
+  revoked_at TEXT NOT NULL DEFAULT '',
+  schema_version TEXT NOT NULL,
+  revision INTEGER NOT NULL DEFAULT 0,
+  answers_payload TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'draft',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_risk_questionnaires_case ON client_risk_questionnaires(case_id);
+CREATE TABLE IF NOT EXISTS client_risk_submissions (
+  id TEXT PRIMARY KEY,
+  questionnaire_id TEXT NOT NULL REFERENCES client_risk_questionnaires(id) ON DELETE CASCADE,
+  case_id TEXT NOT NULL REFERENCES brokerage_cases(id) ON DELETE CASCADE,
+  revision INTEGER NOT NULL,
+  answers_payload TEXT NOT NULL,
+  reports_payload TEXT,
+  state TEXT NOT NULL DEFAULT 'queued',
+  notification_status TEXT NOT NULL DEFAULT 'pending',
+  notification_attempted_at TEXT,
+  notification_sent_at TEXT,
+  notification_receipt TEXT,
+  last_error TEXT,
+  confirmed_at TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE(questionnaire_id, revision)
+);
+CREATE INDEX IF NOT EXISTS idx_risk_submissions_case ON client_risk_submissions(case_id);
+
 CREATE TABLE IF NOT EXISTS admin_profile_invites (
   id TEXT PRIMARY KEY,
   token_hash TEXT NOT NULL UNIQUE,

@@ -11,6 +11,7 @@ import { readGitRevision } from "./git-revision.js";
 import { googleSiteVerificationBody, normalizeGoogleSiteVerificationFile } from "./google-site-verification.js";
 import { createLocalEditorialReviewStore } from "./local-editorial-review-store.js";
 import { trustedCrawlerSourceAddress, verifyCrawlerAddress } from "./crawler-identity-verifier.js";
+import { generateMmaQuestionnaire, notifyMmaQuestionnaire } from "./mma-questionnaire-documents.js";
 
 loadDefaultEnvFiles();
 
@@ -46,6 +47,8 @@ const apiRoutes = new Map([
   ["/api/leads", "functions/api/leads.js"],
   ["/api/newsletter", "functions/api/newsletter.js"],
   ["/api/client/case", "functions/api/client/case.js"],
+  ["/api/client/questionnaire", "functions/api/client/questionnaire.js"],
+  ["/api/admin/questionnaires", "functions/api/admin/questionnaires.js"],
   ["/api/partner/consultation", "functions/api/partner/consultation.js"],
   ["/api/admin/auth", "functions/api/admin/auth.js"],
   ["/api/admin/attribution", "functions/api/admin/attribution.js"],
@@ -192,6 +195,8 @@ function envForRequest() {
     ...process.env,
     DB: db,
     SEND_SMTP_MAIL: sendNodeSmtpMail,
+    GENERATE_MMA_QUESTIONNAIRE: generateMmaQuestionnaire,
+    NOTIFY_MMA_QUESTIONNAIRE: notifyMmaQuestionnaire,
     SCAN_DOCUMENT: documentScanner,
     DOCUMENT_SCANNER_STATUS: documentScanner.status,
     LIST_EDITORIAL_REVIEWS: editorialReviewStore.listDrafts,
@@ -363,7 +368,7 @@ function handleStatic(request, response) {
     response.writeHead(200, {
       "Content-Type": contentTypes[extension] || "application/octet-stream",
       "Content-Length": stat.size,
-      "Cache-Control": runtimeFile || file.endsWith(join("public", "admin.html")) || /-latest\.json$/i.test(file) ? "no-store" : (file.includes(`${join("public", "assets")}`) ? "public, max-age=31536000, immutable" : "public, max-age=300"),
+      "Cache-Control": runtimeFile || /(?:admin|questionnaire-immeuble)\.html$/.test(file) || /-latest\.json$/i.test(file) ? "no-store" : (file.includes(`${join("public", "assets")}`) ? "public, max-age=31536000, immutable" : "public, max-age=300"),
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": file.endsWith(join("public", "admin.html")) ? "no-referrer" : "strict-origin-when-cross-origin"
     });

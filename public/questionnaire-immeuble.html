@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+  <meta name="description" content="Votre espace personnel ImmeubleAssur pour compléter les informations de votre immeuble, déposer vos pièces et transmettre votre dossier à votre conseiller.">
+  <link rel="canonical" href="https://immeubleassur.com/questionnaire-immeuble" />
+  <title>Votre questionnaire immeuble sécurisé | ImmeubleAssur</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/risk-questionnaire.css?v=20261026">
+</head>
+<body>
+  <header class="q-header"><a class="q-brand" href="/">IA <span>ImmeubleAssur<small>Votre dossier, en toute clarté</small></span></a><button id="q-lock" class="q-secondary" type="button">Fermer mon accès</button></header>
+  <main>
+    <section class="q-welcome"><p class="q-eyebrow">ESPACE PERSONNEL</p><h1>Complétez votre dossier immeuble.</h1><p>Retrouvez vos informations, ajoutez les précisions utiles et transmettez les pièces à votre conseiller. Vous pouvez enregistrer et revenir plus tard.</p><p id="q-reference" class="q-reference"></p></section>
+    <p id="q-status" class="q-status" role="status" aria-live="polite">Ouverture de votre dossier sécurisé…</p>
+    <div id="q-workspace" class="q-layout" hidden>
+      <aside class="q-sidebar"><div class="q-progress-label"><strong>Votre progression</strong><span id="q-progress-label"></span></div><progress id="q-progress" max="100" value="0"></progress><nav id="q-navigation" aria-label="Rubriques du questionnaire"></nav><p class="q-aside-note">Un doute ? Choisissez « Je ne sais pas » ou laissez une précision. Une réponse inconnue ne sera pas transformée en réponse négative.</p></aside>
+      <section class="q-card"><div class="q-section-title"><span id="q-step" class="q-eyebrow"></span><h2 id="q-title"></h2><p id="q-help"></p></div>
+        <form id="q-form" novalidate><div id="q-fields"></div></form>
+        <section id="q-documents" hidden></section>
+        <section id="q-review" hidden><h3>Avant de transmettre</h3><p>Votre conseiller vérifiera les réponses et les pièces avant de consulter les assureurs. Vous ne signez aucun contrat ici.</p><p id="q-review-summary"></p><label class="q-confirm"><input id="q-confirm" type="checkbox"> Je confirme les informations que j’ai renseignées et demande leur transmission à mon conseiller pour étude. J’ai signalé les points inconnus ou à vérifier.</label><button class="q-primary" id="q-submit" type="button">Transmettre mes réponses</button><div id="q-reports"></div></section>
+        <div class="q-actions"><button id="q-previous" class="q-secondary" type="button">Précédent</button><span id="q-save-state" role="status"></span><button id="q-save" class="q-secondary" type="button">Enregistrer</button><button id="q-next" class="q-primary" type="button">Continuer</button></div>
+      </section>
+    </div>
+    <footer class="q-footer">Accès personnel et confidentiel. Ne transférez pas votre lien. <a href="/confidentialite">Vos données personnelles</a> · <a href="tel:+33180855780">01 80 85 57 80</a></footer>
+  </main>
+  <script src="/assets/risk-questionnaire.js?v=20261026" type="module"></script>
+</body></html>

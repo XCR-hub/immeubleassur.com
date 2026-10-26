@@ -6,7 +6,7 @@ const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
 const REPORT_PATH = join(REPORT_DIR, "schema-quality-report.json");
 const ASSET_PATH = join(PUBLIC_DIR, "assets", "schema-quality-latest.json");
-const privateSlugs = new Set(["admin", "espace-client", "espace-assureur"]);
+const privateSlugs = new Set(["admin", "espace-client", "espace-assureur", "questionnaire-immeuble"]);
 const nonServiceSlugs = new Set(["index", "blog", "villes", "guides", "faq", "contact", "mentions-legales", "confidentialite", "merci", "strategie-seo-continue"]);
 const aliasSlugs = new Set(["blog/index", "faq/index"]);
 

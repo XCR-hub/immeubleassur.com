@@ -190,8 +190,7 @@ export function buildClientEmailDraft(lead = {}, caseRow = {}, documents = [], o
       "",
       "Aucune consultation assureur ne part sans controle humain du dossier.",
       "",
-      "Bien cordialement,",
-      "L'equipe ImmeubleAssur"
+      XCR_MAIL_SIGNATURE
     ].join("\n")
   };
 }
@@ -218,8 +217,7 @@ export function buildInsurerEmailDraft(lead = {}, caseRow = {}, documents = []) 
       "",
       "Merci d'indiquer appetit, garanties, franchises, exclusions, prime indicative et pieces complementaires necessaires.",
       "",
-      "Bien cordialement,",
-      "ImmeubleAssur"
+      XCR_MAIL_SIGNATURE
     ].join("\n")
   };
 }
@@ -256,8 +254,7 @@ export function buildClientOfferFollowupDraft(row = {}, origin = "https://immeub
       "",
       "Cette relance est preparee en brouillon et doit etre validee humainement avant tout envoi.",
       "",
-      "Bien cordialement,",
-      "ImmeubleAssur"
+      XCR_MAIL_SIGNATURE
     ].filter(Boolean).join("\n")
   };
 }
@@ -272,3 +269,4 @@ export function consentSnapshotFor(lead = {}) {
     generated_at: nowIso()
   };
 }
+import { XCR_MAIL_SIGNATURE } from "./mail-signature.js";

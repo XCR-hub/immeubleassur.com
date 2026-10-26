@@ -8,7 +8,7 @@ const BRAND = "ImmeubleAssur";
 const TITLE_SUFFIX = ` | ${BRAND}`;
 const args = new Set(process.argv.slice(2));
 const metadataOutliersOnly = args.has("--metadata-outliers-only");
-const skipSlugs = new Set(["admin"]);
+const skipSlugs = new Set(["admin", "questionnaire-immeuble"]);
 const legalSlugs = new Set(["mentions-legales", "confidentialite"]);
 
 const descriptionOverrides = new Map([

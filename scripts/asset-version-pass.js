@@ -25,10 +25,16 @@ const assets = {
   admin: versionedAsset("/assets/admin.js"),
   adminProfile: versionedAsset("/assets/admin-profile.js"),
   clientPortal: versionedAsset("/assets/client-portal.js"),
-  partnerPortal: versionedAsset("/assets/partner-portal.js")
+  partnerPortal: versionedAsset("/assets/partner-portal.js"),
+  questionnaire: versionedAsset("/assets/risk-questionnaire.js"),
+  questionnaireAdmin: versionedAsset("/assets/risk-questionnaire-admin.js"),
+  questionnaireStyles: versionedAsset("/assets/risk-questionnaire.css")
 };
 
 const tagRules = [
+  { name: "questionnaire-styles", pattern: /<link\s+rel="stylesheet"\s+href="\/assets\/risk-questionnaire\.css(?:\?v=[^"]*)?"\s*\/?\s*>/g, replacement: `<link rel="stylesheet" href="${assets.questionnaireStyles}" />` },
+  { name: "questionnaire", pattern: /<script\s+src="\/assets\/risk-questionnaire\.js(?:\?v=[^"]*)?"\s+type="module"><\/script>/g, replacement: `<script src="${assets.questionnaire}" type="module"></script>` },
+  { name: "questionnaire-admin", pattern: /<script\s+src="\/assets\/risk-questionnaire-admin\.js(?:\?v=[^"]*)?"\s+type="module"><\/script>/g, replacement: `<script src="${assets.questionnaireAdmin}" type="module"></script>` },
   {
     name: "styles",
     pattern: /<link\s+rel="stylesheet"\s+href="\/assets\/styles\.css(?:\?v=[^"]*)?"\s*\/?\s*>/g,
