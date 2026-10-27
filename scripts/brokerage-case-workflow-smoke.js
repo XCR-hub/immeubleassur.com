@@ -54,6 +54,8 @@ async function main() {
   ).run();
 
   const env = { DB, ADMIN_API_TOKEN: adminToken, SITE_ORIGIN: siteOrigin, SCAN_DOCUMENT: async () => ({ status: "clean", provider: "smoke-clamav" }) };
+  const delivered = [];
+  const transportEnv = { ...env, SMTP_HOST: "smtp.example.test", SMTP_USER: "site-account@example.test", SMTP_PASS: "fixture-secret", SMTP_FROM: "wrong-sender@example.test", SEND_SMTP_MAIL: async (config, message) => { delivered.push({ config, message }); return "250 fixture accepted"; } };
   const adminResponse = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=1`, { headers: { Authorization: `Bearer ${adminToken}` } }), env }));
   assert(adminResponse.status === 200 && adminResponse.body.success, "admin cases API should return success");
   assert(adminResponse.body.sync?.counters?.created === 1, "admin sync should create one brokerage case");
@@ -145,6 +147,12 @@ async function main() {
   const approve = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "approve_mail", mail_id: mail.id, reviewer: "smoke" }) }), env }));
   assert(approve.status === 200 && approve.body.status === "approved", "admin should approve draft mail explicitly");
 
+  const deliveryMailId = crypto.randomUUID();
+  DB.prepare("INSERT INTO case_mail_queue (id,case_id,audience,recipient_email,subject,body,status,review_required,approved_at,approved_by,created_at,updated_at) SELECT ?,case_id,audience,recipient_email,subject,body,status,review_required,approved_at,approved_by,created_at,updated_at FROM case_mail_queue WHERE id=?").bind(deliveryMailId, mail.id).run();
+  const clientDelivery = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "send_mail", mail_id: deliveryMailId, reviewer: "smoke" }) }), env: transportEnv }));
+  assert(clientDelivery.status === 200 && delivered.at(-1)?.config.from === "team@immeubleassur.com", "prospect delivery must use the site mailbox as SMTP sender");
+  assert(/^From: team@immeubleassur.com\r?$/m.test(delivered.at(-1).message) && /^Reply-To: team@immeubleassur.com\r?$/m.test(delivered.at(-1).message), "prospect From and Reply-To must use the site mailbox");
+
   const markSent = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "mark_sent", mail_id: mail.id, reviewer: "smoke" }) }), env }));
   assert(markSent.status === 200 && markSent.body.status === "sent", "admin should be able to mark reviewed mail as sent");
 
@@ -179,8 +187,11 @@ async function main() {
   assert(blockedPackageSend.status === 409 && blockedPackageSend.body.marker === "insurer-package-send-guard-v1" && Number(blockedPackageSend.body.missing_count || 0) >= 1, "insurer package send guard should block sending if required documents regress");
   DB.prepare("UPDATE case_documents SET status = 'validated', received_at = COALESCE(received_at, ?), validated_at = COALESCE(validated_at, ?), updated_at = ? WHERE id = ?").bind(now, now, now, guardDoc.id).run();
 
-  const consultationSent = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "mark_consultation_sent", consultation_id: consultation.id, reviewer: "smoke" }) }), env }));
-  assert(consultationSent.status === 200 && consultationSent.body.status === "sent", "admin should mark reviewed insurer consultation as sent");
+  const insurerDelivery = await readJson(await adminPost({ request: new Request(`${siteOrigin}/api/admin/cases`, { method: "POST", headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "send_consultation", consultation_id: consultation.id, reviewer: "smoke" }) }), env: transportEnv }));
+  assert(insurerDelivery.status === 200 && delivered.at(-1)?.config.from === "tcerda@xcr.fr", "direct insurer consultation must use Tony CERDA as SMTP sender");
+  assert(/^From: tcerda@xcr.fr\r?$/m.test(delivered.at(-1).message) && /^Reply-To: tcerda@xcr.fr\r?$/m.test(delivered.at(-1).message), "insurer From and Reply-To must both use Tony CERDA");
+
+  assert(insurerDelivery.status === 200 && insurerDelivery.body.status === "sent", "reviewed insurer consultation should be marked sent after SMTP acceptance");
   const overdueAt = new Date(Date.now() - 3600000).toISOString();
   DB.prepare("UPDATE insurer_consultations SET response_due_at = ?, updated_at = ? WHERE id = ?").bind(overdueAt, overdueAt, consultation.id).run();
   const insurerFollowupSync = await readJson(await adminGet({ request: new Request(`${siteOrigin}/api/admin/cases?sync=1`, { headers: { Authorization: `Bearer ${adminToken}` } }), env }));

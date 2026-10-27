@@ -11,8 +11,30 @@ import { questionnaireFields } from "../functions/_shared/immeuble-questionnaire
 import { unseal } from "../functions/_shared/risk-questionnaire.js";
 import { onRequestPost as adminPost, onRequestGet as adminGet } from "../functions/api/admin/questionnaires.js";
 import { onRequestGet as clientGet, onRequestPost as clientPost } from "../functions/api/client/questionnaire.js";
-import { mailMessage } from "../functions/api/admin/cases.js";
+import { mailMessage, smtpConfig } from "../functions/api/admin/cases.js";
 import { XCR_MAIL_SIGNATURE, withXcrMailSignature } from "../functions/_shared/mail-signature.js";
+import { loadInsurerMailConfiguration } from "./local-insurer-mail.js";
+
+test("insurer identity uses its protected account while prospect replies use the site mailbox", async () => {
+  const protectedConfig = { username: "tcerda@xcr.fr", sender: "tcerda@xcr.fr", smtp: { host: "smtp.insurer.example.test", port: 465 }, password_dpapi: "encrypted-fixture", password_protection: "Windows DPAPI LocalMachine" };
+  const env = { INSURER_MAIL_CONFIG_PATH: "fixture.dpapi.json", SMTP_HOST: "smtp.site.example.test", SMTP_PORT: "587", SMTP_USER: "team@immeubleassur.com", SMTP_PASS: "site-fixture" };
+  let decryptions = 0;
+  const read = () => JSON.stringify(protectedConfig), decrypt = ciphertext => { assert.equal(ciphertext, "encrypted-fixture"); decryptions++; return "insurer-fixture"; };
+  assert.equal(loadInsurerMailConfiguration(env, { read, decrypt }).configured, true);
+  assert.equal(decryptions, 1);
+  for (const audience of ["insurer", "insurer_followup"]) {
+    const config = smtpConfig(env, { audience, recipient_email: "insurer@example.test" });
+    assert.equal(config.from, "tcerda@xcr.fr"); assert.equal(config.username, "tcerda@xcr.fr"); assert.equal(config.password, "insurer-fixture"); assert.equal(config.host, "smtp.insurer.example.test"); assert.equal(config.secureTransport, "on");
+    const mime = await mailMessage(config, { audience, recipient_email: "insurer@example.test", subject: "Demande", body: "Bonjour" });
+    assert.match(mime, /^From: tcerda@xcr.fr\r?$/m); assert.match(mime, /^Reply-To: tcerda@xcr.fr\r?$/m);
+  }
+  const client = smtpConfig(env, { audience: "client", recipient_email: "prospect@example.test" });
+  assert.equal(client.from, "team@immeubleassur.com"); assert.equal(client.username, "team@immeubleassur.com"); assert.equal(client.password, "site-fixture"); assert.equal(client.host, "smtp.site.example.test"); assert.equal(client.secureTransport, "starttls");
+  assert.throws(() => loadInsurerMailConfiguration(env, { read: () => JSON.stringify({ ...protectedConfig, username: "other@example.test" }), decrypt }), /tcerda@xcr.fr/);
+  assert.throws(() => loadInsurerMailConfiguration(env, { read: () => JSON.stringify({ ...protectedConfig, password_protection: "plaintext" }), decrypt }), /Protection/);
+  assert.equal(decryptions, 1, "invalid account and protection must be rejected before decrypting");
+  assert.equal(loadInsurerMailConfiguration({}).configured, false);
+});
 
 test("secure questionnaire: invitation, scoped answers, encrypted uploads, documents, one internal receipt and insurer draft", async () => {
   const directory = mkdtempSync(join(tmpdir(), "immeuble-questionnaire-test-"));

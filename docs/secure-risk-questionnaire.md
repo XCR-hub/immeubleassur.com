@@ -16,6 +16,8 @@ L’enregistrement utilise un numéro de révision pour empêcher un autre ongle
 
 Le serveur adresse les documents uniquement à `team@immeubleassur.com`, après transmission explicite du client. Il crée également un brouillon assureur sans destinataire, avec approbation humaine obligatoire. Les pièces générées sont jointes par le transport existant lors de l’envoi humain du brouillon. Les pièces déposées par le client restent soumises à leur validation habituelle.
 
+Les mails aux prospects utilisent `team@immeubleassur.com` comme expéditeur et adresse de réponse. Les consultations assureurs et leurs relances utilisent `tcerda@xcr.fr`. Le compte assureur peut être chargé depuis le fichier Windows DPAPI indiqué par `INSURER_MAIL_CONFIG_PATH` ; le mot de passe reste chiffré sur disque et n’est déchiffré qu’en mémoire au démarrage du serveur. Les paramètres `INSURER_SMTP_*` permettent aussi un compte SMTP distinct. L’envoi utilise l’autorisation déjà donnée par Tony pour les messages prospects prêts : l’agent les valide puis les envoie, sans nouvelle demande de confirmation et sans renvoyer un message déjà accepté par la messagerie.
+
 La réception des réponses est conservée même si la génération ou la notification échoue. Le centre admin permet de reprendre les opérations en échec. Une notification en état `sending` après incident doit être vérifiée humainement avant toute reprise pour éviter un double envoi. Les téléchargements sont authentifiés, limités au bon questionnaire et servis en `no-store`.
 
 ## Contrôles

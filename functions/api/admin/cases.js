@@ -937,19 +937,21 @@ function buildActions(cases, mails, consultations, partners = []) {
   return actions.sort((a, b) => Number(b.priority || 0) - Number(a.priority || 0)).slice(0, 20);
 }
 
-async function smtpConfig(env, mail) {
+export function smtpConfig(env, mail) {
+  const insurer = ["insurer", "insurer_followup"].includes(clean(mail.audience, 80));
   const resendMode = String(env.EMAIL_TRANSPORT || "").toLowerCase() === "resend";
-  const from = clean(env.SMTP_FROM || env.RESEND_FROM || env.SMTP_USER, 180);
+  const from = insurer ? "tcerda@xcr.fr" : "team@immeubleassur.com";
   const to = [clean(mail.recipient_email, 180)].filter(Boolean);
   if (resendMode && clean(env.RESEND_API_KEY, 300) && from && to.length) return { host: "resend", port: 443, username: "", password: "", from, to, secureTransport: "https" };
+  const port = Number.parseInt((insurer && env.INSURER_SMTP_PORT) || env.SMTP_PORT || "587", 10);
   return {
-    host: clean(env.SMTP_HOST, 160),
-    port: Number.parseInt(env.SMTP_PORT || "587", 10),
-    username: clean(env.SMTP_USER || from, 180),
-    password: String(env.SMTP_PASS || ""),
+    host: clean((insurer && env.INSURER_SMTP_HOST) || env.SMTP_HOST, 160),
+    port,
+    username: clean((insurer && env.INSURER_SMTP_USER) || env.SMTP_USER || from, 180),
+    password: String((insurer && env.INSURER_SMTP_PASS) || env.SMTP_PASS || ""),
     from,
     to,
-    secureTransport: Number.parseInt(env.SMTP_PORT || "587", 10) === 465 ? "on" : "starttls"
+    secureTransport: port === 465 ? "on" : "starttls"
   };
 }
 
@@ -1009,6 +1011,7 @@ export async function mailMessage(config, mail, documents = [], env = {}) {
   ].join("\r\n") : withXcrMailSignature(clean(mail.body, 12000));
   return [
     `From: ${config.from}`,
+    `Reply-To: ${config.from}`,
     `To: ${clean(mail.recipient_email, 180)}`,
     `Subject: ${subject}`,
     "MIME-Version: 1.0",
@@ -1347,14 +1350,14 @@ async function sendConsultation(env, body) {
   if (blocked) return blocked;
   const access = await ensureConsultationToken(env, consultationId, { insurer_name: bundle.row.insurer_name, case_id: bundle.row.case_id });
   const draft = insurerDraft(bundle.row, bundle.documents, false, consultationPortalLink(env, access.token));
-  const config = await smtpConfig(env, { recipient_email: bundle.row.recipient_email });
+  const config = smtpConfig(env, { recipient_email: bundle.row.recipient_email, audience: "insurer" });
   const resendMode = String(env.EMAIL_TRANSPORT || "").toLowerCase() === "resend";
   const transportReady = resendMode ? Boolean(clean(env.RESEND_API_KEY, 300)) : Boolean(config.host && config.username && config.password);
   if (!transportReady || !config.from || !config.to.length) return json({ success: false, error: resendMode ? "Configuration Resend incomplete" : "Configuration SMTP incomplete" }, 503);
   const attachmentCount = (await mailAttachmentRows(bundle.documents, env)).length;
   const smtpResult = await sendPortableSmtpMail(config, await mailMessage(config, { recipient_email: bundle.row.recipient_email, subject: draft.subject, body: draft.body, audience: "insurer" }, bundle.documents, env), env);
   const result = await markConsultationSent(env, body, "smtp");
-  await logTimeline(env, bundle.row.case_id, "insurer_consultation_sent", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, attachment_count: attachmentCount, smtp: clean(smtpResult, 500) });
+  await logTimeline(env, bundle.row.case_id, "insurer_consultation_sent", reviewer, { marker: "insurer-consultation-action-v1", consultation_id: consultationId, insurer_name: bundle.row.insurer_name, from: config.from, attachment_count: attachmentCount, smtp: clean(smtpResult, 500) });
   return result;
 }
 
@@ -1580,7 +1583,7 @@ export async function onRequestPost({ request, env }) {
   try {
     const smtpResult = await sendPortableSmtpMail(config, await mailMessage(config, mail, mailDocuments, env), env);
     await safeRun(env, "UPDATE case_mail_queue SET status = 'sent', sent_at = ?, last_error = '', updated_at = ? WHERE id = ?", [nowIso(), nowIso(), mailId]);
-    await logTimeline(env, mail.case_id, "mail_sent", reviewer, { mail_id: mailId, audience: mail.audience, attachment_count: attachmentCount, smtp: clean(smtpResult, 500) });
+    await logTimeline(env, mail.case_id, "mail_sent", reviewer, { mail_id: mailId, audience: mail.audience, from: config.from, attachment_count: attachmentCount, smtp: clean(smtpResult, 500) });
     return json({ success: true, status: "sent" });
   } catch (error) {
     await safeRun(env, "UPDATE case_mail_queue SET last_error = ?, updated_at = ? WHERE id = ?", [clean(error.message, 500), nowIso(), mailId]);

@@ -12,8 +12,10 @@ import { googleSiteVerificationBody, normalizeGoogleSiteVerificationFile } from 
 import { createLocalEditorialReviewStore } from "./local-editorial-review-store.js";
 import { trustedCrawlerSourceAddress, verifyCrawlerAddress } from "./crawler-identity-verifier.js";
 import { generateMmaQuestionnaire, notifyMmaQuestionnaire } from "./mma-questionnaire-documents.js";
+import { loadInsurerMailConfiguration } from "./local-insurer-mail.js";
 
 loadDefaultEnvFiles();
+loadInsurerMailConfiguration();
 
 const root = resolve(env("LOCAL_SITE_ROOT", "public"));
 const runtimeAssetsRoot = resolve(env("LOCAL_RUNTIME_ASSETS_ROOT", join("data", "runtime-assets")));
