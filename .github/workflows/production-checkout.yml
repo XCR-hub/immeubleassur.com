@@ -7,12 +7,22 @@ on:
       - .gitignore
       - scripts/update-local-production-checkout.ps1
       - scripts/production-checkout.test.js
+      - scripts/*runtime*.ps1
+      - scripts/local-runtime-report-cycle.js
+      - scripts/live-ready-connectors-runner.js
+      - scripts/scheduled-task-health*.js
+      - scripts/runtime-monitoring.test.js
       - .github/workflows/production-checkout.yml
   pull_request:
     paths:
       - .gitignore
       - scripts/update-local-production-checkout.ps1
       - scripts/production-checkout.test.js
+      - scripts/*runtime*.ps1
+      - scripts/local-runtime-report-cycle.js
+      - scripts/live-ready-connectors-runner.js
+      - scripts/scheduled-task-health*.js
+      - scripts/runtime-monitoring.test.js
       - .github/workflows/production-checkout.yml
   workflow_dispatch:
 
@@ -35,3 +45,7 @@ jobs:
         run: node scripts/production-checkout-lock-contract-check.js
       - name: Exercise the updater against an isolated checkout and HTTP server
         run: node --test scripts/production-checkout.test.js
+      - name: Check unattended monitoring and continuous services
+        run: |
+          node --test scripts/runtime-monitoring.test.js
+          node scripts/scheduled-task-health-contract-check.js

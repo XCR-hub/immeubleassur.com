@@ -2,7 +2,8 @@ param(
   [string]$SiteRoot = 'F:\immeubleassur-sync\immeubleassur.com',
   [string]$DataRoot = 'F:\immeubleassur-data',
   [string]$RuntimeRoot = 'F:\immeubleassur-runtime',
-  [string]$BackupRoot = 'F:\immeubleassur-backups\sqlite'
+  [string]$BackupRoot = 'F:\immeubleassur-backups\sqlite',
+  [switch]$MonitoringOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -19,6 +20,7 @@ try { $checkoutLockAcquired = $checkoutMutex.WaitOne([TimeSpan]::FromMinutes(25)
 catch [Threading.AbandonedMutexException] { $checkoutLockAcquired = $true }
 if (-not $checkoutLockAcquired) { throw 'Production checkout lock timeout after 25 minutes.' }
 Set-Location -LiteralPath $SiteRoot
+$env:LOCAL_RUNTIME_MONITORING_ONLY = if ($MonitoringOnly) { '1' } else { '0' }
 
 # Self-heal an older task registration that used an interactive token.
 $taskName = 'ImmeubleAssur Runtime Reports'
@@ -32,7 +34,9 @@ try {
   $currentTask = Get-ScheduledTask -TaskName $taskName -ErrorAction Stop
   if (@('SYSTEM', 'S-1-5-18') -contains [string]$currentTask.Principal.UserId -and $currentTask.Principal.LogonType -ne 'ServiceAccount') {
     $installer = Join-Path $SiteRoot 'scripts\install-local-runtime-task.ps1'
-    & PowerShell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $installer -TaskName $taskName -SiteRoot $SiteRoot -WrapperPath $MyInvocation.MyCommand.Path -RunNow
+    $installerArguments = @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', $installer, '-TaskName', $taskName, '-SiteRoot', $SiteRoot, '-WrapperPath', $MyInvocation.MyCommand.Path, '-RunNow')
+    if ($MonitoringOnly) { $installerArguments += '-MonitoringOnly' }
+    & PowerShell.exe @installerArguments
     if ($LASTEXITCODE -ne 0) { throw "Runtime task self-heal failed with exit code $LASTEXITCODE" }
     exit 0
   }

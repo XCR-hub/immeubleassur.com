@@ -46,7 +46,7 @@ export function classifyScheduledTask(task, now = Date.now(), options = {}) {
   if (!["ready", "running"].includes(state)) issues.push(`state-${state || "unknown"}`);
   if (!options.ignoreLastResult && ![0, 0x41301].includes(result)) issues.push(`last-result-${result}`);
   if (ageMinutes === null) issues.push("never-ran");
-  else if (ageMinutes > maxAgeMinutes) issues.push("stale");
+  else if (ageMinutes > maxAgeMinutes && !(task.task_name === "ImmeubleAssur Caddy Proxy" && state === "running" && result === 0x41301)) issues.push("stale");
   if (!principalValid) issues.push("principal-invalid");
   if (!actionValid) issues.push("action-invalid");
   return { healthy: issues.length === 0, issues, age_minutes: ageMinutes === null ? null : Math.round(ageMinutes * 10) / 10, max_age_minutes: maxAgeMinutes, principal_valid: principalValid, action_valid: actionValid };

@@ -78,6 +78,7 @@
                     "production:monitor":  "node scripts/local-production-monitor.js",
                     "production:reliability:check":  "node scripts/reliability-contract-check.js",
                     "production:checkout:test":  "node --test scripts/production-checkout.test.js",
+                    "production:monitoring:test":  "node --test scripts/runtime-monitoring.test.js",
                     "production:tls":  "node scripts/local-tls-certificate-monitor.js",
                     "production:runtime-reports":  "node scripts/local-runtime-report-cycle.js",
                     "mail:health":  "node scripts/local-smtp-health-check.js",

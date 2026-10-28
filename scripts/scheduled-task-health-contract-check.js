@@ -19,6 +19,8 @@ const fixtures = [
 const productionMonitorFailure = { ...base, task_name: "ImmeubleAssur Production Monitor", arguments: "-File F:/site/scripts/local-production-monitor-task.ps1", last_result: 1 };
 fixtures.push([productionMonitorFailure, false]);
 const runtimeSelfFailure = { ...base, task_name: "ImmeubleAssur Runtime Reports", last_result: 1 };
+const proxy = { ...base, task_name: "ImmeubleAssur Caddy Proxy", execute: "F:/proxy/caddy.exe", arguments: "run --config F:/proxy/Caddyfile", state: "Running", last_result: 0x41301, last_run: "2026-06-10T09:45:00.000Z" };
+fixtures.push([proxy, true], [{ ...proxy, state: "Ready", last_result: 0 }, false], [{ ...proxy, last_result: 1 }, false], [{ ...proxy, enabled: false }, false], [{ ...base, state: "Running", last_result: 0x41301, last_run: proxy.last_run }, false]);
 const circularDependencyChecks = [
   classifyScheduledTask(productionMonitorFailure, now, { ignoreLastResult: true }).healthy === true,
   classifyScheduledTask(runtimeSelfFailure, now, { ignoreLastResult: true }).healthy === true,

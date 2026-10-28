@@ -2,7 +2,8 @@ param(
   [string]$TaskName = 'ImmeubleAssur Runtime Reports',
   [string]$SiteRoot = 'F:\immeubleassur-sync\immeubleassur.com',
   [string]$WrapperPath = '',
-  [switch]$RunNow
+  [switch]$RunNow,
+  [switch]$MonitoringOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -10,14 +11,16 @@ if (-not $WrapperPath) { $WrapperPath = Join-Path $SiteRoot 'scripts\local-runti
 if (-not (Test-Path -LiteralPath $WrapperPath)) { throw "Wrapper runtime introuvable: $WrapperPath" }
 
 $quotedWrapper = '"' + $WrapperPath + '"'
-$action = New-ScheduledTaskAction -Execute 'PowerShell.exe' -Argument ('-NoProfile -NonInteractive -ExecutionPolicy Bypass -File ' + $quotedWrapper)
+$arguments = '-NoProfile -NonInteractive -ExecutionPolicy Bypass -File ' + $quotedWrapper
+if ($MonitoringOnly) { $arguments += ' -MonitoringOnly' }
+$action = New-ScheduledTaskAction -Execute 'PowerShell.exe' -Argument $arguments -WorkingDirectory $SiteRoot
 $now = Get-Date
 $quarterStart = Get-Date -Hour $now.Hour -Minute ([math]::Floor($now.Minute / 15) * 15) -Second 0
 $first = $quarterStart.AddMinutes(15)
 $trigger = New-ScheduledTaskTrigger -Once -At $first -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Days 3650)
 $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 25)
-Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
+Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger @((New-ScheduledTaskTrigger -AtStartup), $trigger) -Principal $principal -Settings $settings -Force | Out-Null
 $task = Get-ScheduledTask -TaskName $TaskName
 $sid = ([System.Security.Principal.NTAccount]$task.Principal.UserId).Translate([System.Security.Principal.SecurityIdentifier]).Value
 if ($sid -ne 'S-1-5-18' -or $task.Principal.LogonType -ne 'ServiceAccount') { throw "Scheduled task principal invalide: $sid/$($task.Principal.LogonType)" }

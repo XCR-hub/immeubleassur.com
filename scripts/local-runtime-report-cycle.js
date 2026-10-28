@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { outputNeedsAttention } from "./runtime-attention.js";
 import { redactLocalPaths, reportFileName } from "./runtime-report-redaction.js";
@@ -25,12 +26,27 @@ const runtimeSeoReport = join(runtimeReportsRoot, "seo-autopilot-report.json");
 const runtimeSeoMarkdown = join(runtimeReportsRoot, "seo-autopilot-report.md");
 const runtimeSeoAsset = join(runtimeAssetsRoot, "assets", "seo-autopilot-latest.json");
 const cycleReportPath = resolve(env("LOCAL_RUNTIME_REPORT_CYCLE_REPORT", join(runtimeReportsRoot, "local-runtime-report-cycle.json")));
+const monitoringOnly = env("LOCAL_RUNTIME_MONITORING_ONLY", "0") === "1";
 
-function runStep(name, args, extraEnv = {}) {
+export function runStep(name, args, extraEnv = {}, observeOnly = monitoringOnly) {
+  if (observeOnly && ["brokerage_cases", "client_contracts"].includes(name)) {
+    return { name, ok: true, status: 0, skipped: true, reason: "monitoring-only-preserves-business-workflows" };
+  }
+  const childArgs = observeOnly && name === "lead_notification_retry" ? [...args, "--dry-run"] : args;
+  const observationEnv = observeOnly ? {
+    LOCAL_RUNTIME_MONITORING_ONLY: "1",
+    NEWSLETTER_AUTO_SEND: "0",
+    LOCAL_MONITOR_ALERTS: "0",
+    LOCAL_EDITORIAL_REVIEW_ALERTS: "0",
+    LOCAL_IMAP_UNMATCHED_ALERTS: "0",
+    LOCAL_LEAD_SLA_ALERTS: "0",
+    LOCAL_PRIVACY_RETENTION_APPLY: "0",
+    INDEXNOW_SUBMIT: "0"
+  } : {};
   const timeout = Math.max(30000, Number(extraEnv.LOCAL_RUNTIME_STEP_TIMEOUT_MS || process.env.LOCAL_RUNTIME_STEP_TIMEOUT_MS || 300000));
-  const result = spawnSync(process.execPath, args, {
+  const result = spawnSync(process.execPath, childArgs, {
     cwd: process.cwd(),
-    env: { ...process.env, ...extraEnv },
+    env: { ...process.env, ...extraEnv, ...observationEnv },
     encoding: "utf8",
     stdio: "pipe",
     timeout
@@ -40,7 +56,7 @@ function runStep(name, args, extraEnv = {}) {
   const attention = result.status === 0 && outputNeedsAttention(stdout, stderr);
   return {
     name,
-    command: clean(`node ${args.join(" ")}`),
+    command: clean(`node ${childArgs.join(" ")}`),
     ok: result.status === 0,
     status: result.status,
     attention,
@@ -174,6 +190,7 @@ function run() {
   const report = {
     success: steps.every((step) => step.ok),
     generated_at: new Date().toISOString(),
+    execution_mode: monitoringOnly ? "monitoring-only" : "full",
     source_revision: cycleSourceRevision,
     runtime_storage: { reports: "isolated", assets: "isolated" },
     public_runtime_assets: {
@@ -185,6 +202,7 @@ function run() {
     summary: {
       ok: steps.filter((step) => step.ok).length,
       failed: steps.filter((step) => !step.ok).length,
+      skipped: steps.filter((step) => step.skipped).length,
       attention: steps.filter((step) => step.attention).length,
       growth_status: growth?.status || "",
       growth_reports_available: Number(growth?.reports_available || 0),
@@ -199,4 +217,4 @@ function run() {
   if (!report.success) process.exit(1);
 }
 
-run();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) run();

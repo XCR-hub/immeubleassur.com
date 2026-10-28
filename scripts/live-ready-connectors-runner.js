@@ -16,6 +16,7 @@ const args = new Set(process.argv.slice(2));
 const strict = args.has("--strict");
 const forceSerp = args.has("--force-serp");
 const runtimeCycle = args.has("--runtime-cycle");
+const monitoringOnly = env("LOCAL_RUNTIME_MONITORING_ONLY", "0") === "1";
 const cooldownMinutes = Math.max(15, Number(env("SERP_RATE_LIMIT_COOLDOWN_MINUTES", "360")) || 360);
 
 const runnable = {
@@ -120,6 +121,10 @@ steps.push(runNode("readiness_before", ["scripts/live-api-readiness-check.js"]))
 const readiness = readJson(READINESS_REPORT);
 
 for (const [id, config] of Object.entries(runnable)) {
+  if (monitoringOnly && !["forms-browser-smoke", "pagespeed-local"].includes(id)) {
+    steps.push({ name: id, ok: true, status: 0, skipped: true, reason: "monitoring-only-local-checks", objective: config.objective });
+    continue;
+  }
   const readinessRows = (config.readinessIds || [id]).map((readinessId) => rowById(readiness, readinessId)).filter(Boolean);
   const row = rowById(readiness, id) || readinessRows[0] || null;
   const connectorReady = config.alwaysReady === true || (readinessRows.length ? readinessRows.some((item) => item.ready) : Boolean(row?.ready));
