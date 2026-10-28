@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-03T22:14:53.397Z",
+  "generated_at": "2026-10-28T14:28:06.482Z",
   "status": "passed",
-  "pages_checked": 203,
+  "pages_checked": 212,
   "pages_targeted": 68,
-  "pages_changed": 17,
-  "links_added": 68,
+  "pages_changed": 14,
+  "links_added": 56,
   "pages_with_active_blocks": 74,
   "active_internal_links": 293,
-  "noindex_skipped": 12,
+  "noindex_skipped": 15,
   "lead_pages_skipped": 6,
   "cluster_targets": [
     {
@@ -60,112 +60,91 @@
       "slug": "blog/assurance-copropriete-avant-ag",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 18,
+      "previous_internal_links": 26,
       "links_added": 4
     },
     {
       "slug": "blog/assurance-immeuble-apres-refus-assureur",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 18,
+      "previous_internal_links": 26,
       "links_added": 4
     },
     {
       "slug": "blog/assurance-immeuble-sans-sinistre",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 23,
-      "links_added": 4
-    },
-    {
-      "slug": "blog/checklist-documents-devis-immeuble",
-      "type": "blog",
-      "cluster": "default",
-      "previous_internal_links": 22,
+      "previous_internal_links": 31,
       "links_added": 4
     },
     {
       "slug": "blog/checklist-sinistre-degat-des-eaux",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 23,
+      "previous_internal_links": 27,
       "links_added": 4
     },
     {
       "slug": "blog/cno-coproprietaire-non-occupant-obligatoire",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 22,
+      "previous_internal_links": 30,
       "links_added": 4
     },
     {
       "slug": "blog/copropriete-petite-syndic-benevole",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 18,
+      "previous_internal_links": 26,
       "links_added": 4
     },
     {
       "slug": "blog/dommages-ouvrage-copropriete-travaux",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 18,
+      "previous_internal_links": 26,
       "links_added": 4
     },
     {
       "slug": "blog/multirisque-immeuble-vs-pno",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 20,
-      "links_added": 4
-    },
-    {
-      "slug": "blog/pno-bailleur-copropriete",
-      "type": "blog",
-      "cluster": "pno-cno",
-      "previous_internal_links": 22,
+      "previous_internal_links": 24,
       "links_added": 4
     },
     {
       "slug": "blog/pno-cno-differences-garanties",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 19,
+      "previous_internal_links": 27,
       "links_added": 4
     },
     {
       "slug": "blog/pno-obligatoire-copropriete",
       "type": "blog",
       "cluster": "pno-cno",
-      "previous_internal_links": 23,
-      "links_added": 4
-    },
-    {
-      "slug": "blog/prix-assurance-immeuble-au-m2",
-      "type": "blog",
-      "cluster": "prix-tarif",
-      "previous_internal_links": 21,
+      "previous_internal_links": 31,
       "links_added": 4
     },
     {
       "slug": "blog/renovation-energetique-copropriete-assurance",
       "type": "blog",
       "cluster": "copropriete-syndic",
-      "previous_internal_links": 18,
+      "previous_internal_links": 26,
       "links_added": 4
     },
     {
       "slug": "blog/resiliation-assurance-immeuble",
       "type": "blog",
       "cluster": "default",
-      "previous_internal_links": 15,
+      "previous_internal_links": 23,
       "links_added": 4
     },
     {
       "slug": "blog/sinistres-recurrents-immeuble",
       "type": "blog",
       "cluster": "sinistre-resilie",
-      "previous_internal_links": 23,
+      "previous_internal_links": 31,
       "links_added": 4
     },
     {

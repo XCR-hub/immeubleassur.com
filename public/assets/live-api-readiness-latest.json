@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-03T22:19:57.669Z",
+  "generated_at": "2026-10-28T14:28:16.655Z",
   "status": "partial",
   "connectors_checked": 8,
-  "ready_count": 5,
-  "fallback_count": 3,
+  "ready_count": 1,
+  "fallback_count": 7,
   "rows": [
     {
       "id": "turnstile",
@@ -16,10 +16,10 @@
       "command": "npm run turnstile:hybrid",
       "report": "reports/turnstile-hybrid-report.json",
       "objective": "Activer le challenge anti-robot automatique sur les formulaires.",
-      "ready": true,
-      "status": "ready",
+      "ready": false,
+      "status": "fallback",
       "required_count": 2,
-      "configured_required": 2,
+      "configured_required": 0,
       "optional_count": 0,
       "configured_optional": 0,
       "required_names": [
@@ -28,19 +28,23 @@
       ],
       "required_any_names": [],
       "optional_names": [],
-      "missing_required_names": [],
+      "transport": "",
+      "missing_required_names": [
+        "TURNSTILE_SITE_KEY",
+        "TURNSTILE_SECRET_KEY"
+      ],
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-03T22:15:00.318Z",
+        "generated_at": "2026-10-28T14:28:11.673Z",
         "status": "passed",
         "summary": {
           "provider": "cloudflare-turnstile",
           "mode": "hybrid-turnstile-local-antifraud",
           "configured": true,
-          "pages_checked": 202,
-          "forms_detected": 197,
-          "forms_instrumented": 197,
+          "pages_checked": 211,
+          "forms_detected": 193,
+          "forms_instrumented": 193,
           "serp_error_count": 0,
           "serp_request_count": 0,
           "rate_limited": false,
@@ -48,7 +52,8 @@
           "retry_after": ""
         }
       },
-      "recommendation": "Executer npm run turnstile:hybrid pour rafraichir le signal live."
+      "runtime_reason": "",
+      "recommendation": "Configurer TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY puis executer npm run turnstile:hybrid."
     },
     {
       "id": "serpapi",
@@ -60,10 +65,10 @@
       "command": "npm run search:live",
       "report": "reports/search-intelligence-report.json",
       "objective": "Mesurer les vraies positions Google par API sans scraping direct.",
-      "ready": true,
-      "status": "ready",
+      "ready": false,
+      "status": "fallback",
       "required_count": 1,
-      "configured_required": 1,
+      "configured_required": 0,
       "optional_count": 0,
       "configured_optional": 0,
       "required_names": [
@@ -71,27 +76,31 @@
       ],
       "required_any_names": [],
       "optional_names": [],
-      "missing_required_names": [],
+      "transport": "",
+      "missing_required_names": [
+        "SERP_API_KEY"
+      ],
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-02T23:05:03.530Z",
-        "status": "serpapi-rate-limited-fallback",
+        "generated_at": "2026-10-28T14:25:39.237Z",
+        "status": "skipped-no-serp-key",
         "summary": {
-          "provider": "serpapi",
+          "provider": "local-estimate",
           "mode": "",
-          "configured": true,
-          "pages_checked": 10,
+          "configured": false,
+          "pages_checked": 11,
           "forms_detected": 0,
           "forms_instrumented": 0,
-          "serp_error_count": 1,
-          "serp_request_count": 1,
-          "rate_limited": true,
-          "rate_limited_skipped_count": 9,
+          "serp_error_count": 0,
+          "serp_request_count": 0,
+          "rate_limited": false,
+          "rate_limited_skipped_count": 0,
           "retry_after": ""
         }
       },
-      "recommendation": "Executer npm run search:live pour rafraichir le signal live."
+      "runtime_reason": "",
+      "recommendation": "Configurer SERP_API_KEY puis executer npm run search:live."
     },
     {
       "id": "pexels",
@@ -103,10 +112,10 @@
       "command": "npm run media:live",
       "report": "reports/media-autopilot-report.json",
       "objective": "Injecter des visuels immobiliers attribues sur les pages prioritaires.",
-      "ready": true,
-      "status": "ready",
+      "ready": false,
+      "status": "fallback",
       "required_count": 1,
-      "configured_required": 1,
+      "configured_required": 0,
       "optional_count": 0,
       "configured_optional": 0,
       "required_names": [
@@ -114,16 +123,19 @@
       ],
       "required_any_names": [],
       "optional_names": [],
-      "missing_required_names": [],
+      "transport": "",
+      "missing_required_names": [
+        "PEXELS_API_KEY"
+      ],
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-02T23:08:24.812Z",
-        "status": "completed",
+        "generated_at": "2026-10-28T14:25:39.127Z",
+        "status": "skipped-no-pexels-key",
         "summary": {
-          "provider": "pexels",
-          "mode": "pexels-fetched",
-          "configured": true,
+          "provider": "planned-pexels",
+          "mode": "planned-no-pexels-key",
+          "configured": false,
           "pages_checked": 0,
           "forms_detected": 0,
           "forms_instrumented": 0,
@@ -134,7 +146,8 @@
           "retry_after": ""
         }
       },
-      "recommendation": "Executer npm run media:live pour rafraichir le signal live."
+      "runtime_reason": "",
+      "recommendation": "Configurer PEXELS_API_KEY puis executer npm run media:live."
     },
     {
       "id": "editorial-ai",
@@ -150,10 +163,10 @@
       "command": "npm run editorial:live",
       "report": "reports/editorial-autopilot-report.json",
       "objective": "Synthese de veille assistee par IA avec fallback local.",
-      "ready": true,
-      "status": "ready",
-      "required_count": 1,
-      "configured_required": 1,
+      "ready": false,
+      "status": "fallback",
+      "required_count": 5,
+      "configured_required": 0,
       "optional_count": 0,
       "configured_optional": 0,
       "required_names": [],
@@ -165,12 +178,19 @@
         "HUGGINGFACE_API_KEY"
       ],
       "optional_names": [],
+      "transport": "",
       "missing_required_names": [],
-      "missing_any_names": [],
+      "missing_any_names": [
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "GEMINI_API_KEY",
+        "OPENROUTER_API_KEY",
+        "HUGGINGFACE_API_KEY"
+      ],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-03T16:22:21.132Z",
-        "status": "local-fallback",
+        "generated_at": "2026-10-28T14:25:38.996Z",
+        "status": "completed",
         "summary": {
           "provider": "",
           "mode": "local-fallback",
@@ -185,7 +205,8 @@
           "retry_after": ""
         }
       },
-      "recommendation": "Executer npm run editorial:live pour rafraichir le signal live."
+      "runtime_reason": "",
+      "recommendation": "Configurer une cle IA puis executer npm run editorial:live."
     },
     {
       "id": "google-search-console",
@@ -202,7 +223,7 @@
       "ready": false,
       "status": "fallback",
       "required_count": 3,
-      "configured_required": 1,
+      "configured_required": 0,
       "optional_count": 0,
       "configured_optional": 0,
       "required_names": [
@@ -212,20 +233,22 @@
       ],
       "required_any_names": [],
       "optional_names": [],
+      "transport": "",
       "missing_required_names": [
         "GOOGLE_SERVICE_ACCOUNT_EMAIL",
-        "GOOGLE_SERVICE_ACCOUNT_KEY"
+        "GOOGLE_SERVICE_ACCOUNT_KEY",
+        "GOOGLE_SEARCH_CONSOLE_SITE_URL"
       ],
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-01T13:38:50.858Z",
+        "generated_at": "2026-10-28T14:26:31.619Z",
         "status": "local-only",
         "summary": {
           "provider": "",
           "mode": "local-only",
           "configured": false,
-          "pages_checked": 185,
+          "pages_checked": 211,
           "forms_detected": 0,
           "forms_instrumented": 0,
           "serp_error_count": 0,
@@ -235,52 +258,39 @@
           "retry_after": ""
         }
       },
-      "recommendation": "Configurer GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY puis executer npm run seo:apis."
+      "runtime_reason": "",
+      "recommendation": "Configurer GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY, GOOGLE_SEARCH_CONSOLE_SITE_URL puis executer npm run seo:apis."
     },
     {
       "id": "pagespeed",
-      "label": "PageSpeed Insights",
+      "label": "Lighthouse local / PageSpeed Insights",
       "family": "google",
-      "required": [
+      "required": [],
+      "optional": [
         "PAGESPEED_API_KEY"
       ],
-      "command": "npm run seo:apis",
-      "report": "reports/seo-autopilot-report.json",
-      "objective": "Mesurer la performance mobile des pages money.",
-      "ready": false,
-      "status": "fallback",
-      "required_count": 1,
+      "command": "npm run pagespeed:local",
+      "report": "reports/local-lighthouse-report.json",
+      "objective": "Mesurer localement dans Chrome la performance mobile des pages money; la cle API Google reste optionnelle.",
+      "ready": true,
+      "status": "ready",
+      "required_count": 0,
       "configured_required": 0,
-      "optional_count": 0,
+      "optional_count": 1,
       "configured_optional": 0,
-      "required_names": [
-        "PAGESPEED_API_KEY"
-      ],
+      "required_names": [],
       "required_any_names": [],
-      "optional_names": [],
-      "missing_required_names": [
+      "optional_names": [
         "PAGESPEED_API_KEY"
       ],
+      "transport": "",
+      "missing_required_names": [],
       "missing_any_names": [],
       "last_report": {
-        "available": true,
-        "generated_at": "2026-08-01T13:38:50.858Z",
-        "status": "local-only",
-        "summary": {
-          "provider": "",
-          "mode": "local-only",
-          "configured": false,
-          "pages_checked": 185,
-          "forms_detected": 0,
-          "forms_instrumented": 0,
-          "serp_error_count": 0,
-          "serp_request_count": 0,
-          "rate_limited": false,
-          "rate_limited_skipped_count": 0,
-          "retry_after": ""
-        }
+        "available": false
       },
-      "recommendation": "Configurer PAGESPEED_API_KEY puis executer npm run seo:apis."
+      "runtime_reason": "",
+      "recommendation": "Executer npm run pagespeed:local pour rafraichir le signal live."
     },
     {
       "id": "ga4",
@@ -308,13 +318,14 @@
       "optional_names": [
         "GA4_API_SECRET"
       ],
+      "transport": "",
       "missing_required_names": [
         "GA4_MEASUREMENT_ID"
       ],
       "missing_any_names": [],
       "last_report": {
         "available": true,
-        "generated_at": "2026-08-03T22:01:06.579Z",
+        "generated_at": "2026-10-28T14:25:55.758Z",
         "status": "present",
         "summary": {
           "provider": "",
@@ -330,6 +341,7 @@
           "retry_after": ""
         }
       },
+      "runtime_reason": "",
       "recommendation": "Configurer GA4_MEASUREMENT_ID puis executer npm run generate."
     },
     {
@@ -347,10 +359,10 @@
       "command": "npm run local:autarky:check",
       "report": "reports/local-autarky-report.json",
       "objective": "Envoyer les notifications leads et newsletters depuis le serveur local.",
-      "ready": true,
-      "status": "ready",
+      "ready": false,
+      "status": "fallback",
       "required_count": 6,
-      "configured_required": 6,
+      "configured_required": 0,
       "optional_count": 0,
       "configured_optional": 0,
       "required_names": [
@@ -363,12 +375,25 @@
       ],
       "required_any_names": [],
       "optional_names": [],
-      "missing_required_names": [],
+      "transport": "smtp",
+      "missing_required_names": [
+        "SMTP_HOST",
+        "SMTP_PORT",
+        "SMTP_USER",
+        "SMTP_PASS",
+        "SMTP_FROM",
+        "SMTP_TO"
+      ],
       "missing_any_names": [],
       "last_report": {
-        "available": false
+        "available": false,
+        "health": {
+          "available": false
+        },
+        "transport": "smtp"
       },
-      "recommendation": "Executer npm run local:autarky:check pour rafraichir le signal live."
+      "runtime_reason": "SMTP health report missing",
+      "recommendation": "SMTP health report missing"
     }
   ],
   "safeguards": [

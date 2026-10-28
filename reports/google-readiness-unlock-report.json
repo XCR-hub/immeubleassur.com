@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-03T22:19:58.038Z",
+  "generated_at": "2026-10-28T14:28:16.881Z",
   "status": "action-required",
   "watched_connectors": [
     "google-search-console",
@@ -7,10 +7,10 @@
     "ga4",
     "serpapi"
   ],
-  "google_ready_count": 0,
+  "google_ready_count": 1,
   "google_connector_count": 4,
   "blocking_count": 3,
-  "degraded_count": 1,
+  "degraded_count": 0,
   "actions": [
     {
       "id": "google-search-console",
@@ -18,16 +18,19 @@
       "family": "google",
       "severity": "high",
       "reason": "missing-secret",
-      "status": "fallback",
+      "status": "local-only",
+      "configured": false,
+      "operational_ready": false,
       "ready": false,
       "objective": "Importer requetes, pages, CTR, positions, URL Inspection et sitemap depuis Search Console.",
       "missing_required_names": [
         "GOOGLE_SERVICE_ACCOUNT_EMAIL",
-        "GOOGLE_SERVICE_ACCOUNT_KEY"
+        "GOOGLE_SERVICE_ACCOUNT_KEY",
+        "GOOGLE_SEARCH_CONSOLE_SITE_URL"
       ],
       "missing_optional_names": [],
       "command": "npm run seo:apis",
-      "signal": "Manque: GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY",
+      "signal": "Manque: GOOGLE_SERVICE_ACCOUNT_EMAIL, GOOGLE_SERVICE_ACCOUNT_KEY, GOOGLE_SEARCH_CONSOLE_SITE_URL",
       "next_action": "Ajouter le service account dans la propriete Search Console du domaine.",
       "steps": [
         "Ajouter le service account dans la propriete Search Console du domaine.",
@@ -42,38 +45,14 @@
       ]
     },
     {
-      "id": "pagespeed",
-      "label": "PageSpeed Insights",
-      "family": "google",
-      "severity": "medium",
-      "reason": "missing-secret",
-      "status": "fallback",
-      "ready": false,
-      "objective": "Mesurer les performances mobiles des pages money avec PageSpeed Insights.",
-      "missing_required_names": [
-        "PAGESPEED_API_KEY"
-      ],
-      "missing_optional_names": [],
-      "command": "npm run seo:apis",
-      "signal": "Manque: PAGESPEED_API_KEY",
-      "next_action": "Activer PageSpeed Insights API dans le projet Google Cloud choisi.",
-      "steps": [
-        "Activer PageSpeed Insights API dans le projet Google Cloud choisi.",
-        "Renseigner PAGESPEED_API_KEY dans .env.local sur le serveur.",
-        "Relancer npm run seo:apis pour produire pagespeed.checked et les pages lentes.",
-        "Surveiller le budget avec npm run performance:budget."
-      ],
-      "secret_names_only": [
-        "PAGESPEED_API_KEY"
-      ]
-    },
-    {
       "id": "ga4",
       "label": "GA4 Measurement Protocol",
       "family": "analytics",
       "severity": "medium",
       "reason": "missing-secret",
-      "status": "fallback",
+      "status": "present",
+      "configured": false,
+      "operational_ready": false,
       "ready": false,
       "objective": "Relier les evenements formulaire, intentions et leads qualifies a GA4 sans donnees nominatives.",
       "missing_required_names": [
@@ -101,14 +80,18 @@
       "label": "SerpApi",
       "family": "seo",
       "severity": "medium",
-      "reason": "rate-limited",
-      "status": "ready",
-      "ready": true,
+      "reason": "missing-secret",
+      "status": "skipped-no-serp-key",
+      "configured": false,
+      "operational_ready": false,
+      "ready": false,
       "objective": "Remplacer les estimations locales par des positions Google mesurees via API autorisee.",
-      "missing_required_names": [],
+      "missing_required_names": [
+        "SERP_API_KEY"
+      ],
       "missing_optional_names": [],
       "command": "npm run search:live",
-      "signal": "Dernier statut: serpapi-rate-limited-fallback",
+      "signal": "Manque: SERP_API_KEY",
       "next_action": "Verifier que SERP_API_KEY est presente et valide.",
       "steps": [
         "Verifier que SERP_API_KEY est presente et valide.",
@@ -123,12 +106,13 @@
     }
   ],
   "readiness_status": "partial",
-  "readiness_ready_count": 5,
+  "readiness_ready_count": 1,
   "readiness_connector_count": 8,
   "safeguards": [
     "no-secret-values-exported",
     "secret-names-only",
     "google-apis-use-official-connectors",
+    "configured-is-distinct-from-operational-ready",
     "serp-signals-labelled-measured-or-fallback",
     "ga4-events-without-pii"
   ]

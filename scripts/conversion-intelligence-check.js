@@ -1,10 +1,12 @@
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
+import { insurerGuides } from "../content/insurer-guides.js";
 
 const PUBLIC_DIR = "public";
 const REPORT_PATH = resolve(process.env.LOCAL_CONVERSION_INTELLIGENCE_REPORT || join("reports", "conversion-intelligence-report.json"));
 const PUBLIC_REPORT_PATH = resolve(process.env.LOCAL_CONVERSION_INTELLIGENCE_PUBLIC_REPORT || join("public", "assets", "conversion-intelligence-latest.json"));
 const SITE = "https://immeubleassur.com";
+const documentedGuideSlugs = new Set(insurerGuides.map(guide => guide.slug));
 
 const nonLocalImmeubleSlugs = new Set([
   "assurance-immeuble-de-rapport",
@@ -132,7 +134,7 @@ function internalLinks(html) {
 function scorePage(page) {
   let score = 10;
   const actions = [];
-  const moneyIntent = moneySlugs.has(page.slug) || page.slug.startsWith("assurance-immeuble-") || /devis|prix|tarif|courtier|pno|cno|sinistre|resilie/i.test(page.slug);
+  const moneyIntent = !documentedGuideSlugs.has(page.slug) && (moneySlugs.has(page.slug) || page.slug.startsWith("assurance-immeuble-") || /devis|prix|tarif|courtier|pno|cno|sinistre|resilie/i.test(page.slug));
 
   if (moneyIntent) score += 15;
   if (page.has_lead_form) score += 24; else if (moneyIntent) actions.push("Ajouter un formulaire ou un CTA direct vers devis.");

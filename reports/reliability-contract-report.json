@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-11T17:46:31.476Z",
+  "generated_at": "2026-10-28T14:28:42.460Z",
   "status": "passed",
-  "checks": 94,
+  "checks": 99,
   "missing": [],
   "safeguards": [
     "tiered-backup-retention",

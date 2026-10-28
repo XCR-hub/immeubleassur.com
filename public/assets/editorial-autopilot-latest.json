@@ -1,24 +1,52 @@
 {
-    "generated_at":  "2026-08-03T16:22:21.132Z",
-    "status":  "safe-public-metadata",
-    "publication_status":  "static-fallback",
-    "public_content_provider":  "deterministic",
-    "public_content_ai_generated":  false,
-    "ai_draft_review_pending":  false,
-    "legal_sensitive_draft_pending":  false,
-    "source_count":  5,
-    "healthy_source_count":  0,
-    "empty_source_count":  0,
-    "failed_source_count":  0,
-    "collection_status":  "static-fallback",
-    "public_watch_items":  [
-
-                           ],
-    "safeguards":  [
-                       "no-ai-draft-content",
-                       "no-internal-paths",
-                       "no-provider-errors",
-                       "no-source-summaries",
-                       "deterministic-public-content-only"
-                   ]
+  "generated_at": "2026-10-28T14:25:38.996Z",
+  "status": "safe-public-metadata",
+  "publication_status": "held-insufficient-official-evidence",
+  "public_content_provider": "deterministic",
+  "public_content_ai_generated": false,
+  "ai_draft_review_pending": false,
+  "legal_sensitive_draft_pending": false,
+  "source_count": 10,
+  "healthy_source_count": 0,
+  "empty_source_count": 0,
+  "no_relevant_source_count": 0,
+  "reference_verified_count": 0,
+  "reference_unverified_count": 0,
+  "reference_access_restricted_count": 0,
+  "failed_source_count": 0,
+  "collection_status": "partial",
+  "public_watch_items": [
+    {
+      "source_id": "service-public-particuliers",
+      "source_name": "Service-Public.fr particuliers",
+      "title": "Logement, copropriete et demarches: verifier les obligations avant travaux ou sinistre",
+      "url": "https://www.service-public.fr/particuliers/vosdroits/N19808",
+      "topic": "copropriete",
+      "relevance_score": 82
+    },
+    {
+      "source_id": "acpr-actualites",
+      "source_name": "ACPR Banque de France",
+      "title": "Veille assurance: rester attentif aux communications du regulateur",
+      "url": "https://acpr.banque-france.fr/fr/actualites",
+      "topic": "regulateur",
+      "relevance_score": 78
+    },
+    {
+      "source_id": "legifrance",
+      "source_name": "Legifrance",
+      "title": "Copropriete: suivre les textes applicables avant de publier un conseil juridique",
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/",
+      "topic": "droit",
+      "relevance_score": 75
+    }
+  ],
+  "safeguards": [
+    "no-ai-draft-content",
+    "no-internal-paths",
+    "no-provider-errors",
+    "no-source-summaries",
+    "no-future-publication-dates",
+    "deterministic-public-content-only"
+  ]
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T03:55:02.719Z",
+  "generated_at": "2026-10-28T14:28:41.642Z",
   "status": "passed",
   "header_count": 9,
   "csp_directive_count": 9,
@@ -27,7 +27,7 @@
         "object-src 'none'",
         "frame-ancestors 'none'",
         "form-action 'self'",
-        "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com",
+        "script-src 'self' https://challenges.cloudflare.com https://www.googletagmanager.com",
         "connect-src 'self' https://challenges.cloudflare.com https://region1.google-analytics.com https://www.google-analytics.com",
         "frame-src https://challenges.cloudflare.com",
         "upgrade-insecure-requests"
@@ -54,7 +54,7 @@
         "object-src 'none'",
         "frame-ancestors 'none'",
         "form-action 'self'",
-        "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com",
+        "script-src 'self' https://challenges.cloudflare.com https://www.googletagmanager.com",
         "connect-src 'self' https://challenges.cloudflare.com https://region1.google-analytics.com https://www.google-analytics.com",
         "frame-src https://challenges.cloudflare.com",
         "upgrade-insecure-requests"
@@ -66,6 +66,7 @@
   "safeguards": [
     "centralized-runtime-security-headers",
     "csp-allows-turnstile-and-ga4-only",
+    "ga4-bootstrap-external-to-strict-csp",
     "hsts-behind-https-proxy",
     "frame-ancestors-none",
     "cross-origin-resource-policy",

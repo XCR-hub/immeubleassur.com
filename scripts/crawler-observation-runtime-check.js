@@ -50,6 +50,10 @@ async function request(userAgent) {
 
 try {
   await waitUntilReady();
+  const blog = await fetch(`${origin}/blog`);
+  const blogHtml = await blog.text();
+  if (blog.status !== 200 || /<meta name="robots" content="[^"]*noindex/i.test(blogHtml)) throw new Error('Canonical blog must serve the indexable public hub, not its directory alias');
+  if (!blogHtml.includes('href="https://immeubleassur.com/blog"')) throw new Error('Canonical blog URL missing');
   await request("OAI-SearchBot/1.0 ImmeubleAssurDiscoverabilityMonitor/1.0");
   await request("OAI-SearchBot/1.0 (+https://openai.com/searchbot)");
   await request("OAI-SearchBot/1.0 (+https://openai.com/searchbot)");

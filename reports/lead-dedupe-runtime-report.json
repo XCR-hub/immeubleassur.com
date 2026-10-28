@@ -1,12 +1,14 @@
 {
+  "generated_at": "2026-10-28T14:28:01.401Z",
+  "status": "passed",
   "success": true,
-  "scenario": "repeated-lead-dedupe-and-express-callback",
+  "scenario": "repeated-and-concurrent-lead-dedupe-with-express-callback",
   "first": {
     "status": 200,
     "success": true,
     "duplicate": false,
     "score": 100,
-    "notification": "skipped"
+    "notification": "sent"
   },
   "second": {
     "status": 200,
@@ -15,6 +17,15 @@
     "result_status": "duplicate_recent",
     "duplicate_reason": "email-telephone",
     "notification": "skipped"
+  },
+  "concurrent": {
+    "verified": true,
+    "created": 1,
+    "duplicates": 1,
+    "same_id": true,
+    "same_reference": true,
+    "duplicate_reason": "simultaneous-exact-submission",
+    "duplicate_notification": "skipped"
   },
   "express": {
     "status": 200,
@@ -26,32 +37,42 @@
     "notification": "skipped"
   },
   "counts": {
-    "leads": 2,
-    "duplicate_site_events": 1,
-    "duplicate_lead_events": 1,
-    "duplicate_notification_events": 0
+    "leads": 3,
+    "duplicate_site_events": 2,
+    "duplicate_lead_events": 2,
+    "duplicate_notification_events": 0,
+    "email_notification_events": 2
+  },
+  "notification_capture": {
+    "verified": true,
+    "transport": "in-memory",
+    "captured_messages": 2,
+    "recipient_is_team": true,
+    "subject_has_reference": true,
+    "body_has_reference": true,
+    "secret_absent": true
   },
   "admin": {
     "spam": {
       "status": 200,
-      "duplicate_leads_30d": 1,
+      "duplicate_leads_30d": 2,
       "duplicate_filter_rate": 100,
-      "duplicate_rows": 1
+      "duplicate_rows": 2
     },
     "seo": {
       "status": 200,
-      "duplicate_filtered": 1,
+      "duplicate_filtered": 2,
       "attempt_to_handled_lead_rate": 0
     },
     "integrations": {
       "status": 200,
-      "lead_duplicates_30d": 1,
-      "duplicate_rows": 1
+      "lead_duplicates_30d": 2,
+      "duplicate_rows": 2
     },
     "sales": {
       "status": 200,
-      "duplicate_followups": 1,
-      "duplicate_rows": 1,
+      "duplicate_followups": 2,
+      "duplicate_rows": 2,
       "lead_marked": true
     }
   },
@@ -61,8 +82,13 @@
     "no-real-lead-persisted",
     "duplicate-does-not-create-new-lead",
     "duplicate-email-skips-without-smtp",
+    "atomic-exact-concurrent-dedupe",
+    "one-notification-for-concurrent-submissions",
     "admin-duplicate-metrics-verified",
     "sales-duplicate-followup-verified",
-    "express-callback-minimal-contact-verified"
+    "express-callback-minimal-contact-verified",
+    "in-memory-smtp-capture",
+    "no-external-email-delivery",
+    "email-body-not-exported"
   ]
 }

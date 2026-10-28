@@ -1,10 +1,12 @@
 {
-  "generated_at": "2026-08-10T08:48:17.601Z",
+  "generated_at": "2026-10-28T14:25:35.226Z",
   "status": "passed",
-  "methodology_bytes": 9091,
-  "robots_sha256": "819e44cd0a20899dc361a38a836762b763ae58017c454d9551ae6e58af1d5f6b",
-  "llms_sha256": "9d31c0597971c3feaa74ef2e6795e656d96c767af536d8c884ac1f076d3ed333",
+  "methodology_bytes": 9179,
+  "robots_sha256": "2b7f788149586c4bf8df8119dec2a75c902b5b1a5d21abadfbd87116891d15da",
+  "llms_sha256": "952338eb42e857ee6ec33e1d03a07a07ecfa1b6d2dc3103ea84bff488d5d10f1",
   "policies": {
+    "Googlebot": "allow-public",
+    "Bingbot": "allow-public",
     "OAI_SearchBot": "allow-public",
     "ChatGPT_User": "allow-public",
     "PerplexityBot": "allow-public",

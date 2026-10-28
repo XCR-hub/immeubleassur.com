@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-03T22:14:21.947Z",
+  "generated_at": "2026-10-28T14:25:43.331Z",
   "home_router": true,
   "home_hot_quote": true,
   "home_hot_quote_changed": true,
   "router_changed": true,
-  "report_driven_pages": 69,
+  "report_driven_pages": 70,
   "report_driven_files": [
     "blog/checklist-documents-devis-immeuble.html",
     "blog/pno-bailleur-copropriete.html",
@@ -74,7 +74,8 @@
     "assurance-immeuble-de-rapport.html",
     "assurance-immeuble-grenoble.html",
     "assurance-immeuble-obligatoire.html",
-    "assurance-immeuble-paris.html"
+    "assurance-immeuble-paris.html",
+    "guide-perte-loyers-sinistre-gli.html"
   ],
   "diagnostic_pages_checked": 81,
   "diagnostic_pages_changed": 81,

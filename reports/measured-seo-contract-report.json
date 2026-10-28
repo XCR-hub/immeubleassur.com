@@ -1,12 +1,17 @@
 {
-  "generated_at": "2026-08-10T04:07:00.890Z",
+  "generated_at": "2026-10-28T14:28:49.297Z",
   "status": "passed",
-  "checks": 14,
+  "checks": 38,
   "missing": [],
   "safeguards": [
     "raw-traffic-not-treated-as-commercial-intent",
     "minimum-sample-before-high-friction-alert",
     "first-party-events-only",
-    "no-pii-in-seo-reports"
+    "no-pii-in-seo-reports",
+    "serp-primary-metrics-measured-only",
+    "no-fallback-driven-content",
+    "no-fallback-driven-actions",
+    "measured-only-competitor-intelligence",
+    "noindex-pages-excluded-from-seo-actions"
   ]
 }

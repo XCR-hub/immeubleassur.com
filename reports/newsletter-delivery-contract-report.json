@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-10T03:39:44.155Z",
+  "generated_at": "2026-10-28T14:28:40.180Z",
   "status": "passed",
-  "checks": 15,
+  "checks": 24,
   "missing": [],
   "safeguards": [
     "validated-editions-only",

@@ -1602,6 +1602,7 @@ function observeQuoteFastTrackNudge(shell, initial) {
 
 function mountQuoteFastTrack() {
   if (isPrivateAppPage()) return;
+  if (document.querySelector(".insurer-guide")) return;
   if (document.querySelector(".quote-fast-track")) return;
   const anchor = document.querySelector(".conversion-strip") || document.querySelector(".page-hero") || document.querySelector(".hero") || document.querySelector(".article-head");
   if (!anchor) return;

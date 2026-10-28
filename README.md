@@ -82,6 +82,8 @@ Les donnees, sauvegardes, `.env.local`, credentials et fichiers `.sqlite` sont i
 
 ## Automatisations
 
+Les six guides documentaires de `content/insurer-guides.js` sont publies par `scripts/insurer-guides.js`. Chaque guide contient des references officielles datees, des questions de lecture, une FAQ visible et des liens de preparation de dossier ; les citations ne prouvent pas une disponibilite commerciale. `scripts/seo-discovery-pass.js` reconstruit les repertoires complets des villes et articles, y compris les pages deja presentes. Le serveur sert le fichier du hub canonique avant sa copie technique de repertoire afin que `/blog` reste indexable. Les dates du sitemap proviennent de l historique Git ou des modifications de contenu, sans utiliser les dates de copie des fichiers. `npm run check` controle aussi la navigation depuis l accueil et les regressions de regeneration.
+
 Les scripts principaux sont:
 
 ```bash

@@ -325,6 +325,12 @@ function resolveStaticPath(requestUrlValue) {
   const pathname = cleanUrl === "/" ? "/index.html" : cleanUrl;
   const direct = normalize(join(root, pathname));
   if (!isInside(root, direct)) return "";
+  // A canonical hub may also have a technical /hub/index.html copy marked
+  // noindex. Serve /hub.html for /hub before considering that directory.
+  if (!extname(direct)) {
+    const html = `${direct}.html`;
+    if (isInside(root, html) && existsSync(html) && statSync(html).isFile()) return html;
+  }
   if (existsSync(direct)) {
     if (statSync(direct).isDirectory()) {
       const index = join(direct, "index.html");

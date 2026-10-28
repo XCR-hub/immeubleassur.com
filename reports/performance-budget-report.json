@@ -1,84 +1,84 @@
 {
-  "generated_at": "2026-08-11T17:48:31.708Z",
+  "generated_at": "2026-10-28T14:28:00.259Z",
   "status": "passed",
-  "pages_checked": 205,
-  "indexable_pages": 193,
-  "average_html_kb": 20.2,
+  "pages_checked": 212,
+  "indexable_pages": 197,
+  "average_html_kb": 21.8,
   "largest_pages": [
     {
       "source": "index.html",
-      "kb": 40.2,
+      "kb": 36.5,
       "issue_count": 0
     },
     {
-      "source": "assurance-immeuble.html",
-      "kb": 33.4,
-      "issue_count": 0
-    },
-    {
-      "source": "devis-assurance-immeuble.html",
-      "kb": 29.5,
-      "issue_count": 0
-    },
-    {
-      "source": "prix-assurance-immeuble.html",
-      "kb": 29.5,
+      "source": "villes.html",
+      "kb": 36.1,
       "issue_count": 0
     },
     {
       "source": "blog.html",
-      "kb": 28.2,
-      "issue_count": 0
-    },
-    {
-      "source": "news/veille-assurance-immeuble-2026-08-01.html",
-      "kb": 28.2,
-      "issue_count": 0
-    },
-    {
-      "source": "comparateur-assurance-immeuble.html",
-      "kb": 28.1,
-      "issue_count": 0
-    },
-    {
-      "source": "news/veille-assurance-immeuble-2026-08-03.html",
-      "kb": 27.4,
-      "issue_count": 0
-    },
-    {
-      "source": "assurance-copropriete.html",
-      "kb": 26.9,
-      "issue_count": 0
-    },
-    {
-      "source": "faq.html",
-      "kb": 26.1,
+      "kb": 35.2,
       "issue_count": 0
     },
     {
       "source": "blog/index.html",
-      "kb": 25.9,
+      "kb": 35.2,
       "issue_count": 0
     },
     {
-      "source": "news/veille-assurance-immeuble-2026-07-31.html",
-      "kb": 25.8,
+      "source": "blog/cno-coproprietaire-non-occupant-obligatoire.html",
+      "kb": 28.3,
+      "issue_count": 0
+    },
+    {
+      "source": "news/veille-assurance-immeuble-2026-08-01.html",
+      "kb": 28.3,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-immeuble.html",
+      "kb": 28.3,
+      "issue_count": 0
+    },
+    {
+      "source": "blog/assurance-immeuble-sans-sinistre.html",
+      "kb": 28.3,
+      "issue_count": 0
+    },
+    {
+      "source": "blog/sinistres-recurrents-immeuble.html",
+      "kb": 28,
+      "issue_count": 0
+    },
+    {
+      "source": "devis-assurance-immeuble.html",
+      "kb": 27.9,
+      "issue_count": 0
+    },
+    {
+      "source": "blog/pno-obligatoire-copropriete.html",
+      "kb": 27.9,
+      "issue_count": 0
+    },
+    {
+      "source": "assurance-pno.html",
+      "kb": 27.9,
       "issue_count": 0
     }
   ],
   "assets": [
     {
       "path": "assets/styles.css",
-      "bytes": 72406,
-      "kb": 70.7,
+      "bytes": 78097,
+      "kb": 76.3,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
     },
     {
       "path": "assets/app.js",
-      "bytes": 133155,
-      "kb": 130,
+      "bytes": 133578,
+      "kb": 130.4,
       "budget_bytes": 143360,
       "budget_kb": 140,
       "ok": true
@@ -101,8 +101,24 @@
     },
     {
       "path": "assets/search-index.json",
-      "bytes": 52551,
-      "kb": 51.3,
+      "bytes": 54966,
+      "kb": 53.7,
+      "budget_bytes": 92160,
+      "budget_kb": 90,
+      "ok": true
+    },
+    {
+      "path": "assets/risk-questionnaire.js",
+      "bytes": 12624,
+      "kb": 12.3,
+      "budget_bytes": 143360,
+      "budget_kb": 140,
+      "ok": true
+    },
+    {
+      "path": "assets/risk-questionnaire.css",
+      "bytes": 5285,
+      "kb": 5.2,
       "budget_bytes": 92160,
       "budget_kb": 90,
       "ok": true
@@ -111,74 +127,74 @@
   "public_report_assets": [
     {
       "path": "assets/seo-autopilot-latest.json",
-      "bytes": 94831,
-      "kb": 92.6,
-      "ok": true
-    },
-    {
-      "path": "assets/seo-cannibalization-latest.json",
-      "bytes": 20944,
-      "kb": 20.5,
+      "bytes": 81377,
+      "kb": 79.5,
       "ok": true
     },
     {
       "path": "assets/lead-friction-latest.json",
-      "bytes": 19336,
-      "kb": 18.9,
+      "bytes": 18815,
+      "kb": 18.4,
       "ok": true
     },
     {
       "path": "assets/conversion-intelligence-latest.json",
-      "bytes": 15540,
-      "kb": 15.2,
+      "bytes": 15349,
+      "kb": 15,
+      "ok": true
+    },
+    {
+      "path": "assets/seo-cannibalization-latest.json",
+      "bytes": 14461,
+      "kb": 14.1,
       "ok": true
     },
     {
       "path": "assets/live-api-readiness-latest.json",
-      "bytes": 11716,
-      "kb": 11.4,
-      "ok": true
-    },
-    {
-      "path": "assets/search-intelligence-latest.json",
-      "bytes": 11172,
-      "kb": 10.9,
-      "ok": true
-    },
-    {
-      "path": "assets/media-autopilot-latest.json",
-      "bytes": 9883,
-      "kb": 9.7,
+      "bytes": 11967,
+      "kb": 11.7,
       "ok": true
     },
     {
       "path": "assets/seo-angle-differentiation-latest.json",
-      "bytes": 9864,
-      "kb": 9.6,
+      "bytes": 10474,
+      "kb": 10.2,
       "ok": true
     },
     {
-      "path": "assets/local-growth-ops-latest.json",
-      "bytes": 6093,
-      "kb": 6,
-      "ok": true
-    },
-    {
-      "path": "assets/google-readiness-unlock-latest.json",
-      "bytes": 5091,
-      "kb": 5,
-      "ok": true
-    },
-    {
-      "path": "assets/performance-budget-latest.json",
-      "bytes": 4573,
-      "kb": 4.5,
+      "path": "assets/search-intelligence-latest.json",
+      "bytes": 10416,
+      "kb": 10.2,
       "ok": true
     },
     {
       "path": "assets/internal-link-equity-latest.json",
-      "bytes": 4405,
-      "kb": 4.3,
+      "bytes": 6648,
+      "kb": 6.5,
+      "ok": true
+    },
+    {
+      "path": "assets/cluster-conversion-bridge-latest.json",
+      "bytes": 5973,
+      "kb": 5.8,
+      "ok": true
+    },
+    {
+      "path": "assets/performance-budget-latest.json",
+      "bytes": 4667,
+      "kb": 4.6,
+      "ok": true
+    },
+    {
+      "path": "assets/google-readiness-unlock-latest.json",
+      "bytes": 4305,
+      "kb": 4.2,
+      "ok": true
+    },
+    {
+      "path": "assets/local-growth-ops-latest.json",
+      "bytes": 3866,
+      "kb": 3.8,
       "ok": true
     }
   ],

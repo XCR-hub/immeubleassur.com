@@ -1,41 +1,49 @@
 {
-  "generated_at": "2026-08-03T22:14:49.334Z",
+  "generated_at": "2026-10-28T14:28:02.558Z",
   "success": true,
-  "status": "no-data",
+  "status": "no-database",
   "attention_required": false,
   "summary": {
-    "lookback_days": 30,
+    "lookback_days": 0,
     "tracked_events": 0,
     "tracked_sessions": 0,
     "leads_db": 0,
     "hot_leads_db": 0,
-    "page_views": 0,
-    "form_starts": 0,
-    "submit_attempts": 0,
-    "submit_errors": 0,
-    "leads_event": 0,
-    "lead_urgency_events": 0,
-    "spam_blocks": 0,
     "intent_count": 0,
     "urgency_count": 0,
-    "intents_with_leads": 0,
-    "intents_with_traffic_no_leads": 0,
-    "urgent_starts_without_leads": 0,
-    "page_to_start_rate": 0,
-    "start_to_submit_rate": 0,
-    "submit_to_lead_rate": 0,
-    "start_to_lead_rate": 0,
-    "attention_count": 0
+    "attention_count": 0,
+    "reason": "Base SQLite absente sur cet environnement"
+  },
+  "measurement_scope": {
+    "active_cohort": "unavailable",
+    "active_started_at": "",
+    "rolling_lookback_days": 0,
+    "analyzed_events": 0,
+    "analyzed_leads": 0,
+    "excluded_pre_intervention_events": 0,
+    "excluded_pre_intervention_leads": 0,
+    "data_status": "unavailable"
+  },
+  "historical_context": {
+    "scope": "unavailable",
+    "lookback_days": 0,
+    "tracked_events": 0,
+    "tracked_sessions": 0,
+    "form_starts": 0,
+    "submit_attempts": 0,
+    "leads_db": 0,
+    "pre_intervention_events": 0,
+    "pre_intervention_leads": 0
   },
   "intent_funnels": [],
   "urgency_funnels": [],
+  "form_source_funnels": [],
   "lead_segments": [],
   "recommendations": [],
   "safeguards": [
     "no-pii-public-export",
     "sqlite-readonly",
     "first-party-events-only",
-    "no-google-scraping",
-    "intent-data-from-local-events-and-lead-events"
+    "no-google-scraping"
   ]
 }

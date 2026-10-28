@@ -1,114 +1,22 @@
 {
-  "generated_at": "2026-08-01T10:09:32.778Z",
-  "source_run_id": "serp-20260801-262a64c8",
-  "provider": "serpapi",
-  "candidates": 8,
-  "pages_boosted": 8,
+  "generated_at": "2026-10-28T14:25:48.379Z",
+  "source_run_id": "serp-20261028-a2641afa",
+  "provider": "local-estimate",
+  "status": "held-no-measured-input",
+  "measured_input_required": true,
+  "unmeasured_blocks_sanitized": 0,
+  "candidates": 0,
+  "pages_boosted": 0,
   "missing_files": 0,
-  "actions": [
-    {
-      "query": "assurance copropriete",
-      "target_url": "/assurance-copropriete",
-      "slug": "assurance-copropriete",
-      "status": "already-current",
-      "position": 4,
-      "intent": "money",
-      "competitors": [
-        "comparateur-assurance.fr",
-        "assurland.com",
-        "meilleurtaux.com"
-      ]
-    },
-    {
-      "query": "assurance PNO CNO",
-      "target_url": "/assurance-pno-cno",
-      "slug": "assurance-pno-cno",
-      "status": "already-current",
-      "position": 5,
-      "intent": "money",
-      "competitors": [
-        "comparateur-assurance.fr"
-      ]
-    },
-    {
-      "query": "assurance coproprietaire non occupant",
-      "target_url": "/assurance-coproprietaire-non-occupant",
-      "slug": "assurance-coproprietaire-non-occupant",
-      "status": "already-current",
-      "position": null,
-      "intent": "lead",
-      "competitors": [
-        "comparateur-assurance.fr",
-        "assurland.com"
-      ]
-    },
-    {
-      "query": "assurance SCI immeuble",
-      "target_url": "/assurance-sci",
-      "slug": "assurance-sci",
-      "status": "already-current",
-      "position": null,
-      "intent": "lead",
-      "competitors": [
-        "comparateur-assurance.fr",
-        "assurland.com",
-        "meilleurtaux.com"
-      ]
-    },
-    {
-      "query": "courtier assurance immeuble",
-      "target_url": "/courtier-assurance-immeuble",
-      "slug": "courtier-assurance-immeuble",
-      "status": "already-current",
-      "position": null,
-      "intent": "lead",
-      "competitors": [
-        "comparateur-assurance.fr"
-      ]
-    },
-    {
-      "query": "prix assurance immeuble",
-      "target_url": "/prix-assurance-immeuble",
-      "slug": "prix-assurance-immeuble",
-      "status": "already-current",
-      "position": null,
-      "intent": "comparison",
-      "competitors": [
-        "comparateur-assurance.fr",
-        "assurland.com"
-      ]
-    },
-    {
-      "query": "multirisque immeuble",
-      "target_url": "/multirisque-immeuble",
-      "slug": "multirisque-immeuble",
-      "status": "boosted",
-      "position": null,
-      "intent": "money",
-      "competitors": [
-        "comparateur-assurance.fr",
-        "assurland.com",
-        "meilleurtaux.com"
-      ]
-    },
-    {
-      "query": "assurance immeuble syndic benevole",
-      "target_url": "/assurance-immeuble-syndic-benevole",
-      "slug": "assurance-immeuble-syndic-benevole",
-      "status": "already-current",
-      "position": null,
-      "intent": "niche",
-      "competitors": [
-        "comparateur-assurance.fr"
-      ]
-    }
-  ],
+  "actions": [],
   "safeguards": [
     "idempotent-marker",
     "no-hidden-text",
     "no-google-scraping",
     "people-first-search-gap-content",
     "lead-paths-contextualized",
-    "faq-schema-for-visible-search-gap-questions"
+    "faq-schema-for-visible-search-gap-questions",
+    "serpapi-measured-input-only",
+    "unmeasured-blocks-sanitized"
   ]
 }

@@ -1,10 +1,59 @@
 {
-  "generated_at": "2026-08-11T04:28:38.706Z",
-  "pages_checked": 204,
-  "pages_changed": 3,
-  "paragraphs_contextualized": 0,
-  "quality_support_pages": 13,
-  "replacement_families": [],
+  "generated_at": "2026-10-28T14:25:50.489Z",
+  "pages_checked": 211,
+  "pages_changed": 191,
+  "paragraphs_contextualized": 828,
+  "quality_support_pages": 3,
+  "replacement_families": [
+    {
+      "id": "opportunity-summary",
+      "count": 121
+    },
+    {
+      "id": "opportunity-generic-intro",
+      "count": 89
+    },
+    {
+      "id": "city-documents",
+      "count": 79
+    },
+    {
+      "id": "city-guarantees",
+      "count": 79
+    },
+    {
+      "id": "commercial-faq",
+      "count": 79
+    },
+    {
+      "id": "claims-faq",
+      "count": 79
+    },
+    {
+      "id": "article-decision-protection",
+      "count": 39
+    },
+    {
+      "id": "auto-depth-method",
+      "count": 37
+    },
+    {
+      "id": "article-low-price-faq",
+      "count": 37
+    },
+    {
+      "id": "article-audit-timing-faq",
+      "count": 37
+    },
+    {
+      "id": "blog-fast-document",
+      "count": 37
+    },
+    {
+      "id": "faq-status",
+      "count": 16
+    }
+  ],
   "safeguards": [
     "visible-content-only",
     "no-hidden-keywords",

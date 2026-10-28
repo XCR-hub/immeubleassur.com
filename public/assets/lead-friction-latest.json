@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-08-03T22:14:58.402Z",
+  "generated_at": "2026-10-28T14:28:09.969Z",
   "action_count": 1000,
   "verified_count": 1000,
   "watch_count": 0,
-  "pages_checked": 202,
+  "pages_checked": 211,
   "system_evidence": {
     "validation_telemetry": true,
     "value_preview": true,
@@ -11,8 +11,8 @@
     "content_bridge": true,
     "admin_friction": true,
     "event_contract": true,
-    "seo_quality": 95,
-    "money_pages": 128
+    "seo_quality": 100,
+    "money_pages": 129
   },
   "top_dimensions": [
     {

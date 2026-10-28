@@ -1,8 +1,9 @@
 {
-  "generated_at": "2026-07-31T01:52:20.155Z",
-  "pages_checked": 176,
-  "pages_changed": 124,
-  "fixes_applied": 174,
+  "generated_at": "2026-10-28T14:25:46.302Z",
+  "pages_checked": 210,
+  "pages_changed": 104,
+  "fixes_applied": 169,
+  "mode": "full",
   "safeguards": [
     "idempotent-markers",
     "legal-pages-no-commercial-panel",
@@ -17,15 +18,7 @@
         "description-normalized"
       ],
       "title": "Assurance batiment proprietaire: immeuble, SCI ou local | ImmeubleAssur",
-      "description": "Assurance batiment proprietaire: garanties immeuble, RC, locaux, SCI, PNO et audit contrat avant devis. Analyse des garanties, franchises, sinistres, documents.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-cno",
-      "url": "https://immeubleassur.com/assurance-cno",
-      "fixes": [],
-      "title": "Assurance CNO coproprietaire non occupant | ImmeubleAssur",
-      "description": "Devis assurance CNO pour coproprietaire non occupant: responsabilite civile, lot vacant ou loue, syndic, bailleur et copropriete.",
+      "description": "Assurance batiment proprietaire: garanties immeuble, RC, locaux, SCI, PNO et audit contrat avant devis. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -36,193 +29,17 @@
         "content-depth"
       ],
       "title": "Assurance coproprietaire non occupant | ImmeubleAssur",
-      "description": "Assurance coproprietaire non occupant: obligations, PNO-CNO, garanties utiles et devis pour bailleurs en copropriete. Analyse des garanties, franchises.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-copropriete",
-      "url": "https://immeubleassur.com/assurance-copropriete",
-      "fixes": [],
-      "title": "Assurance copropriete | ImmeubleAssur",
-      "description": "Assurance copropriete: RC syndicat, multirisque immeuble, protection juridique et audit de contrat pour conseils syndicaux.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-aix-en-provence",
-      "url": "https://immeubleassur.com/assurance-immeuble-aix-en-provence",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Aix-en-Provence | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Aix-en-Provence: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour patrimoines locatifs, SCI et residences de standing.",
+      "description": "Assurance coproprietaire non occupant: obligations, PNO-CNO, garanties utiles et devis pour bailleurs en copropriete. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
       "slug": "assurance-immeuble-amiens",
       "url": "https://immeubleassur.com/assurance-immeuble-amiens",
       "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Amiens | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Amiens: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour bailleurs, SCI et immeubles anciens.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-angers",
-      "url": "https://immeubleassur.com/assurance-immeuble-angers",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Angers | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Angers: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles locatifs et coproprietes de taille intermediaire.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-besancon",
-      "url": "https://immeubleassur.com/assurance-immeuble-besancon",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Besancon | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Besancon: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour coproprietes, petites SCI et immeubles locatifs.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-bordeaux",
-      "url": "https://immeubleassur.com/assurance-immeuble-bordeaux",
-      "fixes": [
-        "description-normalized",
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Bordeaux | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Bordeaux: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles pierre, coproprietes centrales et investissements.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-brest",
-      "url": "https://immeubleassur.com/assurance-immeuble-brest",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Brest | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Brest: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles exposes aux evenements climatiques et bailleurs.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-clermont-ferrand",
-      "url": "https://immeubleassur.com/assurance-immeuble-clermont-ferrand",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Clermont-Ferrand | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Clermont-Ferrand: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour petites coproprietes, SCI et immeubles de rapport.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-de-rapport",
-      "url": "https://immeubleassur.com/assurance-immeuble-de-rapport",
-      "fixes": [
         "description-normalized"
       ],
-      "title": "Assurance immeuble de rapport pour bailleur | ImmeubleAssur",
-      "description": "Assurance immeuble de rapport: multirisque, PNO, vacance, loyers, locaux mixtes, sinistres et audit bailleur. Analyse des garanties, franchises, sinistres.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-dijon",
-      "url": "https://immeubleassur.com/assurance-immeuble-dijon",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Dijon | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Dijon: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour patrimoines locatifs, SCI et petites coproprietes.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-grenoble",
-      "url": "https://immeubleassur.com/assurance-immeuble-grenoble",
-      "fixes": [
-        "description-normalized",
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Grenoble | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Grenoble: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles collectifs, risques climatiques et coproprietes.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-le-havre",
-      "url": "https://immeubleassur.com/assurance-immeuble-le-havre",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Le Havre | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Le Havre: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles collectifs, locaux mixtes et garanties climatiques.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-lille",
-      "url": "https://immeubleassur.com/assurance-immeuble-lille",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Lille | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Lille: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles de rapport, coliving, locaux commerciaux et coproprietes.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-limoges",
-      "url": "https://immeubleassur.com/assurance-immeuble-limoges",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Limoges | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Limoges: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour petites coproprietes et immeubles patrimoniaux.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-locatif",
-      "url": "https://immeubleassur.com/assurance-immeuble-locatif",
-      "fixes": [],
-      "title": "Assurance immeuble locatif bailleur | ImmeubleAssur",
-      "description": "Assurance immeuble locatif: multirisque, responsabilite civile, vacance, degats des eaux, parties communes et lots loues.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-lyon",
-      "url": "https://immeubleassur.com/assurance-immeuble-lyon",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Lyon | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Lyon: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour coproprietes urbaines, immeubles de rapport et patrimoines familiaux.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-marseille",
-      "url": "https://immeubleassur.com/assurance-immeuble-marseille",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Marseille | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Marseille: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles proches du littoral, coproprietes et locaux mixtes.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-metz",
-      "url": "https://immeubleassur.com/assurance-immeuble-metz",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Metz | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Metz: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour patrimoines immobiliers, syndics benevoles et bailleurs.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-meuble-colocation",
-      "url": "https://immeubleassur.com/assurance-immeuble-meuble-colocation",
-      "fixes": [],
-      "title": "Assurance immeuble meuble ou colocation | ImmeubleAssur",
-      "description": "Assurance immeuble meuble ou colocation: rotation locative, parties communes, PNO, mobilier, sinistres et garanties utiles.",
+      "title": "Assurance immeuble Amiens | ImmeubleAssur",
+      "description": "Devis assurance immeuble a Amiens: copropriete, PNO, SCI et multirisque pour bailleurs, SCI et immeubles anciens. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -232,98 +49,7 @@
         "description-normalized"
       ],
       "title": "Assurance immeuble en monopropriete | ImmeubleAssur",
-      "description": "Assurance immeuble en monopropriete: garanties batiment, RC bailleur, PNO, sinistres et devis proprietaire unique. Analyse des garanties, franchises, sinistres.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-montpellier",
-      "url": "https://immeubleassur.com/assurance-immeuble-montpellier",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Montpellier | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Montpellier: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour coproprietes recentes, bailleurs et locaux mixtes.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-nantes",
-      "url": "https://immeubleassur.com/assurance-immeuble-nantes",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Nantes | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Nantes: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour bailleurs, syndics et patrimoines locatifs en croissance.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-nice",
-      "url": "https://immeubleassur.com/assurance-immeuble-nice",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Nice | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Nice: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour coproprietes, residences secondaires et immeubles proches littoral.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-obligatoire",
-      "url": "https://immeubleassur.com/assurance-immeuble-obligatoire",
-      "fixes": [
-        "description-normalized"
-      ],
-      "title": "Assurance immeuble obligatoire: qui assure quoi | ImmeubleAssur",
-      "description": "Assurance immeuble obligatoire: RC, copropriete, PNO, syndic, bailleur et garanties utiles avant devis. Analyse des garanties, franchises, sinistres, documents.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-orleans",
-      "url": "https://immeubleassur.com/assurance-immeuble-orleans",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Orleans | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Orleans: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles locatifs, SCI et conseils syndicaux.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-paris",
-      "url": "https://immeubleassur.com/assurance-immeuble-paris",
-      "fixes": [
-        "description-normalized",
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Paris | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Paris: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour syndics, SCI et bailleurs avec immeubles anciens, mixtes ou.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-perpignan",
-      "url": "https://immeubleassur.com/assurance-immeuble-perpignan",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Perpignan | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Perpignan: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles locatifs et coproprietes proches littoral.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-reims",
-      "url": "https://immeubleassur.com/assurance-immeuble-reims",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Reims | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Reims: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour SCI, bailleurs et coproprietes avec locaux mixtes.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-rennes",
-      "url": "https://immeubleassur.com/assurance-immeuble-rennes",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Rennes | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Rennes: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles locatifs et coproprietes a forte demande etudiante.",
+      "description": "Assurance immeuble en monopropriete: garanties batiment, RC bailleur, PNO, sinistres et devis proprietaire unique. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -333,27 +59,7 @@
         "description-normalized"
       ],
       "title": "Assurance immeuble resilie ou refuse par assureur | ImmeubleAssur",
-      "description": "Assurance immeuble resilie ou refuse: reconstruire un dossier apres sinistres, aggravation ou refus de souscription. Analyse des garanties, franchises, sinistres.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-rouen",
-      "url": "https://immeubleassur.com/assurance-immeuble-rouen",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Rouen | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Rouen: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles anciens et contrats multirisques a auditer.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-saint-etienne",
-      "url": "https://immeubleassur.com/assurance-immeuble-saint-etienne",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Saint-Etienne | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Saint-Etienne: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles de rapport et risques de vacance.",
+      "description": "Assurance immeuble resilie ou refuse: reconstruire un dossier apres sinistres, aggravation ou refus de souscription. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -363,17 +69,7 @@
         "description-normalized"
       ],
       "title": "Assurance immeuble avec sinistres: refaire un dossier | ImmeubleAssur",
-      "description": "Assurance immeuble avec sinistres: historique, causes, franchises, mesures correctives et solution de renouvellement. Analyse des garanties, franchises.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-strasbourg",
-      "url": "https://immeubleassur.com/assurance-immeuble-strasbourg",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Strasbourg | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Strasbourg: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles anciens, syndics et coproprietes centre-ville.",
+      "description": "Assurance immeuble avec sinistres: historique, causes, franchises, mesures correctives et solution de renouvellement. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -382,48 +78,18 @@
       "fixes": [
         "description-normalized"
       ],
-      "title": "Assurance immeuble pour syndic benevole | ImmeubleAssur",
-      "description": "Assurance immeuble syndic benevole: RC syndicat, multirisque copropriete, documents AG, sinistres et audit contrat. Analyse des garanties, franchises, sinistres.",
+      "title": "Assurance syndic benevole: mandat, archives et AG | ImmeubleAssur",
+      "description": "Assurance immeuble syndic benevole: mandat, PV, archives, echeance, sinistres et note de vote pour petite copropriete. Points a verifier: garanties, franchises.",
       "changed": true
     },
     {
-      "slug": "assurance-immeuble-toulon",
-      "url": "https://immeubleassur.com/assurance-immeuble-toulon",
+      "slug": "assurance-immeuble-vacant",
+      "url": "https://immeubleassur.com/assurance-immeuble-vacant",
       "fixes": [
         "content-depth"
       ],
-      "title": "Assurance immeuble Toulon | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Toulon: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour coproprietes, residences et immeubles proches littoral.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-toulouse",
-      "url": "https://immeubleassur.com/assurance-immeuble-toulouse",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Toulouse | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Toulouse: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour immeubles locatifs, SCI et coproprietes familiales.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-tours",
-      "url": "https://immeubleassur.com/assurance-immeuble-tours",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Tours | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Tours: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour bailleurs, immeubles anciens et coproprietes centre-ville.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-immeuble-villeurbanne",
-      "url": "https://immeubleassur.com/assurance-immeuble-villeurbanne",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Assurance immeuble Villeurbanne | ImmeubleAssur",
-      "description": "Devis assurance immeuble a Villeurbanne: copropriete, PNO, SCI, multirisque immeuble et audit contrat pour coproprietes urbaines et investissement locatif.",
+      "title": "Assurance immeuble vacant ou vide : devis | ImmeubleAssur",
+      "description": "Assurance d'un immeuble vacant ou vide: declarer l'inoccupation, verifier exclusions, vandalisme, degats des eaux, surveillance et obtenir un devis.",
       "changed": true
     },
     {
@@ -432,16 +98,8 @@
       "fixes": [
         "description-normalized"
       ],
-      "title": "Assurance immeuble multirisque pour bailleurs | ImmeubleAssur",
-      "description": "Courtier specialiste assurance immeuble: multirisque, responsabilite civile, PNO, sinistres et audit de garanties. Analyse des garanties, franchises, sinistres.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-local-commercial",
-      "url": "https://immeubleassur.com/assurance-local-commercial",
-      "fixes": [],
-      "title": "Assurance local commercial bailleur | ImmeubleAssur",
-      "description": "Assurance local commercial et immeuble mixte: bailleur, copropriete, commerce en rez-de-chaussee, responsabilite et dommages.",
+      "title": "Assurance immeuble : multirisque et devis | ImmeubleAssur",
+      "description": "Courtier specialiste assurance immeuble: multirisque, responsabilite civile, PNO, sinistres et audit de garanties. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -450,24 +108,8 @@
       "fixes": [
         "description-normalized"
       ],
-      "title": "Assurance parties communes d'immeuble | ImmeubleAssur",
-      "description": "Assurance parties communes: RC immeuble, degats des eaux, toiture, hall, escaliers, syndic et garanties copropriete. Analyse des garanties, franchises, sinistres.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-pno-cno",
-      "url": "https://immeubleassur.com/assurance-pno-cno",
-      "fixes": [],
-      "title": "Assurance PNO CNO pour bailleurs et SCI | ImmeubleAssur",
-      "description": "Comparer assurance PNO et CNO: proprietaire non occupant, coproprietaire non occupant, SCI, lots vacants et portefeuille locatif.",
-      "changed": true
-    },
-    {
-      "slug": "assurance-pno",
-      "url": "https://immeubleassur.com/assurance-pno",
-      "fixes": [],
-      "title": "Assurance PNO proprietaire non occupant | ImmeubleAssur",
-      "description": "Assurance PNO bailleur et SCI: garanties essentielles, vacance locative, copropriete, recours locataire et protection du patrimoine.",
+      "title": "Assurance parties communes: garanties et equipements | ImmeubleAssur",
+      "description": "Assurance parties communes: hall, escaliers, toiture, cour, reseaux, compteurs, ascenseur et dommages collectifs. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -477,7 +119,7 @@
         "description-normalized"
       ],
       "title": "Assurance SCI patrimoine immobilier | ImmeubleAssur",
-      "description": "Assurance SCI: immeuble locatif, PNO, multirisque, locaux mixtes et gestion du risque immobilier patrimonial. Analyse des garanties, franchises, sinistres.",
+      "description": "Assurance SCI: gouvernance du gerant, portefeuille immobilier, PNO par lot, multirisque et coherence patrimoniale. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -494,20 +136,22 @@
       "slug": "blog/assurance-colocation-immeuble",
       "url": "https://immeubleassur.com/blog/assurance-colocation-immeuble",
       "fixes": [
-        "description-normalized"
+        "description-normalized",
+        "content-depth"
       ],
       "title": "Immeuble en colocation: questions assurance a poser | ImmeubleAssur",
-      "description": "Rotation locative, parties communes, occupants et baux: les points a cadrer dans une colocation. Analyse des garanties, franchises, sinistres, documents utiles et.",
+      "description": "Rotation locative, parties communes, occupants et baux: les points a cadrer dans une colocation. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
       "slug": "blog/assurance-copropriete-avant-ag",
       "url": "https://immeubleassur.com/blog/assurance-copropriete-avant-ag",
       "fixes": [
-        "description-normalized"
+        "description-normalized",
+        "content-depth"
       ],
       "title": "Assurance copropriete avant AG: fiche de synthese utile | ImmeubleAssur",
-      "description": "Budget, franchises, garanties et sinistres: preparer une decision claire en assemblee generale. Analyse des garanties, franchises, sinistres, documents utiles et.",
+      "description": "Budget, franchises, garanties et sinistres: preparer une decision claire en assemblee generale. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -519,7 +163,7 @@
         "content-depth"
       ],
       "title": "Assurance copropriete obligatoire | ImmeubleAssur",
-      "description": "Responsabilite civile du syndicat, coproprietaires occupants ou non occupants, role du syndic et pieces utiles. Analyse des garanties, franchises, sinistres.",
+      "description": "Responsabilite civile du syndicat, coproprietaires occupants ou non occupants, role du syndic et pieces utiles. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -530,7 +174,7 @@
         "description-normalized"
       ],
       "title": "Assurance immeuble ancien | ImmeubleAssur",
-      "description": "Toiture, reseaux, facade, vacance et sinistres: les elements a documenter pour assurer un immeuble ancien. Analyse des garanties, franchises, sinistres, documents.",
+      "description": "Toiture, reseaux, facade, vacance et sinistres: les elements a documenter pour assurer un immeuble ancien. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -541,7 +185,7 @@
         "description-normalized"
       ],
       "title": "Refus assurance immeuble | ImmeubleAssur",
-      "description": "Refus, surprime ou exclusion: les leviers pour clarifier et representer le risque. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour.",
+      "description": "Refus, surprime ou exclusion: les leviers pour clarifier et representer le risque. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
       "changed": true
     },
     {
@@ -549,10 +193,11 @@
       "url": "https://immeubleassur.com/blog/assurance-immeuble-avec-ascenseur",
       "fixes": [
         "title-normalized",
-        "description-normalized"
+        "description-normalized",
+        "content-depth"
       ],
       "title": "Assurance immeuble avec ascenseur | ImmeubleAssur",
-      "description": "Ascenseur, maintenance, bris, RC et sinistres: les clauses a lire dans un contrat immeuble. Analyse des garanties, franchises, sinistres, documents utiles et.",
+      "description": "Ascenseur, maintenance, bris, RC et sinistres: les clauses a lire dans un contrat immeuble. Points a verifier: garanties, franchises, pieces a preparer et prochaines.",
       "changed": true
     },
     {
@@ -562,7 +207,7 @@
         "description-normalized"
       ],
       "title": "Immeuble locatif etudiant: garanties a verifier | ImmeubleAssur",
-      "description": "Rotation, occupation meublee, parties communes et sinistres: les points sensibles d'un immeuble etudiant. Analyse des garanties, franchises, sinistres, documents.",
+      "description": "Rotation, occupation meublee, parties communes et sinistres: les points sensibles d'un immeuble etudiant. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -572,7 +217,7 @@
         "description-normalized"
       ],
       "title": "Immeuble avec local professionnel: assurance du bailleur | ImmeubleAssur",
-      "description": "Profession liberale, bureau, commerce leger ou local vacant: adapter la declaration a l'activite reelle. Analyse des garanties, franchises, sinistres, documents.",
+      "description": "Profession liberale, bureau, commerce leger ou local vacant: adapter la declaration a l'activite reelle. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -584,7 +229,7 @@
         "content-depth"
       ],
       "title": "Assurance immeuble mixte commerce | ImmeubleAssur",
-      "description": "Activite commerciale, extraction, terrasse, stock et garanties bailleur: les questions a poser. Analyse des garanties, franchises, sinistres, documents utiles et.",
+      "description": "Activite commerciale, extraction, terrasse, stock et garanties bailleur: les questions a poser. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -595,7 +240,7 @@
         "description-normalized"
       ],
       "title": "Assurance immeuble patrimoine | ImmeubleAssur",
-      "description": "Contrats, franchises, responsabilites et prevention: assurer un immeuble comme un actif patrimonial. Analyse des garanties, franchises, sinistres, documents.",
+      "description": "Contrats, franchises, responsabilites et prevention: assurer un immeuble comme un actif patrimonial. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -605,7 +250,7 @@
         "description-normalized"
       ],
       "title": "Immeuble sans sinistre: comment valoriser le dossier | ImmeubleAssur",
-      "description": "Absence de sinistre, entretien, travaux et occupation stable peuvent ameliorer la lecture assureur. Analyse des garanties, franchises, sinistres, documents utiles.",
+      "description": "Absence de sinistre, entretien, travaux et occupation stable peuvent ameliorer la lecture assureur. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -616,7 +261,7 @@
         "description-normalized"
       ],
       "title": "Immeuble vacant: comment eviter les exclusions | ImmeubleAssur",
-      "description": "Vacance partielle ou totale, visites, securisation et chauffage: les reflexes avant de demander un devis. Analyse des garanties, franchises, sinistres, documents.",
+      "description": "Vacance partielle ou totale, visites, securisation et chauffage: les reflexes avant de demander un devis. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -627,7 +272,7 @@
         "content-depth"
       ],
       "title": "Lot vacant en copropriete: pourquoi verifier la PNO CNO | ImmeubleAssur",
-      "description": "Vacance locative, responsabilite, degat des eaux et exclusions: les points a verifier pour un lot non occupe. Analyse des garanties, franchises, sinistres.",
+      "description": "Vacance locative, responsabilite, degat des eaux et exclusions: les points a verifier pour un lot non occupe. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -637,7 +282,7 @@
         "description-normalized"
       ],
       "title": "Parkings et garages en copropriete: comment les assurer | ImmeubleAssur",
-      "description": "Boxes, parkings ouverts, sous-sols, infiltrations et responsabilite: ce qui change dans le dossier assureur. Analyse des garanties, franchises, sinistres.",
+      "description": "Boxes, parkings ouverts, sous-sols, infiltrations et responsabilite: ce qui change dans le dossier assureur. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -648,7 +293,7 @@
         "content-depth"
       ],
       "title": "SCI et patrimoine locatif: eviter les trous de garantie | ImmeubleAssur",
-      "description": "Regrouper, auditer et comparer les contrats d'une SCI detenant plusieurs biens. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour.",
+      "description": "Regrouper, auditer et comparer les contrats d'une SCI detenant plusieurs biens. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
       "changed": true
     },
     {
@@ -658,7 +303,7 @@
         "description-normalized"
       ],
       "title": "Audit des franchises assurance immeuble: la methode | ImmeubleAssur",
-      "description": "Franchises par garantie, evenement, sinistre recurrent et recherche de fuite: lire le contrat autrement. Analyse des garanties, franchises, sinistres, documents.",
+      "description": "Franchises par garantie, evenement, sinistre recurrent et recherche de fuite: lire le contrat autrement. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -669,7 +314,7 @@
         "content-depth"
       ],
       "title": "Checklist documents pour un devis assurance immeuble | ImmeubleAssur",
-      "description": "Les pieces a preparer pour obtenir une reponse assureur rapide et fiable. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour obtenir un.",
+      "description": "Les pieces a preparer pour obtenir une reponse assureur rapide et fiable. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
       "changed": true
     },
     {
@@ -679,7 +324,7 @@
         "description-normalized"
       ],
       "title": "Checklist degat des eaux immeuble: pieces a reunir | ImmeubleAssur",
-      "description": "Photos, recherche de fuite, declaration, factures et responsabilites: gagner du temps apres sinistre. Analyse des garanties, franchises, sinistres, documents.",
+      "description": "Photos, recherche de fuite, declaration, factures et responsabilites: gagner du temps apres sinistre. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -690,7 +335,7 @@
         "description-normalized"
       ],
       "title": "CNO coproprietaire non occupant | ImmeubleAssur",
-      "description": "Responsabilite civile, lot loue ou vacant, syndic et assurance immeuble: comprendre le role de la CNO. Analyse des garanties, franchises, sinistres, documents.",
+      "description": "Responsabilite civile, lot loue ou vacant, syndic et assurance immeuble: comprendre le role de la CNO. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -701,7 +346,60 @@
         "description-normalized"
       ],
       "title": "Petite copropriete syndic benevole | ImmeubleAssur",
-      "description": "Un guide pour cadrer RC, multirisque immeuble, PNO et documents d'AG dans une petite copropriete. Analyse des garanties, franchises, sinistres, documents utiles.",
+      "description": "Un guide pour cadrer RC, multirisque immeuble, PNO et documents d'AG dans une petite copropriete. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "blog/devis-assurance-immeuble-comparatif",
+      "url": "https://immeubleassur.com/blog/devis-assurance-immeuble-comparatif",
+      "fixes": [
+        "title-normalized",
+        "content-depth"
+      ],
+      "title": "Devis Assurance Immeuble Comparatif | ImmeubleAssur",
+      "description": "Une comparaison utile distingue franchises, plafonds, exclusions, sinistres et services avant de retenir une proposition.",
+      "changed": true
+    },
+    {
+      "slug": "blog/devis-assurance-immeuble-complet",
+      "url": "https://immeubleassur.com/blog/devis-assurance-immeuble-complet",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Devis assurance immeuble complet: quelles informations | ImmeubleAssur",
+      "description": "Adresse, lots, occupation, echeance, sinistres et travaux: constituer un dossier exploitable des le premier contact. Points a verifier: garanties, franchises, pieces.",
+      "changed": true
+    },
+    {
+      "slug": "blog/devis-assurance-immeuble-echeance",
+      "url": "https://immeubleassur.com/blog/devis-assurance-immeuble-echeance",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Devis Assurance Immeuble Echeance | ImmeubleAssur",
+      "description": "Deux a trois mois avant l echeance, contrat, prime, sinistres et travaux permettent une comparaison plus fiable. Points a verifier: garanties, franchises, pieces.",
+      "changed": true
+    },
+    {
+      "slug": "blog/devis-assurance-immeuble-refus",
+      "url": "https://immeubleassur.com/blog/devis-assurance-immeuble-refus",
+      "fixes": [
+        "title-normalized"
+      ],
+      "title": "Devis assurance immeuble apres refus: lettre et pieces | ImmeubleAssur",
+      "description": "La lettre de refus, le questionnaire, les attestations et les justificatifs de securisation forment le dossier de resouscription.",
+      "changed": true
+    },
+    {
+      "slug": "blog/devis-courtier-assurance-immeuble",
+      "url": "https://immeubleassur.com/blog/devis-courtier-assurance-immeuble",
+      "fixes": [
+        "title-normalized"
+      ],
+      "title": "Devis Courtier Assurance Immeuble | ImmeubleAssur",
+      "description": "Le courtier qualifie l appetit des partenaires, trace les consultations et fait valider une recommandation avant presentation client.",
       "changed": true
     },
     {
@@ -711,7 +409,7 @@
         "description-normalized"
       ],
       "title": "Dommages ouvrage copropriete: quand l'anticiper | ImmeubleAssur",
-      "description": "Travaux importants, decennale, reception et financement: pourquoi la DO se prepare tot. Analyse des garanties, franchises, sinistres, documents utiles et rappel.",
+      "description": "Travaux importants, decennale, reception et financement: pourquoi la DO se prepare tot. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
       "changed": true
     },
     {
@@ -723,7 +421,7 @@
         "content-depth"
       ],
       "title": "Franchise degat des eaux immeuble | ImmeubleAssur",
-      "description": "Pourquoi deux contrats d'immeuble peuvent produire des restes a charge tres differents apres degat des eaux. Analyse des garanties, franchises, sinistres.",
+      "description": "Pourquoi deux contrats d'immeuble peuvent produire des restes a charge tres differents apres degat des eaux. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -734,180 +432,7 @@
         "description-normalized"
       ],
       "title": "Immeuble avec restaurant | ImmeubleAssur",
-      "description": "Extraction, stock, horaires, nuisances, bail et garanties: les informations indispensables pour l'assureur. Analyse des garanties, franchises, sinistres.",
-      "changed": true
-    },
-    {
-      "slug": "blog/infiltration-toiture-terrasse",
-      "url": "https://immeubleassur.com/blog/infiltration-toiture-terrasse",
-      "fixes": [
-        "title-normalized",
-        "description-normalized"
-      ],
-      "title": "Infiltration toiture terrasse | ImmeubleAssur",
-      "description": "Une toiture-terrasse impose une lecture stricte des obligations d'entretien et exclusions d'infiltration. Analyse des garanties, franchises, sinistres, documents.",
-      "changed": true
-    },
-    {
-      "slug": "blog/local-commercial-vacant",
-      "url": "https://immeubleassur.com/blog/local-commercial-vacant",
-      "fixes": [
-        "title-normalized",
-        "description-normalized"
-      ],
-      "title": "Local commercial vacant | ImmeubleAssur",
-      "description": "Vacance, securisation, degats des eaux et recours: assurer un local commercial non exploite. Analyse des garanties, franchises, sinistres, documents utiles et.",
-      "changed": true
-    },
-    {
-      "slug": "blog/multirisque-immeuble-vs-pno",
-      "url": "https://immeubleassur.com/blog/multirisque-immeuble-vs-pno",
-      "fixes": [
-        "description-normalized"
-      ],
-      "title": "Multirisque immeuble ou PNO: comment les distinguer | ImmeubleAssur",
-      "description": "Deux contrats proches en apparence, mais des roles differents pour le batiment, le lot et le proprietaire. Analyse des garanties, franchises, sinistres, documents.",
-      "changed": true
-    },
-    {
-      "slug": "blog/pertes-de-loyers-immeuble",
-      "url": "https://immeubleassur.com/blog/pertes-de-loyers-immeuble",
-      "fixes": [
-        "title-normalized",
-        "description-normalized"
-      ],
-      "title": "Pertes de loyers immeuble | ImmeubleAssur",
-      "description": "Une garantie pertes de loyers depend du sinistre, du delai, du plafond et du bien assure. Analyse des garanties, franchises, sinistres, documents utiles et rappel.",
-      "changed": true
-    },
-    {
-      "slug": "blog/pno-bailleur-copropriete",
-      "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
-      "fixes": [
-        "description-normalized",
-        "content-depth"
-      ],
-      "title": "PNO bailleur: pourquoi elle reste utile en copropriete | ImmeubleAssur",
-      "description": "La PNO complete les assurances occupant et immeuble. Voici les cas ou elle protege le proprietaire. Analyse des garanties, franchises, sinistres, documents utiles.",
-      "changed": true
-    },
-    {
-      "slug": "blog/pno-cno-differences-garanties",
-      "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
-      "fixes": [
-        "description-normalized"
-      ],
-      "title": "PNO ou CNO: differences, garanties et choix du contrat | ImmeubleAssur",
-      "description": "Comparer PNO et CNO pour choisir une assurance adaptee au lot, a l'immeuble et au statut du proprietaire. Analyse des garanties, franchises, sinistres, documents.",
-      "changed": true
-    },
-    {
-      "slug": "blog/pno-obligatoire-copropriete",
-      "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
-      "fixes": [
-        "title-normalized",
-        "description-normalized"
-      ],
-      "title": "PNO obligatoire copropriete | ImmeubleAssur",
-      "description": "La PNO n'a pas le meme role que la multirisque immeuble: voici comment articuler les contrats. Analyse des garanties, franchises, sinistres, documents utiles et.",
-      "changed": true
-    },
-    {
-      "slug": "blog/preparer-renouvellement-assurance-immeuble",
-      "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
-      "fixes": [
-        "description-normalized",
-        "content-depth"
-      ],
-      "title": "Preparer le renouvellement de son assurance immeuble | ImmeubleAssur",
-      "description": "Calendrier, pieces, sinistres, travaux et arbitrage prime/franchise avant l'echeance. Analyse des garanties, franchises, sinistres, documents utiles et rappel.",
-      "changed": true
-    },
-    {
-      "slug": "blog/prix-assurance-immeuble-au-m2",
-      "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-au-m2",
-      "fixes": [
-        "title-normalized",
-        "description-normalized"
-      ],
-      "title": "Prix assurance immeuble au m2 | ImmeubleAssur",
-      "description": "Comprendre les facteurs qui font varier une prime d'assurance immeuble au m2 sans perdre de vue les garanties. Analyse des garanties, franchises, sinistres.",
-      "changed": true
-    },
-    {
-      "slug": "blog/protection-juridique-copropriete",
-      "url": "https://immeubleassur.com/blog/protection-juridique-copropriete",
-      "fixes": [
-        "description-normalized"
-      ],
-      "title": "Protection juridique copropriete: utile ou accessoire ? | ImmeubleAssur",
-      "description": "Litiges, voisins, prestataires, recouvrement et travaux: quand la protection juridique devient decisive. Analyse des garanties, franchises, sinistres, documents.",
-      "changed": true
-    },
-    {
-      "slug": "blog/ravalement-toiture-travaux-assurance",
-      "url": "https://immeubleassur.com/blog/ravalement-toiture-travaux-assurance",
-      "fixes": [
-        "title-normalized",
-        "description-normalized"
-      ],
-      "title": "Toiture ravalement et assurance | ImmeubleAssur",
-      "description": "Travaux votes, entreprises, dommage ouvrage, sinistres futurs: comment preparer la consultation assureur. Analyse des garanties, franchises, sinistres, documents.",
-      "changed": true
-    },
-    {
-      "slug": "blog/renovation-energetique-copropriete-assurance",
-      "url": "https://immeubleassur.com/blog/renovation-energetique-copropriete-assurance",
-      "fixes": [
-        "title-normalized",
-        "description-normalized"
-      ],
-      "title": "Renovation energetique copropriete | ImmeubleAssur",
-      "description": "Isolation, facade, toiture, entreprises et reception: ce que le contrat doit suivre pendant les travaux. Analyse des garanties, franchises, sinistres, documents.",
-      "changed": true
-    },
-    {
-      "slug": "blog/resiliation-assurance-immeuble",
-      "url": "https://immeubleassur.com/blog/resiliation-assurance-immeuble",
-      "fixes": [
-        "title-normalized",
-        "description-normalized"
-      ],
-      "title": "Resilier ou renegocier une assurance immeuble | ImmeubleAssur",
-      "description": "Echeance, preavis, dossier de consultation et comparaison: eviter les decisions tardives. Analyse des garanties, franchises, sinistres, documents utiles et rappel.",
-      "changed": true
-    },
-    {
-      "slug": "blog/sci-familiale-immeuble",
-      "url": "https://immeubleassur.com/blog/sci-familiale-immeuble",
-      "fixes": [
-        "title-normalized",
-        "description-normalized"
-      ],
-      "title": "SCI familiale immeuble locatif | ImmeubleAssur",
-      "description": "PNO, multirisque, protection juridique, responsabilite: structurer les contrats d'une SCI. Analyse des garanties, franchises, sinistres, documents utiles et.",
-      "changed": true
-    },
-    {
-      "slug": "blog/sinistres-recurrents-immeuble",
-      "url": "https://immeubleassur.com/blog/sinistres-recurrents-immeuble",
-      "fixes": [
-        "title-normalized",
-        "description-normalized"
-      ],
-      "title": "Sinistres recurrents immeuble | ImmeubleAssur",
-      "description": "Un historique de sinistres ne condamne pas un dossier, mais il doit etre explique et corrige. Analyse des garanties, franchises, sinistres, documents utiles et.",
-      "changed": true
-    },
-    {
-      "slug": "blog/syndic-benevole-assurance",
-      "url": "https://immeubleassur.com/blog/syndic-benevole-assurance",
-      "fixes": [
-        "description-normalized",
-        "content-depth"
-      ],
-      "title": "Syndic benevole: les reflexes assurance a adopter | ImmeubleAssur",
-      "description": "Contrat immeuble, RC, documents, AG et declarations: un guide pour syndics non professionnels. Analyse des garanties, franchises, sinistres, documents utiles et.",
+      "description": "Extraction, stock, horaires, nuisances, bail et garanties: les informations indispensables pour l'assureur. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -918,7 +443,258 @@
         "faq-depth"
       ],
       "title": "Blog assurance immeuble | ImmeubleAssur",
-      "description": "Articles assurance immeuble, copropriete, PNO, SCI, syndic et sinistres. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour obtenir un.",
+      "description": "Articles assurance immeuble, copropriete, PNO, SCI, syndic et sinistres. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
+      "changed": true
+    },
+    {
+      "slug": "blog/infiltration-toiture-terrasse",
+      "url": "https://immeubleassur.com/blog/infiltration-toiture-terrasse",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Infiltration toiture terrasse | ImmeubleAssur",
+      "description": "Une toiture-terrasse impose une lecture stricte des obligations d'entretien et exclusions d'infiltration. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "blog/local-commercial-vacant",
+      "url": "https://immeubleassur.com/blog/local-commercial-vacant",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Local commercial vacant | ImmeubleAssur",
+      "description": "Vacance, securisation, degats des eaux et recours: assurer un local commercial non exploite. Points a verifier: garanties, franchises, pieces a preparer et prochaines.",
+      "changed": true
+    },
+    {
+      "slug": "blog/multirisque-immeuble-vs-pno",
+      "url": "https://immeubleassur.com/blog/multirisque-immeuble-vs-pno",
+      "fixes": [
+        "description-normalized"
+      ],
+      "title": "Multirisque immeuble ou PNO: comment les distinguer | ImmeubleAssur",
+      "description": "Deux contrats proches en apparence, mais des roles differents pour le batiment, le lot et le proprietaire. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "blog/pertes-de-loyers-immeuble",
+      "url": "https://immeubleassur.com/blog/pertes-de-loyers-immeuble",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Pertes de loyers immeuble | ImmeubleAssur",
+      "description": "Une garantie pertes de loyers depend du sinistre, du delai, du plafond et du bien assure. Points a verifier: garanties, franchises, pieces a preparer et prochaines.",
+      "changed": true
+    },
+    {
+      "slug": "blog/pno-bailleur-copropriete",
+      "url": "https://immeubleassur.com/blog/pno-bailleur-copropriete",
+      "fixes": [
+        "description-normalized",
+        "content-depth"
+      ],
+      "title": "PNO bailleur: pourquoi elle reste utile en copropriete | ImmeubleAssur",
+      "description": "La PNO complete les assurances occupant et immeuble. Voici les cas ou elle protege le proprietaire. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "blog/pno-cno-differences-garanties",
+      "url": "https://immeubleassur.com/blog/pno-cno-differences-garanties",
+      "fixes": [
+        "description-normalized"
+      ],
+      "title": "PNO ou CNO: differences, garanties et choix du contrat | ImmeubleAssur",
+      "description": "Comparer PNO et CNO pour choisir une assurance adaptee au lot, a l'immeuble et au statut du proprietaire. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "blog/pno-obligatoire-copropriete",
+      "url": "https://immeubleassur.com/blog/pno-obligatoire-copropriete",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "PNO obligatoire copropriete | ImmeubleAssur",
+      "description": "La PNO n'a pas le meme role que la multirisque immeuble: voici comment articuler les contrats. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "blog/preparer-renouvellement-assurance-immeuble",
+      "url": "https://immeubleassur.com/blog/preparer-renouvellement-assurance-immeuble",
+      "fixes": [
+        "description-normalized",
+        "content-depth"
+      ],
+      "title": "Preparer le renouvellement de son assurance immeuble | ImmeubleAssur",
+      "description": "Calendrier, pieces, sinistres, travaux et arbitrage prime/franchise avant l'echeance. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
+      "changed": true
+    },
+    {
+      "slug": "blog/prix-assurance-immeuble-au-m2",
+      "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-au-m2",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Prix assurance immeuble au m2 | ImmeubleAssur",
+      "description": "Comprendre les facteurs qui font varier une prime d'assurance immeuble au m2 sans perdre de vue les garanties. Points a verifier: garanties, franchises, pieces.",
+      "changed": true
+    },
+    {
+      "slug": "blog/prix-assurance-immeuble-franchise",
+      "url": "https://immeubleassur.com/blog/prix-assurance-immeuble-franchise",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Prix assurance immeuble et franchise: calculer le reste | ImmeubleAssur",
+      "description": "Comparer une cotisation exige aussi de simuler franchise par evenement, plafond, sous-limite et budget de copropriete. Points a verifier: garanties, franchises.",
+      "changed": true
+    },
+    {
+      "slug": "blog/protection-juridique-copropriete",
+      "url": "https://immeubleassur.com/blog/protection-juridique-copropriete",
+      "fixes": [
+        "description-normalized"
+      ],
+      "title": "Protection juridique copropriete: utile ou accessoire ? | ImmeubleAssur",
+      "description": "Litiges, voisins, prestataires, recouvrement et travaux: quand la protection juridique devient decisive. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "blog/ravalement-toiture-travaux-assurance",
+      "url": "https://immeubleassur.com/blog/ravalement-toiture-travaux-assurance",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Toiture ravalement et assurance | ImmeubleAssur",
+      "description": "Travaux votes, entreprises, dommage ouvrage, sinistres futurs: comment preparer la consultation assureur. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "blog/refus-assureur-apres-sinistre-immeuble",
+      "url": "https://immeubleassur.com/blog/refus-assureur-apres-sinistre-immeuble",
+      "fixes": [
+        "title-normalized"
+      ],
+      "title": "Refus Assureur Apres Sinistre Immeuble | ImmeubleAssur",
+      "description": "Apres un refus, la chronologie des declarations, les rapports d expertise et les travaux correctifs rendent la sinistralite lisible.",
+      "changed": true
+    },
+    {
+      "slug": "blog/renouvellement-apres-sinistre-immeuble",
+      "url": "https://immeubleassur.com/blog/renouvellement-apres-sinistre-immeuble",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Renouvellement Apres Sinistre Immeuble | ImmeubleAssur",
+      "description": "Historique, travaux correctifs, franchise et echeance: les elements a reunir avant de consulter le marche. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "blog/renovation-energetique-copropriete-assurance",
+      "url": "https://immeubleassur.com/blog/renovation-energetique-copropriete-assurance",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Renovation energetique copropriete | ImmeubleAssur",
+      "description": "Isolation, facade, toiture, entreprises et reception: ce que le contrat doit suivre pendant les travaux. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "blog/resiliation-assurance-immeuble",
+      "url": "https://immeubleassur.com/blog/resiliation-assurance-immeuble",
+      "fixes": [
+        "title-normalized",
+        "description-normalized",
+        "content-depth"
+      ],
+      "title": "Resilier ou renegocier une assurance immeuble | ImmeubleAssur",
+      "description": "Echeance, preavis, dossier de consultation et comparaison: eviter les decisions tardives. Points a verifier: garanties, franchises, pieces a preparer et prochaines.",
+      "changed": true
+    },
+    {
+      "slug": "blog/sci-familiale-immeuble",
+      "url": "https://immeubleassur.com/blog/sci-familiale-immeuble",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "SCI familiale immeuble locatif | ImmeubleAssur",
+      "description": "PNO, multirisque, protection juridique, responsabilite: structurer les contrats d'une SCI. Points a verifier: garanties, franchises, pieces a preparer et prochaines.",
+      "changed": true
+    },
+    {
+      "slug": "blog/sinistre-immeuble-apres-declaration",
+      "url": "https://immeubleassur.com/blog/sinistre-immeuble-apres-declaration",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Sinistre Immeuble Apres Declaration | ImmeubleAssur",
+      "description": "Declaration, mesures conservatoires, recherche de fuite et suivi assureur: organiser la suite sans perdre les preuves. Points a verifier: garanties, franchises.",
+      "changed": true
+    },
+    {
+      "slug": "blog/sinistre-recurrent-assurance-immeuble",
+      "url": "https://immeubleassur.com/blog/sinistre-recurrent-assurance-immeuble",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Sinistre recurrent assurance immeuble: mesurer le risque | ImmeubleAssur",
+      "description": "La recurrence appelle une analyse des causes, de la prevention et du reste a charge avant toute nouvelle proposition. Points a verifier: garanties, franchises, pieces.",
+      "changed": true
+    },
+    {
+      "slug": "blog/sinistres-recurrents-immeuble",
+      "url": "https://immeubleassur.com/blog/sinistres-recurrents-immeuble",
+      "fixes": [
+        "title-normalized",
+        "description-normalized"
+      ],
+      "title": "Sinistres recurrents immeuble | ImmeubleAssur",
+      "description": "Un historique de sinistres ne condamne pas un dossier, mais il doit etre explique et corrige. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "blog/syndic-benevole-assurance",
+      "url": "https://immeubleassur.com/blog/syndic-benevole-assurance",
+      "fixes": [
+        "description-normalized",
+        "content-depth"
+      ],
+      "title": "Syndic benevole: les reflexes assurance a adopter | ImmeubleAssur",
+      "description": "Contrat immeuble, RC, documents, AG et declarations: un guide pour syndics non professionnels. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "blog/syndic-copropriete-assurance-contrat",
+      "url": "https://immeubleassur.com/blog/syndic-copropriete-assurance-contrat",
+      "fixes": [
+        "title-normalized",
+        "description-normalized",
+        "content-depth"
+      ],
+      "title": "Syndic professionnel et assurance copropriete: piloter | ImmeubleAssur",
+      "description": "Portefeuille, mandats, echeances, sinistres et conseil syndical: organiser une assurance copropriete tracable. Points a verifier: garanties, franchises, pieces.",
+      "changed": true
+    },
+    {
+      "slug": "blog",
+      "url": "https://immeubleassur.com/blog",
+      "fixes": [
+        "description-normalized",
+        "faq-depth"
+      ],
+      "title": "Blog assurance immeuble | ImmeubleAssur",
+      "description": "Articles assurance immeuble, copropriete, PNO, SCI, syndic et sinistres. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
       "changed": true
     },
     {
@@ -929,18 +705,17 @@
         "content-depth"
       ],
       "title": "Checklist documents assurance immeuble | ImmeubleAssur",
-      "description": "Liste des pieces a rassembler avant de demander un devis immeuble, copropriete ou PNO. Analyse des garanties, franchises, sinistres, documents utiles et rappel.",
+      "description": "Liste des pieces a rassembler avant de demander un devis immeuble, copropriete ou PNO. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
       "changed": true
     },
     {
       "slug": "comparateur-assurance-immeuble",
       "url": "https://immeubleassur.com/comparateur-assurance-immeuble",
       "fixes": [
-        "description-normalized",
-        "content-depth"
+        "description-normalized"
       ],
       "title": "Comparateur assurance immeuble | ImmeubleAssur",
-      "description": "Comment comparer un contrat immeuble au-dela du prix: franchises, exclusions, plafonds et services. Analyse des garanties, franchises, sinistres, documents utiles.",
+      "description": "Comment comparer un contrat immeuble au-dela du prix: franchises, exclusions, plafonds et services. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -952,7 +727,7 @@
         "content-depth"
       ],
       "title": "Confidentialite des demandes immeuble | ImmeubleAssur",
-      "description": "Politique de confidentialite ImmeubleAssur. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour obtenir un devis specialise.",
+      "description": "Decouvrez comment ImmeubleAssur traite et protege les informations transmises pour une demande de contact ou une etude en assurance immeuble.",
       "changed": true
     },
     {
@@ -963,7 +738,7 @@
         "content-depth"
       ],
       "title": "Contact assurance immeuble | ImmeubleAssur",
-      "description": "Contact ImmeubleAssur pour devis assurance immeuble, copropriete, PNO, SCI et audit contrat. Analyse des garanties, franchises, sinistres, documents utiles et.",
+      "description": "Contactez ImmeubleAssur pour une demande concernant un immeuble, une copropriete, une SCI ou une PNO, avec rappel par un courtier specialise.",
       "changed": true
     },
     {
@@ -972,8 +747,8 @@
       "fixes": [
         "description-normalized"
       ],
-      "title": "Courtier assurance immeuble pour bailleurs et syndics | ImmeubleAssur",
-      "description": "Courtier assurance immeuble: audit contrat, consultation assureur, lecture franchises et accompagnement SCI ou syndic. Analyse des garanties, franchises.",
+      "title": "Courtier assurance immeuble: consultation pilotee | ImmeubleAssur",
+      "description": "Courtier assurance immeuble: cahier des charges, presentation du risque, relances compagnie et arbitrage d'offres. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -983,18 +758,17 @@
         "description-normalized"
       ],
       "title": "Devis assurance immeuble en ligne avec analyse | ImmeubleAssur",
-      "description": "Devis assurance immeuble en ligne: formulaire qualifiant, garanties, sinistres, franchises et rappel specialise. Analyse des garanties, franchises, sinistres.",
+      "description": "Devis assurance immeuble en ligne: formulaire qualifiant, garanties, sinistres, franchises et rappel specialise. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
       "slug": "devis-assurance-immeuble",
       "url": "https://immeubleassur.com/devis-assurance-immeuble",
       "fixes": [
-        "description-normalized",
-        "faq-depth"
+        "description-normalized"
       ],
-      "title": "Devis assurance immeuble | ImmeubleAssur",
-      "description": "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec ImmeubleAssur. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour.",
+      "title": "Devis assurance immeuble : comparer les contrats | ImmeubleAssur",
+      "description": "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec un dossier qualifie par ImmeubleAssur. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -1004,7 +778,7 @@
         "description-normalized"
       ],
       "title": "Devis PNO CNO immeuble | ImmeubleAssur",
-      "description": "Demander un devis PNO CNO pour lot en copropriete, logement vacant, SCI, bailleur ou portefeuille de biens immobiliers. Analyse des garanties, franchises.",
+      "description": "Demander un devis PNO CNO pour lot en copropriete, logement vacant, SCI, bailleur ou portefeuille de biens immobiliers. Points a verifier: garanties, franchises.",
       "changed": true
     },
     {
@@ -1015,7 +789,27 @@
         "content-depth"
       ],
       "title": "Dommages ouvrage immeuble | ImmeubleAssur",
-      "description": "Dommages ouvrage immeuble: ravalement, toiture, renovation lourde, extension, structure et travaux de copropriete. Analyse des garanties, franchises, sinistres.",
+      "description": "Dommages ouvrage immeuble: ravalement, toiture, renovation lourde, extension, structure et travaux de copropriete. Points a verifier: garanties, franchises, pieces.",
+      "changed": true
+    },
+    {
+      "slug": "espace-assureur",
+      "url": "https://immeubleassur.com/espace-assureur",
+      "fixes": [
+        "content-depth"
+      ],
+      "title": "Espace assureur - ImmeubleAssur | ImmeubleAssur",
+      "description": "Espace assureur ImmeubleAssur consacre aux echanges de dossiers, aux pieces utiles et au suivi des consultations en assurance immeuble.",
+      "changed": true
+    },
+    {
+      "slug": "espace-client",
+      "url": "https://immeubleassur.com/espace-client",
+      "fixes": [
+        "content-depth"
+      ],
+      "title": "Espace client - ImmeubleAssur | ImmeubleAssur",
+      "description": "Accedez a votre espace client ImmeubleAssur pour retrouver les informations et documents utiles au suivi de votre dossier d assurance immeuble.",
       "changed": true
     },
     {
@@ -1025,7 +819,7 @@
         "description-normalized"
       ],
       "title": "FAQ assurance immeuble | ImmeubleAssur",
-      "description": "Questions courantes sur la multirisque immeuble, la responsabilite civile et les garanties batiment. Analyse des garanties, franchises, sinistres, documents.",
+      "description": "Questions courantes sur la multirisque immeuble, la responsabilite civile et les garanties batiment. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     },
     {
@@ -1035,7 +829,18 @@
         "description-normalized"
       ],
       "title": "FAQ assurance copropriete | ImmeubleAssur",
-      "description": "Reponses pour syndics, conseils syndicaux et coproprietaires sur l'assurance copropriete. Analyse des garanties, franchises, sinistres, documents utiles et rappel.",
+      "description": "Reponses pour syndics, conseils syndicaux et coproprietaires sur l'assurance copropriete. Points a verifier: garanties, franchises, pieces a preparer et prochaines.",
+      "changed": true
+    },
+    {
+      "slug": "faq",
+      "url": "https://immeubleassur.com/faq",
+      "fixes": [
+        "description-normalized",
+        "content-depth"
+      ],
+      "title": "FAQ generale assurance immeuble | ImmeubleAssur",
+      "description": "Questions frequentes generales sur assurance immeuble, copropriete, PNO, SCI, syndic et multirisque immeuble. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -1045,7 +850,7 @@
         "description-normalized"
       ],
       "title": "FAQ immeuble avec local commercial | ImmeubleAssur",
-      "description": "Assurance des immeubles mixtes avec commerce, bureau, restaurant ou local vacant. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour.",
+      "description": "Assurance des immeubles mixtes avec commerce, bureau, restaurant ou local vacant. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
       "changed": true
     },
     {
@@ -1056,7 +861,7 @@
         "description-normalized"
       ],
       "title": "FAQ assurance PNO bailleur copropriete | ImmeubleAssur",
-      "description": "Questions utiles pour proprietaires non occupants, SCI et bailleurs en copropriete. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour.",
+      "description": "Questions utiles pour proprietaires non occupants, SCI et bailleurs en copropriete. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
       "changed": true
     },
     {
@@ -1066,7 +871,7 @@
         "description-normalized"
       ],
       "title": "FAQ prix assurance immeuble | ImmeubleAssur",
-      "description": "Comprendre prime, franchises, garanties et variables qui changent le budget. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour obtenir.",
+      "description": "Comprendre prime, franchises, garanties et variables qui changent le budget. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
       "changed": true
     },
     {
@@ -1077,7 +882,7 @@
         "description-normalized"
       ],
       "title": "FAQ assurance SCI immeuble locatif | ImmeubleAssur",
-      "description": "Assurance d'une SCI familiale, patrimoniale ou locative: contrats et organisation. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour.",
+      "description": "Assurance d'une SCI familiale, patrimoniale ou locative: contrats et organisation. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
       "changed": true
     },
     {
@@ -1087,7 +892,7 @@
         "description-normalized"
       ],
       "title": "FAQ sinistres immeuble | ImmeubleAssur",
-      "description": "Degats des eaux, incendie, vandalisme, recherche de fuite et recours. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour obtenir un.",
+      "description": "Degats des eaux, incendie, vandalisme, recherche de fuite et recours. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
       "changed": true
     },
     {
@@ -1097,7 +902,7 @@
         "description-normalized"
       ],
       "title": "FAQ travaux et assurance immeuble | ImmeubleAssur",
-      "description": "Travaux, dommage ouvrage, ravalement, toiture et declarations assureur. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour obtenir un.",
+      "description": "Travaux, dommage ouvrage, ravalement, toiture et declarations assureur. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
       "changed": true
     },
     {
@@ -1107,18 +912,17 @@
         "description-normalized"
       ],
       "title": "FAQ generale assurance immeuble | ImmeubleAssur",
-      "description": "Questions frequentes generales sur assurance immeuble, copropriete, PNO, SCI, syndic et multirisque immeuble. Analyse des garanties, franchises, sinistres.",
+      "description": "Questions frequentes generales sur assurance immeuble, copropriete, PNO, SCI, syndic et multirisque immeuble. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
       "slug": "gestion-sinistres-immeuble",
       "url": "https://immeubleassur.com/gestion-sinistres-immeuble",
       "fixes": [
-        "description-normalized",
-        "content-depth"
+        "description-normalized"
       ],
       "title": "Gestion sinistres immeuble | ImmeubleAssur",
-      "description": "Accompagnement sinistres immeuble: degat des eaux, incendie, tempete, vandalisme, recherche de fuite et recours. Analyse des garanties, franchises, sinistres.",
+      "description": "Accompagnement sinistres immeuble: degat des eaux, incendie, tempete, vandalisme, recherche de fuite et recours. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -1129,7 +933,67 @@
         "content-depth"
       ],
       "title": "Guide assurance copropriete 2026 | ImmeubleAssur",
-      "description": "Guide pratique pour comprendre RC syndicat, multirisque immeuble, syndic, PNO et renouvellement. Analyse des garanties, franchises, sinistres, documents utiles et.",
+      "description": "Guide pratique pour comprendre RC syndicat, multirisque immeuble, syndic, PNO et renouvellement. Points a verifier: garanties, franchises, pieces a preparer.",
+      "changed": true
+    },
+    {
+      "slug": "guide-bris-machines-ascenseur-immeuble",
+      "url": "https://immeubleassur.com/guide-bris-machines-ascenseur-immeuble",
+      "fixes": [
+        "description-normalized"
+      ],
+      "title": "Ascenseur : bris de machines, panne et entretien | ImmeubleAssur",
+      "description": "Ascenseur, chaudière et porte motorisée: distinguez entretien, panne, vandalisme et bris de machines avant de comparer les garanties immeuble.",
+      "changed": true
+    },
+    {
+      "slug": "guide-indemnisation-vetuste-immeuble",
+      "url": "https://immeubleassur.com/guide-indemnisation-vetuste-immeuble",
+      "fixes": [
+        "description-normalized"
+      ],
+      "title": "Immeuble : valeur de reconstruction et vétusté | ImmeubleAssur",
+      "description": "Valeur de reconstruction, vétusté et indemnité différée: une méthode de lecture et un exemple chiffré pour comprendre votre contrat immeuble.",
+      "changed": true
+    },
+    {
+      "slug": "guide-lire-documents-assurance-immeuble",
+      "url": "https://immeubleassur.com/guide-lire-documents-assurance-immeuble",
+      "fixes": [
+        "description-normalized"
+      ],
+      "title": "Assurance immeuble : lire IPID, contrat et avenants | ImmeubleAssur",
+      "description": "Fiche IPID, conditions générales, conditions particulières, tableau de garanties et avenants: retrouvez les informations utiles pour lire une offre immeuble.",
+      "changed": true
+    },
+    {
+      "slug": "guide-perte-loyers-sinistre-gli",
+      "url": "https://immeubleassur.com/guide-perte-loyers-sinistre-gli",
+      "fixes": [
+        "description-normalized"
+      ],
+      "title": "Perte de loyers après sinistre ou GLI : distinguer | ImmeubleAssur",
+      "description": "Logement inhabitable, impayé du locataire ou vacance entre deux baux: identifiez le bon besoin et les justificatifs avant de comparer les assurances.",
+      "changed": true
+    },
+    {
+      "slug": "guide-questionnaire-visite-risque-immeuble",
+      "url": "https://immeubleassur.com/guide-questionnaire-visite-risque-immeuble",
+      "fixes": [
+        "description-normalized"
+      ],
+      "title": "Questionnaire immeuble : préparer la visite de risque | ImmeubleAssur",
+      "description": "Surfaces, commerces, occupation, équipements et sinistres: une checklist pour compléter un questionnaire d’assurance immeuble sans inventer de réponse.",
+      "changed": true
+    },
+    {
+      "slug": "guide-recherche-fuite-immeuble",
+      "url": "https://immeubleassur.com/guide-recherche-fuite-immeuble",
+      "fixes": [
+        "description-normalized"
+      ],
+      "title": "Recherche de fuite en immeuble : qui couvre quoi ? | ImmeubleAssur",
+      "description": "Recherche de fuite, canalisation enterrée, réparation et remise en état: les postes à distinguer pour lire votre assurance immeuble.",
       "changed": true
     },
     {
@@ -1138,11 +1002,10 @@
       "fixes": [
         "title-normalized",
         "description-normalized",
-        "content-depth",
-        "conversion-panel"
+        "content-depth"
       ],
       "title": "Guides assurance immeuble et copropriete | ImmeubleAssur",
-      "description": "Guides pratiques assurance immeuble, copropriete, documents, comparateur et renouvellement. Analyse des garanties, franchises, sinistres, documents utiles et.",
+      "description": "Guides pratiques assurance immeuble, copropriete, documents, comparateur et renouvellement. Points a verifier: garanties, franchises, pieces a preparer et prochaines.",
       "changed": true
     },
     {
@@ -1153,7 +1016,7 @@
         "faq-depth"
       ],
       "title": "Assurance Immeuble et Copropriete - Devis Gratuit | ImmeubleAssur",
-      "description": "ImmeubleAssur, courtier specialiste assurance immeuble, copropriete, PNO, multirisque immeuble, SCI et RC syndic. Analyse des garanties, franchises, sinistres.",
+      "description": "ImmeubleAssur, courtier specialiste assurance immeuble, copropriete, PNO, multirisque immeuble, SCI et RC syndic. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -1165,7 +1028,7 @@
         "content-depth"
       ],
       "title": "Mentions legales courtier immeuble | ImmeubleAssur",
-      "description": "Mentions legales ImmeubleAssur. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour obtenir un devis specialise.",
+      "description": "Consultez les mentions legales ImmeubleAssur, les coordonnees de contact, l editeur du site et les informations relatives au service de courtage.",
       "changed": true
     },
     {
@@ -1175,7 +1038,17 @@
         "description-normalized"
       ],
       "title": "Votre demande est enregistree | ImmeubleAssur",
-      "description": "Confirmation demande ImmeubleAssur. Analyse des garanties, franchises, sinistres, documents utiles et rappel pour obtenir un devis specialise.",
+      "description": "Votre demande a bien ete transmise a ImmeubleAssur. Retrouvez les prochaines etapes et les coordonnees utiles pour completer votre dossier.",
+      "changed": true
+    },
+    {
+      "slug": "methodologie-editoriale",
+      "url": "https://immeubleassur.com/methodologie-editoriale",
+      "fixes": [
+        "content-depth"
+      ],
+      "title": "Methodologie editoriale | ImmeubleAssur",
+      "description": "Methodologie editoriale ImmeubleAssur: sources officielles, fraicheur, controles, IA en quarantaine et validation humaine.",
       "changed": true
     },
     {
@@ -1184,39 +1057,8 @@
       "fixes": [
         "content-depth"
       ],
-      "title": "Multirisque immeuble | ImmeubleAssur",
+      "title": "Multirisque immeuble : garanties et devis | ImmeubleAssur",
       "description": "Multirisque immeuble pour copropriete, SCI et immeuble locatif: RC, dommages, degats des eaux, incendie et protection juridique.",
-      "changed": true
-    },
-    {
-      "slug": "news/veille-assurance-immeuble-2026-07-31",
-      "url": "https://immeubleassur.com/news/veille-assurance-immeuble-2026-07-31",
-      "fixes": [
-        "title-normalized",
-        "description-normalized"
-      ],
-      "title": "Veille Assurance Immeuble 2026 07 31 | ImmeubleAssur",
-      "description": "Veille assurance immeuble du 2026-07-31: signaux copropriete, points contrats et actions devis pour syndics, bailleurs, SCI et PNO/CNO, avec sources.",
-      "changed": true
-    },
-    {
-      "slug": "newsletter-assurance-immeuble",
-      "url": "https://immeubleassur.com/newsletter-assurance-immeuble",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Newsletter assurance immeuble | ImmeubleAssur",
-      "description": "Newsletter ImmeubleAssur: veille assurance immeuble, copropriete, PNO, CNO, SCI, sinistres et travaux pour clients et prospects.",
-      "changed": true
-    },
-    {
-      "slug": "pno-cno",
-      "url": "https://immeubleassur.com/pno-cno",
-      "fixes": [
-        "faq-depth"
-      ],
-      "title": "Hub assurance PNO CNO immeuble | ImmeubleAssur",
-      "description": "Hub assurance PNO CNO immeuble: devis, guides, differences PNO/CNO et pages specialisees pour proprietaires non occupants.",
       "changed": true
     },
     {
@@ -1227,7 +1069,7 @@
         "faq-depth"
       ],
       "title": "Prix assurance immeuble | ImmeubleAssur",
-      "description": "Comprendre le prix d'une assurance immeuble: lots, surface, usage, sinistres, localisation, franchises et garanties. Analyse des garanties, franchises, sinistres.",
+      "description": "Comprendre le prix d'une assurance immeuble: lots, surface, usage, sinistres, localisation, franchises et garanties. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -1241,16 +1083,6 @@
       "changed": true
     },
     {
-      "slug": "recherches-assurance-immeuble",
-      "url": "https://immeubleassur.com/recherches-assurance-immeuble",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Recherches assurance immeuble par besoin | ImmeubleAssur",
-      "description": "Guide des recherches assurance immeuble: devis, prix, obligation, courtier, immeuble de rapport, sinistres, syndic et SCI.",
-      "changed": true
-    },
-    {
       "slug": "strategie-seo-continue",
       "url": "https://immeubleassur.com/strategie-seo-continue",
       "fixes": [
@@ -1258,7 +1090,7 @@
         "content-depth"
       ],
       "title": "Systeme SEO continu | ImmeubleAssur",
-      "description": "Methode ImmeubleAssur pour piloter le SEO: contenus utiles, audits, Google Search Console, PageSpeed et conversions. Analyse des garanties, franchises, sinistres.",
+      "description": "Methode ImmeubleAssur pour piloter le SEO: contenus utiles, audits, Google Search Console, PageSpeed et conversions. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -1268,17 +1100,7 @@
         "description-normalized"
       ],
       "title": "Tarif assurance immeuble: comprendre le cout reel | ImmeubleAssur",
-      "description": "Tarif assurance immeuble: facteurs de prix, franchises, exclusions, garanties, sinistres et methode de comparaison. Analyse des garanties, franchises, sinistres.",
-      "changed": true
-    },
-    {
-      "slug": "veille-assurance-immeuble",
-      "url": "https://immeubleassur.com/veille-assurance-immeuble",
-      "fixes": [
-        "content-depth"
-      ],
-      "title": "Veille assurance immeuble et copropriete | ImmeubleAssur",
-      "description": "Veille assurance immeuble: actualites, signaux regulatoires, copropriete, PNO, CNO, SCI et newsletter pour anticiper devis et renouvellement.",
+      "description": "Tarif assurance immeuble: facteurs de prix, franchises, exclusions, garanties, sinistres et methode de comparaison. Points a verifier: garanties, franchises, pieces.",
       "changed": true
     },
     {
@@ -1287,10 +1109,11 @@
       "fixes": [
         "title-normalized",
         "description-normalized",
-        "content-depth"
+        "faq-depth",
+        "conversion-panel"
       ],
       "title": "Assurance immeuble par ville et devis | ImmeubleAssur",
-      "description": "Pages locales assurance immeuble pour Paris, Lyon, Marseille, Bordeaux, Lille, Nantes et grandes villes. Analyse des garanties, franchises, sinistres, documents.",
+      "description": "Pages locales assurance immeuble pour Paris, Lyon, Marseille, Bordeaux, Lille, Nantes et grandes villes. Points a verifier: garanties, franchises, pieces a preparer.",
       "changed": true
     }
   ]

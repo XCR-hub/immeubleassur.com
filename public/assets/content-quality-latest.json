@@ -1,11 +1,12 @@
 {
-  "generated_at": "2026-08-25T23:20:14.641Z",
-  "pages_checked": 206,
+  "generated_at": "2026-10-28T14:28:08.227Z",
+  "pages_checked": 212,
   "status": "passed",
   "severe_issue_count": 0,
   "warning_count": 0,
   "policy_alignment": [
     "people-first-content",
+    "no-internal-editorial-language",
     "no-ai-evasion-language",
     "no-hidden-keyword-blocks",
     "unique-title-and-canonical",

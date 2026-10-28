@@ -1,5 +1,6 @@
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join, relative } from "node:path";
+import { insurerGuides } from "../content/insurer-guides.js";
 
 const SITE = "https://immeubleassur.com";
 const PUBLIC_DIR = "public";
@@ -9,6 +10,7 @@ const ASSET_PATH = join(PUBLIC_DIR, "assets", "schema-quality-latest.json");
 const privateSlugs = new Set(["admin", "espace-client", "espace-assureur", "questionnaire-immeuble"]);
 const nonServiceSlugs = new Set(["index", "blog", "villes", "guides", "faq", "contact", "mentions-legales", "confidentialite", "merci", "strategie-seo-continue"]);
 const aliasSlugs = new Set(["blog/index", "faq/index"]);
+const documentedGuideSlugs = new Set(insurerGuides.map(guide => guide.slug));
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
 
@@ -83,7 +85,7 @@ function hasType(types, type) {
 }
 
 function shouldHaveService(slug) {
-  if (nonServiceSlugs.has(slug)) return false;
+  if (nonServiceSlugs.has(slug) || documentedGuideSlugs.has(slug)) return false;
   if (slug.startsWith("blog/") || slug.startsWith("faq/") || slug.startsWith("news/")) return false;
   return true;
 }
@@ -110,6 +112,11 @@ function validatePage(file) {
     issues.push(`${slug}: schema WebPage absent`);
   }
   if (shouldHaveService(slug) && !hasType(types, "Service")) issues.push(`${slug}: schema Service absent`);
+  if (documentedGuideSlugs.has(slug)) {
+    const article = jsonLd.find(item => item["@type"] === "Article");
+    if (!article?.datePublished || !article?.dateModified || !article?.citation?.length) issues.push(`${slug}: guide sans dates ou sources structurees`);
+    if (hasType(types, "Service")) issues.push(`${slug}: un guide documentaire ne doit pas etre decrit comme un service commercial`);
+  }
   if (/<details>/i.test(html) && !hasType(types, "FAQPage")) issues.push(`${slug}: details presents sans schema FAQPage`);
   if (!title || title.length < 20) issues.push(`${slug}: title trop faible`);
   return issues;

@@ -88,6 +88,11 @@ function resolvePath(requestUrl) {
   const pathname = cleanUrl === "/" ? "/index.html" : cleanUrl;
   const direct = normalize(join(root, pathname));
   if (!isInside(root, direct)) return "";
+  // Prefer the public canonical hub over its noindex directory copy.
+  if (!extname(direct)) {
+    const html = `${direct}.html`;
+    if (isInside(root, html) && existsSync(html) && statSync(html).isFile()) return html;
+  }
   if (existsSync(direct)) {
     if (statSync(direct).isDirectory()) {
       const index = join(direct, "index.html");

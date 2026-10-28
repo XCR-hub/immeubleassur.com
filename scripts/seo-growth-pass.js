@@ -1,8 +1,12 @@
-import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative } from "node:path";
 import { loadDefaultEnvFiles } from "./local-env.js";
+import { sitemapModificationDates } from "./sitemap-modification-dates.js";
+import { insurerGuides } from "../content/insurer-guides.js";
 
 loadDefaultEnvFiles();
+const modificationDates = sitemapModificationDates();
+const documentedGuideSlugs = new Set(insurerGuides.map(guide => guide.slug));
 
 const SITE = "https://immeubleassur.com";
 const PUBLIC_DIR = "public";
@@ -122,7 +126,7 @@ function webpageSchema(slug, title, description) {
 }
 
 function serviceSchema(slug, title, description) {
-  if (slug.startsWith("blog/") || ["", "blog", "villes", "guides", "faq", "contact", "mentions-legales", "confidentialite", "merci", "admin", "strategie-seo-continue"].includes(slug)) return null;
+  if (slug.startsWith("blog/") || documentedGuideSlugs.has(slug) || ["", "blog", "villes", "guides", "faq", "contact", "mentions-legales", "confidentialite", "merci", "admin", "strategie-seo-continue"].includes(slug)) return null;
   return {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -271,7 +275,7 @@ function enhanceHtml(file) {
 
   html = cleanTrailingWhitespace(html);
   writeFileSync(file, html, "utf8");
-  const lastmod = statSync(file).mtime.toISOString().slice(0, 10);
+  const lastmod = modificationDates.get(file.replace(/\\/g, "/")) || "";
   return {
     slug: slug || "index",
     url,
@@ -309,7 +313,7 @@ function buildSitemap(pages) {
   const entries = pages
     .filter((page) => !nonIndexableSlugs.has(page.slug) && !page.noindex)
     .sort((a, b) => (a.url === `${SITE}/` ? -1 : b.url === `${SITE}/` ? 1 : a.url.localeCompare(b.url)));
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.map((page) => `  <url><loc>${page.url}</loc><lastmod>${page.lastmod}</lastmod><changefreq>weekly</changefreq><priority>${page.url === `${SITE}/` ? "1.0" : "0.8"}</priority></url>`).join("\n")}\n</urlset>\n`;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.map((page) => `  <url><loc>${page.url}</loc>${page.lastmod ? `<lastmod>${page.lastmod}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>${page.url === `${SITE}/` ? "1.0" : "0.8"}</priority></url>`).join("\n")}\n</urlset>\n`;
   writeFileSync(join(PUBLIC_DIR, "sitemap.xml"), xml, "utf8");
 }
 
