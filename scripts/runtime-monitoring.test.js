@@ -26,3 +26,11 @@ test("full mode preserves the existing delivery settings", () => {
   const result = runStep("newsletter_delivery", ["--eval", "if(process.env.NEWSLETTER_AUTO_SEND!=='1') process.exit(4);"], { NEWSLETTER_AUTO_SEND: "1" }, false);
   assert.equal(result.ok, true, result.stderr);
 });
+test("monitoring redacts paths from the command and child diagnostics", () => {
+  const result = runStep("diagnostic_fixture", ["--eval", "console.log('C:/Users/PC/private/report.json'); console.error('F:/client-data/private.env');"], {}, true);
+  assert.equal(result.ok, true);
+  for (const field of ["command", "stdout", "stderr"]) {
+    assert.equal(result[field].includes("C:/Users/PC"), false, field);
+    assert.equal(result[field].includes("F:/client-data"), false, field);
+  }
+});

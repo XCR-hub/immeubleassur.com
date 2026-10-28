@@ -30,7 +30,9 @@ child.stdout.on("data", (chunk) => { output += chunk.toString(); });
 child.stderr.on("data", (chunk) => { output += chunk.toString(); });
 
 async function waitUntilReady() {
-  for (let attempt = 0; attempt < 40; attempt += 1) {
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    if (child.exitCode !== null) throw new Error(`server exited (${child.exitCode}): ${output.slice(-500)}`);
     try {
       const response = await fetch(`${origin}/health`, { signal: AbortSignal.timeout(1000) });
       if (response.ok) return;
@@ -78,5 +80,6 @@ try {
     child.once("exit", resolveWait);
     setTimeout(resolveWait, 1500);
   });
+  if (!resolve(temporaryRoot).startsWith(join(resolve(tmpdir()), "immeubleassur-crawler-observation-"))) throw new Error("Unexpected fixture directory");
   rmSync(temporaryRoot, { recursive: true, force: true });
 }

@@ -32,7 +32,7 @@ export function runStep(name, args, extraEnv = {}, observeOnly = monitoringOnly)
   if (observeOnly && ["brokerage_cases", "client_contracts"].includes(name)) {
     return { name, ok: true, status: 0, skipped: true, reason: "monitoring-only-preserves-business-workflows" };
   }
-  const childArgs = observeOnly && name === "lead_notification_retry" ? [...args, "--dry-run"] : args;
+  if (observeOnly && name === "lead_notification_retry") args = [...args, "--dry-run"];
   const observationEnv = observeOnly ? {
     LOCAL_RUNTIME_MONITORING_ONLY: "1",
     NEWSLETTER_AUTO_SEND: "0",
@@ -44,7 +44,7 @@ export function runStep(name, args, extraEnv = {}, observeOnly = monitoringOnly)
     INDEXNOW_SUBMIT: "0"
   } : {};
   const timeout = Math.max(30000, Number(extraEnv.LOCAL_RUNTIME_STEP_TIMEOUT_MS || process.env.LOCAL_RUNTIME_STEP_TIMEOUT_MS || 300000));
-  const result = spawnSync(process.execPath, childArgs, {
+  const result = spawnSync(process.execPath, args, {
     cwd: process.cwd(),
     env: { ...process.env, ...extraEnv, ...observationEnv },
     encoding: "utf8",
@@ -56,7 +56,7 @@ export function runStep(name, args, extraEnv = {}, observeOnly = monitoringOnly)
   const attention = result.status === 0 && outputNeedsAttention(stdout, stderr);
   return {
     name,
-    command: clean(`node ${childArgs.join(" ")}`),
+    command: clean(`node ${args.join(" ")}`),
     ok: result.status === 0,
     status: result.status,
     attention,

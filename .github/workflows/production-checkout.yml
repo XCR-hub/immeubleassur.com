@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths:
+      - package.json
+      - package-lock.json
       - .gitignore
       - scripts/update-local-production-checkout.ps1
       - scripts/production-checkout.test.js
@@ -15,6 +17,8 @@ on:
       - .github/workflows/production-checkout.yml
   pull_request:
     paths:
+      - package.json
+      - package-lock.json
       - .gitignore
       - scripts/update-local-production-checkout.ps1
       - scripts/production-checkout.test.js
@@ -49,3 +53,4 @@ jobs:
         run: |
           node --test scripts/runtime-monitoring.test.js
           node scripts/scheduled-task-health-contract-check.js
+          node scripts/runtime-report-redaction-contract-check.js
