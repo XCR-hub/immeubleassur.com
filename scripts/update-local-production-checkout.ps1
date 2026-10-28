@@ -5,7 +5,7 @@ param(
   [string]$ReportPath = '',
   [string]$NodePath = 'C:\Program Files\nodejs\node.exe',
   [string]$RuntimeRoot = 'F:\immeubleassur-runtime',
-  [string]$HealthOrigin = 'http://127.0.0.1:8790',
+  [string]$HealthOrigin = '',
   [string]$GitPath = 'C:\Users\Administrateur\.local\PortableGit\cmd\git.exe',
   [ValidateRange(1, 1500)]
   [int]$LockTimeoutSeconds = 1500,
@@ -28,6 +28,34 @@ function Invoke-Git([string[]]$Arguments) {
   }
   if ($exitCode -ne 0) { throw "git $($Arguments -join ' ') failed: $($output -join ' ')" }
   return @($output | ForEach-Object { $_.ToString() })
+}
+
+function Resolve-HealthOrigin {
+  if (-not [string]::IsNullOrWhiteSpace($HealthOrigin)) { return $HealthOrigin.TrimEnd('/') }
+  # Match local-env.js: inherited environment first, then the first nonempty file value.
+  $portValue = [Environment]::GetEnvironmentVariable('LOCAL_SITE_PORT')
+  foreach ($fileName in @('.env', '.env.local', '.env.production', '.env.production.local')) {
+    if ($portValue) { break }
+    $envPath = Join-Path $resolvedRoot $fileName
+    if (-not (Test-Path -LiteralPath $envPath)) { continue }
+    foreach ($rawLine in [IO.File]::ReadAllLines($envPath)) {
+      $line = $rawLine.Trim()
+      $separator = $line.IndexOf('=')
+      if ($line.StartsWith('#') -or $separator -lt 1) { continue }
+      if ($line.Substring(0, $separator).Trim() -cne 'LOCAL_SITE_PORT') { continue }
+      $value = $line.Substring($separator + 1).Trim()
+      if ($value.Length -ge 2 -and (($value.StartsWith('"') -and $value.EndsWith('"')) -or ($value.StartsWith("'") -and $value.EndsWith("'")))) {
+        $value = $value.Substring(1, $value.Length - 2)
+      }
+      if ($value) { $portValue = $value; break }
+    }
+  }
+  if (-not $portValue) { $portValue = '8790' }
+  $port = 0
+  if (-not [int]::TryParse($portValue, [ref]$port) -or $port -lt 1 -or $port -gt 65535) {
+    throw 'LOCAL_SITE_PORT must be an integer between 1 and 65535.'
+  }
+  return "http://127.0.0.1:$port"
 }
 
 function Write-DeploymentReport([string]$Status, [string]$Before, [string]$After, [string]$ErrorMessage = '') {
@@ -79,6 +107,7 @@ try {
   $before = (Invoke-Git @('rev-parse', 'HEAD') | Select-Object -First 1).Trim()
   if (-not $ValidateOnly) { Invoke-Git @('pull', '--ff-only', $Remote, $Branch) | Out-Null }
   $after = (Invoke-Git @('rev-parse', 'HEAD') | Select-Object -First 1).Trim()
+  $resolvedHealthOrigin = Resolve-HealthOrigin
   if (-not $ValidateOnly -and $before -ne $after) {
     $activationAttempted = $true
     $watchdog = Join-Path $resolvedRoot 'scripts\local-site-watchdog.js'
@@ -91,7 +120,7 @@ try {
     & $NodePath $publisher
     $editorialRefreshStatus = if ($LASTEXITCODE -eq 0) { 'completed' } else { "failed-exit-$LASTEXITCODE" }
   }
-  $health = Invoke-RestMethod -Uri "$HealthOrigin/health" -Method Get -TimeoutSec 15
+  $health = Invoke-RestMethod -Uri "$resolvedHealthOrigin/health" -Method Get -TimeoutSec 15
   $servedRevision = [string]$health.source_revision
   $runtimeRevisionVerified = $health.success -eq $true -and $health.status -eq 'ok' -and $servedRevision -eq $after
   if (-not $runtimeRevisionVerified) { throw "Production runtime revision '$servedRevision' does not match checkout '$after'." }
