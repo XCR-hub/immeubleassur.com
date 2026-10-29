@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { serpCooldownDecision } from "./live-connector-policy.js";
+import { canReuseGoogleSeoSnapshot, monitoringConnectorCommand } from "./runtime-seo-reports.js";
 
 loadDefaultEnvFiles();
 
@@ -92,6 +93,7 @@ function shouldSkipFreshConnector(config) {
   if (!runtimeCycle || !config.report || !config.minIntervalMinutes) return null;
   const report = readJson(join(REPORT_DIR, config.report));
   if (!report) return null;
+  if (config.report === "seo-autopilot-report.json" && !canReuseGoogleSeoSnapshot(report)) return null;
   const age = minutesSince(report.generated_at || report.imported_at);
   if (age >= config.minIntervalMinutes) return null;
   return {
@@ -121,7 +123,8 @@ steps.push(runNode("readiness_before", ["scripts/live-api-readiness-check.js"]))
 const readiness = readJson(READINESS_REPORT);
 
 for (const [id, config] of Object.entries(runnable)) {
-  if (monitoringOnly && !["forms-browser-smoke", "pagespeed-local"].includes(id)) {
+  const command = monitoringConnectorCommand(id, config.command, monitoringOnly);
+  if (!command) {
     steps.push({ name: id, ok: true, status: 0, skipped: true, reason: "monitoring-only-local-checks", objective: config.objective });
     continue;
   }
@@ -129,22 +132,22 @@ for (const [id, config] of Object.entries(runnable)) {
   const row = rowById(readiness, id) || readinessRows[0] || null;
   const connectorReady = config.alwaysReady === true || (readinessRows.length ? readinessRows.some((item) => item.ready) : Boolean(row?.ready));
   if (!connectorReady) {
-    steps.push({ name: id, command: `node ${config.command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, reason: "connector-not-ready", objective: config.objective, report: row?.last_report || null });
+    steps.push({ name: id, command: `node ${command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, reason: "connector-not-ready", objective: config.objective, report: row?.last_report || null });
     continue;
   }
   if (id === "serpapi") {
     const skip = shouldSkipSerp();
     if (skip) {
-      steps.push({ name: id, command: `node ${config.command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, reason: skip.reason, objective: config.objective, report: { ...reportStatus(SEARCH_REPORT), ...skip } });
+      steps.push({ name: id, command: `node ${command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, reason: skip.reason, objective: config.objective, report: { ...reportStatus(SEARCH_REPORT), ...skip } });
       continue;
     }
   }
   const freshnessSkip = shouldSkipFreshConnector(config);
   if (freshnessSkip) {
     const freshReport = { ...reportStatus(join(REPORT_DIR, config.report)), ...freshnessSkip };
-    steps.push({ name: id, command: `node ${config.command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, attention: ["partial", "degraded"].includes(freshReport.collection_status) || (config.attentionStatuses || []).includes(freshReport.status), reason: freshnessSkip.reason, objective: config.objective, report: freshReport });
+    steps.push({ name: id, command: `node ${command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, attention: ["partial", "degraded"].includes(freshReport.collection_status) || (config.attentionStatuses || []).includes(freshReport.status), reason: freshnessSkip.reason, objective: config.objective, report: freshReport });
     continue;
-  }  const step = runNode(id, config.command, config.timeoutMs);
+  }  const step = runNode(id, command, config.timeoutMs);
   step.objective = config.objective;
   step.report = id === "serpapi" ? reportStatus(SEARCH_REPORT) : config.report ? reportStatus(join(REPORT_DIR, config.report)) : null;
   if (id === "editorial-ai") {

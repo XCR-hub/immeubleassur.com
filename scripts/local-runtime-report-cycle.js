@@ -6,6 +6,7 @@ import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { outputNeedsAttention } from "./runtime-attention.js";
 import { redactLocalPaths, reportFileName } from "./runtime-report-redaction.js";
 import { readGitRevision } from "./git-revision.js";
+import { localSeoAuditOutputOverrides } from "./runtime-seo-reports.js";
 
 loadDefaultEnvFiles();
 
@@ -134,7 +135,10 @@ function run() {
     runStep("editorial_publication_gate", ["scripts/editorial-publication-gate-check.js"], commonRuntimeEnv),
     runStep("google_readiness_unlock", ["scripts/google-readiness-unlock.js"], commonRuntimeEnv),
     runStep("live_ready_connectors", ["scripts/live-ready-connectors-runner.js", "--runtime-cycle", "--strict"], commonRuntimeEnv),
-    runStep("seo_autopilot_runtime", ["scripts/seo-autopilot.js", "--local-only"], commonRuntimeEnv),
+    runStep("seo_autopilot_runtime", ["scripts/seo-autopilot.js", "--local-only"], {
+      ...commonRuntimeEnv,
+      ...localSeoAuditOutputOverrides(readJson(runtimeSeoReport), runtimeReportsRoot, runtimeAssetsRoot)
+    }),
     runStep("editorial_public_metadata_sanitizer", ["scripts/local-editorial-public-metadata-sanitizer.js"], commonRuntimeEnv),
     runStep("editorial_runtime_publisher", ["scripts/local-editorial-publisher.js"], commonRuntimeEnv),
     runStep("editorial_draft_schema_migration", ["scripts/local-editorial-draft-schema-migrate.js"], commonRuntimeEnv),
