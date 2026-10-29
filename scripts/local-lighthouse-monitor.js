@@ -3,6 +3,7 @@ import { dirname, join, resolve } from "node:path";
 import lighthouse from "lighthouse";
 import * as chromeLauncher from "chrome-launcher";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
+import { layoutShiftDiagnostics } from "./lighthouse-layout-diagnostics.js";
 
 loadDefaultEnvFiles();
 
@@ -57,7 +58,7 @@ function diagnostics(audits, categories) {
     long_tasks: topAuditItems(audits, "long-tasks", ["url", "duration", "startTime"], "duration"),
     bootup_time: topAuditItems(audits, "bootup-time", ["url", "total", "scripting", "scriptParseCompile"], "total"),
     unused_javascript: topAuditItems(audits, "unused-javascript", ["url", "totalBytes", "wastedBytes", "wastedPercent"], "wastedBytes"),
-    layout_shifts: (Array.isArray(audits?.["layout-shifts"]?.details?.items) ? audits["layout-shifts"].details.items : []).slice(0, 5).map((item) => ({ score: item.score ?? null, node: item.node?.snippet || item.node?.selector || "", causes: (item.subItems?.items || []).map((cause) => cause.cause || cause.extra?.[0]?.value || "").filter(Boolean) })),
+    layout_shifts: layoutShiftDiagnostics(audits),
     accessibility_failures: (categories?.accessibility?.auditRefs || []).filter((ref) => ref.weight > 0 && Number(audits?.[ref.id]?.score) < 1).map((ref) => audits[ref.id]).filter(Boolean).map((audit) => ({ id: audit.id, title: audit.title, nodes: (audit.details?.items || []).slice(0, 5).map((item) => item.node?.snippet || item.node?.selector || "").filter(Boolean) }))
   };
 }

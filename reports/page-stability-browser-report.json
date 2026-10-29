@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-10-29T10:58:48.291Z",
+  "success": true,
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "script_delay_ms": 1500,
+  "cpu_slowdown": 4,
+  "rows": [
+    {
+      "path": "/assurance-immeuble",
+      "cls": 0,
+      "duplicateSelectors": 0,
+      "overflow": false,
+      "h1": 1,
+      "diagnosticPrefillVerified": true,
+      "lead_submissions": 0
+    },
+    {
+      "path": "/devis-assurance-immeuble",
+      "cls": 0,
+      "duplicateSelectors": 0,
+      "overflow": false,
+      "h1": 1,
+      "diagnosticPrefillVerified": true,
+      "lead_submissions": 0
+    },
+    {
+      "path": "/",
+      "cls": 0,
+      "duplicateSelectors": 0,
+      "overflow": false,
+      "h1": 1,
+      "lead_submissions": 0
+    },
+    {
+      "path": "/guide-recherche-fuite-immeuble",
+      "cls": 0,
+      "duplicateSelectors": 0,
+      "overflow": false,
+      "h1": 1,
+      "lead_submissions": 0
+    }
+  ]
+}

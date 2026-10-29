@@ -1603,6 +1603,9 @@ function observeQuoteFastTrackNudge(shell, initial) {
 function mountQuoteFastTrack() {
   if (isPrivateAppPage()) return;
   if (document.querySelector(".insurer-guide")) return;
+  // These selectors already offer the quote journey in the initial HTML.
+  // Inserting a second selector above them after first paint moves content.
+  if (document.querySelector("[data-diagnostic], .risk-router")) return;
   if (document.querySelector(".quote-fast-track")) return;
   const anchor = document.querySelector(".conversion-strip") || document.querySelector(".page-hero") || document.querySelector(".hero") || document.querySelector(".article-head");
   if (!anchor) return;

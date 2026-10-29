@@ -41,3 +41,5 @@ jobs:
         run: npm run generate
       - name: Validate public journeys and search discovery
         run: npm run check
+      - name: Exercise cold mobile loads and quote prefill in Chrome
+        run: node scripts/page-stability-browser-check.js
