@@ -827,7 +827,11 @@ function leadValueEventPayload(payload, qualification = leadQualification(payloa
 }
 
 function formatEuro(value) {
-  return `${Number(value || 0).toLocaleString("fr-FR")} EUR`;
+  const amount = Number(value || 0);
+  // Premium estimates are whole euros. Group those digits directly to avoid
+  // loading locale formatting machinery during the initial form enhancement.
+  if (Number.isSafeInteger(amount)) return `${String(amount).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f")} EUR`;
+  return `${amount.toLocaleString("fr-FR")} EUR`;
 }
 
 function documentChecklistFor(payload) {
@@ -2573,11 +2577,22 @@ function bindTrafficNoClickRescue() {
   trafficNoClickTimer = window.setTimeout(() => showTrafficNoClickRescue("no-click", rescue), rescue.delay);
 }
 function bindGrowthTracking() {
-  track("page_view", { target: document.title, label: currentLeadIntent() });
-  if (!experimentViewSent && !isPrivateAppPage()) {
-    experimentViewSent = true;
-    track("experiment_view", { target: ctaExperiment.id, label: ctaExperiment.variant });
-  }
+  let initialViewsSent = false;
+  const sendInitialViews = () => {
+    if (initialViewsSent) return;
+    initialViewsSent = true;
+    track("page_view", { target: document.title, label: currentLeadIntent() });
+    if (!experimentViewSent && !isPrivateAppPage()) {
+      experimentViewSent = true;
+      track("experiment_view", { target: ctaExperiment.id, label: ctaExperiment.variant });
+    }
+  };
+  // eventPayload reads viewport geometry. Wait until the browser can paint the
+  // initial document instead of forcing layout inside module evaluation.
+  if ("requestAnimationFrame" in window) window.requestAnimationFrame(() => window.setTimeout(sendInitialViews, 0));
+  else window.setTimeout(sendInitialViews, 0);
+  // Preserve visits that navigate away before the deferred callback runs.
+  window.addEventListener("pagehide", sendInitialViews, { once: true });
 
   document.addEventListener("click", (event) => {
     const link = event.target.closest("a");

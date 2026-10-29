@@ -86,6 +86,8 @@ Les six guides documentaires de `content/insurer-guides.js` sont publies par `sc
 
 Le controle Chrome `node scripts/page-stability-browser-check.js` teste quatre parcours mobiles avec JavaScript retarde et processeur ralenti. Il controle les deplacements de contenu et le pre-remplissage du devis, sans soumettre de demande. Un diagnostic deja present dans le HTML evite l ajout tardif d un second selecteur de devis. Le suivi Lighthouse conserve les details CLS des anciens rapports et des tableaux de groupes de Lighthouse 13 ; ces mesures de laboratoire restent distinctes des positions Google et des donnees utilisateurs reelles.
 
+Les evenements de visite initiaux attendent une occasion de rendu pour eviter de forcer la mise en page pendant l evaluation du module. Un depart anticipe conserve la mesure une seule fois. Le formatage des estimations en euros entiers utilise directement les chiffres et l espace fine francaise ; les valeurs fractionnaires conservent le formateur de locale. Les tests comparent les affichages a `Intl` et controlent aussi le contexte des evenements dans Chrome.
+
 Les scripts principaux sont:
 
 ```bash

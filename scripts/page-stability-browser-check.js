@@ -33,16 +33,23 @@ try {
   for (const path of ['/assurance-immeuble', '/devis-assurance-immeuble', '/', '/guide-recherche-fuite-immeuble']) {
     const page = await browser.newPage();
     const errors = [];
+    const trackedEvents = [];
     let leadSubmissions = 0;
     page.on('pageerror', e => errors.push(e.message));
     await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
     const cdp = await page.createCDPSession();
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
     await page.setRequestInterception(true);
-    page.on('request', request => {
+    page.on('request', async request => {
       const url = new URL(request.url());
       if (url.pathname.startsWith('/api/')) {
         if (url.pathname === '/api/leads') leadSubmissions++;
+        if (url.pathname === '/api/events') {
+          try {
+            const body = request.postData() || await request.fetchPostData();
+            trackedEvents.push(JSON.parse(body || '{}'));
+          } catch { /* Assertion below requires valid initial events. */ }
+        }
         void request.respond({ status: 200, contentType: 'application/json', body: '{"success":true}' });
       } else if (url.pathname === '/assets/app.js') {
         setTimeout(() => { void request.continue(); }, 1500);
@@ -72,6 +79,13 @@ try {
     assert.equal(row.duplicateSelectors, 0, `${path}: duplicate quote selector`);
     assert.equal(row.overflow, false, `${path}: horizontal overflow`);
     assert.equal(row.h1, 1, path);
+    assert.equal(trackedEvents.filter(event => event.event_type === 'page_view').length, 1, `${path}: initial visit missing or duplicated`);
+    assert.equal(trackedEvents.filter(event => event.event_type === 'experiment_view').length, 1, `${path}: experiment context missing or duplicated`);
+    assert.match(trackedEvents.find(event => event.event_type === 'page_view').viewport, /^\d+x\d+$/, 'Deferred tracking retains measured viewport dimensions');
+    await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: false })));
+    await new Promise(r => setTimeout(r, 150));
+    assert.equal(trackedEvents.filter(event => event.event_type === 'page_view').length, 1, `${path}: navigation duplicated the initial visit`);
+    row.initialTrackingVerified = true;
     if (path === '/assurance-immeuble' || path === '/devis-assurance-immeuble') {
       await page.waitForFunction(() => document.querySelector('[data-diagnostic]')?.dataset.route);
       await page.click('[data-diagnostic-option][data-step="profile"][data-value="sci"]');

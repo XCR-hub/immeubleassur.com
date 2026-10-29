@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T10:58:48.291Z",
+  "generated_at": "2026-10-29T11:31:13.591Z",
   "success": true,
   "viewport": {
     "width": 390,
@@ -14,6 +14,7 @@
       "duplicateSelectors": 0,
       "overflow": false,
       "h1": 1,
+      "initialTrackingVerified": true,
       "diagnosticPrefillVerified": true,
       "lead_submissions": 0
     },
@@ -23,6 +24,7 @@
       "duplicateSelectors": 0,
       "overflow": false,
       "h1": 1,
+      "initialTrackingVerified": true,
       "diagnosticPrefillVerified": true,
       "lead_submissions": 0
     },
@@ -32,6 +34,7 @@
       "duplicateSelectors": 0,
       "overflow": false,
       "h1": 1,
+      "initialTrackingVerified": true,
       "lead_submissions": 0
     },
     {
@@ -40,6 +43,7 @@
       "duplicateSelectors": 0,
       "overflow": false,
       "h1": 1,
+      "initialTrackingVerified": true,
       "lead_submissions": 0
     }
   ]
