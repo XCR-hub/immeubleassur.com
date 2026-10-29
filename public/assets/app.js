@@ -27,6 +27,7 @@ const trafficNoClickDismissKey = "immeubleassur_traffic_no_click_dismissed";
 let trafficNoClickInteracted = false;
 let trafficNoClickShown = false;
 let trafficNoClickTimer = 0;
+let trafficNoClickActiveVariant = "standard";
 let trafficNoClickSelectedUrgency = "standard";
 let instantCallbackStarted = false;
 let quoteRouterStallTimer = 0;
@@ -1648,9 +1649,13 @@ function bindScrollDepthTracking() {
   let ticking = false;
   const check = () => {
     ticking = false;
+    const scrollY = window.scrollY;
+    // No reading-depth milestone is reachable at the top of the page. Avoid
+    // measuring the full document while deferred enhancements are mounting.
+    if (scrollY <= 0) return;
     const doc = document.documentElement;
     const scrollable = Math.max(1, doc.scrollHeight - window.innerHeight);
-    const depth = Math.min(100, Math.round((window.scrollY / scrollable) * 100));
+    const depth = Math.min(100, Math.round((scrollY / scrollable) * 100));
     for (const mark of [50, 90]) {
       if (depth >= mark && !scrollDepthSent.has(mark)) {
         scrollDepthSent.add(mark);

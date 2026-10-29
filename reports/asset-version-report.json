@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-10-29T11:28:41.402Z",
+  "generated_at": "2026-10-29T13:12:24.244Z",
   "files_checked": 212,
   "files_changed": 210,
   "replacements": 210,
   "assets": {
     "styles": "/assets/styles.css?v=3925f8c090",
-    "app": "/assets/app.js?v=b69111dbe3",
+    "app": "/assets/app.js?v=53bcb43218",
     "admin": "/assets/admin.js?v=78d5a780cd",
     "adminProfile": "/assets/admin-profile.js?v=d2c9b7240c",
     "clientPortal": "/assets/client-portal.js?v=81d5124e2f",

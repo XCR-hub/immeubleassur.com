@@ -51,3 +51,42 @@ test('browsers without animation frames retain the initial tracking fallback', (
   fixture.timers.shift()();
   assert.deepEqual(fixture.events.map(e => e.type), ['page_view', 'experiment_view']);
 });
+
+const scrollBinding = app.match(/function bindScrollDepthTracking\(\) \{[\s\S]*?\n\}/)?.[0];
+assert.ok(scrollBinding, 'Expected reading-depth binding is available');
+
+function scrollFixture(initialScroll = 0) {
+  const frames = [], events = [], listeners = new Map(), bridges = [];
+  let heightReads = 0;
+  const window = { location: { pathname: '/guide-recherche-fuite-immeuble' }, scrollY: initialScroll, innerHeight: 1000 };
+  const document = { documentElement: { get scrollHeight() { heightReads++; return 3000; } }, addEventListener: (name, fn) => listeners.set(name, fn) };
+  const context = vm.createContext({ window, document, scrollDepthSent: new Set(), requestAnimationFrame: fn => frames.push(fn), track: (type, data) => events.push({ type, data }), showContentLeadBridge: reason => bridges.push(reason) });
+  vm.runInContext(scrollBinding + '\nbindScrollDepthTracking();', context);
+  return { window, frames, events, listeners, bridges, heightReads: () => heightReads };
+}
+
+test('reading-depth tracking avoids document layout at the top and coalesces scrolls', () => {
+  const fixture = scrollFixture();
+  assert.equal(fixture.heightReads(), 0);
+  fixture.listeners.get('scroll')();
+  fixture.listeners.get('scroll')();
+  assert.equal(fixture.frames.length, 1);
+  fixture.frames.shift()();
+  assert.equal(fixture.heightReads(), 0);
+  fixture.window.scrollY = 1000;
+  fixture.listeners.get('scroll')(); fixture.frames.shift()();
+  assert.deepEqual(fixture.events.map(e => e.data.target), ['50']);
+  fixture.window.scrollY = 1900;
+  fixture.listeners.get('scroll')(); fixture.frames.shift()();
+  fixture.listeners.get('scroll')(); fixture.frames.shift()();
+  assert.deepEqual(fixture.events.map(e => e.data.target), ['50', '90']);
+  assert.deepEqual(fixture.bridges, ['scroll-50']);
+});
+
+test('restored reading positions retain their initial depth milestones', () => {
+  const fixture = scrollFixture(1900);
+  assert.equal(fixture.heightReads(), 1);
+  assert.deepEqual(fixture.events.map(e => e.data.target), ['50', '90']);
+  assert.equal(fixture.events[0].type, 'scroll_depth');
+  assert.equal(fixture.events[0].data.label, '/guide-recherche-fuite-immeuble');
+});

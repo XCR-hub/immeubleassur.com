@@ -96,6 +96,17 @@ try {
       assert.equal(values.need, 'multirisque-immeuble');
       row.diagnosticPrefillVerified = true;
     }
+    if (path === '/') {
+      await page.waitForSelector('.traffic-no-click-rescue', { visible: true, timeout: 15000 });
+      const variant = await page.$eval('.traffic-no-click-rescue', panel => panel.dataset.rescueVariant);
+      assert.ok(variant, 'The callback panel retains its active variant');
+      assert.ok(trackedEvents.some(event => event.event_type === 'traffic_without_click_shown' && event.rescue_variant === variant), 'Callback panel exposure is tracked');
+      await page.click('[data-traffic-no-click-close]');
+      await page.focus('.hero-inline-callback input[name="contact"]');
+      await new Promise(r => setTimeout(r, 150));
+      assert.ok(trackedEvents.some(event => event.event_type === 'form_start' && event.source === 'homepage-inline-callback' && event.rescue_variant === variant), 'Inline callback focus retains the active variant without throwing');
+      row.instantCallbackVerified = true;
+    }
     assert.equal(leadSubmissions, 0, 'The browser check must not submit a lead.');
     assert.deepEqual(errors, [], path);
     rows.push({ path, ...row, lead_submissions: leadSubmissions });

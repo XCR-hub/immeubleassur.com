@@ -88,6 +88,10 @@ Le controle Chrome `node scripts/page-stability-browser-check.js` teste quatre p
 
 Les evenements de visite initiaux attendent une occasion de rendu pour eviter de forcer la mise en page pendant l evaluation du module. Un depart anticipe conserve la mesure une seule fois. Le formatage des estimations en euros entiers utilise directement les chiffres et l espace fine francaise ; les valeurs fractionnaires conservent le formateur de locale. Les tests comparent les affichages a `Intl` et controlent aussi le contexte des evenements dans Chrome.
 
+Le suivi de lecture attend un defilement effectif avant de mesurer la hauteur du document. Les seuils de 50 et 90 pour cent restent dedoublonnes, y compris lorsqu une position de lecture est restauree au chargement.
+
+Le controle Chrome attend aussi l ouverture du panneau de rappel sur l accueil puis active le champ de rappel inline, sans envoyer de demande. Il verifie que la variante du panneau est conservee et que les deux parcours ne produisent pas d erreur JavaScript.
+
 Les scripts principaux sont:
 
 ```bash

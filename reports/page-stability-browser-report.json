@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T11:31:13.591Z",
+  "generated_at": "2026-10-29T13:13:02.708Z",
   "success": true,
   "viewport": {
     "width": 390,
@@ -35,6 +35,7 @@
       "overflow": false,
       "h1": 1,
       "initialTrackingVerified": true,
+      "instantCallbackVerified": true,
       "lead_submissions": 0
     },
     {
