@@ -15,6 +15,16 @@ test("monitoring checks notification retries without sending", () => {
   assert.equal(result.ok, true, result.stderr);
   assert.match(result.command, /--dry-run$/);
 });
+test("monitoring permits explicitly enabled IndexNow only in its dedicated step", () => {
+  const keys = ["NEWSLETTER_AUTO_SEND", "LOCAL_MONITOR_ALERTS", "LOCAL_EDITORIAL_REVIEW_ALERTS", "LOCAL_IMAP_UNMATCHED_ALERTS", "LOCAL_LEAD_SLA_ALERTS", "LOCAL_PRIVACY_RETENTION_APPLY"];
+  const settings = Object.fromEntries([...keys.map(key => [key, "1"]), ["INDEXNOW_SUBMIT", "1"]]);
+  const child = `const keys=${JSON.stringify(keys)}; if(keys.some(k=>process.env[k]!=='0')||process.env.INDEXNOW_SUBMIT!=='1') process.exit(7); console.log('indexnow-only');`;
+  const result = runStep("indexnow_submit", ["--eval", child], settings, true);
+  assert.equal(result.ok, true, result.stderr);
+  assert.equal(result.stdout, "indexnow-only");
+  const disabled = runStep("indexnow_submit", ["--eval", "if(process.env.INDEXNOW_SUBMIT!=='0')process.exit(9);"], { INDEXNOW_SUBMIT: "0" }, true);
+  assert.equal(disabled.ok, true, disabled.stderr);
+});
 for (const name of ["brokerage_cases", "client_contracts"]) {
   test(`monitoring does not execute ${name}`, () => {
     const result = runStep(name, ["--eval", "throw new Error('Business workflow must not run');"], {}, true);

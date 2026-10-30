@@ -43,14 +43,33 @@ async function run() {
   const sitemap = activeSitemap();
   const rows = sitemapRows(readFileSync(sitemap.path, "utf8"));
   const snapshot = Object.fromEntries(rows.map((row) => [row.url, row.lastmod]));
-  const previous = readJson(statePath)?.snapshot || {};
+  const savedState = readJson(statePath);
+  if (existsSync(statePath) && (!savedState?.snapshot || typeof savedState.snapshot !== "object" || Array.isArray(savedState.snapshot))) throw new Error("IndexNow submission state is unreadable; no notification sent");
+  const previousState = savedState || {};
+  const previous = previousState.snapshot || {};
   const firstRun = Object.keys(previous).length === 0;
   const recentCutoff = Date.now() - 7 * 86400000;
   const changed = rows.filter((row) => previous[row.url] !== row.lastmod && (!firstRun || (Number.isFinite(Date.parse(row.lastmod)) && Date.parse(row.lastmod) >= recentCutoff))).slice(0, 10000);
-  const base = { generated_at: new Date().toISOString(), provider: "indexnow", endpoint: "https://api.indexnow.org/IndexNow", site, key_location: keyLocation, key_publicly_verifiable: true, sitemap_source: sitemap.source, sitemap_manifest_verified: sitemap.manifest_verified, sitemap_urls: rows.length, first_run: firstRun, changed_urls: changed.length, submitted_urls: 0, citation_or_ranking_guaranteed: false };
+  const base = { generated_at: new Date().toISOString(), provider: "indexnow", endpoint: "https://api.indexnow.org/IndexNow", site, key_location: keyLocation, key_publicly_verifiable: false, sitemap_source: sitemap.source, sitemap_manifest_verified: sitemap.manifest_verified, sitemap_urls: rows.length, first_run: firstRun, changed_urls: changed.length, submitted_urls: 0, last_submission: previousState.last_submission || null, citation_or_ranking_guaranteed: false };
   const safeguards = ["same-host-only", "changed-urls-only", "state-deduplicated", "no-ranking-claim"];
   if (!enabled) { writeJson(reportPath, { ...base, success: true, status: "disabled", safeguards }); console.log(`IndexNow disabled: ${changed.length} changed URL(s) detected.`); return; }
-  if (!changed.length) { writeJson(statePath, { updated_at: base.generated_at, snapshot }); writeJson(reportPath, { ...base, success: true, status: "no-changes", safeguards }); console.log("IndexNow no changes."); return; }
+  try {
+    const verification = await fetch(keyLocation, { redirect: "manual", signal: AbortSignal.timeout(12000) });
+    const body = await verification.text();
+    base.key_check_http_status = verification.status;
+    if (verification.status !== 200 || body.trim() !== key) {
+      writeJson(reportPath, { ...base, success: false, status: "key-verification-failed", safeguards });
+      console.error("IndexNow failed: public ownership proof did not match.");
+      process.exitCode = 1;
+      return;
+    }
+    base.key_publicly_verifiable = true;
+  } catch {
+    writeJson(reportPath, { ...base, success: false, status: "network-degraded", error: "Public ownership proof could not be verified", safeguards: [...safeguards, "state-not-advanced-on-failure", "retry-next-cycle"] });
+    console.log("IndexNow warning: ownership proof network-degraded, retry scheduled.");
+    return;
+  }
+  if (!changed.length) { writeJson(statePath, { ...previousState, updated_at: base.generated_at, snapshot }); writeJson(reportPath, { ...base, success: true, status: "no-changes", safeguards }); console.log("IndexNow no changes."); return; }
   let response;
   try {
     response = await fetch("https://api.indexnow.org/IndexNow", { method: "POST", headers: { "content-type": "application/json; charset=utf-8", "user-agent": "ImmeubleAssur-IndexNow/1.0" }, body: JSON.stringify({ host: siteUrl.host, key, keyLocation, urlList: changed.map((row) => row.url) }), signal: AbortSignal.timeout(20000) });
@@ -61,8 +80,9 @@ async function run() {
   }
   const body = (await response.text()).slice(0, 300);
   if (response.ok) {
-    writeJson(statePath, { updated_at: base.generated_at, snapshot });
-    writeJson(reportPath, { ...base, success: true, status: "submitted", http_status: response.status, submitted_urls: changed.length, safeguards });
+    const lastSubmission = { at: new Date().toISOString(), http_status: response.status, url_count: changed.length };
+    writeJson(statePath, { ...previousState, updated_at: base.generated_at, snapshot, last_submission: lastSubmission });
+    writeJson(reportPath, { ...base, success: true, status: "submitted", http_status: response.status, submitted_urls: changed.length, last_submission: lastSubmission, safeguards });
     console.log(`IndexNow submitted: ${changed.length} URL(s), HTTP ${response.status}.`);
     return;
   }

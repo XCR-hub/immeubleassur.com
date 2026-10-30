@@ -96,6 +96,8 @@ La surveillance evalue Search Console independamment des actions GA4 et SerpApi.
 
 Les inspections Google conservent les pages prioritaires et font tourner les autres pages metier, les hubs et les six guides documentaires dans la limite de huit requetes par collecte. Les URL explicitement configurees restent prioritaires et les opportunites mesurees disposent de places reservees. Les editions editoriales integrent les widgets newsletter des leur generation ; la publication refuse un formulaire incomplet. Le controle Chrome ouvre la page newsletter dediee et bloque les envois de formulaires pendant sa verification.
 
+La surveillance laisse le seul pas `indexnow_submit` utiliser l activation `INDEXNOW_SUBMIT=1` de la tache serveur. Il verifie la preuve de propriete publique avant toute notification, conserve le recu et transmet uniquement les URL modifiees du sitemap actif. Un passage sans changement conserve le recu sans renvoyer les URL ; un echec ne fait pas avancer le registre et un registre illisible bloque les notifications. Les envois de mails et les operations metier gardent leurs restrictions de surveillance. Une notification acceptee ne prouve ni indexation ni classement.
+
 Le controle Chrome attend aussi l ouverture du panneau de rappel sur l accueil puis active le champ de rappel inline, sans envoyer de demande. Il verifie que la variante du panneau est conservee et que les deux parcours ne produisent pas d erreur JavaScript.
 
 Les scripts principaux sont:
