@@ -2,6 +2,7 @@ import { createSign } from "node:crypto";
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative } from "node:path";
 import { loadDefaultEnvFiles } from "./local-env.js";
+import { googleSeoCollectionStatus } from "./runtime-seo-reports.js";
 
 loadDefaultEnvFiles();
 
@@ -786,6 +787,7 @@ async function run() {
   writeFileSync(SEO_AUTOPILOT_REPORT, JSON.stringify(report, null, 2), "utf8");
   writeFileSync(SEO_AUTOPILOT_MARKDOWN, buildMarkdown(report), "utf8");
   const publicReport = { generated_at: report.generated_at, pages_checked: report.pages_checked, indexable_pages_checked: report.indexable_pages_checked, noindex_pages_skipped: report.noindex_pages_skipped, average_score: report.average_score, score_scope: report.score_scope, ranking_measurement: report.ranking_measurement, opportunities_count: report.opportunities.length, weak_pages: report.weak_pages.slice(0, 10), top_opportunities: report.opportunities.slice(0, 20), auto_fix: report.auto_fix, opportunity_expansion: report.opportunity_expansion, content_quality: report.content_quality, cannibalization: report.cannibalization, intent_differentiation: report.intent_differentiation, angle_differentiation: report.angle_differentiation, internal_link_equity: report.internal_link_equity, cluster_conversion_bridge: report.cluster_conversion_bridge, editorial_cluster_rescue: report.editorial_cluster_rescue, conversion_intelligence: report.conversion_intelligence, cro_experiment: report.cro_experiment, lead_friction: report.lead_friction, lead_intent_routing: report.lead_intent_routing, lead_urgency_feedback: report.lead_urgency_feedback, intent_conversion_monitor: report.intent_conversion_monitor, search_intelligence: report.search_intelligence, google_feedback_loop: report.google_feedback_loop, google_api_health: report.google_api_health, connectors: report.api_connectors, compliance: report.compliance };
+  publicReport.google_collection = { status: googleSeoCollectionStatus(report) };
   writeFileSync(SEO_AUTOPILOT_PUBLIC_REPORT, JSON.stringify(publicReport, null, 2), "utf8");
   console.log(`SEO autopilot checked ${report.pages_checked} pages, average score ${report.average_score}, opportunities ${report.opportunities.length}.`);
 }

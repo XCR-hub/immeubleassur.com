@@ -92,6 +92,8 @@ Le suivi de lecture attend un defilement effectif avant de mesurer la hauteur du
 
 Lorsque Search Console est configuree, le mode de surveillance serveur autorise sa collecte en lecture seule, avec un intervalle de trois heures. Il conserve le rapport Google pendant les audits locaux suivants, y compris lorsque la propriete ne contient pas encore de statistiques. Les audits locaux utilisent alors des fichiers distincts `seo-local-audit-*`. Un rapport local ne reporte pas la premiere collecte Google et une erreur API reste visible pour revue. Le mode de surveillance n envoie pas le sitemap automatiquement.
 
+La surveillance evalue Search Console independamment des actions GA4 et SerpApi. Un rapport Google collecte reste frais pendant trois heures et trente minutes, pour couvrir le prochain cycle serveur ; un audit local conserve sa limite de quatre-vingt-dix minutes. Les erreurs API restent signalees. Le bouton d appel du devis utilise un fond sombre et le pied de page conserve son rendu complet pour rendre ses liens documentaires lisibles.
+
 Le controle Chrome attend aussi l ouverture du panneau de rappel sur l accueil puis active le champ de rappel inline, sans envoyer de demande. Il verifie que la variante du panneau est conservee et que les deux parcours ne produisent pas d erreur JavaScript.
 
 Les scripts principaux sont:

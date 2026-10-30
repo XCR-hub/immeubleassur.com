@@ -8,6 +8,7 @@ import { readGitRevision } from "./git-revision.js";
 import { summarizeCrawlerObservations } from "./crawler-observation-summary.js";
 import { evaluateDependencySecurityReport } from "./dependency-security.js";
 import { buildProductionAttention } from "./production-attention.js";
+import { googleSeoCollectionFailed, searchConsoleReadiness, seoSnapshotMaxAgeMinutes } from "./runtime-seo-reports.js";
 
 loadDefaultEnvFiles();
 
@@ -219,7 +220,8 @@ function inspectJsonRuntime(name, reportPath, maxAgeMinutes, validate, details =
   try {
     const report = JSON.parse(readFileSync(reportPath, "utf8"));
     const ageMinutes = reportAgeMinutes(report);
-    return check(name, ageMinutes <= maxAgeMinutes && validate(report), { path: reportPath, status: report.status || "", age_minutes: ageMinutes, max_age_minutes: maxAgeMinutes, ...details(report) });
+    const maxAge = typeof maxAgeMinutes === "function" ? maxAgeMinutes(report) : maxAgeMinutes;
+    return check(name, ageMinutes <= maxAge && validate(report), { path: reportPath, status: report.status || "", age_minutes: ageMinutes, max_age_minutes: maxAge, ...details(report) });
   } catch (error) {
     return check(name, false, { path: reportPath, error: error.message || "runtime report unreadable" });
   }
@@ -247,10 +249,9 @@ function inspectGoogleReadiness(reportPath) {
   try {
     const report = JSON.parse(readFileSync(reportPath, "utf8"));
     const ageMinutes = reportAgeMinutes(report);
-    const gscAction = (report.actions || []).find((item) => item.id === "google-search-console");
+    const connector = searchConsoleReadiness(report);
     const fresh = ageMinutes <= 90;
-    const ready = fresh && !gscAction && ["ready", "degraded"].includes(report.status);
-    return check("google_search_console", ready, { path: reportPath, status: ready ? "ready" : gscAction?.reason || report.status || "unknown", age_minutes: ageMinutes, max_age_minutes: 90, configured: !gscAction, missing_configuration: gscAction?.reason === "missing-secret", connector_signal: gscAction?.signal || "Search Console connector ready", secret_values_exported: false }, fresh ? "warn" : "fail");
+    return check("google_search_console", fresh && connector.ready, { path: reportPath, status: fresh ? connector.status : "stale", age_minutes: ageMinutes, max_age_minutes: 90, configured: connector.configured, missing_configuration: connector.missing_configuration, connector_signal: connector.connector_signal, secret_values_exported: false }, fresh ? "warn" : "fail");
   } catch (error) {
     return check("google_search_console", false, { path: reportPath, error: error.message || "google readiness report unreadable" });
   }
@@ -272,14 +273,14 @@ function inspectSearchIntelligence(reportPath) {
 }
 
 function inspectSeoAutopilot(reportPath) {
-  return inspectJsonRuntime("seo_autopilot_public", reportPath, 90, (report) => {
+  return inspectJsonRuntime("seo_autopilot_public", reportPath, seoSnapshotMaxAgeMinutes, (report) => {
     const rankings = Array.isArray(report.search_intelligence?.rankings) ? report.search_intelligence.rankings : [];
     const measuredQueries = new Set(rankings.filter((row) => row.measured === true && row.actionable === true && row.data_source === "serpapi" && row.confidence === "measured").map((row) => row.query));
     const fallbackUnsafe = rankings.some((row) => row.measured !== true && (row.actionable === true || row.recommendation));
     const rankingActions = (report.google_feedback_loop?.actions || []).filter((row) => row.source === "search-intelligence" && row.query);
     const measurement = report.ranking_measurement || {};
     const measurementHonest = report.score_scope === "on-page-technical" && ["awaiting-measured-data", "gsc-measured", "serpapi-measured"].includes(measurement.status) && measurement.static_score_is_ranking_proof === false && measurement.ranking_improvement_verified === false;
-    return measurementHonest && !fallbackUnsafe && rankingActions.every((row) => measuredQueries.has(row.query));
+    return !googleSeoCollectionFailed(report) && measurementHonest && !fallbackUnsafe && rankingActions.every((row) => measuredQueries.has(row.query));
   }, (report) => ({
     technical_score: Number(report.average_score || 0),
     score_scope: report.score_scope || "unknown",

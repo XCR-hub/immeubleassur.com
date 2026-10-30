@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { serpCooldownDecision } from "./live-connector-policy.js";
-import { canReuseGoogleSeoSnapshot, monitoringConnectorCommand } from "./runtime-seo-reports.js";
+import { canReuseGoogleSeoSnapshot, monitoringConnectorCommand, GOOGLE_SEO_INTERVAL_MINUTES } from "./runtime-seo-reports.js";
 
 loadDefaultEnvFiles();
 
@@ -27,7 +27,7 @@ const runnable = {
   "forms-browser-smoke": { command: ["scripts/local-turnstile-browser-smoke.js"], objective: "Verifier dans Chrome que Turnstile se charge a la premiere interaction sans soumettre de formulaire.", alwaysReady: true, minIntervalMinutes: 360, report: "local-turnstile-browser-smoke-report.json", attentionStatuses: ["degraded", "failed"], timeoutMs: 60000 },
   "pagespeed-local": { command: ["scripts/local-lighthouse-monitor.js"], objective: "Mesurer les performances mobiles avec Lighthouse et Chrome locaux.", readinessIds: ["pagespeed"], minIntervalMinutes: 360, report: "local-lighthouse-report.json", attentionStatuses: ["degraded", "failed"], timeoutMs: 240000 },
   serpapi: { command: ["scripts/search-intelligence.js", "--serp"], objective: "Mesurer les positions Google via SerpApi sans scraping direct." },
-  "google-seo": { command: ["scripts/seo-autopilot.js", "--gsc-if-configured", "--url-inspection", "--submit-sitemap"], objective: "Rafraichir Search Console et les signaux SEO Google lorsque le connecteur est pret.", readinessIds: ["google-search-console"], minIntervalMinutes: 180, report: "seo-autopilot-report.json" }
+  "google-seo": { command: ["scripts/seo-autopilot.js", "--gsc-if-configured", "--url-inspection", "--submit-sitemap"], objective: "Rafraichir Search Console et les signaux SEO Google lorsque le connecteur est pret.", readinessIds: ["google-search-console"], minIntervalMinutes: GOOGLE_SEO_INTERVAL_MINUTES, report: "seo-autopilot-report.json" }
 };
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }

@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { loadDefaultEnvFiles } from "./local-env.js";
+import { searchConsoleReadiness } from "./runtime-seo-reports.js";
 loadDefaultEnvFiles();
 const backup=readFileSync("scripts/local-sqlite-backup.js","utf8");
 const monitor=readFileSync("scripts/local-production-monitor.js","utf8");
@@ -111,8 +112,8 @@ const checks=[
   ["monitor-covers-editorial-review-sla",monitor.includes("inspectEditorialReview(editorialReviewPath)")&&monitor.includes('severity = fresh && report.success === true && deliveryVerified && critical === 0 && warning > 0 ? "warn" : "fail"')&&monitor.includes("alert_delivery_verified")],
   ["monitor-verifies-every-editorial-artifact-over-http",monitor.includes('inspectJsonRuntime("editorial_publication_http"')&&monitor.includes("editorialPublicationSmokePath")&&monitor.includes("report.checks.length >= 8")&&monitor.includes("report.checks.every((item) => item.ok === true)")&&monitor.includes("failed_artifacts")&&monitor.includes("http_failures")&&monitor.includes('item.local_sha256 && item.remote_sha256 && item.remote_sha256 !== item.local_sha256')&&monitor.includes('"veille", "newsletter", "news", "faq", "villes", "llms", "sitemap"')],
   ["editorial-review-alert-delivery-enforced",editorialReview.includes("alert_delivery_required")&&editorialReview.includes("alert_delivery_verified")&&editorialReview.includes('["sent", "cooldown"]')&&editorialReview.includes("!report.alert_delivery_verified")],
-  ["monitor-covers-fresh-google-search-console-readiness",monitor.includes("inspectGoogleReadiness(googleReadinessPath)")&&monitor.includes('item.id === "google-search-console"')&&monitor.includes("ageMinutes <= 90")],
-  ["missing-gsc-configuration-is-visible-warning",monitor.includes('gscAction?.reason === "missing-secret"')&&monitor.includes('fresh ? "warn" : "fail"')&&monitor.includes("secret_values_exported: false")],
+  ["monitor-covers-fresh-google-search-console-readiness",monitor.includes("inspectGoogleReadiness(googleReadinessPath)")&&monitor.includes("searchConsoleReadiness(report)")&&monitor.includes("fresh && connector.ready")&&monitor.includes("ageMinutes <= 90")],
+  ["missing-gsc-configuration-is-visible-warning",searchConsoleReadiness({actions:[{id:"google-search-console",reason:"missing-secret"}]}).missing_configuration===true&&monitor.includes("missing_configuration: connector.missing_configuration")&&monitor.includes('fresh ? "warn" : "fail"')&&monitor.includes("secret_values_exported: false")],
   ["monitor-covers-fresh-serp-measurement",monitor.includes("inspectSearchIntelligence(searchIntelligencePath)")&&monitor.includes("ageMinutes <= 390")&&monitor.includes("measured > 0")],
   ["monitor-separates-technical-score-from-ranking-proof",monitor.includes('report.score_scope === "on-page-technical"')&&monitor.includes("ranking_measurement_status")&&monitor.includes("ranking_improvement_verified")],
   ["fallback-rankings-never-presented-as-measured",monitor.includes("fallback_positions_treated_as_measured: false")&&monitor.includes("measured_queries: measured")&&monitor.includes("fallback_queries: fallback")],
