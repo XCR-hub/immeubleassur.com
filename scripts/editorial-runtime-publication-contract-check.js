@@ -23,6 +23,8 @@ const checks = [
   ["same-day-static-hub-change-triggers-refresh", publisher.includes("baseHubRefreshNeeded") && publisher.includes('["faq.html", "villes.html", "sitemap.xml"]') && publisher.includes("base_hub_hashes: baseHubHashes") && publisher.includes("base_hub_hashes?.sitemap") && publisher.includes('"static-hub-base-changed"') && publisher.includes('"refreshed-static-hub-base"')],
   ["same-day-publication-input-change-triggers-refresh", publisher.includes("publicationInputsRefreshNeeded") && publisher.includes("publication_input_hashes: publicationInputHashes") && publisher.includes("publication_build_hash: publicationBuildHash") && publisher.includes('"publication-inputs-changed"') && publisher.includes('"refreshed-publication-inputs"')],
   ["generated-artifacts-block-activation", publisher.includes("containsSourceSummaryArtifacts(html)") && publisher.includes("SOURCE_SUMMARY_ARTIFACT_PATTERN")],
+  ["newsletter-widgets-block-incomplete-publication", publisher.includes("if (!hasProtectedNewsletterForms(html)) invalid.push(relative)")],
+  ["newsletter-protection-change-triggers-refresh", publisher.includes('"scripts/turnstile-markup.js"')],
   ["publisher-does-not-enable-ai", publisher.includes('["scripts/editorial-autopilot.js", "--fetch"]') && !publisher.includes('"--fetch", "--ai"')],
   ["runtime-output-is-versioned", publisher.includes('join(publicationsRoot, "versions", version)')],
   ["runtime-sitemap-includes-active-issue", publisher.includes('const runtimeSitemapPath = join(versionRoot, "sitemap.xml")') && publisher.includes('html.includes("<urlset")') && publisher.includes('"sitemap.xml"')],

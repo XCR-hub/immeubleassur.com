@@ -94,6 +94,8 @@ Lorsque Search Console est configuree, le mode de surveillance serveur autorise 
 
 La surveillance evalue Search Console independamment des actions GA4 et SerpApi. Un rapport Google collecte reste frais pendant trois heures et trente minutes, pour couvrir le prochain cycle serveur ; un audit local conserve sa limite de quatre-vingt-dix minutes. Les erreurs API restent signalees. Le bouton d appel du devis utilise un fond sombre et le pied de page conserve son rendu complet pour rendre ses liens documentaires lisibles.
 
+Les inspections Google conservent les pages prioritaires et font tourner les autres pages metier, les hubs et les six guides documentaires dans la limite de huit requetes par collecte. Les URL explicitement configurees restent prioritaires et les opportunites mesurees disposent de places reservees. Les editions editoriales integrent les widgets newsletter des leur generation ; la publication refuse un formulaire incomplet. Le controle Chrome ouvre la page newsletter dediee et bloque les envois de formulaires pendant sa verification.
+
 Le controle Chrome attend aussi l ouverture du panneau de rappel sur l accueil puis active le champ de rappel inline, sans envoyer de demande. Il verifie que la variante du panneau est conservee et que les deux parcours ne produisent pas d erreur JavaScript.
 
 Les scripts principaux sont:

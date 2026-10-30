@@ -3,6 +3,7 @@ import { dirname, join, resolve } from "node:path";
 import puppeteer from "puppeteer-core";
 import * as chromeLauncher from "chrome-launcher";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
+import { TURNSTILE_BROWSER_SCENARIO_VERSION } from "./live-connector-report-versions.js";
 
 loadDefaultEnvFiles();
 
@@ -11,8 +12,8 @@ const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const reportPath = resolve(env("LOCAL_TURNSTILE_BROWSER_REPORT", join(reportDir, "local-turnstile-browser-smoke-report.json")));
 const chromePath = env("CHROME_PATH", "") || chromeLauncher.Launcher.getInstallations()[0];
 const scenarios = [
-  { name: "lead", selector: "#lead-form input[name='name']" },
-  { name: "newsletter", selector: ".newsletter-form input[name='email']" }
+  { name: "lead", path: "/", selector: "#lead-form input[name='name']" },
+  { name: "newsletter", path: "/newsletter-assurance-immeuble", selector: ".newsletter-form input[name='email']" }
 ];
 
 function writeReport(report) {
@@ -34,11 +35,15 @@ async function runScenario(browser, scenario) {
       request.abort("blockedbyclient");
       return;
     }
+    if (item.method === "POST" && /\/api\/(leads|newsletter)(?:\?|$)/.test(item.url)) {
+      request.abort("blockedbyclient");
+      return;
+    }
     request.continue();
   });
   page.on("requestfailed", (request) => failures.push({ url: request.url(), error: request.failure()?.errorText || "request-failed" }));
   try {
-    await page.goto(`${site}/`, { waitUntil: "domcontentloaded", timeout: 30000 });
+    await page.goto(`${site}${scenario.path}`, { waitUntil: "domcontentloaded", timeout: 30000 });
     await page.waitForSelector(scenario.selector, { timeout: 15000 });
     await new Promise((resolvePromise) => setTimeout(resolvePromise, 1200));
     const before = await page.evaluate(() => ({
@@ -49,14 +54,17 @@ async function runScenario(browser, scenario) {
     const turnstileRequestsBefore = requests.filter((item) => item.url.includes("challenges.cloudflare.com/turnstile/"));
     await page.focus(scenario.selector);
     await page.waitForFunction(() => Boolean(document.querySelector("script[data-turnstile-on-demand]") && window.turnstile?.render), { timeout: 20000 });
-    await page.waitForFunction(() => Boolean(document.querySelector(".cf-turnstile[data-dynamic-rendered='1']")), { timeout: 10000 });
-    const after = await page.evaluate(() => ({
+    await page.waitForFunction((selector) => Boolean(document.querySelector(selector)?.closest("form")?.querySelector(".cf-turnstile[data-dynamic-rendered='1']")), { timeout: 10000 }, scenario.selector);
+    const after = await page.evaluate((selector) => {
+      const form = document.querySelector(selector).closest("form");
+      return {
       script: document.querySelector("script[data-turnstile-on-demand]")?.getAttribute("src") || "",
-      iframe_count: document.querySelectorAll(".cf-turnstile iframe").length,
-      dynamic_widget_count: document.querySelectorAll(".cf-turnstile[data-dynamic-rendered='1']").length,
+      iframe_count: form.querySelectorAll(".cf-turnstile iframe").length,
+      dynamic_widget_count: form.querySelectorAll(".cf-turnstile[data-dynamic-rendered='1']").length,
       api: Boolean(window.turnstile?.render),
-      protected_forms: document.querySelectorAll("form .cf-turnstile[data-sitekey]").length
-    }));
+      protected_forms: form.querySelectorAll(".cf-turnstile[data-sitekey]").length
+      };
+    }, scenario.selector);
     const leadPosts = requests.filter((item) => item.method === "POST" && /\/api\/(leads|newsletter)(?:\?|$)/.test(item.url));
     const turnstileRequestsAfter = requests.filter((item) => item.url.includes("challenges.cloudflare.com/turnstile/"));
     const relevantFailures = failures.filter((item) => item.url.includes("challenges.cloudflare.com/turnstile/v0/api.js"));
@@ -68,9 +76,9 @@ async function runScenario(browser, scenario) {
       no_form_submission: leadPosts.length === 0,
       api_request_succeeded: relevantFailures.length === 0 && turnstileRequestsAfter.length > 0
     };
-    return { name: scenario.name, ok: Object.values(checks).every(Boolean), network_ok: challengeFailures.length === 0, checks, before, after, turnstile_request_count: turnstileRequestsAfter.length, form_post_count: leadPosts.length, telemetry_posts_blocked: telemetryPostsBlocked, relevant_failures: relevantFailures, challenge_failures: challengeFailures };
+    return { name: scenario.name, path: scenario.path, ok: Object.values(checks).every(Boolean), network_ok: challengeFailures.length === 0, checks, before, after, turnstile_request_count: turnstileRequestsAfter.length, form_post_count: leadPosts.length, telemetry_posts_blocked: telemetryPostsBlocked, relevant_failures: relevantFailures, challenge_failures: challengeFailures };
   } catch (error) {
-    return { name: scenario.name, ok: false, error: String(error.message || error).slice(0, 500), checks: {}, telemetry_posts_blocked: telemetryPostsBlocked, relevant_failures: failures.filter((item) => item.url.includes("challenges.cloudflare.com")) };
+    return { name: scenario.name, path: scenario.path, ok: false, error: String(error.message || error).slice(0, 500), checks: {}, telemetry_posts_blocked: telemetryPostsBlocked, relevant_failures: failures.filter((item) => item.url.includes("challenges.cloudflare.com")) };
   } finally {
     await page.close();
   }
@@ -92,6 +100,7 @@ async function run() {
   const report = {
     generated_at: new Date().toISOString(),
     status: !coreHealthy ? "failed" : networkHealthy ? "healthy" : "degraded",
+    scenario_version: TURNSTILE_BROWSER_SCENARIO_VERSION,
     site,
     chrome_path: chromePath,
     destructive: false,

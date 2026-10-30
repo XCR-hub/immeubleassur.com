@@ -1,6 +1,7 @@
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { loadDefaultEnvFiles } from "./local-env.js";
+import { PUBLIC_SITE_KEY_FALLBACK, turnstileWidgetMarkup } from "./turnstile-markup.js";
 
 loadDefaultEnvFiles();
 
@@ -11,7 +12,6 @@ const ASSET_DIR = process.env.LOCAL_RUNTIME_ASSETS_ROOT ? join(process.env.LOCAL
 // A Turnstile site key is intentionally public and may be embedded in HTML.
 // Keeping the production site key as a build fallback makes clean static builds
 // reproducible; TURNSTILE_SECRET_KEY remains server-only and is never emitted.
-const PUBLIC_SITE_KEY_FALLBACK = "0x4AAAAAAD_N1OIMC1z63HG2";
 const configuredSiteKey = String(process.env.TURNSTILE_SITE_KEY || "").trim();
 const SITE_KEY = configuredSiteKey || PUBLIC_SITE_KEY_FALLBACK;
 const THEME = ["light", "dark", "auto"].includes(String(process.env.TURNSTILE_THEME || "light").trim()) ? String(process.env.TURNSTILE_THEME || "light").trim() : "light";
@@ -42,14 +42,6 @@ function walk(dir) {
   });
 }
 
-function escAttr(value) {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
 function escapeRegExp(value) {
   return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -62,7 +54,7 @@ function cleanTurnstile(html) {
 }
 
 function widgetMarkup(action) {
-  return `<!-- turnstile-hybrid:start -->\n<div class="turnstile-field" data-turnstile-hybrid="cloudflare-optional"><div class="cf-turnstile" data-sitekey="${escAttr(SITE_KEY)}" data-theme="${escAttr(THEME)}" data-action="${escAttr(action)}"></div></div>\n<!-- turnstile-hybrid:end -->`;
+  return turnstileWidgetMarkup(action, { siteKey: SITE_KEY, theme: THEME });
 }
 
 function injectWidgetInForm(formHtml, action) {

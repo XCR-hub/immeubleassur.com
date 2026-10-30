@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import { loadDefaultEnvFiles } from "./local-env.js";
 import { sanitizePublicWatchItems } from "./editorial-public-metadata-policy.js";
 import { findEquivalentPendingDraft, sourceSetFingerprint } from "./editorial-draft-dedupe-policy.js";
+import { protectNewsletterForms } from "./turnstile-markup.js";
 
 loadDefaultEnvFiles();
 
@@ -75,7 +76,12 @@ function editorialFaqBlock(source = "editorial") {
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
 function read(path, fallback = "") { return existsSync(path) ? readFileSync(path, "utf8") : fallback; }
-function write(path, value) { ensureDir(dirname(path)); writeFileSync(path, value, "utf8"); }
+function write(path, value) {
+  ensureDir(dirname(path));
+  // Runtime editions are published without the later static Turnstile pass.
+  const content = path.endsWith(".html") ? protectNewsletterForms(value, { siteKey: process.env.TURNSTILE_SITE_KEY, theme: process.env.TURNSTILE_THEME }) : value;
+  writeFileSync(path, content, "utf8");
+}
 function esc(value) { return String(value || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
 function attr(value) { return esc(value).replaceAll("'", "&#39;"); }
 function stripHtml(value) { return String(value || "").replace(/<!--[\s\S]*?-->/g, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim(); }

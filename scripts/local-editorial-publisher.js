@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, statSync, writeFileSyn
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
+import { hasProtectedNewsletterForms } from "./turnstile-markup.js";
 
 loadDefaultEnvFiles();
 
@@ -63,6 +64,7 @@ const baseHubHashes = Object.fromEntries(["faq.html", "villes.html", "sitemap.xm
 const publicationInputHashes = Object.fromEntries([
   "scripts/editorial-autopilot.js",
   "scripts/editorial-public-metadata-policy.js",
+  "scripts/turnstile-markup.js",
   "scripts/local-editorial-publisher.js"
 ].map((relative) => [relative, existsSync(resolve(relative)) ? sha256(resolve(relative)) : ""]));
 const publicationBuildHash = createHash("sha256")
@@ -154,6 +156,7 @@ const invalid = [];
 const files = allowedFiles.map((relative) => {
   const file = join(versionRoot, ...relative.split("/"));
   const html = existsSync(file) ? readFileSync(file, "utf8") : "";
+  if (!hasProtectedNewsletterForms(html)) invalid.push(relative);
   const expectedContent = relative === "sitemap.xml" ? html.includes("<urlset") && html.includes(`https://immeubleassur.com/${issue.slug}`) : html.includes("https://immeubleassur.com");
   if (!relative || !existsSync(file) || statSync(file).size < 1000 || !expectedContent || /\uFFFD|ï¿½|Ã[\u0080-\u00BF]|Â[\u0080-\u00BF]|â(?:€|™|œ|ž)/.test(html) || containsSourceSummaryArtifacts(html)) invalid.push(relative || "missing-issue-slug");
   return { path: relative, bytes: existsSync(file) ? statSync(file).size : 0, sha256: existsSync(file) ? sha256(file) : "" };

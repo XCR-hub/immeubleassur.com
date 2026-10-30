@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { serpCooldownDecision } from "./live-connector-policy.js";
 import { canReuseGoogleSeoSnapshot, monitoringConnectorCommand, GOOGLE_SEO_INTERVAL_MINUTES } from "./runtime-seo-reports.js";
+import { connectorReportVersionMatches } from "./live-connector-report-versions.js";
 
 loadDefaultEnvFiles();
 
@@ -93,6 +94,7 @@ function shouldSkipFreshConnector(config) {
   if (!runtimeCycle || !config.report || !config.minIntervalMinutes) return null;
   const report = readJson(join(REPORT_DIR, config.report));
   if (!report) return null;
+  if (!connectorReportVersionMatches(config.report, report)) return null;
   if (config.report === "seo-autopilot-report.json" && !canReuseGoogleSeoSnapshot(report)) return null;
   const age = minutesSince(report.generated_at || report.imported_at);
   if (age >= config.minIntervalMinutes) return null;

@@ -3,6 +3,8 @@ import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative } from "node:path";
 import { loadDefaultEnvFiles } from "./local-env.js";
 import { googleSeoCollectionStatus } from "./runtime-seo-reports.js";
+import { selectUrlInspectionTargets } from "./google-inspection-targets.js";
+import { URL_INSPECTION_STRATEGY } from "./live-connector-report-versions.js";
 
 loadDefaultEnvFiles();
 
@@ -152,41 +154,10 @@ function summarizeGscRows(rows = []) {
     sample_queries: bucket.sample_queries
   })).sort((a, b) => b.opportunity_score - a.opportunity_score || b.impressions - a.impressions).slice(0, 20);
 }
-function normalizeSiteUrl(url) {
-  const value = String(url || "").trim();
-  if (!value) return "";
-  try {
-    const parsed = new URL(value, SITE);
-    if (parsed.hostname !== "immeubleassur.com") return "";
-    parsed.hash = "";
-    return parsed.toString();
-  } catch {
-    return "";
-  }
-}
-
 function urlInspectionTargets(rows = []) {
-  const envTargets = String(process.env.GOOGLE_URL_INSPECTION_URLS || "")
-    .split(",")
-    .map(normalizeSiteUrl)
-    .filter(Boolean);
-  const defaults = [
-    `${SITE}/`,
-    `${SITE}/assurance-immeuble`,
-    `${SITE}/assurance-copropriete`,
-    `${SITE}/assurance-cno`,
-    `${SITE}/assurance-pno-cno`,
-    `${SITE}/devis-assurance-immeuble`,
-    `${SITE}/courtier-assurance-immeuble`,
-    `${SITE}/tarif-assurance-immeuble`
-  ];
-  const gscPages = rows
-    .filter((row) => Number(row.opportunity_score || 0) >= 40)
-    .sort((a, b) => Number(b.opportunity_score || 0) - Number(a.opportunity_score || 0))
-    .map((row) => normalizeSiteUrl(row.page))
-    .filter(Boolean);
-  const limit = Math.max(1, Math.min(20, Number(process.env.GOOGLE_URL_INSPECTION_LIMIT || 8)));
-  return [...new Set([...envTargets, ...defaults, ...gscPages])].slice(0, limit);
+  return selectUrlInspectionTargets({ site: SITE, rows,
+    extraUrls: String(process.env.GOOGLE_URL_INSPECTION_URLS || "").split(","),
+    limit: process.env.GOOGLE_URL_INSPECTION_LIMIT || 8 });
 }
 
 function summarizeInspection(url, data, status, ok) {
@@ -286,6 +257,7 @@ async function fetchGscData() {
       inspections.push({ ...summarizeInspection(inspectionUrl, data, inspect.status, inspect.ok), error: data?.error || "" });
     }
     result.url_inspections = {
+      selection_strategy: URL_INSPECTION_STRATEGY,
       checked: inspections.length,
       needs_action: inspections.filter(inspectionNeedsAction).length,
       rows: inspections
