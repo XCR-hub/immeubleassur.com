@@ -82,7 +82,7 @@ $env:LOCAL_PRIVACY_TECHNICAL_DAYS = '30'
 $env:LOCAL_PRIVACY_TELEMETRY_DAYS = '180'
 $env:LOCAL_PRIVACY_AUDIT_DAYS = '180'
 $env:LOCAL_RUNTIME_ONLY = '1'
-$env:LOCAL_LEAD_SLA_ALERTS = '1'
+$env:LOCAL_LEAD_SLA_ALERTS = '0'
 New-Item -ItemType Directory -Force -Path (Join-Path $RuntimeRoot 'assets'), (Join-Path $RuntimeRoot 'reports'), $BackupRoot | Out-Null
 & 'C:\Program Files\nodejs\node.exe' 'scripts\local-runtime-report-cycle.js'
 $reportExitCode = $LASTEXITCODE

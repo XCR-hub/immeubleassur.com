@@ -6,6 +6,9 @@ import { requireOperationalTeamRecipient, sendNodeSmtpMail } from "./local-smtp.
 
 loadDefaultEnvFiles();
 
+// Tony 2026-11-04: recurring SLA reminder emails remain paused until explicitly resumed.
+const SLA_ALERTS_PAUSED = true;
+
 function argValue(name, fallback = "") {
   const index = process.argv.indexOf(name);
   if (index === -1) return fallback;
@@ -259,6 +262,7 @@ function writeAlertState(statePath, signature) {
 }
 
 async function maybeAlert(report, reportPath) {
+  if (SLA_ALERTS_PAUSED) return { attempted: false, status: "paused-by-user", reason: "Tony 2026-11-04" };
   if (env("LOCAL_LEAD_SLA_ALERTS", "0") !== "1" || report.summary.due_now <= 0) return { attempted: false, status: "skipped" };
   const dueLeads = report.due_leads || [];
   const signature = alertSignature(dueLeads);
@@ -334,7 +338,7 @@ async function run() {
       upcoming_leads: leads.filter((lead) => !lead.due).sort((a, b) => a.due_in_hours - b.due_in_hours).slice(0, 12)
     };
     report.alert = await maybeAlert(report, out).catch((error) => ({ attempted: true, status: "failed", error: error.message || "alert failed" }));
-    const alertRequired = env("LOCAL_LEAD_SLA_ALERTS", "0") === "1" && report.summary.due_now > 0;
+    const alertRequired = !SLA_ALERTS_PAUSED && env("LOCAL_LEAD_SLA_ALERTS", "0") === "1" && report.summary.due_now > 0;
     report.alert_delivery_required = alertRequired;
     report.alert_delivery_verified = !alertRequired || ["sent", "cooldown"].includes(report.alert.status);
     report.success = report.alert_delivery_verified;

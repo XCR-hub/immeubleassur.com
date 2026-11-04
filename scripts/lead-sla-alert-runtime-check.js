@@ -42,12 +42,12 @@ try {
 }
 
 const checks = [
-  ["task-fails", result?.status === 1],
+  ["monitor-completes", result?.status === 0],
   ["one-lead-due", report?.summary?.due_now === 1],
-  ["delivery-required", report?.alert_delivery_required === true],
-  ["delivery-not-verified", report?.alert_delivery_verified === false],
-  ["report-fails", report?.success === false],
-  ["transport-failure-recorded", report?.alert?.status === "failed"],
+  ["delivery-not-required-during-pause", report?.alert_delivery_required === false],
+  ["delivery-check-passes", report?.alert_delivery_verified === true],
+  ["report-succeeds", report?.success === true],
+  ["user-pause-recorded-without-attempt", report?.alert?.status === "paused-by-user" && report?.alert?.attempted === false],
   ["report-excludes-contact-data", !JSON.stringify(report || {}).includes("0100000000") && !JSON.stringify(report || {}).includes("Fixture")]
 ];
 const failed = checks.filter(([, ok]) => !ok).map(([name]) => name);
