@@ -107,6 +107,29 @@ try {
       assert.ok(trackedEvents.some(event => event.event_type === 'form_start' && event.source === 'homepage-inline-callback' && event.rescue_variant === variant), 'Inline callback focus retains the active variant without throwing');
       row.instantCallbackVerified = true;
     }
+    if (path === '/assurance-immeuble') {
+      await page.evaluate(() => {
+        const f = document.querySelector('#lead-form');
+        f.elements.name.value = 'Verification locale';
+        f.elements.phone.value = '0612345678';
+        for (const name of ['profile', 'property_type']) f.elements[name].value = [...f.elements[name].options].find(o => o.value).value;
+        f.elements.city.value = '';
+        f.elements.consent.checked = true;
+        f.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      });
+      await new Promise(r => setTimeout(r, 700));
+      const validation = await page.evaluate(() => {
+        const input = document.querySelector('#lead-form').elements.city;
+        const box = input.getBoundingClientRect();
+        return { focused: document.activeElement === input, visible: box.top >= 0 && box.bottom <= innerHeight,
+          invalid: input.getAttribute('aria-invalid'), message: document.querySelector('#lead-form .form-status').textContent };
+      });
+      assert.equal(validation.focused, true);
+      assert.equal(validation.visible, true);
+      assert.equal(validation.invalid, 'true');
+      assert.match(validation.message, /ville du bien/);
+      row.missingCityVerified = true;
+    }
     assert.equal(leadSubmissions, 0, 'The browser check must not submit a lead.');
     assert.deepEqual(errors, [], path);
     rows.push({ path, ...row, lead_submissions: leadSubmissions });

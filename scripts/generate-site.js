@@ -577,7 +577,7 @@ function leadForm(defaults = {}) {
         </label>
       </div>
       <div class="field-grid">
-        <label>Ville *<input name="city" autocomplete="address-level2" required placeholder="${esc(defaults.city || "Paris")}" value="${esc(defaults.city || "")}" /></label>
+        <label>Ville du bien *<input name="city" autocomplete="address-level2" required placeholder="${esc(defaults.city || "Paris")}" value="${esc(defaults.city || "")}" /></label>
         <label>Lots / logements<input name="units_count" inputmode="numeric" placeholder="24" /></label>
       </div>
       <label>Besoin principal

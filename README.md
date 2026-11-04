@@ -181,3 +181,7 @@ Etat constate le 2026-07-29:
 - nameservers: `arely.ns.cloudflare.com` et `rocky.ns.cloudflare.com`
 
 Tant que ces nameservers restent actifs, Cloudflare reste l'autorite DNS du domaine, ce qui est le compromis retenu maintenant. On ne revient pas vers IONOS comme cible DNS. Pour l'autarcie complete a terme, il faudra mettre en place un DNS secondaire/autoritaire hors Cloudflare dans le futur datacenter, recopier `dns/registrar-records.json`, puis changer les nameservers chez le registrar. Controle normal: `npm run dns:autarky`. Controle final apres migration: `npm run dns:autarky:strict`.
+
+Le suivi Search Console conserve aussi les totaux par propriete (clics, impressions et periode) sans dimension requete. Cela distingue un zero de trafic mesure d une collecte absente ou en echec, y compris lorsque Google masque des requetes de faible volume. La surveillance lit les sitemaps deja declares sans les soumettre a nouveau a chaque cycle.
+
+Le champ Ville du bien reste obligatoire. Une erreur de ville donne un message explicite et remet le champ visible au centre de l ecran. Le controle navigateur intercepte toutes les soumissions et verifie ce parcours sans creer de prospect.

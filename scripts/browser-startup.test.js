@@ -90,3 +90,18 @@ test('restored reading positions retain their initial depth milestones', () => {
   assert.equal(fixture.events[0].type, 'scroll_depth');
   assert.equal(fixture.events[0].data.label, '/guide-recherche-fuite-immeuble');
 });
+
+test('event tracking reuses viewport dimensions until the window is resized', () => {
+  const source = app.match(/function currentEventViewport\(\) \{[\s\S]*?\n\}/)?.[0];
+  assert.ok(source);
+  let reads = 0;
+  const window = { get innerWidth() { reads++; return 390; }, get innerHeight() { reads++; return 844; } };
+  const context = vm.createContext({ window });
+  vm.runInContext('let eventViewport = "";\n' + source, context);
+  assert.equal(vm.runInContext('currentEventViewport()', context), '390x844');
+  for (let i = 0; i < 20; i++) vm.runInContext('currentEventViewport()', context);
+  assert.equal(reads, 2, 'Repeated events must not trigger new viewport/layout reads');
+  vm.runInContext('eventViewport = "";', context);
+  vm.runInContext('currentEventViewport()', context);
+  assert.equal(reads, 4);
+});

@@ -1,3 +1,4 @@
+import { collectSearchTraffic, readSubmittedSitemap } from './google-search-traffic.js';
 import { createSign } from "node:crypto";
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative } from "node:path";
@@ -237,7 +238,9 @@ async function fetchGscData() {
   const data = await response.json();
   const rows = (data.rows || []).map((row) => ({ query: row.keys?.[0] || "", page: row.keys?.[1] || "", clicks: row.clicks || 0, impressions: row.impressions || 0, ctr: row.ctr || 0, position: row.position || 0, opportunity_score: opportunityScore(row) }));
   const opportunities = rows.filter((row) => row.opportunity_score >= 40).sort((a, b) => b.opportunity_score - a.opportunity_score).slice(0, 100).map((row, index) => ({ id: `gsc-${index + 1}`, type: row.position <= 20 ? "near-top-ranking" : "impression-gap", query: row.query, url: row.page, score: row.opportunity_score, recommendation: row.ctr < 0.03 ? "Renforcer title/meta/FAQ et aligner le contenu avec la requete." : "Ajouter profondeur, maillage interne et preuve de specialisation." }));
-  const result = { configured: true, siteUrl, rows_imported: rows.length, query_clusters: summarizeGscRows(rows), opportunities };
+  const traffic = await collectSearchTraffic({ headers, siteUrl, startDate: body.startDate, endDate: body.endDate });
+  const sitemap_status = await readSubmittedSitemap({ headers, siteUrl, sitemapUrl: `${SITE}/sitemap.xml` });
+  const result = { configured: true, siteUrl, rows_imported: rows.length, query_clusters: summarizeGscRows(rows), opportunities, traffic, sitemap_status };
 
   if (inspectUrls) {
     const targets = urlInspectionTargets(rows);
@@ -681,11 +684,13 @@ function buildGoogleApiHealth({ gsc, pagespeed, searchIntelligence }) {
   return {
     search_console_configured: Boolean(gsc?.configured),
     search_console_rows: Number(gsc?.rows_imported || 0),
+    search_console_traffic: gsc?.traffic || { status: "not-collected" },
+    sitemap_collection: gsc?.sitemap_status || { status: "not-collected" },
     search_console_opportunities: Array.isArray(gsc?.opportunities) ? gsc.opportunities.length : 0,
     query_clusters: Array.isArray(gsc?.query_clusters) ? gsc.query_clusters.length : 0,
     url_inspection_checked: Number(gsc?.url_inspections?.checked || inspections.length || 0),
     url_inspection_needs_action: Number(gsc?.url_inspections?.needs_action || inspections.filter(inspectionNeedsAction).length || 0),
-    sitemap_submitted: Boolean(gsc?.sitemap_submission?.ok),
+    sitemap_submitted: Boolean(gsc?.sitemap_submission?.ok || gsc?.sitemap_status?.status === "submitted"),
     sitemap_status: Number(gsc?.sitemap_submission?.status || 0),
     pagespeed_checked: Number(pagespeed?.checked || 0),
     pagespeed_slow_pages: slowPages.length,
@@ -749,6 +754,7 @@ async function run() {
   report.ranking_measurement = {
     status: gscMeasured > 0 ? "gsc-measured" : serpMeasured > 0 ? "serpapi-measured" : "awaiting-measured-data",
     gsc_rows: gscMeasured,
+    traffic: gsc?.traffic || { status: "not-collected" },
     serpapi_queries: serpMeasured,
     ranking_improvement_verified: false,
     static_score_is_ranking_proof: false

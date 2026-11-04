@@ -97,6 +97,14 @@ function setStatus(message, type = "") {
   statusBox.className = `form-status ${type}`.trim();
 }
 
+let eventViewport = "";
+function currentEventViewport() {
+  // Reuse viewport dimensions across events; reading after each DOM update forces layout.
+  if (!eventViewport) eventViewport = `${window.innerWidth}x${window.innerHeight}`;
+  return eventViewport;
+}
+window.addEventListener("resize", () => { eventViewport = ""; }, { passive: true });
+
 function eventPayload(eventType, data = {}) {
   return {
     event_type: eventType,
@@ -104,7 +112,7 @@ function eventPayload(eventType, data = {}) {
     page_url: window.location.href,
     path: window.location.pathname,
     referrer: document.referrer || "",
-    viewport: `${window.innerWidth}x${window.innerHeight}`,
+    viewport: currentEventViewport(),
     page_title: document.title,
     language: navigator.language || "",
     ga_client_id: gaClientId(),
@@ -537,7 +545,9 @@ function validationDetails(payload) {
   if (!fields.length) return { message: "", missing, invalid, step: "complete", blocking_fields: [] };
 
   const labels = fields.map((field) => fieldLabels[field] || field);
-  const message = missing.length
+  const message = fields.length === 1 && fields[0] === "city"
+    ? "Indiquez la ville du bien a assurer."
+    : missing.length
     ? `A completer: ${labels.slice(0, 3).join(", ")}${labels.length > 3 ? "..." : ""}.`
     : invalid.includes("email")
       ? "Adresse email invalide."
@@ -574,6 +584,7 @@ function markInvalidFields(formElement, details) {
   }
   const first = fields.map((name) => formElement.elements[name]).find(Boolean);
   first?.focus({ preventScroll: true });
+  first?.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 function validationTelemetry(payload, details) {
