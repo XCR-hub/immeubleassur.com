@@ -85,6 +85,8 @@ function safeParamMap(params = {}) {
 }
 
 export async function sendGa4Event({ env, request, eventName: name, payload = {}, params = {} }) {
+  if (payload.analytics_consent !== true) return { configured: false, skipped: "analytics consent not granted" };
+  if (payload.analytics_transport === "browser") return { configured: false, skipped: "browser analytics avoids duplicate collection" };
   const config = gaConfig(env);
   if (!config) return { configured: false, skipped: "GA4_MEASUREMENT_ID/GA4_API_SECRET missing" };
 

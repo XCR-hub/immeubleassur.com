@@ -108,6 +108,8 @@ window.addEventListener("resize", () => { eventViewport = ""; }, { passive: true
 function eventPayload(eventType, data = {}) {
   return {
     event_type: eventType,
+    analytics_consent: window.iaAnalyticsState?.().granted === true,
+    analytics_transport: window.iaAnalyticsState?.().transport || "none",
     session_id: sessionId,
     page_url: window.location.href,
     path: window.location.pathname,
@@ -123,6 +125,7 @@ function eventPayload(eventType, data = {}) {
 }
 
 function track(eventType, data = {}) {
+  window.iaTrackAnalytics?.(eventType, data);
   if (eventType === "form_start" && !formStartedAt) {
     formStartedAt = Date.now();
     formInteractionBaseline = botSignalInteractionCount;
@@ -459,6 +462,8 @@ function readForm(formElement) {
     message: String(data.message || "").trim(),
     submission_mode: String(formElement.dataset.submissionMode || data.submission_mode || "").trim(),
     consent: data.consent === "on",
+    analytics_consent: window.iaAnalyticsState?.().granted === true,
+    analytics_transport: window.iaAnalyticsState?.().transport || "none",
     company_website: String(data.company_website || "").trim(),
     turnstile_token: turnstileResponse,
     "cf-turnstile-response": turnstileResponse,

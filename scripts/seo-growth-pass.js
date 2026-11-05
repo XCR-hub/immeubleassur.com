@@ -212,7 +212,6 @@ function analyticsTagBlock() {
   return `<!-- analytics:start -->
 <meta name="ia-ga4-measurement-id" content=${id}>
 <script defer src="/assets/ga4-init.js?v=20260810"></script>
-<script async defer src="https://www.googletagmanager.com/gtag/js?id=${measurementId}"></script>
 <!-- analytics:end -->`;
 }
 function normalizeLinks(html) {
