@@ -1,3 +1,4 @@
+import { runLighthouseSample } from './lighthouse-sample.js';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import lighthouse from "lighthouse";
@@ -105,15 +106,11 @@ async function run() {
         const sampleErrors = [];
         for (let sample = 1; sample <= samplesPerUrl; sample += 1) {
           try {
-            let result;
-            for (let attempt = 1; attempt <= 2; attempt += 1) {
-              result = await lighthouse(url, { port: chrome.port, logLevel: "error", output: "json", onlyCategories: ["performance", "seo", "accessibility"], formFactor: "mobile", maxWaitForLoad: 45000 });
-              if (!result?.lhr?.runtimeError || result.lhr.runtimeError.code !== "NO_NAVSTART") break;
-            }
+            const { result, attempts } = await runLighthouseSample(() => lighthouse(url, { port: chrome.port, logLevel: "error", output: "json", onlyCategories: ["performance", "seo", "accessibility"], formFactor: "mobile", maxWaitForLoad: 45000 }));
             if (result?.lhr?.runtimeError) throw new Error((result.lhr.runtimeError.code || "runtime-error") + ": " + (result.lhr.runtimeError.message || "Lighthouse runtime error"));
             const categories = result?.lhr?.categories || {};
             const audits = result?.lhr?.audits || {};
-            samples.push({ sample, final_url: result?.lhr?.finalUrl || url, lighthouse_version: result?.lhr?.lighthouseVersion || "", performance: score(categories.performance), seo: score(categories.seo), accessibility: score(categories.accessibility), fcp_ms: metric(audits, "first-contentful-paint"), lcp_ms: metric(audits, "largest-contentful-paint"), cls: metric(audits, "cumulative-layout-shift", 3), tbt_ms: metric(audits, "total-blocking-time"), speed_index_ms: metric(audits, "speed-index"), diagnostics: diagnostics(audits, categories) });
+            samples.push({ sample, attempts, final_url: result?.lhr?.finalUrl || url, lighthouse_version: result?.lhr?.lighthouseVersion || "", performance: score(categories.performance), seo: score(categories.seo), accessibility: score(categories.accessibility), fcp_ms: metric(audits, "first-contentful-paint"), lcp_ms: metric(audits, "largest-contentful-paint"), cls: metric(audits, "cumulative-layout-shift", 3), tbt_ms: metric(audits, "total-blocking-time"), speed_index_ms: metric(audits, "speed-index"), diagnostics: diagnostics(audits, categories) });
           } catch (error) {
             sampleErrors.push({ sample, error: String(error.message || "Lighthouse sample failed").slice(0, 500) });
           }
