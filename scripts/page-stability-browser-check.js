@@ -62,6 +62,8 @@ try {
       }).observe({ type: 'layout-shift', buffered: true });
     });
     const response = await page.goto(origin + path, { waitUntil: 'networkidle0', timeout: 30000 });
+    const analyticsRefusal = await page.$('[data-analytics-choice="denied"]');
+    if (analyticsRefusal && await analyticsRefusal.isVisible()) await analyticsRefusal.click();
     await page.waitForSelector('.lead-action-bar', { timeout: 10000 });
     await new Promise(r => setTimeout(r, 2000));
     const row = await page.evaluate(() => {

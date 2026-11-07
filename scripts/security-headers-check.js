@@ -1,3 +1,4 @@
+import { analyticsTagBlock } from './analytics-config.js';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
@@ -38,7 +39,13 @@ if (!securityTxt) addIssue(issues, securityTxtPath, "missing-security-txt", "sec
 for (const requirement of securityTxtRequirements) if (!securityTxt.includes(requirement)) addIssue(issues, securityTxtPath, "security-txt-field", `${requirement} absent.`);
 const analyticsGenerator = read("scripts/seo-growth-pass.js");
 const ga4Client = read(join("public", "assets", "ga4-init.js"));
-if (!analyticsGenerator.includes('meta name="ia-ga4-measurement-id"') || analyticsGenerator.includes("<script>window.dataLayer")) addIssue(issues, "scripts/seo-growth-pass.js", "inline-ga4-bootstrap", "GA4 bootstrap must remain external to satisfy strict CSP.");
+const analyticsBlock = analyticsTagBlock("index");
+const analyticsScripts = [...analyticsBlock.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)];
+const externalBootstrap = analyticsScripts.length === 1 && analyticsScripts.every(([, attrs, body]) =>
+  /src="\/assets\/ga4-init\.js\?v=[a-f0-9]+"/.test(attrs) && body.trim() === "");
+if (!analyticsGenerator.includes("analyticsTagBlock(slug)") || !analyticsGenerator.includes("./analytics-config.js")
+  || !analyticsBlock.includes('meta name="ia-ga4-measurement-id"') || !externalBootstrap)
+  addIssue(issues, "scripts/analytics-config.js", "inline-ga4-bootstrap", "Generated GA4 bootstrap must remain external to satisfy strict CSP.");
 if (!ga4Client.includes("function initializeGa4()") || !ga4Client.includes('meta[name="ia-ga4-measurement-id"]')) addIssue(issues, "public/assets/ga4-init.js", "missing-external-ga4-bootstrap", "External GA4 bootstrap missing.");
 const adminHtml = read(join("public", "admin.html"));
 const adminProfile = read(join("public", "assets", "admin-profile.js"));

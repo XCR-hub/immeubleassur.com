@@ -1,3 +1,4 @@
+import { analyticsTagBlock } from './analytics-config.js';
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative } from "node:path";
 import { loadDefaultEnvFiles } from "./local-env.js";
@@ -205,15 +206,6 @@ function metaBlock({ title, description, slug }) {
   return `<!-- growth-meta:start -->\n<meta name="author" content="${BRAND}" />\n<meta name="application-name" content="${BRAND}" />\n<meta property="og:image:alt" content="${esc(title)}" />\n<meta name="twitter:card" content="summary_large_image" />\n<meta name="twitter:title" content="${esc(title)}" />\n<meta name="twitter:description" content="${esc(description)}" />\n<meta name="classification" content="assurance immeuble, copropriete, PNO, SCI, syndic" />\n<link rel="alternate" hreflang="fr-fr" href="${pageUrl(slug)}" />\n<!-- growth-meta:end -->`;
 }
 
-function analyticsTagBlock() {
-  const measurementId = String(process.env.GA4_MEASUREMENT_ID || process.env.GOOGLE_GA4_MEASUREMENT_ID || "").trim();
-  if (!/^G-[A-Z0-9]+$/i.test(measurementId)) return "";
-  const id = JSON.stringify(measurementId);
-  return `<!-- analytics:start -->
-<meta name="ia-ga4-measurement-id" content=${id}>
-<script defer src="/assets/ga4-init.js?v=20260810"></script>
-<!-- analytics:end -->`;
-}
 function normalizeLinks(html) {
   return html
     .replace(/href="\/([^"#?]+)\.html(#[^"]*)?"/g, 'href="/$1$2"')
@@ -269,7 +261,7 @@ function enhanceHtml(file) {
   if (!privateSlugs.has(slug)) {
     html = html.replace(/<link rel="canonical" href="[^"]+" \/>/, `<link rel="canonical" href="${canonical}" />`);
     html = html.replace(/<meta property="og:url" content="[^"]+" \/>/, `<meta property="og:url" content="${canonical}" />`);
-    html = html.replace("</head>", `${metaBlock({ title, description, slug })}\n${schemaBlock([organizationSchema(), websiteSchema(), breadcrumbSchema(slug, h1), webpageSchema(slug, title, description), serviceSchema(slug, title, description), faqSchema(html, slug)])}\n${analyticsTagBlock()}\n  </head>`);
+    html = html.replace("</head>", `${metaBlock({ title, description, slug })}\n${schemaBlock([organizationSchema(), websiteSchema(), breadcrumbSchema(slug, h1), webpageSchema(slug, title, description), serviceSchema(slug, title, description), faqSchema(html, slug)])}\n${analyticsTagBlock(slug)}\n  </head>`);
   }
 
   html = cleanTrailingWhitespace(html);
