@@ -1,0 +1,23 @@
+name: One-off GA4 live verification
+on:
+  push:
+    branches: [verification/ga4-live-20261107]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts
+      - run: node scripts/ga4-live-verification.js
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        if: always()
+        with:
+          name: ga4-live-verification
+          path: ga4-live-verification.json
+          retention-days: 7
