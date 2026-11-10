@@ -1,6 +1,6 @@
 import { classifyWorkflowHealth } from "./github-workflow-health.js";
 const now = Date.parse("2026-08-11T12:00:00Z");
-const run = (overrides = {}) => ({ event: "schedule", status: "completed", conclusion: "success", created_at: "2026-08-11T04:00:00Z", updated_at: "2026-08-11T04:10:00Z", head_sha: "a".repeat(40), ...overrides });
+const run = (overrides = {}) => ({ event: "schedule", status: "completed", conclusion: "success", created_at: "2026-08-11T04:00:00Z", updated_at: "2026-08-11T04:10:00Z", head_sha: "a".repeat(40), head_branch: "main", ...overrides });
 const fixtures = [
   [run(), null, "healthy", true],
   [run({ conclusion: "failure" }), null, "failed", false],
@@ -8,7 +8,11 @@ const fixtures = [
   [run({ conclusion: "failure" }), run({ event: "workflow_dispatch", updated_at: "2026-08-11T03:00:00Z" }), "failed", false],
   [run({ conclusion: "failure", updated_at: "2026-08-09T00:00:00Z" }), run({ event: "workflow_dispatch", updated_at: "2026-08-09T01:00:00Z" }), "stale", false],
   [run({ updated_at: "2026-08-09T00:00:00Z" }), null, "stale", false],
-  [null, null, "stale", false]
+  [null, null, "stale", false],
+  [run({ head_branch: "feature/test" }), null, "failed", false],
+  [run({ head_branch: "" }), null, "failed", false],
+  [run({ conclusion: "failure" }), run({ event: "workflow_dispatch", updated_at: "2026-08-11T05:00:00Z", head_branch: "feature/test" }), "failed", false],
+  [run(), run({ event: "workflow_dispatch", updated_at: "2026-08-11T05:00:00Z", head_branch: "feature/test" }), "healthy", true]
 ];
 const failed = fixtures.filter(([scheduled, recovery, status, healthy]) => { const value = classifyWorkflowHealth(scheduled, recovery, now, 36); return value.status !== status || value.healthy !== healthy; });
 const overdue = classifyWorkflowHealth(run({ conclusion: "failure", updated_at: "2026-08-10T04:10:00Z" }), run({ event: "workflow_dispatch", updated_at: "2026-08-11T02:20:00Z" }), Date.parse("2026-08-11T05:18:00Z"), 36, { hour_utc: 3, minute_utc: 17, grace_minutes: 120 });
