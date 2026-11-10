@@ -19,7 +19,8 @@ export function buildProductionAttention(checks, generatedAt = new Date().toISOS
     .map((item) => {
       const policy = POLICIES[item.name] || { owner: "operations", intervention: "investigate", action: "Examiner la preuve du controle et corriger la cause avant d'acquitter l'alerte." };
       const proofDueAt = isoOrEmpty(item.proof_due_at);
-      const automaticRetryAt = item.name === "serp_measurement" && Number.isFinite(generated) ? new Date(generated + 6 * 60 * 60 * 1000).toISOString() : "";
+      const measurementAge = Number.isFinite(item.age_minutes) ? Math.max(0, item.age_minutes) : 0;
+      const automaticRetryAt = item.name === "serp_measurement" && Number.isFinite(generated) ? new Date(generated + Math.max(0, 360 - measurementAge) * 60 * 1000).toISOString() : "";
       const quotaDate = /^\d{4}-\d{2}-\d{2}$/.test(item.quota_renewal_date || "") ? item.quota_renewal_date : "";
       const action = item.name === "serp_measurement" && item.status === "serpapi-quota-exhausted" && item.quota_remaining === 0
         ? `Quota SerpApi epuise; verifier les credits toutes les six heures sans lancer de recherche sans credit.${quotaDate ? ` Renouvellement annonce le ${quotaDate}.` : ""} Aucun classement de repli n'est une mesure.`

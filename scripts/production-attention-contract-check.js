@@ -12,7 +12,7 @@ const rows = buildProductionAttention([
 
 const byName = Object.fromEntries(rows.map((row) => [row.check, row]));
 const contextual=Object.fromEntries(buildProductionAttention([
-  {name:"serp_measurement",ok:false,severity:"warn",status:"serpapi-quota-exhausted",quota_remaining:0,quota_renewal_date:"2026-11-20"},
+  {name:"serp_measurement",ok:false,severity:"warn",status:"serpapi-quota-exhausted",quota_remaining:0,quota_renewal_date:"2026-11-20",age_minutes:90},
   {name:"lead_sla",ok:false,severity:"warn",reason:"lead-sla-due-alerted"}
 ],"2026-11-10T20:00:00.000Z").map(row=>[row.check,row]));
 const assertions = [
@@ -24,7 +24,7 @@ const assertions = [
   ["imap-no-content", byName.imap_inbox_review?.contains_personal_data === false && byName.imap_inbox_review?.action.includes("sans lire ni exporter")],
   ["github-proof-deadline", byName.github_workflow_health?.due_at === "2026-08-12T05:17:00.000Z"],
   ["no-secrets", rows.every((row) => row.secret_values_exported === false)],
-  ["quota-alert-has-bounded-retry-and-renewal-date", contextual.serp_measurement.due_at === "2026-11-11T02:00:00.000Z" && contextual.serp_measurement.action.includes("2026-11-20") && contextual.serp_measurement.action.includes("sans credit")],
+  ["quota-alert-has-bounded-retry-and-renewal-date", contextual.serp_measurement.due_at === "2026-11-11T00:30:00.000Z" && contextual.serp_measurement.action.includes("2026-11-20") && contextual.serp_measurement.action.includes("sans credit")],
   ["lead-followup-is-human-and-does-not-resume-paused-reminders", contextual.lead_sla.intervention === "human-required" && contextual.lead_sla.action.includes("restent suspendus")]
 ];
 const failed = assertions.filter(([, ok]) => !ok);
