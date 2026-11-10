@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { loadDefaultEnvFiles } from "./local-env.js";
 import { searchConsoleReadiness } from "./runtime-seo-reports.js";
+import { SLA_ALERTS_PAUSED } from "./lead-sla-policy.js";
 loadDefaultEnvFiles();
 const backup=readFileSync("scripts/local-sqlite-backup.js","utf8");
 const monitor=readFileSync("scripts/local-production-monitor.js","utf8");
@@ -86,7 +87,7 @@ const checks=[
   ["live-security-monitor-enforces-strict-script-csp",security.includes("csp-blocks-inline-executable-scripts")&&security.includes("!scriptPolicy.includes")&&security.includes("'unsafe-inline'")],
   ["live-security-monitor-blocks-sensitive-files",security.includes("sensitive-files-not-public")&&security.includes('"/.env.production"')&&security.includes('"/.git/config"')&&security.includes('"/data/immeubleassur.sqlite"')],
   ["live-security-monitor-rejects-cross-site-cors",security.includes("cross-site-cors-origin-rejected")&&security.includes("Origin:evilOrigin")&&security.includes("row.allow_origin!==evilOrigin")],
-  ["lead-sla-alert-failure-has-isolated-runtime-proof",leadSlaRuntime.includes("127.0.0.1")&&leadSlaRuntime.includes('report?.alert_delivery_verified === false')&&leadSlaRuntime.includes('result?.status === 1')&&leadSlaRuntime.includes("rmSync(fixture")],
+  ["lead-sla-alert-pause-has-isolated-runtime-proof",leadSlaRuntime.includes("127.0.0.1")&&leadSlaRuntime.includes('report?.alert_delivery_required === false')&&leadSlaRuntime.includes('report?.alert_delivery_verified === true')&&leadSlaRuntime.includes('result?.status === 0')&&leadSlaRuntime.includes('report?.alert?.status === "paused-by-user"')&&leadSlaRuntime.includes("rmSync(fixture")],
   ["lead-sla-alert-delivery-is-globally-enforced",monitor.includes("inspectLeadSla")&&monitor.includes("alert_delivery_verified")&&monitorTask.includes("LOCAL_LEAD_SLA_REPORT")],
   ["smtp-envelope-verifies-recipients",smtp.includes("verifyNodeSmtpRecipients")&&smtp.includes("RCPT TO")&&smtp.includes('smtpCommand(client, "RSET"')],
   ["smtp-envelope-does-not-send-message",smtpEnvelope.includes('smtpCommand(client, "RSET"')&&!smtpEnvelope.includes('smtpCommand(client, "DATA"')&&smtpHealth.includes("message_sent: false")&&smtpHealth.includes("envelope_test_only")],
@@ -139,7 +140,7 @@ const checks=[
   ["privacy-retention-preserves-business-and-suppression-data",privacyRetention.includes("lead_contact_data_deleted: false")&&privacyRetention.includes("newsletter_suppression_data_deleted: false")&&privacyRetentionContract.includes("lead-contact-data-preserved")&&privacyRetentionContract.includes("newsletter-suppression-data-preserved")],
   ["monitor-covers-fresh-privacy-retention",monitor.includes('inspectJsonRuntime("privacy_retention"')&&monitor.includes("report.policy?.lead_contact_data_deleted === false")&&monitor.includes('report.safeguards?.includes("no-pii-in-report")')],
   ["production-monitor-email-alerts-disabled",task.includes("LOCAL_MONITOR_ALERTS = '0'")],
-  ["lead-sla-alerts-enabled",task.includes("LOCAL_LEAD_SLA_ALERTS = '1'")],
+  ["lead-sla-alerts-respect-user-pause",task.includes(`LOCAL_LEAD_SLA_ALERTS = '${SLA_ALERTS_PAUSED ? "0" : "1"}'`)],
   ["gsc-verification-file-is-strict-and-opt-in",server.includes("GOOGLE_SITE_VERIFICATION_FILE")&&server.includes("googleSiteVerificationBody")&&server.includes('requestTarget.pathname')&&server.includes("google_search_console_verification")&&monitor.includes("gsc_verification_file_configured")],
   ["runtime-runs-monitor",runtime.includes('runStep("production_monitor"')],
   ["lighthouse-reports-long-tasks",lighthouse.includes('"long-tasks"')&&lighthouse.includes("long_tasks")],

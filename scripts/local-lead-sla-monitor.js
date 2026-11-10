@@ -3,11 +3,9 @@ import { dirname, join, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { requireOperationalTeamRecipient, sendNodeSmtpMail } from "./local-smtp.js";
+import { SLA_ALERTS_PAUSED, SLA_PAUSE_REASON } from "./lead-sla-policy.js";
 
 loadDefaultEnvFiles();
-
-// Tony 2026-11-04: recurring SLA reminder emails remain paused until explicitly resumed.
-const SLA_ALERTS_PAUSED = true;
 
 function argValue(name, fallback = "") {
   const index = process.argv.indexOf(name);
@@ -262,7 +260,7 @@ function writeAlertState(statePath, signature) {
 }
 
 async function maybeAlert(report, reportPath) {
-  if (SLA_ALERTS_PAUSED) return { attempted: false, status: "paused-by-user", reason: "Tony 2026-11-04" };
+  if (SLA_ALERTS_PAUSED) return { attempted: false, status: "paused-by-user", reason: SLA_PAUSE_REASON };
   if (env("LOCAL_LEAD_SLA_ALERTS", "0") !== "1" || report.summary.due_now <= 0) return { attempted: false, status: "skipped" };
   const dueLeads = report.due_leads || [];
   const signature = alertSignature(dueLeads);

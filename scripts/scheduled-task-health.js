@@ -1,3 +1,5 @@
+import { SLA_ALERTS_PAUSED, SLA_PAUSE_REASON } from "./lead-sla-policy.js";
+
 export const EXPECTED_SCHEDULED_TASKS = {
   "ImmeubleAssur Caddy Proxy": 1440,
   "ImmeubleAssur Conversion Action Sync": 90,
@@ -42,12 +44,15 @@ export function classifyScheduledTask(task, now = Date.now(), options = {}) {
   const execute = String(task.execute || "").replace(/\\/g, "/").toLowerCase();
   const argumentsText = String(task.arguments || "").replace(/\\/g, "/").toLowerCase();
   const actionValid = Boolean(expectedExecutable && expectedMarker && execute.endsWith(expectedExecutable.toLowerCase()) && argumentsText.includes(expectedMarker.toLowerCase()));
-  if (task.enabled !== true) issues.push("disabled");
-  if (!["ready", "running"].includes(state)) issues.push(`state-${state || "unknown"}`);
-  if (!options.ignoreLastResult && ![0, 0x41301].includes(result)) issues.push(`last-result-${result}`);
-  if (ageMinutes === null) issues.push("never-ran");
-  else if (ageMinutes > maxAgeMinutes && !(task.task_name === "ImmeubleAssur Caddy Proxy" && state === "running" && result === 0x41301)) issues.push("stale");
+  const pausedByUser = task.task_name === "ImmeubleAssur Lead SLA Monitor" && SLA_ALERTS_PAUSED && task.enabled === false && state === "disabled";
+  if (!pausedByUser) {
+    if (task.enabled !== true) issues.push("disabled");
+    if (!["ready", "running"].includes(state)) issues.push(`state-${state || "unknown"}`);
+    if (!options.ignoreLastResult && ![0, 0x41301].includes(result)) issues.push(`last-result-${result}`);
+    if (ageMinutes === null) issues.push("never-ran");
+    else if (ageMinutes > maxAgeMinutes && !(task.task_name === "ImmeubleAssur Caddy Proxy" && state === "running" && result === 0x41301)) issues.push("stale");
+  }
   if (!principalValid) issues.push("principal-invalid");
   if (!actionValid) issues.push("action-invalid");
-  return { healthy: issues.length === 0, issues, age_minutes: ageMinutes === null ? null : Math.round(ageMinutes * 10) / 10, max_age_minutes: maxAgeMinutes, principal_valid: principalValid, action_valid: actionValid };
+  return { healthy: issues.length === 0, issues, age_minutes: ageMinutes === null ? null : Math.round(ageMinutes * 10) / 10, max_age_minutes: maxAgeMinutes, principal_valid: principalValid, action_valid: actionValid, ...(pausedByUser ? { status: "paused-by-user", pause_reason: SLA_PAUSE_REASON } : {}) };
 }

@@ -27,8 +27,19 @@ const circularDependencyChecks = [
   classifyScheduledTask({ ...productionMonitorFailure, enabled: false }, now, { ignoreLastResult: true }).healthy === false
 ];
 const failures = fixtures.filter(([task, expected]) => classifyScheduledTask(task, now).healthy !== expected);
-if (failures.length || circularDependencyChecks.includes(false)) {
-  console.error(`Scheduled task health contract failed: ${failures.length + circularDependencyChecks.filter((ok) => !ok).length}/${fixtures.length + circularDependencyChecks.length}.`);
+const pausedSla = { ...base, task_name: "ImmeubleAssur Lead SLA Monitor", arguments: "-File F:/site/run-lead-sla-monitor.ps1", state: "Disabled", enabled: false, last_run: "2026-06-10T09:45:00.000Z" };
+const pausedClassification = classifyScheduledTask(pausedSla, now);
+const pauseChecks = [
+  pausedClassification.healthy === true && pausedClassification.status === "paused-by-user" && pausedClassification.pause_reason === "Tony 2026-11-04",
+  classifyScheduledTask({ ...pausedSla, last_run: "" }, now).healthy === true,
+  classifyScheduledTask({ ...pausedSla, principal_sid: "S-1-5-21-1000" }, now).healthy === false,
+  classifyScheduledTask({ ...pausedSla, arguments: "-File C:/unexpected.ps1" }, now).healthy === false,
+  classifyScheduledTask({ ...pausedSla, state: "Ready" }, now).healthy === false,
+  classifyScheduledTask({ ...base, state: "Disabled", enabled: false }, now).healthy === false
+];
+const total = fixtures.length + circularDependencyChecks.length + pauseChecks.length;
+if (failures.length || circularDependencyChecks.includes(false) || pauseChecks.includes(false)) {
+  console.error(`Scheduled task health contract failed: ${failures.length + [...circularDependencyChecks, ...pauseChecks].filter((ok) => !ok).length}/${total}.`);
   process.exit(1);
 }
-console.log(`Scheduled task health contract: passed (${fixtures.length + circularDependencyChecks.length}/${fixtures.length + circularDependencyChecks.length}).`);
+console.log(`Scheduled task health contract: passed (${total}/${total}).`);

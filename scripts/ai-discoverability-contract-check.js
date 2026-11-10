@@ -74,7 +74,7 @@ const checks = [
   ["active-edition-generated-as-indexable-newsarticle", editorial.includes('publishedDate: issue.day') && editorial.includes('"@type": "NewsArticle"') && editorial.includes('<meta name="robots" content="index, follow, max-image-preview:large"')],
   ["live-monitor-verifies-active-edition-search-metadata", monitor.includes("active-edition-is-indexable") && monitor.includes("active-edition-canonical-is-current") && monitor.includes("active-edition-has-newsarticle-schema")],
   ["generation-pass-persists-artifacts", pass.includes('write(join(OUT, "robots.txt")') && pass.includes('write(join(OUT, "llms.txt")') && pass.includes('methodologie-editoriale.html')],
-  ["indexnow-key-is-public-and-valid", /^[a-f0-9]{64}$/.test(indexNowKey) && indexNow.includes("key_publicly_verifiable: true")],
+  ["indexnow-key-is-public-and-valid", /^[a-f0-9]{64}$/.test(indexNowKey) && indexNow.includes("key_publicly_verifiable: false") && indexNow.includes("base.key_publicly_verifiable = true")],
   ["indexnow-submits-only-changed-same-host-urls", indexNow.includes("previous[row.url] !== row.lastmod") && indexNow.includes("new URL(row.url).host === siteUrl.host") && indexNow.includes("state-not-advanced-on-failure")],
   ["indexnow-prefers-verified-runtime-sitemap", indexNow.includes('source: "active-runtime-publication"') && indexNow.includes("actualHash === sitemapArtifact.sha256") && indexNow.includes('source: "static-fallback"')],
   ["indexnow-honors-runtime-publications-root", indexNow.includes('env("LOCAL_RUNTIME_PUBLICATIONS_ROOT", join(runtimeAssetsRoot, "publications"))')],
