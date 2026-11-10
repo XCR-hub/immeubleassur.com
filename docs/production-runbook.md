@@ -18,6 +18,10 @@ Une alerte `attention` doit etre relue par un humain avant toute modification co
 
 ## Validation d'un dossier
 
+La preparation ciblee utilise `POST /api/admin/cases` avec `action: "prepare_lead"` et `lead_id`. Elle cree uniquement le dossier du prospect choisi et ses brouillons a relire, sans envoi ni changement du statut commercial. Si le dossier existe, elle le retourne sans modification. Les prospects perdus, archives, gagnes ou classes spam ne sont pas prepares. Utiliser `GET /api/admin/cases?sync=0` pour consulter sans synchronisation globale.
+
+La synchronisation conserve les consignes `next_action` et les echeances deja renseignees. Un dossier perdu ou archive reste cloture : il ne figure plus dans les actions recommandees et ses mails ne peuvent plus etre approuves ou envoyes. L'envoi recontrole le statut, le destinataire et la version du brouillon juste avant le transport ; toute modification exige une nouvelle revue.
+
 1. Ouvrir l'administration et charger les dossiers avec le token admin.
 2. Verifier le score, les pieces requises, le consentement et l'historique.
 3. Relire chaque brouillon client ou assureur.

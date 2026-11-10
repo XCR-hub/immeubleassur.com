@@ -68,6 +68,7 @@ function dueAtFor(priority, stage) {
 
 function materializeCase(database, lead, counters) {
   const existing = first(database, "SELECT * FROM brokerage_cases WHERE lead_id = ?", [lead.id]);
+  if (["lost", "archived"].includes(clean(existing?.stage, 60))) return null;
   const caseId = existing?.id || crypto.randomUUID();
   const createdAt = existing?.created_at || nowIso();
   const currentDocs = existing ? rows(database, "SELECT * FROM case_documents WHERE case_id = ?", [caseId]) : [];
@@ -111,7 +112,7 @@ function materializeCase(database, lead, counters) {
     run(database, "INSERT INTO case_timeline (id, case_id, event_type, actor, payload, created_at) VALUES (?, ?, 'case_created', 'system', ?, ?)", [crypto.randomUUID(), caseId, json({ lead_reference: lead.reference, marker: BROKERAGE_CASE_MARKER }), nowIso()]);
     counters.created += 1;
   } else {
-    run(database, `UPDATE brokerage_cases SET stage = ?, readiness_score = ?, priority = ?, estimated_value_min_cents = ?, estimated_value_max_cents = ?, assigned_to = COALESCE(NULLIF(assigned_to, ''), ?), next_action = ?, due_at = COALESCE(due_at, ?), consent_snapshot = COALESCE(consent_snapshot, ?), payload = ?, updated_at = ? WHERE id = ?`, [
+    run(database, `UPDATE brokerage_cases SET stage = ?, readiness_score = ?, priority = ?, estimated_value_min_cents = ?, estimated_value_max_cents = ?, assigned_to = COALESCE(NULLIF(assigned_to, ''), ?), next_action = COALESCE(NULLIF(next_action, ''), ?), due_at = COALESCE(due_at, ?), consent_snapshot = COALESCE(consent_snapshot, ?), payload = ?, updated_at = ? WHERE id = ?`, [
       stage,
       readiness.score,
       priority,

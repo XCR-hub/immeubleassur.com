@@ -38,6 +38,11 @@ const INSURER_PACKAGE_READINESS_MARKER = "insurer-package-readiness-v1";
 const INSURER_PACKAGE_SEND_GUARD_MARKER = "insurer-package-send-guard-v1";
 const INSURER_FOLLOWUP_AUTOPILOT_MARKER = "insurer-followup-autopilot-v1";
 const CROSS_SELL_REVIEW_MARKER = "cross-sell-human-review-v1";
+const leadPreparationLocks = new WeakMap();
+
+function caseIsClosed(row = {}) {
+  return ["lost", "archived"].includes(clean(row.stage, 60)) || ["lost", "archived"].includes(clean(row.lead_status || row.lead?.status, 40));
+}
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers });
@@ -108,6 +113,7 @@ async function logTimeline(env, caseId, eventType, actor, payload = {}) {
 async function materializeCase(env, lead, counters) {
   const existing = await safeFirst(env, "SELECT * FROM brokerage_cases WHERE lead_id = ?", [lead.id]);
   if (errorOf(existing)) return null;
+  if (caseIsClosed(existing || {})) return null;
   const caseId = existing?.id || crypto.randomUUID();
   const docsBefore = existing ? rowsOrEmpty(await safeAll(env, "SELECT * FROM case_documents WHERE case_id = ?", [caseId])) : [];
   const readiness = readinessScoreFor(lead, docsBefore);
@@ -148,7 +154,7 @@ async function materializeCase(env, lead, counters) {
     counters.created += 1;
     await logTimeline(env, caseId, "case_created", "system", { lead_reference: lead.reference, marker: BROKERAGE_CASE_MARKER });
   } else {
-    await safeRun(env, `UPDATE brokerage_cases SET stage = ?, readiness_score = ?, priority = ?, estimated_value_min_cents = ?, estimated_value_max_cents = ?, assigned_to = COALESCE(NULLIF(assigned_to, ''), ?), next_action = ?, due_at = COALESCE(due_at, ?), consent_snapshot = COALESCE(consent_snapshot, ?), payload = ?, updated_at = ? WHERE id = ?`, [
+    await safeRun(env, `UPDATE brokerage_cases SET stage = ?, readiness_score = ?, priority = ?, estimated_value_min_cents = ?, estimated_value_max_cents = ?, assigned_to = COALESCE(NULLIF(assigned_to, ''), ?), next_action = COALESCE(NULLIF(next_action, ''), ?), due_at = COALESCE(due_at, ?), consent_snapshot = COALESCE(consent_snapshot, ?), payload = ?, updated_at = ? WHERE id = ?`, [
       stage,
       readiness.score,
       priority,
@@ -286,6 +292,34 @@ async function ensureCasesForOpenLeads(env, limit = 160) {
   return { counters, touched, warning: [errorOf(leadRows), followupWarning, insurerFollowupWarning].filter(Boolean).join("; ") };
 }
 
+async function prepareLeadCase(env, body) {
+  const leadId = clean(body.lead_id, 120);
+  if (!leadId) return json({ success: false, error: "lead_id requis" }, 422);
+  let locks = leadPreparationLocks.get(env.DB);
+  if (!locks) { locks = new Map(); leadPreparationLocks.set(env.DB, locks); }
+  const previous = locks.get(leadId) || Promise.resolve();
+  const task = previous.catch(() => {}).then(async () => {
+    const lead = await safeFirst(env, "SELECT * FROM leads WHERE id = ?", [leadId]);
+    if (errorOf(lead)) return json({ success: false, error: "Lecture du prospect impossible" }, 503);
+    if (!lead) return json({ success: false, error: "Prospect introuvable" }, 404);
+    const existing = await safeFirst(env, "SELECT * FROM brokerage_cases WHERE lead_id = ?", [leadId]);
+    if (errorOf(existing)) return json({ success: false, error: "Lecture du dossier impossible" }, 503);
+    if (["lost", "archived", "won", "spam"].includes(clean(lead.status, 40)) || caseIsClosed(existing || {})) return json({ success: false, error: "Ce prospect ou dossier est cloture" }, 409);
+    const resultFor = (row, alreadyExists, counters) => json({ success: true, already_exists: alreadyExists,
+      case: { id: row.id, case_reference: row.case_reference, stage: row.stage, next_action: row.next_action, human_review_required: true },
+      ...(counters ? { counters } : {}), safeguard: "drafts-only-no-outbound-contact" });
+    if (existing?.id) return resultFor(existing, true);
+    const counters = { created: 0, updated: 0, documents_requested: 0, mail_drafts: 0, consultations_prepared: 0 };
+    const prepared = await materializeCase(env, lead, counters);
+    const row = prepared ? await safeFirst(env, "SELECT * FROM brokerage_cases WHERE lead_id = ?", [leadId]) : null;
+    if (!row?.id) return json({ success: false, error: "Preparation du dossier impossible" }, 503);
+    await logTimeline(env, row.id, "case_prepared_without_contact", clean(body.actor || "admin", 120), { lead_reference: lead.reference, no_outbound_contact: true, human_review_required: true });
+    return resultFor(row, false, counters);
+  });
+  locks.set(leadId, task);
+  try { return await task; } finally { if (locks.get(leadId) === task) locks.delete(leadId); }
+}
+
 function groupBy(rows, key) {
   const map = new Map();
   for (const row of rowsOrEmpty(rows)) {
@@ -375,6 +409,7 @@ function ratioPercent(part, total) {
 }
 
 function insurerPackageReadiness(row = {}, documents = [], mails = [], consultations = [], partners = []) {
+  if (caseIsClosed(row)) return { marker: INSURER_PACKAGE_READINESS_MARKER, status: "closed", label: "Dossier cloture", score: 0, next_action: clean(row.next_action, 1000) || "Conserver la cloture du dossier.", blockers: [], human_review_required: false, missing_required_documents: 0 };
   const required = rowsOrEmpty(documents).filter((doc) => Number(doc.required || 0) === 1);
   const acceptedStatuses = ["received", "validated", "waived"];
   const receivedRequired = required.filter((doc) => acceptedStatuses.includes(clean(doc.status, 40)));
@@ -455,6 +490,7 @@ function latestByFields(rows = [], fields = ["updated_at", "created_at"]) {
 }
 
 function caseActionPlan(row = {}, documents = [], mails = [], consultations = [], offers = [], contracts = []) {
+  if (caseIsClosed(row)) return { marker: CASE_ACTION_PLAN_MARKER, status: "closed", severity: "normal", label: "Dossier cloture", next_action: clean(row.next_action, 1000) || "Conserver la cloture du dossier.", blockers: [], due_at: "", human_review_required: false, missing_required_documents: 0 };
   const now = Date.now();
   const requiredDocuments = rowsOrEmpty(documents).filter((doc) => Number(doc.required || 0) === 1);
   const pendingRequiredUploads = pendingUploadedDocuments(requiredDocuments);
@@ -620,6 +656,7 @@ function buildCrmActionQueue(cases = [], mails = [], consultations = [], partner
   });
 
   for (const caseRow of rowsOrEmpty(cases)) {
+    if (caseIsClosed(caseRow)) continue;
     const lead = caseRow.lead || {};
     const base = {
       target: caseRow.case_reference,
@@ -820,7 +857,7 @@ function crmActionQueueSummary(queue = []) {
   };
 }
 function insurerPackageReadinessSummary(cases = []) {
-  const rows = rowsOrEmpty(cases);
+  const rows = rowsOrEmpty(cases).filter(row => !caseIsClosed(row));
   const summary = rows.reduce((acc, item) => {
     const readiness = item.insurer_package_readiness || {};
     const status = clean(readiness.status, 80) || "qualification";
@@ -915,15 +952,16 @@ function caseRowsWithChildren(cases, documents, mails, inboxMails, consultations
 
 function buildActions(cases, mails, consultations, partners = []) {
   const actions = [];
-  const caseList = rowsOrEmpty(cases);
-  const reviewMail = rowsOrEmpty(mails).find((item) => item.status === "draft_review");
+  const caseList = rowsOrEmpty(cases).filter(row => !caseIsClosed(row));
+  const activeIds = new Set(caseList.map(row => row.id));
+  const reviewMail = rowsOrEmpty(mails).find((item) => activeIds.has(item.case_id) && item.status === "draft_review");
   const ready = caseList.find((item) => Number(item.readiness_score || 0) >= 70 && item.stage === "ready_for_market");
   const hot = caseList.find((item) => item.priority === "hot" && !item.assigned_to);
   const missingDocs = caseList.find((item) => Number(item.missing_required_documents || 0) > 0);
   const plan = caseList.find((item) => item.action_plan?.severity === "high");
   const packageBlocked = caseList.find((item) => ["blocked_documents", "blocked_partner_contact"].includes(item.insurer_package_readiness?.status));
   const packageReady = caseList.find((item) => ["ready_for_human_review", "draft_review"].includes(item.insurer_package_readiness?.status));
-  const consultation = rowsOrEmpty(consultations).find((item) => item.status === "draft_review");
+  const consultation = rowsOrEmpty(consultations).find((item) => activeIds.has(item.case_id) && item.status === "draft_review");
   const partnerIssue = rowsOrEmpty(partners).find((item) => ["contact_missing", "overdue", "setup_required"].includes(item.performance?.status));
   if (plan) actions.push({ priority: 104, type: "plan-action-dossier", target: plan.case_reference, signal: plan.action_plan?.label || "plan action", recommendation: plan.action_plan?.next_action || "Executer la prochaine action humaine tracee." });
   if (partnerIssue) actions.push({ priority: 94, type: "relation-assureur", target: partnerIssue.name, signal: partnerIssue.performance?.status || "partenaire", recommendation: partnerIssue.performance?.next_action || "Mettre a jour le partenaire assureur." });
@@ -1043,7 +1081,7 @@ export async function onRequestGet({ request, env }) {
     safeAll(env, `SELECT e.*, cc.case_id, cc.contract_reference FROM contract_consent_events e JOIN client_contracts cc ON cc.id = e.contract_id ORDER BY e.created_at DESC LIMIT 400`),
     safeAll(env, `SELECT d.* FROM contract_documents d JOIN client_contracts cc ON cc.id = d.contract_id ORDER BY d.updated_at DESC LIMIT 500`),
     safeAll(env, `SELECT id, name, contact_email, appetite_profile, service_level_hours, active FROM insurer_partners ORDER BY active DESC, name`),
-    safeFirst(env, `SELECT COUNT(*) AS cases, SUM(CASE WHEN stage NOT IN ('contract_active', 'lost') THEN 1 ELSE 0 END) AS open_cases, SUM(CASE WHEN priority = 'hot' THEN 1 ELSE 0 END) AS hot_cases, SUM(CASE WHEN readiness_score >= 70 THEN 1 ELSE 0 END) AS ready_cases, SUM(CASE WHEN human_review_required = 1 THEN 1 ELSE 0 END) AS human_review_required, COALESCE(SUM(estimated_value_min_cents), 0) AS value_min_cents, COALESCE(SUM(estimated_value_max_cents), 0) AS value_max_cents FROM brokerage_cases`),
+    safeFirst(env, `SELECT COUNT(*) AS cases, SUM(CASE WHEN stage NOT IN ('contract_active', 'lost', 'archived') THEN 1 ELSE 0 END) AS open_cases, SUM(CASE WHEN priority = 'hot' AND stage NOT IN ('lost', 'archived') THEN 1 ELSE 0 END) AS hot_cases, SUM(CASE WHEN readiness_score >= 70 AND stage NOT IN ('lost', 'archived') THEN 1 ELSE 0 END) AS ready_cases, SUM(CASE WHEN human_review_required = 1 AND stage NOT IN ('lost', 'archived') THEN 1 ELSE 0 END) AS human_review_required, COALESCE(SUM(CASE WHEN stage NOT IN ('lost', 'archived') THEN estimated_value_min_cents ELSE 0 END), 0) AS value_min_cents, COALESCE(SUM(CASE WHEN stage NOT IN ('lost', 'archived') THEN estimated_value_max_cents ELSE 0 END), 0) AS value_max_cents FROM brokerage_cases`),
     safeFirst(env, `SELECT COUNT(*) AS requested, SUM(CASE WHEN status IN ('received', 'validated') THEN 1 ELSE 0 END) AS received, SUM(CASE WHEN required = 1 AND status NOT IN ('received', 'validated') THEN 1 ELSE 0 END) AS missing_required FROM case_documents`),
     safeFirst(env, `SELECT COUNT(*) AS drafts, SUM(CASE WHEN status = 'draft_review' THEN 1 ELSE 0 END) AS review_drafts, SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) AS approved, SUM(CASE WHEN status = 'sent' THEN 1 ELSE 0 END) AS sent FROM case_mail_queue`),
     safeFirst(env, `SELECT COUNT(*) AS consultations, SUM(CASE WHEN status = 'draft_review' THEN 1 ELSE 0 END) AS review_consultations, SUM(CASE WHEN status IN ('sent', 'answered', 'quoted') THEN 1 ELSE 0 END) AS active_consultations FROM insurer_consultations`),
@@ -1532,6 +1570,7 @@ export async function onRequestPost({ request, env }) {
   const body = await request.json().catch(() => ({}));
   const action = clean(body.action, 80);
   if (action === "sync") return json({ success: true, sync: await ensureCasesForOpenLeads(env, 220) });
+  if (action === "prepare_lead") return prepareLeadCase(env, body);
   if (action === "attach_inbox_mail") return attachInboxMail(env, body);
   if (action === "review_inbox_mail_no_case") return reviewInboxMailWithoutCase(env, body);
 
@@ -1550,8 +1589,9 @@ export async function onRequestPost({ request, env }) {
   if (!["approve_mail", "send_mail", "mark_sent"].includes(action)) return json({ success: false, error: "Action non supportee" }, 400);
   const mailId = clean(body.mail_id, 120);
   const reviewer = clean(body.reviewer || "admin", 120);
-  const mail = await safeFirst(env, "SELECT m.*, c.case_reference FROM case_mail_queue m JOIN brokerage_cases c ON c.id = m.case_id WHERE m.id = ?", [mailId]);
+  const mail = await safeFirst(env, "SELECT m.*, c.case_reference, c.stage AS case_stage, l.status AS lead_status FROM case_mail_queue m JOIN brokerage_cases c ON c.id = m.case_id JOIN leads l ON l.id = c.lead_id WHERE m.id = ?", [mailId]);
   if (!mail || errorOf(mail)) return json({ success: false, error: "Mail introuvable" }, 404);
+  if (["approve_mail", "send_mail"].includes(action) && caseIsClosed({ stage: mail.case_stage, lead_status: mail.lead_status })) return json({ success: false, error: "Dossier cloture : aucun nouvel envoi autorise" }, 409);
 
   if (action === "approve_mail") {
     const blocked = await requireMailPackageSendable(env, mail, action, reviewer);
@@ -1581,7 +1621,10 @@ export async function onRequestPost({ request, env }) {
   const transportReady = resendMode ? Boolean(clean(env.RESEND_API_KEY, 300)) : Boolean(config.host && config.username && config.password);
   if (!transportReady || !config.from || !config.to.length) return json({ success: false, error: resendMode ? "Configuration Resend incomplete" : "Configuration SMTP incomplete" }, 503);
   try {
-    const smtpResult = await sendPortableSmtpMail(config, await mailMessage(config, mail, mailDocuments, env), env);
+    const message = await mailMessage(config, mail, mailDocuments, env);
+    const current = await safeFirst(env, "SELECT m.status, m.recipient_email, m.updated_at, c.stage, l.status AS lead_status FROM case_mail_queue m JOIN brokerage_cases c ON c.id = m.case_id JOIN leads l ON l.id = c.lead_id WHERE m.id = ?", [mailId]);
+    if (!current || errorOf(current) || caseIsClosed(current) || current.status !== "approved" || current.recipient_email !== mail.recipient_email || current.updated_at !== mail.updated_at) return json({ success: false, error: "Dossier ou destinataire modifie : nouvelle revue requise" }, 409);
+    const smtpResult = await sendPortableSmtpMail(config, message, env);
     await safeRun(env, "UPDATE case_mail_queue SET status = 'sent', sent_at = ?, last_error = '', updated_at = ? WHERE id = ?", [nowIso(), nowIso(), mailId]);
     await logTimeline(env, mail.case_id, "mail_sent", reviewer, { mail_id: mailId, audience: mail.audience, from: config.from, attachment_count: attachmentCount, smtp: clean(smtpResult, 500) });
     return json({ success: true, status: "sent" });
