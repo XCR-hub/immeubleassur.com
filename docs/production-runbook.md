@@ -22,6 +22,8 @@ La preparation ciblee utilise `POST /api/admin/cases` avec `action: "prepare_lea
 
 La synchronisation conserve les consignes `next_action` et les echeances deja renseignees. Un dossier perdu ou archive reste cloture : il ne figure plus dans les actions recommandees et ses mails ne peuvent plus etre approuves ou envoyes. L'envoi recontrole le statut, le destinataire et la version du brouillon juste avant le transport ; toute modification exige une nouvelle revue.
 
+Les recommandations et le plan d'action affichent en priorite la consigne enregistree dans le dossier. Une attente de retour interne ou un rappel telephonique ne doit pas etre remplace par une relance de questionnaire standard. Les blocages de pieces et leur validation restent affiches ; cette priorite ne valide aucun document et ne prepare aucun envoi supplementaire.
+
 1. Ouvrir l'administration et charger les dossiers avec le token admin.
 2. Verifier le score, les pieces requises, le consentement et l'historique.
 3. Relire chaque brouillon client ou assureur.

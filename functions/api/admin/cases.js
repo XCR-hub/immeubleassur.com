@@ -676,7 +676,7 @@ function buildCrmActionQueue(cases = [], mails = [], consultations = [], partner
       signal: packageReadiness.label || "pack incomplet",
       recommendation: packageReadiness.next_action || "Completer le pack assureur sous controle humain.",
       human_review_required: true,
-      quick_action: packageReadiness.status === "blocked_documents" ? "review_client_mail" : "update_partner"
+      quick_action: caseRow.next_action ? "open_case" : packageReadiness.status === "blocked_documents" ? "review_client_mail" : "update_partner"
     });
     if (["ready_for_human_review", "draft_review"].includes(packageReadiness.status)) pushCrmAction(queue, {
       ...base,
@@ -711,9 +711,9 @@ function buildCrmActionQueue(cases = [], mails = [], consultations = [], partner
       priority: 98,
       type: "pieces-client",
       signal: `${caseRow.missing_required_documents} piece(s) requise(s)`,
-      recommendation: "Relancer le client sur les seules pieces manquantes, apres relecture humaine du message.",
+      recommendation: caseRow.next_action || "Relancer le client sur les seules pieces manquantes, apres relecture humaine du message.",
       human_review_required: true,
-      quick_action: "review_client_mail"
+      quick_action: caseRow.next_action ? "open_case" : "review_client_mail"
     });
     if (caseRow.priority === "hot" && !caseRow.assigned_to) pushCrmAction(queue, {
       ...base,
@@ -917,8 +917,9 @@ function caseRowsWithChildren(cases, documents, mails, inboxMails, consultations
       status: clean(row.lead_status, 40)
     };
     const caseContracts = (contractsByCase.get(row.id) || []).map((contract) => ({ ...contract, cross_sell_review: crossSellReviewFor(contract, lead) }));
-    const packageReadiness = insurerPackageReadiness(row, docs, caseMails, caseConsultations, partners);
-    const plan = caseActionPlan(row, docs, caseMails, caseConsultations, caseOffers, caseContracts);
+    const savedNextAction = clean(row.next_action, 1000);
+    const packageReadiness = { ...insurerPackageReadiness(row, docs, caseMails, caseConsultations, partners), ...(savedNextAction ? { next_action: savedNextAction } : {}) };
+    const plan = { ...caseActionPlan(row, docs, caseMails, caseConsultations, caseOffers, caseContracts), ...(savedNextAction ? { next_action: savedNextAction } : {}) };
     return {
       id: row.id,
       case_reference: row.case_reference,
@@ -968,7 +969,7 @@ function buildActions(cases, mails, consultations, partners = []) {
   if (packageBlocked) actions.push({ priority: 98, type: "pack-assureur-bloque", target: packageBlocked.case_reference, signal: packageBlocked.insurer_package_readiness?.label || "pack incomplet", recommendation: packageBlocked.insurer_package_readiness?.next_action || "Completer le pack assureur sous controle humain." });
   if (packageReady) actions.push({ priority: 93, type: "pack-assureur-revue", target: packageReady.case_reference, signal: `${packageReady.insurer_package_readiness?.score || 0}/100`, recommendation: packageReady.insurer_package_readiness?.next_action || "Relire le pack assureur avant consultation." });
   if (hot) actions.push({ priority: 100, type: "pilotage", target: hot.case_reference, signal: "dossier chaud sans pilote", recommendation: "Assigner un courtier et appeler avant automatisation." });
-  if (missingDocs) actions.push({ priority: 96, type: "pieces-client", target: missingDocs.case_reference, signal: `${missingDocs.missing_required_documents} piece(s) requise(s)`, recommendation: "Valider le mail client et demander uniquement les pieces manquantes." });
+  if (missingDocs) actions.push({ priority: 96, type: "pieces-client", target: missingDocs.case_reference, signal: `${missingDocs.missing_required_documents} piece(s) requise(s)`, recommendation: missingDocs.next_action || "Valider le mail client et demander uniquement les pieces manquantes." });
   if (ready) actions.push({ priority: 92, type: "pret-marche", target: ready.case_reference, signal: `${ready.readiness_score}/100`, recommendation: "Relire le dossier puis choisir les assureurs a consulter." });
   if (consultation) actions.push({ priority: 88, type: "consultation-assureur", target: consultation.case_reference || consultation.insurer_name, signal: consultation.insurer_name, recommendation: "Configurer le contact assureur, relire le pack et approuver avant envoi." });
   if (reviewMail) actions.push({ priority: 84, type: "mail-a-valider", target: reviewMail.case_reference || reviewMail.audience, signal: reviewMail.subject, recommendation: "Lecture humaine obligatoire avant approbation ou envoi." });

@@ -127,3 +127,25 @@ test("an unchanged approved fixture still reaches only the injected test transpo
   assert.equal(transported, 1);
   assert.equal(f.db.prepare("SELECT status FROM case_mail_queue WHERE id=?").bind(mail.id).first().status, "sent");
 });
+
+test("saved followup instructions take priority over generic contact recommendations while document blockers remain", async t => {
+  const f = fixture(t);
+  f.seed("AAAA1111");
+  const prepared = await (await f.post({action: "prepare_lead", lead_id: "AAAA1111"})).json();
+  for (const instruction of ["Rappel telephone : obtenir un email avant tout questionnaire.", "Attendre le retour du collegue avant toute relance de questionnaire."]) {
+    f.db.prepare("UPDATE brokerage_cases SET next_action=? WHERE id=?").bind(instruction, prepared.case.id).run();
+    const state = await (await f.get(false)).json();
+    const row = state.cases.find(row => row.id === prepared.case.id);
+    assert.equal(row.action_plan.next_action, instruction);
+    assert.equal(row.insurer_package_readiness.next_action, instruction);
+    assert.equal(row.action_plan.status, "blocked_documents");
+    assert.equal(row.insurer_package_readiness.status, "blocked_documents");
+    assert.ok(row.missing_required_documents > 0);
+    const contactTypes = ["plan-dossier", "pack-assureur-bloque", "pieces-client"];
+    const queue = state.crm_action_queue.filter(action => action.case_reference === row.case_reference && contactTypes.includes(action.type));
+    assert.equal(queue.length, 3);
+    assert.ok(queue.every(action => action.recommendation === instruction && action.quick_action === "open_case"));
+    assert.ok(state.actions.filter(action => action.target === row.case_reference && ["plan-action-dossier", "pack-assureur-bloque", "pieces-client"].includes(action.type)).every(action => action.recommendation === instruction));
+  }
+  assert.equal(f.sent(), 0);
+});
