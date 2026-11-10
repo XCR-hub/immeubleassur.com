@@ -21,6 +21,9 @@ child.stdout.on('data', x => { output += x; });
 child.stderr.on('data', x => { output += x; });
 let browser;
 const rows = [];
+// Cloudflare's always-pass key is valid on localhost; production keys are scoped
+// to the public hostname. This override exists only inside the test browser.
+const turnstileTestKey = '1x00000000000000000000AA';
 const deadline = Date.now() + 30000;
 try {
   while (true) {
@@ -36,6 +39,12 @@ try {
     const trackedEvents = [];
     let leadSubmissions = 0;
     page.on('pageerror', e => errors.push(e.message));
+    await page.evaluateOnNewDocument(testKey => {
+      if (location.hostname !== '127.0.0.1') return;
+      const useTestKey = () => document.querySelectorAll('.cf-turnstile[data-sitekey]').forEach(widget => { widget.dataset.sitekey = testKey; });
+      new MutationObserver(useTestKey).observe(document, { childList: true, subtree: true });
+      document.addEventListener('DOMContentLoaded', useTestKey, { once: true });
+    }, turnstileTestKey);
     await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
     const cdp = await page.createCDPSession();
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
@@ -77,6 +86,14 @@ try {
       return { cls, duplicateSelectors: document.querySelectorAll('.quote-fast-track').length, overflow: document.documentElement.scrollWidth > innerWidth, h1: document.querySelectorAll('h1').length };
     });
     assert.equal(response.status(), 200, path);
+    const widgetState = await page.evaluate(testKey => {
+      const widgets = [...document.querySelectorAll('.cf-turnstile[data-sitekey]')];
+      return { count: widgets.length, valid: widgets.every(widget => widget.dataset.sitekey === testKey) };
+    }, turnstileTestKey);
+    assert.equal(widgetState.valid, true, `${path}: production Turnstile key entered the local test`);
+    if (path !== '/guide-recherche-fuite-immeuble') assert.ok(widgetState.count > 0, `${path}: expected Turnstile widget missing`);
+    row.turnstileTestKeyVerified = true;
+    row.turnstileWidgets = widgetState.count;
     assert.ok(row.cls <= .1, `${path}: CLS ${row.cls.toFixed(3)} exceeds 0.1 with delayed JavaScript`);
     assert.equal(row.duplicateSelectors, 0, `${path}: duplicate quote selector`);
     assert.equal(row.overflow, false, `${path}: horizontal overflow`);
