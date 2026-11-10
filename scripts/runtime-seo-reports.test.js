@@ -36,8 +36,10 @@ test('monitoring Google collection retains read operations and excludes publicat
   assert.equal(command.length, 5);
 });
 
-test('monitoring continues to exclude paid and editorial connectors', () => {
-  for (const id of ['serpapi', 'editorial-ai', 'pexels', 'turnstile']) assert.equal(monitoringConnectorCommand(id, ['script.js'], true), null);
+test('monitoring fetches official sources without AI and bounds SerpApi requests', () => {
+  assert.deepEqual(monitoringConnectorCommand('editorial-ai', ['script.js', '--ai', '--apply'], true), ['scripts/editorial-autopilot.js', '--fetch']);
+  assert.deepEqual(monitoringConnectorCommand('serpapi', ['script.js', '--max-requests=11'], true), ['scripts/search-intelligence.js', '--serp', '--max-requests=1', '--rotate']);
+  for (const id of ['pexels', 'turnstile']) assert.equal(monitoringConnectorCommand(id, ['script.js'], true), null);
   for (const id of ['forms-browser-smoke', 'pagespeed-local']) assert.deepEqual(monitoringConnectorCommand(id, ['script.js'], true), ['script.js']);
 });
 

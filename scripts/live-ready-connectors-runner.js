@@ -27,7 +27,7 @@ const runnable = {
   "editorial-ai": { command: ["scripts/editorial-autopilot.js", "--fetch", "--ai"], objective: "Rafraichir la veille editoriale IA avec fallback local.", minIntervalMinutes: 360, report: "editorial-autopilot-report.json" },
   "forms-browser-smoke": { command: ["scripts/local-turnstile-browser-smoke.js"], objective: "Verifier dans Chrome que Turnstile se charge a la premiere interaction sans soumettre de formulaire.", alwaysReady: true, minIntervalMinutes: 360, report: "local-turnstile-browser-smoke-report.json", attentionStatuses: ["degraded", "failed"], timeoutMs: 60000 },
   "pagespeed-local": { command: ["scripts/local-lighthouse-monitor.js"], objective: "Mesurer les performances mobiles avec Lighthouse et Chrome locaux.", readinessIds: ["pagespeed"], minIntervalMinutes: 360, report: "local-lighthouse-report.json", attentionStatuses: ["degraded", "failed"], timeoutMs: 240000 },
-  serpapi: { command: ["scripts/search-intelligence.js", "--serp"], objective: "Mesurer les positions Google via SerpApi sans scraping direct." },
+  serpapi: { command: ["scripts/search-intelligence.js", "--serp"], objective: "Mesurer les positions Google via SerpApi sans scraping direct.", minIntervalMinutes: 360, report: "search-intelligence-report.json", attentionStatuses: ["serpapi-quota-exhausted", "serpapi-account-unavailable", "serpapi-unavailable-fallback"] },
   "google-seo": { command: ["scripts/seo-autopilot.js", "--gsc-if-configured", "--url-inspection", "--submit-sitemap"], objective: "Rafraichir Search Console et les signaux SEO Google lorsque le connecteur est pret.", readinessIds: ["google-search-console"], minIntervalMinutes: GOOGLE_SEO_INTERVAL_MINUTES, report: "seo-autopilot-report.json" }
 };
 
@@ -132,7 +132,7 @@ for (const [id, config] of Object.entries(runnable)) {
   }
   const readinessRows = (config.readinessIds || [id]).map((readinessId) => rowById(readiness, readinessId)).filter(Boolean);
   const row = rowById(readiness, id) || readinessRows[0] || null;
-  const connectorReady = config.alwaysReady === true || (readinessRows.length ? readinessRows.some((item) => item.ready) : Boolean(row?.ready));
+  const connectorReady = (monitoringOnly && id === "editorial-ai") || config.alwaysReady === true || (readinessRows.length ? readinessRows.some((item) => item.ready) : Boolean(row?.ready));
   if (!connectorReady) {
     steps.push({ name: id, command: `node ${command.join(" ")}`, ok: true, status: 0, duration_ms: 0, skipped: true, reason: "connector-not-ready", objective: config.objective, report: row?.last_report || null });
     continue;

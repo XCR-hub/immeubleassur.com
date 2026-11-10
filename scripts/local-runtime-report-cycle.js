@@ -41,7 +41,7 @@ export function runStep(name, args, extraEnv = {}, observeOnly = monitoringOnly)
     LOCAL_EDITORIAL_REVIEW_ALERTS: "0",
     LOCAL_IMAP_UNMATCHED_ALERTS: "0",
     LOCAL_LEAD_SLA_ALERTS: "0",
-    LOCAL_PRIVACY_RETENTION_APPLY: "0",
+    LOCAL_PRIVACY_RETENTION_APPLY: name === "privacy_retention" && String(extraEnv.LOCAL_PRIVACY_RETENTION_APPLY ?? process.env.LOCAL_PRIVACY_RETENTION_APPLY ?? "0") === "1" ? "1" : "0",
     INDEXNOW_SUBMIT: name === "indexnow_submit" && String(extraEnv.INDEXNOW_SUBMIT ?? process.env.INDEXNOW_SUBMIT ?? "0") === "1" ? "1" : "0"
   } : {};
   const timeout = Math.max(30000, Number(extraEnv.LOCAL_RUNTIME_STEP_TIMEOUT_MS || process.env.LOCAL_RUNTIME_STEP_TIMEOUT_MS || 300000));

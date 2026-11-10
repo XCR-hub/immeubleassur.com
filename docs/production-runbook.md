@@ -43,6 +43,14 @@ Aucun contenu IA, mail, paiement ou envoi assureur ne doit etre publie ou execut
 4. Ne jamais communiquer un token, une cle API, un document ou une adresse IP brute dans un ticket.
 5. Reprendre les envois seulement apres test CRM, portail client et consultation assureur.
 
+## Collecte et maintenance en mode surveillance
+
+Le mode `MonitoringOnly` collecte les sources officielles toutes les six heures avec `--fetch`, sans synthese IA ni nouvel envoi de mail. La publication existante conserve son controle de preuves et les brouillons IA restent bloques. SerpApi consulte d'abord son API de quota gratuite ; aucun appel de recherche n'est lance si le quota est nul ou inconnu. En surveillance, une requete au maximum est autorisee par cycle de six heures, avec rotation des mots-cles.
+
+La retention technique peut etre appliquee uniquement par l'etape `privacy_retention` lorsque `LOCAL_PRIVACY_RETENTION_APPLY=1` est explicitement configure. Elle anonymise les anciens identifiants techniques et conserve les contacts commerciaux et les oppositions newsletter. Verifier la sauvegarde SQLite et son miroir avant la premiere application.
+
+Les editions anciennes peuvent etre archivees avec `scripts/archive-obsolete-editorial-drafts.js`, d'abord en simulation avec `--drafts-root`, `--backup-root` et `--before YYYY-MM-DD`, puis avec `--apply`. Le seuil doit depasser 60 jours. L'original est sauvegarde et verifie par hash ; les contenus et leurs restrictions de publication sont conserves. Cet archivage technique ne constitue pas une validation humaine ou juridique et n'est pas execute automatiquement.
+
 ## Connecteurs externes
 
 Les variables sont configurees uniquement dans `.env.local` du serveur, jamais dans le depot:

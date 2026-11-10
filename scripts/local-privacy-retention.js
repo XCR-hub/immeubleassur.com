@@ -18,7 +18,8 @@ function count(db, sql, binds = []) { return Number(db.prepare(sql).get(...binds
 function changeCount(result) { return Number(result?.changes || 0); }
 
 if (!existsSync(dbPath)) throw new Error(`Base SQLite introuvable: ${dbPath}`);
-const db = new DatabaseSync(dbPath);
+const db = new DatabaseSync(dbPath, { readOnly: !apply });
+db.exec("PRAGMA busy_timeout=10000");
 try {
   const cutTechnical = `-${technicalDays} days`;
   const cutTelemetry = `-${telemetryDays} days`;

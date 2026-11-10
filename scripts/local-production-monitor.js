@@ -266,7 +266,7 @@ function inspectSearchIntelligence(reportPath) {
     const fallback = Number(report.fallback_count || 0);
     const fresh = ageMinutes <= 390;
     const trustworthy = fresh && measured > 0 && report.confidence !== "low" && report.rate_limited !== true;
-    return check("serp_measurement", trustworthy, { path: reportPath, status: report.status || "unknown", age_minutes: ageMinutes, max_age_minutes: 390, provider: report.provider || "", confidence: report.confidence || "unknown", measured_queries: measured, fallback_queries: fallback, rate_limited: report.rate_limited === true, request_count: Number(report.serp_request_count || 0), fallback_positions_treated_as_measured: false }, fresh ? "warn" : "fail");
+    return check("serp_measurement", trustworthy, { path: reportPath, status: report.status || "unknown", age_minutes: ageMinutes, max_age_minutes: 390, provider: report.provider || "", confidence: report.confidence || "unknown", measured_queries: measured, fallback_queries: fallback, rate_limited: report.rate_limited === true, request_count: Number(report.serp_request_count || 0), request_budget: Number(report.request_budget || 0), quota_remaining: report.account_quota?.remaining_searches ?? null, quota_renewal_date: report.account_quota?.renewal_date || null, fallback_positions_treated_as_measured: false }, fresh ? "warn" : "fail");
   } catch (error) {
     return check("serp_measurement", false, { path: reportPath, error: error.message || "search intelligence report unreadable" });
   }

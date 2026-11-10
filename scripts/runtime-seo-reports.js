@@ -58,6 +58,8 @@ export function localSeoAuditOutputOverrides(report, reportsRoot, assetsRoot) {
 
 export function monitoringConnectorCommand(id, command, monitoringOnly) {
   if (!monitoringOnly) return [...command];
+  if (id === 'editorial-ai') return ['scripts/editorial-autopilot.js', '--fetch'];
+  if (id === 'serpapi') return ['scripts/search-intelligence.js', '--serp', '--max-requests=1', '--rotate'];
   if (id === 'google-seo') {
     const readFlags = new Set(['--gsc-if-configured', '--gsc', '--url-inspection']);
     return command.filter((argument, index) => index === 0 || readFlags.has(argument));
