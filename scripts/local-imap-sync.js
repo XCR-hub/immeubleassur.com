@@ -5,6 +5,7 @@ import { connect as tlsConnect } from "node:tls";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { openLocalSqlite } from "./local-sqlite-db.js";
 import { requireOperationalTeamRecipient, sendNodeSmtpMail } from "./local-smtp.js";
+import { classifyInboxMessage, reconcileStoredInbox } from "./imap-inbox-classification.js";
 
 loadDefaultEnvFiles();
 
@@ -144,6 +145,10 @@ async function sync() {
         continue;
       }
       const subject = clean(headers.subject, 500);
+      if (classifyInboxMessage({ sender: headers.from, recipients: headers.to, subject, status: "received_pending_review" })?.status === "ignored_automation") {
+        report.ignored_automation += 1;
+        continue;
+      }
       const reference = caseReference(subject);
       const caseRow = reference ? db.prepare("SELECT id FROM brokerage_cases WHERE case_reference = ?").bind(reference).first() : null;
       const id = crypto.randomUUID();
@@ -160,6 +165,8 @@ async function sync() {
     report.status = "completed";
   } catch (error) { report.status = "degraded"; report.errors.push(clean(error.message, 500)); }
   finally { session.close(); }
+  report.inbox_classification = reconcileStoredInbox(db);
+  report.inbox_classification_totals = db.prepare("SELECT COALESCE(SUM(CASE WHEN status = 'ignored_automation' THEN 1 ELSE 0 END), 0) AS classified_automation, COALESCE(SUM(CASE WHEN status = 'linked_lead_notification' THEN 1 ELSE 0 END), 0) AS linked_lead_notifications FROM case_mail_inbox WHERE json_valid(payload) AND json_extract(payload, '$.inbox_classification.marker') = 'imap-inbox-classification-v1'").first();
   const pendingRows = db.prepare("SELECT id FROM case_mail_inbox WHERE case_id IS NULL AND status = 'received_pending_review' ORDER BY created_at ASC").all().results;
   report.pending_unmatched = pendingRows.length;
   report.alert = await maybeAlertPending(pendingRows, report.generated_at).catch((error) => ({ attempted: true, status: "failed", error: clean(error.message, 300) }));

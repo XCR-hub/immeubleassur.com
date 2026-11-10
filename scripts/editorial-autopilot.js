@@ -6,6 +6,7 @@ import { loadDefaultEnvFiles } from "./local-env.js";
 import { sanitizePublicWatchItems } from "./editorial-public-metadata-policy.js";
 import { findEquivalentPendingDraft, sourceSetFingerprint } from "./editorial-draft-dedupe-policy.js";
 import { protectNewsletterForms } from "./turnstile-markup.js";
+import { EDITORIAL_COLLECTION_VERSION } from "./live-connector-report-versions.js";
 
 loadDefaultEnvFiles();
 
@@ -30,6 +31,7 @@ const SOURCES = [
   ["anil-actualites", "ANIL", "https://www.anil.org/actualites-evenements/", "public-page", "logement-copropriete", "official", "public-title-and-summary"],
   ["adil57-syndic-actualites", "ADIL 57 - copropriete et syndic", "https://www.anil.org/adil-57/toutes-nos-actualites/", "public-page", "syndic-copropriete", "official", "public-title-and-summary"],
   ["adil20-syndic-actualites", "ADIL Corse - copropriete et syndic", "https://www.anil.org/adil-20/toutes-nos-actualites/", "public-page", "syndic-copropriete", "official", "public-title-and-summary"],
+  ["adil40-syndic-actualites", "ADIL des Landes - copropriete et syndic", "https://www.anil.org/adil-40/toutes-nos-actualites/", "public-page", "syndic-copropriete", "official", "public-title-and-summary"],
   ["france-assureurs-actualites", "France Assureurs", "https://www.franceassureurs.fr/actualites", "public-page", "marche-assurance", "industry", "public-title-summary-and-date-metadata"],
   ["georisques-actualites", "Georisques", "https://www.georisques.gouv.fr/actualites-evenements", "public-page", "risques-batiment", "official", "public-title-summary-and-date-metadata"],
   ["legifrance", "Legifrance", "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000028779136/", "reference", "droit", "official", "reference-metadata-only"]
@@ -205,11 +207,11 @@ function editorialBusinessCoverage(items, now = new Date(), maximumAgeDays = 45)
   const dimensions = [
     ["assurance", /assurance|assureur|contrat|garantie|prime|franchise/i],
     ["copropriete", /copropri|immeuble|logement|habitat/i],
-    ["syndic", /syndic|conseil syndical|assembl[Ã©e]e g[Ã©e]n[Ã©e]rale/i],
-    ["obligations", /obligation|obligatoire|r[Ã©e]glement|d[Ã©e]cret|loi|jurisprudence|responsabilit[Ã©e]/i]
+    ["syndic", /syndic|conseil syndical|assemblee generale/i],
+    ["obligations", /obligation|obligatoire|reglement|decret|\bloi\b|jurisprudence|responsabilite/i]
   ];
   const dimensionsReport = Object.fromEntries(dimensions.map(([id, pattern]) => {
-    const matching = items.filter((item) => pattern.test(`${item.title || ""} ${item.summary || ""}`));
+    const matching = items.filter((item) => pattern.test(editorialSearchText(item.title || "", item.summary || "")));
     const fresh = matching.filter((item) => {
       const date = publicationDate(item.published_at);
       if (!date) return false;
@@ -319,6 +321,7 @@ function sourceUrlAllowed(source, candidateUrl) {
   if (source?.id === "acpr-communiques") return /^\/fr\/communiques-de-presse\/[^/]+$/.test(path);
   if (source?.id === "adil57-syndic-actualites") return /^\/adil-57\/toutes-nos-actualites\/details\/[^/]+$/.test(path);
   if (source?.id === "adil20-syndic-actualites") return /^\/adil-20\/toutes-nos-actualites\/details\/[^/]+$/.test(path);
+  if (source?.id === "adil40-syndic-actualites") return /^\/adil-40\/toutes-nos-actualites\/details\/[^/]+$/.test(path);
   if (source?.id === "france-assureurs-actualites") return /^\/actualites\/[^/]+$/.test(path);
   if (source?.id === "georisques-actualites") return /^\/[a-z0-9][a-z0-9-]+$/.test(path);
   return true;
@@ -329,6 +332,7 @@ function sourceContentAllowed(source, item) {
     return /bail|loyer|local commercial|immeuble|immobilier|copro|logement|location|locataire|proprietaire|bailleur|diagnostic immobilier|batiment tertiaire/.test(text);
   }
   if (["adil57-syndic-actualites", "adil20-syndic-actualites"].includes(source?.id)) return /syndic|copropriete|conseil syndical|assemblee generale/.test(editorialSearchText(item?.title));
+  if (source?.id === "adil40-syndic-actualites") return /syndic|copropriete|conseil syndical|assemblee generale/.test(editorialSearchText(item?.title));
   if (source?.id === "georisques-actualites") {
     const text = editorialSearchText(item?.title, item?.summary);
     return /sinistre|incendie|inondation|pluie|tempete|catastrophe|secheresse|argile|feu de foret|deboisement|debroussaillement|prevention|risque naturel|submersion|mouvement de terrain/.test(text);
@@ -606,6 +610,7 @@ function publicationPriority(item, now = new Date()) {
     "georisques-actualites": 25,
     "adil57-syndic-actualites": 25,
     "adil20-syndic-actualites": 25,
+    "adil40-syndic-actualites": 25,
     "service-public-particuliers": 20,
     "service-public-professionnels": 15
   };
@@ -888,6 +893,7 @@ async function run() {
   if (draftPacket) write(draftPacketPath, JSON.stringify(draftPacket, null, 2));
   const report = {
     generated_at: new Date().toISOString(),
+    collector_version: EDITORIAL_COLLECTION_VERSION,
     mode,
     status: reportStatus,
     fetch_enabled: ENABLE_FETCH,

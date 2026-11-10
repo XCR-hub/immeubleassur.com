@@ -53,6 +53,8 @@ Les editions anciennes peuvent etre archivees avec `scripts/archive-obsolete-edi
 
 ## Connecteurs externes
 
+La synchronisation IMAP classe les notifications internes selon des regles strictes d'expediteur, de destinataire et d'objet. Les alertes techniques sont marquees `ignored_automation` de facon reversible. Les notifications de prospect ne sont rapprochees d'un lead que si sa reference existe de facon unique ; elles restent tracees avec `linked_lead_notification`, et le suivi commercial reste dans la file des leads. Les messages clients, les reponses, les messages deja rattaches a un dossier et les references ambigues restent en revue. La classification est transactionnelle, preserve les entetes et ne modifie pas les messages de la boite IMAP.
+
 Les variables sont configurees uniquement dans `.env.local` du serveur, jamais dans le depot:
 
 - Google Search Console: `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_KEY`
