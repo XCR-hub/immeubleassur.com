@@ -1,0 +1,13 @@
+[data-guide-directory] .page-hero{padding:40px 0 32px}
+.guide-directory{padding-top:2rem;padding-bottom:3rem;overflow-wrap:anywhere}
+.guide-directory section{margin-top:3rem;scroll-margin-top:96px}
+.guide-directory h2{font-size:clamp(1.4rem,3vw,1.9rem);line-height:1.3}
+.guide-directory h3{font-size:1.15rem;line-height:1.4}
+.guide-directory .content-card{min-width:0}
+.guide-directory .content-card p{line-height:1.65}
+.guide-topic-nav ul{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem;list-style:none;padding:0;margin:1rem 0 0}
+.guide-topic-nav a{display:block;height:100%;padding:1rem;background:#fff;border:1px solid #0f766e;border-radius:.5rem;color:#115e59;font-weight:700;text-underline-offset:.2em}
+.guide-topic-nav a:hover{background:#eaf5f2}
+.guide-directory .guide-cta{margin-top:3rem}
+@media(min-width:701px) and (max-width:950px){.guide-directory .card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.guide-topic-nav ul,.guide-directory .card-grid{grid-template-columns:1fr}.guide-topic-nav a{padding:.85rem}.guide-directory{padding-top:1.25rem}.guide-directory section{margin-top:2rem}}

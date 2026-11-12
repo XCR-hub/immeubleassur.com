@@ -31,7 +31,11 @@ export function quoteHref(path) {
     "/assurance-garages-parkings": "garages", "/prix-assurance-immeuble": "prix",
     "/comparateur-assurance-immeuble": "prix", "/tarif-assurance-immeuble": "prix",
     "/audit-contrat-assurance-immeuble": "audit-contrat",
-    "/dommages-ouvrage-immeuble": "travaux", "/assurance-immeuble-mixte-commerce": "local-commercial"
+    "/dommages-ouvrage-immeuble": "travaux", "/assurance-immeuble-mixte-commerce": "local-commercial",
+    "/guide-assurance-copropriete-2026": "copropriete", "/checklist-documents-assurance-immeuble": "audit-contrat",
+    "/guide-recherche-fuite-immeuble": "audit-contrat", "/guide-indemnisation-vetuste-immeuble": "audit-contrat",
+    "/guide-bris-machines-ascenseur-immeuble": "audit-contrat", "/guide-perte-loyers-sinistre-gli": "audit-contrat",
+    "/guide-questionnaire-visite-risque-immeuble": "audit-contrat", "/guide-lire-documents-assurance-immeuble": "audit-contrat"
   }[path];
   const params = new URLSearchParams({ ...(intent ? { intent } : {}), source_path: path });
   return `${base}?${params}`;

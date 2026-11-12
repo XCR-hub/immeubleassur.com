@@ -1712,7 +1712,7 @@ function observeQuoteFastTrackNudge(shell, initial) {
 
 function mountQuoteFastTrack() {
   if (isPrivateAppPage()) return;
-  if (document.querySelector(".insurer-guide")) return;
+  if (document.querySelector(".insurer-guide, [data-guide-directory]")) return;
   if (form?.elements.property_type?.value === "parking") return;
   // These selectors already offer the quote journey in the initial HTML.
   // Inserting a second selector above them after first paint moves content.

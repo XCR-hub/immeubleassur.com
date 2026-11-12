@@ -108,8 +108,19 @@ function validatePage(file) {
   if (!hasType(types, "BreadcrumbList")) issues.push(`${slug}: schema BreadcrumbList absent`);
   if (slug.startsWith("blog/")) {
     if (!hasType(types, "Article")) issues.push(`${slug}: schema Article absent`);
-  } else if (!hasType(types, "WebPage")) {
-    issues.push(`${slug}: schema WebPage absent`);
+  // CollectionPage is a WebPage subtype: https://schema.org/CollectionPage
+  } else if (!hasType(types, "WebPage") && !jsonLd.some(item => item["@type"] === "CollectionPage" && item.url === expectedUrl)) {
+    issues.push(`${slug}: schema WebPage/CollectionPage absent`);
+  }
+  const collection = jsonLd.find(item => item["@type"] === "CollectionPage");
+  if (collection) {
+    const items = collection.mainEntity?.itemListElement;
+    const links = new Set([...html.matchAll(/<a\b[^>]*href="([^\"]+)"/gi)].map(match => {
+      try { return new URL(match[1].replaceAll("&amp;", "&"), expectedUrl).href; } catch { return ""; }
+    }));
+    if (collection.mainEntity?.["@type"] !== "ItemList" || !Array.isArray(items) || !items.length || items.some(item => !item.name || !links.has(item.url))) {
+      issues.push(`${slug}: collection sans liste de ressources visibles`);
+    }
   }
   if (shouldHaveService(slug) && !hasType(types, "Service")) issues.push(`${slug}: schema Service absent`);
   if (documentedGuideSlugs.has(slug)) {

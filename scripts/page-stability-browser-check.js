@@ -38,7 +38,7 @@ try {
     await new Promise(r => setTimeout(r, 100));
   }
   browser = await puppeteer.launch({ executablePath: chromePath, headless: true, args: ['--no-first-run'] });
-  for (const path of ['/assurance-immeuble', '/devis-assurance-immeuble', '/', '/guide-recherche-fuite-immeuble', '/assurance-garages-parkings', '/comparateur-assurance-immeuble']) {
+  for (const path of ['/assurance-immeuble', '/devis-assurance-immeuble', '/', '/guide-recherche-fuite-immeuble', '/assurance-garages-parkings', '/comparateur-assurance-immeuble', '/guides']) {
     const page = await browser.newPage();
     const errors = [];
     const trackedEvents = [];
@@ -124,7 +124,7 @@ try {
       return { count: widgets.length, valid: widgets.every(widget => widget.dataset.sitekey === testKey) };
     }, turnstileTestKey);
     assert.equal(widgetState.valid, true, `${path}: production Turnstile key entered the local test`);
-    if (path !== '/guide-recherche-fuite-immeuble') assert.ok(widgetState.count > 0, `${path}: expected Turnstile widget missing`);
+    if (!['/guide-recherche-fuite-immeuble', '/guides'].includes(path)) assert.ok(widgetState.count > 0, `${path}: expected Turnstile widget missing`);
     row.turnstileTestKeyVerified = true;
     row.turnstileWidgets = widgetState.count;
     assert.ok(row.cls <= .1, `${path}: CLS ${row.cls.toFixed(3)} exceeds 0.1 with delayed JavaScript`);
@@ -283,6 +283,10 @@ try {
       row.comparisonCalculatorVerified = true;
       row.privateCalculationVerified = true;
     }
+    if (path === '/guides') {
+      assert.equal(await page.$('.quote-fast-track'), null, 'Reading topics remain stable without an injected second quote selector');
+      assert.equal(await page.$$eval('[data-guide-card]', cards => cards.length), 9);
+    }
     assert.equal(leadSubmissions, path === '/devis-assurance-immeuble' ? 1 : 0, 'Only the isolated callback fixture may be submitted.');
     assert.deepEqual(errors, [], path);
     rows.push({ path, ...row, lead_submissions: leadSubmissions });
@@ -295,7 +299,7 @@ try {
     ['/assurance-pno-cno', 390, 844], ['/recherches-assurance-immeuble', 390, 844],
     ['/blog/assurance-immeuble-ancien', 390, 844],
     ['/news/veille-assurance-immeuble-2026-08-03', 390, 844],
-    ['/guides', 1024, 768], ['/faq', 720, 360], ['/comparateur-assurance-immeuble', 390, 844],
+    ['/guides', 1024, 768], ['/guides', 320, 720], ['/faq', 720, 360], ['/comparateur-assurance-immeuble', 390, 844],
     ['/assurance-immeuble', 1280, 900]
   ];
   for (const [path, width, height] of navigationCases) {
@@ -307,6 +311,45 @@ try {
     if (path === '/comparateur-assurance-immeuble') {
       assert.equal(await page.$eval('[data-comparison-run]', element => element.disabled), true);
       assert.match(await page.$eval('[data-quote-comparison]', element => element.textContent), /Exemple fictif/);
+    }
+    if (path === '/guides') {
+      const directory = await page.evaluate(() => ({
+        links: [...document.querySelectorAll('[data-guide-card] h3 a')].map(link => ({ name: link.textContent, url: link.href })),
+        collection: [...document.querySelectorAll('script[type="application/ld+json"]')].map(script => JSON.parse(script.textContent)).find(schema => schema['@type'] === 'CollectionPage'),
+        overflow: document.documentElement.scrollWidth > innerWidth
+      }));
+      assert.equal(directory.links.length, 9, 'All nine resources remain available without JavaScript');
+      assert.equal(directory.overflow, false, `Guide directory fits ${width}px`);
+      assert.deepEqual(directory.collection.mainEntity.itemListElement.map(item => ({ name: item.name, path: new URL(item.url).pathname })), directory.links.map(link => ({ name: link.name, path: new URL(link.url).pathname })), 'Search metadata matches the visible directory');
+      if (width === 320) {
+        assert.equal(await page.$$eval('.guide-topic-nav a', links => links.every(link => {
+          const box = link.getBoundingClientRect();
+          return box.top >= document.querySelector('.site-header').getBoundingClientRect().bottom && box.bottom <= innerHeight;
+        })), true, 'All three topics are visible on the first small mobile screen');
+        if (process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT) {
+          mkdirSync(process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT, { recursive: true });
+          await page.screenshot({ path: resolve(process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT, 'guide-directory-mobile.png'), fullPage: true });
+          await page.screenshot({ path: resolve(process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT, 'guide-directory-mobile-top.png') });
+        }
+        for (const link of directory.links) {
+          assert.equal(new URL(link.url).origin, origin, 'Resource checks remain in the isolated preview');
+          const response = await fetch(link.url);
+          assert.equal(response.status, 200, link.name);
+          const html = await response.text();
+          assert.equal((html.match(/<h1\b/g) || []).length, 1, link.name);
+          const quote = html.match(/data-track="mobile-navigation-quote" href="([^\"]+)"/);
+          assert.ok(quote, link.name);
+          assert.equal(new URL(quote[1].replaceAll('&amp;', '&'), origin).searchParams.get('source_path'), new URL(link.url).pathname, 'The guide is retained when asking for a quote');
+        }
+        for (const hash of await page.$$eval('.guide-topic-nav a', links => links.map(link => link.hash))) {
+          await page.click(`.guide-topic-nav a[href="${hash}"]`);
+          await page.waitForFunction(target => {
+            const top = document.querySelector(target).getBoundingClientRect().top;
+            return top >= document.querySelector('.site-header').getBoundingClientRect().bottom && top < innerHeight - 30;
+          }, { timeout: 5000 }, hash);
+          assert.equal(new URL(page.url()).hash, hash, 'Topic links reveal headings below the fixed header');
+        }
+      }
     }
     const summary = '[data-mobile-navigation] > summary';
     if (width <= 1100) {
@@ -357,6 +400,8 @@ try {
     { from: '/assurance-cno', intent: 'cno', profile: 'bailleur', need: 'cno', property: 'lot-copropriete', label: 'CNO', desktop: true },
     { from: '/assurance-pno-cno', intent: 'pno-cno', profile: 'bailleur', need: 'pno-cno', property: 'lot-copropriete', label: 'PNO' },
     { from: '/audit-contrat-assurance-immeuble', intent: 'audit-contrat', payloadIntent: 'audit', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Audit' },
+    { from: '/guide-lire-documents-assurance-immeuble', desktop: true, intent: 'audit-contrat', payloadIntent: 'audit', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Audit' },
+    { from: '/guide-recherche-fuite-immeuble', entry: 'guide', intent: 'audit-contrat', payloadIntent: 'audit', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Audit' },
     { from: '/devis-assurance-immeuble', intent: 'immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
     { from: '/assurance-sci', intent: 'sci', changeTo: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
     { from: '/assurance-sci', intent: 'sci', changeTo: 'cno', changeProfile: 'administrateur-biens', profile: 'administrateur-biens', need: 'cno', property: 'lot-copropriete', label: 'CNO' },
@@ -392,7 +437,10 @@ try {
     await page.goto(origin + journey.from, { waitUntil: 'networkidle0' });
     if (journey.from !== '/devis-assurance-immeuble') {
       let selector = journey.desktop ? '.site-header > .nav a[href*="/devis-assurance-immeuble"]' : '[data-track="mobile-navigation-quote"]';
-      if (journey.entry) {
+      if (journey.entry === 'guide') {
+        selector = '.guide-cta [data-track="cta-primary"]';
+        await page.$eval(selector, link => link.scrollIntoView({ block: 'center', behavior: 'instant' }));
+      } else if (journey.entry) {
         await page.waitForSelector('.lead-action-bar[data-short-quote-bar="1"]');
         assert.equal(await page.$eval('.lead-action-bar', bar => {
           const box = bar.getBoundingClientRect();
