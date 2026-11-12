@@ -48,18 +48,31 @@ const expectedSlug = `news/veille-assurance-immeuble-${today}`;
 const force = process.argv.includes("--force");
 const currentIssuePath = current?.version && current?.issue?.slug ? join(publicationsRoot, "versions", current.version, `${current.issue.slug}.html`) : "";
 function refreshPreservedRuntimeSitemap() {
-  if (!currentIssuePath || !current?.issue?.slug) return false;
+  if (!currentIssuePath || !existsSync(currentIssuePath) || !current?.issue?.slug || safeVersion(current.version) !== current.version) return false;
   const baseSitemapPath = join(staticPublicRoot, "sitemap.xml");
   if (!existsSync(baseSitemapPath)) return false;
+  const sitemapPath = join(publicationsRoot, "versions", current.version, "sitemap.xml");
+  const previousSitemap = existsSync(sitemapPath) ? readFileSync(sitemapPath, "utf8") : "";
   let sitemap = readFileSync(baseSitemapPath, "utf8");
   const loc = `https://immeubleassur.com/${current.issue.slug}`;
-  if (!sitemap.includes(`<loc>${loc}</loc>`)) sitemap = sitemap.replace("</urlset>", `  <url><loc>${loc}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>\n</urlset>`);
-  writeFileSync(join(dirname(currentIssuePath), "sitemap.xml"), sitemap, "utf8");
+  const previousEntry = [...previousSitemap.matchAll(/<url>[\s\S]*?<\/url>/g)].find(([entry]) => entry.includes(`<loc>${loc}</loc>`))?.[0];
+  const issueDate = current.issue.slug.match(/\d{4}-\d{2}-\d{2}$/)?.[0] || String(current.activated_at || today).slice(0, 10);
+  const retainedEntry = previousEntry || `<url><loc>${loc}</loc><lastmod>${issueDate}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>`;
+  if (!sitemap.includes(`<loc>${loc}</loc>`)) sitemap = sitemap.replace("</urlset>", `  ${retainedEntry}\n</urlset>`);
+  const temporarySitemap = `${sitemapPath}.${process.pid}.tmp`;
+  writeFileSync(temporarySitemap, sitemap, "utf8");
+  renameSync(temporarySitemap, sitemapPath);
+  const sitemapArtifact = { path: "sitemap.xml", bytes: Buffer.byteLength(sitemap), sha256: sha256(sitemapPath) };
+  const files = (current.files || []).filter((file) => file.path !== "sitemap.xml").concat(sitemapArtifact);
+  const refreshed = { ...current, files, base_hub_hashes: { ...current.base_hub_hashes, sitemap: sha256(baseSitemapPath) }, sitemap_refreshed_at: new Date().toISOString() };
+  const temporaryManifest = join(publicationsRoot, `current-sitemap-${process.pid}-${Date.now()}.tmp`);
+  writeJson(temporaryManifest, refreshed);
+  renameSync(temporaryManifest, manifestPath);
   return true;
 }
 const baseHubHashes = Object.fromEntries(["faq.html", "villes.html", "sitemap.xml"].map((relative) => {
   const path = join(staticPublicRoot, relative);
-  return [relative.replace(".html", ""), existsSync(path) ? sha256(path) : ""];
+  return [relative.replace(/\.(?:html|xml)$/, ""), existsSync(path) ? sha256(path) : ""];
 }));
 const publicationInputHashes = Object.fromEntries([
   "scripts/editorial-autopilot.js",
