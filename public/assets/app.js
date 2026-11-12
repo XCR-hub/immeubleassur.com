@@ -1712,7 +1712,7 @@ function observeQuoteFastTrackNudge(shell, initial) {
 
 function mountQuoteFastTrack() {
   if (isPrivateAppPage()) return;
-  if (document.querySelector(".insurer-guide, [data-guide-directory]")) return;
+  if (document.querySelector(".insurer-guide, [data-guide-directory], [data-article-reading]")) return;
   if (form?.elements.property_type?.value === "parking") return;
   // These selectors already offer the quote journey in the initial HTML.
   // Inserting a second selector above them after first paint moves content.
@@ -1790,6 +1790,7 @@ function contentLeadBridgeKind() {
 
 function contentLeadBridgeEligible() {
   const path = window.location.pathname.toLowerCase();
+  if (document.querySelector('[data-article-reading]')) return false;
   if (contentLeadBridgeDismissed || contentLeadBridgeShown || formStarted || formSubmitted) return false;
   if (path.includes("/admin") || path.includes("/merci") || path.includes("/espace-client") || path.startsWith("/devis-") || path.includes("contact") || path.includes("confidentialite") || path.includes("mentions-legales")) return false;
   if (document.querySelector(".content-lead-bridge")) return false;

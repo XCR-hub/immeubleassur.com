@@ -1,3 +1,5 @@
+import { articleQuoteHref } from './article-reading-paths.js';
+
 const insuranceLinks = [
   ["/assurance-immeuble", "Immeuble"],
   ["/assurance-copropriete", "Copropriété"],
@@ -24,6 +26,8 @@ function link([href, label], path) {
 export function quoteHref(path) {
   const base = "/devis-assurance-immeuble";
   if (path === "/" || path.startsWith("/devis-") || path === "/admin") return base;
+  const articleQuote = articleQuoteHref(path);
+  if (articleQuote) return articleQuote;
   const intent = {
     "/assurance-immeuble": "immeuble", "/multirisque-immeuble": "immeuble",
     "/assurance-copropriete": "copropriete", "/assurance-sci": "sci",

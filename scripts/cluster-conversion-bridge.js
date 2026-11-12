@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join, relative } from "node:path";
+import { articleReadingPaths, improveArticleReading } from './article-reading-paths.js';
 
 const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
@@ -233,6 +234,7 @@ function auditFile(file) {
 function shouldTarget(page) {
   if (ignoredSlugs.has(page.slug)) return false;
   if (page.noindex) return false;
+  if (articleReadingPaths[page.slug]) return true;
   if (page.has_lead_form && page.type === "service") return false;
   return weakClusters.has(page.cluster) && page.type !== "lead";
 }
@@ -245,8 +247,8 @@ const changedPages = [];
 for (const page of targets) {
   const original = readFileSync(page.file, "utf8");
   const cleaned = removeExisting(original);
-  const profile = contextualProfile(profiles[page.cluster], page);
-  const updated = insertBridge(cleaned, block(profile, page.cluster));
+  const profile = contextualProfile(profiles[page.cluster] || profiles['devis-courtier'], page);
+  const updated = improveArticleReading(insertBridge(cleaned, block(profile, page.cluster)), page.slug);
   if (updated !== original) {
     writeFileSync(page.file, updated, "utf8");
     changedPages.push({ slug: page.slug, type: page.type, cluster: page.cluster });

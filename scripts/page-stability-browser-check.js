@@ -38,19 +38,23 @@ try {
     await new Promise(r => setTimeout(r, 100));
   }
   browser = await puppeteer.launch({ executablePath: chromePath, headless: true, args: ['--no-first-run'] });
-  for (const path of ['/assurance-immeuble', '/devis-assurance-immeuble', '/', '/guide-recherche-fuite-immeuble', '/assurance-garages-parkings', '/comparateur-assurance-immeuble', '/guides']) {
+  for (const path of ['/assurance-immeuble', '/devis-assurance-immeuble', '/', '/guide-recherche-fuite-immeuble', '/assurance-garages-parkings', '/comparateur-assurance-immeuble', '/guides', '/blog/franchise-degat-des-eaux-immeuble']) {
     const page = await browser.newPage();
     const errors = [];
     const trackedEvents = [];
     let leadSubmissions = 0;
     const localCallbacks = [];
     page.on('pageerror', e => errors.push(e.message));
-    await page.evaluateOnNewDocument(testKey => {
+    await page.evaluateOnNewDocument((testKey, checkReadingPrompt) => {
       if (location.hostname !== '127.0.0.1') return;
+      if (checkReadingPrompt) {
+        const setTimer = window.setTimeout.bind(window);
+        window.setTimeout = (callback, delay, ...args) => setTimer(callback, delay === 20000 ? 200 : delay, ...args);
+      }
       const useTestKey = () => document.querySelectorAll('.cf-turnstile[data-sitekey]').forEach(widget => { widget.dataset.sitekey = testKey; });
       new MutationObserver(useTestKey).observe(document, { childList: true, subtree: true });
       document.addEventListener('DOMContentLoaded', useTestKey, { once: true });
-    }, turnstileTestKey);
+    }, turnstileTestKey, path === '/blog/franchise-degat-des-eaux-immeuble');
     await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
     const cdp = await page.createCDPSession();
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
@@ -287,6 +291,21 @@ try {
       assert.equal(await page.$('.quote-fast-track'), null, 'Reading topics remain stable without an injected second quote selector');
       assert.equal(await page.$$eval('[data-guide-card]', cards => cards.length), 9);
     }
+    if (path === '/blog/franchise-degat-des-eaux-immeuble') {
+      assert.equal(await page.$('.content-lead-bridge'), null, 'Reading is not interrupted by a duplicate generic quote prompt');
+      assert.equal(await page.$$eval('[data-article-reading]', sections => sections.length), 1);
+      assert.equal(await page.$$eval('[data-article-reading] li', items => items.length), 3);
+      const destinations = await page.$eval('[data-article-reading]', section => ({ quote: section.querySelector('[data-track="cluster-conversion-primary"]').href, guide: section.querySelector('[data-track="cluster-conversion-secondary"]').getAttribute('href') }));
+      assert.equal(new URL(destinations.quote).searchParams.get('source_path'), path);
+      assert.equal(new URL(destinations.quote).searchParams.get('intent'), 'audit-contrat');
+      assert.equal(destinations.guide, '/guide-recherche-fuite-immeuble');
+      assert.equal(await page.$eval('.article-layout', article => {
+        const text = article.querySelector('.article-body').getBoundingClientRect();
+        const form = article.querySelector('.article-cta').getBoundingClientRect();
+        return text.width >= innerWidth - 50 && form.top >= text.bottom;
+      }), true, 'The article stays readable and its full form follows the text on mobile');
+      row.articleNextStepsVerified = true;
+    }
     assert.equal(leadSubmissions, path === '/devis-assurance-immeuble' ? 1 : 0, 'Only the isolated callback fixture may be submitted.');
     assert.deepEqual(errors, [], path);
     rows.push({ path, ...row, lead_submissions: leadSubmissions });
@@ -298,6 +317,8 @@ try {
     ['/', 320, 720], ['/assurance-sci', 390, 844],
     ['/assurance-pno-cno', 390, 844], ['/recherches-assurance-immeuble', 390, 844],
     ['/blog/assurance-immeuble-ancien', 390, 844],
+    ['/blog/assurance-sci-patrimoine-locatif', 320, 720],
+    ['/blog/cno-coproprietaire-non-occupant-obligatoire', 390, 844],
     ['/news/veille-assurance-immeuble-2026-08-03', 390, 844],
     ['/guides', 1024, 768], ['/guides', 320, 720], ['/faq', 720, 360], ['/comparateur-assurance-immeuble', 390, 844],
     ['/assurance-immeuble', 1280, 900]
@@ -414,6 +435,8 @@ try {
     { from: '/audit-contrat-assurance-immeuble', intent: 'audit-contrat', payloadIntent: 'audit', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Audit' },
     { from: '/guide-lire-documents-assurance-immeuble', desktop: true, intent: 'audit-contrat', payloadIntent: 'audit', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Audit' },
     { from: '/guide-recherche-fuite-immeuble', entry: 'guide', intent: 'audit-contrat', payloadIntent: 'audit', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Audit' },
+    { from: '/blog/assurance-sci-patrimoine-locatif', desktop: true, intent: 'sci', profile: 'sci', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'SCI' },
+    { from: '/blog/cno-coproprietaire-non-occupant-obligatoire', entry: 'article', width: 320, intent: 'cno', profile: 'bailleur', need: 'cno', property: 'lot-copropriete', label: 'CNO' },
     { from: '/devis-assurance-immeuble', intent: 'immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
     { from: '/assurance-sci', intent: 'sci', changeTo: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
     { from: '/assurance-sci', intent: 'sci', changeTo: 'cno', changeProfile: 'administrateur-biens', profile: 'administrateur-biens', need: 'cno', property: 'lot-copropriete', label: 'CNO' },
@@ -449,9 +472,23 @@ try {
     await page.goto(origin + journey.from, { waitUntil: 'networkidle0' });
     if (journey.from !== '/devis-assurance-immeuble') {
       let selector = journey.desktop ? '.site-header > .nav a[href*="/devis-assurance-immeuble"]' : '[data-track="mobile-navigation-quote"]';
-      if (journey.entry === 'guide') {
-        selector = '.guide-cta [data-track="cta-primary"]';
+      if (journey.entry === 'guide' || journey.entry === 'article') {
+        selector = journey.entry === 'article' ? '[data-article-reading] [data-track="cluster-conversion-primary"]' : '.guide-cta [data-track="cta-primary"]';
         await page.$eval(selector, link => link.scrollIntoView({ block: 'center', behavior: 'instant' }));
+        if (journey.entry === 'article') {
+          await page.waitForSelector('#lead-form .ux-form-proof');
+          await new Promise(resolve => setTimeout(resolve, 300));
+          await page.$eval(selector, link => link.scrollIntoView({ block: 'center', behavior: 'instant' }));
+          assert.equal(await page.$eval(selector, link => {
+            const box = link.getBoundingClientRect();
+            const target = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+            return target === link || link.contains(target);
+          }), true, 'The article study link receives the pointer on mobile');
+        }
+        if (journey.entry === 'article' && process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT) {
+          mkdirSync(process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT, { recursive: true });
+          await page.screenshot({ path: resolve(process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT, 'article-reading-mobile.png') });
+        }
       } else if (journey.entry) {
         await page.waitForSelector('.lead-action-bar[data-short-quote-bar="1"]');
         assert.equal(await page.$eval('.lead-action-bar', bar => {
