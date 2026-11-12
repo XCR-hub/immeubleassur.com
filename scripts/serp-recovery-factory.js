@@ -1,3 +1,4 @@
+import { renderSiteNavigation } from "./site-navigation.js";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -305,8 +306,8 @@ function publicPath(slug) { return `/${slug}`; }
 function versionedAsset(path) { const file = join(OUT, ...path.replace(/^\//, "").split("/")); return existsSync(file) ? `${path}?v=${hash(readFileSync(file))}` : path; }
 function normalizeTarget(targetUrl) { return String(targetUrl || "").split("?")[0].replace(/^https?:\/\/[^/]+/i, "").replace(/^\/+|\/+$/g, "") || "index"; }
 
-function nav() {
-  return `<header class="site-header" data-elevate><a class="brand" href="/" aria-label="IA ImmeubleAssur courtier immeuble - accueil"><span class="brand-mark" aria-hidden="true">IA</span><span><strong>ImmeubleAssur</strong><small>courtier immeuble</small></span></a><nav class="nav" aria-label="Navigation principale"><a href="/assurance-immeuble">Immeuble</a><a href="/recherches-assurance-immeuble">Recherches</a><a href="/assurance-copropriete">Copropriete</a><a href="/assurance-pno-cno">PNO/CNO</a><a href="/villes">Villes</a><a href="/blog">Blog</a><a href="/devis-assurance-immeuble">Devis</a></nav><a class="header-phone" href="tel:${PHONE_HREF}">${PHONE}</a></header>`;
+function nav(slug) {
+  return renderSiteNavigation(slug);
 }
 
 function footer() {
@@ -349,7 +350,7 @@ function layout({ slug, title, description, body, faq, row }) {
   const styles = versionedAsset("/assets/styles.css");
   const app = versionedAsset("/assets/app.js");
   const canonical = siteUrl(slug);
-  return `<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="description" content="${attr(description)}" /><meta name="robots" content="index, follow, max-image-preview:large" /><meta property="og:type" content="article" /><meta property="og:locale" content="fr_FR" /><meta property="og:site_name" content="ImmeubleAssur" /><meta property="og:title" content="${attr(title)} | ImmeubleAssur" /><meta property="og:description" content="${attr(description)}" /><meta property="og:url" content="${canonical}" /><link rel="canonical" href="${canonical}" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="${styles}" /><title>${esc(title)} | ImmeubleAssur</title>${schema({ slug, title, description, faq, row })}</head><body><a class="skip-link" href="#main-content">Aller au contenu principal</a>${nav()}<main id="main-content">${body}</main>${footer()}<script src="${app}" type="module"></script></body></html>`;
+  return `<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="description" content="${attr(description)}" /><meta name="robots" content="index, follow, max-image-preview:large" /><meta property="og:type" content="article" /><meta property="og:locale" content="fr_FR" /><meta property="og:site_name" content="ImmeubleAssur" /><meta property="og:title" content="${attr(title)} | ImmeubleAssur" /><meta property="og:description" content="${attr(description)}" /><meta property="og:url" content="${canonical}" /><link rel="canonical" href="${canonical}" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="${styles}" /><title>${esc(title)} | ImmeubleAssur</title>${schema({ slug, title, description, faq, row })}</head><body><a class="skip-link" href="#main-content">Aller au contenu principal</a>${nav(slug)}<main id="main-content">${body}</main>${footer()}<script src="${app}" type="module"></script></body></html>`;
 }
 
 function competitorText(row) {

@@ -1,3 +1,4 @@
+import { renderSiteNavigation } from "./site-navigation.js";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -96,8 +97,8 @@ const APP_JS_URL = versionedAsset("/assets/app.js");
 const EDITORIAL_LIVE_JS_URL = versionedAsset("/assets/editorial-live.js");
 function siteUrl(slug) { return slug === "index" ? `${SITE}/` : `${SITE}/${String(slug || "").replace(/^\//, "").replace(/\.html$/, "")}`; }
 function pathUrl(slug) { return slug === "index" ? "/" : `/${String(slug || "").replace(/^\//, "").replace(/\.html$/, "")}`; }
-function nav() {
-  return `<header class="site-header" data-elevate><a class="brand" href="/" aria-label="IA ImmeubleAssur courtier immeuble - accueil"><span class="brand-mark" aria-hidden="true">IA</span><span><strong>ImmeubleAssur</strong><small>courtier immeuble</small></span></a><nav class="nav" aria-label="Navigation principale"><a href="/assurance-immeuble">Immeuble</a><a href="/assurance-pno-cno">PNO/CNO</a><a href="/villes">Villes</a><a href="/blog">Blog</a><a href="/veille-assurance-immeuble">Veille</a><a href="/newsletter-assurance-immeuble">Newsletter</a><a href="/devis-assurance-immeuble">Devis</a></nav><a class="header-phone" href="tel:${PHONE_HREF}">${PHONE}</a></header>`;
+function nav(slug) {
+  return renderSiteNavigation(slug);
 }
 
 function footer() {
@@ -119,7 +120,7 @@ function layout({ slug, title, description, body, publishedDate = "" }) {
   if (faqItems.length) graph.push({ "@type": "FAQPage", mainEntity: faqItems });
   const schema = { "@context": "https://schema.org", "@graph": graph };
   const liveEditorialScript = slug === "veille-assurance-immeuble" ? `<script src="${EDITORIAL_LIVE_JS_URL}" type="module"></script>` : "";
-  return `<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="robots" content="index, follow, max-image-preview:large" /><meta name="description" content="${attr(description)}" /><link rel="canonical" href="${canonical}" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="${STYLES_URL}" /><title>${esc(title)} | ImmeubleAssur</title><script type="application/ld+json">${JSON.stringify(schema)}</script></head><body><a class="skip-link" href="#main-content">Aller au contenu principal</a>${nav()}<main id="main-content">${body}</main>${footer()}<script src="${APP_JS_URL}" type="module"></script>${liveEditorialScript}</body></html>`;
+  return `<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="robots" content="index, follow, max-image-preview:large" /><meta name="description" content="${attr(description)}" /><link rel="canonical" href="${canonical}" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" /><link rel="stylesheet" href="${STYLES_URL}" /><title>${esc(title)} | ImmeubleAssur</title><script type="application/ld+json">${JSON.stringify(schema)}</script></head><body><a class="skip-link" href="#main-content">Aller au contenu principal</a>${nav(slug)}<main id="main-content">${body}</main>${footer()}<script src="${APP_JS_URL}" type="module"></script>${liveEditorialScript}</body></html>`;
 }
 
 function newsletterForm(source = "editorial-autopilot") {

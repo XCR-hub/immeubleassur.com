@@ -1,3 +1,4 @@
+import { renderSiteNavigation } from "./site-navigation.js";
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -503,25 +504,8 @@ function pagePath(slug) {
   return slug === "index" ? "index.html" : `${slug}.html`;
 }
 
-function nav() {
-  return `
-    <header class="site-header" data-elevate>
-      <a class="brand" href="/" aria-label="IA ImmeubleAssur courtier immeuble - accueil">
-        <span class="brand-mark" aria-hidden="true">IA</span>
-        <span><strong>ImmeubleAssur</strong><small>courtier immeuble</small></span>
-      </a>
-      <nav class="nav" aria-label="Navigation principale">
-        <a href="/assurance-immeuble.html">Immeuble</a>
-        <a href="/assurance-copropriete.html">Copropriete</a>
-        <a href="/assurance-pno.html">PNO</a>
-        <a href="/assurance-cno.html">CNO</a>
-        <a href="/villes.html">Villes</a>
-        <a href="/blog.html">Blog</a>
-                <a href="/faq.html">FAQ</a>
-<a href="/devis-assurance-immeuble.html">Devis</a>
-      </nav>
-      <a class="header-phone" href="tel:${PHONE_HREF}">${PHONE}</a>
-    </header>`;
+function nav(slug) {
+  return renderSiteNavigation(slug);
 }
 
 function footer() {
@@ -644,7 +628,7 @@ function layout({ slug, title, description, body, canonical, schema = "" }) {
 ${schemaMarkup}  </head>
   <body>
     <a class="skip-link" href="#main-content">Aller au contenu principal</a>
-    ${nav()}
+    ${nav(slug)}
     <main id="main-content">
       ${body}
     </main>
@@ -987,7 +971,7 @@ function adminPage() {
     <title>Admin leads - ImmeubleAssur</title>
   </head>
   <body class="plain-page">
-    ${nav()}
+    ${nav("admin")}
     <main class="plain-main">
       <h1>Leads immeuble</h1>
       <p>Acces protege par ADMIN_API_TOKEN cote serveur local.</p>

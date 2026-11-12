@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { dirname, resolve } from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import puppeteer from 'puppeteer-core';
 import * as chromeLauncher from 'chrome-launcher';
 
@@ -21,6 +21,7 @@ child.stdout.on('data', x => { output += x; });
 child.stderr.on('data', x => { output += x; });
 let browser;
 const rows = [];
+const navigationRows = [];
 // Cloudflare's always-pass key is valid on localhost; production keys are scoped
 // to the public hostname. This override exists only inside the test browser.
 const turnstileTestKey = '1x00000000000000000000AA';
@@ -124,6 +125,35 @@ try {
     assert.equal(row.duplicateSelectors, 0, `${path}: duplicate quote selector`);
     assert.equal(row.overflow, false, `${path}: horizontal overflow`);
     assert.equal(row.h1, 1, path);
+    const menu = '[data-mobile-navigation]';
+    assert.equal(await page.$eval(menu, element => element.open), false);
+    await page.focus(menu + ' > summary');
+    await page.keyboard.press('Enter');
+    assert.equal(await page.$eval(menu, element => element.open), true, `${path}: the menu opens from the keyboard`);
+    assert.ok(await page.$eval(menu + ' .mobile-navigation-panel', element => {
+      const box = element.getBoundingClientRect();
+      return box.top >= 0 && box.bottom <= innerHeight && box.left >= 0 && box.right <= innerWidth;
+    }), `${path}: the menu stays inside the mobile viewport`);
+    assert.equal(await page.$eval(menu + ' a[href="tel:+33180855786"]', element => element.checkVisibility()), true);
+    if (process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT && path === '/devis-assurance-immeuble') {
+      await page.screenshot({ path: resolve(process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT, 'mobile-navigation-open.png') });
+    }
+    assert.equal(await page.$eval(menu + ' .mobile-navigation-panel', panel => {
+      const last = [...panel.querySelectorAll('a')].at(-1);
+      last.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+      const box = last.getBoundingClientRect();
+      const target = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+      return target === last || last.contains(target);
+    }), true, `${path}: floating quote buttons do not cover the last menu link`);
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.track), 'mobile-navigation-quote');
+    await page.keyboard.press('Escape');
+    assert.equal(await page.$eval(menu, element => element.open), false);
+    assert.equal(await page.$eval(menu + ' > summary', element => document.activeElement === element), true, 'Escape restores focus');
+    await page.click(menu + ' > summary');
+    await page.evaluate(() => document.querySelector('h1').click());
+    assert.equal(await page.$eval(menu, element => element.open), false);
+    row.mobileNavigationVerified = true;
     assert.equal(trackedEvents.filter(event => event.event_type === 'page_view').length, 1, `${path}: initial visit missing or duplicated`);
     assert.equal(trackedEvents.filter(event => event.event_type === 'experiment_view').length, 1, `${path}: experiment context missing or duplicated`);
     assert.match(trackedEvents.find(event => event.event_type === 'page_view').viewport, /^\d+x\d+$/, 'Deferred tracking retains measured viewport dimensions');
@@ -207,13 +237,83 @@ try {
     rows.push({ path, ...row, lead_submissions: leadSubmissions });
     await page.close();
   }
-  const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows };
+  // Also exercise the native disclosure with JavaScript disabled, including
+  // archived pages and layouts from each independent content generator.
+  const navigationCases = [
+    ['/', 320, 720], ['/assurance-sci', 390, 844],
+    ['/assurance-pno-cno', 390, 844], ['/recherches-assurance-immeuble', 390, 844],
+    ['/blog/assurance-immeuble-ancien', 390, 844],
+    ['/news/veille-assurance-immeuble-2026-08-03', 390, 844],
+    ['/guides', 1024, 768], ['/faq', 720, 360],
+    ['/assurance-immeuble', 1280, 900]
+  ];
+  for (const [path, width, height] of navigationCases) {
+    const page = await browser.newPage();
+    await page.setJavaScriptEnabled(false);
+    await page.setViewport({ width, height });
+    const response = await page.goto(origin + path, { waitUntil: 'networkidle0' });
+    assert.equal(response.status(), 200, path);
+    const summary = '[data-mobile-navigation] > summary';
+    if (width <= 1100) {
+      assert.equal(await page.$eval(summary, element => element.checkVisibility()), true, `${path}: menu available without JavaScript`);
+      await page.focus(summary);
+      await page.keyboard.press('Enter');
+      assert.equal(await page.$eval('[data-mobile-navigation]', element => element.open), true);
+      const geometry = await page.$eval('.mobile-navigation-panel', element => {
+        const box = element.getBoundingClientRect();
+        return { inViewport: box.top >= 0 && box.bottom <= innerHeight && box.left >= 0 && box.right <= innerWidth,
+          scrollable: element.scrollHeight > element.clientHeight, overflow: getComputedStyle(element).overflowY };
+      });
+      assert.equal(geometry.inViewport, true, `${path}: menu fits ${width}x${height}`);
+      if (geometry.scrollable) assert.equal(geometry.overflow, 'auto', 'Every link remains reachable in a short viewport');
+      await page.keyboard.press('Tab');
+      assert.equal(await page.evaluate(() => document.activeElement.dataset.track), 'mobile-navigation-quote');
+      await Promise.all([page.waitForNavigation({ waitUntil: 'domcontentloaded' }), page.keyboard.press('Enter')]);
+      assert.equal(new URL(page.url()).pathname, '/devis-assurance-immeuble', 'The native quote link works without JavaScript');
+    } else {
+      assert.equal(await page.$eval('.site-header > .nav', element => element.checkVisibility()), true);
+      assert.equal(await page.$eval(summary, element => element.checkVisibility()), false);
+      assert.equal(await page.$eval('.site-header', element => element.scrollWidth > element.clientWidth), false);
+    }
+    navigationRows.push({ path, width, height, javascript: false, passed: true });
+    await page.close();
+  }
+  const navigationPage = await browser.newPage();
+  await navigationPage.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
+  await navigationPage.setRequestInterception(true);
+  navigationPage.on('request', request => {
+    if (new URL(request.url()).pathname.startsWith('/api/')) {
+      assert.equal(request.url().startsWith(origin + '/api/'), true);
+      void request.respond({ status: 200, contentType: 'application/json', body: '{"success":true}' });
+    } else void request.continue();
+  });
+  await navigationPage.goto(origin + '/', { waitUntil: 'networkidle0' });
+  await navigationPage.click('[data-mobile-navigation] > summary');
+  await Promise.all([navigationPage.waitForNavigation({ waitUntil: 'networkidle0' }), navigationPage.click('[data-track="mobile-navigation-quote"]')]);
+  assert.equal(new URL(navigationPage.url()).pathname, '/devis-assurance-immeuble', 'Header navigation opens the short quote page when JavaScript is enabled');
+  await navigationPage.waitForSelector('[data-instant-callback-source="quote-inline-callback"][data-bound="1"]');
+  navigationRows.push({ path: '/', width: 390, height: 844, javascript: true, shortQuoteNavigation: true, passed: true });
+  await navigationPage.close();
+  const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows, navigationRows };
   const target = resolve(process.env.LOCAL_PAGE_STABILITY_REPORT || 'reports/page-stability-browser-report.json');
   mkdirSync(dirname(target), { recursive: true });
   writeFileSync(target, JSON.stringify(report, null, 2) + '\n');
-  console.log(`Page stability passed: ${rows.length} pages, worst delayed-load CLS=${Math.max(...rows.map(r => r.cls)).toFixed(3)}, callback consent and local fixture verified, no production lead submitted.`);
+  console.log(`Page stability passed: ${rows.length} pages, worst delayed-load CLS=${Math.max(...rows.map(r => r.cls)).toFixed(3)}, ${navigationRows.length} navigation checks, callback consent and local fixture verified, no production lead submitted.`);
 } finally {
-  if (browser) await browser.close();
+  if (browser) {
+    let shutdownTimer;
+    const forceClose = () => {
+      const browserProcess = browser.process();
+      if (browserProcess?.pid && process.platform === 'win32') spawnSync('taskkill.exe', ['/PID', String(browserProcess.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore', timeout: 5000 });
+      else browserProcess?.kill();
+      browser.disconnect();
+    };
+    try {
+      await Promise.race([browser.close().catch(forceClose), new Promise(resolve => {
+        shutdownTimer = setTimeout(() => { forceClose(); resolve(); }, 5000);
+      })]);
+    } finally { clearTimeout(shutdownTimer); }
+  }
   child.kill();
   await new Promise(r => { child.once('exit', r); setTimeout(r, 1500); });
 }

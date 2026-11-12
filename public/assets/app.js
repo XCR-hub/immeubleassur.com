@@ -2078,6 +2078,7 @@ function homepageDevisIntentFromLink(link) {
 
 function isHomepageDevisAcceleratorLink(link) {
   if (!link) return false;
+  if (link.closest(".site-header")) return false;
   const href = link.getAttribute("href") || "";
   if (href.startsWith("tel:") || href.startsWith("mailto:") || href.startsWith("#")) return false;
   try {
@@ -2841,6 +2842,38 @@ function bindNewsletterForms() {
     });
   });
 }
+function bindMobileNavigation() {
+  const menu = document.querySelector("[data-mobile-navigation]");
+  if (!menu) return;
+  const summary = menu.querySelector("summary");
+  const close = () => { menu.open = false; };
+  document.addEventListener("keydown", event => {
+    if (event.key !== "Escape" || !menu.open) return;
+    event.preventDefault();
+    close();
+    summary.focus();
+  });
+  document.addEventListener("click", event => {
+    if (menu.open && !menu.contains(event.target)) close();
+  });
+  document.addEventListener("focusin", event => {
+    if (menu.open && !menu.contains(event.target)) close();
+  });
+  menu.addEventListener("click", event => {
+    if (!event.target.closest("a")) return;
+    // Closing on pointerdown would remove the target before its native action.
+    close();
+  });
+  const desktop = window.matchMedia("(min-width: 1101px)");
+  desktop.addEventListener("change", event => {
+    if (!event.matches) return;
+    const focusWasInside = menu.contains(document.activeElement);
+    close();
+    if (focusWasInside) document.querySelector(".site-header .brand")?.focus();
+  });
+}
+
+bindMobileNavigation();
 applyIntentPrefill();
 bindTurnstileOnDemand();
 bindFormAbandonment();

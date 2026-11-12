@@ -76,6 +76,7 @@ const baseHubHashes = Object.fromEntries(["faq.html", "villes.html", "sitemap.xm
 }));
 const publicationInputHashes = Object.fromEntries([
   "scripts/editorial-autopilot.js",
+  "scripts/site-navigation.js",
   "scripts/editorial-public-metadata-policy.js",
   "scripts/turnstile-markup.js",
   "scripts/local-editorial-publisher.js"
