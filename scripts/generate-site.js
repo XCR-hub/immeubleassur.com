@@ -590,7 +590,7 @@ function leadForm(defaults = {}) {
 function homepageInstantCallback({ source = "homepage-inline-callback", heading = "Rappel express", copy = "Telephone ou email suffit. Un conseiller complete le dossier immeuble avec vous." } = {}) {
   return `
     <div class="hero-inline-callback" data-instant-callback-context data-active-intent="immeuble" aria-label="Rappel express assurance immeuble">
-      <div><strong>${esc(heading)}</strong><span>${esc(copy)}</span></div>
+      <div><strong${source === "quote-inline-callback" ? " data-quote-context-title" : ""}>${esc(heading)}</strong><span>${esc(copy)}</span></div>
       <form class="instant-callback-form hero-inline-callback-form" data-instant-callback-form data-instant-callback-source="${esc(source)}" data-instant-callback-content-kind="${esc(source)}" novalidate>
         <input class="hp-field" type="text" name="company_website" tabindex="-1" autocomplete="off" />
         <label>Telephone ou email *<input name="contact" autocomplete="tel" inputmode="email" required placeholder="06 12 34 56 78" /></label>

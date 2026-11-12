@@ -203,6 +203,9 @@ function normalizeLeadIntent(value) {
     "multirisque": "immeuble",
     "multirisque-immeuble": "immeuble",
     "mrh-immeuble": "immeuble",
+    "garage": "garages",
+    "parking": "garages",
+    "parkings": "garages",
     "dommages-ouvrage": "travaux",
     "dommage-ouvrage": "travaux",
     "do": "travaux",
@@ -981,7 +984,8 @@ function setSelectValue(name, value) {
   const field = form.elements[name];
   if (!field || !field.options) return false;
   const candidates = [value, ...((selectAliases[name] || {})[value] || [])];
-  const option = [...field.options].find((item) => candidates.includes(item.value));
+  const options = [...field.options];
+  const option = candidates.map(candidate => options.find(item => item.value === candidate)).find(Boolean);
   if (!option) return false;
   field.value = option.value;
   return true;
@@ -1017,6 +1021,7 @@ function applyIntentPrefill() {
     "pno-cno": "pno-cno",
     copropriete: "copropriete",
     sci: "multirisque-immeuble",
+    garages: "multirisque-immeuble",
     travaux: "dommages-ouvrage",
     "local-commercial": "multirisque-immeuble",
     prix: "multirisque-immeuble",
@@ -1029,6 +1034,7 @@ function applyIntentPrefill() {
   };
   const profileMap = {
     sci: "sci",
+    garages: "bailleur",
     copropriete: "syndic-professionnel",
     travaux: "syndic-professionnel",
     cno: "bailleur",
@@ -1049,6 +1055,7 @@ function applyIntentPrefill() {
     "pno-cno": "lot-copropriete",
     copropriete: "copropriete",
     sci: "immeuble-locatif",
+    garages: "parking",
     travaux: "copropriete",
     "local-commercial": "local-commercial",
     prix: "immeuble-locatif",
@@ -1066,6 +1073,7 @@ function applyIntentPrefill() {
     "pno-cno": "Je souhaite comparer PNO et CNO selon ma situation.",
     copropriete: "Je souhaite qualifier une copropriete avant consultation assureur.",
     sci: "Je souhaite organiser l'assurance d'un patrimoine en SCI.",
+    garages: "Je souhaite assurer un ensemble de garages ou de places de parking.",
     travaux: "Je souhaite verifier les garanties avant ou apres travaux sur l'immeuble.",
     "local-commercial": "Je souhaite assurer un immeuble avec local commercial ou usage mixte.",
     prix: "Je souhaite comparer prix, franchises et garanties pour mon immeuble.",
@@ -1205,8 +1213,10 @@ function mountDiagnostic() {
     const options = [...shell.querySelectorAll("[data-diagnostic-option]")];
     options.forEach((option) => {
       option.addEventListener("click", () => {
+        shell.dataset.userSelected = "1";
         options.filter((item) => item.dataset.step === option.dataset.step).forEach((item) => item.classList.toggle("is-active", item === option));
         renderDiagnostic(shell);
+        updateQuoteCallbackContext();
         track("diagnostic_select", { target: option.dataset.step || "unknown", label: option.dataset.value || "unknown" });
       });
     });
@@ -1404,6 +1414,14 @@ function mountRiskRouter() {
 }
 function quoteFastTrackRows() {
   return {
+    garages: {
+      label: "Garages et parkings",
+      title: "Assurance de garages et parkings",
+      text: "Décrire le bâtiment, les emplacements et leur occupation.",
+      proof: "Nombre d'emplacements, surfaces et usages à préciser.",
+      href: "/devis-assurance-immeuble?intent=garages",
+      need: "multirisque-immeuble", profile: "bailleur", property_type: "parking"
+    },
     cno: {
       label: "CNO",
       title: "Coproprietaire non occupant",
@@ -2262,13 +2280,27 @@ function instantCallbackContext(formElement) {
   return formElement?.closest?.(".traffic-no-click-rescue, [data-instant-callback-context]") || formElement;
 }
 
+function quoteCallbackIntent() {
+  const diagnostic = document.querySelector("[data-diagnostic]");
+  const value = diagnostic?.dataset.userSelected === "1" ? diagnostic.dataset.route : queryLeadIntent();
+  const intent = normalizeLeadIntent(value);
+  return intent === "audit-contrat" ? "audit" : intent || "immeuble";
+}
+
+function updateQuoteCallbackContext() {
+  const heading = document.querySelector("[data-quote-context-title]");
+  if (!heading) return;
+  const intent = quoteCallbackIntent();
+  const row = { ...quoteFastTrackRows(), ...trafficNoClickIntentRows() }[intent];
+  heading.textContent = row && intent !== "immeuble" ? `Votre demande : ${row.label}` : "Un rappel pour votre devis";
+}
+
 function instantCallbackPayload(formElement, panel = instantCallbackContext(formElement)) {
   const data = Object.fromEntries(new FormData(formElement).entries());
   const source = formElement.dataset.instantCallbackSource || panel?.dataset.instantCallbackSource || "instant-callback";
   const rows = source === "quote-inline-callback" ? { ...quoteFastTrackRows(), ...trafficNoClickIntentRows() } : trafficNoClickIntentRows();
-  const queryIntent = new URLSearchParams(window.location.search).get("intent");
-  const quoteIntent = rows[queryIntent] ? queryIntent : document.querySelector("[data-diagnostic]")?.dataset.route;
-  const selected = formElement.dataset.instantCallbackIntent || (source === "quote-inline-callback" && rows[quoteIntent] ? quoteIntent : panel?.dataset.activeIntent) || trafficNoClickIntentKey();
+  const quoteIntent = quoteCallbackIntent();
+  const selected = formElement.dataset.instantCallbackIntent || (source === "quote-inline-callback" ? rows[quoteIntent] ? quoteIntent : "immeuble" : panel?.dataset.activeIntent) || trafficNoClickIntentKey();
   const row = rows[selected] || rows.immeuble;
   const contact = instantCallbackContact(data.contact);
   const attribution = attributionPayload();
@@ -2875,6 +2907,7 @@ function bindMobileNavigation() {
 
 bindMobileNavigation();
 applyIntentPrefill();
+updateQuoteCallbackContext();
 bindTurnstileOnDemand();
 bindFormAbandonment();
 bindBotSignalTracking();

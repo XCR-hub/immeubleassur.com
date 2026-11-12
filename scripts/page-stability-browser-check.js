@@ -22,6 +22,7 @@ child.stderr.on('data', x => { output += x; });
 let browser;
 const rows = [];
 const navigationRows = [];
+const quoteJourneys = [];
 // The external anti-bot service is replaced only inside this isolated browser.
 // Tokens are withheld until the test explicitly releases them, so the actual
 // application's consent and anti-bot gates are exercised without live CI access.
@@ -303,11 +304,92 @@ try {
   await navigationPage.waitForSelector('[data-instant-callback-source="quote-inline-callback"][data-bound="1"]');
   navigationRows.push({ path: '/', width: 390, height: 844, javascript: true, shortQuoteNavigation: true, passed: true });
   await navigationPage.close();
-  const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows, navigationRows };
+  const journeyCases = [
+    { from: '/assurance-sci', intent: 'sci', profile: 'sci', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'SCI', desktop: true },
+    { from: '/assurance-garages-parkings', intent: 'garages', profile: 'bailleur', need: 'multirisque-immeuble', property: 'parking', label: 'Garages' },
+    { from: '/assurance-copropriete', intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
+    { from: '/assurance-pno', intent: 'pno', profile: 'bailleur', need: 'pno', property: 'logement-loue', label: 'PNO', desktop: true },
+    { from: '/assurance-cno', intent: 'cno', profile: 'bailleur', need: 'cno', property: 'lot-copropriete', label: 'CNO', desktop: true },
+    { from: '/assurance-pno-cno', intent: 'pno-cno', profile: 'bailleur', need: 'pno-cno', property: 'lot-copropriete', label: 'PNO' },
+    { from: '/audit-contrat-assurance-immeuble', intent: 'audit-contrat', payloadIntent: 'audit', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Audit' },
+    { from: '/devis-assurance-immeuble', intent: 'immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
+    { from: '/assurance-sci', intent: 'sci', changeTo: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' }
+  ];
+  for (const journey of journeyCases) {
+    const page = await browser.newPage();
+    const callbacks = [];
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.setViewport({ width: journey.desktop ? 1280 : 390, height: 844, isMobile: !journey.desktop, hasTouch: !journey.desktop });
+    await page.evaluateOnNewDocument(testKey => {
+      const replace = () => document.querySelectorAll('.cf-turnstile[data-sitekey]').forEach(widget => { widget.dataset.sitekey = testKey; });
+      new MutationObserver(replace).observe(document, { childList: true, subtree: true });
+      document.addEventListener('DOMContentLoaded', replace, { once: true });
+    }, turnstileTestKey);
+    await page.setRequestInterception(true);
+    page.on('request', async request => {
+      const url = new URL(request.url());
+      if (url.hostname === 'challenges.cloudflare.com' && url.pathname === '/turnstile/v0/api.js') {
+        void request.respond({ status: 200, contentType: 'application/javascript', body: turnstileFixture });
+      } else if (url.pathname.startsWith('/api/')) {
+        assert.equal(url.origin, origin, 'Journey fixtures cannot reach a production API');
+        if (url.pathname === '/api/leads') callbacks.push(JSON.parse(request.postData() || await request.fetchPostData()));
+        void request.respond({ status: 200, contentType: 'application/json', body: '{"success":true,"reference":"LOCAL-JOURNEY-FIXTURE"}' });
+      } else void request.continue();
+    });
+    await page.goto(origin + journey.from, { waitUntil: 'networkidle0' });
+    if (journey.from !== '/devis-assurance-immeuble') {
+      const selector = journey.desktop ? '.site-header > .nav a[href*="/devis-assurance-immeuble"]' : '[data-track="mobile-navigation-quote"]';
+      if (!journey.desktop) await page.click('[data-mobile-navigation] > summary');
+      await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click(selector)]);
+      const destination = new URL(page.url());
+      assert.equal(destination.pathname, '/devis-assurance-immeuble');
+      assert.equal(destination.searchParams.get('intent'), journey.intent);
+      assert.equal(destination.searchParams.get('source_path'), journey.from);
+    }
+    const callback = '[data-instant-callback-source="quote-inline-callback"]';
+    await page.waitForSelector(callback + '[data-bound="1"]');
+    await page.waitForFunction(() => document.querySelector('[data-diagnostic]')?.dataset.route);
+    const refusal = await page.$('[data-analytics-choice="denied"]');
+    if (refusal && await refusal.isVisible()) await refusal.click();
+    if (journey.changeTo) {
+      await page.click('[data-diagnostic-option][data-step="profile"][data-value="syndic-professionnel"]');
+      await page.click('.diagnostic-cta');
+    }
+    if (journey.label) assert.ok((await page.$eval('[data-quote-context-title]', element => element.textContent)).includes(journey.label), 'The visitor sees the retained quote subject');
+    if (journey.from !== '/devis-assurance-immeuble') {
+      assert.equal(await page.$eval('#lead-form [name="profile"]', field => field.value), journey.profile, journey.from);
+      assert.equal(await page.$eval('#lead-form [name="need"]', field => field.value), journey.need, journey.from);
+    }
+    await page.$eval(callback, element => element.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    await page.type(callback + ' [name="contact"]', 'quote-fixture@example.invalid');
+    await page.click(callback + ' [name="consent"]');
+    await page.waitForFunction(() => window.__localTurnstileFixture?.rendered > 0);
+    await page.evaluate(() => window.__localTurnstileFixture.release());
+    await page.click(callback + ' button[type="submit"]');
+    await page.waitForFunction(selector => document.querySelector(selector + ' [data-instant-callback-status]').textContent.includes('LOCAL-JOURNEY-FIXTURE'), {}, callback);
+    assert.equal(callbacks.length, 1);
+    const payload = callbacks[0];
+    assert.equal(payload.profile, journey.profile, journey.from);
+    assert.equal(payload.need, journey.need, journey.from);
+    assert.equal(payload.property_type, journey.property, journey.from);
+    assert.equal(payload.intent, journey.changeTo || journey.payloadIntent || journey.intent, 'An explicit visitor change takes priority over the original URL');
+    assert.equal(payload.source_path, journey.from);
+    assert.equal(payload.utm.source_path, journey.from);
+    assert.equal(payload.landing_path, journey.from);
+    assert.equal(payload.phone, '');
+    assert.equal(payload.email, 'quote-fixture@example.invalid');
+    assert.equal(payload.consent, true);
+    assert.match(payload.turnstile_token, /^local-turnstile-fixture-widget-/);
+    assert.deepEqual(errors, []);
+    quoteJourneys.push({ from: journey.from, intent: payload.intent, profile: payload.profile, need: payload.need, property_type: payload.property_type, source_path: payload.source_path, passed: true });
+    await page.close();
+  }
+  const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows, navigationRows, quoteJourneys };
   const target = resolve(process.env.LOCAL_PAGE_STABILITY_REPORT || 'reports/page-stability-browser-report.json');
   mkdirSync(dirname(target), { recursive: true });
   writeFileSync(target, JSON.stringify(report, null, 2) + '\n');
-  console.log(`Page stability passed: ${rows.length} pages, worst delayed-load CLS=${Math.max(...rows.map(r => r.cls)).toFixed(3)}, ${navigationRows.length} navigation checks, callback consent and local fixture verified, no production lead submitted.`);
+  console.log(`Page stability passed: ${rows.length} pages, worst delayed-load CLS=${Math.max(...rows.map(r => r.cls)).toFixed(3)}, ${navigationRows.length} navigation checks, ${quoteJourneys.length} quote journeys, callback consent and local fixture verified, no production lead submitted.`);
 } finally {
   if (browser) {
     let shutdownTimer;
