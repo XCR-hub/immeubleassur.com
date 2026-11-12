@@ -10,4 +10,4 @@
 .guide-topic-nav a:hover{background:#eaf5f2}
 .guide-directory .guide-cta{margin-top:3rem}
 @media(min-width:701px) and (max-width:950px){.guide-directory .card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:700px){.guide-topic-nav ul,.guide-directory .card-grid{grid-template-columns:1fr}.guide-topic-nav a{padding:.85rem}.guide-directory{padding-top:1.25rem}.guide-directory section{margin-top:2rem}}
+@media(max-width:700px){[data-guide-directory] .page-hero{padding:28px 0 24px}[data-guide-directory] .page-hero h1{font-size:clamp(1.7rem,7.5vw,2.1rem);line-height:1.12}[data-guide-directory] .page-hero p:not(.eyebrow){font-size:1rem;line-height:1.5}.guide-topic-nav{padding:1rem}.guide-topic-nav ul,.guide-directory .card-grid{grid-template-columns:1fr}.guide-topic-nav a{padding:.85rem}.guide-directory{padding-top:1.25rem}.guide-directory section{margin-top:2rem}}

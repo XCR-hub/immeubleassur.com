@@ -322,10 +322,12 @@ try {
       assert.equal(directory.overflow, false, `Guide directory fits ${width}px`);
       assert.deepEqual(directory.collection.mainEntity.itemListElement.map(item => ({ name: item.name, path: new URL(item.url).pathname })), directory.links.map(link => ({ name: link.name, path: new URL(link.url).pathname })), 'Search metadata matches the visible directory');
       if (width === 320) {
-        assert.equal(await page.$$eval('.guide-topic-nav a', links => links.every(link => {
+        const topicGeometry = await page.$$eval('.guide-topic-nav a', links => links.map(link => {
           const box = link.getBoundingClientRect();
-          return box.top >= document.querySelector('.site-header').getBoundingClientRect().bottom && box.bottom <= innerHeight;
-        })), true, 'All three topics are visible on the first small mobile screen');
+          return { text: link.textContent, top: box.top, bottom: box.bottom, header: document.querySelector('.site-header').getBoundingClientRect().bottom, height: innerHeight };
+        }));
+        assert.equal(topicGeometry.length, 3);
+        assert.equal(topicGeometry.every(box => box.top >= box.header && box.bottom <= box.height), true, `All three topics are visible on the first small mobile screen: ${JSON.stringify(topicGeometry)}`);
         if (process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT) {
           mkdirSync(process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT, { recursive: true });
           await page.screenshot({ path: resolve(process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT, 'guide-directory-mobile.png'), fullPage: true });
