@@ -313,7 +313,8 @@ try {
     { from: '/assurance-pno-cno', intent: 'pno-cno', profile: 'bailleur', need: 'pno-cno', property: 'lot-copropriete', label: 'PNO' },
     { from: '/audit-contrat-assurance-immeuble', intent: 'audit-contrat', payloadIntent: 'audit', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Audit' },
     { from: '/devis-assurance-immeuble', intent: 'immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
-    { from: '/assurance-sci', intent: 'sci', changeTo: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' }
+    { from: '/assurance-sci', intent: 'sci', changeTo: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
+    { from: '/assurance-sci', intent: 'sci', changeTo: 'cno', changeProfile: 'administrateur-biens', profile: 'administrateur-biens', need: 'cno', property: 'lot-copropriete', label: 'CNO' }
   ];
   for (const journey of journeyCases) {
     const page = await browser.newPage();
@@ -353,7 +354,7 @@ try {
     const refusal = await page.$('[data-analytics-choice="denied"]');
     if (refusal && await refusal.isVisible()) await refusal.click();
     if (journey.changeTo) {
-      await page.click('[data-diagnostic-option][data-step="profile"][data-value="syndic-professionnel"]');
+      await page.click(`[data-diagnostic-option][data-step="profile"][data-value="${journey.changeProfile || 'syndic-professionnel'}"]`);
       await page.click('.diagnostic-cta');
     }
     if (journey.label) assert.ok((await page.$eval('[data-quote-context-title]', element => element.textContent)).includes(journey.label), 'The visitor sees the retained quote subject');

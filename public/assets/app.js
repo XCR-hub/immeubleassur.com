@@ -2301,14 +2301,16 @@ function instantCallbackPayload(formElement, panel = instantCallbackContext(form
   const rows = source === "quote-inline-callback" ? { ...quoteFastTrackRows(), ...trafficNoClickIntentRows() } : trafficNoClickIntentRows();
   const quoteIntent = quoteCallbackIntent();
   const selected = formElement.dataset.instantCallbackIntent || (source === "quote-inline-callback" ? rows[quoteIntent] ? quoteIntent : "immeuble" : panel?.dataset.activeIntent) || trafficNoClickIntentKey();
-  const row = rows[selected] || rows.immeuble;
+  const diagnostic = source === "quote-inline-callback" ? document.querySelector("[data-diagnostic]") : null;
+  const choice = diagnostic?.dataset.userSelected === "1" ? diagnosticRoute(diagnosticState(diagnostic)) : null;
+  const row = { ...(rows[selected] || rows.immeuble), ...(choice ? { profile: choice.profile, need: choice.need, property_type: choice.property_type } : {}) };
   const contact = instantCallbackContact(data.contact);
   const attribution = attributionPayload();
   const urgencyRows = trafficNoClickUrgencyRows();
   const urgencyRow = urgencyRows[trafficNoClickSelectedUrgency] || urgencyRows.standard;
   const contentKind = formElement.dataset.instantCallbackContentKind || panel?.dataset.instantCallbackContentKind || "homepage-rescue";
   const callbackOrigin = source === "quote-inline-callback" ? "la page de devis" : "l'accueil";
-  const message = `${trafficNoClickMessage(row)} Rappel express depuis ${callbackOrigin}, priorite ${urgencyRow.label}.`;
+  const message = `${trafficNoClickMessage(row)}${choice ? ` ${choice.message}` : ""} Rappel express depuis ${callbackOrigin}, priorite ${urgencyRow.label}.`;
   return {
     name: "Rappel express",
     phone: contact.phone,
