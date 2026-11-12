@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { dirname, resolve } from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
@@ -22,9 +22,11 @@ child.stderr.on('data', x => { output += x; });
 let browser;
 const rows = [];
 const navigationRows = [];
-// Cloudflare's always-pass key is valid on localhost; production keys are scoped
-// to the public hostname. This override exists only inside the test browser.
+// The external anti-bot service is replaced only inside this isolated browser.
+// Tokens are withheld until the test explicitly releases them, so the actual
+// application's consent and anti-bot gates are exercised without live CI access.
 const turnstileTestKey = '1x00000000000000000000AA';
+const turnstileFixture = readFileSync(new URL('./fixtures/turnstile-browser-fixture.js', import.meta.url), 'utf8');
 const deadline = Date.now() + 30000;
 try {
   while (true) {
@@ -53,7 +55,9 @@ try {
     await page.setRequestInterception(true);
     page.on('request', async request => {
       const url = new URL(request.url());
-      if (url.pathname.startsWith('/api/')) {
+      if (url.hostname === 'challenges.cloudflare.com' && url.pathname === '/turnstile/v0/api.js') {
+        void request.respond({ status: 200, contentType: 'application/javascript', body: turnstileFixture });
+      } else if (url.pathname.startsWith('/api/')) {
         if (url.pathname === '/api/leads') {
           assert.equal(url.origin, origin, 'Lead checks are confined to the isolated preview.');
           leadSubmissions++;
@@ -214,6 +218,10 @@ try {
       assert.equal(leadSubmissions, 0, 'Consent is required before the callback can be sent.');
       await page.click(callback + ' input[name="consent"]');
       await page.click(callback + ' button[type="submit"]');
+      await page.waitForFunction(() => window.__localTurnstileFixture?.rendered > 0);
+      await new Promise(r => setTimeout(r, 400));
+      assert.equal(leadSubmissions, 0, 'Consent alone cannot submit a protected form without an anti-bot token.');
+      await page.evaluate(() => window.__localTurnstileFixture.release());
       await page.waitForFunction(selector => document.querySelector(selector + ' [data-instant-callback-status]').textContent.includes('LOCAL-CALLBACK-FIXTURE'), { timeout: 25000 }, callback);
       assert.equal(localCallbacks.length, 1);
       assert.equal(localCallbacks[0].source, 'quote-inline-callback');
@@ -223,9 +231,10 @@ try {
       assert.equal(localCallbacks[0].consent, true);
       assert.equal(localCallbacks[0].submission_mode, 'express-callback');
       assert.match(localCallbacks[0].message, /page de devis/);
-      assert.ok(localCallbacks[0].turnstile_token, 'The local fixture still passes the real widget integration.');
+      assert.match(localCallbacks[0].turnstile_token, /^local-turnstile-fixture-widget-/, 'Only the released local fixture token reaches the mocked lead endpoint.');
       assert.equal(await page.$('.traffic-no-click-rescue'), null, 'The visible callback is not covered by a duplicate overlay.');
       row.quoteCallbackVerified = true;
+      row.antiBotGateVerified = true;
     }
     if (path === '/assurance-garages-parkings') {
       assert.equal(await page.$eval('#lead-form [name="property_type"]', field => field.value), 'parking');
