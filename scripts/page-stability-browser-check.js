@@ -33,11 +33,12 @@ try {
     await new Promise(r => setTimeout(r, 100));
   }
   browser = await puppeteer.launch({ executablePath: chromePath, headless: true, args: ['--no-first-run'] });
-  for (const path of ['/assurance-immeuble', '/devis-assurance-immeuble', '/', '/guide-recherche-fuite-immeuble']) {
+  for (const path of ['/assurance-immeuble', '/devis-assurance-immeuble', '/', '/guide-recherche-fuite-immeuble', '/assurance-garages-parkings']) {
     const page = await browser.newPage();
     const errors = [];
     const trackedEvents = [];
     let leadSubmissions = 0;
+    const localCallbacks = [];
     page.on('pageerror', e => errors.push(e.message));
     await page.evaluateOnNewDocument(testKey => {
       if (location.hostname !== '127.0.0.1') return;
@@ -52,7 +53,13 @@ try {
     page.on('request', async request => {
       const url = new URL(request.url());
       if (url.pathname.startsWith('/api/')) {
-        if (url.pathname === '/api/leads') leadSubmissions++;
+        if (url.pathname === '/api/leads') {
+          assert.equal(url.origin, origin, 'Lead checks are confined to the isolated preview.');
+          leadSubmissions++;
+          localCallbacks.push(JSON.parse(request.postData() || await request.fetchPostData()));
+          void request.respond({ status: 200, contentType: 'application/json', body: '{"success":true,"reference":"LOCAL-CALLBACK-FIXTURE","notification":"test-only"}' });
+          return;
+        }
         if (url.pathname === '/api/events') {
           try {
             const body = request.postData() || await request.fetchPostData();
@@ -73,7 +80,7 @@ try {
     const response = await page.goto(origin + path, { waitUntil: 'networkidle0', timeout: 30000 });
     const analyticsRefusal = await page.$('[data-analytics-choice="denied"]');
     if (analyticsRefusal && await analyticsRefusal.isVisible()) await analyticsRefusal.click();
-    await page.waitForSelector('.lead-action-bar', { timeout: 10000 });
+    await page.waitForSelector(path === '/devis-assurance-immeuble' ? '[data-instant-callback-source="quote-inline-callback"][data-bound="1"]' : '.lead-action-bar', { timeout: 10000 });
     await new Promise(r => setTimeout(r, 2000));
     const row = await page.evaluate(() => {
       let cls = 0, sessionValue = 0, sessionStart = 0, previous = 0;
@@ -86,6 +93,25 @@ try {
       return { cls, duplicateSelectors: document.querySelectorAll('.quote-fast-track').length, overflow: document.documentElement.scrollWidth > innerWidth, h1: document.querySelectorAll('h1').length };
     });
     assert.equal(response.status(), 200, path);
+    if (process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT && ['/devis-assurance-immeuble', '/assurance-garages-parkings'].includes(path)) {
+      const screenshotRoot = resolve(process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT);
+      mkdirSync(screenshotRoot, { recursive: true });
+      await page.screenshot({ path: resolve(screenshotRoot, path.slice(1) + '.png') });
+    }
+    if (path === '/devis-assurance-immeuble') {
+      const startVisible = await page.$eval('[data-instant-callback-source="quote-inline-callback"] input[name="contact"]', field => {
+        const box = field.getBoundingClientRect();
+        return box.top >= 0 && box.bottom <= innerHeight;
+      });
+      assert.equal(startVisible, true, 'The first contact field is visible on mobile without scrolling.');
+      const submitVisible = await page.$eval('[data-instant-callback-source="quote-inline-callback"] button[type="submit"]', button => {
+        const box = button.getBoundingClientRect();
+        return box.top >= 0 && box.bottom <= innerHeight;
+      });
+      assert.equal(submitVisible, true, 'The callback submit button is also visible on the first mobile screen.');
+      assert.equal(await page.$('.lead-action-bar'), null, 'A duplicate sticky bar must not cover the callback or consent.');
+      row.quoteStartVisible = true;
+    }
     const widgetState = await page.evaluate(testKey => {
       const widgets = [...document.querySelectorAll('.cf-turnstile[data-sitekey]')];
       return { count: widgets.length, valid: widgets.every(widget => widget.dataset.sitekey === testKey) };
@@ -149,7 +175,34 @@ try {
       assert.match(validation.message, /ville du bien/);
       row.missingCityVerified = true;
     }
-    assert.equal(leadSubmissions, 0, 'The browser check must not submit a lead.');
+    if (path === '/devis-assurance-immeuble') {
+      const callback = '[data-instant-callback-source="quote-inline-callback"]';
+      await page.$eval(callback, element => element.scrollIntoView({ block: 'center' }));
+      await page.type(callback + ' input[name="contact"]', '0100000000');
+      await page.click(callback + ' button[type="submit"]');
+      await new Promise(r => setTimeout(r, 400));
+      assert.equal(leadSubmissions, 0, 'Consent is required before the callback can be sent.');
+      await page.click(callback + ' input[name="consent"]');
+      await page.click(callback + ' button[type="submit"]');
+      await page.waitForFunction(selector => document.querySelector(selector + ' [data-instant-callback-status]').textContent.includes('LOCAL-CALLBACK-FIXTURE'), { timeout: 25000 }, callback);
+      assert.equal(localCallbacks.length, 1);
+      assert.equal(localCallbacks[0].source, 'quote-inline-callback');
+      assert.equal(localCallbacks[0].profile, 'sci', 'The callback retains the selected SCI journey.');
+      assert.equal(localCallbacks[0].need, 'multirisque-immeuble');
+      assert.equal(localCallbacks[0].phone, '0100000000');
+      assert.equal(localCallbacks[0].consent, true);
+      assert.equal(localCallbacks[0].submission_mode, 'express-callback');
+      assert.match(localCallbacks[0].message, /page de devis/);
+      assert.ok(localCallbacks[0].turnstile_token, 'The local fixture still passes the real widget integration.');
+      assert.equal(await page.$('.traffic-no-click-rescue'), null, 'The visible callback is not covered by a duplicate overlay.');
+      row.quoteCallbackVerified = true;
+    }
+    if (path === '/assurance-garages-parkings') {
+      assert.equal(await page.$eval('#lead-form [name="property_type"]', field => field.value), 'parking');
+      assert.equal(await page.$eval('#lead-form [name="profile"]', field => field.value), 'bailleur');
+      row.parkingPrefillVerified = true;
+    }
+    assert.equal(leadSubmissions, path === '/devis-assurance-immeuble' ? 1 : 0, 'Only the isolated callback fixture may be submitted.');
     assert.deepEqual(errors, [], path);
     rows.push({ path, ...row, lead_submissions: leadSubmissions });
     await page.close();
@@ -158,7 +211,7 @@ try {
   const target = resolve(process.env.LOCAL_PAGE_STABILITY_REPORT || 'reports/page-stability-browser-report.json');
   mkdirSync(dirname(target), { recursive: true });
   writeFileSync(target, JSON.stringify(report, null, 2) + '\n');
-  console.log(`Page stability passed: ${rows.length} pages, worst delayed-load CLS=${Math.max(...rows.map(r => r.cls)).toFixed(3)}, quote prefill verified, no lead submitted.`);
+  console.log(`Page stability passed: ${rows.length} pages, worst delayed-load CLS=${Math.max(...rows.map(r => r.cls)).toFixed(3)}, callback consent and local fixture verified, no production lead submitted.`);
 } finally {
   if (browser) await browser.close();
   child.kill();

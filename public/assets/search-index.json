@@ -1,23 +1,23 @@
 [
   {
-    "title": "Assurance batiment proprietaire: immeuble, SCI ou local",
-    "description": "Assurance batiment proprietaire: garanties immeuble, RC, locaux, SCI, PNO et audit contrat avant devis. Points a verifier: garanties, franchises, pieces a preparer.",
+    "title": "Assurance batiment proprietaire: murs et locaux",
+    "description": "Assurance batiment proprietaire pour murs, locaux, dependances, SCI ou bailleur: garanties batiment, RC et audit contrat.",
     "url": "/assurance-batiment-proprietaire"
   },
   {
-    "title": "Assurance CNO coproprietaire non occupant",
-    "description": "Devis assurance CNO pour coproprietaire non occupant: responsabilite civile, lot vacant ou loue, syndic, bailleur et copropriete.",
+    "title": "Assurance CNO lot vacant ou loue en copropriete",
+    "description": "Assurance CNO pour lot en copropriete vacant ou loue: responsabilite du coproprietaire, contrat immeuble, occupant et devis specialise.",
     "url": "/assurance-cno"
-  },
-  {
-    "title": "Assurance coproprietaire non occupant",
-    "description": "Assurance coproprietaire non occupant: obligations, PNO-CNO, garanties utiles et devis pour bailleurs en copropriete. Points a verifier: garanties, franchises, pieces.",
-    "url": "/assurance-coproprietaire-non-occupant"
   },
   {
     "title": "Assurance copropriete",
     "description": "Assurance copropriete: RC syndicat, multirisque immeuble, protection juridique et audit de contrat pour conseils syndicaux.",
     "url": "/assurance-copropriete"
+  },
+  {
+    "title": "Assurance Garages Parkings",
+    "description": "Vous louez un ensemble de garages, des boxes ou un parking ? Préparez une étude du bâtiment: surfaces, occupation, accès et garanties à comparer.",
+    "url": "/assurance-garages-parkings"
   },
   {
     "title": "Assurance immeuble Agen",
@@ -265,8 +265,8 @@
     "url": "/assurance-immeuble-meuble-colocation"
   },
   {
-    "title": "Assurance immeuble en monopropriete",
-    "description": "Assurance immeuble en monopropriete: garanties batiment, RC bailleur, PNO, sinistres et devis proprietaire unique. Points a verifier: garanties, franchises, pieces.",
+    "title": "Assurance immeuble en monopropriete familiale",
+    "description": "Assurance immeuble en monopropriete: proprietaire unique, SCI familiale, lots loues, parties communes internes et devis specialise.",
     "url": "/assurance-immeuble-monopropriete"
   },
   {
@@ -365,8 +365,8 @@
     "url": "/assurance-immeuble-rennes"
   },
   {
-    "title": "Assurance immeuble resilie ou refuse par assureur",
-    "description": "Assurance immeuble resilie ou refuse: reconstruire un dossier apres sinistres, aggravation ou refus de souscription. Points a verifier: garanties, franchises, pieces.",
+    "title": "Assurance immeuble resilie: retrouver une solution",
+    "description": "Assurance immeuble resiliee ou refusee: causes de resiliation, pieces a reunir, correctifs et consultation assureur specialisee.",
     "url": "/assurance-immeuble-resilie"
   },
   {
@@ -395,8 +395,8 @@
     "url": "/assurance-immeuble-saintes"
   },
   {
-    "title": "Assurance immeuble avec sinistres: refaire un dossier",
-    "description": "Assurance immeuble avec sinistres: historique, causes, franchises, mesures correctives et solution de renouvellement. Points a verifier: garanties, franchises, pieces.",
+    "title": "Assurance immeuble avec sinistres: dossier a defendre",
+    "description": "Assurance immeuble avec sinistres: historique, causes, recurrence, franchises, mesures correctives et demande de devis specialisee.",
     "url": "/assurance-immeuble-sinistre"
   },
   {
@@ -466,7 +466,7 @@
   },
   {
     "title": "Assurance immeuble : multirisque et devis",
-    "description": "Courtier specialiste assurance immeuble: multirisque, responsabilite civile, PNO, sinistres et audit de garanties. Points a verifier: garanties, franchises, pieces.",
+    "description": "Courtier specialiste assurance immeuble: multirisque, responsabilite civile, PNO, sinistres et audit de garanties.",
     "url": "/assurance-immeuble"
   },
   {
@@ -485,8 +485,8 @@
     "url": "/assurance-pno-cno"
   },
   {
-    "title": "Assurance PNO : propriétaire non occupant",
-    "description": "Assurance PNO bailleur et SCI: garanties essentielles, vacance locative, copropriete, recours locataire et protection du patrimoine.",
+    "title": "Assurance PNO bailleur : logement loue ou vacant",
+    "description": "Assurance PNO pour bailleur, maison ou logement hors copropriete: dommages au bien, responsabilite, vacance locative, SCI et devis.",
     "url": "/assurance-pno"
   },
   {
@@ -505,8 +505,8 @@
     "url": "/blog/assurance-colocation-immeuble"
   },
   {
-    "title": "Assurance copropriete avant AG: fiche de synthese utile",
-    "description": "Budget, franchises, garanties et sinistres: preparer une decision claire en assemblee generale. Points a verifier: garanties, franchises, pieces a preparer.",
+    "title": "Assurance copropriete avant AG: points a voter",
+    "description": "Assurance copropriete avant assemblee generale: ordre du jour, resolutions, budget, travaux, contrat immeuble et questions au syndic.",
     "url": "/blog/assurance-copropriete-avant-ag"
   },
   {
@@ -520,8 +520,8 @@
     "url": "/blog/assurance-immeuble-ancien"
   },
   {
-    "title": "Refus assurance immeuble",
-    "description": "Refus, surprime ou exclusion: les leviers pour clarifier et representer le risque. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
+    "title": "Refus assureur immeuble: preparer une relance",
+    "description": "Refus assureur immeuble: causes possibles, pieces correctives, historique sinistres, prevention et relance de consultation.",
     "url": "/blog/assurance-immeuble-apres-refus-assureur"
   },
   {
@@ -550,8 +550,8 @@
     "url": "/blog/assurance-immeuble-protection-du-patrimoine"
   },
   {
-    "title": "Immeuble sans sinistre: comment valoriser le dossier",
-    "description": "Absence de sinistre, entretien, travaux et occupation stable peuvent ameliorer la lecture assureur. Points a verifier: garanties, franchises, pieces a preparer.",
+    "title": "Immeuble sans sinistre: valoriser un bon historique",
+    "description": "Guide pour presenter un immeuble sans sinistre: historique propre, prevention, entretien, documents et argumentaire avant renouvellement.",
     "url": "/blog/assurance-immeuble-sans-sinistre"
   },
   {
@@ -590,13 +590,13 @@
     "url": "/blog/checklist-documents-devis-immeuble"
   },
   {
-    "title": "Checklist degat des eaux immeuble: pieces a reunir",
-    "description": "Photos, recherche de fuite, declaration, factures et responsabilites: gagner du temps apres sinistre. Points a verifier: garanties, franchises, pieces a preparer.",
+    "title": "Checklist degat des eaux immeuble: preuves utiles",
+    "description": "Checklist degat des eaux immeuble: recherche de fuite, photos, declarations, factures, mesures correctives et lecture franchise.",
     "url": "/blog/checklist-sinistre-degat-des-eaux"
   },
   {
-    "title": "CNO coproprietaire non occupant",
-    "description": "Responsabilite civile, lot loue ou vacant, syndic et assurance immeuble: comprendre le role de la CNO. Points a verifier: garanties, franchises, pieces a preparer.",
+    "title": "CNO coproprietaire non occupant: obligation RC",
+    "description": "CNO coproprietaire non occupant obligatoire: responsabilite civile, lot vacant ou loue, syndic et articulation avec PNO.",
     "url": "/blog/cno-coproprietaire-non-occupant-obligatoire"
   },
   {
@@ -605,8 +605,8 @@
     "url": "/blog/coproprietaire-non-occupant-documents-devis"
   },
   {
-    "title": "Petite copropriete syndic benevole",
-    "description": "Un guide pour cadrer RC, multirisque immeuble, PNO et documents d'AG dans une petite copropriete. Points a verifier: garanties, franchises, pieces a preparer.",
+    "title": "Petite copropriete: assurance du syndic benevole",
+    "description": "Petite copropriete et syndic benevole: responsabilite, declarations, registre, sinistres, contrat immeuble et documents a conserver.",
     "url": "/blog/copropriete-petite-syndic-benevole"
   },
   {
@@ -635,8 +635,8 @@
     "url": "/blog/devis-courtier-assurance-immeuble"
   },
   {
-    "title": "Dommages ouvrage copropriete: quand l'anticiper",
-    "description": "Travaux importants, decennale, reception et financement: pourquoi la DO se prepare tot. Points a verifier: garanties, franchises, pieces a preparer et prochaines etapes.",
+    "title": "Dommages ouvrage copropriete: travaux votes",
+    "description": "Guide dommages ouvrage copropriete: travaux votes, syndic, entreprises, reception, garanties et documents a reunir.",
     "url": "/blog/dommages-ouvrage-copropriete-travaux"
   },
   {
@@ -675,8 +675,8 @@
     "url": "/blog/multirisque-immeuble-garanties-batiment-preuves"
   },
   {
-    "title": "Multirisque immeuble ou PNO: comment les distinguer",
-    "description": "Deux contrats proches en apparence, mais des roles differents pour le batiment, le lot et le proprietaire. Points a verifier: garanties, franchises, pieces a preparer.",
+    "title": "Multirisque immeuble vs PNO: qui couvre quoi",
+    "description": "Comparatif multirisque immeuble vs PNO: batiment, parties communes, lot privatif, occupant, bailleur et zones de doublon.",
     "url": "/blog/multirisque-immeuble-vs-pno"
   },
   {
@@ -690,8 +690,8 @@
     "url": "/blog/pno-bailleur-copropriete"
   },
   {
-    "title": "PNO ou CNO: differences, garanties et choix du contrat",
-    "description": "Comparer PNO et CNO pour choisir une assurance adaptee au lot, a l'immeuble et au statut du proprietaire. Points a verifier: garanties, franchises, pieces a preparer.",
+    "title": "PNO ou CNO: differences de garanties",
+    "description": "PNO ou CNO: differences entre proprietaire non occupant et coproprietaire non occupant, garanties, vacance et contrat immeuble.",
     "url": "/blog/pno-cno-differences-garanties"
   },
   {
@@ -700,8 +700,8 @@
     "url": "/blog/pno-cno-preuves-lot-non-occupant"
   },
   {
-    "title": "PNO obligatoire copropriete",
-    "description": "La PNO n'a pas le meme role que la multirisque immeuble: voici comment articuler les contrats. Points a verifier: garanties, franchises, pieces a preparer.",
+    "title": "PNO obligatoire en copropriete: cas reels",
+    "description": "PNO obligatoire en copropriete: responsabilite civile, lot vacant ou loue, syndic, assurance occupant et verification du contrat immeuble.",
     "url": "/blog/pno-obligatoire-copropriete"
   },
   {
@@ -745,13 +745,13 @@
     "url": "/blog/renouvellement-apres-sinistre-immeuble"
   },
   {
-    "title": "Renovation energetique copropriete",
-    "description": "Isolation, facade, toiture, entreprises et reception: ce que le contrat doit suivre pendant les travaux. Points a verifier: garanties, franchises, pieces a preparer.",
+    "title": "Renovation energetique copropriete: impact assurance",
+    "description": "Renovation energetique copropriete: isolation, toiture, facade, chantier, AG, contrat immeuble et garanties a verifier.",
     "url": "/blog/renovation-energetique-copropriete-assurance"
   },
   {
-    "title": "Resilier ou renegocier une assurance immeuble",
-    "description": "Echeance, preavis, dossier de consultation et comparaison: eviter les decisions tardives. Points a verifier: garanties, franchises, pieces a preparer et prochaines.",
+    "title": "Resiliation assurance immeuble: plan de remplacement",
+    "description": "Resiliation assurance immeuble: echeance, motif, historique sinistres, correctifs, pieces et consultation assureur specialisee.",
     "url": "/blog/resiliation-assurance-immeuble"
   },
   {
@@ -770,8 +770,8 @@
     "url": "/blog/sinistre-recurrent-assurance-immeuble"
   },
   {
-    "title": "Sinistres recurrents immeuble",
-    "description": "Un historique de sinistres ne condamne pas un dossier, mais il doit etre explique et corrige. Points a verifier: garanties, franchises, pieces a preparer.",
+    "title": "Sinistres recurrents immeuble: redresser le dossier",
+    "description": "Guide sinistres recurrents immeuble: causes, mesures correctives, historique, franchises et presentation du dossier a l'assureur.",
     "url": "/blog/sinistres-recurrents-immeuble"
   },
   {
@@ -825,13 +825,13 @@
     "url": "/devis-assurance-immeuble-en-ligne"
   },
   {
-    "title": "Devis assurance immeuble : comparer les contrats",
-    "description": "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec un dossier qualifie par ImmeubleAssur. Points a verifier: garanties, franchises, pieces a preparer.",
+    "title": "Devis assurance immeuble : rappel et étude de votre",
+    "description": "Demandez un devis pour votre immeuble, copropriété, SCI ou garages. Commencez par un rappel ou décrivez votre bâtiment dans le formulaire.",
     "url": "/devis-assurance-immeuble"
   },
   {
-    "title": "Devis PNO CNO immeuble",
-    "description": "Demander un devis PNO CNO pour lot en copropriete, logement vacant, SCI, bailleur ou portefeuille de biens immobiliers. Points a verifier: garanties, franchises.",
+    "title": "Devis PNO CNO: qualifier un lot avant rappel",
+    "description": "Formulaire de devis PNO CNO: statut du lot, occupation, vacance, contrat immeuble, sinistres et rappel specialise ImmeubleAssur.",
     "url": "/devis-pno-cno"
   },
   {

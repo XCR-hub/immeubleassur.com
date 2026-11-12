@@ -28,6 +28,12 @@ const formTargets = [
     pattern: /<form\b(?=[^>]*\bid=["']lead-form["'])[^>]*>[\s\S]*?<\/form>/gi
   },
   {
+    key: "callback",
+    label: "callback form",
+    action: "lead_form",
+    pattern: /<form\b(?=[^>]*\bdata-instant-callback-form(?:\s|>))[^>]*>[\s\S]*?<\/form>/gi
+  },
+  {
     key: "newsletter",
     label: "newsletter form",
     action: "newsletter_subscribe",
@@ -103,7 +109,7 @@ function inspectPage(file) {
   if (!RUNTIME_ONLY && html !== original) writeFileSync(file, html, "utf8");
 
   const instrumented = Object.fromEntries(
-    formTargets.map((target) => [target.key, Math.min(countActionWidgets(html, target.action), detected[target.key])])
+    formTargets.map((target) => [target.key, (html.match(target.pattern) || []).filter((formHtml) => countActionWidgets(formHtml, target.action) > 0).length])
   );
   const formsInstrumented = Object.values(instrumented).reduce((sum, count) => sum + count, 0);
 
@@ -149,6 +155,8 @@ const report = {
   forms_instrumented: formRows.reduce((sum, row) => sum + row.forms_instrumented, 0),
   lead_forms_detected: totals.lead_forms_detected || 0,
   lead_forms_instrumented: totals.lead_forms_instrumented || 0,
+  callback_forms_detected: totals.callback_forms_detected || 0,
+  callback_forms_instrumented: totals.callback_forms_instrumented || 0,
   newsletter_forms_detected: totals.newsletter_forms_detected || 0,
   newsletter_forms_instrumented: totals.newsletter_forms_instrumented || 0,
   actions: formTargets.map((target) => ({ key: target.key, action: target.action, label: target.label })),
@@ -156,7 +164,7 @@ const report = {
   missing_widgets: missingWidgets,
   status: configured ? (missingWidgets.length ? "failed" : "passed") : "fallback-local-antifraud",
   protections: configured
-    ? ["cloudflare-turnstile", "server-siteverify", "newsletter-turnstile", "honeypot", "local-js-session", "local-history-filter"]
+    ? ["cloudflare-turnstile", "server-siteverify", "callback-turnstile", "newsletter-turnstile", "honeypot", "local-js-session", "local-history-filter"]
     : ["honeypot", "local-js-session", "local-history-filter"]
 };
 
@@ -172,5 +180,5 @@ if (missingWidgets.length) {
 }
 
 console.log(configured
-  ? `Turnstile hybrid pass instrumented ${report.forms_instrumented}/${report.forms_detected} protected form(s): ${report.lead_forms_instrumented} lead, ${report.newsletter_forms_instrumented} newsletter.`
+  ? `Turnstile hybrid pass instrumented ${report.forms_instrumented}/${report.forms_detected} protected form(s): ${report.lead_forms_instrumented} lead, ${report.callback_forms_instrumented} callback, ${report.newsletter_forms_instrumented} newsletter.`
   : `Turnstile hybrid pass preserved ${preservedExistingWidgets} existing widget(s) and kept local anti-fraud fallback for ${report.forms_detected} protected form(s).`);

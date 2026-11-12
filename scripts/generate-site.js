@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { parkingInsurancePage } from "../content/parking-insurance.js";
 
 const SITE = "https://immeubleassur.com";
 const OUT = "public";
@@ -286,6 +287,8 @@ const servicePages = [
     ]
   }
 ];
+
+servicePages.push(parkingInsurancePage);
 
 const cities = [
   ["paris", "Paris", "syndics, SCI et bailleurs avec immeubles anciens, mixtes ou forte densite locative"],
@@ -600,11 +603,11 @@ function leadForm(defaults = {}) {
     </form>`;
 }
 
-function homepageInstantCallback() {
+function homepageInstantCallback({ source = "homepage-inline-callback", heading = "Rappel express", copy = "Telephone ou email suffit. Un conseiller complete le dossier immeuble avec vous." } = {}) {
   return `
     <div class="hero-inline-callback" data-instant-callback-context data-active-intent="immeuble" aria-label="Rappel express assurance immeuble">
-      <div><strong>Rappel express</strong><span>Telephone ou email suffit. Un conseiller complete le dossier immeuble avec vous.</span></div>
-      <form class="instant-callback-form hero-inline-callback-form" data-instant-callback-form data-instant-callback-source="homepage-inline-callback" data-instant-callback-content-kind="homepage-inline-callback" novalidate>
+      <div><strong>${esc(heading)}</strong><span>${esc(copy)}</span></div>
+      <form class="instant-callback-form hero-inline-callback-form" data-instant-callback-form data-instant-callback-source="${esc(source)}" data-instant-callback-content-kind="${esc(source)}" novalidate>
         <input class="hp-field" type="text" name="company_website" tabindex="-1" autocomplete="off" />
         <label>Telephone ou email *<input name="contact" autocomplete="tel" inputmode="email" required placeholder="06 12 34 56 78" /></label>
         <label class="consent-row"><input type="checkbox" name="consent" required /><span>J'accepte d'etre recontacte pour mon devis immeuble.</span></label>
@@ -724,7 +727,7 @@ function homePage() {
         <h2>Une plateforme specialisee pour transformer les demandes immeuble en dossiers exploitables.</h2>
       </div>
       <div class="solution-grid">
-        ${servicePages.slice(0, 8).map((page) => `<article><span class="icon">${page.title.split(" ").map(w => w[0]).join("").slice(0,2)}</span><h3><a href="/${page.slug}.html">${esc(page.title)}</a></h3><p>${esc(page.description)}</p></article>`).join("")}
+        ${[...servicePages.slice(0, 8), parkingInsurancePage].map((page) => `<article><span class="icon">${page.title.split(" ").map(w => w[0]).join("").slice(0,2)}</span><h3><a href="/${page.slug}.html">${esc(page.title)}</a></h3><p>${esc(page.description)}</p></article>`).join("")}
       </div>
     </section>
     <section class="band compare-band">
@@ -790,11 +793,12 @@ function servicePage(page) {
           <h2>Ce que nous verifions pour votre dossier.</h2>
           <ul class="check-list">${page.bullets.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>
         </div>
-        ${leadForm({ need: page.need, profile: page.profile })}
+        ${leadForm({ need: page.need, profile: page.profile, property_type: page.property_type })}
       </div>
     </section>
     ${page.sections.map(([title, text]) => `<section class="band ${title.length % 2 ? "intro-band" : "compare-band"}"><div class="container narrow"><p class="eyebrow dark">${esc(page.title)}</p><h2>${esc(title)}</h2><p class="large-copy">${esc(text)}</p></div></section>`).join("")}
     ${faqBlock}
+    ${["assurance-immeuble", "multirisque-immeuble", "assurance-pno"].includes(page.slug) ? `<section class="band compare-band"><div class="container narrow"><h2>Vous louez des garages ou des places de parking ?</h2><p>Un ensemble de boxes ou un parking demande une description précise du bâtiment, de ses accès et de son occupation. Consultez les informations et pièces utiles pour <a href="/assurance-garages-parkings">assurer des garages et parkings loués</a>.</p></div></section>` : ""}
     ${syndicProfessionalBridge}
     <section class="band faq-band">
       <div class="section-head"><p class="eyebrow dark">Pages liees</p><h2>Approfondir le sujet.</h2></div>
@@ -925,19 +929,46 @@ function contactPage() {
 
 function quotePage() {
   const process = [
-    ["Dossier", "Vous transmettez profil, ville, lots, usage, echeance, contrat actuel et sinistres recents."],
-    ["Qualification", "ImmeubleAssur classe le besoin: copropriete, PNO/CNO, SCI, immeuble locatif, local commercial ou audit."],
-    ["Consultation", "Les informations exploitables evitent les allers-retours et rendent les offres comparables."],
-    ["Decision", "La reponse porte sur les garanties, franchises, exclusions, delais et pieces encore manquantes."]
+    ["Votre besoin", "Présentez votre immeuble, votre rôle et votre échéance, même si le dossier est encore incomplet."],
+    ["Les pièces utiles", "Un conseiller identifie avec vous les informations nécessaires et les documents déjà disponibles."],
+    ["L’étude", "Le risque est étudié avant consultation des assureurs et comparaison des garanties, franchises et exclusions."],
+    ["Votre décision", "Vous examinez les conditions proposées avant toute demande de souscription."]
   ];
   const faqRows = [
-    ["Quand demander un devis assurance immeuble ?", "Idealement deux a trois mois avant echeance, immediatement apres une resiliation, un refus, un sinistre important ou un changement d'usage."],
-    ["Quelles pieces accelerent le devis ?", "Contrat actuel, appel de prime, adresse, lots, surfaces, usage, sinistres sur 36 mois, travaux prevus et coordonnees du gestionnaire."],
-    ["Le devis est-il la meme chose que le comparateur ?", "Non. Le devis est le parcours de transmission du dossier; le comparateur sert a lire et arbitrer les offres obtenues."],
-    ["Puis-je demander un audit sans changer d'assureur ?", "Oui. L'audit peut servir a renegocier, completer des garanties ou preparer une consultation avant decision."]
+    ["Puis-je commencer sans mon contrat actuel ?", "Oui. Vos coordonnées suffisent pour demander un rappel. Vous pourrez ensuite préciser le bâtiment, l’occupation et les pièces disponibles avec un conseiller."],
+    ["Quand demander un devis assurance immeuble ?", "Préparez la demande avant l’échéance de votre contrat ou dès qu’un changement d’usage, des travaux ou une difficulté d’assurance nécessite une étude."],
+    ["Quelles pièces accélèrent l’étude ?", "Le contrat actuel et son appel de cotisation, l’adresse, les lots, les surfaces, l’usage et les informations de sinistralité disponibles permettent de décrire le risque."],
+    ["Le devis engage-t-il à souscrire ?", "La demande de devis sert à étudier votre besoin. Elle ne vaut ni souscription ni confirmation de couverture ; les garanties et la prise d’effet dépendent des documents contractuels."],
+    ["Vous assurez des garages ou des parkings ?", "Précisez s’il s’agit d’un ensemble de bâtiments, de boxes indépendants ou de places dans un immeuble, ainsi que la surface et l’occupation. Le formulaire complet permet de choisir Parking / garages."]
   ];
-  const body = `<section class="page-hero compact-hero"><div class="container"><p class="eyebrow">Demande qualifiee</p><h1>Devis assurance immeuble : préparer un dossier exploitable.</h1><p>Un parcours direct pour bailleurs, SCI, syndics et administrateurs de biens qui veulent une reponse assureur fondee sur les bonnes informations.</p><div class="hero-actions"><a class="button primary" href="#devis">Completer ma demande</a><a class="button secondary" href="/comparateur-assurance-immeuble.html">Comparer les garanties</a></div></div></section><section class="band page-band" id="devis"><div class="split"><div><p class="eyebrow dark">Formulaire de devis</p><h2>Ce parcours sert a consulter le marche, pas seulement a lire un prix.</h2><p class="large-copy">La demande doit decrire le risque: statut, adresse, lots, surface, occupation, contrat actuel, echeance, sinistres, travaux et usages particuliers. Plus le dossier est net, plus la reponse est rapide et comparable.</p><ul class="check-list"><li>Parcours adapte immeuble, copropriete, PNO/CNO, SCI et local commercial.</li><li>Qualification des dossiers urgents: resiliation, refus, sinistre ou echeance proche.</li><li>Message libre pour preciser assureur actuel, franchises, travaux, vacance ou activite commerciale.</li><li>Anti-spam et controle humain pour proteger les formulaires sans bloquer les vrais prospects.</li></ul></div>${leadForm({ need: "multirisque-immeuble", priorityContact: true })}</div></section><section class="band compare-band"><div class="section-head"><p class="eyebrow dark">Process devis</p><h2>Transformer la demande en fiche risque assureur.</h2></div><div class="local-proof-grid">${process.map(([title, copy]) => `<article><h3>${esc(title)}</h3><p>${esc(copy)}</p></article>`).join("")}</div></section><section class="band faq-band"><div class="container narrow"><h2>Questions frequentes devis assurance immeuble</h2><div class="faq-list">${faqRows.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div></div></section>`;
-  return layout({ slug: "devis-assurance-immeuble", title: "Devis assurance immeuble : comparer les contrats", description: "Demander un devis assurance immeuble, copropriete, PNO ou SCI avec un dossier qualifie par ImmeubleAssur.", body });
+  const body = `
+    <section class="page-hero compact-hero" data-quote-acquisition>
+      <div class="container">
+        <p class="eyebrow">Votre demande de devis</p>
+        <h1>Devis assurance immeuble</h1>
+        <p>Demandez un rappel ou décrivez votre bâtiment. Vous pouvez commencer sans avoir réuni tous vos documents.</p>
+        ${homepageInstantCallback({ source: "quote-inline-callback", heading: "Un rappel pour votre devis", copy: "Un téléphone ou un email suffit. Nous précisons ensuite votre besoin avec vous." })}
+        <div class="hero-actions"><a class="button secondary" href="#devis">Remplir le formulaire complet</a><a class="button secondary" href="tel:${PHONE_HREF}">Appeler le ${PHONE}</a></div>
+      </div>
+    </section>
+    <section class="band page-band" id="devis">
+      <div class="split">
+        <div>
+          <p class="eyebrow dark">Vous avez déjà les informations ?</p>
+          <h2>Décrivez le bâtiment à assurer.</h2>
+          <p class="large-copy">Ce formulaire permet de préciser le profil du propriétaire ou du gestionnaire, le bien et la ville. Le contrat actuel et les autres pièces pourront être ajoutés dans la suite de l’étude.</p>
+          <ul class="check-list"><li>Immeuble locatif, copropriété, SCI, local commercial ou garages.</li><li>Une analyse des usages, de l’échéance et des difficultés éventuelles.</li><li>Un échange pour compléter le risque avant comparaison des offres.</li><li>Une demande de devis ne constitue pas une souscription.</li></ul>
+          <p>Pour préparer un ensemble de boxes ou de places louées, consultez les <a href="/assurance-garages-parkings">informations utiles à l’assurance des garages et parkings</a>.</p>
+        </div>
+        ${leadForm({ need: "multirisque-immeuble", priorityContact: true })}
+      </div>
+    </section>
+    <section class="band compare-band">
+      <div class="section-head"><p class="eyebrow dark">Comment se déroule la demande ?</p><h2>Du premier contact à une offre adaptée au risque.</h2></div>
+      <div class="local-proof-grid">${process.map(([title, copy]) => `<article><h3>${esc(title)}</h3><p>${esc(copy)}</p></article>`).join("")}</div>
+    </section>
+    <section class="band faq-band"><div class="container narrow"><h2>Questions fréquentes sur le devis assurance immeuble</h2><div class="faq-list">${faqRows.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div></div></section>`;
+  return layout({ slug: "devis-assurance-immeuble", title: "Devis assurance immeuble : rappel et étude de votre besoin", description: "Demandez un devis pour votre immeuble, copropriété, SCI ou garages. Commencez par un rappel ou décrivez votre bâtiment dans le formulaire.", body });
 }
 function simplePage(slug, title, description, content) {
   const body = `<section class="plain-main"><div class="plain-panel"><p class="eyebrow dark">ImmeubleAssur</p><h1>${esc(title)}</h1>${content}</div></section>`;

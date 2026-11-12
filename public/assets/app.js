@@ -681,7 +681,7 @@ function leadConversionRoutes() {
 }
 
 function mountLeadBar() {
-  if (document.querySelector(".lead-action-bar") || isPrivateAppPage()) return;
+  if (document.querySelector(".lead-action-bar, [data-quote-acquisition]") || isPrivateAppPage()) return;
   document.body.dataset.intent = currentLeadIntent();
   const intent = document.body.dataset.intent;
   const label = intentLabel(intent);
@@ -1624,6 +1624,7 @@ function observeQuoteFastTrackNudge(shell, initial) {
 function mountQuoteFastTrack() {
   if (isPrivateAppPage()) return;
   if (document.querySelector(".insurer-guide")) return;
+  if (form?.elements.property_type?.value === "parking") return;
   // These selectors already offer the quote journey in the initial HTML.
   // Inserting a second selector above them after first paint moves content.
   if (document.querySelector("[data-diagnostic], .risk-router")) return;
@@ -2262,16 +2263,19 @@ function instantCallbackContext(formElement) {
 
 function instantCallbackPayload(formElement, panel = instantCallbackContext(formElement)) {
   const data = Object.fromEntries(new FormData(formElement).entries());
-  const rows = trafficNoClickIntentRows();
-  const selected = formElement.dataset.instantCallbackIntent || panel?.dataset.activeIntent || trafficNoClickIntentKey();
+  const source = formElement.dataset.instantCallbackSource || panel?.dataset.instantCallbackSource || "instant-callback";
+  const rows = source === "quote-inline-callback" ? { ...quoteFastTrackRows(), ...trafficNoClickIntentRows() } : trafficNoClickIntentRows();
+  const queryIntent = new URLSearchParams(window.location.search).get("intent");
+  const quoteIntent = rows[queryIntent] ? queryIntent : document.querySelector("[data-diagnostic]")?.dataset.route;
+  const selected = formElement.dataset.instantCallbackIntent || (source === "quote-inline-callback" && rows[quoteIntent] ? quoteIntent : panel?.dataset.activeIntent) || trafficNoClickIntentKey();
   const row = rows[selected] || rows.immeuble;
   const contact = instantCallbackContact(data.contact);
   const attribution = attributionPayload();
   const urgencyRows = trafficNoClickUrgencyRows();
   const urgencyRow = urgencyRows[trafficNoClickSelectedUrgency] || urgencyRows.standard;
-  const source = formElement.dataset.instantCallbackSource || panel?.dataset.instantCallbackSource || "instant-callback";
   const contentKind = formElement.dataset.instantCallbackContentKind || panel?.dataset.instantCallbackContentKind || "homepage-rescue";
-  const message = `${trafficNoClickMessage(row)} Rappel express depuis l'accueil, priorite ${urgencyRow.label}.`;
+  const callbackOrigin = source === "quote-inline-callback" ? "la page de devis" : "l'accueil";
+  const message = `${trafficNoClickMessage(row)} Rappel express depuis ${callbackOrigin}, priorite ${urgencyRow.label}.`;
   return {
     name: "Rappel express",
     phone: contact.phone,
@@ -2517,6 +2521,7 @@ function trafficNoClickRescueCopy(variant = "standard") {
 }
 
 function showTrafficNoClickRescue(reason = "shown", options = {}) {
+  if (document.querySelector("[data-quote-acquisition]")) return;
   const ignoreInteraction = options.ignoreInteraction === true;
   if (trafficNoClickShown || (!ignoreInteraction && trafficNoClickInteracted) || formStarted || formSubmitted) return;
   if (!isHomepage() || sessionStorage.getItem(trafficNoClickDismissKey) === "true") return;
