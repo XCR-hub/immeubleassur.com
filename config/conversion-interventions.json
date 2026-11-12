@@ -4,16 +4,29 @@
     {
       "id": "lead-email-optional-v1",
       "deployed_at": "2026-08-10T05:45:21.000Z",
-      "scope": ["intent-conversion"],
+      "scope": [
+        "intent-conversion"
+      ],
       "metric": "form-start-to-submit",
       "description": "Email rendu facultatif sur les formulaires complets; telephone et consentement conserves."
     },
     {
       "id": "urgent-quote-priority-contact-v1",
       "deployed_at": "2026-08-11T16:31:05.000Z",
-      "scope": ["intent-conversion"],
+      "scope": [
+        "intent-conversion"
+      ],
       "metric": "urgent-session-to-phone-or-form-start",
       "description": "Contact telephonique prioritaire affiche au voisinage immediat du formulaire de devis pour les dossiers urgents."
+    },
+    {
+      "id": "quote-first-contact-and-garage-coverage-v1",
+      "deployed_at": "2026-11-12T13:43:57.736Z",
+      "scope": [
+        "intent-conversion"
+      ],
+      "metric": "quote-page-to-qualified-request",
+      "description": "Rappel court sur la page devis, contexte SCI/copropriete conserve, protection du formulaire et page dediee aux ensembles de garages et parkings. La mesure post-publication conserve le contexte historique et ne constitue pas une preuve de hausse."
     }
   ]
 }
