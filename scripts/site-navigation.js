@@ -21,7 +21,7 @@ function link([href, label], path) {
   return `<a href="${href.replaceAll("&", "&amp;")}"${href === path ? ' aria-current="page"' : ""}>${label}</a>`;
 }
 
-function quoteHref(path) {
+export function quoteHref(path) {
   const base = "/devis-assurance-immeuble";
   if (path === "/" || path.startsWith("/devis-") || path === "/admin") return base;
   const intent = {

@@ -314,14 +314,19 @@ try {
     { from: '/audit-contrat-assurance-immeuble', intent: 'audit-contrat', payloadIntent: 'audit', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Audit' },
     { from: '/devis-assurance-immeuble', intent: 'immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
     { from: '/assurance-sci', intent: 'sci', changeTo: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
-    { from: '/assurance-sci', intent: 'sci', changeTo: 'cno', changeProfile: 'administrateur-biens', profile: 'administrateur-biens', need: 'cno', property: 'lot-copropriete', label: 'CNO' }
+    { from: '/assurance-sci', intent: 'sci', changeTo: 'cno', changeProfile: 'administrateur-biens', profile: 'administrateur-biens', need: 'cno', property: 'lot-copropriete', label: 'CNO' },
+    { from: '/assurance-garages-parkings', entry: 'hero', intent: 'garages', profile: 'bailleur', need: 'multirisque-immeuble', property: 'parking', label: 'Garages' },
+    { from: '/assurance-garages-parkings', entry: 'sticky', width: 320, intent: 'garages', profile: 'bailleur', need: 'multirisque-immeuble', property: 'parking', label: 'Garages' },
+    { from: '/assurance-pno-cno', entry: 'sticky', intent: 'pno-cno', profile: 'bailleur', need: 'pno-cno', property: 'lot-copropriete', label: 'PNO' },
+    { from: '/assurance-sci', entry: 'hero', testDetailedForm: true, desktop: true, intent: 'sci', profile: 'sci', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'SCI' },
+    { from: '/assurance-copropriete', entry: 'hero', intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' }
   ];
   for (const journey of journeyCases) {
     const page = await browser.newPage();
     const callbacks = [];
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
-    await page.setViewport({ width: journey.desktop ? 1280 : 390, height: 844, isMobile: !journey.desktop, hasTouch: !journey.desktop });
+    await page.setViewport({ width: journey.width || (journey.desktop ? 1280 : 390), height: 844, isMobile: !journey.desktop, hasTouch: !journey.desktop });
     await page.evaluateOnNewDocument(testKey => {
       const replace = () => document.querySelectorAll('.cf-turnstile[data-sitekey]').forEach(widget => { widget.dataset.sitekey = testKey; });
       new MutationObserver(replace).observe(document, { childList: true, subtree: true });
@@ -340,8 +345,36 @@ try {
     });
     await page.goto(origin + journey.from, { waitUntil: 'networkidle0' });
     if (journey.from !== '/devis-assurance-immeuble') {
-      const selector = journey.desktop ? '.site-header > .nav a[href*="/devis-assurance-immeuble"]' : '[data-track="mobile-navigation-quote"]';
-      if (!journey.desktop) await page.click('[data-mobile-navigation] > summary');
+      let selector = journey.desktop ? '.site-header > .nav a[href*="/devis-assurance-immeuble"]' : '[data-track="mobile-navigation-quote"]';
+      if (journey.entry) {
+        await page.waitForSelector('.lead-action-bar[data-short-quote-bar="1"]');
+        assert.equal(await page.$eval('.lead-action-bar', bar => {
+          const box = bar.getBoundingClientRect();
+          return box.left >= 0 && box.right <= innerWidth && bar.scrollWidth <= bar.clientWidth && [...bar.querySelectorAll('.button')].every(button => {
+            const child = button.getBoundingClientRect();
+            return child.left >= box.left && child.right <= box.right;
+          });
+        }), true, 'The quote and phone buttons remain inside the mobile bar');
+        assert.equal(await page.$$eval('[data-short-quote-entry]', elements => elements.length), 1);
+        assert.equal(await page.$$eval('[data-quote-entry-note]', elements => elements.length), 1);
+        assert.equal(await page.$eval('[data-track="service-full-form"]', element => element.getAttribute('href')), '#lead-form');
+        const refusal = await page.$('[data-analytics-choice="denied"]');
+        if (refusal && await refusal.isVisible()) await refusal.click();
+        if (journey.testDetailedForm) {
+          await page.click('[data-track="service-full-form"]');
+          await page.waitForFunction(() => {
+            const box = document.querySelector('#lead-form [name="name"]').getBoundingClientRect();
+            return box.top >= document.querySelector('.site-header').getBoundingClientRect().bottom && box.bottom <= innerHeight;
+          });
+          assert.equal(callbacks.length, 0, 'Opening the detailed form creates no request');
+          await page.$eval('.page-hero', element => element.scrollIntoView({ behavior: 'instant' }));
+        }
+        selector = journey.entry === 'hero' ? '[data-short-quote-entry]' : '.lead-action-bar [data-track="sticky-devis"]';
+        if (journey.entry === 'hero' && !journey.testDetailedForm) assert.equal(await page.$eval(selector, element => {
+          const box = element.getBoundingClientRect();
+          return box.top >= 0 && box.bottom <= innerHeight;
+        }), true, `${journey.from}: the first quote action is visible without scrolling`);
+      } else if (!journey.desktop) await page.click('[data-mobile-navigation] > summary');
       await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click(selector)]);
       const destination = new URL(page.url());
       assert.equal(destination.pathname, '/devis-assurance-immeuble');
@@ -383,7 +416,7 @@ try {
     assert.equal(payload.consent, true);
     assert.match(payload.turnstile_token, /^local-turnstile-fixture-widget-/);
     assert.deepEqual(errors, []);
-    quoteJourneys.push({ from: journey.from, intent: payload.intent, profile: payload.profile, need: payload.need, property_type: payload.property_type, source_path: payload.source_path, passed: true });
+    quoteJourneys.push({ from: journey.from, entry: journey.entry || 'header', detailed_form_verified: Boolean(journey.testDetailedForm), intent: payload.intent, profile: payload.profile, need: payload.need, property_type: payload.property_type, source_path: payload.source_path, passed: true });
     await page.close();
   }
   const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows, navigationRows, quoteJourneys };

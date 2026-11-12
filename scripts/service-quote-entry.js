@@ -1,0 +1,45 @@
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import { quoteHref } from "./site-navigation.js";
+
+const subjects = {
+  "assurance-immeuble": "Votre immeuble",
+  "multirisque-immeuble": "Multirisque immeuble",
+  "assurance-copropriete": "Votre copropriété",
+  "assurance-sci": "Votre SCI",
+  "assurance-pno": "Votre assurance PNO",
+  "assurance-cno": "Votre assurance CNO",
+  "assurance-pno-cno": "Votre assurance PNO / CNO",
+  "assurance-garages-parkings": "Garages et parkings",
+  "prix-assurance-immeuble": "Votre devis immeuble",
+  "audit-contrat-assurance-immeuble": "Votre contrat immeuble"
+};
+
+export function improveServiceQuoteEntry(html, slug) {
+  const subject = subjects[slug];
+  if (!subject) return html;
+  if (!html.includes('id="lead-form"')) throw new Error(`${slug}: the detailed form is missing`);
+  const section = html.match(/<section\b[^>]*class="[^"]*\bpage-hero\b[^"]*"[^>]*>[\s\S]*?<\/section>/);
+  if (!section) throw new Error(`${slug}: the service hero is missing`);
+  const actions = /<div\b[^>]*class="[^"]*\bhero-actions\b[^"]*"[^>]*>[\s\S]*?<\/div>/;
+  if (!actions.test(section[0])) throw new Error(`${slug}: the service actions are missing`);
+  const href = quoteHref(`/${slug}`).replaceAll("&", "&amp;");
+  const replacement = `<div class="hero-actions"><a class="button primary" data-track="service-quote-start" data-short-quote-entry data-quote-subject="${subject}" href="${href}">Demander un devis</a><a class="button secondary" data-track="service-full-form" href="#lead-form">Formulaire complet</a></div>\n        <p data-quote-entry-note>Un téléphone ou un email suffit pour démarrer. Un conseiller précisera votre besoin avec vous.</p>`;
+  const hero = section[0].replace(/\s*<p\b[^>]*data-quote-entry-note[^>]*>[\s\S]*?<\/p>/g, "").replace(actions, replacement);
+  return html.replace(section[0], hero);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  let changed = 0;
+  for (const slug of Object.keys(subjects)) {
+    const file = join("public", `${slug}.html`);
+    if (!existsSync(file)) throw new Error(`${slug}: the service page is missing`);
+    const html = readFileSync(file, "utf8");
+    const next = improveServiceQuoteEntry(html, slug);
+    if (next === html) continue;
+    writeFileSync(file, next);
+    changed++;
+  }
+  console.log(`Short quote entry: ${Object.keys(subjects).length} service pages checked, ${changed} updated.`);
+}

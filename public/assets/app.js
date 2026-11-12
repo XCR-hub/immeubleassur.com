@@ -694,6 +694,15 @@ function mountLeadBar() {
   bar.dataset.experimentId = ctaExperiment.id;
   bar.dataset.experimentVariant = ctaExperiment.variant;
   bar.innerHTML = `<span>${label}: ${ctaExperiment.badge}</span><a class="button primary" data-track="sticky-devis" data-experiment-variant="${ctaExperiment.variant}" href="${routes[intent] || routes.website}">${ctaExperiment.primary}</a><a class="button secondary" data-track="sticky-phone" data-experiment-variant="${ctaExperiment.variant}" href="tel:+33180855786">${ctaExperiment.secondary}</a>`;
+  const entry = document.querySelector("[data-short-quote-entry]");
+  if (entry) {
+    bar.dataset.shortQuoteBar = "1";
+    bar.querySelector("span").textContent = entry.dataset.quoteSubject;
+    const quote = bar.querySelector("[data-track='sticky-devis']");
+    quote.setAttribute("href", entry.getAttribute("href"));
+    quote.textContent = "Demander un devis";
+    bar.querySelector("[data-track='sticky-phone']").textContent = "Appeler";
+  }
   document.body.append(bar);
 }
 
@@ -2046,7 +2055,7 @@ function leadBarIntentKey(link) {
 function bindLeadBarAccelerator() {
   if (!form) return;
   const bar = document.querySelector(".lead-action-bar");
-  if (!bar || bar.dataset.leadBarAccelerator === "1") return;
+  if (!bar || bar.dataset.shortQuoteBar === "1" || bar.dataset.leadBarAccelerator === "1") return;
   const quote = bar.querySelector("[data-track='sticky-devis']");
   if (!quote) return;
   const rows = quoteFastTrackRows();
