@@ -344,11 +344,21 @@ try {
           assert.equal(new URL(quote[1].replaceAll('&amp;', '&'), origin).searchParams.get('source_path'), new URL(link.url).pathname, 'The guide is retained when asking for a quote');
         }
         for (const hash of await page.$$eval('.guide-topic-nav a', links => links.map(link => link.hash))) {
-          await page.click(`.guide-topic-nav a[href="${hash}"]`);
-          await page.waitForFunction(target => {
-            const top = document.querySelector(target).getBoundingClientRect().top;
-            return top >= document.querySelector('.site-header').getBoundingClientRect().bottom && top < innerHeight - 30;
-          }, { timeout: 5000 }, hash);
+          await page.focus(`.guide-topic-nav a[href="${hash}"]`);
+          await page.keyboard.press('Enter');
+          // Poll from Node so this no-JavaScript check does not depend on
+          // callbacks scheduled inside the document.
+          let geometry;
+          const deadline = Date.now() + 5000;
+          do {
+            geometry = await page.$eval(hash + ' > h2', heading => {
+              const box = heading.getBoundingClientRect();
+              return { top: box.top, bottom: box.bottom, header: document.querySelector('.site-header').getBoundingClientRect().bottom, height: innerHeight, hash: location.hash };
+            });
+            if (geometry.hash === hash && geometry.top >= geometry.header && geometry.bottom <= geometry.height) break;
+            await new Promise(resolve => setTimeout(resolve, 100));
+          } while (Date.now() < deadline);
+          assert.ok(geometry.hash === hash && geometry.top >= geometry.header && geometry.bottom <= geometry.height, `Topic heading remains visible: ${JSON.stringify(geometry)}`);
           assert.equal(new URL(page.url()).hash, hash, 'Topic links reveal headings below the fixed header');
         }
       }
