@@ -29,6 +29,7 @@ export function quoteHref(path) {
     "/assurance-copropriete": "copropriete", "/assurance-sci": "sci",
     "/assurance-pno": "pno", "/assurance-cno": "cno", "/assurance-pno-cno": "pno-cno",
     "/assurance-garages-parkings": "garages", "/prix-assurance-immeuble": "prix",
+    "/comparateur-assurance-immeuble": "prix", "/tarif-assurance-immeuble": "prix",
     "/audit-contrat-assurance-immeuble": "audit-contrat",
     "/dommages-ouvrage-immeuble": "travaux", "/assurance-immeuble-mixte-commerce": "local-commercial"
   }[path];

@@ -37,7 +37,7 @@ try {
     await new Promise(r => setTimeout(r, 100));
   }
   browser = await puppeteer.launch({ executablePath: chromePath, headless: true, args: ['--no-first-run'] });
-  for (const path of ['/assurance-immeuble', '/devis-assurance-immeuble', '/', '/guide-recherche-fuite-immeuble', '/assurance-garages-parkings']) {
+  for (const path of ['/assurance-immeuble', '/devis-assurance-immeuble', '/', '/guide-recherche-fuite-immeuble', '/assurance-garages-parkings', '/comparateur-assurance-immeuble']) {
     const page = await browser.newPage();
     const errors = [];
     const trackedEvents = [];
@@ -242,6 +242,46 @@ try {
       assert.equal(await page.$eval('#lead-form [name="profile"]', field => field.value), 'bailleur');
       row.parkingPrefillVerified = true;
     }
+    if (path === '/comparateur-assurance-immeuble') {
+      const tool = '[data-quote-comparison]';
+      await page.waitForSelector(tool + '[data-bound="1"]');
+      assert.equal(await page.$$eval(tool, elements => elements.length), 1, 'One calculator is rendered');
+      assert.equal(await page.$eval('#comparison-premiumA', input => input.form), null, 'Calculator inputs cannot submit the lead form');
+      const calculate = async () => {
+        await page.$eval('[data-comparison-run]', button => button.scrollIntoView({ behavior: 'instant', block: 'center' }));
+        await page.click('[data-comparison-run]');
+      };
+      await calculate();
+      assert.equal(await page.$eval('[data-comparison-error]', element => element.hidden), false);
+      assert.equal(await page.$eval('#comparison-premiumA', input => input.getAttribute('aria-invalid')), 'true');
+      for (const [field, value] of Object.entries({ premiumA: '1 000,10', deductibleA: '600', premiumB: '1200', deductibleB: '200', loss: '1000' })) await page.type('#comparison-' + field, value);
+      await calculate();
+      const result = key => page.$eval(`[data-comparison-result="${key}"]`, element => element.textContent.replace(/\s/g, ''));
+      assert.equal(await page.$eval('[data-comparison-output]', element => element.hidden), false);
+      assert.equal(await result('totalA'), '1600,10€');
+      assert.equal(await result('totalB'), '1400,00€');
+      if (process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT) {
+        const panel = await page.$('[data-comparison-output]');
+        await panel.screenshot({ path: resolve(process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT, 'quote-comparison-mobile.png') });
+      }
+      await page.$eval('#comparison-loss', input => { input.value = '50'; });
+      await calculate();
+      assert.equal(await result('retainedA'), '50,00€');
+      assert.equal(await result('retainedB'), '50,00€');
+      await page.$eval('#comparison-deductibleA', input => { input.value = '10%'; });
+      await calculate();
+      assert.equal(await page.$eval('[data-comparison-output]', element => element.hidden), true);
+      assert.equal(await page.$eval('#comparison-deductibleA', input => input.getAttribute('aria-invalid')), 'true');
+      await page.$eval('[data-comparison-clear]', button => button.scrollIntoView({ behavior: 'instant', block: 'center' }));
+      await page.click('[data-comparison-clear]');
+      assert.equal(await page.$$eval('[data-comparison-field]', inputs => inputs.every(input => input.value === '')), true);
+      assert.equal(leadSubmissions, 0, 'Calculating never sends a lead');
+      assert.equal(trackedEvents.some(event => event.event_type === 'form_start'), false, 'Calculator use is not counted as a quote form start');
+      assert.ok(trackedEvents.every(event => !JSON.stringify(event).includes('1 000,10')), 'Entered amounts are not transmitted to analytics');
+      assert.equal(new URL(page.url()).search, '', 'Entered amounts are not stored in the URL');
+      row.comparisonCalculatorVerified = true;
+      row.privateCalculationVerified = true;
+    }
     assert.equal(leadSubmissions, path === '/devis-assurance-immeuble' ? 1 : 0, 'Only the isolated callback fixture may be submitted.');
     assert.deepEqual(errors, [], path);
     rows.push({ path, ...row, lead_submissions: leadSubmissions });
@@ -254,7 +294,7 @@ try {
     ['/assurance-pno-cno', 390, 844], ['/recherches-assurance-immeuble', 390, 844],
     ['/blog/assurance-immeuble-ancien', 390, 844],
     ['/news/veille-assurance-immeuble-2026-08-03', 390, 844],
-    ['/guides', 1024, 768], ['/faq', 720, 360],
+    ['/guides', 1024, 768], ['/faq', 720, 360], ['/comparateur-assurance-immeuble', 390, 844],
     ['/assurance-immeuble', 1280, 900]
   ];
   for (const [path, width, height] of navigationCases) {
@@ -263,6 +303,10 @@ try {
     await page.setViewport({ width, height });
     const response = await page.goto(origin + path, { waitUntil: 'networkidle0' });
     assert.equal(response.status(), 200, path);
+    if (path === '/comparateur-assurance-immeuble') {
+      assert.equal(await page.$eval('[data-comparison-run]', element => element.disabled), true);
+      assert.match(await page.$eval('[data-quote-comparison]', element => element.textContent), /Exemple fictif/);
+    }
     const summary = '[data-mobile-navigation] > summary';
     if (width <= 1100) {
       assert.equal(await page.$eval(summary, element => element.checkVisibility()), true, `${path}: menu available without JavaScript`);
@@ -319,7 +363,8 @@ try {
     { from: '/assurance-garages-parkings', entry: 'sticky', width: 320, intent: 'garages', profile: 'bailleur', need: 'multirisque-immeuble', property: 'parking', label: 'Garages' },
     { from: '/assurance-pno-cno', entry: 'sticky', intent: 'pno-cno', profile: 'bailleur', need: 'pno-cno', property: 'lot-copropriete', label: 'PNO' },
     { from: '/assurance-sci', entry: 'hero', testDetailedForm: true, desktop: true, intent: 'sci', profile: 'sci', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'SCI' },
-    { from: '/assurance-copropriete', entry: 'hero', intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' }
+    { from: '/assurance-copropriete', entry: 'hero', intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
+    { from: '/comparateur-assurance-immeuble', entry: 'hero', desktop: true, intent: 'prix', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Prix' }
   ];
   for (const journey of journeyCases) {
     const page = await browser.newPage();

@@ -13,6 +13,8 @@ const subjects = {
   "assurance-pno-cno": "Votre assurance PNO / CNO",
   "assurance-garages-parkings": "Garages et parkings",
   "prix-assurance-immeuble": "Votre devis immeuble",
+  "comparateur-assurance-immeuble": "Votre comparatif de devis",
+  "tarif-assurance-immeuble": "Votre tarif immeuble",
   "audit-contrat-assurance-immeuble": "Votre contrat immeuble"
 };
 
@@ -23,10 +25,11 @@ export function improveServiceQuoteEntry(html, slug) {
   const section = html.match(/<section\b[^>]*class="[^"]*\bpage-hero\b[^"]*"[^>]*>[\s\S]*?<\/section>/);
   if (!section) throw new Error(`${slug}: the service hero is missing`);
   const actions = /<div\b[^>]*class="[^"]*\bhero-actions\b[^"]*"[^>]*>[\s\S]*?<\/div>/;
-  if (!actions.test(section[0])) throw new Error(`${slug}: the service actions are missing`);
+  if (!actions.test(section[0]) && slug !== "comparateur-assurance-immeuble") throw new Error(`${slug}: the service actions are missing`);
   const href = quoteHref(`/${slug}`).replaceAll("&", "&amp;");
   const replacement = `<div class="hero-actions"><a class="button primary" data-track="service-quote-start" data-short-quote-entry data-quote-subject="${subject}" href="${href}">Demander un devis</a><a class="button secondary" data-track="service-full-form" href="#lead-form">Formulaire complet</a></div>\n        <p data-quote-entry-note>Un téléphone ou un email suffit pour démarrer. Un conseiller précisera votre besoin avec vous.</p>`;
-  const hero = section[0].replace(/\s*<p\b[^>]*data-quote-entry-note[^>]*>[\s\S]*?<\/p>/g, "").replace(actions, replacement);
+  const clean = section[0].replace(/\s*<p\b[^>]*data-quote-entry-note[^>]*>[\s\S]*?<\/p>/g, "");
+  const hero = actions.test(clean) ? clean.replace(actions, replacement) : clean.replace('</section>', `<div class="container">${replacement}</div></section>`);
   return html.replace(section[0], hero);
 }
 
