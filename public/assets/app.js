@@ -1,5 +1,5 @@
 const form = document.querySelector("#lead-form");
-const statusBox = document.querySelector(".form-status");
+const statusBox = form?.querySelector(".form-status");
 
 const requiredFields = ["name", "phone", "profile", "property_type", "city"];
 const sessionKey = "immeubleassur_session_id";
@@ -95,6 +95,68 @@ function setStatus(message, type = "") {
   if (!statusBox) return;
   statusBox.textContent = message;
   statusBox.className = `form-status ${type}`.trim();
+}
+
+async function postLead(payload) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 20000);
+  try {
+    const response = await fetch("/api/leads", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload), signal: controller.signal
+    });
+    let result;
+    try { result = await response.json(); } catch { result = null; }
+    if (!response.ok || result?.success !== true || typeof result.reference !== "string" || !result.reference.trim()) {
+      const error = new Error(result?.error || "La reception de votre demande n'est pas confirmee.");
+      error.status = response.status;
+      error.result = result;
+      error.unconfirmed = !result || (response.ok && result.success !== false);
+      throw error;
+    }
+    return result;
+  } finally { window.clearTimeout(timeout); }
+}
+
+function setLeadSending(formElement, sending) {
+  formElement.dataset.submitting = sending ? "1" : "0";
+  formElement.setAttribute("aria-busy", String(sending));
+  formElement.querySelectorAll("button[type='submit']").forEach(button => {
+    button.disabled = sending || formElement.dataset.received === "1";
+  });
+}
+
+function confirmLeadReceipt(formElement) {
+  formElement.dataset.received = "1";
+  formElement.querySelectorAll("button[type='submit']").forEach(button => {
+    button.dataset.receiptLabel = button.textContent;
+    button.textContent = "Demande recue";
+  });
+}
+
+function bindLeadReceiptReset(formElement) {
+  formElement?.addEventListener("input", event => {
+    if (!event.isTrusted || event.target.type === "hidden" || formElement.dataset.received !== "1" || formElement.dataset.submitting === "1") return;
+    delete formElement.dataset.received;
+    formElement.querySelectorAll("button[type='submit']").forEach(button => { button.textContent = button.dataset.receiptLabel; });
+    setLeadSending(formElement, false);
+    const box = formElement.querySelector(".form-status");
+    if (box) {
+      box.textContent = "Informations modifiees. Envoyez une nouvelle demande pour les transmettre.";
+      box.className = "form-status";
+    }
+  });
+}
+
+function showUnconfirmedLead(formElement) {
+  const box = formElement.querySelector(".form-status");
+  if (!box) return;
+  box.className = "form-status error";
+  box.textContent = "La reception de votre demande n'est pas confirmee. Reessayez ou ";
+  const phone = document.createElement("a");
+  phone.href = "tel:+33180855786";
+  phone.textContent = "appelez le 01 80 85 57 86";
+  box.append(phone, ". Vos informations restent dans le formulaire.");
 }
 
 let eventViewport = "";
@@ -452,7 +514,7 @@ function readForm(formElement) {
   const data = Object.fromEntries(new FormData(formElement).entries());
   const utm = readUtm();
   const attribution = attributionPayload();
-  const turnstileResponse = String(data["cf-turnstile-response"] || "").trim();
+  const turnstileResponse = turnstileResponseFromScope(formElement);
   const payload = {
     name: String(data.name || "").trim(),
     phone: String(data.phone || "").trim(),
@@ -2282,6 +2344,7 @@ function markInstantCallbackInvalid(formElement, details) {
     const consent = formElement.elements.consent;
     consent?.setAttribute("data-invalid", "true");
     consent?.setAttribute("aria-invalid", "true");
+    consent?.focus({ preventScroll: true });
   }
 }
 
@@ -2356,6 +2419,7 @@ function instantCallbackPayload(formElement, panel = instantCallbackContext(form
 async function submitInstantCallback(event) {
   event.preventDefault();
   const formElement = event.currentTarget;
+  if (formElement.dataset.submitting === "1" || formElement.dataset.received === "1") return;
   const panel = instantCallbackContext(formElement);
   let payload = instantCallbackPayload(formElement, panel);
   if (payload.company_website) {
@@ -2371,34 +2435,32 @@ async function submitInstantCallback(event) {
     return;
   }
 
-  const submitButton = formElement.querySelector("button[type='submit']");
-  submitButton.disabled = true;
+  clearInvalidFields(formElement);
+  setLeadSending(formElement, true);
   instantCallbackStatus(formElement, "Verification anti-robot...");
   if (!(await ensureTurnstileToken(formElement))) {
     instantCallbackStatus(formElement, "Verification anti-robot indisponible. Verifiez votre connexion puis recommencez.", "error");
-    submitButton.disabled = false;
+    setLeadSending(formElement, false);
     return;
   }
   payload = instantCallbackPayload(formElement, panel);
+  const refreshedValidation = validationDetails(payload);
+  if (refreshedValidation.message) {
+    instantCallbackStatus(formElement, refreshedValidation.message, "error");
+    markInstantCallbackInvalid(formElement, refreshedValidation);
+    resetTurnstileWidgets(formElement);
+    setLeadSending(formElement, false);
+    return;
+  }
   instantCallbackStatus(formElement, "Envoi du rappel express...");
   const qualification = leadQualification(payload);
   track("form_submit_attempt", { target: payload.need, label: payload.profile, source: payload.source || "instant-callback", ...leadValueEventPayload(payload, qualification) });
 
   try {
-    const response = await fetch("/api/leads", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    const result = await response.json();
-    if (!response.ok || !result.success) {
-      const submitError = new Error(result.error || "Envoi impossible pour le moment.");
-      submitError.status = response.status;
-      submitError.result = result;
-      throw submitError;
-    }
+    const result = await postLead(payload);
 
     formSubmitted = true;
+    confirmLeadReceipt(formElement);
 
     if (result.duplicate) {
       instantCallbackStatus(formElement, `Demande deja recue. Reference ${result.reference}.`, "ok");
@@ -2413,7 +2475,7 @@ async function submitInstantCallback(event) {
         content_kind: payload.content_kind || ""
       });
     } else {
-      instantCallbackStatus(formElement, `Rappel express recu. Reference ${result.reference}.`, "ok");
+      instantCallbackStatus(formElement, `Demande recue. Reference ${result.reference}. Conservez-la pour le suivi.`, "ok");
       track("lead_created", {
         lead_reference: result.reference,
         score: String(result.score || ""),
@@ -2436,7 +2498,7 @@ async function submitInstantCallback(event) {
     }
     window.setTimeout(() => dismissTrafficNoClickRescue(""), 1800);
   } catch (error) {
-    if (error.status && error.status < 500) {
+    if (error.status && error.status < 500 && !error.unconfirmed) {
       track("lead_submit_rejected", { target: payload.need, label: error.message, source: payload.source || payload.submission_mode || "full-lead", status: String(error.status), challenge: error.result?.challenge || "", turnstile: error.result?.turnstile || "" });
       instantCallbackStatus(formElement, error.message || "Demande rejetee. Verifiez puis recommencez.", "error");
       return;
@@ -2444,10 +2506,10 @@ async function submitInstantCallback(event) {
     const fallbackReference = `LOCAL-${Date.now().toString(36).toUpperCase()}`;
     localBackup(payload, { success: false, reference: fallbackReference, error: error.message });
     track("lead_submit_local_backup", { lead_reference: fallbackReference, target: payload.need, label: error.message, source: payload.source || "instant-callback" });
-    instantCallbackStatus(formElement, `Connexion API indisponible. Demande sauvegardee (${fallbackReference}).`, "error");
+    showUnconfirmedLead(formElement);
   } finally {
     resetTurnstileWidgets(formElement);
-    submitButton.disabled = false;
+    setLeadSending(formElement, false);
   }
 }
 
@@ -2456,6 +2518,7 @@ function bindInstantCallbackForm(scope) {
   if (!miniForm || miniForm.dataset.bound === "1") return;
   const context = instantCallbackContext(miniForm);
   miniForm.dataset.bound = "1";
+  bindLeadReceiptReset(miniForm);
   miniForm.addEventListener("focusin", () => {
     if (!instantCallbackStarted) {
       instantCallbackStarted = true;
@@ -2683,8 +2746,10 @@ function bindGrowthTracking() {
   });
 }
 
+bindLeadReceiptReset(form);
 form?.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (form.dataset.submitting === "1" || form.dataset.received === "1") return;
   if (event.submitter?.matches?.("[data-form-rescue-express]")) form.dataset.submissionMode = "express-callback";
   else delete form.dataset.submissionMode;
   let payload = readForm(form);
@@ -2705,37 +2770,31 @@ form?.addEventListener("submit", async (event) => {
   clearInvalidFields(form);
 
   clearFormRescueTimer();
-  const submitButton = form.querySelector("button[type='submit']");
-  submitButton.disabled = true;
+  setLeadSending(form, true);
   setStatus("Verification anti-robot...");
   if (!(await ensureTurnstileToken(form))) {
     setStatus("Verification anti-robot indisponible. Verifiez votre connexion puis recommencez.", "error");
-    submitButton.disabled = false;
+    setLeadSending(form, false);
     return;
   }
   payload = readForm(form);
+  const refreshedValidation = validationDetails(payload);
+  if (refreshedValidation.message) {
+    setStatus(refreshedValidation.message, "error");
+    markInvalidFields(form, refreshedValidation);
+    resetTurnstileWidgets(form);
+    setLeadSending(form, false);
+    return;
+  }
   setStatus("Transmission du dossier en cours...");
   const qualification = leadQualification(payload);
   track("form_submit_attempt", { target: payload.need, label: payload.profile, source: payload.submission_mode || "full-lead", ...leadValueEventPayload(payload, qualification) });
 
   try {
-    const response = await fetch("/api/leads", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    const result = await response.json();
-
-    if (!response.ok || !result.success) {
-      const submitError = new Error(result.error || "Envoi impossible pour le moment.");
-      submitError.status = response.status;
-      submitError.result = result;
-      throw submitError;
-    }
+    const result = await postLead(payload);
 
     formSubmitted = true;
-
-    form.reset();
+    confirmLeadReceipt(form);
     if (result.duplicate) {
       setStatus(`Demande deja recue. Reference ${result.reference}. Nous conservons le dossier prioritaire deja ouvert.`, "ok");
       track("lead_duplicate_returned", {
@@ -2750,7 +2809,7 @@ form?.addEventListener("submit", async (event) => {
       });
       return;
     }
-    setStatus(payload.submission_mode === "express-callback" ? `Rappel express recu. Reference ${result.reference}. Un conseiller vous rappelle pour completer le dossier.` : `Demande recue. Reference ${result.reference}. Un conseiller vous rappelle rapidement.`, "ok");
+    setStatus(`Demande recue. Reference ${result.reference}. Conservez-la pour le suivi.`, "ok");
     track("lead_created", {
       lead_reference: result.reference,
       score: String(result.score || ""),
@@ -2771,7 +2830,7 @@ form?.addEventListener("submit", async (event) => {
       label: payload.city
     });
   } catch (error) {
-    if (error.status && error.status < 500) {
+    if (error.status && error.status < 500 && !error.unconfirmed) {
       track("lead_submit_rejected", { target: payload.need, label: error.message, source: payload.source || payload.submission_mode || "full-lead", status: String(error.status), challenge: error.result?.challenge || "", turnstile: error.result?.turnstile || "" });
       setStatus(error.message || "Demande rejetee. Verifiez les champs puis recommencez.", "error");
       return;
@@ -2779,13 +2838,10 @@ form?.addEventListener("submit", async (event) => {
     const fallbackReference = `LOCAL-${Date.now().toString(36).toUpperCase()}`;
     localBackup(payload, { success: false, reference: fallbackReference, error: error.message });
     track("lead_submit_local_backup", { lead_reference: fallbackReference, target: payload.need, label: error.message, source: payload.source || payload.submission_mode || "full-lead" });
-    setStatus(
-      `Connexion API indisponible en local. Dossier sauvegarde dans ce navigateur (${fallbackReference}).`,
-      "error"
-    );
+    showUnconfirmedLead(form);
   } finally {
     resetTurnstileWidgets(form);
-    submitButton.disabled = false;
+    setLeadSending(form, false);
   }
 });
 
