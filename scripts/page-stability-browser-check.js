@@ -6,6 +6,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import puppeteer from 'puppeteer-core';
 import * as chromeLauncher from 'chrome-launcher';
 import { checkLeadSubmissions } from './lead-submission-browser-check.js';
+import { checkMobileReading } from './mobile-reading-browser-check.js';
 
 // Delay the application until after first paint: this reproduces the cold-load
 // race that previously inserted a second quote selector into the viewport.
@@ -563,11 +564,12 @@ try {
     await page.close();
   }
   const leadSubmissionRows = await checkLeadSubmissions(browser, origin, turnstileFixture, turnstileTestKey);
-  const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows, navigationRows, quoteJourneys, leadSubmissionRows };
+  const mobileReadingRows = await checkMobileReading(browser, origin, process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT);
+  const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows, navigationRows, quoteJourneys, leadSubmissionRows, mobileReadingRows };
   const target = resolve(process.env.LOCAL_PAGE_STABILITY_REPORT || 'reports/page-stability-browser-report.json');
   mkdirSync(dirname(target), { recursive: true });
   writeFileSync(target, JSON.stringify(report, null, 2) + '\n');
-  console.log(`Page stability passed: ${rows.length} pages, worst delayed-load CLS=${Math.max(...rows.map(r => r.cls)).toFixed(3)}, ${navigationRows.length} navigation checks, ${quoteJourneys.length} quote journeys, ${leadSubmissionRows.length} submission recovery checks, no production lead submitted.`);
+  console.log(`Page stability passed: ${rows.length} pages, worst delayed-load CLS=${Math.max(...rows.map(r => r.cls)).toFixed(3)}, ${navigationRows.length} navigation checks, ${quoteJourneys.length} quote journeys, ${leadSubmissionRows.length} submission recovery checks, ${mobileReadingRows.length} reading layout checks, no production lead submitted.`);
 } finally {
   if (browser) {
     let shutdownTimer;
