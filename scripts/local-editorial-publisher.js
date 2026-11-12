@@ -79,8 +79,14 @@ const publicationInputHashes = Object.fromEntries([
   "scripts/site-navigation.js",
   "scripts/editorial-public-metadata-policy.js",
   "scripts/turnstile-markup.js",
-  "scripts/local-editorial-publisher.js"
-].map((relative) => [relative, existsSync(resolve(relative)) ? sha256(resolve(relative)) : ""]));
+  "scripts/local-editorial-publisher.js",
+  "public/assets/styles.css",
+  "public/assets/app.js",
+  "public/assets/editorial-live.js"
+].map((relative) => {
+  const path = relative.startsWith("public/") ? join(staticPublicRoot, relative.slice(7)) : resolve(relative);
+  return [relative, existsSync(path) ? sha256(path) : ""];
+}));
 const publicationBuildHash = createHash("sha256")
   .update(JSON.stringify(publicationInputHashes))
   .digest("hex");
@@ -102,7 +108,7 @@ const versionRoot = join(publicationsRoot, "versions", version);
 mkdirSync(versionRoot, { recursive: true });
 const child = spawnSync(process.execPath, ["scripts/editorial-autopilot.js", "--fetch"], {
   cwd: process.cwd(),
-  env: { ...process.env, LOCAL_RUNTIME_ONLY: "0", LOCAL_EDITORIAL_OUTPUT_ROOT: versionRoot, LOCAL_RUNTIME_REPORTS_ROOT: reportsRoot, LOCAL_RUNTIME_ASSETS_ROOT: runtimeAssetsRoot },
+  env: { ...process.env, LOCAL_RUNTIME_ONLY: "0", LOCAL_EDITORIAL_OUTPUT_ROOT: versionRoot, LOCAL_SITE_PUBLIC_ROOT: staticPublicRoot, LOCAL_RUNTIME_REPORTS_ROOT: reportsRoot, LOCAL_RUNTIME_ASSETS_ROOT: runtimeAssetsRoot },
   encoding: "utf8",
   timeout: 120000,
   windowsHide: true

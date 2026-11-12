@@ -90,7 +90,7 @@ function attr(value) { return esc(value).replaceAll("'", "&#39;"); }
 function stripHtml(value) { return String(value || "").replace(/<!--[\s\S]*?-->/g, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim(); }
 function hash(value, size = 12) { return createHash("sha256").update(String(value || "")).digest("hex").slice(0, size); }
 function todayIsoDate() { return new Date().toISOString().slice(0, 10); }
-function versionedAsset(path) { const file = join(OUT, ...path.replace(/^\//, "").split("/")); return existsSync(file) ? `${path}?v=${createHash("sha256").update(readFileSync(file)).digest("hex").slice(0, 10)}` : path; }
+function versionedAsset(path, publicRoot = process.env.LOCAL_SITE_PUBLIC_ROOT || "public") { const file = join(publicRoot, ...path.replace(/^\//, "").split("/")); return existsSync(file) ? `${path}?v=${createHash("sha256").update(readFileSync(file)).digest("hex").slice(0, 10)}` : path; }
 function sql(value) { return value === null || value === undefined ? "NULL" : `'${String(value).replaceAll("'", "''")}'`; }
 const STYLES_URL = versionedAsset("/assets/styles.css");
 const APP_JS_URL = versionedAsset("/assets/app.js");
@@ -985,7 +985,7 @@ async function run() {
   console.log("Editorial collection " + report.collection_status + ": healthy=" + report.healthy_source_count + ", no-relevant=" + report.no_relevant_source_count + ", empty=" + report.empty_source_count + ", failed=" + report.failed_source_count + ".");
 }
 
-export { parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, publicationPriority, selectPublishedWatchItems, editorialRecency, publicationDateMetadata, enrichPublicationDates, aiProviders, publicationDate, evaluatePublicationGate };
+export { versionedAsset, parseRss, parsePublicPage, verifyReferencePage, referenceFetchStatus, sourceUrlAllowed, sourceContentAllowed, repairMojibake, normalizeEditorialText, sanitizeEditorialSummary, editorialTextQuality, qualityFiltered, editorialBusinessCoverage, publicationPriority, selectPublishedWatchItems, editorialRecency, publicationDateMetadata, enrichPublicationDates, aiProviders, publicationDate, evaluatePublicationGate };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   run().catch((error) => { console.error(error); process.exit(1); });
