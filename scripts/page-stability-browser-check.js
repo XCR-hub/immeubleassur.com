@@ -455,8 +455,8 @@ try {
   navigationRows.push({ path: '/', width: 390, height: 844, javascript: true, shortQuoteNavigation: true, passed: true });
   await navigationPage.close();
   const journeyCases = [
-    { from: '/', entry: 'homepage', intent: 'immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis', width: 320 },
-    { from: '/', entry: 'homepage', desktop: true, intent: 'immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis' },
+    { from: '/', entry: 'homepage', intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis', width: 320 },
+    { from: '/', entry: 'homepage', desktop: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis' },
     { from: '/assurance-sci', intent: 'sci', profile: 'sci', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'SCI', desktop: true },
     { from: '/assurance-garages-parkings', intent: 'garages', profile: 'bailleur', need: 'multirisque-immeuble', property: 'parking', label: 'Garages' },
     { from: '/assurance-copropriete', intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
@@ -585,7 +585,7 @@ try {
     }
     if (journey.label) assert.ok((await page.$eval('[data-quote-context-title]', element => element.textContent)).includes(journey.label), 'The visitor sees the retained quote subject');
     if (journey.from !== '/devis-assurance-immeuble') {
-      assert.equal(await page.$eval('#lead-form [name="profile"]', field => field.value), journey.profile, journey.from);
+      assert.equal(await page.$eval('#lead-form [name="profile"]', field => field.value), journey.detailedProfile ?? journey.profile, journey.from);
       assert.equal(await page.$eval('#lead-form [name="need"]', field => field.value), journey.need, journey.from);
       if (journey.intent === 'immeuble-vacant') {
         assert.equal(await page.$eval('#lead-form [name="property_type"]', field => field.value), journey.property, 'The detailed form also retains the selected building type');

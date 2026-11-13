@@ -1,3 +1,4 @@
+html:has([data-guide-directory]){scroll-behavior:auto}
 [data-guide-directory] .page-hero{padding:40px 0 32px}
 .guide-directory{padding-top:2rem;padding-bottom:3rem;overflow-wrap:anywhere}
 .guide-directory section{margin-top:3rem;scroll-margin-top:96px}
