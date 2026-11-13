@@ -38,7 +38,7 @@ try {
     if (Date.now() > deadline) throw new Error('Preview did not start.');
     await new Promise(r => setTimeout(r, 100));
   }
-  browser = await puppeteer.launch({ executablePath: chromePath, headless: true, args: ['--no-first-run'] });
+  browser = await puppeteer.launch({ executablePath: chromePath, headless: true, timeout: 60000, args: ['--no-first-run'] });
   for (const path of ['/assurance-immeuble', '/devis-assurance-immeuble', '/', '/guide-recherche-fuite-immeuble', '/assurance-garages-parkings', '/comparateur-assurance-immeuble', '/guides', '/blog/franchise-degat-des-eaux-immeuble', '/assurance-immeuble-vacant']) {
     const page = await browser.newPage();
     const errors = [];
@@ -448,6 +448,9 @@ try {
     { from: '/assurance-immeuble-vacant', entry: 'hero', intent: 'immeuble-vacant', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-vacant', label: 'Immeuble vacant' },
     { from: '/assurance-immeuble-vacant', entry: 'sticky', width: 320, intent: 'immeuble-vacant', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-vacant', label: 'Immeuble vacant' },
     { from: '/assurance-immeuble-vacant', intent: 'immeuble-vacant', changeTo: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
+    { from: '/blog/assurance-immeuble-vacant', desktop: true, intent: 'immeuble-vacant', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-vacant', label: 'Immeuble vacant' },
+    { from: '/blog/assurance-immeuble-vacant', entry: 'article', width: 320, intent: 'immeuble-vacant', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-vacant', label: 'Immeuble vacant' },
+    { from: '/blog/assurance-immeuble-vacant', entry: 'reading-sticky', width: 320, intent: 'immeuble-vacant', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-vacant', label: 'Immeuble vacant' },
     { from: '/devis-assurance-immeuble', intent: 'immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
     { from: '/assurance-sci', intent: 'sci', changeTo: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
     { from: '/assurance-sci', intent: 'sci', changeTo: 'cno', changeProfile: 'administrateur-biens', profile: 'administrateur-biens', need: 'cno', property: 'lot-copropriete', label: 'CNO' },
@@ -483,7 +486,10 @@ try {
     await page.goto(origin + journey.from, { waitUntil: 'networkidle0' });
     if (journey.from !== '/devis-assurance-immeuble') {
       let selector = journey.desktop ? '.site-header > .nav a[href*="/devis-assurance-immeuble"]' : '[data-track="mobile-navigation-quote"]';
-      if (journey.entry === 'guide' || journey.entry === 'article') {
+      if (journey.entry === 'reading-sticky') {
+        await page.waitForSelector('.lead-action-bar[data-short-quote-bar="1"]');
+        selector = '.lead-action-bar [data-track="sticky-devis"]';
+      } else if (journey.entry === 'guide' || journey.entry === 'article') {
         selector = journey.entry === 'article' ? '[data-article-reading] [data-track="cluster-conversion-primary"]' : '.guide-cta [data-track="cta-primary"]';
         await page.$eval(selector, link => link.scrollIntoView({ block: 'center', behavior: 'instant' }));
         if (journey.entry === 'article') {
