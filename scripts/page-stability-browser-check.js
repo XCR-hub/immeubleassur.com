@@ -508,13 +508,15 @@ try {
         }
       } else if (journey.entry) {
         await page.waitForSelector('.lead-action-bar[data-short-quote-bar="1"]');
-        assert.equal(await page.$eval('.lead-action-bar', bar => {
+        const barLayout = await page.$eval('.lead-action-bar', bar => {
           const box = bar.getBoundingClientRect();
-          return box.left >= 0 && box.right <= innerWidth && bar.scrollWidth <= bar.clientWidth && [...bar.querySelectorAll('.button')].every(button => {
+          const buttons = [...bar.querySelectorAll('.button')].map(button => {
             const child = button.getBoundingClientRect();
-            return child.left >= box.left && child.right <= box.right;
+            return { left: child.left, right: child.right };
           });
-        }), true, 'The quote and phone buttons remain inside the mobile bar');
+          return { left: box.left, right: box.right, viewport: innerWidth, scroll: bar.scrollWidth, client: bar.clientWidth, buttons };
+        });
+        assert.equal(barLayout.left >= 0 && barLayout.right <= barLayout.viewport && barLayout.scroll <= barLayout.client && barLayout.buttons.every(button => button.left >= barLayout.left && button.right <= barLayout.right), true, `${journey.from} (${journey.entry}): the quote and phone buttons remain inside the bar: ${JSON.stringify(barLayout)}`);
         assert.equal(await page.$$eval('[data-short-quote-entry]', elements => elements.length), 1);
         assert.equal(await page.$$eval('[data-quote-entry-note]', elements => elements.length), 1);
         assert.equal(await page.$eval('[data-track="service-full-form"]', element => element.getAttribute('href')), '#lead-form');
