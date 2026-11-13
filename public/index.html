@@ -18,7 +18,7 @@
     <link rel="manifest" href="/manifest.webmanifest" />
 
     <link rel="preload" as="image" href="/assets/hero-building.webp" type="image/webp" fetchpriority="high" />
-    <link rel="stylesheet" href="/assets/styles.css?v=5b24bdb333" />
+    <link rel="stylesheet" href="/assets/styles.css?v=b2c3734feb" />
     <title>Assurance Immeuble et Copropriete - Devis Gratuit | ImmeubleAssur</title>
 <!-- growth-meta:start -->
 <meta name="author" content="ImmeubleAssur" />
@@ -59,14 +59,34 @@
   </header>
     <main id="main-content">
 
-    <section class="hero">
+    <section class="hero" data-home-quote-entry data-quote-acquisition>
       <div class="hero-media" aria-hidden="true"></div>
       <div class="hero-overlay" aria-hidden="true"></div>
       <div class="hero-inner">
         <div class="hero-copy">
           <p class="eyebrow">Specialiste assurance immeuble</p>
-          <h1>Assurance immeuble, copropriete et PNO sans angle mort.</h1>
-          <p class="hero-lead">ImmeubleAssur compare les garanties multirisque immeuble, responsabilite civile, PNO, protection juridique et contrats pour syndics, SCI, bailleurs et conseils syndicaux.</p>
+          <h1>Votre devis assurance immeuble</h1>
+          <p class="hero-lead">Bailleur, SCI ou syndic : commencez avec un téléphone ou un email. Un conseiller précise ensuite votre besoin.</p>
+          <div class="hero-actions">
+            <a class="button primary" data-track="homepage-short-quote" data-short-quote-entry data-quote-subject="Assurance immeuble" href="/devis-assurance-immeuble?intent=immeuble&amp;source_path=%2F">Demander un devis</a>
+            <a class="button secondary" data-track="homepage-call" href="tel:+33180855786">01 80 85 57 86</a>
+          </div>
+        </div>
+
+    <div class="hero-inline-callback" data-instant-callback-context data-active-intent="immeuble" aria-label="Rappel express assurance immeuble">
+      <div><strong>Commencer votre devis</strong><span>Un téléphone ou un email suffit pour demander un rappel.</span></div>
+      <form class="instant-callback-form hero-inline-callback-form" data-instant-callback-form data-instant-callback-source="homepage-inline-callback" data-instant-callback-content-kind="homepage-inline-callback" novalidate>
+        <input class="hp-field" type="text" name="company_website" tabindex="-1" autocomplete="off" />
+        <label>Telephone ou email *<input name="contact" autocomplete="tel" inputmode="email" required placeholder="06 12 34 56 78" /></label>
+        <label class="consent-row"><input type="checkbox" name="consent" required /><span>J'accepte d'etre recontacte pour mon devis immeuble.</span></label>
+<!-- turnstile-hybrid:start -->
+<div class="turnstile-field" data-turnstile-hybrid="cloudflare-optional"><div class="cf-turnstile" data-sitekey="0x4AAAAAAD_N1OIMC1z63HG2" data-theme="light" data-action="lead_form"></div></div>
+<!-- turnstile-hybrid:end -->
+<button class="submit-button" type="submit" data-track="lead-submit" data-track="homepage-inline-callback-submit">Me rappeler</button>
+        <p class="form-status" data-instant-callback-status role="status" aria-live="polite"></p>
+      </form>
+    </div>
+        <div class="home-quote-options">
 <!-- ux-homepage-hot-quote:start -->
           <div class="hero-hot-quote" aria-label="Devis assurance immeuble immediat">
             <div class="hero-hot-copy">
@@ -92,10 +112,6 @@
             </div>
             <p>Choix rapide: besoin, profil et message sont cadres avant le rappel expert.</p>
           </div>
-          <div class="hero-actions">
-            <a class="button primary" data-track="cta-primary" href="/devis-assurance-immeuble">Demander un devis</a>
-            <a class="button secondary" data-track="cta-secondary" href="/assurance-pno-cno">PNO / CNO</a>
-          </div>
           <div class="hero-intent-grid" aria-label="Acces rapides assurance immeuble">
             <a class="intent-card" data-track="intent-immeuble" href="/assurance-immeuble"><strong>Immeuble</strong><span>Multirisque, franchises, sinistres.</span></a>
             <a class="intent-card" data-track="intent-copro" href="/assurance-copropriete"><strong>Copropriete</strong><span>Syndic, AG, parties communes.</span></a>
@@ -103,25 +119,12 @@
             <a class="intent-card" data-track="intent-sci" href="/assurance-sci"><strong>SCI</strong><span>Patrimoine et lots multiples.</span></a>
           </div>
           <dl class="proof-strip" aria-label="Indicateurs">
-            <div><dt>15 min</dt><dd>rappel expert</dd></div>
-            <div><dt>Maillage</dt><dd>national</dd></div>
-            <div><dt>Audit</dt><dd>contrat</dd></div>
+            <div><dt>Un contact</dt><dd>pour commencer</dd></div>
+            <div><dt>Vos besoins</dt><dd>précisés ensemble</dd></div>
+            <div><dt>Votre choix</dt><dd>avant souscription</dd></div>
           </dl>
         </div>
-
-    <div class="hero-inline-callback" data-instant-callback-context data-active-intent="immeuble" aria-label="Rappel express assurance immeuble">
-      <div><strong>Rappel express</strong><span>Telephone ou email suffit. Un conseiller complete le dossier immeuble avec vous.</span></div>
-      <form class="instant-callback-form hero-inline-callback-form" data-instant-callback-form data-instant-callback-source="homepage-inline-callback" data-instant-callback-content-kind="homepage-inline-callback" novalidate>
-        <input class="hp-field" type="text" name="company_website" tabindex="-1" autocomplete="off" />
-        <label>Telephone ou email *<input name="contact" autocomplete="tel" inputmode="email" required placeholder="06 12 34 56 78" /></label>
-        <label class="consent-row"><input type="checkbox" name="consent" required /><span>J'accepte d'etre recontacte pour mon devis immeuble.</span></label>
-<!-- turnstile-hybrid:start -->
-<div class="turnstile-field" data-turnstile-hybrid="cloudflare-optional"><div class="cf-turnstile" data-sitekey="0x4AAAAAAD_N1OIMC1z63HG2" data-theme="light" data-action="lead_form"></div></div>
-<!-- turnstile-hybrid:end -->
-<button class="submit-button" type="submit" data-track="lead-submit" data-track="homepage-inline-callback-submit">Me rappeler</button>
-        <p class="form-status" data-instant-callback-status role="status" aria-live="polite"></p>
-      </form>
-    </div>
+        <div class="home-quote-detail">
     <div class="growth-lead-magnet"><strong>Checklist offerte</strong><span>Recevez la liste des pieces utiles: contrat actuel, sinistres, lots, travaux, franchises et donnees assureur.</span></div>
     <form class="quote-panel" id="lead-form" data-track="lead-form" novalidate>
       <div class="form-heading">
@@ -182,14 +185,14 @@
 <button class="submit-button" type="submit" data-track="lead-submit">Obtenir mon devis immeuble</button>
       <p class="form-note">Donnees transmises a ImmeubleAssur pour traiter votre demande.</p>
       <div class="form-status" role="status" aria-live="polite"></div>
-    </form>
+    </form></div>
       </div>
     </section>
     <section class="conversion-strip" aria-label="Preuves de specialisation">
       <div class="conversion-strip-inner">
         <article><strong>ORIAS 11 061 425</strong><span>Courtier identifie pour vos demandes immeuble.</span></article>
         <article><strong>CNO / PNO</strong><span>Parcours dedie coproprietaires et bailleurs.</span></article>
-        <article><strong>24-48h</strong><span>Dossier qualifie puis consultation assureur.</span></article>
+        <article><strong>Étude du risque</strong><span>Garanties, franchises et pièces du dossier.</span></article>
         <article><strong>France</strong><span>Pages locales, syndics, SCI et coproprietes.</span></article>
       </div>
     </section>
@@ -402,6 +405,6 @@
 <nav class="footer-documentation" aria-label="Documentation et informations légales"><a href="/guides">Guides pratiques</a><a href="/faq">Questions fréquentes</a><a href="/methodologie-editoriale">Méthode documentaire</a><a href="/mentions-legales">Mentions légales</a></nav>
 <!-- documentation-links:end -->
 </footer>
-    <script src="/assets/app.js?v=ced3f57d51" type="module"></script>
+    <script src="/assets/app.js?v=a87866e4f6" type="module"></script>
   </body>
 </html>

@@ -4055,6 +4055,13 @@ main > section.band.cluster-conversion-bridge[data-article-reading] {
   background: transparent; color: inherit; font: inherit; cursor: pointer; min-height: 44px; }
 
 /* The small-screen navigation is present in HTML and works without scripts. */
+.hero[data-home-quote-entry] .hero-inner { align-items: start; padding-top: 28px; gap: 24px; }
+.hero[data-home-quote-entry] .hero-copy { gap: 14px; }
+.hero[data-home-quote-entry] h1 { font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.12; }
+.hero[data-home-quote-entry] .hero-lead { font-size: 1.05rem; line-height: 1.5; }
+.hero[data-home-quote-entry] .hero-actions { margin: 0; }
+.home-quote-options { display: grid; gap: 18px; min-width: 0; }
+.home-quote-detail { min-width: 0; }
 #lead-form { scroll-margin-top: 96px; }
 .page-hero [data-quote-entry-note] { font-size: .95rem; line-height: 1.5; color: #e2f1ee; }
 .lead-action-bar[data-short-quote-bar] .button { min-width: 0; white-space: normal; }

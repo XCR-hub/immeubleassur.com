@@ -92,7 +92,7 @@ try {
     const response = await page.goto(origin + path, { waitUntil: 'networkidle0', timeout: 30000 });
     const analyticsRefusal = await page.$('[data-analytics-choice="denied"]');
     if (analyticsRefusal && await analyticsRefusal.isVisible()) await analyticsRefusal.click();
-    await page.waitForSelector(path === '/devis-assurance-immeuble' ? '[data-instant-callback-source="quote-inline-callback"][data-bound="1"]' : '.lead-action-bar', { timeout: 10000 });
+    await page.waitForSelector(path === '/' || path === '/devis-assurance-immeuble' ? '[data-instant-callback-form][data-bound="1"]' : '.lead-action-bar', { timeout: 10000 });
     await new Promise(r => setTimeout(r, 2000));
     const row = await page.evaluate(() => {
       let cls = 0, sessionValue = 0, sessionStart = 0, previous = 0;
@@ -183,15 +183,37 @@ try {
       row.diagnosticPrefillVerified = true;
     }
     if (path === '/') {
-      await page.waitForSelector('.traffic-no-click-rescue', { visible: true, timeout: 15000 });
-      const variant = await page.$eval('.traffic-no-click-rescue', panel => panel.dataset.rescueVariant);
-      assert.ok(variant, 'The callback panel retains its active variant');
-      assert.ok(trackedEvents.some(event => event.event_type === 'traffic_without_click_shown' && event.rescue_variant === variant), 'Callback panel exposure is tracked');
-      await page.click('[data-traffic-no-click-close]');
+      const callback = '[data-instant-callback-source="homepage-inline-callback"]';
+      assert.equal(await page.$('.lead-action-bar'), null, 'The homepage contact is not covered by a second quote bar');
+      for (const selector of ['[data-home-quote-entry] [data-short-quote-entry]', callback + ' input[name="contact"]', callback + ' button[type="submit"]']) {
+        assert.equal(await page.$eval(selector, element => { const box = element.getBoundingClientRect(); return box.top >= 0 && box.bottom <= innerHeight; }), true, `${selector}: the homepage quote starts on the first mobile screen`);
+      }
+      await new Promise(resolve => setTimeout(resolve, 4500));
+      assert.equal(await page.$('.traffic-no-click-rescue'), null, 'An idle popup does not cover the visible homepage contact');
+      await page.evaluate(() => window.addEventListener('click', event => {
+        if (!event.target.closest('[data-track="homepage-call"]')) return;
+        window.__homepagePhonePrevented = event.defaultPrevented;
+        event.preventDefault();
+      }));
+      await page.click('[data-track="homepage-call"]');
+      assert.equal(await page.evaluate(() => window.__homepagePhonePrevented), false, 'The phone link must not be turned into a form scroll');
       await page.focus('.hero-inline-callback input[name="contact"]');
       await new Promise(r => setTimeout(r, 150));
-      assert.ok(trackedEvents.some(event => event.event_type === 'form_start' && event.source === 'homepage-inline-callback' && event.rescue_variant === variant), 'Inline callback focus retains the active variant without throwing');
+      assert.ok(trackedEvents.some(event => event.event_type === 'form_start' && event.source === 'homepage-inline-callback'), 'The visible homepage callback records an actual form start');
+      await page.type(callback + ' input[name="contact"]', '0100000000');
+      await page.click(callback + ' input[name="consent"]');
+      await page.click(callback + ' button[type="submit"]');
+      await page.waitForFunction(() => window.__localTurnstileFixture?.rendered > 0);
+      assert.equal(leadSubmissions, 0, 'The homepage callback still waits for anti-bot verification');
+      await page.evaluate(() => window.__localTurnstileFixture.release());
+      await page.waitForFunction(selector => document.querySelector(selector + ' [data-instant-callback-status]').textContent.includes('LOCAL-CALLBACK-FIXTURE'), { timeout: 25000 }, callback);
+      assert.equal(localCallbacks.length, 1);
+      assert.equal(localCallbacks[0].source, 'homepage-inline-callback');
+      assert.equal(localCallbacks[0].need, 'multirisque-immeuble');
+      assert.equal(localCallbacks[0].phone, '0100000000');
+      assert.equal(localCallbacks[0].consent, true);
       row.instantCallbackVerified = true;
+      row.homepageFirstScreenVerified = true;
     }
     if (path === '/assurance-immeuble') {
       await page.evaluate(() => {
@@ -312,7 +334,7 @@ try {
       }), true, 'The article stays readable and its full form follows the text on mobile');
       row.articleNextStepsVerified = true;
     }
-    assert.equal(leadSubmissions, path === '/devis-assurance-immeuble' ? 1 : 0, 'Only the isolated callback fixture may be submitted.');
+    assert.equal(leadSubmissions, path === '/' || path === '/devis-assurance-immeuble' ? 1 : 0, 'Only the isolated callback fixture may be submitted.');
     assert.deepEqual(errors, [], path);
     rows.push({ path, ...row, lead_submissions: leadSubmissions });
     await page.close();
@@ -433,6 +455,8 @@ try {
   navigationRows.push({ path: '/', width: 390, height: 844, javascript: true, shortQuoteNavigation: true, passed: true });
   await navigationPage.close();
   const journeyCases = [
+    { from: '/', entry: 'homepage', intent: 'immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis', width: 320 },
+    { from: '/', entry: 'homepage', desktop: true, intent: 'immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis' },
     { from: '/assurance-sci', intent: 'sci', profile: 'sci', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'SCI', desktop: true },
     { from: '/assurance-garages-parkings', intent: 'garages', profile: 'bailleur', need: 'multirisque-immeuble', property: 'parking', label: 'Garages' },
     { from: '/assurance-copropriete', intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
@@ -486,7 +510,14 @@ try {
     await page.goto(origin + journey.from, { waitUntil: 'networkidle0' });
     if (journey.from !== '/devis-assurance-immeuble') {
       let selector = journey.desktop ? '.site-header > .nav a[href*="/devis-assurance-immeuble"]' : '[data-track="mobile-navigation-quote"]';
-      if (journey.entry === 'reading-sticky') {
+      if (journey.entry === 'homepage') {
+        selector = '[data-home-quote-entry] [data-short-quote-entry]';
+        for (const visible of [selector, '[data-instant-callback-source="homepage-inline-callback"] input[name="contact"]', '[data-instant-callback-source="homepage-inline-callback"] button[type="submit"]']) {
+          assert.equal(await page.$eval(visible, element => { const box = element.getBoundingClientRect(); return box.top >= 0 && box.bottom <= innerHeight; }), true, `${journey.width || 1280}px: ${visible} is visible on the first screen`);
+        }
+        const refusal = await page.$('[data-analytics-choice="denied"]');
+        if (refusal && await refusal.isVisible()) await refusal.click();
+      } else if (journey.entry === 'reading-sticky') {
         await page.waitForSelector('.lead-action-bar[data-short-quote-bar="1"]');
         selector = '.lead-action-bar [data-track="sticky-devis"]';
       } else if (journey.entry === 'guide' || journey.entry === 'article') {

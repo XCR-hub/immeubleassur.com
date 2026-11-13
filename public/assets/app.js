@@ -2096,7 +2096,7 @@ function bindHeroActionAccelerator() {
   if (!isHomepage() || !form) return;
   const actions = document.querySelector(".hero-actions");
   if (!actions || actions.dataset.heroActionAccelerator === "1") return;
-  const links = [...actions.querySelectorAll("a[data-track]")];
+  const links = [...actions.querySelectorAll("a[data-track]:not([data-short-quote-entry]):not([href^='tel:'])")];
   if (!links.length) return;
   const rows = heroIntentAcceleratorRows();
   actions.dataset.heroActionAccelerator = "1";
@@ -2176,7 +2176,7 @@ function homepageDevisIntentFromLink(link) {
 
 function isHomepageDevisAcceleratorLink(link) {
   if (!link) return false;
-  if (link.closest(".site-header")) return false;
+  if (link.closest(".site-header, [data-short-quote-entry]")) return false;
   const href = link.getAttribute("href") || "";
   if (href.startsWith("tel:") || href.startsWith("mailto:") || href.startsWith("#")) return false;
   try {
