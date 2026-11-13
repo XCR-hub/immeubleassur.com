@@ -667,7 +667,7 @@ function homePage() {
         <div class="hero-copy">
           <p class="eyebrow">Specialiste assurance immeuble</p>
           <h1>Votre devis assurance immeuble</h1>
-          <p class="hero-lead">Bailleur, SCI ou syndic : commencez avec un téléphone ou un email. Un conseiller précise ensuite votre besoin.</p>
+          <p class="hero-lead">Bailleur, SCI ou syndic : demandez une étude adaptée à votre immeuble.</p>
           <div class="hero-actions">
             <a class="button primary" data-track="homepage-short-quote" data-short-quote-entry data-quote-subject="Assurance immeuble" href="/devis-assurance-immeuble?intent=immeuble&amp;source_path=%2F">Demander un devis</a>
             <a class="button secondary" data-track="homepage-call" href="tel:${PHONE_HREF}">${PHONE}</a>

@@ -513,7 +513,8 @@ try {
       if (journey.entry === 'homepage') {
         selector = '[data-home-quote-entry] [data-short-quote-entry]';
         for (const visible of [selector, '[data-instant-callback-source="homepage-inline-callback"] input[name="contact"]', '[data-instant-callback-source="homepage-inline-callback"] button[type="submit"]']) {
-          assert.equal(await page.$eval(visible, element => { const box = element.getBoundingClientRect(); return box.top >= 0 && box.bottom <= innerHeight; }), true, `${journey.width || 1280}px: ${visible} is visible on the first screen`);
+          const geometry = await page.$eval(visible, element => { const box = element.getBoundingClientRect(); return { top: box.top, bottom: box.bottom, viewport: innerHeight }; });
+          assert.ok(geometry.top >= 0 && geometry.bottom <= geometry.viewport, `${journey.width || 1280}px: ${visible} is visible on the first screen: ${JSON.stringify(geometry)}`);
         }
         const refusal = await page.$('[data-analytics-choice="denied"]');
         if (refusal && await refusal.isVisible()) await refusal.click();
