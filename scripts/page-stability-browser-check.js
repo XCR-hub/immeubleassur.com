@@ -240,11 +240,12 @@ try {
     }
     if (path === '/devis-assurance-immeuble') {
       const callback = '[data-instant-callback-source="quote-inline-callback"]';
-      await page.$eval(callback, element => element.scrollIntoView({ block: 'center' }));
+      await page.$eval(callback, element => element.scrollIntoView({ block: 'center', behavior: 'instant' }));
       await page.type(callback + ' input[name="contact"]', '0100000000');
       await page.click(callback + ' button[type="submit"]');
       await new Promise(r => setTimeout(r, 400));
       assert.equal(leadSubmissions, 0, 'Consent is required before the callback can be sent.');
+      assert.equal(new URL(page.url()).pathname, path, 'An invalid callback does not navigate away from the form');
       await page.click(callback + ' input[name="consent"]');
       await page.click(callback + ' button[type="submit"]');
       await page.waitForFunction(() => window.__localTurnstileFixture?.rendered > 0);
