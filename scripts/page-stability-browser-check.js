@@ -39,7 +39,7 @@ try {
     await new Promise(r => setTimeout(r, 100));
   }
   browser = await puppeteer.launch({ executablePath: chromePath, headless: true, args: ['--no-first-run'] });
-  for (const path of ['/assurance-immeuble', '/devis-assurance-immeuble', '/', '/guide-recherche-fuite-immeuble', '/assurance-garages-parkings', '/comparateur-assurance-immeuble', '/guides', '/blog/franchise-degat-des-eaux-immeuble']) {
+  for (const path of ['/assurance-immeuble', '/devis-assurance-immeuble', '/', '/guide-recherche-fuite-immeuble', '/assurance-garages-parkings', '/comparateur-assurance-immeuble', '/guides', '/blog/franchise-degat-des-eaux-immeuble', '/assurance-immeuble-vacant']) {
     const page = await browser.newPage();
     const errors = [];
     const trackedEvents = [];
@@ -105,7 +105,7 @@ try {
       return { cls, duplicateSelectors: document.querySelectorAll('.quote-fast-track').length, overflow: document.documentElement.scrollWidth > innerWidth, h1: document.querySelectorAll('h1').length };
     });
     assert.equal(response.status(), 200, path);
-    if (process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT && ['/devis-assurance-immeuble', '/assurance-garages-parkings'].includes(path)) {
+    if (process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT && ['/devis-assurance-immeuble', '/assurance-garages-parkings', '/assurance-immeuble-vacant'].includes(path)) {
       const screenshotRoot = resolve(process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT);
       mkdirSync(screenshotRoot, { recursive: true });
       await page.screenshot({ path: resolve(screenshotRoot, path.slice(1) + '.png') });
@@ -248,6 +248,11 @@ try {
       assert.equal(await page.$eval('#lead-form [name="profile"]', field => field.value), 'bailleur');
       row.parkingPrefillVerified = true;
     }
+    if (path === '/assurance-immeuble-vacant') {
+      assert.equal(await page.$eval('#lead-form [name="property_type"]', field => field.value), 'immeuble-vacant');
+      assert.ok((await page.$eval('[data-short-quote-entry]', link => link.href)).includes('intent=immeuble-vacant'));
+      row.vacantBuildingVerified = true;
+    }
     if (path === '/comparateur-assurance-immeuble') {
       const tool = '[data-quote-comparison]';
       await page.waitForSelector(tool + '[data-bound="1"]');
@@ -320,6 +325,7 @@ try {
     ['/blog/assurance-immeuble-ancien', 390, 844],
     ['/blog/assurance-sci-patrimoine-locatif', 320, 720],
     ['/blog/cno-coproprietaire-non-occupant-obligatoire', 390, 844],
+    ['/assurance-immeuble-vacant', 390, 844],
     ['/news/veille-assurance-immeuble-2026-08-03', 390, 844],
     ['/guides', 1024, 768], ['/guides', 320, 720], ['/faq', 720, 360], ['/comparateur-assurance-immeuble', 390, 844],
     ['/assurance-immeuble', 1280, 900]
@@ -438,6 +444,10 @@ try {
     { from: '/guide-recherche-fuite-immeuble', entry: 'guide', intent: 'audit-contrat', payloadIntent: 'audit', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Audit' },
     { from: '/blog/assurance-sci-patrimoine-locatif', desktop: true, intent: 'sci', profile: 'sci', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'SCI' },
     { from: '/blog/cno-coproprietaire-non-occupant-obligatoire', entry: 'article', width: 320, intent: 'cno', profile: 'bailleur', need: 'cno', property: 'lot-copropriete', label: 'CNO' },
+    { from: '/assurance-immeuble-vacant', desktop: true, intent: 'immeuble-vacant', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-vacant', label: 'Immeuble vacant' },
+    { from: '/assurance-immeuble-vacant', entry: 'hero', intent: 'immeuble-vacant', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-vacant', label: 'Immeuble vacant' },
+    { from: '/assurance-immeuble-vacant', entry: 'sticky', width: 320, intent: 'immeuble-vacant', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-vacant', label: 'Immeuble vacant' },
+    { from: '/assurance-immeuble-vacant', intent: 'immeuble-vacant', changeTo: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
     { from: '/devis-assurance-immeuble', intent: 'immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
     { from: '/assurance-sci', intent: 'sci', changeTo: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
     { from: '/assurance-sci', intent: 'sci', changeTo: 'cno', changeProfile: 'administrateur-biens', profile: 'administrateur-biens', need: 'cno', property: 'lot-copropriete', label: 'CNO' },
@@ -538,6 +548,9 @@ try {
     if (journey.from !== '/devis-assurance-immeuble') {
       assert.equal(await page.$eval('#lead-form [name="profile"]', field => field.value), journey.profile, journey.from);
       assert.equal(await page.$eval('#lead-form [name="need"]', field => field.value), journey.need, journey.from);
+      if (journey.intent === 'immeuble-vacant') {
+        assert.equal(await page.$eval('#lead-form [name="property_type"]', field => field.value), journey.property, 'The detailed form also retains the selected building type');
+      }
     }
     await page.$eval(callback, element => element.scrollIntoView({ block: 'center', behavior: 'instant' }));
     await page.type(callback + ' [name="contact"]', 'quote-fixture@example.invalid');

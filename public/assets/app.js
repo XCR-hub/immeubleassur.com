@@ -722,12 +722,14 @@ function intentLabel(intent) {
     veille: "Veille",
     devis: "Devis",
     "audit-contrat": "Audit",
-    immeuble: "Immeuble"
+    immeuble: "Immeuble",
+    "immeuble-vacant": "Immeuble vacant"
   })[intent] || "Immeuble";
 }
 
 function leadConversionRoutes() {
   return {
+    "immeuble-vacant": "/devis-assurance-immeuble?intent=immeuble-vacant",
     cno: "/devis-pno-cno?intent=cno",
     pno: "/devis-pno-cno?intent=pno",
     "pno-cno": "/devis-pno-cno?intent=pno-cno",
@@ -1087,6 +1089,7 @@ function applyIntentPrefill() {
   const intent = queryLeadIntent();
   if (!intent) return;
   const needMap = {
+    "immeuble-vacant": "multirisque-immeuble",
     cno: "cno",
     pno: "pno",
     "pno-cno": "pno-cno",
@@ -1104,6 +1107,7 @@ function applyIntentPrefill() {
     immeuble: "multirisque-immeuble"
   };
   const profileMap = {
+    "immeuble-vacant": "bailleur",
     sci: "sci",
     garages: "bailleur",
     copropriete: "syndic-professionnel",
@@ -1121,6 +1125,7 @@ function applyIntentPrefill() {
     "audit-contrat": "bailleur"
   };
   const propertyMap = {
+    "immeuble-vacant": "immeuble-vacant",
     cno: "lot-copropriete",
     pno: "logement-loue",
     "pno-cno": "lot-copropriete",
@@ -1145,6 +1150,7 @@ function applyIntentPrefill() {
     copropriete: "Je souhaite qualifier une copropriete avant consultation assureur.",
     sci: "Je souhaite organiser l'assurance d'un patrimoine en SCI.",
     garages: "Je souhaite assurer un ensemble de garages ou de places de parking.",
+    "immeuble-vacant": "Je souhaite assurer un immeuble entier vacant.",
     travaux: "Je souhaite verifier les garanties avant ou apres travaux sur l'immeuble.",
     "local-commercial": "Je souhaite assurer un immeuble avec local commercial ou usage mixte.",
     prix: "Je souhaite comparer prix, franchises et garanties pour mon immeuble.",
@@ -1484,7 +1490,7 @@ function mountRiskRouter() {
   render(router.dataset.activeRisk || "cno");
 }
 function quoteFastTrackRows() {
-  return {
+  const rows = {
     garages: {
       label: "Garages et parkings",
       title: "Assurance de garages et parkings",
@@ -1604,11 +1610,13 @@ function quoteFastTrackRows() {
       property_type: "immeuble-locatif"
     }
   };
+  rows["immeuble-vacant"] = { ...rows.immeuble, label: "Immeuble vacant", title: "Immeuble entier vacant", text: "Le bâtiment est entièrement vide.", proof: "Préciser la vacance et les protections du bâtiment.", href: "/devis-assurance-immeuble?intent=immeuble-vacant", property_type: "immeuble-vacant" };
+  return rows;
 }
 
 function quoteFastTrackIntent() {
   const requested = currentLeadIntent();
-  if (["cno", "pno", "copropriete", "sci", "immeuble", "travaux", "local-commercial", "sinistre", "prix", "veille"].includes(requested)) return requested;
+  if (["cno", "pno", "copropriete", "sci", "immeuble", "immeuble-vacant", "travaux", "local-commercial", "sinistre", "prix", "veille"].includes(requested)) return requested;
   if (["audit", "audit-contrat"].includes(requested)) return "audit";
   if (requested === "devis" || requested === "website") return "immeuble";
   return "immeuble";
@@ -1716,7 +1724,7 @@ function mountQuoteFastTrack() {
   if (form?.elements.property_type?.value === "parking") return;
   // These selectors already offer the quote journey in the initial HTML.
   // Inserting a second selector above them after first paint moves content.
-  if (document.querySelector("[data-diagnostic], .risk-router")) return;
+  if (document.querySelector("[data-diagnostic], .risk-router, [data-short-quote-entry]")) return;
   if (document.querySelector(".quote-fast-track")) return;
   const anchor = document.querySelector(".conversion-strip") || document.querySelector(".page-hero") || document.querySelector(".hero") || document.querySelector(".article-head");
   if (!anchor) return;
