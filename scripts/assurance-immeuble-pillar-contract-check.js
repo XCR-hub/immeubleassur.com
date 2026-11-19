@@ -11,7 +11,12 @@ const failures = [];
 if (!intent.includes('primary: "assurance-immeuble"')) failures.push("page pilier du cluster incorrecte");
 if (!angle.includes('"assurance-immeuble": {') || !angle.includes('"multirisque-immeuble": {')) failures.push("angles sources absents");
 if (!cannibal.includes("primarySlugs.includes(slug)")) failures.push("priorite des slugs strategiques absente du classificateur");
-if (!pillar.includes("Contrat immeuble copropriete</li><li>Statut d'occupation du lot</li><li>Attestation occupant ou vacance</li><li>Echeance et preavis a verifier") || !ux.includes("Contrat immeuble copropriete</li><li>Statut d'occupation du lot</li><li>Attestation occupant ou vacance</li><li>Echeance et preavis a verifier")) failures.push("etat initial du diagnostic non aligne avec JavaScript");
+const diagnostic = pillar.match(/<!-- ux-diagnostic:start -->[\s\S]*?<!-- ux-diagnostic:end -->/)?.[0] || "";
+if (!ux.includes("improveServiceDiagnosticContext") ||
+    !diagnostic.includes('<p class="diagnostic-route">Parcours immeuble</p>') ||
+    !/<button class="diagnostic-choice is-active"[^>]*data-step="property" data-value="immeuble-locatif"/.test(diagnostic) ||
+    !diagnostic.includes('href="/devis-assurance-immeuble?intent=immeuble"') ||
+    !diagnostic.includes("Nombre de lots</li><li>Travaux et entretien</li><li>Prime, franchises et exclusions</li><li>Echeance et preavis a verifier")) failures.push("etat initial du diagnostic immeuble non aligne avec le parcours du batiment");
 
 const pillarMarkers = [
   ["Page pilier assurance immeuble", "marqueur pilier"],
