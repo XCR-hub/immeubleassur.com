@@ -1,6 +1,7 @@
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join, relative } from "node:path";
 import { insurerGuides } from "../content/insurer-guides.js";
+import { validSitemapModificationDate } from "./sitemap-modification-dates.js";
 
 const SITE = "https://immeubleassur.com";
 const PUBLIC_DIR = "public";
@@ -149,7 +150,7 @@ function validateSitemap(publicUrls) {
   if (xml.includes(".html")) issues.push("sitemap: contient encore des URLs .html");
   for (const item of urls) {
     if (!item.lastmod) issues.push(`sitemap: lastmod absent pour ${item.loc}`);
-    if (item.lastmod && !/^\d{4}-\d{2}-\d{2}$/.test(item.lastmod)) issues.push(`sitemap: lastmod invalide pour ${item.loc}`);
+    if (item.lastmod && !validSitemapModificationDate(item.lastmod)) issues.push(`sitemap: lastmod invalide pour ${item.loc}`);
   }
   for (const url of publicUrls) {
     if (!sitemapSet.has(url)) issues.push(`sitemap: URL publique absente ${url}`);

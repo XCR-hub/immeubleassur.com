@@ -24,6 +24,16 @@ function sitemapRows(xml) {
     .filter((row) => { try { return new URL(row.url).host === siteUrl.host; } catch { return false; } });
 }
 
+function newerModification(previous, next) {
+  if (previous === undefined) return true;
+  if (previous === next) return false;
+  const before = Date.parse(previous), after = Date.parse(next);
+  if (!Number.isFinite(after)) return false;
+  if (!Number.isFinite(before)) return true;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(previous) && next.startsWith(previous)) return false;
+  return after > before;
+}
+
 function activeSitemap() {
   if (configuredSitemapPath) return { path: resolve(configuredSitemapPath), source: "configured", manifest_verified: false };
   const manifest = readJson(join(publicationsRoot, "current.json"));
@@ -49,7 +59,7 @@ async function run() {
   const previous = previousState.snapshot || {};
   const firstRun = Object.keys(previous).length === 0;
   const recentCutoff = Date.now() - 7 * 86400000;
-  const changed = rows.filter((row) => previous[row.url] !== row.lastmod && (!firstRun || (Number.isFinite(Date.parse(row.lastmod)) && Date.parse(row.lastmod) >= recentCutoff))).slice(0, 10000);
+  const changed = rows.filter((row) => newerModification(previous[row.url], row.lastmod) && (!firstRun || (Number.isFinite(Date.parse(row.lastmod)) && Date.parse(row.lastmod) >= recentCutoff))).slice(0, 10000);
   const base = { generated_at: new Date().toISOString(), provider: "indexnow", endpoint: "https://api.indexnow.org/IndexNow", site, key_location: keyLocation, key_publicly_verifiable: false, sitemap_source: sitemap.source, sitemap_manifest_verified: sitemap.manifest_verified, sitemap_urls: rows.length, first_run: firstRun, changed_urls: changed.length, submitted_urls: 0, last_submission: previousState.last_submission || null, citation_or_ranking_guaranteed: false };
   const safeguards = ["same-host-only", "changed-urls-only", "state-deduplicated", "no-ranking-claim"];
   if (!enabled) { writeJson(reportPath, { ...base, success: true, status: "disabled", safeguards }); console.log(`IndexNow disabled: ${changed.length} changed URL(s) detected.`); return; }

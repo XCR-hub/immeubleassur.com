@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { loadDefaultEnvFiles, env } from "./local-env.js";
 import { hasProtectedNewsletterForms } from "./turnstile-markup.js";
+import { sitemapModificationDates, refreshSitemapModificationDates } from "./sitemap-modification-dates.js";
 
 loadDefaultEnvFiles();
 
@@ -47,13 +48,15 @@ const today = new Date().toISOString().slice(0, 10);
 const expectedSlug = `news/veille-assurance-immeuble-${today}`;
 const force = process.argv.includes("--force");
 const currentIssuePath = current?.version && current?.issue?.slug ? join(publicationsRoot, "versions", current.version, `${current.issue.slug}.html`) : "";
+const modificationDates = sitemapModificationDates();
+const sourceSitemap = () => refreshSitemapModificationDates(readFileSync(join(staticPublicRoot, "sitemap.xml"), "utf8"), modificationDates);
 function refreshPreservedRuntimeSitemap() {
   if (!currentIssuePath || !existsSync(currentIssuePath) || !current?.issue?.slug || safeVersion(current.version) !== current.version) return false;
   const baseSitemapPath = join(staticPublicRoot, "sitemap.xml");
   if (!existsSync(baseSitemapPath)) return false;
   const sitemapPath = join(publicationsRoot, "versions", current.version, "sitemap.xml");
   const previousSitemap = existsSync(sitemapPath) ? readFileSync(sitemapPath, "utf8") : "";
-  let sitemap = readFileSync(baseSitemapPath, "utf8");
+  let sitemap = sourceSitemap();
   const loc = `https://immeubleassur.com/${current.issue.slug}`;
   const previousEntry = [...previousSitemap.matchAll(/<url>[\s\S]*?<\/url>/g)].find(([entry]) => entry.includes(`<loc>${loc}</loc>`))?.[0];
   const issueDate = current.issue.slug.match(/\d{4}-\d{2}-\d{2}$/)?.[0] || String(current.activated_at || today).slice(0, 10);
@@ -64,7 +67,7 @@ function refreshPreservedRuntimeSitemap() {
   renameSync(temporarySitemap, sitemapPath);
   const sitemapArtifact = { path: "sitemap.xml", bytes: Buffer.byteLength(sitemap), sha256: sha256(sitemapPath) };
   const files = (current.files || []).filter((file) => file.path !== "sitemap.xml").concat(sitemapArtifact);
-  const refreshed = { ...current, files, base_hub_hashes: { ...current.base_hub_hashes, sitemap: sha256(baseSitemapPath) }, sitemap_refreshed_at: new Date().toISOString() };
+  const refreshed = { ...current, files, base_hub_hashes: { ...current.base_hub_hashes, sitemap: createHash("sha256").update(sourceSitemap()).digest("hex") }, sitemap_refreshed_at: new Date().toISOString() };
   const temporaryManifest = join(publicationsRoot, `current-sitemap-${process.pid}-${Date.now()}.tmp`);
   writeJson(temporaryManifest, refreshed);
   renameSync(temporaryManifest, manifestPath);
@@ -72,12 +75,13 @@ function refreshPreservedRuntimeSitemap() {
 }
 const baseHubHashes = Object.fromEntries(["faq.html", "villes.html", "sitemap.xml"].map((relative) => {
   const path = join(staticPublicRoot, relative);
-  return [relative.replace(/\.(?:html|xml)$/, ""), existsSync(path) ? sha256(path) : ""];
+  return [relative.replace(/\.(?:html|xml)$/, ""), existsSync(path) ? relative === "sitemap.xml" ? createHash("sha256").update(sourceSitemap()).digest("hex") : sha256(path) : ""];
 }));
 const publicationInputHashes = Object.fromEntries([
   "scripts/editorial-autopilot.js",
   "scripts/site-navigation.js",
   "scripts/article-reading-paths.js",
+  "scripts/sitemap-modification-dates.js",
   "scripts/editorial-public-metadata-policy.js",
   "scripts/turnstile-markup.js",
   "scripts/local-editorial-publisher.js",
@@ -167,7 +171,7 @@ if (existsSync(baseLlmsPath) && issue?.slug) {
 const baseSitemapPath = join(staticPublicRoot, "sitemap.xml");
 const runtimeSitemapPath = join(versionRoot, "sitemap.xml");
 if (existsSync(baseSitemapPath) && issue?.slug) {
-  let sitemap = readFileSync(baseSitemapPath, "utf8");
+  let sitemap = sourceSitemap();
   const loc = `https://immeubleassur.com/${issue.slug}`;
   if (!sitemap.includes(`<loc>${loc}</loc>`)) sitemap = sitemap.replace("</urlset>", `  <url><loc>${loc}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>\n</urlset>`);
   writeFileSync(runtimeSitemapPath, sitemap, "utf8");

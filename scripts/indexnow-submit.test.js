@@ -47,7 +47,11 @@ function fixture(t) {
     return { exit: result.status, report: JSON.parse(readFileSync(report, 'utf8')), output: result.stdout + result.stderr };
   };
   const calls = () => existsSync(callsFile) ? readFileSync(callsFile, 'utf8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line)) : [];
-  return { root, state, run, calls };
+  const setSitemap = xml => {
+    writeFileSync(join(version, 'sitemap.xml'), xml);
+    writeFileSync(join(root, 'publications', 'current.json'), JSON.stringify({ marker: 'runtime-editorial-publication-v1', version: 'v1', files: [{ path: 'sitemap.xml', sha256: createHash('sha256').update(xml).digest('hex') }] }));
+  };
+  return { root, state, run, calls, setSitemap };
 }
 
 test('IndexNow sends only recent same-site URLs once and keeps its receipt after an unchanged cycle', t => {
@@ -72,6 +76,21 @@ test('existing ledgers continue to notify changed pages without re-sending uncha
   writeFileSync(f.state, JSON.stringify({ snapshot: { [site + '/new-guide']: today, [site + '/other-guide']: '2000-01-01', [site + '/old']: '2000-01-01' } }));
   assert.equal(f.run().report.first_run, false);
   assert.deepEqual(f.calls().filter(call => call.method === 'POST')[0].body.urlList, [site + '/other-guide']);
+});
+
+test('corrected dates do not re-send old pages, while a later same-day content edit is notified once', t => {
+  const f = fixture(t);
+  mkdirSync(join(f.root, 'reports'));
+  writeFileSync(f.state, JSON.stringify({ snapshot: { [site + '/new-guide']: today, [site + '/other-guide']: today } }));
+  const sitemap = timestamp => `<urlset><url><loc>${site}/new-guide</loc><lastmod>2020-01-01</lastmod></url><url><loc>${site}/other-guide</loc><lastmod>${today}T${timestamp}:00:00.000Z</lastmod></url></urlset>`;
+  f.setSitemap(sitemap('09'));
+  assert.equal(f.run().report.status, 'no-changes', 'An older correction or added timestamp precision is not a content edit');
+  assert.equal(f.calls().filter(call => call.method === 'POST').length, 0);
+  f.setSitemap(sitemap('10'));
+  assert.equal(f.run().report.status, 'submitted');
+  assert.deepEqual(f.calls().filter(call => call.method === 'POST')[0].body.urlList, [site + '/other-guide']);
+  assert.equal(f.run().report.status, 'no-changes');
+  assert.equal(f.calls().filter(call => call.method === 'POST').length, 1);
 });
 
 test('a provider failure preserves pending URLs until an accepted retry', t => {

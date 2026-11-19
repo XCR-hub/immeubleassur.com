@@ -6,6 +6,7 @@ import {tmpdir} from 'node:os';
 import {spawnSync} from 'node:child_process';
 import {test} from 'node:test';
 import {versionedAsset} from './editorial-autopilot.js';
+import {refreshSitemapModificationDates} from './sitemap-modification-dates.js';
 
 const hash=value=>createHash('sha256').update(value).digest('hex');
 const repository=resolve('.');
@@ -15,7 +16,7 @@ for(const key of ['sitemap.xml','sitemap'])test(`a held edition retains its arti
   const publicRoot=join(root,'public'),scripts=join(root,'scripts'),reports=join(root,'reports'),publications=join(root,'publications'),versionRoot=join(publications,'versions','retained');
   for(const directory of [publicRoot,scripts,reports,join(versionRoot,'news')])mkdirSync(directory,{recursive:true});
   writeFileSync(join(root,'package.json'),'{"type":"module"}');
-  for(const name of ['local-editorial-publisher.js','local-env.js','turnstile-markup.js','site-navigation.js','article-reading-paths.js'])copyFileSync(join(repository,'scripts',name),join(scripts,name));
+  for(const name of ['local-editorial-publisher.js','local-env.js','turnstile-markup.js','site-navigation.js','article-reading-paths.js','sitemap-modification-dates.js'])copyFileSync(join(repository,'scripts',name),join(scripts,name));
   writeFileSync(join(scripts,'editorial-autopilot.js'),`import {writeFileSync} from 'node:fs';import {join} from 'node:path';writeFileSync(join(process.env.LOCAL_RUNTIME_REPORTS_ROOT,'editorial-autopilot-report.json'),JSON.stringify({publication_gate:{ready:false},public_write_enabled:false}));`);
   const today=new Date().toISOString().slice(0,10),slug='news/veille-assurance-immeuble-'+today;
   const article='<html><body><main>Previous trusted edition, preserved verbatim.</main></body></html>';
@@ -26,8 +27,12 @@ for(const key of ['sitemap.xml','sitemap'])test(`a held edition retains its arti
   writeFileSync(join(versionRoot,'sitemap.xml'),oldSitemap);
   const newBase=oldBase.replace('</urlset>','<url><loc>https://immeubleassur.com/assurance-garages-parkings</loc></url></urlset>');
   writeFileSync(join(publicRoot,'sitemap.xml'),newBase);
+  writeFileSync(join(publicRoot,'index.html'),'<h1>Published homepage content</h1>');
   writeFileSync(join(publicRoot,'faq.html'),'<main>FAQ</main>');writeFileSync(join(publicRoot,'villes.html'),'<main>Villes</main>');
-  const inputs=Object.fromEntries(['scripts/editorial-autopilot.js','scripts/site-navigation.js','scripts/article-reading-paths.js','scripts/editorial-public-metadata-policy.js','scripts/turnstile-markup.js','scripts/local-editorial-publisher.js','public/assets/styles.css','public/assets/app.js','public/assets/editorial-live.js'].map(name=>[name,existsSync(join(root,name))?hash(readFileSync(join(root,name))):'']));
+  for(const args of [['init'],['config','user.email','fixture@example.invalid'],['config','user.name','Sitemap fixture'],['add','public'],['commit','-m','Published content']]){
+   const git=spawnSync('git',args,{cwd:root,encoding:'utf8',windowsHide:true,env:{...process.env,GIT_AUTHOR_DATE:'2026-06-12T12:00:00Z',GIT_COMMITTER_DATE:'2026-06-12T12:00:00Z'}});assert.equal(git.status,0,git.stderr);
+  }
+  const inputs=Object.fromEntries(['scripts/editorial-autopilot.js','scripts/site-navigation.js','scripts/article-reading-paths.js','scripts/sitemap-modification-dates.js','scripts/editorial-public-metadata-policy.js','scripts/turnstile-markup.js','scripts/local-editorial-publisher.js','public/assets/styles.css','public/assets/app.js','public/assets/editorial-live.js'].map(name=>[name,existsSync(join(root,name))?hash(readFileSync(join(root,name))):'']));
   const current={marker:'runtime-editorial-publication-v1',version:'retained',activated_at:today+'T00:00:00Z',issue:{slug,title:'Retained edition'},allowed_files:['sitemap.xml',slug+'.html'],files:[{path:'sitemap.xml',bytes:Buffer.byteLength(oldSitemap),sha256:hash(oldSitemap)}],public_content_provider:'deterministic',public_content_ai_generated:false,ai_draft_allowed_publication:false,base_hub_hashes:{faq:hash('<main>FAQ</main>'),villes:hash('<main>Villes</main>'),[key]:hash(oldBase)},publication_build_hash:hash(JSON.stringify(inputs)),hub_enrichment:{faq:{marker_count:1,end_marker_count:1},cities:{marker_count:1,end_marker_count:1,linked_city_count:3}}};
   writeFileSync(join(publications,'current.json'),JSON.stringify(current));
   const run=()=>{const result=spawnSync(process.execPath,['scripts/local-editorial-publisher.js'],{cwd:root,env:{...process.env,LOCAL_SITE_PUBLIC_ROOT:publicRoot,LOCAL_RUNTIME_REPORTS_ROOT:reports,LOCAL_RUNTIME_PUBLICATIONS_ROOT:publications,LOCAL_EDITORIAL_PUBLISHER_REPORT:join(reports,'publisher.json')},encoding:'utf8',windowsHide:true,timeout:20000});assert.equal(result.status,0,result.stderr||result.stdout);return JSON.parse(readFileSync(join(reports,'publisher.json'),'utf8'));};
@@ -39,7 +44,9 @@ for(const key of ['sitemap.xml','sitemap'])test(`a held edition retains its arti
   const after=JSON.parse(readFileSync(join(publications,'current.json'),'utf8'));
   assert.equal(after.version,current.version);assert.deepEqual(after.issue,current.issue);assert.deepEqual(after.allowed_files,current.allowed_files);
   assert.equal(after.files.find(file=>file.path==='sitemap.xml').sha256,hash(sitemap));assert.equal(after.files.find(file=>file.path==='sitemap.xml').bytes,Buffer.byteLength(sitemap));
-  assert.equal(after.base_hub_hashes.sitemap,hash(newBase));assert.equal(after.ai_draft_allowed_publication,false);
+  const expectedBase=refreshSitemapModificationDates(newBase,new Map([['public/index.html','2026-06-12T12:00:00.000Z']]));
+  assert.equal(after.base_hub_hashes.sitemap,hash(expectedBase));assert.equal(after.ai_draft_allowed_publication,false);
+  assert.ok(sitemap.includes('<lastmod>2026-06-12T12:00:00.000Z</lastmod>'),'Committed homepage dates are refreshed even when the edition is held.');
   assert.equal(run().status,'already-published-today','An unchanged base does not regenerate the edition.');
  }finally{
   const target=realpathSync(root),within=relative(parent,target);assert.ok(within&&!within.startsWith('..')&&!isAbsolute(within)&&basename(target).startsWith('immeubleassur-sitemap-'));
