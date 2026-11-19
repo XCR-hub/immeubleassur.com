@@ -33,6 +33,11 @@ for (let index = 0; index < 2; index += 1) {
 for (let index = 0; index < 30; index += 1) {
   event("page_view", `automatic-${index}`);
   event("quote_router_view", `automatic-${index}`, "immeuble");
+  event("lead_intent_prefill", `automatic-${index}`);
+  event("lead_urgency_detected", `automatic-${index}`, "", `${fixtureDay} 06:00:00`, { label: "immediate" });
+  event("form_quality_ready", `automatic-${index}`);
+  event("lead_value_hint_ready", `automatic-${index}`);
+  event("lead_form_abandoned", `automatic-${index}`, "", `${fixtureDay} 06:00:00`, { qualified_abandonment: false });
 }
 
 function runMonitor() {
@@ -51,6 +56,20 @@ try {
   const engaged = runMonitor();
   const engagedWebsite = engaged.intent_funnels.find((row) => row.key === "website");
   const engagedTypes = engaged.recommendations.map((item) => item.type);
+  event("lead_urgency_detected", "phone-contact", "", `${fixtureDay} 06:01:00`, { intent: "devis", label: "immediate" });
+  event("phone_click", "phone-contact", "telephone", `${fixtureDay} 06:02:00`, { intent: "devis" });
+  event("cta_click", "pending-contact", "devis", `${fixtureDay} 06:03:00`, { intent: "devis" });
+  event("lead_urgency_detected", "pending-contact", "", `${fixtureDay} 06:04:00`, { intent: "devis", label: "immediate" });
+  const pending = runMonitor();
+  const pendingQuote = pending.intent_funnels.find(row => row.key === "devis");
+  event("email_click", "pending-contact", "email", `${fixtureDay} 06:05:00`, { intent: "devis" });
+  const contacted = runMonitor();
+  const contactedQuote = contacted.intent_funnels.find(row => row.key === "devis");
+  event("traffic_without_click_urgency_select", "manual-urgency", "urgent", `${fixtureDay} 06:06:00`, { intent: "devis", urgency: "urgent" });
+  const manualUrgency = runMonitor();
+  const manualImmediate = manualUrgency.urgency_funnels.find(row => row.key === "immediate");
+  event("lead_form_abandoned", "qualified-abandonment", "", `${fixtureDay} 06:07:00`, { qualified_abandonment: true });
+  const qualifiedAbandonment = runMonitor();
   for (let index = 0; index < 5; index += 1) event("form_start", "friction-" + index, "friction-form", `${fixtureDay} 06:09:00`, { form_source: "friction-form" });
   event("form_start", "hub-conversion", "recherches-hub", `${fixtureDay} 06:10:00`, { form_source: "recherches-hub" });
   event("form_submit_attempt", "hub-conversion", "recherches-hub", `${fixtureDay} 06:11:00`, { form_source: "recherches-hub" });
@@ -80,10 +99,19 @@ try {
     ["historical-starts-not-current-alert", automatic.summary?.form_starts === 0 && !automaticTypes.includes("aucun-submit-global")],
     ["observation-window-visible", automatic.status === "observing" && automatic.observation?.intervention_id === "fixture-cro-change"],
     ["public-observation-safe-export", automaticPublic.observation?.status === "collecting" && automaticPublic.historical_context?.form_starts === 2],
-    ["post-intervention-scope-explicit", automatic.measurement_scope?.active_cohort === "post-intervention" && automatic.measurement_scope?.analyzed_events === 60 && automatic.measurement_scope?.excluded_pre_intervention_events === 4 && automatic.measurement_scope?.data_status === "active-cohort-observed"],
+    ["post-intervention-scope-explicit", automatic.measurement_scope?.active_cohort === "post-intervention" && automatic.measurement_scope?.analyzed_events === 210 && automatic.measurement_scope?.excluded_pre_intervention_events === 4 && automatic.measurement_scope?.data_status === "active-cohort-observed"],
     ["public-measurement-scope-exported", automaticPublic.measurement_scope?.active_cohort === "post-intervention" && automaticPublic.historical_context?.scope === "rolling-lookback"],
     ["unavailable-scope-remains-explicit", missingDbReport.measurement_scope?.data_status === "unavailable" && missingDbPublic.measurement_scope?.active_cohort === "unavailable" && missingDbPublic.historical_context?.scope === "unavailable"],
     ["automatic-loads-not-engaged", automaticWebsite?.sessions === 30 && automaticWebsite?.engaged_sessions === 0],
+    ["automatic-urgency-retained-without-prospect", automatic.summary?.lead_urgency_events === 30 && automatic.summary?.qualified_urgency_sessions === 0 && automatic.summary?.leads_db === 0],
+    ["public-qualification-exported-without-session-identifiers", automaticPublic.summary?.lead_urgency_events === 30 && automaticPublic.summary?.qualified_urgency_sessions === 0 && automaticPublic.intent_funnels?.find(row => row.key === "website")?.urgency_sessions_without_contact === 0],
+    ["automatic-urgency-no-false-action", !automaticTypes.includes("urgence-non-convertie")],
+    ["unrelated-clicks-do-not-qualify-passive-urgency", engagedWebsite?.qualified_urgency_sessions === 0 && !engagedTypes.includes("urgence-non-convertie")],
+    ["same-session-action-qualifies-urgency-in-either-order", pendingQuote?.engaged_sessions === 2 && pendingQuote?.qualified_urgency_sessions === 2],
+    ["one-phone-click-does-not-hide-another-pending-session", pendingQuote?.phone_clicks === 1 && pendingQuote?.urgency_sessions_without_contact === 1 && pending.recommendations.some(row => row.type === "urgence-non-convertie")],
+    ["phone-and-email-clicks-remain-distinct-from-web-leads", contactedQuote?.phone_clicks === 1 && contactedQuote?.email_clicks === 1 && contactedQuote?.qualified_urgency_sessions === 2 && contactedQuote?.urgency_sessions_without_contact === 0 && contactedQuote?.leads_db === 0 && !contacted.recommendations.some(row => row.type === "urgence-non-convertie")],
+    ["manual-urgency-selection-counted", manualUrgency.summary?.engaged_sessions === 8 && manualImmediate?.qualified_urgency_sessions === 3],
+    ["qualified-abandonment-counted-without-automatic-abandonments", automaticWebsite?.abandoned_forms === 0 && qualifiedAbandonment.intent_funnels.find(row => row.key === "website")?.abandoned_forms === 1 && qualifiedAbandonment.summary?.engaged_sessions === 9],
     ["automatic-loads-no-false-intent-action", !automaticTypes.includes("intent-sans-start")],
     ["automatic-router-views-no-false-action", !automaticTypes.includes("routeur-intention-bloque")],
     ["real-interactions-counted", engagedWebsite?.engaged_sessions === 5],

@@ -13,6 +13,7 @@ const TRACKED_EVENTS = [
   "email_click",
   "lead_intent_prefill",
   "lead_urgency_detected",
+  "traffic_without_click_urgency_select",
   "form_quality_ready",
   "lead_value_hint_ready",
   "form_start",
@@ -30,11 +31,12 @@ const TRACKED_EVENTS = [
 ];
 const TRACKED_EVENT_SQL = TRACKED_EVENTS.map((item) => `'${item}'`).join(", ");
 const ENGAGEMENT_EVENTS = new Set([
-  "cta_click", "phone_click", "email_click", "lead_intent_prefill", "lead_urgency_detected",
-  "form_quality_ready", "lead_value_hint_ready", "form_start", "form_submit_attempt", "lead_created",
+  "cta_click", "phone_click", "email_click", "form_start", "form_submit_attempt", "lead_created",
   "lead_submit_error", "lead_submit_rejected", "lead_form_abandoned", "quote_router_select",
-  "quote_router_continue", "diagnostic_complete", "readiness_complete"
+  "quote_router_continue", "diagnostic_complete", "readiness_complete",
+  "traffic_without_click_urgency_select"
 ]);
+const URGENCY_EVENTS = new Set(["lead_urgency_detected", "traffic_without_click_urgency_select"]);
 const INTENT_LABELS = {
   cno: "CNO coproprietaire non occupant",
   pno: "PNO proprietaire non occupant",
@@ -245,6 +247,8 @@ function createMetricBucket(key, label = key) {
     label,
     sessions_set: new Set(),
     engaged_sessions_set: new Set(),
+    urgency_sessions_set: new Set(),
+    contact_sessions_set: new Set(),
     paths: new Map(),
     events_seen: 0,
     page_views: 0,
@@ -281,15 +285,20 @@ function addPath(bucket, path, eventType) {
   if (eventType === "form_start") current.form_starts += 1;
   if (eventType === "form_submit_attempt") current.submit_attempts += 1;
   if (eventType === "lead_created") current.leads_created += 1;
-  if (eventType === "lead_urgency_detected") current.urgency_events += 1;
+  if (URGENCY_EVENTS.has(eventType)) current.urgency_events += 1;
   bucket.paths.set(path, current);
 }
 
-function countEvent(bucket, row, payload, path, session = "") {
+function isEngagementEvent(row, payload) {
+  return ENGAGEMENT_EVENTS.has(row.event_type) && (row.event_type !== "lead_form_abandoned" || payload.qualified_abandonment === true);
+}
+
+function countEvent(bucket, row, payload, path, session = "", engaged = false, contacted = false) {
   const type = row.event_type;
   bucket.events_seen += 1;
-  if (row.session_id) bucket.sessions_set.add(row.session_id);
-  if (session && ENGAGEMENT_EVENTS.has(type)) bucket.engaged_sessions_set.add(session);
+  if (session) bucket.sessions_set.add(session);
+  if (session && engaged) bucket.engaged_sessions_set.add(session);
+  if (session && contacted) bucket.contact_sessions_set.add(session);
   if (type === "page_view") bucket.page_views += 1;
   if (type === "cta_click") bucket.cta_clicks += 1;
   if (type === "phone_click") {
@@ -301,7 +310,10 @@ function countEvent(bucket, row, payload, path, session = "") {
     bucket.email_clicks += 1;
   }
   if (type === "lead_intent_prefill") bucket.lead_intent_prefills += 1;
-  if (type === "lead_urgency_detected") bucket.lead_urgency_events += 1;
+  if (URGENCY_EVENTS.has(type)) {
+    bucket.lead_urgency_events += 1;
+    if (session) bucket.urgency_sessions_set.add(session);
+  }
   if (type === "form_quality_ready") bucket.form_quality_ready += 1;
   if (type === "lead_value_hint_ready") bucket.lead_value_hints += 1;
   if (type === "form_start") bucket.form_starts += 1;
@@ -336,6 +348,7 @@ function publicPaths(bucket) {
 }
 
 function finalizeBucket(bucket) {
+  const qualifiedUrgencySessions = [...bucket.urgency_sessions_set].filter(session => bucket.engaged_sessions_set.has(session));
   return {
     key: bucket.key,
     label: bucket.label,
@@ -348,6 +361,8 @@ function finalizeBucket(bucket) {
     email_clicks: bucket.email_clicks,
     lead_intent_prefills: bucket.lead_intent_prefills,
     lead_urgency_events: bucket.lead_urgency_events,
+    qualified_urgency_sessions: qualifiedUrgencySessions.length,
+    urgency_sessions_without_contact: qualifiedUrgencySessions.filter(session => !bucket.contact_sessions_set.has(session)).length,
     form_quality_ready: bucket.form_quality_ready,
     lead_value_hints: bucket.lead_value_hints,
     form_starts: bucket.form_starts,
@@ -481,8 +496,8 @@ function recommendations(summary, intentFunnels, urgencyFunnels, formSourceFunne
     if (row.submit_errors > 0) {
       addRecommendation(items, "intent-erreurs-submit", "medium", row.key, `${row.submit_errors} erreur(s) submit`, "Identifier les rejets formulaire et ajouter une aide visible au champ le plus bloquant.", 72);
     }
-    if (row.lead_urgency_events > 0 && row.leads_db === 0) {
-      addRecommendation(items, "urgence-non-convertie", "high", row.key, `${row.lead_urgency_events} signal(s) urgence, 0 lead`, "Mettre le rappel prioritaire et le telephone au contact du formulaire pour cette intention.", 88);
+    if (row.urgency_sessions_without_contact > 0 && row.leads_db === 0 && row.leads_event === 0) {
+      addRecommendation(items, "urgence-non-convertie", "high", row.key, `${row.urgency_sessions_without_contact} session(s) actives avec signal urgence sans clic de contact, 0 demande web`, "Mettre le rappel prioritaire et le telephone au contact du formulaire pour cette intention.", 88);
     }
     if (row.quote_router_selects >= 3 && row.quote_router_continues === 0) {
       addRecommendation(items, "routeur-intention-bloque", "medium", row.key, `${row.quote_router_selects} choix routeur, 0 suite`, "Clarifier le libelle du choix et envoyer vers le formulaire pre-rempli.", 70);
@@ -593,25 +608,37 @@ function run() {
     const formSourceBuckets = new Map();
     const allSessions = new Set();
     const engagedSessions = new Set();
+    const qualifiedUrgencySessions = new Set();
+    const contactedSessions = new Set();
+    // Actions can precede or follow automatic hints in the same visit. Build
+    // qualification first so SQL ordering cannot turn a page load into a prospect.
+    for (const row of analysisEvents) {
+      const payload = parseJson(row.payload);
+      const session = clean(row.session_id || payload.session_id || row.id, 160);
+      if (session && isEngagementEvent(row, payload)) engagedSessions.add(session);
+      if (session && ["phone_click", "email_click"].includes(row.event_type)) contactedSessions.add(session);
+    }
 
     for (const row of analysisEvents) {
       const payload = parseJson(row.payload);
       const intent = eventIntent(row, payload);
-      const urgency = normalizeUrgency(payload.lead_urgency || (row.event_type === "lead_urgency_detected" ? payload.label : "unknown"));
+      const urgency = normalizeUrgency(payload.lead_urgency || (row.event_type === "traffic_without_click_urgency_select" ? payload.urgency || row.target : row.event_type === "lead_urgency_detected" ? payload.label : "unknown"));
       const path = pathOf(payload.source_path || payload.path || row.page_url);
       const placement = formSource(row, payload);
       const session = clean(row.session_id || payload.session_id || row.id, 160);
       if (session) allSessions.add(session);
-      if (session && ENGAGEMENT_EVENTS.has(row.event_type)) engagedSessions.add(session);
+      const engaged = engagedSessions.has(session);
+      const contacted = contactedSessions.has(session);
+      if (session && engaged && URGENCY_EVENTS.has(row.event_type)) qualifiedUrgencySessions.add(session);
       const intentBucket = ensureBucket(intentBuckets, intent, INTENT_LABELS[intent] || intent);
       const urgencyBucket = ensureBucket(urgencyBuckets, urgency, URGENCY_LABELS[urgency] || urgency);
       if (session) {
         intentBucket.sessions_set.add(session);
         urgencyBucket.sessions_set.add(session);
       }
-      countEvent(intentBucket, row, payload, path, session);
-      countEvent(urgencyBucket, row, payload, path, session);
-      if (placement) countEvent(ensureBucket(formSourceBuckets, placement, placement), row, payload, path, session);
+      countEvent(intentBucket, row, payload, path, session, engaged, contacted);
+      countEvent(urgencyBucket, row, payload, path, session, engaged, contacted);
+      if (placement) countEvent(ensureBucket(formSourceBuckets, placement, placement), row, payload, path, session, engaged, contacted);
     }
 
     for (const row of analysisLeads) {
@@ -652,6 +679,8 @@ function run() {
       submit_errors: total.submit_errors,
       leads_event: total.leads_event,
       lead_urgency_events: total.lead_urgency_events,
+      qualified_urgency_sessions: qualifiedUrgencySessions.size,
+      urgency_sessions_without_contact: [...qualifiedUrgencySessions].filter(session => !contactedSessions.has(session)).length,
       spam_blocks: total.spam_blocks,
       intent_count: intentFunnels.length,
       urgency_count: urgencyFunnels.length,
@@ -716,7 +745,7 @@ function run() {
       form_source_funnels: formSourceFunnels.slice(0, 20),
       lead_segments: leadSegments(analysisLeads),
       recommendations: actions,
-      safeguards: ["no-pii-public-export", "sqlite-readonly", "first-party-events-only", "no-google-scraping", "intent-data-from-local-events-and-lead-events", "recommendations-require-engaged-sessions", "post-intervention-cohort", "measurement-scope-explicit", "historical-context-preserved"]
+      safeguards: ["no-pii-public-export", "sqlite-readonly", "first-party-events-only", "no-google-scraping", "intent-data-from-local-events-and-lead-events", "recommendations-require-engaged-sessions", "automatic-signals-kept-separate", "urgency-actions-require-engaged-session", "contact-clicks-not-treated-as-missing-web-leads", "post-intervention-cohort", "measurement-scope-explicit", "historical-context-preserved"]
     };
     writeReports(report, out, publicOut);
     console.log(`Intent conversion monitor: ${summary.intent_count} intent(s), ${summary.leads_db} lead(s), ${summary.attention_count} action(s)`);
