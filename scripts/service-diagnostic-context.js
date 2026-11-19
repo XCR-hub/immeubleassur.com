@@ -22,7 +22,7 @@ const contexts = {
 // Set the existing controls and first-paint result together. The browser already
 // derives its route from these controls, so hydration retains the same subject.
 export function improveServiceDiagnosticContext(html, slug) {
-  const context = contexts[slug];
+  const context = contexts[slug === 'devis-assurance-immeuble' ? 'assurance-immeuble' : slug];
   if (!context) return html;
   const block = html.match(/<!-- ux-diagnostic:start -->[\s\S]*?<!-- ux-diagnostic:end -->/);
   if (!block) throw new Error(`${slug}: diagnostic block missing`);

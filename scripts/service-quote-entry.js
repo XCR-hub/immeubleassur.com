@@ -23,8 +23,11 @@ export function improveServiceQuoteEntry(html, slug) {
   if (slug === "devis-assurance-immeuble") {
     const select = html.match(/<select\b[^>]*name="property_type"[^>]*>[\s\S]*?<\/select>/);
     if (!select) throw new Error('The quote property selector is missing');
-    if (select[0].includes('value="immeuble-vacant"')) return html;
-    return html.replace(select[0], select[0].replace('</select>', '<option value="immeuble-vacant">Immeuble entièrement vacant</option></select>'));
+    let options = select[0];
+    for (const [value, label] of [['lot-copropriete', 'Lot en copropriété'], ['logement-loue', 'Logement loué'], ['logement-vacant', 'Logement vacant'], ['immeuble-vacant', 'Immeuble entièrement vacant']]) {
+      if (!options.includes(`value="${value}"`)) options = options.replace('</select>', `<option value="${value}">${label}</option></select>`);
+    }
+    return html.replace(select[0], options);
   }
   const subject = subjects[slug];
   if (!subject) return html;

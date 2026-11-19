@@ -101,8 +101,8 @@
       </fieldset>
       <fieldset class="diagnostic-step">
         <legend>Bien</legend>
-        <button class="diagnostic-choice is-active" type="button" data-diagnostic-option data-step="property" data-value="lot-copropriete">Lot copro</button>
-        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="immeuble-locatif">Immeuble</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="lot-copropriete">Lot copro</button>
+        <button class="diagnostic-choice is-active" type="button" data-diagnostic-option data-step="property" data-value="immeuble-locatif">Immeuble</button>
         <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="logement-vacant">Vacant</button>
         <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="local-commercial">Commerce</button>
       </fieldset>
@@ -114,11 +114,11 @@
         <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="urgency" data-value="creation">Nouveau bien</button>
       </fieldset>
       <div class="diagnostic-result" aria-live="polite">
-        <p class="diagnostic-route">Parcours CNO</p>
-        <h3 class="diagnostic-result-title">Lot en copropriete non occupe.</h3>
-        <p class="diagnostic-result-text">Prioriser la responsabilite civile du coproprietaire, la vacance, le bail et la coherence avec le contrat immeuble.</p>
-        <ul class="diagnostic-next"><li>Contrat immeuble copropriete</li><li>Statut d'occupation du lot</li><li>Attestation occupant ou vacance</li><li>Echeance et preavis a verifier</li></ul>
-        <a class="button primary diagnostic-cta" data-track="diagnostic-devis" href="/devis-pno-cno?intent=cno">Continuer vers le devis qualifie</a>
+        <p class="diagnostic-route">Parcours immeuble</p>
+        <h3 class="diagnostic-result-title">Immeuble locatif ou monopropriete.</h3>
+        <p class="diagnostic-result-text">Transformer le batiment en fiche risque: lots, usage, entretien, sinistres et garanties attendues.</p>
+        <ul class="diagnostic-next"><li>Nombre de lots</li><li>Travaux et entretien</li><li>Prime, franchises et exclusions</li><li>Echeance et preavis a verifier</li></ul>
+        <a class="button primary diagnostic-cta" data-track="diagnostic-devis" href="/devis-assurance-immeuble?intent=immeuble">Continuer vers le devis qualifie</a>
       </div>
     </div>
   </div>
@@ -223,7 +223,7 @@
             <option value="mixte">Immeuble mixte</option>
             <option value="commerce">Local commercial</option>
             <option value="parking">Parking / garages</option>
-          <option value="immeuble-vacant">Immeuble entièrement vacant</option></select>
+          <option value="immeuble-vacant">Immeuble entièrement vacant</option><option value="lot-copropriete">Lot en copropriété</option><option value="logement-loue">Logement loué</option><option value="logement-vacant">Logement vacant</option></select>
         </label>
       </div>
       <div class="field-grid">
@@ -301,6 +301,6 @@
 <nav class="footer-documentation" aria-label="Documentation et informations légales"><a href="/guides">Guides pratiques</a><a href="/faq">Questions fréquentes</a><a href="/methodologie-editoriale">Méthode documentaire</a><a href="/mentions-legales">Mentions légales</a></nav>
 <!-- documentation-links:end -->
 </footer>
-    <script src="/assets/app.js?v=a87866e4f6" type="module"></script>
+    <script src="/assets/app.js?v=5db0a3404c" type="module"></script>
   </body>
 </html>

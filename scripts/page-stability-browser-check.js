@@ -8,6 +8,7 @@ import * as chromeLauncher from 'chrome-launcher';
 import { checkLeadSubmissions } from './lead-submission-browser-check.js';
 import { checkMobileReading } from './mobile-reading-browser-check.js';
 import { checkServiceDiagnostics } from './service-diagnostic-browser-check.js';
+import { checkQuoteDiagnosticIntents } from './quote-diagnostic-intent-browser-check.js';
 
 // Delay the application until after first paint: this reproduces the cold-load
 // race that previously inserted a second quote selector into the viewport.
@@ -479,7 +480,7 @@ try {
     { from: '/blog/assurance-immeuble-vacant', entry: 'reading-sticky', width: 320, intent: 'immeuble-vacant', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-vacant', label: 'Immeuble vacant' },
     { from: '/devis-assurance-immeuble', intent: 'immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
     { from: '/assurance-sci', intent: 'sci', changeTo: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
-    { from: '/assurance-sci', intent: 'sci', changeTo: 'cno', changeProfile: 'administrateur-biens', profile: 'administrateur-biens', need: 'cno', property: 'lot-copropriete', label: 'CNO' },
+    { from: '/assurance-sci', intent: 'sci', changeTo: 'cno', changeProfile: 'administrateur-biens', changeProperty: 'lot-copropriete', profile: 'administrateur-biens', need: 'cno', property: 'lot-copropriete', label: 'CNO' },
     { from: '/assurance-garages-parkings', entry: 'hero', intent: 'garages', profile: 'bailleur', need: 'multirisque-immeuble', property: 'parking', label: 'Garages' },
     { from: '/assurance-garages-parkings', entry: 'sticky', width: 320, intent: 'garages', profile: 'bailleur', need: 'multirisque-immeuble', property: 'parking', label: 'Garages' },
     { from: '/assurance-pno-cno', entry: 'sticky', intent: 'pno-cno', profile: 'bailleur', need: 'pno-cno', property: 'lot-copropriete', label: 'PNO' },
@@ -584,6 +585,7 @@ try {
     if (refusal && await refusal.isVisible()) await refusal.click();
     if (journey.changeTo) {
       await page.click(`[data-diagnostic-option][data-step="profile"][data-value="${journey.changeProfile || 'syndic-professionnel'}"]`);
+      if (journey.changeProperty) await page.click(`[data-diagnostic-option][data-step="property"][data-value="${journey.changeProperty}"]`);
       await page.click('.diagnostic-cta');
     }
     if (journey.label) assert.ok((await page.$eval('[data-quote-context-title]', element => element.textContent)).includes(journey.label), 'The visitor sees the retained quote subject');
@@ -621,11 +623,12 @@ try {
   const leadSubmissionRows = await checkLeadSubmissions(browser, origin, turnstileFixture, turnstileTestKey);
   const mobileReadingRows = await checkMobileReading(browser, origin, process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT);
   const serviceDiagnosticRows = await checkServiceDiagnostics(browser, origin);
-  const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows, navigationRows, quoteJourneys, leadSubmissionRows, mobileReadingRows, serviceDiagnosticRows };
+  const quoteDiagnosticRows = await checkQuoteDiagnosticIntents(browser, origin, turnstileFixture, turnstileTestKey);
+  const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows, navigationRows, quoteJourneys, leadSubmissionRows, mobileReadingRows, serviceDiagnosticRows, quoteDiagnosticRows };
   const target = resolve(process.env.LOCAL_PAGE_STABILITY_REPORT || 'reports/page-stability-browser-report.json');
   mkdirSync(dirname(target), { recursive: true });
   writeFileSync(target, JSON.stringify(report, null, 2) + '\n');
-  console.log(`Page stability passed: ${rows.length} pages, worst delayed-load CLS=${Math.max(...rows.map(r => r.cls)).toFixed(3)}, ${navigationRows.length} navigation checks, ${quoteJourneys.length} quote journeys, ${leadSubmissionRows.length} submission recovery checks, ${mobileReadingRows.length} reading layout checks, ${serviceDiagnosticRows.length} service diagnostic checks, no production lead submitted.`);
+  console.log(`Page stability passed: ${rows.length} pages, worst delayed-load CLS=${Math.max(...rows.map(r => r.cls)).toFixed(3)}, ${navigationRows.length} navigation checks, ${quoteJourneys.length} quote journeys, ${leadSubmissionRows.length} submission recovery checks, ${mobileReadingRows.length} reading layout checks, ${serviceDiagnosticRows.length} service diagnostic checks, ${quoteDiagnosticRows.length} diagnostic submission checks, no production lead submitted.`);
 } finally {
   if (browser) {
     let shutdownTimer;

@@ -632,10 +632,6 @@ function validationDetails(payload) {
   };
 }
 
-function validate(payload) {
-  return validationDetails(payload).message;
-}
-
 function clearInvalidFields(formElement) {
   formElement.querySelectorAll("[data-invalid='true']").forEach((field) => {
     field.removeAttribute("data-invalid");
@@ -1173,10 +1169,14 @@ function mountFormProof() {
 }
 
 function diagnosticRoute(state) {
+  const requested = state.selected ? "" : queryLeadIntent();
+  let key = requested === "audit-contrat" ? "audit" : requested === "devis" ? "immeuble" : requested;
+  const row = { ...quoteFastTrackRows(), ...heroIntentAcceleratorRows() }[key];
+  if (row?.need) return { ...row, key, urgency: state.urgency, badge: `Parcours ${row.label}`, items: [row.proof], message: quoteFastTrackMessage(row) };
   const profile = state.profile || "bailleur";
   const property = state.property || "lot-copropriete";
   const urgency = state.urgency || "echeance";
-  let key = "immeuble";
+  key = "immeuble";
   if (["syndic-professionnel", "conseil-syndical"].includes(profile)) key = "copropriete";
   else if (profile === "sci") key = "sci";
   else if (property === "lot-copropriete") key = "cno";
@@ -1260,6 +1260,7 @@ function diagnosticRoute(state) {
 function diagnosticState(shell) {
   const valueFor = (step) => shell.querySelector(`[data-diagnostic-option][data-step="${step}"].is-active`)?.dataset.value || "";
   return {
+    selected: shell.dataset.routeSelected,
     profile: valueFor("profile") || "bailleur",
     property: valueFor("property") || "lot-copropriete",
     urgency: valueFor("urgency") || "echeance"
@@ -1268,6 +1269,10 @@ function diagnosticState(shell) {
 
 function renderDiagnostic(shell) {
   const route = diagnosticRoute(diagnosticState(shell));
+  if (queryLeadIntent() && !shell.dataset.routeSelected) shell.querySelectorAll("[data-diagnostic-option]").forEach(option => {
+    const value = route[option.dataset.step === "property" ? "property_type" : option.dataset.step];
+    option.classList.toggle("is-active", option.dataset.value === (value === "copropriete" ? "immeuble-locatif" : value));
+  });
   shell.dataset.route = route.key;
   const badge = shell.querySelector(".diagnostic-route");
   const title = shell.querySelector(".diagnostic-result-title");
@@ -1290,6 +1295,7 @@ function mountDiagnostic() {
     const options = [...shell.querySelectorAll("[data-diagnostic-option]")];
     options.forEach((option) => {
       option.addEventListener("click", () => {
+        if (option.dataset.step !== "urgency" && !option.classList.contains("is-active")) shell.dataset.routeSelected = "1";
         shell.dataset.userSelected = "1";
         options.filter((item) => item.dataset.step === option.dataset.step).forEach((item) => item.classList.toggle("is-active", item === option));
         renderDiagnostic(shell);
@@ -1615,11 +1621,8 @@ function quoteFastTrackRows() {
 }
 
 function quoteFastTrackIntent() {
-  const requested = currentLeadIntent();
-  if (["cno", "pno", "copropriete", "sci", "immeuble", "immeuble-vacant", "travaux", "local-commercial", "sinistre", "prix", "veille"].includes(requested)) return requested;
-  if (["audit", "audit-contrat"].includes(requested)) return "audit";
-  if (requested === "devis" || requested === "website") return "immeuble";
-  return "immeuble";
+  const key = currentLeadIntent().replace(/^audit-contrat$/, "audit");
+  return Object.hasOwn(quoteFastTrackRows(), key) ? key : "immeuble";
 }
 
 function quoteFastTrackMessage(row) {
@@ -2599,18 +2602,6 @@ function startTrafficNoClickPrefill(key) {
   startHeroPrefill(selected, row, "traffic-no-click-rescue", "traffic-no-click-rescue", { message: trafficNoClickMessage(row, urgency), payload: rescuePayload });
 }
 
-function focusHomepageQuoteForm() {
-  if (!form) return false;
-  if (!formStarted) {
-    formStarted = true;
-    track("form_start", { target: "traffic-no-click-rescue", label: currentLeadIntent() });
-  }
-  form.scrollIntoView({ behavior: "smooth", block: "start" });
-  const focusTarget = form.querySelector("input[name='name'], input[name='phone'], input[name='email']");
-  window.setTimeout(() => focusTarget?.focus(), 260);
-  return true;
-}
-
 function trafficNoClickRescueCopy(variant = "standard") {
   if (variant === "source-quality-direct") {
     return {
@@ -3043,10 +3034,3 @@ const scheduleDeferredEnhancement = 'requestIdleCallback' in window
   ? (task) => window.requestIdleCallback(task, { timeout: 1500 })
   : (task) => window.setTimeout(task, 120);
 scheduleEnhancementQueue(deferredEnhancements, scheduleDeferredEnhancement);
-
-
-
-
-
-
-
