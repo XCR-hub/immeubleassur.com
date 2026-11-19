@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { improveServiceDiagnosticContext } from "./service-diagnostic-context.js";
 
 const REPORT_DIR = "reports";
 const HOME_FILE = join("public", "index.html");
@@ -221,7 +222,7 @@ ${ROUTER_END}`;
 }
 
 function diagnosticBlock(context = pageContext()) {
-  return `${DIAGNOSTIC_START}
+  return improveServiceDiagnosticContext(`${DIAGNOSTIC_START}
 <section class="band diagnostic-band" aria-labelledby="diagnostic-title">
   <div class="diagnostic-shell" data-diagnostic>
     <div class="diagnostic-copy">
@@ -262,7 +263,7 @@ function diagnosticBlock(context = pageContext()) {
     </div>
   </div>
 </section>
-${DIAGNOSTIC_END}`;
+${DIAGNOSTIC_END}`, context.slug);
 }
 
 function readinessBlock(context = pageContext()) {
@@ -416,7 +417,7 @@ let readinessChanged = 0;
 let readinessChecked = 0;
 for (const fileName of diagnosticTargets) {
   const file = join("public", fileName);
-  const context = pageContext(fileName);
+  const context = { ...pageContext(fileName), slug: fileName.replace(/\.html$/, "") };
   const existed = existsSync(file);
   const changed = updateFile(file, (html) => {
     const cleaned = removeMarked(removeMarked(html, DIAGNOSTIC_START, DIAGNOSTIC_END), READINESS_START, READINESS_END);

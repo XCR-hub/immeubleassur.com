@@ -82,15 +82,15 @@
     <div class="diagnostic-panel">
       <fieldset class="diagnostic-step">
         <legend>Profil</legend>
-        <button class="diagnostic-choice is-active" type="button" data-diagnostic-option data-step="profile" data-value="bailleur">Bailleur</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="profile" data-value="bailleur">Bailleur</button>
         <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="profile" data-value="sci">SCI</button>
-        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="profile" data-value="syndic-professionnel">Syndic</button>
+        <button class="diagnostic-choice is-active" type="button" data-diagnostic-option data-step="profile" data-value="syndic-professionnel">Syndic</button>
         <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="profile" data-value="administrateur-biens">Admin. biens</button>
       </fieldset>
       <fieldset class="diagnostic-step">
         <legend>Bien</legend>
-        <button class="diagnostic-choice is-active" type="button" data-diagnostic-option data-step="property" data-value="lot-copropriete">Lot copro</button>
-        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="immeuble-locatif">Immeuble</button>
+        <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="lot-copropriete">Lot copro</button>
+        <button class="diagnostic-choice is-active" type="button" data-diagnostic-option data-step="property" data-value="immeuble-locatif">Immeuble</button>
         <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="logement-vacant">Vacant</button>
         <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="property" data-value="local-commercial">Commerce</button>
       </fieldset>
@@ -102,11 +102,11 @@
         <button class="diagnostic-choice" type="button" data-diagnostic-option data-step="urgency" data-value="creation">Nouveau bien</button>
       </fieldset>
       <div class="diagnostic-result" aria-live="polite">
-        <p class="diagnostic-route">Parcours CNO</p>
-        <h3 class="diagnostic-result-title">Lot en copropriete non occupe.</h3>
-        <p class="diagnostic-result-text">Prioriser la responsabilite civile du coproprietaire, la vacance, le bail et la coherence avec le contrat immeuble.</p>
-        <ul class="diagnostic-next"><li>Contrat immeuble copropriete</li><li>Statut d'occupation du lot</li><li>Attestation occupant ou vacance</li><li>Echeance et preavis a verifier</li></ul>
-        <a class="button primary diagnostic-cta" data-track="diagnostic-devis" href="/devis-pno-cno?intent=cno">Continuer vers le devis qualifie</a>
+        <p class="diagnostic-route">Parcours copropriete</p>
+        <h3 class="diagnostic-result-title">Syndic, conseil syndical ou AG.</h3>
+        <p class="diagnostic-result-text">Presenter les parties communes, lots, sinistres, travaux et garanties RC du syndicat des coproprietaires.</p>
+        <ul class="diagnostic-next"><li>Nombre de lots</li><li>Contrat actuel et appel de prime</li><li>Historique sinistres 36 mois</li><li>Echeance et preavis a verifier</li></ul>
+        <a class="button primary diagnostic-cta" data-track="diagnostic-devis" href="/devis-assurance-immeuble?intent=copropriete">Continuer vers le devis qualifie</a>
       </div>
     </div>
   </div>
