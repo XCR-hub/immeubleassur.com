@@ -2,6 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { quoteHref } from "./site-navigation.js";
+import { improveCoproprieteQuoteGuidance } from "./copropriete-quote-guidance.js";
 
 const subjects = {
   "assurance-immeuble": "Votre immeuble",
@@ -41,7 +42,8 @@ export function improveServiceQuoteEntry(html, slug) {
   const replacement = `<div class="hero-actions"><a class="button primary" data-track="service-quote-start" data-short-quote-entry data-quote-subject="${subject}" href="${href}">Demander un devis</a><a class="button secondary" data-track="service-full-form" href="#lead-form">Formulaire complet</a></div>\n        <p data-quote-entry-note>Un téléphone ou un email suffit pour démarrer. Un conseiller précisera votre besoin avec vous.${guide}</p>`;
   const clean = section[0].replace(/\s*<p\b[^>]*data-quote-entry-note[^>]*>[\s\S]*?<\/p>/g, "");
   const hero = actions.test(clean) ? clean.replace(actions, replacement) : clean.replace('</section>', `<div class="container">${replacement}</div></section>`);
-  return html.replace(section[0], hero);
+  const next = html.replace(section[0], hero);
+  return slug === "assurance-copropriete" ? improveCoproprieteQuoteGuidance(next) : next;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

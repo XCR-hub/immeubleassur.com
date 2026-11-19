@@ -463,6 +463,7 @@ try {
     { from: '/assurance-sci', intent: 'sci', profile: 'sci', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'SCI', desktop: true },
     { from: '/assurance-garages-parkings', intent: 'garages', profile: 'bailleur', need: 'multirisque-immeuble', property: 'parking', label: 'Garages' },
     { from: '/assurance-copropriete', intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
+    { from: '/assurance-copropriete', entry: 'copro-faq', width: 320, intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
     { from: '/assurance-pno', intent: 'pno', profile: 'bailleur', need: 'pno', property: 'logement-loue', label: 'PNO', desktop: true },
     { from: '/assurance-cno', intent: 'cno', profile: 'bailleur', need: 'cno', property: 'lot-copropriete', label: 'CNO', desktop: true },
     { from: '/assurance-pno-cno', intent: 'pno-cno', profile: 'bailleur', need: 'pno-cno', property: 'lot-copropriete', label: 'PNO' },
@@ -521,6 +522,13 @@ try {
         }
         const refusal = await page.$('[data-analytics-choice="denied"]');
         if (refusal && await refusal.isVisible()) await refusal.click();
+      } else if (journey.entry === 'copro-faq') {
+        selector = '[data-copropriete-quote-guide] [data-track="copropriete-faq-quote"]';
+        await page.waitForSelector('#lead-form .ux-form-proof');
+        const refusal = await page.$('[data-analytics-choice="denied"]');
+        if (refusal && await refusal.isVisible()) await refusal.click();
+        await page.$eval(selector, link => link.scrollIntoView({ block: 'center', behavior: 'instant' }));
+        assert.equal(await page.$('.content-lead-bridge'), null, 'The copropriete answers remain readable');
       } else if (journey.entry === 'reading-sticky') {
         await page.waitForSelector('.lead-action-bar[data-short-quote-bar="1"]');
         selector = '.lead-action-bar [data-track="sticky-devis"]';
