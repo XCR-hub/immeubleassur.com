@@ -1,4 +1,4 @@
-import { collectSearchTraffic, readSubmittedSitemap } from './google-search-traffic.js';
+import { collectSearchTraffic, collectSearchPages, readSubmittedSitemap } from './google-search-traffic.js';
 import { createSign } from "node:crypto";
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, extname, join, relative } from "node:path";
@@ -240,7 +240,8 @@ async function fetchGscData() {
   const opportunities = rows.filter((row) => row.opportunity_score >= 40).sort((a, b) => b.opportunity_score - a.opportunity_score).slice(0, 100).map((row, index) => ({ id: `gsc-${index + 1}`, type: row.position <= 20 ? "near-top-ranking" : "impression-gap", query: row.query, url: row.page, score: row.opportunity_score, recommendation: row.ctr < 0.03 ? "Renforcer title/meta/FAQ et aligner le contenu avec la requete." : "Ajouter profondeur, maillage interne et preuve de specialisation." }));
   const traffic = await collectSearchTraffic({ headers, siteUrl, startDate: body.startDate, endDate: body.endDate });
   const sitemap_status = await readSubmittedSitemap({ headers, siteUrl, sitemapUrl: `${SITE}/sitemap.xml` });
-  const result = { configured: true, siteUrl, rows_imported: rows.length, query_clusters: summarizeGscRows(rows), opportunities, traffic, sitemap_status };
+  const page_performance = await collectSearchPages({ headers, siteUrl, startDate: body.startDate, endDate: body.endDate });
+  const result = { configured: true, siteUrl, rows_imported: rows.length, query_clusters: summarizeGscRows(rows), opportunities, traffic, sitemap_status, page_performance };
 
   if (inspectUrls) {
     const targets = urlInspectionTargets(rows);
