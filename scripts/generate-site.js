@@ -955,7 +955,7 @@ function quotePage() {
       <div class="local-proof-grid">${process.map(([title, copy]) => `<article><h3>${esc(title)}</h3><p>${esc(copy)}</p></article>`).join("")}</div>
     </section>
     <section class="band faq-band"><div class="container narrow"><h2>Questions fréquentes sur le devis assurance immeuble</h2><div class="faq-list">${faqRows.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div></div></section>`;
-  return layout({ slug: "devis-assurance-immeuble", title: "Devis assurance immeuble : rappel et étude de votre besoin", description: "Demandez un devis pour votre immeuble, copropriété, SCI ou garages. Commencez par un rappel ou décrivez votre bâtiment dans le formulaire.", body });
+  return layout({ slug: "devis-assurance-immeuble", title: "Devis assurance immeuble : étude et rappel", description: "Demandez un devis pour votre immeuble, copropriété, SCI ou garages. Commencez par un rappel ou décrivez votre bâtiment dans le formulaire.", body });
 }
 function simplePage(slug, title, description, content) {
   const body = `<section class="plain-main"><div class="plain-panel"><p class="eyebrow dark">ImmeubleAssur</p><h1>${esc(title)}</h1>${content}</div></section>`;
