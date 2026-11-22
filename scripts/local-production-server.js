@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { createReadStream, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
+import { canonicalHostRedirect } from "./canonical-host-redirect.js";
 import { extname, join, normalize, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { openLocalSqlite } from "./local-sqlite-db.js";
@@ -409,6 +410,12 @@ function healthSnapshot() {
 }
 const server = createServer((request, response) => {
   applySecurityHeaders(response, request);
+  const canonicalLocation = canonicalHostRedirect(request);
+  if (canonicalLocation) {
+    response.writeHead(301, { Location: canonicalLocation, "Cache-Control": "public, max-age=86400" });
+    response.end();
+    return;
+  }
   const requestTarget = new URL(request.url || "/", "http://local");
   const permanentLocation = permanentRedirects.get(requestTarget.pathname);
   if (["GET", "HEAD"].includes(request.method || "GET") && permanentLocation) {
