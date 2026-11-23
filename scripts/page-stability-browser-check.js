@@ -594,8 +594,14 @@ try {
         if (journey.testDetailedForm) {
           await page.click('[data-track="service-full-form"]');
           await page.waitForFunction(() => {
-            const box = document.querySelector('#lead-form [name="name"]').getBoundingClientRect();
-            return box.top >= document.querySelector('.site-header').getBoundingClientRect().bottom && box.bottom <= innerHeight;
+            const header = document.querySelector('.site-header').getBoundingClientRect().bottom;
+            const bar = document.querySelector('.lead-action-bar')?.getBoundingClientRect();
+            const bottom = bar?.height ? bar.top : innerHeight;
+            return ['name', 'phone'].every(name => {
+              const input = document.querySelector(`#lead-form [name="${name}"]`);
+              const box = input.getBoundingClientRect();
+              return box.top >= header && box.bottom <= bottom && document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2) === input;
+            });
           });
           assert.equal(callbacks.length, 0, 'Opening the detailed form creates no request');
           await page.$eval('.page-hero', element => element.scrollIntoView({ behavior: 'instant' }));

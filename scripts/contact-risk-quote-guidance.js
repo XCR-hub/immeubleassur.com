@@ -30,6 +30,7 @@ export function improveContactRiskQuoteGuidance(html, slug) {
   const lead = slug === 'contact' ? escape(page.description).replace('par téléphone ou email', 'par <a data-contact-hero-phone href="tel:+33180855786" aria-label="Appeler ImmeubleAssur au 01 80 85 57 86">téléphone</a> ou <a data-contact-hero-email href="mailto:team@immeubleassur.com" aria-label="Écrire à ImmeubleAssur">email</a>') : escape(page.description);
   const updated = hero[0].replace(/<h1\b[^>]*>[\s\S]*?<\/h1>/, `<h1>${escape(page.heading)}</h1>`).replace(/(<\/h1>\s*)<p\b[^>]*>[\s\S]*?<\/p>/, `$1<p>${lead}</p>`);
   let next = html.replace(hero[0], updated).replace(/<title>[\s\S]*?<\/title>/i, `<title>${escape(page.title)}</title>`);
+  next = next.replace(/<form\b[^>]*id="lead-form"[^>]*>/, tag => tag.includes('data-simple-form') ? tag : tag.replace('<form', '<form data-simple-form'));
   next = next.replace(/<meta\b[^>]*(?:name="(?:description|twitter:description|twitter:title)"|property="og:(?:description|title)")[^>]*>/g, tag => tag.replace(/content="[^"]*"/, `content="${escape(/(?:twitter|og):title/.test(tag) ? page.title : page.description)}"`));
   if (slug === 'contact') {
     next = next.replace(/<h2>Coordonnees<\/h2><p class="large-copy">[\s\S]*?<\/p>/, '<h2>Nous joindre</h2><p class="large-copy"><a data-contact-phone href="tel:+33180855786">Appeler le 01 80 85 57 86</a><br><a data-contact-email href="mailto:team@immeubleassur.com">Écrire à team@immeubleassur.com</a><br>ORIAS : 11 061 425</p>');

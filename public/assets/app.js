@@ -971,7 +971,7 @@ function updateLeadValuePreview(preview, formElement) {
 }
 
 function mountLeadValuePreview() {
-  if (!form || form.querySelector(".lead-value-preview")) return;
+  if (!form || form.hasAttribute("data-simple-form") || form.querySelector(".lead-value-preview")) return;
   const anchor = form.querySelector(".ux-form-proof") || form.querySelector(".form-advisor") || form.querySelector(".form-heading") || form.firstElementChild;
   const preview = document.createElement("div");
   preview.className = "lead-value-preview";
@@ -1007,7 +1007,7 @@ function updateFormAdvisor(advisor, formElement) {
 }
 
 function mountFormAdvisor() {
-  if (!form || form.querySelector(".form-advisor")) return;
+  if (!form || form.hasAttribute("data-simple-form") || form.querySelector(".form-advisor")) return;
   const heading = form.querySelector(".form-heading") || form.firstElementChild;
   const advisor = document.createElement("div");
   advisor.className = "form-advisor";
@@ -1160,7 +1160,7 @@ function applyIntentPrefill() {
   if (applied) track("lead_intent_prefill", { target: intent, label: `${needMap[intent] || ""}:${propertyMap[intent] || ""}` });
 }
 function mountFormProof() {
-  if (!form || form.querySelector(".ux-form-proof")) return;
+  if (!form || form.hasAttribute("data-simple-form") || form.querySelector(".ux-form-proof")) return;
   const anchor = form.querySelector(".form-advisor") || form.querySelector(".form-heading") || form.firstElementChild;
   const proof = document.createElement("div");
   proof.className = "ux-form-proof";
@@ -1725,8 +1725,7 @@ function mountQuoteFastTrack() {
   if (isPrivateAppPage()) return;
   if (document.querySelector(".insurer-guide, [data-guide-directory], [data-article-reading]")) return;
   if (form?.elements.property_type?.value === "parking") return;
-  // These selectors already offer the quote journey in the initial HTML.
-  // Inserting a second selector above them after first paint moves content.
+  // Keep the initial quote selectors stable after first paint.
   if (document.querySelector("[data-diagnostic], .risk-router, [data-short-quote-entry]")) return;
   if (document.querySelector(".quote-fast-track")) return;
   const anchor = document.querySelector(".conversion-strip") || document.querySelector(".page-hero") || document.querySelector(".hero") || document.querySelector(".article-head");
@@ -2720,8 +2719,7 @@ function bindGrowthTracking() {
       track("experiment_view", { target: ctaExperiment.id, label: ctaExperiment.variant });
     }
   };
-  // eventPayload reads viewport geometry. Wait until the browser can paint the
-  // initial document instead of forcing layout inside module evaluation.
+  // Measure the viewport after first paint.
   if ("requestAnimationFrame" in window) window.requestAnimationFrame(() => window.setTimeout(sendInitialViews, 0));
   else window.setTimeout(sendInitialViews, 0);
   // Preserve visits that navigate away before the deferred callback runs.
