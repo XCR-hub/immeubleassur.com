@@ -462,6 +462,18 @@ try {
   navigationRows.push({ path: '/', width: 390, height: 844, javascript: true, shortQuoteNavigation: true, passed: true });
   await navigationPage.close();
   const journeyCases = [
+    { from: '/contact', desktop: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
+    { from: '/contact', entry: 'hero', width: 320, testDetailedForm: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
+    { from: '/contact', entry: 'sticky', width: 320, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
+    { from: '/assurance-local-commercial', desktop: true, intent: 'local-commercial', profile: 'bailleur', need: 'multirisque-immeuble', property: 'local-commercial', label: 'Local commercial' },
+    { from: '/assurance-local-commercial', entry: 'hero', intent: 'local-commercial', profile: 'bailleur', need: 'multirisque-immeuble', property: 'local-commercial', label: 'Local commercial' },
+    { from: '/assurance-local-commercial', entry: 'sticky', width: 320, intent: 'local-commercial', profile: 'bailleur', need: 'multirisque-immeuble', property: 'local-commercial', label: 'Local commercial' },
+    { from: '/assurance-immeuble-resilie', desktop: true, intent: 'sinistre', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Sinistre' },
+    { from: '/assurance-immeuble-resilie', entry: 'hero', intent: 'sinistre', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Sinistre' },
+    { from: '/assurance-immeuble-resilie', entry: 'sticky', width: 320, intent: 'sinistre', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Sinistre' },
+    { from: '/assurance-immeuble-sinistre', desktop: true, intent: 'sinistre', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Sinistre' },
+    { from: '/assurance-immeuble-sinistre', entry: 'hero', intent: 'sinistre', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Sinistre' },
+    { from: '/assurance-immeuble-sinistre', entry: 'sticky', width: 320, intent: 'sinistre', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Sinistre' },
     { from: '/', entry: 'homepage', intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis', width: 320 },
     { from: '/', entry: 'homepage', desktop: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis' },
     { from: '/courtier-assurance-immeuble', desktop: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis' },

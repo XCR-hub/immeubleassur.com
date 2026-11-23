@@ -1,4 +1,10 @@
 const contexts = {
+  'assurance-local-commercial': {
+    profile: 'bailleur', property: 'local-commercial', intent: 'mixte',
+    badge: 'Parcours immeuble mixte', title: 'Commerce, bureau ou local vacant.',
+    text: "Declarer l'activite, le bail, les installations techniques et l'assurance du locataire commercial.",
+    items: ['Activite exacte', 'Bail et assurance occupant', 'Extraction, stock ou terrasse']
+  },
   'assurance-immeuble': {
     profile: 'bailleur', property: 'immeuble-locatif', intent: 'immeuble',
     badge: 'Parcours immeuble', title: 'Immeuble locatif ou monopropriete.',

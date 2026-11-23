@@ -4,8 +4,13 @@ import { pathToFileURL } from "node:url";
 import { quoteHref } from "./site-navigation.js";
 import { improveCoproprieteQuoteGuidance } from "./copropriete-quote-guidance.js";
 import { improveHomepageSearchGuidance } from "./homepage-search-guidance.js";
+import { improveContactRiskQuoteGuidance } from "./contact-risk-quote-guidance.js";
 
 const subjects = {
+  "contact": "Votre demande de devis",
+  "assurance-local-commercial": "Votre immeuble avec commerce",
+  "assurance-immeuble-resilie": "Votre contrat résilié",
+  "assurance-immeuble-sinistre": "Votre immeuble avec sinistres",
   "assurance-immeuble": "Votre immeuble",
   "courtier-assurance-immeuble": "Votre assurance immeuble",
   "assurance-immeuble-locatif": "Votre immeuble locatif",
@@ -41,16 +46,16 @@ export function improveServiceQuoteEntry(html, slug) {
   const section = html.match(/<section\b[^>]*class="[^"]*\bpage-hero\b[^"]*"[^>]*>[\s\S]*?<\/section>/);
   if (!section) throw new Error(`${slug}: the service hero is missing`);
   const actions = /<div\b[^>]*class="[^"]*\bhero-actions\b[^"]*"[^>]*>[\s\S]*?<\/div>/;
-  if (!actions.test(section[0]) && slug !== "comparateur-assurance-immeuble") throw new Error(`${slug}: the service actions are missing`);
+  if (!actions.test(section[0]) && !["comparateur-assurance-immeuble", "contact"].includes(slug)) throw new Error(`${slug}: the service actions are missing`);
   const href = quoteHref(`/${slug}`).replaceAll("&", "&amp;");
   const guide = slug === "assurance-immeuble-vacant" ? ' <a href="/blog/assurance-immeuble-vacant">Lire le guide sur l’immeuble vacant.</a>' : '';
   const replacement = `<div class="hero-actions"><a class="button primary" data-track="service-quote-start" data-short-quote-entry data-quote-subject="${subject}" href="${href}">Demander un devis</a><a class="button secondary" data-track="service-full-form" href="#lead-form">Formulaire complet</a></div>\n        <p data-quote-entry-note>Un téléphone ou un email suffit pour démarrer. Un conseiller précisera votre besoin avec vous.${guide}</p>`;
   const clean = section[0].replace(/\s*<p\b[^>]*data-quote-entry-note[^>]*>[\s\S]*?<\/p>/g, "");
   const hero = actions.test(clean) ? clean.replace(actions, replacement) : clean.replace('</section>', `<div class="container">${replacement}</div></section>`);
-  const readingPage = ["courtier-assurance-immeuble", "assurance-immeuble-locatif", "dommages-ouvrage-immeuble"].includes(slug);
+  const readingPage = ["courtier-assurance-immeuble", "assurance-immeuble-locatif", "dommages-ouvrage-immeuble", "contact", "assurance-local-commercial", "assurance-immeuble-resilie", "assurance-immeuble-sinistre"].includes(slug);
   const readableHero = readingPage && !hero.includes('data-article-reading') ? hero.replace('<section', '<section data-article-reading') : hero;
   const next = html.replace(section[0], readableHero);
-  return slug === "assurance-copropriete" ? improveCoproprieteQuoteGuidance(next) : next;
+  return slug === "assurance-copropriete" ? improveCoproprieteQuoteGuidance(next) : improveContactRiskQuoteGuidance(next, slug);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

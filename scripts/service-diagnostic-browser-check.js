@@ -3,6 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const cases = [
+  { path: '/assurance-local-commercial', route: 'mixte', badge: 'Parcours immeuble mixte', profile: 'bailleur', need: 'audit-contrat', property: 'commerce' },
   { path: '/assurance-immeuble', route: 'immeuble', badge: 'Parcours immeuble', profile: 'bailleur', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
   { path: '/assurance-copropriete', route: 'copropriete', badge: 'Parcours copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete' },
   { path: '/assurance-sci', route: 'sci', badge: 'Parcours SCI', profile: 'sci', need: 'multirisque-immeuble', property: 'immeuble-locatif' }
