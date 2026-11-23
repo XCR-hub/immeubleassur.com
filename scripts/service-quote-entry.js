@@ -3,9 +3,13 @@ import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { quoteHref } from "./site-navigation.js";
 import { improveCoproprieteQuoteGuidance } from "./copropriete-quote-guidance.js";
+import { improveHomepageSearchGuidance } from "./homepage-search-guidance.js";
 
 const subjects = {
   "assurance-immeuble": "Votre immeuble",
+  "courtier-assurance-immeuble": "Votre assurance immeuble",
+  "assurance-immeuble-locatif": "Votre immeuble locatif",
+  "dommages-ouvrage-immeuble": "Vos travaux d’immeuble",
   "multirisque-immeuble": "Multirisque immeuble",
   "assurance-copropriete": "Votre copropriété",
   "assurance-sci": "Votre SCI",
@@ -21,6 +25,7 @@ const subjects = {
 };
 
 export function improveServiceQuoteEntry(html, slug) {
+  if (slug === "index") return improveHomepageSearchGuidance(html);
   if (slug === "devis-assurance-immeuble") {
     const select = html.match(/<select\b[^>]*name="property_type"[^>]*>[\s\S]*?<\/select>/);
     if (!select) throw new Error('The quote property selector is missing');
@@ -42,13 +47,15 @@ export function improveServiceQuoteEntry(html, slug) {
   const replacement = `<div class="hero-actions"><a class="button primary" data-track="service-quote-start" data-short-quote-entry data-quote-subject="${subject}" href="${href}">Demander un devis</a><a class="button secondary" data-track="service-full-form" href="#lead-form">Formulaire complet</a></div>\n        <p data-quote-entry-note>Un téléphone ou un email suffit pour démarrer. Un conseiller précisera votre besoin avec vous.${guide}</p>`;
   const clean = section[0].replace(/\s*<p\b[^>]*data-quote-entry-note[^>]*>[\s\S]*?<\/p>/g, "");
   const hero = actions.test(clean) ? clean.replace(actions, replacement) : clean.replace('</section>', `<div class="container">${replacement}</div></section>`);
-  const next = html.replace(section[0], hero);
+  const readingPage = ["courtier-assurance-immeuble", "assurance-immeuble-locatif", "dommages-ouvrage-immeuble"].includes(slug);
+  const readableHero = readingPage && !hero.includes('data-article-reading') ? hero.replace('<section', '<section data-article-reading') : hero;
+  const next = html.replace(section[0], readableHero);
   return slug === "assurance-copropriete" ? improveCoproprieteQuoteGuidance(next) : next;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   let changed = 0;
-  const targets = [...Object.keys(subjects), 'devis-assurance-immeuble'];
+  const targets = ['index', ...Object.keys(subjects), 'devis-assurance-immeuble'];
   for (const slug of targets) {
     const file = join("public", `${slug}.html`);
     if (!existsSync(file)) throw new Error(`${slug}: the service page is missing`);

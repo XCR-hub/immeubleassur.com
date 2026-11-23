@@ -30,6 +30,7 @@ export function quoteHref(path) {
   if (articleQuote) return articleQuote;
   const intent = {
     "/assurance-immeuble": "immeuble", "/multirisque-immeuble": "immeuble",
+    "/courtier-assurance-immeuble": "immeuble", "/assurance-immeuble-locatif": "immeuble",
     "/assurance-immeuble-vacant": "immeuble-vacant",
     "/assurance-copropriete": "copropriete", "/assurance-sci": "sci",
     "/assurance-pno": "pno", "/assurance-cno": "cno", "/assurance-pno-cno": "pno-cno",

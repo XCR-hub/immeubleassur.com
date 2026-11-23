@@ -81,6 +81,8 @@ try {
           } catch { /* Assertion below requires valid initial events. */ }
         }
         void request.respond({ status: 200, contentType: 'application/json', body: '{"success":true}' });
+      } else if (url.origin !== origin) {
+        void request.abort('blockedbyclient');
       } else if (url.pathname === '/assets/app.js') {
         setTimeout(() => { void request.continue(); }, 1500);
       } else { void request.continue(); }
@@ -445,10 +447,12 @@ try {
   await navigationPage.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
   await navigationPage.setRequestInterception(true);
   navigationPage.on('request', request => {
-    if (new URL(request.url()).pathname.startsWith('/api/')) {
+    const url = new URL(request.url());
+    if (url.pathname.startsWith('/api/')) {
       assert.equal(request.url().startsWith(origin + '/api/'), true);
       void request.respond({ status: 200, contentType: 'application/json', body: '{"success":true}' });
-    } else void request.continue();
+    } else if (url.origin === origin) void request.continue();
+    else void request.abort('blockedbyclient');
   });
   await navigationPage.goto(origin + '/', { waitUntil: 'networkidle0' });
   await navigationPage.click('[data-mobile-navigation] > summary');
@@ -460,6 +464,15 @@ try {
   const journeyCases = [
     { from: '/', entry: 'homepage', intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis', width: 320 },
     { from: '/', entry: 'homepage', desktop: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis' },
+    { from: '/courtier-assurance-immeuble', desktop: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis' },
+    { from: '/courtier-assurance-immeuble', entry: 'hero', intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis' },
+    { from: '/courtier-assurance-immeuble', entry: 'sticky', width: 320, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis' },
+    { from: '/assurance-immeuble-locatif', desktop: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
+    { from: '/assurance-immeuble-locatif', entry: 'hero', width: 320, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
+    { from: '/assurance-immeuble-locatif', entry: 'sticky', width: 320, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
+    { from: '/dommages-ouvrage-immeuble', desktop: true, intent: 'travaux', profile: 'syndic-professionnel', need: 'dommages-ouvrage', property: 'copropriete', label: 'Travaux' },
+    { from: '/dommages-ouvrage-immeuble', entry: 'hero', intent: 'travaux', profile: 'syndic-professionnel', need: 'dommages-ouvrage', property: 'copropriete', label: 'Travaux' },
+    { from: '/dommages-ouvrage-immeuble', entry: 'sticky', width: 320, intent: 'travaux', profile: 'syndic-professionnel', need: 'dommages-ouvrage', property: 'copropriete', label: 'Travaux' },
     { from: '/assurance-sci', intent: 'sci', profile: 'sci', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'SCI', desktop: true },
     { from: '/assurance-garages-parkings', intent: 'garages', profile: 'bailleur', need: 'multirisque-immeuble', property: 'parking', label: 'Garages' },
     { from: '/assurance-copropriete', intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
@@ -509,7 +522,8 @@ try {
         assert.equal(url.origin, origin, 'Journey fixtures cannot reach a production API');
         if (url.pathname === '/api/leads') callbacks.push(JSON.parse(request.postData() || await request.fetchPostData()));
         void request.respond({ status: 200, contentType: 'application/json', body: '{"success":true,"reference":"LOCAL-JOURNEY-FIXTURE"}' });
-      } else void request.continue();
+      } else if (url.origin === origin) void request.continue();
+      else void request.abort('blockedbyclient');
     });
     await page.goto(origin + journey.from, { waitUntil: 'networkidle0' });
     if (journey.from !== '/devis-assurance-immeuble') {
