@@ -465,9 +465,9 @@ try {
     { from: '/contact', desktop: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
     { from: '/contact', entry: 'hero', width: 320, testDetailedForm: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
     { from: '/contact', entry: 'sticky', width: 320, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
-    { from: '/assurance-local-commercial', desktop: true, intent: 'local-commercial', profile: 'bailleur', need: 'multirisque-immeuble', property: 'local-commercial', label: 'Local commercial' },
-    { from: '/assurance-local-commercial', entry: 'hero', intent: 'local-commercial', profile: 'bailleur', need: 'multirisque-immeuble', property: 'local-commercial', label: 'Local commercial' },
-    { from: '/assurance-local-commercial', entry: 'sticky', width: 320, intent: 'local-commercial', profile: 'bailleur', need: 'multirisque-immeuble', property: 'local-commercial', label: 'Local commercial' },
+    { from: '/assurance-local-commercial', desktop: true, intent: 'local-commercial', profile: 'bailleur', need: 'multirisque-immeuble', property: 'local-commercial', label: 'Local' },
+    { from: '/assurance-local-commercial', entry: 'hero', intent: 'local-commercial', profile: 'bailleur', need: 'multirisque-immeuble', property: 'local-commercial', label: 'Local' },
+    { from: '/assurance-local-commercial', entry: 'sticky', width: 320, intent: 'local-commercial', profile: 'bailleur', need: 'multirisque-immeuble', property: 'local-commercial', label: 'Local' },
     { from: '/assurance-immeuble-resilie', desktop: true, intent: 'sinistre', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Sinistre' },
     { from: '/assurance-immeuble-resilie', entry: 'hero', intent: 'sinistre', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Sinistre' },
     { from: '/assurance-immeuble-resilie', entry: 'sticky', width: 320, intent: 'sinistre', profile: 'bailleur', need: 'audit-contrat', property: 'immeuble-locatif', label: 'Sinistre' },
@@ -628,7 +628,10 @@ try {
       if (journey.changeProperty) await page.click(`[data-diagnostic-option][data-step="property"][data-value="${journey.changeProperty}"]`);
       await page.click('.diagnostic-cta');
     }
-    if (journey.label) assert.ok((await page.$eval('[data-quote-context-title]', element => element.textContent)).includes(journey.label), 'The visitor sees the retained quote subject');
+    if (journey.label) {
+      const heading = await page.$eval('[data-quote-context-title]', element => element.textContent);
+      assert.ok(heading.includes(journey.label), `${journey.from} (${journey.entry || 'header'}): quote heading "${heading}" retains "${journey.label}"`);
+    }
     if (journey.from !== '/devis-assurance-immeuble') {
       assert.equal(await page.$eval('#lead-form [name="profile"]', field => field.value), journey.detailedProfile ?? journey.profile, journey.from);
       assert.equal(await page.$eval('#lead-form [name="need"]', field => field.value), journey.need, journey.from);
