@@ -30,6 +30,13 @@ blocked("external-3", "attack-source");
 insert.run("page-1", "page_view", "https://immeubleassur.com/", "page", "human-multipage", JSON.stringify({ source: "organic-search" }), "Mozilla/5.0");
 insert.run("page-2", "page_view", "https://immeubleassur.com/assurance-immeuble", "page", "human-multipage", JSON.stringify({ source: "organic-search" }), "Mozilla/5.0");
 
+// A recorded conversion event is success even when the CRM source label differs.
+for (const source of ["completed-form", "failed-form"]) {
+  for (let i = 0; i < 2; i++) insert.run(source + "-attempt-" + i, "form_submit_attempt", "https://immeubleassur.com/", "submit", source + "-session", JSON.stringify({ source }), "Mozilla/5.0");
+}
+insert.run("completed-event", "lead_created", "https://immeubleassur.com/", "complete", "completed-form-session", JSON.stringify({ source: "completed-form" }), "Mozilla/5.0");
+db.prepare("INSERT INTO leads (id,reference,lead_score,source,page_url,created_at) VALUES (?,?,?,?,?,datetime(?,?))").run("lead-fixture", "fixture-reference", 90, "different-crm-label", "https://immeubleassur.com/", "now", "-1 minute");
+
 try {
   const result = spawnSync(process.execPath, [join(root, "scripts", "local-source-quality-monitor.js"), "--db", dbPath, "--out", out, "--public-out", publicOut], { cwd: root, encoding: "utf8" });
   if (result.status !== 0) throw new Error(result.stderr || result.stdout || `monitor exit ${result.status}`);
@@ -39,6 +46,8 @@ try {
   const attack = report.sources.find((row) => row.source === "attack-source");
   const recommendation = report.recommendations.find((item) => item.source === "attack-source");
   const checks = [
+    ["completed-conversion-not-reported-as-failed", !report.recommendations.some(item => item.source === "completed-form" && item.type === "source-submit-sans-lead")],
+    ["genuine-submit-failure-still-reported", report.recommendations.some(item => item.source === "failed-form" && item.type === "source-submit-sans-lead")],
     ["synthetic-checks-separated", website?.synthetic_security_checks === 3 && website?.spam_blocks === 1],
     ["synthetic-checks-no-acquisition-alert", !report.recommendations.some((item) => item.source === "website")],
     ["spam-probes-not-counted-as-sessions", website?.sessions === 0 && attack?.sessions === 0],

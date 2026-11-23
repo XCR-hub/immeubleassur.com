@@ -251,6 +251,7 @@ function finalize(bucket) {
 }
 
 function recommendationFor(row) {
+  const successfulLeads = Math.max(Number(row.leads_db || 0), Number(row.leads_event || 0));
   if (row.engaged_sessions >= 10 && row.form_starts === 0 && row.traffic_rescue_shown === 0) {
     return {
       type: "source-sans-rattrapage",
@@ -281,7 +282,7 @@ function recommendationFor(row) {
       score: 86
     };
   }
-  if (row.form_starts >= 3 && row.leads_db === 0 && row.submit_attempts === 0) {
+  if (row.form_starts >= 3 && successfulLeads === 0 && row.submit_attempts === 0) {
     return {
       type: "source-start-sans-submit",
       severity: "medium",
@@ -291,7 +292,7 @@ function recommendationFor(row) {
       score: 78
     };
   }
-  if (row.submit_attempts >= 2 && row.leads_db === 0) {
+  if (row.submit_attempts >= 2 && successfulLeads === 0) {
     return {
       type: "source-submit-sans-lead",
       severity: "high",
