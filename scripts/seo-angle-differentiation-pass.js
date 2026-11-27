@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { improveQuoteLandingGuidance } from "./quote-landing-guidance.js";
 
 const PUBLIC_DIR = "public";
 const REPORT_DIR = "reports";
@@ -455,6 +456,8 @@ function applyProfile(slug, profile) {
   html = setHero(html, profile);
   html = alignStructuredData(html, slug, profile);
   html = insertBlock(html, blockFor(slug, profile));
+  // Repeated SEO maintenance must preserve the short quote journey already on the page.
+  if (html.includes('data-quote-acquisition')) html = improveQuoteLandingGuidance(html, slug, readFileSync(join(PUBLIC_DIR, 'devis-assurance-immeuble.html'), 'utf8'));
   const changed = html !== original;
   if (changed) writeFileSync(file, html, "utf8");
   return {

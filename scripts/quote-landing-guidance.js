@@ -45,6 +45,7 @@ ${widget}
   const heroPattern = /<section\b[^>]*class="[^"]*\bpage-hero\b[^"]*"[^>]*>[\s\S]*?<\/section>/;
   if (!heroPattern.test(html)) throw new Error(slug + ': quote hero missing');
   let next = html.replace(heroPattern, hero);
+  next = next.replace(/<header\b[^>]*class="site-header"[^>]*>[\s\S]*?<\/header>/, header => header.replaceAll('href="#lead-form"', 'href="#quote-first-contact"'));
   let diagnostic = quoteReference.match(diagnosticPattern)?.[0];
   if (!diagnostic) throw new Error(slug + ': reference diagnostic missing');
   diagnostic = diagnostic.replace(/<h2 id="diagnostic-title">[\s\S]*?<\/h2>/, '<h2 id="diagnostic-title">Préciser votre besoin, si vous le souhaitez</h2>').replace(/<p class="large-copy">[\s\S]*?<\/p>/, '<p class="large-copy">Vous pouvez préciser votre profil et le bien à assurer avant de remplir le formulaire complet.</p>');
