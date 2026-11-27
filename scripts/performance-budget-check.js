@@ -12,6 +12,7 @@ const budgets = {
   stylesBytes: 90 * 1024,
   appBytes: 141 * 1024, // One KiB covers explicit changes of need after a quote receipt.
   questionnaireBytes: 140 * 1024,
+  quoteHandoffBytes: 3 * 1024,
   heroImageBytes: 180 * 1024,
   adminBytes: 130 * 1024,
   searchIndexBytes: 90 * 1024,
@@ -107,6 +108,7 @@ function build() {
   const assetRows = [
     assetRow("assets/styles.css", budgets.stylesBytes),
     assetRow("assets/app.js", budgets.appBytes),
+    assetRow("assets/quote-contact-handoff.js", budgets.quoteHandoffBytes),
     assetRow("assets/hero-building.webp", budgets.heroImageBytes),
     assetRow("assets/admin.js", budgets.adminBytes),
     assetRow("assets/search-index.json", budgets.searchIndexBytes),

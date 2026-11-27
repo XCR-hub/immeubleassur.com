@@ -12,6 +12,7 @@ import { checkQuoteDiagnosticIntents } from './quote-diagnostic-intent-browser-c
 import { checkQuoteLandings } from './quote-landing-browser-check.js';
 import { checkQuoteReceiptUpdates } from './quote-receipt-update-browser-check.js';
 import { checkQuoteFormNavigation } from './quote-form-navigation-browser-check.js';
+import { checkQuoteContactHandoff } from './quote-contact-handoff-browser-check.js';
 
 // Delay the application until after first paint: this reproduces the cold-load
 // race that previously inserted a second quote selector into the viewport.
@@ -683,11 +684,12 @@ try {
   const quoteLandingRows = await checkQuoteLandings(browser, origin, turnstileFixture, turnstileTestKey, process.env.LOCAL_PAGE_STABILITY_SCREENSHOT_ROOT);
   const quoteReceiptUpdateRows = await checkQuoteReceiptUpdates(browser, origin, turnstileFixture, turnstileTestKey);
   const quoteFormNavigationRows = await checkQuoteFormNavigation(browser, origin);
-  const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows, navigationRows, quoteJourneys, leadSubmissionRows, mobileReadingRows, serviceDiagnosticRows, quoteDiagnosticRows, quoteLandingRows, quoteReceiptUpdateRows, quoteFormNavigationRows };
+  const quoteContactHandoffRows = await checkQuoteContactHandoff(browser, origin, turnstileFixture, turnstileTestKey);
+  const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows, navigationRows, quoteJourneys, leadSubmissionRows, mobileReadingRows, serviceDiagnosticRows, quoteDiagnosticRows, quoteLandingRows, quoteReceiptUpdateRows, quoteFormNavigationRows, quoteContactHandoffRows };
   const target = resolve(process.env.LOCAL_PAGE_STABILITY_REPORT || 'reports/page-stability-browser-report.json');
   mkdirSync(dirname(target), { recursive: true });
   writeFileSync(target, JSON.stringify(report, null, 2) + '\n');
-  console.log(`Quote follow-up checks passed: ${quoteReceiptUpdateRows.length} receipt update checks, ${quoteFormNavigationRows.length} native navigation checks.`);
+  console.log(`Quote follow-up checks passed: ${quoteReceiptUpdateRows.length} receipt update checks, ${quoteFormNavigationRows.length} native navigation checks, ${quoteContactHandoffRows.length} contact handoff checks.`);
   console.log(`Page stability passed: ${rows.length} pages, worst delayed-load CLS=${Math.max(...rows.map(r => r.cls)).toFixed(3)}, ${navigationRows.length} navigation checks, ${quoteJourneys.length} quote journeys, ${leadSubmissionRows.length} submission recovery checks, ${mobileReadingRows.length} reading layout checks, ${serviceDiagnosticRows.length} service diagnostic checks, ${quoteDiagnosticRows.length} diagnostic submission checks, ${quoteLandingRows.length} quote landing checks, no production lead submitted.`);
 } finally {
   if (browser) {
