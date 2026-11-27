@@ -935,7 +935,7 @@ function quotePage() {
         <h1>Devis assurance immeuble</h1>
         <p>Demandez un rappel ou décrivez votre bâtiment. Vous pouvez commencer sans avoir réuni tous vos documents.</p>
         ${homepageInstantCallback({ source: "quote-inline-callback", heading: "Un rappel pour votre devis", copy: "Un téléphone ou un email suffit. Nous précisons ensuite votre besoin avec vous." })}
-        <div class="hero-actions"><a class="button secondary" href="#devis">Remplir le formulaire complet</a><a class="button secondary" href="tel:${PHONE_HREF}">Appeler le ${PHONE}</a></div>
+        <div class="hero-actions"><a class="button secondary" href="#lead-form">Remplir le formulaire complet</a><a class="button secondary" href="tel:${PHONE_HREF}">Appeler le ${PHONE}</a></div>
       </div>
     </section>
     <section class="band page-band" id="devis">

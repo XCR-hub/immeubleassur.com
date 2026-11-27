@@ -68,7 +68,7 @@
 
     <div class="hero-inline-callback" data-instant-callback-context data-active-intent="immeuble" aria-label="Rappel express assurance immeuble">
       <div><strong data-quote-context-title>Un rappel pour votre devis</strong><span>Un téléphone ou un email suffit. Nous précisons ensuite votre besoin avec vous.</span></div>
-      <form class="instant-callback-form hero-inline-callback-form" data-instant-callback-form data-instant-callback-source="quote-inline-callback" data-instant-callback-content-kind="quote-inline-callback" novalidate>
+      <form class="instant-callback-form hero-inline-callback-form" data-instant-callback-form data-instant-callback-source="quote-inline-callback" data-instant-callback-content-kind="quote-inline-callback" novalidate><noscript data-quote-contact-fallback><link rel="stylesheet" href="/assets/quote-contact-fallback.css?v=50126f58e5" /><p>Pour envoyer ce formulaire, activez JavaScript. Vous pouvez aussi demander votre devis en <a href="tel:+33180855786">appelant le 01 80 85 57 86</a> ou en <a href="mailto:team@immeubleassur.com">écrivant à team@immeubleassur.com</a>.</p></noscript>
         <input class="hp-field" type="text" name="company_website" tabindex="-1" autocomplete="off" />
         <label>Telephone ou email *<input name="contact" autocomplete="tel" inputmode="email" required placeholder="06 12 34 56 78" /></label>
         <label class="consent-row"><input type="checkbox" name="consent" required /><span>J'accepte d'etre recontacte pour mon devis immeuble.</span></label>
@@ -79,7 +79,7 @@
         <p class="form-status" data-instant-callback-status role="status" aria-live="polite"></p>
       </form>
     </div>
-        <div class="hero-actions"><a class="button secondary" data-track="cta-secondary" href="#devis">Remplir le formulaire complet</a><a class="button secondary" data-track="cta-secondary" href="tel:+33180855786">Appeler le 01 80 85 57 86</a></div>
+        <div class="hero-actions"><a class="button secondary" data-track="cta-secondary" href="#lead-form">Remplir le formulaire complet</a><a class="button secondary" data-track="cta-secondary" href="tel:+33180855786">Appeler le 01 80 85 57 86</a></div>
       </div>
     </section>
 <!-- ux-diagnostic:start -->
@@ -191,7 +191,7 @@
         </div>
 
     <div class="growth-lead-magnet"><strong>Checklist offerte</strong><span>Recevez la liste des pieces utiles: contrat actuel, sinistres, lots, travaux, franchises et donnees assureur.</span></div>
-    <form class="quote-panel" id="lead-form" data-track="lead-form" novalidate>
+    <form data-simple-form class="quote-panel" id="lead-form" data-track="lead-form" novalidate><noscript data-quote-contact-fallback><link rel="stylesheet" href="/assets/quote-contact-fallback.css?v=50126f58e5" /><p>Pour envoyer ce formulaire, activez JavaScript. Vous pouvez aussi demander votre devis en <a href="tel:+33180855786">appelant le 01 80 85 57 86</a> ou en <a href="mailto:team@immeubleassur.com">écrivant à team@immeubleassur.com</a>.</p></noscript>
       <div class="form-heading">
         <p>Devis gratuit</p>
         <h2>Qualifier mon immeuble</h2>
@@ -301,6 +301,6 @@
 <nav class="footer-documentation" aria-label="Documentation et informations légales"><a href="/guides">Guides pratiques</a><a href="/faq">Questions fréquentes</a><a href="/methodologie-editoriale">Méthode documentaire</a><a href="/mentions-legales">Mentions légales</a></nav>
 <!-- documentation-links:end -->
 </footer>
-    <script src="/assets/app.js?v=0dc9b80398" type="module"></script>
+    <script src="/assets/app.js?v=8fbd00999c" type="module"></script>
   </body>
 </html>

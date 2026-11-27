@@ -6,7 +6,7 @@ const REPORT_PATH = join("reports", "security-headers-report.json");
 const ASSET_PATH = join("public", "assets", "security-headers-latest.json");
 const serverFiles = ["scripts/local-production-server.js", "scripts/local-static-server.js"];
 const requiredHeaders = ["Content-Security-Policy", "Strict-Transport-Security", "X-Content-Type-Options", "Referrer-Policy", "X-Frame-Options", "X-Permitted-Cross-Domain-Policies", "Permissions-Policy", "Cross-Origin-Opener-Policy", "Cross-Origin-Resource-Policy"];
-const requiredCspDirectives = ["default-src 'self'", "base-uri 'self'", "object-src 'none'", "frame-ancestors 'none'", "form-action 'self'", "script-src 'self' https://challenges.cloudflare.com https://www.googletagmanager.com", "connect-src 'self' https://challenges.cloudflare.com https://region1.google-analytics.com https://www.google-analytics.com", "frame-src https://challenges.cloudflare.com", "upgrade-insecure-requests"];
+const requiredCspDirectives = ["default-src 'self'", "base-uri 'self'", "object-src 'none'", "frame-ancestors 'none'", "form-action 'none'", "script-src 'self' https://challenges.cloudflare.com https://www.googletagmanager.com", "connect-src 'self' https://challenges.cloudflare.com https://region1.google-analytics.com https://www.google-analytics.com", "frame-src https://challenges.cloudflare.com", "upgrade-insecure-requests"];
 const securityTxtRequirements = ["Contact: mailto:team@immeubleassur.com", "Expires:", "Preferred-Languages:", "Canonical: https://immeubleassur.com/.well-known/security.txt", "Policy: https://immeubleassur.com/confidentialite"];
 
 function ensureDir(path) { mkdirSync(path, { recursive: true }); }
@@ -72,7 +72,7 @@ const report = {
   files: fileReports,
   issue_count: issues.length,
   issues,
-  safeguards: ["centralized-runtime-security-headers", "csp-allows-turnstile-and-ga4-only", "ga4-bootstrap-external-to-strict-csp", "hsts-behind-https-proxy", "frame-ancestors-none", "cross-origin-resource-policy", "admin-no-store", "invite-url-scrubbing", "security-txt-contact"]
+  safeguards: ["centralized-runtime-security-headers", "native-form-navigation-blocked", "fetch-submissions-allowed", "csp-allows-turnstile-and-ga4-only", "ga4-bootstrap-external-to-strict-csp", "hsts-behind-https-proxy", "frame-ancestors-none", "cross-origin-resource-policy", "admin-no-store", "invite-url-scrubbing", "security-txt-contact"]
 };
 
 writeJson(REPORT_PATH, report);

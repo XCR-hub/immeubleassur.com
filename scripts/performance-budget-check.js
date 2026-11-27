@@ -10,7 +10,8 @@ const budgets = {
   htmlBytes: 80 * 1024,
   averageHtmlBytes: 40 * 1024,
   stylesBytes: 90 * 1024,
-  appBytes: 140 * 1024,
+  appBytes: 141 * 1024, // One KiB covers explicit changes of need after a quote receipt.
+  questionnaireBytes: 140 * 1024,
   heroImageBytes: 180 * 1024,
   adminBytes: 130 * 1024,
   searchIndexBytes: 90 * 1024,
@@ -109,7 +110,7 @@ function build() {
     assetRow("assets/hero-building.webp", budgets.heroImageBytes),
     assetRow("assets/admin.js", budgets.adminBytes),
     assetRow("assets/search-index.json", budgets.searchIndexBytes),
-    assetRow("assets/risk-questionnaire.js", budgets.appBytes),
+    assetRow("assets/risk-questionnaire.js", budgets.questionnaireBytes),
     assetRow("assets/risk-questionnaire.css", budgets.stylesBytes)
   ];
   const reportAssets = walk(join(PUBLIC_DIR, "assets"), (file) => /-latest\.json$/i.test(file));

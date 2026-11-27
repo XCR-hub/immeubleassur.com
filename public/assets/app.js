@@ -134,17 +134,31 @@ function confirmLeadReceipt(formElement) {
   });
 }
 
+function resetLeadReceipt(formElement) {
+  if (formElement?.dataset.received !== "1" || formElement.dataset.submitting === "1") return;
+  delete formElement.dataset.received;
+  formElement.querySelectorAll("button[type='submit']").forEach(button => { button.textContent = button.dataset.receiptLabel; });
+  setLeadSending(formElement, false);
+  const box = formElement.querySelector(".form-status");
+  if (box) {
+    box.textContent = "Informations modifiees. Renvoyez votre demande.";
+    box.className = "form-status";
+  }
+}
+
 function bindLeadReceiptReset(formElement) {
   formElement?.addEventListener("input", event => {
-    if (!event.isTrusted || event.target.type === "hidden" || formElement.dataset.received !== "1" || formElement.dataset.submitting === "1") return;
-    delete formElement.dataset.received;
-    formElement.querySelectorAll("button[type='submit']").forEach(button => { button.textContent = button.dataset.receiptLabel; });
-    setLeadSending(formElement, false);
-    const box = formElement.querySelector(".form-status");
-    if (box) {
-      box.textContent = "Informations modifiees. Envoyez une nouvelle demande pour les transmettre.";
-      box.className = "form-status";
+    if (!event.isTrusted || event.target.type === "hidden") return;
+    if (["need", "profile", "property_type"].includes(event.target.name)) {
+      const fields = formElement.elements;
+      const need = fields.need.value;
+      const profile = fields.profile.value;
+      formElement.dataset.intent = need !== "multirisque-immeuble" ? need === "dommages-ouvrage" ? "travaux" : need
+        : profile === "sci" ? "sci"
+        : ["syndic-professionnel", "conseil-syndical"].includes(profile) ? "copropriete"
+        : ({ parking: "garages", "immeuble-vacant": "immeuble-vacant", commerce: "local-commercial", "local-commercial": "local-commercial", mixte: "local-commercial", "lot-copropriete": "pno-cno", "logement-loue": "pno", "logement-vacant": "pno", copropriete: "copropriete" })[fields.property_type.value] || "immeuble";
     }
+    resetLeadReceipt(formElement);
   });
 }
 
@@ -161,7 +175,7 @@ function showUnconfirmedLead(formElement) {
 
 let eventViewport = "";
 function currentEventViewport() {
-  // Reuse viewport dimensions across events; reading after each DOM update forces layout.
+  // Cache dimensions until resize to avoid forced layout.
   if (!eventViewport) eventViewport = `${window.innerWidth}x${window.innerHeight}`;
   return eventViewport;
 }
@@ -514,6 +528,7 @@ function readForm(formElement) {
   const data = Object.fromEntries(new FormData(formElement).entries());
   const utm = readUtm();
   const attribution = attributionPayload();
+  attribution.intent = normalizeLeadIntent(formElement.dataset.intent) || attribution.intent;
   const turnstileResponse = turnstileResponseFromScope(formElement);
   const payload = {
     name: String(data.name || "").trim(),
@@ -917,8 +932,7 @@ function leadValueEventPayload(payload, qualification = leadQualification(payloa
 
 function formatEuro(value) {
   const amount = Number(value || 0);
-  // Premium estimates are whole euros. Group those digits directly to avoid
-  // loading locale formatting machinery during the initial form enhancement.
+  // Format whole premiums without loading locale data during setup.
   if (Number.isSafeInteger(amount)) return `${String(amount).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f")} EUR`;
   return `${amount.toLocaleString("fr-FR")} EUR`;
 }
@@ -1071,10 +1085,13 @@ function setInputValue(name, value, { onlyIfEmpty = false } = {}) {
 
 function applyFormValues(values) {
   if (!form) return false;
+  if (values.key) form.dataset.intent = values.key;
+  const changed = ["need", "profile", "property_type"].some(name => values[name] && values[name] !== form.elements[name]?.value);
   setSelectValue("need", values.need);
   setSelectValue("profile", values.profile);
   setSelectValue("property_type", values.property_type);
   setInputValue("message", values.message, { onlyIfEmpty: true });
+  if (changed) resetLeadReceipt(form);
   form.dispatchEvent(new Event("input", { bubbles: true }));
   form.dispatchEvent(new Event("change", { bubbles: true }));
   return true;
@@ -1295,11 +1312,13 @@ function mountDiagnostic() {
     const options = [...shell.querySelectorAll("[data-diagnostic-option]")];
     options.forEach((option) => {
       option.addEventListener("click", () => {
-        if (option.dataset.step !== "urgency" && !option.classList.contains("is-active")) shell.dataset.routeSelected = "1";
+        const changed = !option.classList.contains("is-active");
+        if (option.dataset.step !== "urgency" && changed) shell.dataset.routeSelected = "1";
         shell.dataset.userSelected = "1";
         options.filter((item) => item.dataset.step === option.dataset.step).forEach((item) => item.classList.toggle("is-active", item === option));
         renderDiagnostic(shell);
         updateQuoteCallbackContext();
+        if (changed) resetLeadReceipt(document.querySelector('[data-instant-callback-source="quote-inline-callback"]'));
         track("diagnostic_select", { target: option.dataset.step || "unknown", label: option.dataset.value || "unknown" });
       });
     });
@@ -2980,9 +2999,7 @@ bindHomepageDevisAccelerator();
 bindInstantCallbackForms();
 bindGrowthTracking();
 
-// Split non-critical visual mounting from module evaluation. This keeps form,
-// tracking and anti-spam listeners available immediately while preventing the
-// first JavaScript task from accumulating avoidable DOM/layout work.
+// Bind forms and tracking immediately; defer visual mounts to avoid initial layout work.
 const scheduleEnhancementQueue = (tasks, schedule) => {
   const queue = [...tasks];
   const runNext = () => {
@@ -3012,10 +3029,7 @@ const scheduleVisualEnhancement = 'requestAnimationFrame' in window
   : (task) => window.setTimeout(task, 0);
 scheduleEnhancementQueue(initialVisualEnhancements, scheduleVisualEnhancement);
 
-// Keep forms, anti-spam signals and above-the-fold interactions responsive.
-// The remaining enhancements only enrich content below the fold or delayed
-// rescue journeys, so let the browser finish its first render before mounting
-// them. The timeout still guarantees initialization on busy/older browsers.
+// Mount below-the-fold enhancements after first render; the timeout covers busy browsers.
 const deferredEnhancements = [
   mountLeadValuePreview,
   mountDiagnostic,

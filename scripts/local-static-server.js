@@ -38,7 +38,8 @@ function contentSecurityPolicy() {
     "base-uri 'self'",
     "object-src 'none'",
     "frame-ancestors 'none'",
-    "form-action 'self'",
+    // Forms submit with fetch; a missing script must not put contact details in a navigation URL.
+    "form-action 'none'",
     "script-src 'self' https://challenges.cloudflare.com https://www.googletagmanager.com",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",

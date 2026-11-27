@@ -1,4 +1,5 @@
 import { turnstileWidgetMarkup } from './turnstile-markup.js';
+import { addQuoteContactFallback } from './quote-contact-fallback.js';
 
 const pages = {
   'devis-pno-cno': {
@@ -76,5 +77,5 @@ ${widget}
     if (node.url === `https://immeubleassur.com/${slug}` && [node['@type']].flat().includes('Service')) node.description = page.description;
     Object.values(node).forEach(value => { if (Array.isArray(value)) value.forEach(update); else if (value && typeof value === 'object') update(value); });
   };
-  return next.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g, (_, body) => { const schema = JSON.parse(body); update(schema); return `<script type="application/ld+json">${JSON.stringify(schema).replaceAll('<', '\\u003c')}</script>`; });
+  return addQuoteContactFallback(next.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g, (_, body) => { const schema = JSON.parse(body); update(schema); return `<script type="application/ld+json">${JSON.stringify(schema).replaceAll('<', '\\u003c')}</script>`; }));
 }

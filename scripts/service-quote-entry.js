@@ -6,6 +6,8 @@ import { improveCoproprieteQuoteGuidance } from "./copropriete-quote-guidance.js
 import { improveHomepageSearchGuidance } from "./homepage-search-guidance.js";
 import { improveContactRiskQuoteGuidance } from "./contact-risk-quote-guidance.js";
 import { improveQuoteLandingGuidance } from "./quote-landing-guidance.js";
+import { improveSciQuoteGuidance } from "./sci-quote-guidance.js";
+import { addQuoteContactFallback } from "./quote-contact-fallback.js";
 
 const subjects = {
   "contact": "Votre demande de devis",
@@ -40,7 +42,9 @@ export function improveServiceQuoteEntry(html, slug) {
     for (const [value, label] of [['lot-copropriete', 'Lot en copropriété'], ['logement-loue', 'Logement loué'], ['logement-vacant', 'Logement vacant'], ['immeuble-vacant', 'Immeuble entièrement vacant']]) {
       if (!options.includes(`value="${value}"`)) options = options.replace('</select>', `<option value="${value}">${label}</option></select>`);
     }
-    return html.replace(select[0], options);
+    return addQuoteContactFallback(html.replace(select[0], options)
+      .replace(/<form\b[^>]*id="lead-form"[^>]*>/, tag => tag.includes('data-simple-form') ? tag : tag.replace('<form', '<form data-simple-form'))
+      .replace(/(<a\b[^>]*href=")#devis("[^>]*>Remplir le formulaire complet<\/a>)/, '$1#lead-form$2'));
   }
   const subject = subjects[slug];
   if (!subject) return html;
@@ -57,7 +61,7 @@ export function improveServiceQuoteEntry(html, slug) {
   const readingPage = ["courtier-assurance-immeuble", "assurance-immeuble-locatif", "dommages-ouvrage-immeuble", "contact", "assurance-local-commercial", "assurance-immeuble-resilie", "assurance-immeuble-sinistre"].includes(slug);
   const readableHero = readingPage && !hero.includes('data-article-reading') ? hero.replace('<section', '<section data-article-reading') : hero;
   const next = html.replace(section[0], readableHero);
-  return slug === "assurance-copropriete" ? improveCoproprieteQuoteGuidance(next) : improveContactRiskQuoteGuidance(next, slug);
+  return slug === "assurance-copropriete" ? improveCoproprieteQuoteGuidance(next) : slug === "assurance-sci" ? improveSciQuoteGuidance(next) : improveContactRiskQuoteGuidance(next, slug);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
