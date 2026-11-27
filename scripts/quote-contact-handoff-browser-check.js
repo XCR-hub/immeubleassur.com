@@ -106,7 +106,9 @@ export async function checkQuoteContactHandoff(browser, origin, fixture, testKey
         const field = selector + ' [name="consent"]';
         if (await page.$eval(field, control => control.checked) !== checked) {
           await page.$eval(field, control => control.scrollIntoView({ block: 'center', behavior: 'instant' }));
-          await page.click(field);
+          await page.focus(field);
+          assert.equal(await page.$eval(field, control => document.activeElement === control), true, 'The consent choice has keyboard focus');
+          await page.keyboard.press('Space');
         }
         assert.equal(await page.$eval(field, control => control.checked), checked);
       };
