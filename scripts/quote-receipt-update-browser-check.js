@@ -92,8 +92,9 @@ export async function checkQuoteReceiptUpdates(browser, origin, turnstileFixture
         assert.equal(await page.$eval(fullFormLink, link => link.textContent), 'Remplir le formulaire complet');
         await clickVisible(page, fullFormLink);
         await page.waitForFunction(() => {
-          const top = document.querySelector('#lead-form').getBoundingClientRect().top;
-          return location.hash === '#lead-form' && top >= 70 && top < 150;
+          const field = document.querySelector('#lead-form [name="name"]').getBoundingClientRect();
+          const header = document.querySelector('.site-header').getBoundingClientRect();
+          return field.top >= header.bottom && field.bottom <= innerHeight;
         });
         const firstField = await page.$eval('#lead-form [name="name"]', field => { const box = field.getBoundingClientRect(); return { top: box.top, bottom: box.bottom }; });
         assert.ok(firstField.top >= 70 && firstField.bottom <= 844, 'The full-form CTA reaches visible fields on mobile: ' + JSON.stringify(firstField));
