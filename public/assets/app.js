@@ -292,7 +292,7 @@ function normalizeLeadIntent(value) {
 
 function queryLeadIntent() {
   const params = new URLSearchParams(window.location.search);
-  return normalizeLeadIntent(params.get("intent") || params.get("need") || "");
+  return normalizeLeadIntent(params.get("intent") || params.get("need") || form?.dataset.defaultIntent || "");
 }
 
 function currentLeadIntent() {

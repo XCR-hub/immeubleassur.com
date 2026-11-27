@@ -5,6 +5,7 @@ import { quoteHref } from "./site-navigation.js";
 import { improveCoproprieteQuoteGuidance } from "./copropriete-quote-guidance.js";
 import { improveHomepageSearchGuidance } from "./homepage-search-guidance.js";
 import { improveContactRiskQuoteGuidance } from "./contact-risk-quote-guidance.js";
+import { improveQuoteLandingGuidance } from "./quote-landing-guidance.js";
 
 const subjects = {
   "contact": "Votre demande de devis",
@@ -30,6 +31,7 @@ const subjects = {
 };
 
 export function improveServiceQuoteEntry(html, slug) {
+  if (["devis-pno-cno", "devis-assurance-immeuble-en-ligne"].includes(slug)) return improveQuoteLandingGuidance(html, slug, readFileSync(join("public", "devis-assurance-immeuble.html"), "utf8"));
   if (slug === "index") return improveHomepageSearchGuidance(html);
   if (slug === "devis-assurance-immeuble") {
     const select = html.match(/<select\b[^>]*name="property_type"[^>]*>[\s\S]*?<\/select>/);
@@ -60,7 +62,7 @@ export function improveServiceQuoteEntry(html, slug) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   let changed = 0;
-  const targets = ['index', ...Object.keys(subjects), 'devis-assurance-immeuble'];
+  const targets = ['index', ...Object.keys(subjects), 'devis-assurance-immeuble', 'devis-pno-cno', 'devis-assurance-immeuble-en-ligne'];
   for (const slug of targets) {
     const file = join("public", `${slug}.html`);
     if (!existsSync(file)) throw new Error(`${slug}: the service page is missing`);

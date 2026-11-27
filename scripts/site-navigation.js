@@ -25,6 +25,7 @@ function link([href, label], path) {
 
 export function quoteHref(path) {
   const base = "/devis-assurance-immeuble";
+  if (["/devis-pno-cno", "/devis-assurance-immeuble-en-ligne"].includes(path)) return "#quote-first-contact";
   if (path === "/" || path.startsWith("/devis-") || path === "/admin") return base;
   const articleQuote = articleQuoteHref(path);
   if (articleQuote) return articleQuote;
