@@ -35,12 +35,18 @@ export async function checkQuoteContactHandoff(browser, origin, fixture, testKey
     const page = await browser.newPage();
     const submissions = [];
     const errors = [];
+    const manualContactEdits = [];
+    let focusCorrections = 0;
     let heldLead;
     try {
       await page.setViewport({ width: scenario.width, height: 844, isMobile: scenario.width < 600, hasTouch: scenario.width < 600 });
       await page.evaluateOnNewDocument(key => {
         new MutationObserver(() => document.querySelectorAll('.cf-turnstile[data-sitekey]').forEach(widget => { widget.dataset.sitekey = key; })).observe(document, { childList: true, subtree: true });
         window.__localHandoffStorage = { active: false, writes: [] };
+        window.__localHandoffInputs = [];
+        document.addEventListener('input', event => {
+          if (event.target.matches?.('#lead-form [name="phone"], #lead-form [name="email"]')) window.__localHandoffInputs.push({ field: event.target.name, value: event.target.value, trusted: event.isTrusted });
+        }, { capture: true });
         for (const method of ['setItem', 'removeItem', 'clear']) {
           const original = Storage.prototype[method];
           Storage.prototype[method] = function (...args) {
@@ -77,13 +83,24 @@ export async function checkQuoteContactHandoff(browser, origin, fixture, testKey
       const originalInsurance = await insurance();
       const values = () => page.$eval(full, form => ({ phone: form.elements.phone.value, email: form.elements.email.value }));
       const replace = async (selector, value) => {
+        const inputOffset = await page.evaluate(() => window.__localHandoffInputs.length);
         await page.$eval(selector, field => field.scrollIntoView({ block: 'center', behavior: 'instant' }));
         await page.click(selector);
+        if (!await page.$eval(selector, field => document.activeElement === field)) focusCorrections++;
+        await page.focus(selector);
+        assert.equal(await page.$eval(selector, field => document.activeElement === field), true, 'Keyboard edits target the selected field even while the page scrolls');
         await page.keyboard.down('Control');
         await page.keyboard.press('A');
         await page.keyboard.up('Control');
         await page.keyboard.press('Backspace');
         if (value) await page.keyboard.type(value);
+        assert.deepEqual(await page.$eval(selector, field => ({ focused: document.activeElement === field, value: field.value })), { focused: true, value }, 'The actual keyboard edit completed before another handoff');
+        if (selector === full + ' [name="phone"]' || selector === full + ' [name="email"]') {
+          const field = selector.includes('phone') ? 'phone' : 'email';
+          const events = await page.evaluate(offset => window.__localHandoffInputs.slice(offset), inputOffset);
+          assert.ok(events.some(event => event.field === field && event.trusted && event.value === value), 'Manual edits, including clearing a field, emit a real trusted input event');
+          manualContactEdits.push({ field, verified_value: value, trusted_input_events: events.filter(event => event.field === field && event.trusted).length });
+        }
       };
       const consent = async (selector, checked) => {
         const field = selector + ' [name="consent"]';
@@ -194,7 +211,7 @@ export async function checkQuoteContactHandoff(browser, origin, fixture, testKey
       assert.deepEqual(await page.evaluate(() => window.__localHandoffStorage.writes), [], 'The contact handoff never writes contact details or state to storage');
       assert.deepEqual(errors, []);
       assert.equal(submissions.length, scenario.id === 'sending-and-confirmed-protection' ? 1 : 0);
-      rows.push({ scenario: scenario.id, path: scenario.path, width: scenario.width, contact_handoff_verified: true, insurance_and_source_preserved: true, lead_requests: submissions.length, storage_writes: 0, production_submissions: 0, passed: true });
+      rows.push({ scenario: scenario.id, path: scenario.path, width: scenario.width, contact_handoff_verified: true, insurance_and_source_preserved: true, trusted_manual_contact_edits: manualContactEdits, explicit_focus_corrections: focusCorrections, lead_requests: submissions.length, storage_writes: 0, production_submissions: 0, passed: true });
     } catch (error) {
       error.message = `${scenario.id}: ${error.message}`;
       throw error;
