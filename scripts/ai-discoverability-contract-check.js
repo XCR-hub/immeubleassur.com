@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { DatabaseSync } from "node:sqlite";
+import { spawnSync } from "node:child_process";
 import { loadDefaultEnvFiles } from "./local-env.js";
 import { summarizeCrawlerObservations } from "./crawler-observation-summary.js";
 
@@ -33,6 +34,11 @@ insertCrawler.run("unknown-raw-agent", JSON.stringify({ identity_verified: true 
 crawlerDb.close();
 const crawlerSummary = summarizeCrawlerObservations(crawlerDbPath, 30);
 rmSync(crawlerFixture, { recursive: true, force: true });
+// Exercise the notifier with intercepted network calls and temporary ledgers.
+// Matching an old implementation string incorrectly rejected valid date deduplication.
+const indexNowBehavior = spawnSync(process.execPath, ["--test", "scripts/indexnow-submit.test.js"], {
+  encoding: "utf8", windowsHide: true, timeout: 60000, maxBuffer: 256 * 1024
+});
 const reportDir = process.env.LOCAL_RUNTIME_REPORTS_ROOT || "reports";
 const out = join(reportDir, "ai-discoverability-contract-report.json");
 const checks = [
@@ -75,13 +81,14 @@ const checks = [
   ["live-monitor-verifies-active-edition-search-metadata", monitor.includes("active-edition-is-indexable") && monitor.includes("active-edition-canonical-is-current") && monitor.includes("active-edition-has-newsarticle-schema")],
   ["generation-pass-persists-artifacts", pass.includes('write(join(OUT, "robots.txt")') && pass.includes('write(join(OUT, "llms.txt")') && pass.includes('methodologie-editoriale.html')],
   ["indexnow-key-is-public-and-valid", /^[a-f0-9]{64}$/.test(indexNowKey) && indexNow.includes("key_publicly_verifiable: false") && indexNow.includes("base.key_publicly_verifiable = true")],
-  ["indexnow-submits-only-changed-same-host-urls", indexNow.includes("previous[row.url] !== row.lastmod") && indexNow.includes("new URL(row.url).host === siteUrl.host") && indexNow.includes("state-not-advanced-on-failure")],
+  ["indexnow-submits-only-changed-same-host-urls", indexNowBehavior.status === 0 && !indexNowBehavior.error],
   ["indexnow-prefers-verified-runtime-sitemap", indexNow.includes('source: "active-runtime-publication"') && indexNow.includes("actualHash === sitemapArtifact.sha256") && indexNow.includes('source: "static-fallback"')],
   ["indexnow-honors-runtime-publications-root", indexNow.includes('env("LOCAL_RUNTIME_PUBLICATIONS_ROOT", join(runtimeAssetsRoot, "publications"))')],
   ["indexnow-never-claims-ranking", indexNow.includes("citation_or_ranking_guaranteed: false") && indexNow.includes('"no-ranking-claim"')]
 ];
 const missing = checks.filter(([, ok]) => !ok).map(([name]) => name);
-const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, claims: { search_eligible: ["chatgpt", "perplexity", "claude", "gemini", "copilot"], citation_guaranteed: false, training_bots_allowed: [] }, safeguards: ["explicit-multi-ai-crawler-policy", "training-bot-opt-out", "indexable-methodology", "entity-schema", "active-edition-in-llms", "sanitized-public-editorial-metadata", "ai-referral-attribution"] };
+const behaviorChecks = { indexnow_submission: { status: indexNowBehavior.status === 0 && !indexNowBehavior.error ? "passed" : "failed", exit_code: indexNowBehavior.status, error_code: indexNowBehavior.error?.code || "", diagnostics: indexNowBehavior.status === 0 ? "" : `${indexNowBehavior.stdout || ""}${indexNowBehavior.stderr || ""}`.slice(-6000) } };
+const report = { generated_at: new Date().toISOString(), status: missing.length ? "failed" : "passed", checks: checks.length, missing, behavior_checks: behaviorChecks, claims: { search_eligible: ["chatgpt", "perplexity", "claude", "gemini", "copilot"], citation_guaranteed: false, training_bots_allowed: [] }, safeguards: ["explicit-multi-ai-crawler-policy", "training-bot-opt-out", "indexable-methodology", "entity-schema", "active-edition-in-llms", "sanitized-public-editorial-metadata", "ai-referral-attribution", "mocked-network-behavior-tests"] };
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 console.log(`AI discoverability contract: ${report.status} (${checks.filter(([, ok]) => ok).length}/${checks.length}).`);

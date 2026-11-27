@@ -462,6 +462,7 @@ try {
   navigationRows.push({ path: '/', width: 390, height: 844, javascript: true, shortQuoteNavigation: true, passed: true });
   await navigationPage.close();
   const journeyCases = [
+    { from: '/', entry: 'home-faq', width: 320, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis' },
     { from: '/contact', desktop: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
     { from: '/contact', entry: 'hero', width: 320, testDetailedForm: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
     { from: '/contact', entry: 'sticky', width: 320, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
@@ -548,6 +549,15 @@ try {
         }
         const refusal = await page.$('[data-analytics-choice="denied"]');
         if (refusal && await refusal.isVisible()) await refusal.click();
+      } else if (journey.entry === 'home-faq') {
+        selector = '[data-home-quote-faq] [data-track="homepage-faq-quote"]';
+        const refusal = await page.$('[data-analytics-choice="denied"]');
+        if (refusal && await refusal.isVisible()) await refusal.click();
+        await page.$eval('[data-home-quote-faq] summary', element => element.scrollIntoView({ block: 'center', behavior: 'instant' }));
+        await page.click('[data-home-quote-faq] summary');
+        assert.equal(await page.$eval('[data-home-quote-faq] details', element => element.open), true);
+        await page.$eval(selector, link => link.scrollIntoView({ block: 'center', behavior: 'instant' }));
+        assert.equal(await page.$('.content-lead-bridge'), null, 'Homepage answers stay readable before requesting a quote');
       } else if (journey.entry === 'copro-faq') {
         selector = '[data-copropriete-quote-guide] [data-track="copropriete-faq-quote"]';
         await page.waitForSelector('#lead-form .ux-form-proof');
