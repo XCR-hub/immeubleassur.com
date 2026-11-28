@@ -355,6 +355,7 @@ try {
   // archived pages and layouts from each independent content generator.
   const navigationCases = [
     ['/', 320, 720], ['/assurance-sci', 390, 844],
+    ['/assurance-immeuble-syndic-professionnel', 320, 720],
     ['/assurance-pno-cno', 390, 844], ['/recherches-assurance-immeuble', 390, 844],
     ['/blog/assurance-immeuble-ancien', 390, 844],
     ['/blog/assurance-sci-patrimoine-locatif', 320, 720],
@@ -442,6 +443,10 @@ try {
       assert.equal(await page.evaluate(() => document.activeElement.dataset.track), 'mobile-navigation-quote');
       await Promise.all([page.waitForNavigation({ waitUntil: 'domcontentloaded' }), page.keyboard.press('Enter')]);
       assert.equal(new URL(page.url()).pathname, '/devis-assurance-immeuble', 'The native quote link works without JavaScript');
+      if (path === '/assurance-immeuble-syndic-professionnel') {
+        assert.equal(new URL(page.url()).searchParams.get('intent'), 'copropriete');
+        assert.equal(new URL(page.url()).searchParams.get('source_path'), path);
+      }
     } else {
       assert.equal(await page.$eval('.site-header > .nav', element => element.checkVisibility()), true);
       assert.equal(await page.$eval(summary, element => element.checkVisibility()), false);
@@ -501,6 +506,11 @@ try {
     { from: '/assurance-sci', intent: 'sci', profile: 'sci', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'SCI', desktop: true },
     { from: '/assurance-garages-parkings', intent: 'garages', profile: 'bailleur', need: 'multirisque-immeuble', property: 'parking', label: 'Garages' },
     { from: '/assurance-copropriete', intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
+    { from: '/assurance-immeuble-syndic-professionnel', desktop: true, intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
+    { from: '/assurance-immeuble-syndic-professionnel', width: 390, intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
+    { from: '/assurance-immeuble-syndic-professionnel', entry: 'hero', width: 320, intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
+    { from: '/assurance-immeuble-syndic-professionnel', entry: 'sticky', width: 320, testDetailedForm: true, intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
+    { from: '/assurance-immeuble-syndic-professionnel', entry: 'hero', desktop: true, intent: 'copropriete', changeTo: 'sci', changeProfile: 'sci', changeProperty: 'immeuble-locatif', profile: 'sci', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'SCI' },
     { from: '/assurance-copropriete', entry: 'copro-faq', width: 320, intent: 'copropriete', profile: 'syndic-professionnel', need: 'copropriete', property: 'copropriete', label: 'Copropriete' },
     { from: '/assurance-pno', intent: 'pno', profile: 'bailleur', need: 'pno', property: 'logement-loue', label: 'PNO', desktop: true },
     { from: '/assurance-cno', intent: 'cno', profile: 'bailleur', need: 'cno', property: 'lot-copropriete', label: 'CNO', desktop: true },

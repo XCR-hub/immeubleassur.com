@@ -21,6 +21,7 @@ const subjects = {
   "dommages-ouvrage-immeuble": "Vos travaux d’immeuble",
   "multirisque-immeuble": "Multirisque immeuble",
   "assurance-copropriete": "Votre copropriété",
+  "assurance-immeuble-syndic-professionnel": "Vos copropriétés",
   "assurance-sci": "Votre SCI",
   "assurance-pno": "Votre assurance PNO",
   "assurance-cno": "Votre assurance CNO",
@@ -63,7 +64,10 @@ export function improveServiceQuoteEntry(html, slug) {
   const hero = actions.test(clean) ? clean.replace(actions, replacement) : clean.replace('</section>', `<div class="container">${replacement}</div></section>`);
   const readingPage = ["courtier-assurance-immeuble", "assurance-immeuble-locatif", "dommages-ouvrage-immeuble", "contact", "assurance-local-commercial", "assurance-immeuble-resilie", "assurance-immeuble-sinistre"].includes(slug);
   const readableHero = readingPage && !hero.includes('data-article-reading') ? hero.replace('<section', '<section data-article-reading') : hero;
-  const next = html.replace(section[0], readableHero);
+  let next = html.replace(section[0], readableHero);
+  if (slug === "assurance-immeuble-syndic-professionnel") {
+    next = next.replace(/<form\b[^>]*id="lead-form"[^>]*>/, tag => tag.replace(/\s+data-(?:simple-form|default-intent)(?:="[^"]*")?/g, '').replace('<form', '<form data-simple-form data-default-intent="copropriete"'));
+  }
   return slug === "assurance-copropriete" ? improveCoproprieteQuoteGuidance(next) : slug === "assurance-sci" ? improveSciQuoteGuidance(next) : improveContactRiskQuoteGuidance(next, slug);
 }
 
