@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { quoteHref } from "./site-navigation.js";
+import { quoteHref, renderSiteNavigation } from "./site-navigation.js";
 import { improveCoproprieteQuoteGuidance } from "./copropriete-quote-guidance.js";
 import { improveHomepageSearchGuidance } from "./homepage-search-guidance.js";
 import { improveContactRiskQuoteGuidance } from "./contact-risk-quote-guidance.js";
@@ -45,7 +45,9 @@ export function improveServiceQuoteEntry(html, slug) {
     }
     return addQuoteContactHandoff(addQuoteContactFallback(html.replace(select[0], options)
       .replace(/<form\b[^>]*id="lead-form"[^>]*>/, tag => tag.includes('data-simple-form') ? tag : tag.replace('<form', '<form data-simple-form'))
-      .replace(/(<a\b[^>]*href=")#devis("[^>]*>Remplir le formulaire complet<\/a>)/, '$1#lead-form$2')));
+      .replace(/(<a\b[^>]*href=")#devis("[^>]*>Remplir le formulaire complet<\/a>)/, '$1#lead-form$2')
+      .replace(/<div class="hero-inline-callback"([^>]*)>/, (_, attributes) => `<div class="hero-inline-callback" id="quote-first-contact" style="scroll-margin-top:96px" tabindex="-1"${attributes.replace(/\s+(?:id|style|tabindex)="[^"]*"/g, '')}>`)
+      .replace(/<header\b[^>]*class="site-header"[^>]*>[\s\S]*?<\/header>/, renderSiteNavigation(slug))));
   }
   const subject = subjects[slug];
   if (!subject) return html;

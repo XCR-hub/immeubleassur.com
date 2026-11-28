@@ -19,12 +19,17 @@ function currentPath(slug) {
   return path === "/index" ? "/" : path;
 }
 
+function isCurrentLink(href, path) {
+  return href === path || (path === "/devis-assurance-immeuble" && href === "#quote-first-contact");
+}
+
 function link([href, label], path) {
-  return `<a href="${href.replaceAll("&", "&amp;")}"${href === path ? ' aria-current="page"' : ""}>${label}</a>`;
+  return `<a href="${href.replaceAll("&", "&amp;")}"${isCurrentLink(href, path) ? ' aria-current="page"' : ""}>${label}</a>`;
 }
 
 export function quoteHref(path) {
   const base = "/devis-assurance-immeuble";
+  if (path === base) return "#quote-first-contact";
   if (["/devis-pno-cno", "/devis-assurance-immeuble-en-ligne"].includes(path)) return "#lead-form";
   if (path === "/" || path.startsWith("/devis-") || path === "/admin") return base;
   const articleQuote = articleQuoteHref(path);
@@ -63,7 +68,7 @@ export function renderSiteNavigation(slug = "") {
     <details class="mobile-navigation" data-mobile-navigation>
       <summary aria-controls="mobile-navigation-panel"><span class="mobile-navigation-icon" aria-hidden="true"></span>Menu</summary>
       <nav class="mobile-navigation-panel" id="mobile-navigation-panel" aria-label="Navigation mobile">
-        <div class="mobile-navigation-actions"><a class="button primary" data-track="mobile-navigation-quote" href="${quote[0].replaceAll("&", "&amp;")}"${quote[0] === path ? ' aria-current="page"' : ""}>${quote[1]}</a><a class="mobile-navigation-phone" href="tel:+33180855786">Appeler le 01 80 85 57 86</a></div>
+        <div class="mobile-navigation-actions"><a class="button primary" data-track="mobile-navigation-quote" href="${quote[0].replaceAll("&", "&amp;")}"${isCurrentLink(quote[0], path) ? ' aria-current="page"' : ""}>${quote[1]}</a><a class="mobile-navigation-phone" href="tel:+33180855786">Appeler le 01 80 85 57 86</a></div>
         <div class="mobile-navigation-groups"><div><p class="mobile-navigation-label">Votre assurance</p>${insuranceLinks.map(row => link(row, path)).join("")}</div><div><p class="mobile-navigation-label">Pour préparer votre demande</p>${resourceLinks.map(row => link(row, path)).join("")}</div></div>
       </nav>
     </details>

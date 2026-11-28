@@ -588,8 +588,9 @@ function leadForm(defaults = {}) {
 }
 
 function homepageInstantCallback({ source = "homepage-inline-callback", heading = "Rappel express", copy = "Telephone ou email suffit. Un conseiller complete le dossier immeuble avec vous." } = {}) {
+  const anchor = source === "quote-inline-callback" ? ' id="quote-first-contact" style="scroll-margin-top:96px" tabindex="-1"' : "";
   return `
-    <div class="hero-inline-callback" data-instant-callback-context data-active-intent="immeuble" aria-label="Rappel express assurance immeuble">
+    <div class="hero-inline-callback"${anchor} data-instant-callback-context data-active-intent="immeuble" aria-label="Rappel express assurance immeuble">
       <div><strong${source === "quote-inline-callback" ? " data-quote-context-title" : ""}>${esc(heading)}</strong><span>${esc(copy)}</span></div>
       <form class="instant-callback-form hero-inline-callback-form" data-instant-callback-form data-instant-callback-source="${esc(source)}" data-instant-callback-content-kind="${esc(source)}" novalidate>
         <input class="hp-field" type="text" name="company_website" tabindex="-1" autocomplete="off" />
