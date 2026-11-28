@@ -14,6 +14,8 @@ import { checkQuoteReceiptUpdates } from './quote-receipt-update-browser-check.j
 import { checkQuoteFormNavigation } from './quote-form-navigation-browser-check.js';
 import { checkQuoteContactHandoff } from './quote-contact-handoff-browser-check.js';
 import { checkQuoteHeaderNavigation } from './quote-header-browser-check.js';
+import { checkTurnstileLoading } from './turnstile-load-browser-check.js';
+import { checkReadinessMessages } from './readiness-message-browser-check.js';
 
 // Delay the application until after first paint: this reproduces the cold-load
 // race that previously inserted a second quote selector into the viewport.
@@ -468,6 +470,9 @@ try {
   await navigationPage.close();
   const quoteHeaderRows = await checkQuoteHeaderNavigation(browser, origin, turnstileFixture, turnstileTestKey);
   console.log(`Quote header navigation checks passed: ${quoteHeaderRows.length} checks.`);
+  const turnstileLoadingRows = await checkTurnstileLoading(browser, origin, turnstileFixture, turnstileTestKey);
+  const readinessMessageRows = await checkReadinessMessages(browser, origin, turnstileFixture, turnstileTestKey);
+  console.log(`Quote recovery checks passed: ${turnstileLoadingRows.length} challenge-loading checks, ${readinessMessageRows.length} message-preservation checks.`);
   const journeyCases = [
     { from: '/', entry: 'home-faq', width: 320, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif', label: 'Un rappel pour votre devis' },
     { from: '/contact', desktop: true, intent: 'immeuble', profile: 'bailleur', detailedProfile: '', need: 'multirisque-immeuble', property: 'immeuble-locatif' },
@@ -688,7 +693,7 @@ try {
   const quoteReceiptUpdateRows = await checkQuoteReceiptUpdates(browser, origin, turnstileFixture, turnstileTestKey);
   const quoteFormNavigationRows = await checkQuoteFormNavigation(browser, origin);
   const quoteContactHandoffRows = await checkQuoteContactHandoff(browser, origin, turnstileFixture, turnstileTestKey);
-  const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows, navigationRows, quoteHeaderRows, quoteJourneys, leadSubmissionRows, mobileReadingRows, serviceDiagnosticRows, quoteDiagnosticRows, quoteLandingRows, quoteReceiptUpdateRows, quoteFormNavigationRows, quoteContactHandoffRows };
+  const report = { generated_at: new Date().toISOString(), success: true, viewport: { width: 390, height: 844 }, script_delay_ms: 1500, cpu_slowdown: 4, rows, navigationRows, quoteHeaderRows, turnstileLoadingRows, readinessMessageRows, quoteJourneys, leadSubmissionRows, mobileReadingRows, serviceDiagnosticRows, quoteDiagnosticRows, quoteLandingRows, quoteReceiptUpdateRows, quoteFormNavigationRows, quoteContactHandoffRows };
   const target = resolve(process.env.LOCAL_PAGE_STABILITY_REPORT || 'reports/page-stability-browser-report.json');
   mkdirSync(dirname(target), { recursive: true });
   writeFileSync(target, JSON.stringify(report, null, 2) + '\n');

@@ -474,14 +474,21 @@ function loadTurnstileOnDemand() {
     script.async = true;
     script.defer = true;
     script.dataset.turnstileOnDemand = "1";
-    script.addEventListener("load", () => {
-      document.querySelectorAll(".cf-turnstile[data-sitekey]").forEach((widget) => renderDynamicTurnstile(widget));
-      resolve(window.turnstile);
-    }, { once: true });
-    script.addEventListener("error", () => {
+    const fail = () => {
+      window.clearTimeout(timer);
+      script.onload = script.onerror = null;
+      script.remove();
       turnstileLoadPromise = null;
       reject(new Error("Turnstile indisponible"));
-    }, { once: true });
+    };
+    const timer = window.setTimeout(fail, 10000);
+    script.onload = () => {
+      window.clearTimeout(timer);
+      script.onload = script.onerror = null;
+      document.querySelectorAll(".cf-turnstile[data-sitekey]").forEach((widget) => renderDynamicTurnstile(widget));
+      resolve(window.turnstile);
+    };
+    script.onerror = fail;
     document.head.append(script);
   });
   return turnstileLoadPromise;
@@ -1376,6 +1383,12 @@ function renderReadiness(shell) {
 }
 
 function mountReadiness() {
+  const message = form?.elements.message;
+  let generatedMessage = "";
+  let messageEdited = false;
+  for (const type of ["input", "change"]) {
+    message?.addEventListener(type, event => { if (event.isTrusted) messageEdited = true; });
+  }
   document.querySelectorAll("[data-readiness]").forEach((shell) => {
     const items = [...shell.querySelectorAll("[data-readiness-item]")];
     let started = false;
@@ -1409,7 +1422,11 @@ function mountReadiness() {
       }
       if (!form) return;
       event.preventDefault();
-      setInputValue("message", readinessMessage(state), { onlyIfEmpty: false });
+      if (form.dataset.received === "1" || form.dataset.submitting === "1") return;
+      if (!messageEdited && message && (!message.value.trim() || message.value === generatedMessage)) {
+        generatedMessage = readinessMessage(state);
+        setInputValue("message", generatedMessage);
+      }
       form.dispatchEvent(new Event("input", { bubbles: true }));
       form.dispatchEvent(new Event("change", { bubbles: true }));
       if (!formStarted) {
