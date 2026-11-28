@@ -1836,7 +1836,7 @@ function contentLeadBridgeKind() {
 
 function contentLeadBridgeEligible() {
   const path = window.location.pathname.toLowerCase();
-  if (document.querySelector('[data-article-reading]')) return false;
+  if (document.querySelector('[data-article-reading], [data-short-quote-entry]')) return false;
   if (contentLeadBridgeDismissed || contentLeadBridgeShown || formStarted || formSubmitted) return false;
   if (path.includes("/admin") || path.includes("/merci") || path.includes("/espace-client") || path.startsWith("/devis-") || path.includes("contact") || path.includes("confidentialite") || path.includes("mentions-legales")) return false;
   if (document.querySelector(".content-lead-bridge")) return false;
