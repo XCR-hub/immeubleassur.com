@@ -9,6 +9,7 @@ import { improveQuoteLandingGuidance } from "./quote-landing-guidance.js";
 import { improveSciQuoteGuidance } from "./sci-quote-guidance.js";
 import { addQuoteContactFallback } from "./quote-contact-fallback.js";
 import { addQuoteContactHandoff } from "./quote-contact-handoff.js";
+import { improveQuoteRequestCopy } from "./quote-request-copy.js";
 
 const subjects = {
   "contact": "Votre demande de devis",
@@ -52,11 +53,11 @@ export function improveServiceQuoteEntry(html, slug) {
     for (const [value, label] of [['lot-copropriete', 'Lot en copropriété'], ['logement-loue', 'Logement loué'], ['logement-vacant', 'Logement vacant'], ['immeuble-vacant', 'Immeuble entièrement vacant']]) {
       if (!options.includes(`value="${value}"`)) options = options.replace('</select>', `<option value="${value}">${label}</option></select>`);
     }
-    return addQuoteContactHandoff(addQuoteContactFallback(html.replace(select[0], options)
+    return improveQuoteRequestCopy(addQuoteContactHandoff(addQuoteContactFallback(html.replace(select[0], options)
       .replace(/<form\b[^>]*id="lead-form"[^>]*>/, tag => tag.includes('data-simple-form') ? tag : tag.replace('<form', '<form data-simple-form'))
       .replace(/(<a\b[^>]*href=")#devis("[^>]*>Remplir le formulaire complet<\/a>)/, '$1#lead-form$2')
       .replace(/<div class="hero-inline-callback"([^>]*)>/, (_, attributes) => `<div class="hero-inline-callback" id="quote-first-contact" style="scroll-margin-top:96px" tabindex="-1"${attributes.replace(/\s+(?:id|style|tabindex)="[^"]*"/g, '')}>`)
-      .replace(/<header\b[^>]*class="site-header"[^>]*>[\s\S]*?<\/header>/, renderSiteNavigation(slug))));
+      .replace(/<header\b[^>]*class="site-header"[^>]*>[\s\S]*?<\/header>/, renderSiteNavigation(slug)))), slug);
   }
   const subject = subjects[slug];
   if (!subject) return html;
