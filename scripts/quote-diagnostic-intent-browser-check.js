@@ -4,7 +4,9 @@ const scenarios = [
   ['sci', 'sci', 'multirisque-immeuble', 'immeuble-locatif'],
   ['copropriete', 'syndic-professionnel', 'copropriete', 'copropriete'],
   ['copropriete', 'syndic-professionnel', 'copropriete', 'copropriete', null, '/assurance-immeuble-syndic-professionnel'],
+  ['copropriete', 'syndic-professionnel', 'copropriete', 'copropriete', null, '/assurance-immeuble-obligatoire'],
   ['immeuble', 'bailleur', 'multirisque-immeuble', 'immeuble-locatif'],
+  ['immeuble', 'bailleur', 'multirisque-immeuble', 'immeuble-locatif', null, '/assurance-immeuble-de-rapport'],
   ['cno', 'bailleur', 'cno', 'lot-copropriete'],
   ['pno', 'bailleur', 'pno', 'logement-loue'],
   ['pno-cno', 'bailleur', 'pno-cno', 'lot-copropriete'],
@@ -56,7 +58,7 @@ export async function checkQuoteDiagnosticIntents(browser, origin, turnstileFixt
       };
       const getValues = () => page.$eval('#lead-form', form => ({ profile: form.elements.profile.value, need: form.elements.need.value, property: form.elements.property_type.value }));
       const expected = { profile, need, property };
-      assert.deepEqual(await getValues(), { ...expected, profile: intent === 'immeuble' ? '' : profile }, intent + ': the arriving quote is prefilled');
+      assert.deepEqual(await getValues(), { ...expected, profile: !path && intent === 'immeuble' ? '' : profile }, intent + ': the arriving quote is prefilled');
       const refusal = await page.$('[data-analytics-choice="denied"]');
       if (refusal && await refusal.isVisible()) await refusal.click();
       if (urgency) {

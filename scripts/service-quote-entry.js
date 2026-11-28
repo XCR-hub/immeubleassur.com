@@ -22,6 +22,8 @@ const subjects = {
   "multirisque-immeuble": "Multirisque immeuble",
   "assurance-copropriete": "Votre copropriété",
   "assurance-immeuble-syndic-professionnel": "Vos copropriétés",
+  "assurance-immeuble-obligatoire": "Votre copropriété",
+  "assurance-immeuble-de-rapport": "Votre immeuble de rapport",
   "assurance-sci": "Votre SCI",
   "assurance-pno": "Votre assurance PNO",
   "assurance-cno": "Votre assurance CNO",
@@ -32,6 +34,12 @@ const subjects = {
   "comparateur-assurance-immeuble": "Votre comparatif de devis",
   "tarif-assurance-immeuble": "Votre tarif immeuble",
   "audit-contrat-assurance-immeuble": "Votre contrat immeuble"
+};
+
+const simpleQuoteIntents = {
+  "assurance-immeuble-syndic-professionnel": "copropriete",
+  "assurance-immeuble-obligatoire": "copropriete",
+  "assurance-immeuble-de-rapport": "immeuble"
 };
 
 export function improveServiceQuoteEntry(html, slug) {
@@ -65,8 +73,15 @@ export function improveServiceQuoteEntry(html, slug) {
   const readingPage = ["courtier-assurance-immeuble", "assurance-immeuble-locatif", "dommages-ouvrage-immeuble", "contact", "assurance-local-commercial", "assurance-immeuble-resilie", "assurance-immeuble-sinistre"].includes(slug);
   const readableHero = readingPage && !hero.includes('data-article-reading') ? hero.replace('<section', '<section data-article-reading') : hero;
   let next = html.replace(section[0], readableHero);
-  if (slug === "assurance-immeuble-syndic-professionnel") {
-    next = next.replace(/<form\b[^>]*id="lead-form"[^>]*>/, tag => tag.replace(/\s+data-(?:simple-form|default-intent)(?:="[^"]*")?/g, '').replace('<form', '<form data-simple-form data-default-intent="copropriete"'));
+  const defaultIntent = simpleQuoteIntents[slug];
+  if (defaultIntent) {
+    next = next.replace(/<form\b[^>]*id="lead-form"[^>]*>/, tag => tag.replace(/\s+data-(?:simple-form|default-intent)(?:="[^"]*")?/g, '').replace('<form', `<form data-simple-form data-default-intent="${defaultIntent}"`));
+  }
+  if (["assurance-immeuble-obligatoire", "assurance-immeuble-de-rapport"].includes(slug)) {
+    const legacy = slug === "assurance-immeuble-de-rapport" ? "bailleur" : defaultIntent;
+    for (const path of ["/devis-assurance-immeuble", `/devis-assurance-immeuble?intent=${defaultIntent}`, `/devis-assurance-immeuble?intent=${legacy}`]) {
+      next = next.replaceAll(`href="${path}"`, `href="${href}"`);
+    }
   }
   return slug === "assurance-copropriete" ? improveCoproprieteQuoteGuidance(next) : slug === "assurance-sci" ? improveSciQuoteGuidance(next) : improveContactRiskQuoteGuidance(next, slug);
 }

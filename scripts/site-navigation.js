@@ -42,6 +42,7 @@ export function quoteHref(path) {
     "/assurance-immeuble-vacant": "immeuble-vacant",
     "/assurance-copropriete": "copropriete", "/assurance-sci": "sci",
     "/assurance-immeuble-syndic-professionnel": "copropriete",
+    "/assurance-immeuble-obligatoire": "copropriete", "/assurance-immeuble-de-rapport": "immeuble",
     "/assurance-pno": "pno", "/assurance-cno": "cno", "/assurance-pno-cno": "pno-cno",
     "/assurance-garages-parkings": "garages", "/prix-assurance-immeuble": "prix",
     "/comparateur-assurance-immeuble": "prix", "/tarif-assurance-immeuble": "prix",
