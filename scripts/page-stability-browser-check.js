@@ -633,6 +633,12 @@ try {
         const refusal = await page.$('[data-analytics-choice="denied"]');
         if (refusal && await refusal.isVisible()) await refusal.click();
         if (journey.testDetailedForm) {
+          await page.$eval('[data-track="service-full-form"]', link => link.scrollIntoView({ block: 'center', behavior: 'instant' }));
+          assert.equal(await page.$eval('[data-track="service-full-form"]', link => {
+            const box = link.getBoundingClientRect();
+            const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+            return hit === link || link.contains(hit);
+          }), true, `${journey.from}: the detailed-form link receives the pointer above the fixed bar`);
           await page.click('[data-track="service-full-form"]');
           await page.waitForFunction(() => {
             const header = document.querySelector('.site-header').getBoundingClientRect().bottom;
@@ -643,7 +649,20 @@ try {
               const box = input.getBoundingClientRect();
               return box.top >= header && box.bottom <= bottom && document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2) === input;
             });
+          }).catch(async error => {
+            const geometry = await page.evaluate(() => {
+              const rect = selector => {
+                const element = document.querySelector(selector);
+                if (!element) return null;
+                const box = element.getBoundingClientRect();
+                return { top: box.top, bottom: box.bottom };
+              };
+              return { path: location.pathname, hash: location.hash, scroll: scrollY, viewport: innerHeight, simple: document.querySelector('#lead-form')?.hasAttribute('data-simple-form'), header: rect('.site-header'), bar: rect('.lead-action-bar'), name: rect('#lead-form [name="name"]'), phone: rect('#lead-form [name="phone"]'), helperBlocks: document.querySelectorAll('#lead-form .form-advisor, #lead-form .ux-form-proof, #lead-form .lead-value-preview').length };
+            });
+            error.message = `${journey.from} (${journey.entry}): ${error.message}; ${JSON.stringify(geometry)}`;
+            throw error;
           });
+          assert.equal(new URL(page.url()).pathname, journey.from, 'The detailed form stays on its source page');
           assert.equal(callbacks.length, 0, 'Opening the detailed form creates no request');
           await page.$eval('.page-hero', element => element.scrollIntoView({ behavior: 'instant' }));
         }
